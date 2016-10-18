@@ -267,7 +267,7 @@ namespace ECWeb
                     query = result[0];
                     for (int i = 1; i < result.Count; i++)
                     {
-                        query = query.Union(result[i]);
+                        query = query.Concat(result[i]);
                     }
                     _SearchContents = query.Where(m=>m.Content != null);
                 }
