@@ -1,0 +1,20 @@
+﻿<src:Document xmlns:Search="clr-namespace:EJClient.Search"  x:Class="EJClient.UI.SearchResultDocument"
+          
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+              xmlns:src="clr-namespace:EJClient.UI" 
+             mc:Ignorable="d" Background="White" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" x:Name="txtLoading" Text="Searching..."></TextBlock>
+        <ListBox x:Name="list">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Search:SearchResultBase />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</src:Document>

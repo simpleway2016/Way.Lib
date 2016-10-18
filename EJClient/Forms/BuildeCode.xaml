@@ -1,0 +1,11 @@
+﻿<Window x:Class="EJClient.Forms.BuildeCode"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BuildeCode" Height="400" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <StackPanel Orientation="Vertical">
+        <Label x:Name="lblStatus" Margin="10,5,10,0" Content="Downloading..."></Label>
+        <ProgressBar x:Name="progressBar" Height="20" Margin="10,5,10,0"></ProgressBar>
+        <RichTextBox x:Name="txtInfo" VerticalScrollBarVisibility="Auto" Margin="10,5,10,0" Height="253"></RichTextBox>
+        <Button Width="60" x:Name="btnOK" IsCancel="True" IsEnabled="False" Height="30" HorizontalAlignment="Right" Margin="10,10,10,0" Content="确定"></Button>
+    </StackPanel>
+</Window>

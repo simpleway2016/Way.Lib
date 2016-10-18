@@ -1,0 +1,10 @@
+﻿<div class="dataEditor_item" style="height: 33px;" id="{$divid$}">
+    <span class="dataEditor_item_caption">{$title$}：
+    </span>
+    <span class="dataEditor_item_control">
+        <asp:dropdownlist id="lst_{$name$}" _datafield="{$name$}" cssclass="input" _caption="{$caption$}" runat="server">
+            {$itemcontent$}
+        </asp:dropdownlist>
+        <asp:requiredfieldvalidator id="vd_{$name$}" runat="server" errormessage="请选择{$title$}" controltovalidate="lst_{$name$}" cssclass="vd" display="Dynamic"></asp:requiredfieldvalidator>
+    </span>
+</div>

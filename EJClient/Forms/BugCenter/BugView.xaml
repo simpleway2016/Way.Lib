@@ -1,0 +1,34 @@
+﻿<Window xmlns:Controls="clr-namespace:EJClient.Controls"  xmlns:BugCenter="clr-namespace:EJClient.Forms.BugCenter"  x:Class="EJClient.Forms.BugCenter.BugView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BugView" Height="600" Width="900">
+    <TabControl>
+        <TabItem Header="意见">
+            <Grid x:Name="mainGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="300"></RowDefinition>
+                </Grid.RowDefinitions>
+                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="historiesPanel" Orientation="Vertical">
+                        <Label Content="Loading..."></Label>
+                    </StackPanel>
+                </ScrollViewer>
+                
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Controls:WayWord x:Name="word" />
+                    <Button x:Name="btnFinish" Content="确定修改完毕" Click="Finish_Click_1"  Grid.Row="1" Width="90" HorizontalAlignment="Left" Margin="10,0,0,0"  VerticalAlignment="Center"></Button>
+                    <Button Content="提交反馈" Click="Submit_Click_1" Grid.Row="1" Width="60" HorizontalAlignment="Right" Margin="0,0,90,0" VerticalAlignment="Center"></Button>
+                    <Button Content="取 消" Grid.Row="1" Width="60" IsCancel="True" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center"></Button>
+                </Grid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="截图">
+            <BugCenter:BugEditor x:Name="bugEditor"/>
+        </TabItem>
+    </TabControl>
+</Window>

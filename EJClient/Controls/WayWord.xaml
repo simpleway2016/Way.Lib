@@ -1,0 +1,67 @@
+﻿<UserControl xmlns:Controls="clr-namespace:EJClient.Controls"  x:Class="EJClient.Controls.WayWord"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="{x:Type Controls:ColorButton}" TargetType="{x:Type Controls:ColorButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <StackPanel Margin="0,3,0,0" Orientation="Horizontal">
+                            <TextBlock FontSize="14" x:Name="m_txt" FontWeight="Bold" Text="{Binding Path=Text,  RelativeSource={RelativeSource TemplatedParent}}" TextDecorations="Underline"></TextBlock>
+                            <Path Cursor="Hand" x:Name="m_sel" Margin="3,5,0,0" Fill="Black">
+                                <Path.Data>
+                                    <PathGeometry>
+                                        <PathFigure IsClosed="True" StartPoint="0,0">
+                                            <LineSegment Point="5,0"/>
+                                            <LineSegment Point="2.5,5"/>
+                                        </PathFigure>
+                                    </PathGeometry>
+                                </Path.Data>
+                            </Path>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel x:Name="toolbarContainer" Grid.Row="0" Orientation="Horizontal">
+            <ToolBar>
+                <TextBlock Text="行距："  Margin="0,3,0,0" ></TextBlock>
+                <ComboBox x:Name="cmb_lineheight" Width="40" IsEditable="True"  SelectionChanged="cmb_lineheight_SelectionChanged_1"></ComboBox>
+                <ComboBox x:Name="cmb_fontfamily" Width="100"  SelectionChanged="cmb_fontfamily_SelectionChanged_1"></ComboBox>
+                <ComboBox x:Name="cmb_fontsize" IsEditable="True" Width="50" SelectionChanged="cmb_fontsize_SelectionChanged_1" ></ComboBox>
+                <Button Content="B" x:Name="btnB" Margin="2,0,0,0" Click="btnB_Click_1" Width="20" Height="20" BorderBrush="Black" FontWeight="Bold" FontSize="14"></Button>
+                <Button Content="I" x:Name="btnI"  Margin="2,0,0,0" Width="20"  Height="20" BorderBrush="Black" Click="btnI_Click_1" FontStyle="Italic" FontSize="12"></Button>
+                <Button Width="20" x:Name="btnU"   Margin="2,0,0,0" Height="20" BorderBrush="Black" Click="btnU_Click_1" >
+                    <TextBlock FontSize="14" Text="U" TextDecorations="Underline"></TextBlock>
+                </Button>
+                <Controls:ColorButton ToolTip="文字颜色" x:Name="fontColorButton" Text="A" Margin="3,0,1,0" Width="20" ColorClick="ColorButton_ColorClick_1"/>
+                <Controls:ColorButton ToolTip="背景颜色" Text="背" Margin="3,0,3,0" Width="30" x:Name="bgColor" ColorClick="bgColor_ColorClick_1"/>
+            </ToolBar>
+            <ToolBar>
+                <Button Command="EditingCommands.AlignLeft">
+                    <Image Source="images/alignleft.gif"></Image>
+                </Button>
+                <Button Command="EditingCommands.AlignCenter">
+                    <Image Source="images/aligncenter.gif"></Image>
+                </Button>
+                <Button Command="EditingCommands.AlignRight">
+                    <Image Source="images/AlignRight.gif"></Image>
+                </Button>
+                <Button Command="EditingCommands.AlignJustify">
+                    <Image Source="images/Alignleftright.gif"></Image>
+                </Button>
+            </ToolBar>
+        </StackPanel>
+        <RichTextBox x:Name="richText" Grid.Row="1" SelectionChanged="richText_SelectionChanged_1"></RichTextBox>
+    </Grid>
+</UserControl>

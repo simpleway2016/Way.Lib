@@ -1,0 +1,201 @@
+﻿
+.dataEditor_container {
+    visibility:hidden;
+            border-top-left-radius:5px;
+             -webkit-border-top-radius:5px;
+             -moz-border-top-radius:5px;
+
+             border-top-right-radius:5px;
+             -webkit-border-top-right-radius:5px;
+             -moz-border-top-right-radius:5px;
+
+             box-shadow:0px 0px 8px #3b3b3b;
+             min-width:330px;/*自动适应宽度*/
+             clear:both;
+             float:left;/*必须有这个才能自动适应宽度*/
+             position:absolute;
+        }
+.dataEditor_container2 {
+            border-top-left-radius:5px;
+             -webkit-border-top-radius:5px;
+             -moz-border-top-radius:5px;
+
+             border-top-right-radius:5px;
+             -webkit-border-top-right-radius:5px;
+             -moz-border-top-right-radius:5px;
+
+             box-shadow:0px 0px 8px #3b3b3b;
+             clear:both;
+
+        }
+
+.vd /*验证控件样式*/
+{
+    position:absolute;
+    font-size:12px;
+    color:red;
+    line-height:22px;
+    width:100%;
+    z-index:100;
+}
+        .dataEditor_title {
+            border-top-left-radius:5px;
+             -webkit-border-top-radius:5px;
+             -moz-border-top-radius:5px;
+
+             border-top-right-radius:5px;
+             -webkit-border-top-right-radius:5px;
+             -moz-border-top-right-radius:5px;
+
+             border:1px solid #1b1b1b;
+
+             height:35px;
+             background-color:#3b3b3b;
+             color:white;
+        }
+        .dataEditor_title2 {
+             border-top-left-radius:5px;
+             -webkit-border-top-radius:5px;
+             -moz-border-top-radius:5px;
+
+             border-top-right-radius:5px;
+             -webkit-border-top-right-radius:5px;
+             -moz-border-top-right-radius:5px;
+
+             border:1px solid #1b1b1b;
+
+             height:35px;
+             background-color:#3b3b3b;
+             color:white;
+        }
+        .dataEditor_content {
+            border-left:1px solid #c8c8c8;
+            border-right:1px solid #c8c8c8;
+            border-bottom:1px solid #c8c8c8;
+            background-color:#ededed;
+            padding:10px;
+        }
+        .dataEditor_footer {
+            background-color:#e4e4e4;
+            padding:8px;
+            height:30px;
+        }
+        .dataEditor_txt {
+            border:1px solid #b3b3b3;
+            border-bottom:1px solid #cbcbcb;
+            height:22px;
+            width:200px;
+            padding:3px;
+            background-image:url(/imgs/txt_bg.jpg);
+            background-repeat:no-repeat;
+        }
+        .dataEditor_txt_focus {
+            border:1px solid #0aa7ea;
+            border-bottom:1px solid #0aa7ea;
+            height:22px;
+            width:200px;
+           padding:3px;
+            background-image:url(/imgs/txt_bg.jpg);
+            background-repeat:no-repeat;
+        }
+        .dataEditor_button {
+            width:90px;
+            height:30px;
+           cursor:pointer;
+            float:left;
+
+            border-radius:2px;
+             -webkit-border-radius:2px;
+             -moz-border-radius:2px;
+
+            border:1px solid #3b75b1;
+            text-align:center;
+            line-height:30px;
+
+            color:white;
+            font-size:14px;
+
+            background-image: -moz-linear-gradient(top, #5eaad1, #3b75b1); /* Firefox */
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5eaad1), color-stop(1, #3b75b1)); /* Saf4+, Chrome */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5eaad1', endColorstr='#3b75b1', GradientType='0'); /* IE*/
+            background: -ms-linear-gradient(top,  #5eaad1 0%,#3b75b1 100%);  /* IE10*/
+        }
+
+         .page_button {
+           cursor:pointer;
+           height:26px;
+            border-radius:2px;
+             -webkit-border-radius:2px;
+             -moz-border-radius:2px;
+
+            border:1px solid #3b75b1;
+
+            color:white;
+            font-size:14px;
+
+            background-image: -moz-linear-gradient(top, #5eaad1, #3b75b1); /* Firefox */
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5eaad1), color-stop(1, #3b75b1)); /* Saf4+, Chrome */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5eaad1', endColorstr='#3b75b1', GradientType='0'); /* IE*/
+            background: -ms-linear-gradient(top,  #5eaad1 0%,#3b75b1 100%);  /* IE10*/
+        }
+         .button {
+           cursor:pointer;
+
+           height:26px;
+
+            border:1px solid #707070;
+
+            color:#212121;
+            font-size:14px;
+
+            background-image: -moz-linear-gradient(top, #ececec, #d5d5d5); /* Firefox */
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ececec), color-stop(1, #d5d5d5)); /* Saf4+, Chrome */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', endColorstr='#d5d5d5', GradientType='0'); /* IE*/
+            background: -ms-linear-gradient(top,  #ececec 0%,#d5d5d5 100%);  /* IE10*/
+        }
+         .button:hover {
+           cursor:pointer;
+
+           height:26px;
+
+            border:1px solid #26a0da;
+
+            color:#212121;
+            font-size:14px;
+
+            background-image: -moz-linear-gradient(top, #a6f4ff, #a6f4ff); /* Firefox */
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #a6f4ff), color-stop(1, #a6f4ff)); /* Saf4+, Chrome */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a6f4ff', endColorstr='#a6f4ff', GradientType='0'); /* IE*/
+            background: -ms-linear-gradient(top,  #a6f4ff 0%,#a6f4ff 100%);  /* IE10*/
+        }
+         .page_button_red {
+           cursor:pointer;
+
+           height:26px;
+            border-radius:2px;
+             -webkit-border-radius:2px;
+             -moz-border-radius:2px;
+
+            border:1px solid #650909;
+
+            color:white;
+            font-size:14px;
+
+            background-image: -moz-linear-gradient(top, #f37070, #c31010); /* Firefox */
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f37070), color-stop(1, #c31010)); /* Saf4+, Chrome */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f37070', endColorstr='#c31010', GradientType='0'); /* IE*/
+            background: -ms-linear-gradient(top,  #f37070 0%,#c31010 100%);  /* IE10*/
+        }
+        .dataEditor_item {
+        }
+         .dataEditor_item_caption {
+             display:inline-block;/*必须加上这个，width才有效*/
+              width:80px;
+              text-align:right;
+              font-size:12px;
+              line-height:26px;
+              vertical-align:top;
+        }
+         .dataEditor_item_control {
+             
+        }

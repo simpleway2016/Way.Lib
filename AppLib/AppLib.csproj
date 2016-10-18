@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{14DC2FE1-93EF-409C-95F0-81FC2D738FE9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AppLib</RootNamespace>
+    <AssemblyName>AppLib</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>D:\注释\2016\bin\AppLib.XML</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>D:\注释\2016\bin\AppLib.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AspNetPager">
+      <HintPath>..\..\..\AspNetPager.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.0.1\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Memory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Memory.1.0.0\lib\net451\Microsoft.Extensions.Caching.Memory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.1.0.0\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.1.0.0\lib\netstandard1.1\Microsoft.Extensions.Logging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.1.0.0\lib\netstandard1.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Options.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Options.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.2.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Interactive.Async, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppHelper.cs" />
+    <Compile Include="BaseWebPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Exceptions\VerifyException.cs" />
+    <Compile Include="ios发送例子.cs" />
+    <Compile Include="RSACryptoServiceProviderExtension.cs" />
+    <Compile Include="CLog.cs" />
+    <Compile Include="ConnectionStringConfig.cs" />
+    <Compile Include="ControlEventArg.cs" />
+    <Compile Include="Controls\BaseControl.cs" />
+    <Compile Include="Controls\CardNumberTextBox.cs" />
+    <Compile Include="Controls\EntityEditor.cs" />
+    <Compile Include="Controls\PicDropDownList.cs" />
+    <Compile Include="Controls\Editor\BaseTypeConvert.cs" />
+    <Compile Include="Controls\Editor\CollectionBaseEditor.cs" />
+    <Compile Include="Controls\Editor\CollectionBaseEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\Editor\TableNameSelector.cs" />
+    <Compile Include="Controls\Editor\TableFieldSelector.cs" />
+    <Compile Include="Controls\Editor\AspNetPagerSelector.cs" />
+    <Compile Include="Controls\Editor\ControlSelector.cs" />
+    <Compile Include="Controls\Editor\TitleFieldAttribute.cs" />
+    <Compile Include="Controls\Editor\DataEditorSelector.cs" />
+    <Compile Include="Controls\Editor\DatabaseSelector.cs" />
+    <Compile Include="Controls\Editor\DBContextSelector.cs" />
+    <Compile Include="Controls\Editor\设置连接字符串.cs" />
+    <Compile Include="Controls\Editor\设置连接字符串.Designer.cs">
+      <DependentUpon>设置连接字符串.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EntityGridView.cs" />
+    <Compile Include="Controls\HttpUploadModule.cs" />
+    <Compile Include="Controls\IAutoDataBindControl.cs" />
+    <Compile Include="Controls\IKeyObject.cs" />
+    <Compile Include="Controls\KindEditor.cs" />
+    <Compile Include="Controls\NeedToSearch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\NeedToSearch.Designer.cs">
+      <DependentUpon>NeedToSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Pager.cs" />
+    <Compile Include="Controls\ParentToChildSelector.cs" />
+    <Compile Include="Controls\ResourceJS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ResourceJS.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EntityGridViewSearch.cs" />
+    <Compile Include="Controls\EntityToolbar.cs" />
+    <Compile Include="Controls\TextBoxList.cs" />
+    <Compile Include="Controls\TextBoxListPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\UpLoadFiles.cs" />
+    <Compile Include="Controls\JSDataSource.cs" />
+    <Compile Include="Controls\EntityGridViewColumn.cs" />
+    <Compile Include="Controls\生成几列.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\生成几列.Designer.cs">
+      <DependentUpon>生成几列.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExcelMaker.cs" />
+    <Compile Include="Http\HttpProcessor.cs" />
+    <Compile Include="JSON.cs" />
+    <Compile Include="LinqHelper.cs" />
+    <Compile Include="MZ_GSM.cs" />
+    <Compile Include="OutputCache\PageOutputCache.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CacheStatePersister.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="RightAttribute.cs" />
+    <Compile Include="RSA.cs" />
+    <Compile Include="SendMail.cs" />
+    <Compile Include="VerifyCode.cs" />
+    <Compile Include="WindowsControl\WebBrowser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Resources\deleteicon_png" />
+    <None Include="Resources\dropdown_gif" />
+    <None Include="Resources\loading_gif" />
+    <None Include="类图.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\Editor\CollectionBaseEditorForm.resx">
+      <DependentUpon>CollectionBaseEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Editor\设置连接字符串.resx">
+      <DependentUpon>设置连接字符串.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\NeedToSearch.resx">
+      <DependentUpon>NeedToSearch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ResourceJS.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourceJS.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\生成几列.resx">
+      <DependentUpon>生成几列.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\UpLoadFiles.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\Invoker.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\EntityEditor.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\EntityGridView.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\ParentToChildSelector.js" />
+    <EmbeddedResource Include="js\TextBoxList.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\jquery-1.11.3.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\PicDropDownList.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="js\CardNumberTextBox.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EntityDB\EntityDB.csproj">
+      <Project>{0d7c92f4-47b8-4ebf-9005-74d915b9b469}</Project>
+      <Name>EntityDB</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

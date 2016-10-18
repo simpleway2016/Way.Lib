@@ -1,0 +1,40 @@
+﻿<UserControl xmlns:ToolbarItems="clr-namespace:EJClient.Forms.BugCenter.ToolbarItems"  x:Class="EJClient.Forms.BugCenter.BugEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        UseLayoutRounding="True">
+    <DockPanel x:Name="mainPanel">
+        <StackPanel DockPanel.Dock="Top" Height="40" Background="Bisque" Orientation="Horizontal">
+            <ToolBar Background="Bisque" >
+
+                <Image x:Name="btnPrePic" MouseDown="btnPrePic_MouseDown_1" Cursor="Hand" Width="32" Height="32"  RenderTransformOrigin="0.5,0.5" >
+                    <Image.Source>
+                        <TransformedBitmap Source="imgs/next.png" >
+                            <TransformedBitmap.Transform>
+                                <RotateTransform Angle="180"/>
+                            </TransformedBitmap.Transform>
+                        </TransformedBitmap>
+                    </Image.Source>
+                </Image>
+                <Image x:Name="btnNextPic" MouseDown="btnNextPic_MouseDown_1" Cursor="Hand" Width="32" Height="32" Source="imgs/next.png">
+                </Image>
+                <Separator></Separator>
+                <TextBlock x:Name="txtWhich" Text="2/2" Margin="5,0,8,0" VerticalAlignment="Center"></TextBlock>
+
+            </ToolBar>
+            <ToolBar x:Name="toolControl" Background="Bisque" >
+                <Image MouseDown="chkSelected_MouseDown_1" x:Name="chkSelected" Source="imgs/checked.png"></Image>
+                <Separator></Separator>
+                <ToolbarItems:TButton x:Name="btnText" VerticalAlignment="Center" Text="文字" FontSize="18"/>
+                <ToolbarItems:TDraw x:Name="btnDraw" Margin="5,0,0,0" VerticalAlignment="Center" Text="画笔" FontSize="18"/>
+                <Button Content="清除画笔" Click="清除画笔_Click_1"></Button>
+            </ToolBar>
+        </StackPanel>
+       
+        <ScrollViewer  DockPanel.Dock="Top" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                <Grid x:Name="mainGrid" Background="White" MouseDown="containerGrid_MouseDown_1">
+                    <InkCanvas RenderOptions.BitmapScalingMode="NearestNeighbor" Name="canvas">
+                    </InkCanvas>
+                </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

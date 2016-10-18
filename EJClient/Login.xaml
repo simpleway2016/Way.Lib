@@ -1,0 +1,15 @@
+﻿<Window x:Class="EJClient.Login"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Welcome to Mr.E" Icon="/imgs/easy.ico" Height="249.628" Width="300" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <StackPanel>
+        <Label Margin="8,3,8,0" Content="Server Url"/>
+        <TextBox x:Name="txtAddress" Margin="8,3,8,0" Height="23" TextWrapping="Wrap" Text=""/>
+        <Label Margin="8,3,8,0" Content="User Name"/>
+        <TextBox x:Name="txtUserName" Margin="8,3,8,0" Height="23" TextWrapping="Wrap" Text=""/>
+        <Label Margin="8,3,8,0" Content="Password"/>
+        <PasswordBox x:Name="txtPwd" Margin="8,3,8,0" Height="23" />
+        <Button x:Name="btnLogin" HorizontalAlignment="Center" Margin="107,10,107,0" Width="60" IsDefault="True" Content="Sign in" Click="btnLogin_Click"/>
+
+    </StackPanel>
+</Window>

@@ -1,0 +1,24 @@
+﻿<Window x:Class="EJClient.Forms.BugCenter.BugRecorder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BugRecorder" Opacity="0.7" ShowInTaskbar="False" WindowStyle="None" Topmost="True" AllowsTransparency="True" Height="28" Width="28">
+    <Window.Background>
+        <ImageBrush ImageSource="imgs/record.png"></ImageBrush>
+    </Window.Background>
+    <Window.ContextMenu>
+        <ContextMenu x:Name="menu">
+            <MenuItem Header="报告错误" x:Name="menu报告错误" Click="menu报告错误_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="查看反馈" x:Name="menu查看反馈" Click="menu查看反馈_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="修改密码" x:Name="menu修改密码" Click="menu修改密码_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="关闭" Click="Close_Click_1"></MenuItem>
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Grid>
+        <Border x:Name="lblParent" CornerRadius="20" Background="#33ffffff">
+            <Label x:Name="lblNowCount" Foreground="Red"></Label>
+        </Border>
+    </Grid>
+</Window>

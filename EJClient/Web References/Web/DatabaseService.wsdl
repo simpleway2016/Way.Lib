@@ -1,0 +1,2669 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="test">
+        <s:complexType />
+      </s:element>
+      <s:element name="testResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="testResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Login">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pwd" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateProject">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateProjectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateProjectResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteProject">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteProjectResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="UpdateProject">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateProjectResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetUserNameByID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserNameByIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserNameByIDResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangeModuleParent">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="parentid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangeModuleParentResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ChangePassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="oldpwd" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="newpwd" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangePasswordResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCurrentUserProjectList">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCurrentUserProjectListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCurrentUserProjectListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTablesInModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTablesInModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTablesInModuleResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPkColumnName">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPkColumnNameResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPkColumnNameResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SaveDataTable">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dt">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="delIds" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SaveDataTableResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="DeleteDatabase">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteDatabaseResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetActions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetActionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetActionsResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveTableFromModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableInModuleId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveTableFromModuleResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetDataTable">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="bs" type="s:base64Binary" />
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageindex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pagesize" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDataTableResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDataTableResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ImportData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dset">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="clearDataFirst" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ImportDataResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetDataSet">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="tableids" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDataSetResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDataSetResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDatabase">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDatabaseResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDatabaseResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDatabaseList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="projectid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDatabaseListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDatabaseListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBModuleID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBModuleIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetDBModuleIDResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTableInMoudle">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="tableInModule" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTableInMoudleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateTableInMoudleResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeleteConfigInModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeleteConfigInModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDeleteConfigInModuleResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableNames">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableNamesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTableNamesResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnNames">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="tableName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnNamesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetColumnNamesResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumns">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetColumnsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBModuleList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="parentid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBModuleListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDBModuleListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableDeleteConfigList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableDeleteConfigListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTableDeleteConfigListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableIDXIndexList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableIDXIndexListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTableIDXIndexListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTableListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTableListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetObjectFormat">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetObjectFormatResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetObjectFormatResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetColumnListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ModifyTable">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="newtablejson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nowcolumnsjson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deleteConfigJson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="idxJson" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ModifyTableResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="DeleteModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="modulestring" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteModuleResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetDBTablePath">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tableid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBTablePathResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDBTablePathResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBModulePath">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDBModulePathResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDBModulePathResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateDBModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="modulestring" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateDBModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateDBModuleResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTable">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="databaseID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="tableName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTableResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="CreateTable">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="tablejson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="columnsJson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deleteConfigJson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="idxJson" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTableResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateTableResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ImportDatabaseConfig">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="projectid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="databaseJson" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dset">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ImportDatabaseConfigResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ImportDatabaseConfigResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateDatabase">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="projectid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="databaseType" type="tns:Databases_dbTypeEnum" />
+            <s:element minOccurs="0" maxOccurs="1" name="connectionString" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dllpath" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dbname" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="Databases_dbTypeEnum">
+        <s:restriction base="s:string">
+          <s:enumeration value="SqlServer" />
+          <s:enumeration value="Sqlite" />
+          <s:enumeration value="MySql" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="CreateDatabaseResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetProjectDllFiles">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="projectid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetProjectDllFilesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetProjectDllFilesResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceModuleList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="projectid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="parentid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceModuleListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInterfaceModuleListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteInterfaceModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="modulestring" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteInterfaceModuleResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="UnLockInterfaceModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UnLockInterfaceModuleResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="LockInterfaceModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LockInterfaceModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="LockInterfaceModuleResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateInterfaceModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="modulestring" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateInterfaceModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateInterfaceModuleResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceModulePath">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceModulePathResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInterfaceModulePathResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateInterfaceInModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="mJonsString" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateInterfaceInModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateInterfaceInModuleResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteInterfaceInModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="mJonsString" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteInterfaceInModuleResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetInterfaceInModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="moduleid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceInModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInterfaceInModuleResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceModuleID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="interfaceInModuleId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceModuleIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetInterfaceModuleIDResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceInModulePath">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="itemid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInterfaceInModulePathResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInterfaceInModulePathResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Search">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pagesize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageindex" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SubmitBug">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="textContent" type="s:base64Binary" />
+            <s:element minOccurs="0" maxOccurs="1" name="picContent" type="s:base64Binary" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SubmitBugResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetMyBugListCount">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetMyBugListCountResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetMyBugListCountResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMyBugs">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetMyBugsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMyBugsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetBugHistories">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="bugid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetBugHistoriesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetBugHistoriesResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetBugPicture">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="bugid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetBugPictureResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetBugPictureResult" type="s:base64Binary" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BugFinish">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="bugid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BugFinishResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="SubmitHistory">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="bugid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="txtContent" type="s:base64Binary" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SubmitHistoryResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetUpdateFileList">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetUpdateFileListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUpdateFileListResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DownLoadFile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="savepath" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DownLoadFileResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DownLoadFileResult" type="s:base64Binary" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="testSoapIn">
+    <wsdl:part name="parameters" element="tns:test" />
+  </wsdl:message>
+  <wsdl:message name="testSoapOut">
+    <wsdl:part name="parameters" element="tns:testResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginSoapIn">
+    <wsdl:part name="parameters" element="tns:Login" />
+  </wsdl:message>
+  <wsdl:message name="LoginSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateProjectSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateProject" />
+  </wsdl:message>
+  <wsdl:message name="CreateProjectSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateProjectResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteProjectSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteProject" />
+  </wsdl:message>
+  <wsdl:message name="DeleteProjectSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteProjectResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateProjectSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateProject" />
+  </wsdl:message>
+  <wsdl:message name="UpdateProjectSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateProjectResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserNameByIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserNameByID" />
+  </wsdl:message>
+  <wsdl:message name="GetUserNameByIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserNameByIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeModuleParentSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangeModuleParent" />
+  </wsdl:message>
+  <wsdl:message name="ChangeModuleParentSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangeModuleParentResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangePassword" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCurrentUserProjectListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCurrentUserProjectList" />
+  </wsdl:message>
+  <wsdl:message name="GetCurrentUserProjectListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCurrentUserProjectListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTablesInModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTablesInModule" />
+  </wsdl:message>
+  <wsdl:message name="GetTablesInModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTablesInModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPkColumnNameSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPkColumnName" />
+  </wsdl:message>
+  <wsdl:message name="GetPkColumnNameSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPkColumnNameResponse" />
+  </wsdl:message>
+  <wsdl:message name="SaveDataTableSoapIn">
+    <wsdl:part name="parameters" element="tns:SaveDataTable" />
+  </wsdl:message>
+  <wsdl:message name="SaveDataTableSoapOut">
+    <wsdl:part name="parameters" element="tns:SaveDataTableResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteDatabaseSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteDatabase" />
+  </wsdl:message>
+  <wsdl:message name="DeleteDatabaseSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteDatabaseResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetActionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetActions" />
+  </wsdl:message>
+  <wsdl:message name="GetActionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetActionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveTableFromModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:RemoveTableFromModule" />
+  </wsdl:message>
+  <wsdl:message name="RemoveTableFromModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:RemoveTableFromModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDataTableSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDataTable" />
+  </wsdl:message>
+  <wsdl:message name="GetDataTableSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDataTableResponse" />
+  </wsdl:message>
+  <wsdl:message name="ImportDataSoapIn">
+    <wsdl:part name="parameters" element="tns:ImportData" />
+  </wsdl:message>
+  <wsdl:message name="ImportDataSoapOut">
+    <wsdl:part name="parameters" element="tns:ImportDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDataSetSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDataSet" />
+  </wsdl:message>
+  <wsdl:message name="GetDataSetSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDataSetResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDatabaseSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDatabase" />
+  </wsdl:message>
+  <wsdl:message name="GetDatabaseSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDatabaseResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDatabaseListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDatabaseList" />
+  </wsdl:message>
+  <wsdl:message name="GetDatabaseListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDatabaseListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDBModuleIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDBModuleID" />
+  </wsdl:message>
+  <wsdl:message name="GetDBModuleIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDBModuleIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTableInMoudleSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTableInMoudle" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTableInMoudleSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTableInMoudleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeleteConfigInModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDeleteConfigInModule" />
+  </wsdl:message>
+  <wsdl:message name="GetDeleteConfigInModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDeleteConfigInModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTableNamesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTableNames" />
+  </wsdl:message>
+  <wsdl:message name="GetTableNamesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTableNamesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnNamesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetColumnNames" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnNamesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetColumnNamesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetColumns" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetColumnsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDBModuleListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDBModuleList" />
+  </wsdl:message>
+  <wsdl:message name="GetDBModuleListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDBModuleListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTableDeleteConfigListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTableDeleteConfigList" />
+  </wsdl:message>
+  <wsdl:message name="GetTableDeleteConfigListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTableDeleteConfigListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTableIDXIndexListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTableIDXIndexList" />
+  </wsdl:message>
+  <wsdl:message name="GetTableIDXIndexListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTableIDXIndexListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTableListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTableList" />
+  </wsdl:message>
+  <wsdl:message name="GetTableListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTableListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetObjectFormatSoapIn">
+    <wsdl:part name="parameters" element="tns:GetObjectFormat" />
+  </wsdl:message>
+  <wsdl:message name="GetObjectFormatSoapOut">
+    <wsdl:part name="parameters" element="tns:GetObjectFormatResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetColumnList" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetColumnListResponse" />
+  </wsdl:message>
+  <wsdl:message name="ModifyTableSoapIn">
+    <wsdl:part name="parameters" element="tns:ModifyTable" />
+  </wsdl:message>
+  <wsdl:message name="ModifyTableSoapOut">
+    <wsdl:part name="parameters" element="tns:ModifyTableResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteModule" />
+  </wsdl:message>
+  <wsdl:message name="DeleteModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDBTablePathSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDBTablePath" />
+  </wsdl:message>
+  <wsdl:message name="GetDBTablePathSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDBTablePathResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDBModulePathSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDBModulePath" />
+  </wsdl:message>
+  <wsdl:message name="GetDBModulePathSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDBModulePathResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateDBModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateDBModule" />
+  </wsdl:message>
+  <wsdl:message name="UpdateDBModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateDBModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTableSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTable" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTableSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTableResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateTableSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateTable" />
+  </wsdl:message>
+  <wsdl:message name="CreateTableSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateTableResponse" />
+  </wsdl:message>
+  <wsdl:message name="ImportDatabaseConfigSoapIn">
+    <wsdl:part name="parameters" element="tns:ImportDatabaseConfig" />
+  </wsdl:message>
+  <wsdl:message name="ImportDatabaseConfigSoapOut">
+    <wsdl:part name="parameters" element="tns:ImportDatabaseConfigResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateDatabaseSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateDatabase" />
+  </wsdl:message>
+  <wsdl:message name="CreateDatabaseSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateDatabaseResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetProjectDllFilesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetProjectDllFiles" />
+  </wsdl:message>
+  <wsdl:message name="GetProjectDllFilesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetProjectDllFilesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceModuleListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInterfaceModuleList" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceModuleListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInterfaceModuleListResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteInterfaceModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteInterfaceModule" />
+  </wsdl:message>
+  <wsdl:message name="DeleteInterfaceModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteInterfaceModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="UnLockInterfaceModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:UnLockInterfaceModule" />
+  </wsdl:message>
+  <wsdl:message name="UnLockInterfaceModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:UnLockInterfaceModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="LockInterfaceModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:LockInterfaceModule" />
+  </wsdl:message>
+  <wsdl:message name="LockInterfaceModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:LockInterfaceModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateInterfaceModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateInterfaceModule" />
+  </wsdl:message>
+  <wsdl:message name="UpdateInterfaceModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateInterfaceModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceModulePathSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInterfaceModulePath" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceModulePathSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInterfaceModulePathResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateInterfaceInModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateInterfaceInModule" />
+  </wsdl:message>
+  <wsdl:message name="UpdateInterfaceInModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateInterfaceInModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteInterfaceInModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteInterfaceInModule" />
+  </wsdl:message>
+  <wsdl:message name="DeleteInterfaceInModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteInterfaceInModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceInModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInterfaceInModule" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceInModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInterfaceInModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceModuleIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInterfaceModuleID" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceModuleIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInterfaceModuleIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceInModulePathSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInterfaceInModulePath" />
+  </wsdl:message>
+  <wsdl:message name="GetInterfaceInModulePathSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInterfaceInModulePathResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchSoapIn">
+    <wsdl:part name="parameters" element="tns:Search" />
+  </wsdl:message>
+  <wsdl:message name="SearchSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchResponse" />
+  </wsdl:message>
+  <wsdl:message name="SubmitBugSoapIn">
+    <wsdl:part name="parameters" element="tns:SubmitBug" />
+  </wsdl:message>
+  <wsdl:message name="SubmitBugSoapOut">
+    <wsdl:part name="parameters" element="tns:SubmitBugResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMyBugListCountSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMyBugListCount" />
+  </wsdl:message>
+  <wsdl:message name="GetMyBugListCountSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMyBugListCountResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMyBugsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMyBugs" />
+  </wsdl:message>
+  <wsdl:message name="GetMyBugsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMyBugsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBugHistoriesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBugHistories" />
+  </wsdl:message>
+  <wsdl:message name="GetBugHistoriesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBugHistoriesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBugPictureSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBugPicture" />
+  </wsdl:message>
+  <wsdl:message name="GetBugPictureSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBugPictureResponse" />
+  </wsdl:message>
+  <wsdl:message name="BugFinishSoapIn">
+    <wsdl:part name="parameters" element="tns:BugFinish" />
+  </wsdl:message>
+  <wsdl:message name="BugFinishSoapOut">
+    <wsdl:part name="parameters" element="tns:BugFinishResponse" />
+  </wsdl:message>
+  <wsdl:message name="SubmitHistorySoapIn">
+    <wsdl:part name="parameters" element="tns:SubmitHistory" />
+  </wsdl:message>
+  <wsdl:message name="SubmitHistorySoapOut">
+    <wsdl:part name="parameters" element="tns:SubmitHistoryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUpdateFileListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUpdateFileList" />
+  </wsdl:message>
+  <wsdl:message name="GetUpdateFileListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUpdateFileListResponse" />
+  </wsdl:message>
+  <wsdl:message name="DownLoadFileSoapIn">
+    <wsdl:part name="parameters" element="tns:DownLoadFile" />
+  </wsdl:message>
+  <wsdl:message name="DownLoadFileSoapOut">
+    <wsdl:part name="parameters" element="tns:DownLoadFileResponse" />
+  </wsdl:message>
+  <wsdl:portType name="DatabaseServiceSoap">
+    <wsdl:operation name="test">
+      <wsdl:input message="tns:testSoapIn" />
+      <wsdl:output message="tns:testSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <wsdl:input message="tns:LoginSoapIn" />
+      <wsdl:output message="tns:LoginSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateProject">
+      <wsdl:input message="tns:CreateProjectSoapIn" />
+      <wsdl:output message="tns:CreateProjectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteProject">
+      <wsdl:input message="tns:DeleteProjectSoapIn" />
+      <wsdl:output message="tns:DeleteProjectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateProject">
+      <wsdl:input message="tns:UpdateProjectSoapIn" />
+      <wsdl:output message="tns:UpdateProjectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserNameByID">
+      <wsdl:input message="tns:GetUserNameByIDSoapIn" />
+      <wsdl:output message="tns:GetUserNameByIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeModuleParent">
+      <wsdl:input message="tns:ChangeModuleParentSoapIn" />
+      <wsdl:output message="tns:ChangeModuleParentSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input message="tns:ChangePasswordSoapIn" />
+      <wsdl:output message="tns:ChangePasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentUserProjectList">
+      <wsdl:input message="tns:GetCurrentUserProjectListSoapIn" />
+      <wsdl:output message="tns:GetCurrentUserProjectListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTablesInModule">
+      <wsdl:input message="tns:GetTablesInModuleSoapIn" />
+      <wsdl:output message="tns:GetTablesInModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPkColumnName">
+      <wsdl:input message="tns:GetPkColumnNameSoapIn" />
+      <wsdl:output message="tns:GetPkColumnNameSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SaveDataTable">
+      <wsdl:input message="tns:SaveDataTableSoapIn" />
+      <wsdl:output message="tns:SaveDataTableSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteDatabase">
+      <wsdl:input message="tns:DeleteDatabaseSoapIn" />
+      <wsdl:output message="tns:DeleteDatabaseSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetActions">
+      <wsdl:input message="tns:GetActionsSoapIn" />
+      <wsdl:output message="tns:GetActionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveTableFromModule">
+      <wsdl:input message="tns:RemoveTableFromModuleSoapIn" />
+      <wsdl:output message="tns:RemoveTableFromModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDataTable">
+      <wsdl:input message="tns:GetDataTableSoapIn" />
+      <wsdl:output message="tns:GetDataTableSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ImportData">
+      <wsdl:input message="tns:ImportDataSoapIn" />
+      <wsdl:output message="tns:ImportDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDataSet">
+      <wsdl:input message="tns:GetDataSetSoapIn" />
+      <wsdl:output message="tns:GetDataSetSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDatabase">
+      <wsdl:input message="tns:GetDatabaseSoapIn" />
+      <wsdl:output message="tns:GetDatabaseSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDatabaseList">
+      <wsdl:input message="tns:GetDatabaseListSoapIn" />
+      <wsdl:output message="tns:GetDatabaseListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModuleID">
+      <wsdl:input message="tns:GetDBModuleIDSoapIn" />
+      <wsdl:output message="tns:GetDBModuleIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTableInMoudle">
+      <wsdl:input message="tns:UpdateTableInMoudleSoapIn" />
+      <wsdl:output message="tns:UpdateTableInMoudleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeleteConfigInModule">
+      <wsdl:input message="tns:GetDeleteConfigInModuleSoapIn" />
+      <wsdl:output message="tns:GetDeleteConfigInModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTableNames">
+      <wsdl:input message="tns:GetTableNamesSoapIn" />
+      <wsdl:output message="tns:GetTableNamesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnNames">
+      <wsdl:input message="tns:GetColumnNamesSoapIn" />
+      <wsdl:output message="tns:GetColumnNamesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetColumns">
+      <wsdl:input message="tns:GetColumnsSoapIn" />
+      <wsdl:output message="tns:GetColumnsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModuleList">
+      <wsdl:input message="tns:GetDBModuleListSoapIn" />
+      <wsdl:output message="tns:GetDBModuleListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTableDeleteConfigList">
+      <wsdl:input message="tns:GetTableDeleteConfigListSoapIn" />
+      <wsdl:output message="tns:GetTableDeleteConfigListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTableIDXIndexList">
+      <wsdl:input message="tns:GetTableIDXIndexListSoapIn" />
+      <wsdl:output message="tns:GetTableIDXIndexListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTableList">
+      <wsdl:input message="tns:GetTableListSoapIn" />
+      <wsdl:output message="tns:GetTableListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetObjectFormat">
+      <wsdl:input message="tns:GetObjectFormatSoapIn" />
+      <wsdl:output message="tns:GetObjectFormatSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnList">
+      <wsdl:input message="tns:GetColumnListSoapIn" />
+      <wsdl:output message="tns:GetColumnListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ModifyTable">
+      <wsdl:input message="tns:ModifyTableSoapIn" />
+      <wsdl:output message="tns:ModifyTableSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteModule">
+      <wsdl:input message="tns:DeleteModuleSoapIn" />
+      <wsdl:output message="tns:DeleteModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDBTablePath">
+      <wsdl:input message="tns:GetDBTablePathSoapIn" />
+      <wsdl:output message="tns:GetDBTablePathSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModulePath">
+      <wsdl:input message="tns:GetDBModulePathSoapIn" />
+      <wsdl:output message="tns:GetDBModulePathSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateDBModule">
+      <wsdl:input message="tns:UpdateDBModuleSoapIn" />
+      <wsdl:output message="tns:UpdateDBModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTable">
+      <wsdl:input message="tns:DeleteTableSoapIn" />
+      <wsdl:output message="tns:DeleteTableSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateTable">
+      <wsdl:input message="tns:CreateTableSoapIn" />
+      <wsdl:output message="tns:CreateTableSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ImportDatabaseConfig">
+      <wsdl:input message="tns:ImportDatabaseConfigSoapIn" />
+      <wsdl:output message="tns:ImportDatabaseConfigSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateDatabase">
+      <wsdl:input message="tns:CreateDatabaseSoapIn" />
+      <wsdl:output message="tns:CreateDatabaseSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetProjectDllFiles">
+      <wsdl:input message="tns:GetProjectDllFilesSoapIn" />
+      <wsdl:output message="tns:GetProjectDllFilesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModuleList">
+      <wsdl:input message="tns:GetInterfaceModuleListSoapIn" />
+      <wsdl:output message="tns:GetInterfaceModuleListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteInterfaceModule">
+      <wsdl:input message="tns:DeleteInterfaceModuleSoapIn" />
+      <wsdl:output message="tns:DeleteInterfaceModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UnLockInterfaceModule">
+      <wsdl:input message="tns:UnLockInterfaceModuleSoapIn" />
+      <wsdl:output message="tns:UnLockInterfaceModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LockInterfaceModule">
+      <wsdl:input message="tns:LockInterfaceModuleSoapIn" />
+      <wsdl:output message="tns:LockInterfaceModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInterfaceModule">
+      <wsdl:input message="tns:UpdateInterfaceModuleSoapIn" />
+      <wsdl:output message="tns:UpdateInterfaceModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModulePath">
+      <wsdl:input message="tns:GetInterfaceModulePathSoapIn" />
+      <wsdl:output message="tns:GetInterfaceModulePathSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInterfaceInModule">
+      <wsdl:input message="tns:UpdateInterfaceInModuleSoapIn" />
+      <wsdl:output message="tns:UpdateInterfaceInModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteInterfaceInModule">
+      <wsdl:input message="tns:DeleteInterfaceInModuleSoapIn" />
+      <wsdl:output message="tns:DeleteInterfaceInModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceInModule">
+      <wsdl:input message="tns:GetInterfaceInModuleSoapIn" />
+      <wsdl:output message="tns:GetInterfaceInModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModuleID">
+      <wsdl:input message="tns:GetInterfaceModuleIDSoapIn" />
+      <wsdl:output message="tns:GetInterfaceModuleIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceInModulePath">
+      <wsdl:input message="tns:GetInterfaceInModulePathSoapIn" />
+      <wsdl:output message="tns:GetInterfaceInModulePathSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Search">
+      <wsdl:input message="tns:SearchSoapIn" />
+      <wsdl:output message="tns:SearchSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitBug">
+      <wsdl:input message="tns:SubmitBugSoapIn" />
+      <wsdl:output message="tns:SubmitBugSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMyBugListCount">
+      <wsdl:input message="tns:GetMyBugListCountSoapIn" />
+      <wsdl:output message="tns:GetMyBugListCountSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMyBugs">
+      <wsdl:input message="tns:GetMyBugsSoapIn" />
+      <wsdl:output message="tns:GetMyBugsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBugHistories">
+      <wsdl:input message="tns:GetBugHistoriesSoapIn" />
+      <wsdl:output message="tns:GetBugHistoriesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBugPicture">
+      <wsdl:input message="tns:GetBugPictureSoapIn" />
+      <wsdl:output message="tns:GetBugPictureSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BugFinish">
+      <wsdl:input message="tns:BugFinishSoapIn" />
+      <wsdl:output message="tns:BugFinishSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitHistory">
+      <wsdl:input message="tns:SubmitHistorySoapIn" />
+      <wsdl:output message="tns:SubmitHistorySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUpdateFileList">
+      <wsdl:input message="tns:GetUpdateFileListSoapIn" />
+      <wsdl:output message="tns:GetUpdateFileListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DownLoadFile">
+      <wsdl:input message="tns:DownLoadFileSoapIn" />
+      <wsdl:output message="tns:DownLoadFileSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DatabaseServiceSoap" type="tns:DatabaseServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="test">
+      <soap:operation soapAction="http://tempuri.org/test" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <soap:operation soapAction="http://tempuri.org/Login" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateProject">
+      <soap:operation soapAction="http://tempuri.org/CreateProject" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteProject">
+      <soap:operation soapAction="http://tempuri.org/DeleteProject" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateProject">
+      <soap:operation soapAction="http://tempuri.org/UpdateProject" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserNameByID">
+      <soap:operation soapAction="http://tempuri.org/GetUserNameByID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeModuleParent">
+      <soap:operation soapAction="http://tempuri.org/ChangeModuleParent" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentUserProjectList">
+      <soap:operation soapAction="http://tempuri.org/GetCurrentUserProjectList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTablesInModule">
+      <soap:operation soapAction="http://tempuri.org/GetTablesInModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPkColumnName">
+      <soap:operation soapAction="http://tempuri.org/GetPkColumnName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SaveDataTable">
+      <soap:operation soapAction="http://tempuri.org/SaveDataTable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteDatabase">
+      <soap:operation soapAction="http://tempuri.org/DeleteDatabase" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetActions">
+      <soap:operation soapAction="http://tempuri.org/GetActions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveTableFromModule">
+      <soap:operation soapAction="http://tempuri.org/RemoveTableFromModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDataTable">
+      <soap:operation soapAction="http://tempuri.org/GetDataTable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ImportData">
+      <soap:operation soapAction="http://tempuri.org/ImportData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDataSet">
+      <soap:operation soapAction="http://tempuri.org/GetDataSet" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDatabase">
+      <soap:operation soapAction="http://tempuri.org/GetDatabase" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDatabaseList">
+      <soap:operation soapAction="http://tempuri.org/GetDatabaseList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModuleID">
+      <soap:operation soapAction="http://tempuri.org/GetDBModuleID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTableInMoudle">
+      <soap:operation soapAction="http://tempuri.org/UpdateTableInMoudle" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeleteConfigInModule">
+      <soap:operation soapAction="http://tempuri.org/GetDeleteConfigInModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableNames">
+      <soap:operation soapAction="http://tempuri.org/GetTableNames" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnNames">
+      <soap:operation soapAction="http://tempuri.org/GetColumnNames" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumns">
+      <soap:operation soapAction="http://tempuri.org/GetColumns" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModuleList">
+      <soap:operation soapAction="http://tempuri.org/GetDBModuleList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableDeleteConfigList">
+      <soap:operation soapAction="http://tempuri.org/GetTableDeleteConfigList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableIDXIndexList">
+      <soap:operation soapAction="http://tempuri.org/GetTableIDXIndexList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableList">
+      <soap:operation soapAction="http://tempuri.org/GetTableList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetObjectFormat">
+      <soap:operation soapAction="http://tempuri.org/GetObjectFormat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnList">
+      <soap:operation soapAction="http://tempuri.org/GetColumnList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyTable">
+      <soap:operation soapAction="http://tempuri.org/ModifyTable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteModule">
+      <soap:operation soapAction="http://tempuri.org/DeleteModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBTablePath">
+      <soap:operation soapAction="http://tempuri.org/GetDBTablePath" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModulePath">
+      <soap:operation soapAction="http://tempuri.org/GetDBModulePath" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateDBModule">
+      <soap:operation soapAction="http://tempuri.org/UpdateDBModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTable">
+      <soap:operation soapAction="http://tempuri.org/DeleteTable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTable">
+      <soap:operation soapAction="http://tempuri.org/CreateTable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ImportDatabaseConfig">
+      <soap:operation soapAction="http://tempuri.org/ImportDatabaseConfig" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateDatabase">
+      <soap:operation soapAction="http://tempuri.org/CreateDatabase" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProjectDllFiles">
+      <soap:operation soapAction="http://tempuri.org/GetProjectDllFiles" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModuleList">
+      <soap:operation soapAction="http://tempuri.org/GetInterfaceModuleList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteInterfaceModule">
+      <soap:operation soapAction="http://tempuri.org/DeleteInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnLockInterfaceModule">
+      <soap:operation soapAction="http://tempuri.org/UnLockInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LockInterfaceModule">
+      <soap:operation soapAction="http://tempuri.org/LockInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInterfaceModule">
+      <soap:operation soapAction="http://tempuri.org/UpdateInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModulePath">
+      <soap:operation soapAction="http://tempuri.org/GetInterfaceModulePath" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInterfaceInModule">
+      <soap:operation soapAction="http://tempuri.org/UpdateInterfaceInModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteInterfaceInModule">
+      <soap:operation soapAction="http://tempuri.org/DeleteInterfaceInModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceInModule">
+      <soap:operation soapAction="http://tempuri.org/GetInterfaceInModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModuleID">
+      <soap:operation soapAction="http://tempuri.org/GetInterfaceModuleID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceInModulePath">
+      <soap:operation soapAction="http://tempuri.org/GetInterfaceInModulePath" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Search">
+      <soap:operation soapAction="http://tempuri.org/Search" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitBug">
+      <soap:operation soapAction="http://tempuri.org/SubmitBug" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMyBugListCount">
+      <soap:operation soapAction="http://tempuri.org/GetMyBugListCount" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMyBugs">
+      <soap:operation soapAction="http://tempuri.org/GetMyBugs" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBugHistories">
+      <soap:operation soapAction="http://tempuri.org/GetBugHistories" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBugPicture">
+      <soap:operation soapAction="http://tempuri.org/GetBugPicture" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BugFinish">
+      <soap:operation soapAction="http://tempuri.org/BugFinish" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitHistory">
+      <soap:operation soapAction="http://tempuri.org/SubmitHistory" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUpdateFileList">
+      <soap:operation soapAction="http://tempuri.org/GetUpdateFileList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DownLoadFile">
+      <soap:operation soapAction="http://tempuri.org/DownLoadFile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DatabaseServiceSoap12" type="tns:DatabaseServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="test">
+      <soap12:operation soapAction="http://tempuri.org/test" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <soap12:operation soapAction="http://tempuri.org/Login" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateProject">
+      <soap12:operation soapAction="http://tempuri.org/CreateProject" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteProject">
+      <soap12:operation soapAction="http://tempuri.org/DeleteProject" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateProject">
+      <soap12:operation soapAction="http://tempuri.org/UpdateProject" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserNameByID">
+      <soap12:operation soapAction="http://tempuri.org/GetUserNameByID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeModuleParent">
+      <soap12:operation soapAction="http://tempuri.org/ChangeModuleParent" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap12:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentUserProjectList">
+      <soap12:operation soapAction="http://tempuri.org/GetCurrentUserProjectList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTablesInModule">
+      <soap12:operation soapAction="http://tempuri.org/GetTablesInModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPkColumnName">
+      <soap12:operation soapAction="http://tempuri.org/GetPkColumnName" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SaveDataTable">
+      <soap12:operation soapAction="http://tempuri.org/SaveDataTable" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteDatabase">
+      <soap12:operation soapAction="http://tempuri.org/DeleteDatabase" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetActions">
+      <soap12:operation soapAction="http://tempuri.org/GetActions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveTableFromModule">
+      <soap12:operation soapAction="http://tempuri.org/RemoveTableFromModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDataTable">
+      <soap12:operation soapAction="http://tempuri.org/GetDataTable" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ImportData">
+      <soap12:operation soapAction="http://tempuri.org/ImportData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDataSet">
+      <soap12:operation soapAction="http://tempuri.org/GetDataSet" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDatabase">
+      <soap12:operation soapAction="http://tempuri.org/GetDatabase" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDatabaseList">
+      <soap12:operation soapAction="http://tempuri.org/GetDatabaseList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModuleID">
+      <soap12:operation soapAction="http://tempuri.org/GetDBModuleID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTableInMoudle">
+      <soap12:operation soapAction="http://tempuri.org/UpdateTableInMoudle" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeleteConfigInModule">
+      <soap12:operation soapAction="http://tempuri.org/GetDeleteConfigInModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableNames">
+      <soap12:operation soapAction="http://tempuri.org/GetTableNames" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnNames">
+      <soap12:operation soapAction="http://tempuri.org/GetColumnNames" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumns">
+      <soap12:operation soapAction="http://tempuri.org/GetColumns" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModuleList">
+      <soap12:operation soapAction="http://tempuri.org/GetDBModuleList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableDeleteConfigList">
+      <soap12:operation soapAction="http://tempuri.org/GetTableDeleteConfigList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableIDXIndexList">
+      <soap12:operation soapAction="http://tempuri.org/GetTableIDXIndexList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTableList">
+      <soap12:operation soapAction="http://tempuri.org/GetTableList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetObjectFormat">
+      <soap12:operation soapAction="http://tempuri.org/GetObjectFormat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnList">
+      <soap12:operation soapAction="http://tempuri.org/GetColumnList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyTable">
+      <soap12:operation soapAction="http://tempuri.org/ModifyTable" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteModule">
+      <soap12:operation soapAction="http://tempuri.org/DeleteModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBTablePath">
+      <soap12:operation soapAction="http://tempuri.org/GetDBTablePath" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBModulePath">
+      <soap12:operation soapAction="http://tempuri.org/GetDBModulePath" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateDBModule">
+      <soap12:operation soapAction="http://tempuri.org/UpdateDBModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTable">
+      <soap12:operation soapAction="http://tempuri.org/DeleteTable" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTable">
+      <soap12:operation soapAction="http://tempuri.org/CreateTable" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ImportDatabaseConfig">
+      <soap12:operation soapAction="http://tempuri.org/ImportDatabaseConfig" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateDatabase">
+      <soap12:operation soapAction="http://tempuri.org/CreateDatabase" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProjectDllFiles">
+      <soap12:operation soapAction="http://tempuri.org/GetProjectDllFiles" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModuleList">
+      <soap12:operation soapAction="http://tempuri.org/GetInterfaceModuleList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteInterfaceModule">
+      <soap12:operation soapAction="http://tempuri.org/DeleteInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnLockInterfaceModule">
+      <soap12:operation soapAction="http://tempuri.org/UnLockInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LockInterfaceModule">
+      <soap12:operation soapAction="http://tempuri.org/LockInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInterfaceModule">
+      <soap12:operation soapAction="http://tempuri.org/UpdateInterfaceModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModulePath">
+      <soap12:operation soapAction="http://tempuri.org/GetInterfaceModulePath" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInterfaceInModule">
+      <soap12:operation soapAction="http://tempuri.org/UpdateInterfaceInModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteInterfaceInModule">
+      <soap12:operation soapAction="http://tempuri.org/DeleteInterfaceInModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceInModule">
+      <soap12:operation soapAction="http://tempuri.org/GetInterfaceInModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceModuleID">
+      <soap12:operation soapAction="http://tempuri.org/GetInterfaceModuleID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInterfaceInModulePath">
+      <soap12:operation soapAction="http://tempuri.org/GetInterfaceInModulePath" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Search">
+      <soap12:operation soapAction="http://tempuri.org/Search" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitBug">
+      <soap12:operation soapAction="http://tempuri.org/SubmitBug" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMyBugListCount">
+      <soap12:operation soapAction="http://tempuri.org/GetMyBugListCount" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMyBugs">
+      <soap12:operation soapAction="http://tempuri.org/GetMyBugs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBugHistories">
+      <soap12:operation soapAction="http://tempuri.org/GetBugHistories" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBugPicture">
+      <soap12:operation soapAction="http://tempuri.org/GetBugPicture" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BugFinish">
+      <soap12:operation soapAction="http://tempuri.org/BugFinish" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitHistory">
+      <soap12:operation soapAction="http://tempuri.org/SubmitHistory" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUpdateFileList">
+      <soap12:operation soapAction="http://tempuri.org/GetUpdateFileList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DownLoadFile">
+      <soap12:operation soapAction="http://tempuri.org/DownLoadFile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DatabaseService">
+    <wsdl:port name="DatabaseServiceSoap" binding="tns:DatabaseServiceSoap">
+      <soap:address location="http://localhost:888/DatabaseService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="DatabaseServiceSoap12" binding="tns:DatabaseServiceSoap12">
+      <soap12:address location="http://localhost:888/DatabaseService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

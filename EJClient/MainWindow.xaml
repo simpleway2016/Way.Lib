@@ -1,0 +1,121 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:UI="clr-namespace:EJClient.UI" x:Class="EJClient.MainWindow"
+        Title="Mr.E " Icon="/imgs/easy.ico" WindowState="Maximized" RenderOptions.BitmapScalingMode="NearestNeighbor" UseLayoutRounding="True" Height="707.262" Width="1225" Loaded="Window_Loaded_1">
+    <Window.Resources>
+        <ContextMenu x:Key="treeMenu_Database">
+            <MenuItem Header="新建数据库..." Click="MenuItem_创建数据库_Click_1"></MenuItem>
+            <!--<MenuItem Header="从config文件导入..." Click="MenuItem_从config文件导入_Click_1"></MenuItem>-->
+        </ContextMenu>
+        <ContextMenu x:Key="treeMenu_databaseItem">
+            
+            <MenuItem Header="编译..." Click="MenuItem_编译_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="导出结构脚本..." Click="MenuItem_导出更新_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="导出数据..." Click="MenuItem_导出数据_Click_1"></MenuItem>
+            <MenuItem Header="导入数据..." Click="MenuItem_导入数据_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="移除" Click="MenuItem_移除数据库_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="属性..." Click="MenuItem_数据库属性_Click_1"></MenuItem>
+        </ContextMenu>
+        <ContextMenu x:Key="treeMenu_Tables">
+            <MenuItem Header="新建数据表..." Click="MenuItem_新建数据表_Click_1"></MenuItem>
+            <MenuItem Header="刷新" Click="MenuItem_刷新数据表_Click_1"></MenuItem>
+        </ContextMenu>
+        <ContextMenu x:Key="treeMenu_Table">
+            <MenuItem Header="设计..." Click="MenuItem_设计数据表_Click_1"></MenuItem>
+            <MenuItem Header="查看数据..." Click="MenuItem_查看数据表数据_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="删除数据表" Click="MenuItem_删除数据表_Click_1"></MenuItem>
+        </ContextMenu>
+        <ContextMenu x:Key="treeMenu_Module">
+            <MenuItem Header="新建目录..." Click="MenuItem_新建目录_Click_1"></MenuItem>
+            <MenuItem Header="新建模块..." Click="MenuItem_新建模块_Click_1"></MenuItem>
+            <MenuItem Header="删除..." Click="MenuItem_删除目录_Click_1"></MenuItem>
+            <MenuItem Header="重命名..." Click="MenuItem_重命名模块_Click_1"></MenuItem>
+        </ContextMenu>
+        <ContextMenu x:Key="treeMenu_project">
+            <MenuItem Header="设置引用的类库..." Click="MenuItem_设置引用的类库_Click_1"></MenuItem>
+            <Separator></Separator>
+            <MenuItem Header="删除..." Click="MenuItem_删除项目_Click_1"></MenuItem>
+            <MenuItem Header="重命名..." Click="MenuItem_重命名项目_Click_1"></MenuItem>
+        </ContextMenu>
+        <ContextMenu x:Key="treeMenu_interface">
+            <MenuItem Header="新建目录..." Click="MenuItem_新建接口目录_Click_1"></MenuItem>
+            <MenuItem Header="新建模块..." Click="MenuItem_新建接口模块_Click_1"></MenuItem>
+            <MenuItem Header="删除..." Click="MenuItem_删除接口目录_Click_1"></MenuItem>
+            <MenuItem Header="重命名..." Click="MenuItem_重命名接口模块_Click_1"></MenuItem>
+        </ContextMenu>
+    </Window.Resources>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Project">
+                <MenuItem Header="New..." Click="NewProject_Click_1"/>
+                <Separator />
+            </MenuItem>
+            <MenuItem Header="Setting">
+                <MenuItem x:Name="menu_users_mgr" Header="Users Management..." Click="menu_users_mgr_Click_1"/>
+                <Separator />
+                <MenuItem x:Name="menu_changepwd" Header="Change Password..." Click="menu_changePwd_Click_1"/>
+                <Separator />
+            </MenuItem>
+        </Menu>
+        <Grid Height="30" VerticalAlignment="Top" DockPanel.Dock="Top">
+            <Border BorderThickness="1" Background="White" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Center" BorderBrush="#cccccc" Width="260" Height="25">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="30"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="txtSearch" BorderThickness="0" Margin="3" KeyUp="txtSearch_KeyUp"></TextBox>
+                    <Image Source="/imgs/search.png" Width="16" Height="16" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                </Grid>
+            </Border>
+        </Grid>
+        <Grid x:Name="gridMain" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="22"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TreeView AllowDrop="True" x:Name="tree1" BorderThickness="0" Grid.Row="0" Grid.Column="0" Drop="tree1_Drop">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <EventSetter Event="TreeViewItem.DragOver"  Handler="tree1_DragOver"/>
+                        <EventSetter Event="TreeViewItem.Drop"  Handler="tree1_Drop"/>
+                        <EventSetter Event="TreeViewItem.MouseDown" Handler="tree1_PreviewMouseDown"/>
+                        <EventSetter Event="TreeViewItem.PreviewMouseLeftButtonDown" Handler="tree1_PreviewMouseLeftButtonDown"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate  ItemsSource="{Binding Path=Children}">
+                        <StackPanel x:Name="main_panel"  Orientation="Horizontal" Tag="{Binding Parent}" ContextMenu="{Binding ContextMenu}">
+                            <Image VerticalAlignment="Center" Visibility="{Binding IconVisibility}" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,2"></Image>
+                            <TextBlock x:Name="main_text" VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
+                            <StackPanel.ToolTip>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap" MaxWidth="200" ></TextBlock>
+                            </StackPanel.ToolTip>
+                        </StackPanel>
+                        <HierarchicalDataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="main_panel" Property="Background" Value="#3399ff"></Setter>
+                                <Setter TargetName="main_text" Property="Foreground" Value="White"></Setter>
+                            </DataTrigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+            <GridSplitter Width="5"/>
+            <TabControl x:Name="documentContainer" Grid.Row="0" Grid.Column="1">
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

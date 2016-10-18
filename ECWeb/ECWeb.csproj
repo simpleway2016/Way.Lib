@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{048F3DEE-AE80-4E6E-B3B8-1753561FF939}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ECWeb</RootNamespace>
+    <AssemblyName>ECWeb</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AspNetPager, Version=7.2.0.0, Culture=neutral, PublicKeyToken=fb0a0fe055d40fd4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tools\ECWeb\bin\AspNetPager.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.0.1\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Memory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Memory.1.0.0\lib\net451\Microsoft.Extensions.Caching.Memory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.1.0.0\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.1.0.0\lib\netstandard1.1\Microsoft.Extensions.Logging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.1.0.0\lib\netstandard1.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Options.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Options.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.2.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Interactive.Async, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="css\dataEditor.css" />
+    <Content Include="css\grid.css" />
+    <Content Include="DatabaseService.asmx" />
+    <Content Include="dataConfig\easyjob.xsl" />
+    <Content Include="EntityEditorStyle\EntityEditor.html" />
+    <Content Include="EntityEditorStyle\date.html" />
+    <Content Include="EntityEditorStyle\dropdownlist.html" />
+    <Content Include="EntityEditorStyle\search\search.html" />
+    <Content Include="EntityEditorStyle\search\search_date.html" />
+    <Content Include="EntityEditorStyle\search\search_dropdownlist.html" />
+    <Content Include="EntityEditorStyle\search\search_text.html" />
+    <Content Include="EntityEditorStyle\text.html" />
+    <Content Include="DownloadDatabaseCode.aspx" />
+    <Content Include="Global.asax" />
+    <Content Include="imgs\bg.png" />
+    <Content Include="imgs\folder.png" />
+    <Content Include="imgs\grid_header_bg.png" />
+    <Content Include="imgs\grid_header_r.png" />
+    <Content Include="imgs\index_bg1.gif" />
+    <Content Include="imgs\index_d.gif" />
+    <Content Include="imgs\index_jg.gif" />
+    <Content Include="imgs\man.png" />
+    <Content Include="imgs\txt_bg.jpg" />
+    <Content Include="imgs\woman.png" />
+    <Content Include="inc\imgs\dialog_close.png" />
+    <Content Include="inc\imgs\loading.gif" />
+    <Content Include="inc\jquery.d.ts" />
+    <Content Include="inc\jquery\jquery-1.11.1.min.js" />
+    <Content Include="inc\jquery\jquery-1.3.2.min.js" />
+    <Content Include="inc\jquery\jquery-1.4.4.min.js" />
+    <Content Include="inc\jquery\jquery-1.5.2.min.js" />
+    <Content Include="inc\js\WayJsDialog.js" />
+    <Content Include="inc\My97DatePicker\calendar.js" />
+    <Content Include="inc\My97DatePicker\lang\en.js" />
+    <Content Include="inc\My97DatePicker\lang\zh-cn.js" />
+    <Content Include="inc\My97DatePicker\lang\zh-tw.js" />
+    <Content Include="inc\My97DatePicker\skin\datePicker.gif" />
+    <Content Include="inc\My97DatePicker\skin\default\datepicker.css" />
+    <Content Include="inc\My97DatePicker\skin\default\img.gif" />
+    <Content Include="inc\My97DatePicker\skin\WdatePicker.css" />
+    <Content Include="inc\My97DatePicker\skin\whyGreen\bg.jpg" />
+    <Content Include="inc\My97DatePicker\skin\whyGreen\datepicker.css" />
+    <Content Include="inc\My97DatePicker\skin\whyGreen\img.gif" />
+    <Content Include="inc\My97DatePicker\WdatePicker.js" />
+    <Content Include="Web.config" />
+    <Content Include="WebForm\Bug\MyBugList.aspx" />
+    <Content Include="WebForm\DatabaseEditor.aspx" />
+    <Content Include="WebForm\Interfaces\DllSetting.aspx" />
+    <Content Include="WebForm\SetPower\databasePower.aspx" />
+    <Content Include="WebForm\SetPower\projectPower.aspx" />
+    <Content Include="WebForm\SetPower\SetIMPower.aspx" />
+    <Content Include="WebForm\SetPower\TablePower.aspx" />
+    <Content Include="WebForm\UserMgr.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Database\ICodeBuilder.cs" />
+    <Compile Include="Database\MySql\DatabaseService.cs" />
+    <Compile Include="Database\MySql\TableService.cs" />
+    <Compile Include="Database\Services\DataBaseConfig.cs" />
+    <Compile Include="Database\Sqlite\DatabaseService.cs" />
+    <Compile Include="Database\Sqlite\TableService.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BugHandleHistory_0.cs" />
+    <Compile Include="Models\BugImages_0.cs" />
+    <Compile Include="Models\Bug_0.cs" />
+    <Compile Include="Models\Databases_0.cs" />
+    <Compile Include="Models\DBColumn_0.cs" />
+    <Compile Include="Models\DBDeleteConfig_0.cs" />
+    <Compile Include="Models\DBModule_0.cs" />
+    <Compile Include="Models\DBPower_0.cs" />
+    <Compile Include="Models\DBTable_0.cs" />
+    <Compile Include="Models\DLLImport_0.cs" />
+    <Compile Include="Models\EasyJob_db_linq.cs" />
+    <Compile Include="Models\IDXIndex_0.cs" />
+    <Compile Include="Models\InterfaceInModule_0.cs" />
+    <Compile Include="Models\InterfaceModulePower_0.cs" />
+    <Compile Include="Models\InterfaceModule_0.cs" />
+    <Compile Include="Models\ProjectPower_0.cs" />
+    <Compile Include="Models\Project_0.cs" />
+    <Compile Include="Models\TableInModule_0.cs" />
+    <Compile Include="Models\TablePower_0.cs" />
+    <Compile Include="Models\User_0.cs" />
+    <Compile Include="WebForm\AutoHideGridPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DatabaseService.asmx.cs">
+      <DependentUpon>DatabaseService.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Database\Actions\Action.cs" />
+    <Compile Include="Database\Actions\CreateTableAction.cs" />
+    <Compile Include="Database\Actions\ChangeTableAction.cs" />
+    <Compile Include="Database\Actions\DeleteTableAction.cs" />
+    <Compile Include="Database\CodeBuilder.cs" />
+    <Compile Include="Database\Services\IDatabaseService.cs" />
+    <Compile Include="Database\Services\ITableService.cs" />
+    <Compile Include="Database\SqlServer\DatabaseService.cs" />
+    <Compile Include="Database\SqlServer\TableService.cs" />
+    <Compile Include="EntityEditorStyle\RYGridViewStyle.cs" />
+    <Compile Include="DBHelper.cs" />
+    <Compile Include="DownloadDatabaseCode.aspx.cs">
+      <DependentUpon>DownloadDatabaseCode.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DownloadDatabaseCode.aspx.designer.cs">
+      <DependentUpon>DownloadDatabaseCode.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EJDB.cs" />
+    <Compile Include="EJDB_Check.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebForm\Bug\MyBugList.aspx.cs">
+      <DependentUpon>MyBugList.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\Bug\MyBugList.aspx.designer.cs">
+      <DependentUpon>MyBugList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\DatabaseEditor.aspx.cs">
+      <DependentUpon>DatabaseEditor.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\DatabaseEditor.aspx.designer.cs">
+      <DependentUpon>DatabaseEditor.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\Interfaces\DllSetting.aspx.cs">
+      <DependentUpon>DllSetting.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\Interfaces\DllSetting.aspx.designer.cs">
+      <DependentUpon>DllSetting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\SetPower\databasePower.aspx.cs">
+      <DependentUpon>databasePower.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\SetPower\databasePower.aspx.designer.cs">
+      <DependentUpon>databasePower.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\SetPower\projectPower.aspx.cs">
+      <DependentUpon>projectPower.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\SetPower\projectPower.aspx.designer.cs">
+      <DependentUpon>projectPower.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\SetPower\SetIMPower.aspx.cs">
+      <DependentUpon>SetIMPower.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\SetPower\SetIMPower.aspx.designer.cs">
+      <DependentUpon>SetIMPower.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\SetPower\TablePower.aspx.cs">
+      <DependentUpon>TablePower.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\SetPower\TablePower.aspx.designer.cs">
+      <DependentUpon>TablePower.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\UserMgr.aspx.cs">
+      <DependentUpon>UserMgr.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm\UserMgr.aspx.designer.cs">
+      <DependentUpon>UserMgr.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm\VerifyPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebServiceBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="database.config" />
+    <Content Include="dataConfig\easyjob.config" />
+    <Content Include="dataConfig\easyjob.pro" />
+    <Content Include="dataConfig\sqlhistories.dat" />
+    <Content Include="EasyJob.db" />
+    <Content Include="EasyJobNull.db" />
+    <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\ECWeb.pubxml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <Content Include="Port2DB.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EntityEditorStyle\pagestyle\" />
+    <Folder Include="inc\ts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AppLib\AppLib.csproj">
+      <Project>{14dc2fe1-93ef-409c-95f0-81fc2d738fe9}</Project>
+      <Name>AppLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityDB\EntityDB.csproj">
+      <Project>{0d7c92f4-47b8-4ebf-9005-74d915b9b469}</Project>
+      <Name>EntityDB</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>53329</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:52545/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:889</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

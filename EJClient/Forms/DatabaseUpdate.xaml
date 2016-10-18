@@ -1,0 +1,25 @@
+﻿<Window x:Class="EJClient.Forms.DatabaseUpdate"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DatabaseUpdate" Height="510" Width="681" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <StackPanel Orientation="Vertical">
+        <Label Margin="10,5,10,0" Content="脚本文件"></Label>
+        <StackPanel Orientation="Horizontal"  >
+            <TextBox x:Name="txtFileName" Width="574" Margin="10,5,0,0" TextChanged="txtFileName_TextChanged"></TextBox>
+            <Button x:Name="btnSelectFile" Content="选择..." Width="70" Margin="10,5,0,0" Click="btnSelectFile_Click"></Button>
+        </StackPanel>
+        <Label Margin="10,5,10,0" Content="目标数据库类型"></Label>
+        <StackPanel Orientation="Horizontal"  >
+            <ComboBox x:Name="cmbDBType" Margin="10,0,0,0"></ComboBox>
+        </StackPanel>
+        <Label Margin="10,5,10,0" Content="数据库连接字符串"></Label>
+        <StackPanel Orientation="Horizontal"  >
+            <TextBox x:Name="txtConStr" Width="574" Margin="10,5,0,0" TextChanged="txtFileName_TextChanged"></TextBox>
+            <Button x:Name="btnStart" IsEnabled="False" Content="开始更新" Width="70" Margin="10,5,0,0" Click="btnStart_Click"/>
+        </StackPanel>
+        <Label x:Name="lblStatus" Margin="10,5,10,0" Content="准备..."></Label>
+        <ProgressBar x:Name="progressBar" Height="20" Margin="10,5,10,0"></ProgressBar>
+        <RichTextBox x:Name="txtInfo" VerticalScrollBarVisibility="Auto" Margin="10,5,10,0" Height="253"></RichTextBox>
+        <Button Width="60" x:Name="btnOK" Click="btnOK_Click_1" Height="30" HorizontalAlignment="Right" Margin="10,10,10,0" Content="关闭"></Button>
+    </StackPanel>
+</Window>
