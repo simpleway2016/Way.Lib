@@ -135,6 +135,7 @@ namespace EJClient.TreeNode
                 MainWindow.instance.documentContainer.Items.Add(mydoc);
                 MainWindow.instance.documentContainer.SelectedItem = mydoc;
             }
+            //聚焦指定的table
             mydoc.FocusTable(tableid);
         }
 

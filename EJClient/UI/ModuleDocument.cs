@@ -19,7 +19,10 @@ namespace EJClient.UI
             private set;
         }
         Grid m_Grid;
-       
+        /// <summary>
+        /// 需要聚焦显示的tableid
+        /// </summary>
+        int mFocusTableId;
         Canvas m_canvas;
         public ModuleDocument(TreeNode.DBModuleNode moduleNode)
         {
@@ -72,11 +75,15 @@ namespace EJClient.UI
         }
         public void FocusTable(int tableid)
         {
+            //该table可能会不存在，因为document刚打开，还没有加载tables，
+            //所以web_GetTablesInModuleCompleted会判断mFocusTableId如果大于0，还会调用FocusTable
+            mFocusTableId = tableid;
             ClearSelected();
             foreach (var item in m_Grid.Children)
             {
                 if (item is Table && ((Table)item).DataSource.Table.id == tableid)
                 {
+                    mFocusTableId = 0;
                     ((Table)item).BringIntoView();
                     ((Table)item).IsSelected = true;
                 }
@@ -177,6 +184,10 @@ namespace EJClient.UI
             }
             this.UpdateLayout();
             refreshTableRelation();
+            if(mFocusTableId > 0)
+            {
+                FocusTable(mFocusTableId);
+            }
         }
 
         public UI.Table getTableById(int id)
