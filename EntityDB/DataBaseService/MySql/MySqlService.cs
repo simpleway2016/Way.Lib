@@ -45,6 +45,8 @@ namespace EntityDB
         }
         protected override void ThrowSqlException(Type tableType, Exception ex)
         {
+            if (!(ex is MySqlException))
+                throw ex;
             if (((MySqlException)ex).Number != 1062)
                 throw ex;
 

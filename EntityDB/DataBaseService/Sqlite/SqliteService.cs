@@ -62,6 +62,8 @@ namespace EntityDB
         }
         protected virtual void ThrowSqlException(Type tableType, Exception ex)
         {
+            if (!(ex is SqliteException))
+                throw ex;
             if (((SqliteException)ex).ErrorCode != 19)
                 throw ex;
 
@@ -150,7 +152,10 @@ namespace EntityDB
                 string sql = string.Format("insert into {0} ({1}) values ({2})", FormatObjectName(dataitem.TableName), str_fields, str_values);
                 using (var command = CreateCommand(sql))
                 {
-                    command.Parameters.AddRange(parameters.ToArray());
+                    foreach (var p in parameters)
+                    {
+                        command.Parameters.Add(p);
+                    }
                     parameters.Clear();
                     command.ExecuteNonQuery();
 
@@ -248,7 +253,10 @@ namespace EntityDB
                 }
                 using (var command = CreateCommand(sql))
                 {
-                    command.Parameters.AddRange(parameters.ToArray());
+                    foreach (var p in parameters)
+                    {
+                        command.Parameters.Add(p);
+                    }
                     parameters.Clear();
                     command.ExecuteNonQuery();
 

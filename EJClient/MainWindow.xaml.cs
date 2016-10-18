@@ -392,6 +392,20 @@ namespace EJClient
             }
         }
 
+        Point mReadyDropLocation;
+        private void tree1_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (mReadyDropLocation.X > 0 && mReadyDropLocation.Y > 0 && m_drogItem != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                Point point = e.GetPosition(tree1);
+                if (Math.Abs(point.X - mReadyDropLocation.X) > 15 || Math.Abs(point.Y - mReadyDropLocation.Y) > 15)
+                {
+                    mReadyDropLocation = new Point(0,0);
+                    DragDropEffects finalDropEffect = DragDrop.DoDragDrop((System.Windows.DependencyObject)e.OriginalSource, m_drogItem, DragDropEffects.Move);
+                }
+            }
+        }
+
         TreeNodeBase m_drogItem;
         private void tree1_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -400,7 +414,8 @@ namespace EJClient
             if (selectedItem is DBModuleNode )
             {
                 m_drogItem = selectedItem;
-                DragDropEffects finalDropEffect = DragDrop.DoDragDrop((System.Windows.DependencyObject)e.OriginalSource, selectedItem, DragDropEffects.Move);
+                mReadyDropLocation = e.GetPosition(tree1);
+               
             }
             if (e.ClickCount > 1)
             {
@@ -490,6 +505,7 @@ namespace EJClient
             {
                 e.Effects = DragDropEffects.None;
                 e.Handled = true;
+                m_drogItem = null;
             }
         }
 
@@ -565,6 +581,10 @@ namespace EJClient
                 item.IsSelected = true;
                 e.Handled = true;
             }
+        }
+        private void tree1_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            m_drogItem = null;
         }
         void menu_changePwd_Click_1(object sender, RoutedEventArgs e)
         {

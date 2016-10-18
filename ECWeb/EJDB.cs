@@ -221,7 +221,7 @@ namespace ECWeb
                 {
 
                     List<IQueryable<SearchContent>> result = new List<IQueryable<SearchContent>>();
-                    var query = from m in DBTable
+                    var query = from m in Set<EJ.DBTable>()
                                 select new SearchContent
                                 {
                                     ID = m.id,
@@ -232,7 +232,7 @@ namespace ECWeb
                     result.Add(query);
 
 
-                    query = from m in DBModule
+                    query = from m in Set<EJ.DBModule>()
                             where m.IsFolder == false
                             select new SearchContent
                             {
@@ -243,7 +243,7 @@ namespace ECWeb
                             };
                     result.Add(query);
 
-                    query = from m in InterfaceModule
+                    query = from m in Set<EJ.InterfaceModule>()
                             where m.IsFolder == false
                             select new SearchContent
                             {
@@ -254,7 +254,7 @@ namespace ECWeb
                             };
                     result.Add(query);
 
-                    query = from m in InterfaceInModule
+                    query = from m in Set<EJ.InterfaceInModule>()
                             select new SearchContent
                             {
                                 ID = m.id,

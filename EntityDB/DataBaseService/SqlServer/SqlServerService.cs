@@ -46,6 +46,8 @@ namespace EntityDB
        
         protected override void ThrowSqlException(Type tableType, Exception ex)
         {
+            if (!(ex is System.Data.SqlClient.SqlException))
+                throw ex;
             if (((System.Data.SqlClient.SqlException)ex).Number != 2601)
                 throw ex;
 
