@@ -13,15 +13,10 @@ namespace ECWeb
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+           
         }
 
-        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            var assembly = Assembly.Load(args.Name.Split(',')[0].Trim());
-            return assembly;
-        }
-
+      
         protected void Session_Start(object sender, EventArgs e)
         {
 

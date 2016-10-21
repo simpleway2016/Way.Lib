@@ -69,7 +69,8 @@ namespace EntityDB
             if (SetConfigurationed == false)
             {
                 SetConfigurationed = true;
-
+                //防止有些dll版本不对，无法加载
+                AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
                 BeforeDelete += Database_BeforeDelete;
                 BeforeInsert += Database_BeforeInsert;
                 BeforeUpdate += Database_BeforeUpdate;
@@ -79,7 +80,11 @@ namespace EntityDB
                 AfterUpdate += Database_AfterUpdate;
             }
         }
-
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var assembly = Assembly.Load(args.Name.Split(',')[0].Trim());
+            return assembly;
+        }
         /// <summary>
         /// 添加触发器
         /// </summary>
