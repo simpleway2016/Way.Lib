@@ -100,7 +100,7 @@ namespace EJClient.Forms
             {
                 oldResDllPath = "/reference:\"" + AppDomain.CurrentDomain.BaseDirectory + "DataSpace.dll\"";
             }
-            ProcessStartInfo startinfo = new ProcessStartInfo(CscPath, @"/target:library /platform:anycpu /doc:""" + folderPath + m_database.Name + @"DataObjects.xml"" /out:""" + folderPath + m_database.Name + @"DataObjects.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.dll"" " + oldResDllPath + @" /reference:""System.ComponentModel.DataAnnotations.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"Microsoft.EntityFrameworkCore.dll"" """ + AppDomain.CurrentDomain.BaseDirectory + "Codes" + @"\*.cs""");
+            ProcessStartInfo startinfo = new ProcessStartInfo(CscPath, @"/target:library /resource:"""+ AppDomain.CurrentDomain.BaseDirectory + @"codes\database.actions"" /platform:anycpu /doc:""" + folderPath + m_database.Name + @"DataObjects.xml"" /out:""" + folderPath + m_database.Name + @"DataObjects.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.Design.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.dll"" " + oldResDllPath + @" /reference:""System.ComponentModel.DataAnnotations.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"Microsoft.EntityFrameworkCore.dll"" """ + AppDomain.CurrentDomain.BaseDirectory + "Codes" + @"\*.cs""");
             startinfo.RedirectStandardError = true;
             startinfo.RedirectStandardOutput = true;
             startinfo.UseShellExecute = false;

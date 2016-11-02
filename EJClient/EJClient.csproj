@@ -521,6 +521,10 @@
       <Project>{048f3dee-ae80-4e6e-b3b8-1753561ff939}</Project>
       <Name>ECWeb</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EntityDB.Design\EntityDB.Design.csproj">
+      <Project>{a8e2b825-59c5-4a8a-88f8-a12c4013c018}</Project>
+      <Name>EntityDB.Design</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntityDB\EntityDB.csproj">
       <Project>{0d7c92f4-47b8-4ebf-9005-74d915b9b469}</Project>
       <Name>EntityDB</Name>

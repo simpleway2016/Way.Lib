@@ -1,4 +1,5 @@
-﻿using ECWeb.Database.Services;
+﻿
+using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,7 +23,7 @@ namespace ECWeb
                 System.IO.BinaryWriter bw = new System.IO.BinaryWriter( Response.OutputStream);
 
                 var invokingDB = DBHelper.CreateInvokeDatabase(database);
-                IDatabaseService dbservice = DBHelper.CreateInstance<IDatabaseService>(database.dbType.ToString());
+                IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(database.dbType.ToString());
                 List<EJ.DBTable> viewtables = new List<EJ.DBTable>();
                 List<EJ.DBColumn> viewcolumns = new List<EJ.DBColumn>();
                 dbservice.GetViews(invokingDB, out viewtables, out viewcolumns);

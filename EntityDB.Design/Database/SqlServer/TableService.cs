@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace ECWeb.Database.SqlServer
+namespace EntityDB.Design.Database.SqlServer
 {
-    public class TableService : Services.ITableService
+    public class TableService : Services.ITableDesignService
     {
         public void CreateTable(EntityDB.IDatabaseService db, EJ.DBTable table, EJ.DBColumn[] columns
             , IndexInfo[] IDXConfigs)

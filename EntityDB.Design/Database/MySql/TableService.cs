@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace ECWeb.Database.MySql
+namespace EntityDB.Design.Database.MySql
 {
-    public class TableService : Services.ITableService
+    public class TableService : Services.ITableDesignService
     {
         string getSqlType(string dbtype)
         {

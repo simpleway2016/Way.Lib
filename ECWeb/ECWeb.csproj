@@ -167,35 +167,10 @@
     <Content Include="WebForm\UserMgr.aspx" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database\ICodeBuilder.cs" />
-    <Compile Include="Database\MySql\DatabaseService.cs" />
-    <Compile Include="Database\MySql\TableService.cs" />
-    <Compile Include="Database\Services\DataBaseConfig.cs" />
-    <Compile Include="Database\Sqlite\DatabaseService.cs" />
-    <Compile Include="Database\Sqlite\TableService.cs" />
+    <Compile Include="CodeBuilder\ICodeBuilder.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\BugHandleHistory_0.cs" />
-    <Compile Include="Models\BugImages_0.cs" />
-    <Compile Include="Models\Bug_0.cs" />
-    <Compile Include="Models\Databases_0.cs" />
-    <Compile Include="Models\DBColumn_0.cs" />
-    <Compile Include="Models\DBDeleteConfig_0.cs" />
-    <Compile Include="Models\DBModule_0.cs" />
-    <Compile Include="Models\DBPower_0.cs" />
-    <Compile Include="Models\DBTable_0.cs" />
-    <Compile Include="Models\DLLImport_0.cs" />
-    <Compile Include="Models\EasyJob_db_linq.cs" />
-    <Compile Include="Models\IDXIndex_0.cs" />
-    <Compile Include="Models\InterfaceInModule_0.cs" />
-    <Compile Include="Models\InterfaceModulePower_0.cs" />
-    <Compile Include="Models\InterfaceModule_0.cs" />
-    <Compile Include="Models\ProjectPower_0.cs" />
-    <Compile Include="Models\Project_0.cs" />
-    <Compile Include="Models\TableInModule_0.cs" />
-    <Compile Include="Models\TablePower_0.cs" />
-    <Compile Include="Models\User_0.cs" />
     <Compile Include="WebForm\AutoHideGridPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -203,15 +178,7 @@
       <DependentUpon>DatabaseService.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Database\Actions\Action.cs" />
-    <Compile Include="Database\Actions\CreateTableAction.cs" />
-    <Compile Include="Database\Actions\ChangeTableAction.cs" />
-    <Compile Include="Database\Actions\DeleteTableAction.cs" />
-    <Compile Include="Database\CodeBuilder.cs" />
-    <Compile Include="Database\Services\IDatabaseService.cs" />
-    <Compile Include="Database\Services\ITableService.cs" />
-    <Compile Include="Database\SqlServer\DatabaseService.cs" />
-    <Compile Include="Database\SqlServer\TableService.cs" />
+    <Compile Include="CodeBuilder\CodeBuilder.cs" />
     <Compile Include="EntityEditorStyle\RYGridViewStyle.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DownloadDatabaseCode.aspx.cs">
@@ -312,6 +279,10 @@
     <ProjectReference Include="..\AppLib\AppLib.csproj">
       <Project>{14dc2fe1-93ef-409c-95f0-81fc2d738fe9}</Project>
       <Name>AppLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityDB.Design\EntityDB.Design.csproj">
+      <Project>{a8e2b825-59c5-4a8a-88f8-a12c4013c018}</Project>
+      <Name>EntityDB.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityDB\EntityDB.csproj">
       <Project>{0d7c92f4-47b8-4ebf-9005-74d915b9b469}</Project>

@@ -272,6 +272,7 @@ namespace EJClient
         {
             DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
 
+            selectedItem.OutputAction(AppDomain.CurrentDomain.BaseDirectory + "codes\\database.actions");
             Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value);
             code.Owner = this;
             code.ShowDialog();

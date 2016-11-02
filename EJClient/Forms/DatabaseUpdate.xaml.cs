@@ -1,4 +1,5 @@
-﻿using ECWeb.Database.Services;
+﻿
+using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -131,7 +132,7 @@ namespace EJClient.Forms
                     System.Web.Script.Serialization.JavaScriptSerializer jsonObj = new System.Web.Script.Serialization.JavaScriptSerializer();
                     var db = EntityDB.DBContext.CreateDatabaseService(m_conStr, (EntityDB.DatabaseType)Enum.Parse(typeof(EntityDB.DatabaseType), m_currentDBType));
 
-                    IDatabaseService dbservice = ECWeb.DBHelper.CreateInstance<IDatabaseService>(m_currentDBType);
+                    IDatabaseDesignService dbservice = ECWeb.DBHelper.CreateInstance<IDatabaseDesignService>(m_currentDBType);
                    
                     if (dbservice == null)
                         throw new Exception("无法初始化IDatabaseService for " + m_currentDBType);
@@ -158,8 +159,8 @@ namespace EJClient.Forms
                             string json = datarow["content"].ToString();
                            
 
-                            Type type = typeof(ECWeb.Database.Actions.Action).Assembly.GetType(actionType);
-                            var actionItem = (ECWeb.Database.Actions.Action)jsonObj.Deserialize(json, type);
+                            Type type = typeof(EntityDB.Design.Database.Actions.Action).Assembly.GetType(actionType);
+                            var actionItem = (EntityDB.Design.Database.Actions.Action)jsonObj.Deserialize(json, type);
 
                             setOutputText(string.Format("{0}、{1}", id, actionItem));
                             actionItem.Invoke(db);

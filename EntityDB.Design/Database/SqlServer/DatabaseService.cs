@@ -1,4 +1,4 @@
-﻿using ECWeb.Database.Services;
+﻿using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,9 +8,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace ECWeb.Database.SqlServer
+namespace EntityDB.Design.Database.SqlServer
 {
-    public class DatabaseService : IDatabaseService
+    public class DatabaseService : IDatabaseDesignService
     {
         public void Create(EJ.Databases database)
         {
@@ -104,7 +104,7 @@ namespace ECWeb.Database.SqlServer
         }
 
 
-        public void ImportData(EntityDB.IDatabaseService db, EJDB ejdb, DataSet dset, bool clearDataFirst)
+        public void ImportData(EntityDB.IDatabaseService db, EJ.DB.EasyJob ejdb, DataSet dset, bool clearDataFirst)
         {
             #region 导入数据
             foreach (DataTable dtable in dset.Tables)

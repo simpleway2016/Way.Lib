@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ECWeb.Database.Actions
+namespace EntityDB.Design.Database.Actions
 {
     public abstract class Action
     {
         public int ID { get; set; }
         public abstract void Invoke( EntityDB.IDatabaseService invokingDB);
         internal abstract void BeforeSave();
-        public object Save( EJDB db , int databaseid)
+        public object Save( EJ.DB.EasyJob db , int databaseid)
         {
             BeforeSave();
           

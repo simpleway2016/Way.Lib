@@ -1,4 +1,4 @@
-﻿using ECWeb.Database.Services;
+﻿using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,15 +6,25 @@ using System.Linq;
 using System.Text;
 using System.Web;
 
-namespace ECWeb.Database.Sqlite
+namespace EntityDB.Design.Database.MySql
 {
-    public class DatabaseService : IDatabaseService
+    public class DatabaseService : IDatabaseDesignService
     {
+
 
         public void Create(EJ.Databases database)
         {
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (dbnameMatch == null)
+            {
+                throw new Exception("连接字符串必须采用以下形式server=localhost;User Id=root;password=123456;Database=testDB");
+            }
 
-            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.Sqlite);
+            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.MySql);
+            db.ExecSqlString("create database `" + database.Name.ToLower() + "` CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'");
+
+            //创建必须表
+            db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.MySql);
             CreateEasyJobTable(db);
         }
 
@@ -31,23 +41,15 @@ namespace ECWeb.Database.Sqlite
             }
             if (!exists)
             {
-                db.ExecSqlString("CREATE TABLE [__WayEasyJob](contentConfig TEXT  NOT NULL)");
-                var dbconfig = new DataBaseConfig();
-                try
-                {
-                    dbconfig.LastUpdatedID = Convert.ToInt32( db.ExecSqlString("select lastID from __EasyJob"));
-                }
-                catch
-                {
-                }
-                db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", dbconfig.ToJsonString());
-               
+                db.ExecSqlString("create table  `__WayEasyJob` (contentConfig varchar(1000)  not null)");
+                db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", new DataBaseConfig().ToJsonString());
             }
+            
 
             //try
             //{
-            //    db.ExecSqlString("CREATE TABLE  [] ([lastID] integer  NOT NULL)");
-            //    db.ExecSqlString("insert into  (lastID) values (0)");
+            //    db.ExecSqlString("create table  `` (lastID int(11)  not null)");
+            //    db.ExecSqlString("insert into `` (lastID) values (0)");
             //}
             //catch
             //{
@@ -56,11 +58,27 @@ namespace ECWeb.Database.Sqlite
 
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {
-            var dbnameMatch_old = System.Text.RegularExpressions.Regex.Match(database.conStr, @"Data Source=(?<dname>(\w|\:|\\)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(newConnectString, @"Data Source=(?<dname>(\w|\:|\\)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            string newfilepath = dbnameMatch.Groups["dname"].Value;
-            string oldfilepath = dbnameMatch_old.Groups["dname"].Value;
-            System.IO.File.Move(oldfilepath, newfilepath);
+            throw new Exception("MySql 不支持修改数据库名称");
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (dbnameMatch == null)
+            {
+                throw new Exception("连接字符串必须采用以下形式server=localhost;User Id=root;password=123456;Database=testDB");
+            }
+            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.MySql);
+            db.ExecSqlString(string.Format("RENAME database `{0}` TO `{1}`", database.Name.ToLower(), newName.ToLower()));
+
+            try
+            {
+                var db2 = EntityDB.DBContext.CreateDatabaseService(newConnectString, EntityDB.DatabaseType.MySql);
+                db2.ExecSqlString("select 1");
+            }
+            catch
+            {
+                //
+                db.ExecSqlString(string.Format("RENAME database `{0}` TO `{1}`", newName.ToLower(), database.Name.ToLower()));
+                throw new Exception("连接字符串错误");
+            }
+            
         }
 
         public void GetViews(EntityDB.IDatabaseService db, out List<EJ.DBTable> tables, out List<EJ.DBColumn> columns)
@@ -69,7 +87,7 @@ namespace ECWeb.Database.Sqlite
             columns = new List<EJ.DBColumn>();
         }
 
-        public void ImportData(EntityDB.IDatabaseService db, EJDB ejdb, System.Data.DataSet dset, bool clearDataFirst)
+        public void ImportData(EntityDB.IDatabaseService db, EJ.DB.EasyJob ejdb, System.Data.DataSet dset, bool clearDataFirst)
         {
             #region 导入数据
             foreach (DataTable dtable in dset.Tables)
@@ -86,14 +104,14 @@ namespace ECWeb.Database.Sqlite
 
                 if (clearDataFirst)
                 {
-                    db.ExecSqlString("delete from [" + dtable.TableName + "]");
+                    db.ExecSqlString("delete from `" + dtable.TableName + "`");
                 }
                 try
                 {
                     DataTable 现在数据库DataTable = null;
                     try
                     {
-                        现在数据库DataTable = db.SelectTable("select * from [" + dtable.TableName + "] limit 0,0");
+                        现在数据库DataTable = db.SelectTable("select * from `" + dtable.TableName + "` limit 0,0");
                     }
                     catch (Exception ex)
                     {
@@ -101,7 +119,8 @@ namespace ECWeb.Database.Sqlite
                     }
                     foreach (DataRow row in dtable.Rows)
                     {
-                        if (db.ExecSqlString("select 1 from [" + dtable.TableName + "] where [" + pkcolumn.Name + "]=" + row[pkcolumn.Name]) != null)
+
+                        if (db.ExecSqlString("select 1 from `" + dtable.TableName + "` where `" + pkcolumn.Name + "`=" + row[pkcolumn.Name]) != null)
                         {
                             //update
                             StringBuilder str_fields = new StringBuilder();
@@ -113,16 +132,16 @@ namespace ECWeb.Database.Sqlite
                                     continue;
                                 if (现在数据库DataTable.Columns.Contains(dtable.Columns[columnindex].ColumnName) == false)
                                     continue;
-
+                                
                                 if (str_fields.Length > 0)
                                     str_fields.Append(',');
-                                str_fields.Append("[" + dtable.Columns[columnindex].ColumnName + "]=@p" + pIndex);
+                                str_fields.Append("`" + dtable.Columns[columnindex].ColumnName + "`=@p"+pIndex);
                                 values.Add(row[columnindex]);
                                 pIndex++;
 
                             }
                             values.Add(row[pkcolumn.Name]);
-                            db.ExecSqlString("update [" + dtable.TableName + "] set " + str_fields + " where [" + pkcolumn.Name + "]=@p" + pIndex, values.ToArray());
+                            db.ExecSqlString("update `" + dtable.TableName + "` set " + str_fields + " where `" + pkcolumn.Name + "`=@p" + pIndex,  values.ToArray());
                         }
                         else
                         {
@@ -140,7 +159,7 @@ namespace ECWeb.Database.Sqlite
 
                                 if (str_fields.Length > 0)
                                     str_fields.Append(',');
-                                str_fields.Append("[" + dtable.Columns[columnindex].ColumnName + "]");
+                                str_fields.Append("`" + dtable.Columns[columnindex].ColumnName + "`");
 
                                 if (str_values.Length > 0)
                                     str_values.Append(',');
@@ -148,7 +167,7 @@ namespace ECWeb.Database.Sqlite
                                 values.Add(row[columnindex]);
                                 pIndex++;
                             }
-                            db.ExecSqlString("insert into [" + dtable.TableName + "] (" + str_fields + ") values (" + str_values + ")", values.ToArray());
+                            db.ExecSqlString("insert into `" + dtable.TableName + "` (" + str_fields + ") values ("+str_values+")", values.ToArray());
                         }
                     }
                 }
@@ -161,10 +180,9 @@ namespace ECWeb.Database.Sqlite
         }
 
 
-
         public string GetObjectFormat()
         {
-            return "[{0}]";
+            return "`{0}`";
         }
     }
 }

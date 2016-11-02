@@ -1,59 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\SQLite.Native.3.12.3\build\net45\SQLite.Native.props" Condition="Exists('..\packages\SQLite.Native.3.12.3\build\net45\SQLite.Native.props')" />
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0D7C92F4-47B8-4EBF-9005-74D915B9B469}</ProjectGuid>
+    <ProjectGuid>{A8E2B825-59C5-4A8A-88F8-A12C4013C018}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntityDB</RootNamespace>
-    <AssemblyName>EntityDB</AssemblyName>
+    <RootNamespace>EntityDB.Design</RootNamespace>
+    <AssemblyName>EntityDB.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>D:\注释\2016\bin\EntityDB.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>D:\注释\2016\bin\EntityDB.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Data.Sqlite, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.Sqlite.1.0.0\lib\net451\Microsoft.Data.Sqlite.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.0.1\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=1.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Relational.1.0.1\lib\net451\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.Sqlite, Version=1.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Sqlite.1.0.1\lib\net451\Microsoft.EntityFrameworkCore.Sqlite.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.SqlServer, Version=1.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.SqlServer.1.0.1\lib\net451\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -88,18 +66,6 @@
       <HintPath>..\packages\Microsoft.Extensions.Primitives.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Pomelo.Data.MySql, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pomelo.Data.MySql.1.0.0\lib\net451\Pomelo.Data.MySql.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Pomelo.EntityFrameworkCore.MySql, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pomelo.EntityFrameworkCore.MySql.1.0.0\lib\net451\Pomelo.EntityFrameworkCore.MySql.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
       <Private>True</Private>
@@ -111,55 +77,74 @@
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.0.0\lib\portable-net45+win8+wpa81\System.Diagnostics.DiagnosticSource.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Interactive.Async, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Management" />
-    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionCapture.cs" />
-    <Compile Include="Attributes\TableAttribute.cs" />
-    <Compile Include="CustomDataItem.cs" />
-    <Compile Include="DataBaseService\IDatabaseService.cs" />
-    <Compile Include="DataBaseService\MySql\MySqlService.cs" />
-    <Compile Include="DataBaseService\Sqlite\SqliteService.cs" />
-    <Compile Include="DataBaseService\SqlServer\SqlServerService.cs" />
-    <Compile Include="DataItem.cs" />
-    <Compile Include="DBContext.cs" />
-    <Compile Include="DynamicLinq.cs" />
-    <Compile Include="Exceptons\RepeatValueException.cs" />
+    <Compile Include="Database\Actions\Action.cs" />
+    <Compile Include="Database\Actions\ChangeTableAction.cs" />
+    <Compile Include="Database\Actions\CreateTableAction.cs" />
+    <Compile Include="Database\Actions\DeleteTableAction.cs" />
+    <Compile Include="Database\MySql\DatabaseService.cs" />
+    <Compile Include="Database\MySql\TableService.cs" />
+    <Compile Include="Database\Services\DataBaseConfig.cs" />
+    <Compile Include="Database\Services\IDatabaseDesignService.cs" />
+    <Compile Include="Database\Services\ITableDesignService.cs" />
+    <Compile Include="Database\Sqlite\DatabaseService.cs" />
+    <Compile Include="Database\Sqlite\TableService.cs" />
+    <Compile Include="Database\SqlServer\DatabaseService.cs" />
+    <Compile Include="Database\SqlServer\TableService.cs" />
+    <Compile Include="DBHelper.cs" />
+    <Compile Include="DBUpgrade\DBUpgrade.cs" />
+    <Compile Include="Models\BugHandleHistory_0.cs" />
+    <Compile Include="Models\BugImages_0.cs" />
+    <Compile Include="Models\Bug_0.cs" />
+    <Compile Include="Models\Databases_0.cs" />
+    <Compile Include="Models\DBColumn_0.cs" />
+    <Compile Include="Models\DBDeleteConfig_0.cs" />
+    <Compile Include="Models\DBModule_0.cs" />
+    <Compile Include="Models\DBPower_0.cs" />
+    <Compile Include="Models\DBTable_0.cs" />
+    <Compile Include="Models\DLLImport_0.cs" />
+    <Compile Include="Models\EasyJob_db_linq.cs" />
+    <Compile Include="Models\IDXIndex_0.cs" />
+    <Compile Include="Models\InterfaceInModule_0.cs" />
+    <Compile Include="Models\InterfaceModulePower_0.cs" />
+    <Compile Include="Models\InterfaceModule_0.cs" />
+    <Compile Include="Models\ProjectPower_0.cs" />
+    <Compile Include="Models\Project_0.cs" />
+    <Compile Include="Models\TableInModule_0.cs" />
+    <Compile Include="Models\TablePower_0.cs" />
+    <Compile Include="Models\User_0.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadingDataHandler.cs" />
-    <Compile Include="WayLinqColumnAttribute.cs" />
-    <Compile Include="WayQueryable.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AppLib\AppLib.csproj">
+      <Project>{14dc2fe1-93ef-409c-95f0-81fc2d738fe9}</Project>
+      <Name>AppLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityDB\EntityDB.csproj">
+      <Project>{0d7c92f4-47b8-4ebf-9005-74d915b9b469}</Project>
+      <Name>EntityDB</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SQLite.Native.3.12.3\build\net45\SQLite.Native.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SQLite.Native.3.12.3\build\net45\SQLite.Native.props'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

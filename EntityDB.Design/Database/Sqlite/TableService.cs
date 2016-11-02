@@ -1,13 +1,13 @@
-﻿using ECWeb.Database.Services;
+﻿using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Web;
 
-namespace ECWeb.Database.Sqlite
+namespace EntityDB.Design.Database.Sqlite
 {
-    public class TableService : ITableService
+    public class TableService : ITableDesignService
     {
         string getSqliteType(string dbtype)
         {

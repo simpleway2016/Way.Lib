@@ -1,5 +1,5 @@
-﻿using ECWeb.Database.Actions;
-using ECWeb.Database.Services;
+﻿
+using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +83,7 @@ namespace ECWeb.WebForm
                     dataitem.ProjectID = Request.QueryString["projectid"].ToInt();
                     db.Update(dataitem);
 
-                    IDatabaseService dbservice = DBHelper.CreateInstance<IDatabaseService>(dataitem.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(dataitem.dbType.ToString());
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();
@@ -130,7 +130,7 @@ namespace ECWeb.WebForm
                 if (data.dbType != oldData.dbType)
                 {
                     //变更数据库类型
-                    IDatabaseService dbservice = DBHelper.CreateInstance<IDatabaseService>(data.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(data.dbType.ToString());
                     dbservice.Create(data);
                     //更新到现在的数据结构
                     var invokeDB = DBHelper.CreateInvokeDatabase(data);
@@ -151,8 +151,8 @@ namespace ECWeb.WebForm
                                 string json = datarow["content"].ToString();
 
 
-                                Type type = typeof(ECWeb.Database.Actions.Action).Assembly.GetType(actiontype);
-                                var actionItem = (ECWeb.Database.Actions.Action)jsonObj.Deserialize(json, type);
+                                Type type = typeof(EntityDB.Design.Database.Actions.Action).Assembly.GetType(actiontype);
+                                var actionItem = (EntityDB.Design.Database.Actions.Action)jsonObj.Deserialize(json, type);
 
                                 actionItem.Invoke(invokeDB);
 
@@ -178,7 +178,7 @@ namespace ECWeb.WebForm
                 }
                 else if (data.Name.ToLower() != oldData.Name.ToLower())
                 {
-                    IDatabaseService dbservice = DBHelper.CreateInstance<IDatabaseService>(oldData.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(oldData.dbType.ToString());
                     dbservice.ChangeName(oldData, data.Name, data.conStr);
                 }
                 this.WriteJsToTheEndOfForm("function webBrowser_start(){$('#btnClose')[0].click();}");

@@ -85,7 +85,6 @@ namespace " + nameSpace + @".DB
  [System.Data.Linq.Mapping.DatabaseAttribute(Name = """ + database + @""")]
     public class " + database + @" : EntityDB.DBContext
     {
-
         /// <summary>
         /// 
         /// </summary>
@@ -95,6 +94,7 @@ namespace " + nameSpace + @".DB
         {
             if (!setEvented)
             {
+                EntityDB.Design.DBUpgrade.Upgrade(this);
                 setEvented = true;
                 EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
             }

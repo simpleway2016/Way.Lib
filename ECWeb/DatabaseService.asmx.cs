@@ -1,5 +1,7 @@
-﻿using ECWeb.Database.Actions;
-using ECWeb.Database.Services;
+﻿
+using EntityDB.Design;
+using EntityDB.Design.Database.Actions;
+using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -195,7 +197,7 @@ namespace ECWeb
                     var database = db.Databases.FirstOrDefault(m => m.id == table.DatabaseID);
                     var invokingDB = DBHelper.CreateInvokeDatabase(database);
                     
-                        IDatabaseService service = DBHelper.CreateInstance<IDatabaseService>(invokingDB.GetType().Name);
+                        IDatabaseDesignService service = DBHelper.CreateInstance<IDatabaseDesignService>(invokingDB.GetType().Name);
                         var columns = db.DBColumn.Where(m=>m.TableID == table.id).ToList();
                         var pkcolumn = columns.FirstOrDefault(m => m.IsPKID == true && m.TableID == table.id);
                         if (pkcolumn == null)
@@ -321,7 +323,7 @@ namespace ECWeb
                     var invokingDB = DBHelper.CreateInvokeDatabase(database);
                     {
                         //不开事务，太慢
-                        var service = DBHelper.CreateInstance<IDatabaseService>(database.dbType.ToString());
+                        var service = DBHelper.CreateInstance<IDatabaseDesignService>(database.dbType.ToString());
                         service.ImportData(invokingDB, db, dset, clearDataFirst);
                         dset.Dispose();
                     }
@@ -567,7 +569,7 @@ namespace ECWeb
                 var database = db.Databases.FirstOrDefault(m => m.id == dbid);
                 var invokingDB = DBHelper.CreateInvokeDatabase(database);
                 {
-                    IDatabaseService service = DBHelper.CreateInstance<IDatabaseService>(invokingDB.GetType().Name);
+                    IDatabaseDesignService service = DBHelper.CreateInstance<IDatabaseDesignService>(invokingDB.GetType().Name);
                     return service.GetObjectFormat();
                 }
             }
@@ -667,7 +669,7 @@ namespace ECWeb
 
 
 
-                    Database.Actions.ChangeTableAction action = new ChangeTableAction(newtable.DatabaseID.Value, oldtable.Name, newtable.Name,
+                    ChangeTableAction action = new ChangeTableAction(newtable.DatabaseID.Value, oldtable.Name, newtable.Name,
                         addcolumns, changedColumns.ToArray(), delColumns,otherColumns.ToArray(),
                         idxConfigs);
                     action.Invoke(invokingDB);
@@ -884,7 +886,7 @@ namespace ECWeb
                     }
 
 
-                    Database.Actions.DeleteTableAction action = new DeleteTableAction(tableName);
+                    var action = new DeleteTableAction(tableName);
                     action.Invoke(invokingDB);
 
                     EJ.DBTable table = db.DBTable.FirstOrDefault(m => m.DatabaseID == databaseID && m.Name == tableName);
@@ -955,7 +957,7 @@ namespace ECWeb
                     if (db.DBTable.Where(m => m.DatabaseID == table.DatabaseID && m.Name == table.Name).Any())
                         throw new Exception("数据表名称重复");
 
-                    Database.Actions.CreateTableAction action = new CreateTableAction(table, columns, idxConfigs);
+                    var action = new CreateTableAction(table, columns, idxConfigs);
                     action.Invoke(invokingDB);
 
                     db.Update(table);
@@ -1148,7 +1150,7 @@ namespace ECWeb
 
                     dset.Dispose();
 
-                    IDatabaseService dbservice = DBHelper.CreateInstance<IDatabaseService>(database.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(database.dbType.ToString());
                     dbservice.Create(database);
 
                     db.CommitTransaction();
@@ -1188,7 +1190,7 @@ namespace ECWeb
                     dataitem.Guid = Guid.NewGuid().ToString();
                     db.Update(dataitem);
 
-                    IDatabaseService dbservice = DBHelper.CreateInstance<IDatabaseService>(dataitem.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(dataitem.dbType.ToString());
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();
@@ -1678,13 +1680,6 @@ namespace ECWeb
             string folder = HttpContext.Current.Request.MapPath("/updates");
             return System.IO.File.ReadAllBytes(folder + "\\" + savepath);
         }
-    }
-    public class IndexInfo
-    {
-        public bool IsUnique;
-        public bool IsClustered;
-        public string[] ColumnNames;
-        public string Name;
     }
     class FileInfo
     {

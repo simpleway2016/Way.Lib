@@ -1,10 +1,10 @@
-﻿using ECWeb.Database.Services;
+﻿using EntityDB.Design.Database.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ECWeb.Database.Actions
+namespace EntityDB.Design.Database.Actions
 {
     public class DeleteTableAction : Action
     {
@@ -28,7 +28,7 @@ namespace ECWeb.Database.Actions
          public override void Invoke(EntityDB.IDatabaseService invokingDB)
         {
   
-             ITableService service = DBHelper.CreateInstance<ITableService>(invokingDB.GetType().Name);
+             ITableDesignService service = DBHelper.CreateInstance<ITableDesignService>(invokingDB.GetType().Name);
              service.DeleteTable( invokingDB , this.TableName);
         }
 

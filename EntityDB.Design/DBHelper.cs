@@ -3,8 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace ECWeb
+namespace EntityDB.Design
 {
+    public class IndexInfo
+    {
+        public bool IsUnique;
+        public bool IsClustered;
+        public string[] ColumnNames;
+        public string Name;
+    }
+
     public class DBHelper
     {
         public static T CreateInstance<T>(string dbServerType)
@@ -30,7 +38,7 @@ namespace ECWeb
             return EntityDB.DBContext.CreateDatabaseService(conStr, (EntityDB.DatabaseType)Enum.Parse(typeof(EntityDB.DatabaseType), databaseConfig.dbType.ToString()));
         }
     }
-    public static class MyExtensions
+    static class MyExtensions
     {
         static System.Web.Script.Serialization.JavaScriptSerializer json = new System.Web.Script.Serialization.JavaScriptSerializer();
         public static string ToJsonString(this object obj)
@@ -52,5 +60,7 @@ namespace ECWeb
                 return null;
             return System.Text.Encoding.UTF8.GetBytes( json.Serialize(obj));
         }
+
+        
     }
 }

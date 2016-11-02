@@ -82,7 +82,10 @@ namespace EntityDB
         }
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            var assembly = Assembly.Load(args.Name.Split(',')[0].Trim());
+            string name = args.Name.Split(',')[0].Trim();
+            if (name.StartsWith("Microsoft.VisualStudio.Web.PageInspector.Tracing.resources"))
+                return null;
+            var assembly = Assembly.Load(name);
             return assembly;
         }
         /// <summary>
