@@ -61,6 +61,32 @@ namespace EntityDB
         static bool SetConfigurationed = false;
         static List<IActionCapture> TypeCaptures = new List<IActionCapture>();
 
+        static Dictionary<EntityDB.DatabaseType, Type> _DatabaseServiceTypes;
+        static Dictionary<EntityDB.DatabaseType, Type> DatabaseServiceTypes
+        {
+            get
+            {
+                if (_DatabaseServiceTypes == null)
+                {
+                    var compareType = typeof(IDatabaseService);
+                    _DatabaseServiceTypes = new Dictionary<DatabaseType, Type>();
+                    var types = typeof(DBContext).Assembly.GetTypes();
+                    foreach (var type in types)
+                    {
+                        if (type.GetInterfaces().Any(m => m == compareType))
+                        {
+                            var attrs = type.GetCustomAttributes(typeof(EntityDB.Attributes.DatabaseTypeAttribute), false);
+                            if (attrs.Length > 0)
+                            {
+                                EntityDB.Attributes.DatabaseTypeAttribute att = (EntityDB.Attributes.DatabaseTypeAttribute)attrs[0];
+                                _DatabaseServiceTypes[att.DBType] = type;
+                            }
+                        }
+                    }
+                }
+                return _DatabaseServiceTypes;
+            }
+        }
 
         #endregion
 
@@ -632,7 +658,7 @@ namespace EntityDB
 
         static System.Data.Common.DbConnection CreateConnection(string connectionString, DatabaseType dbType)
         {
-            Type type = typeof(DBContext).Assembly.GetType("EntityDB." + dbType + "Service");
+            Type type = DatabaseServiceTypes[dbType];
             IDatabaseService service = (IDatabaseService)Activator.CreateInstance(type);
             return service.CreateConnection(connectionString);
         }
@@ -647,7 +673,7 @@ namespace EntityDB
         {
             this.DatabaseType = dbType;
             this.ConnectionString = connectionString;
-            Type type = typeof(DBContext).Assembly.GetType("EntityDB." + dbType + "Service");
+            Type type = DatabaseServiceTypes[dbType];
             _databaseService = (IDatabaseService)Activator.CreateInstance(type, new object[] { this });
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
