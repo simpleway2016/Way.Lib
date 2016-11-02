@@ -29,7 +29,7 @@ namespace ECWeb.WebForm
                     }
                 }
                 
-                string[] typenames = Enum.GetNames(typeof(EJ.Databases_dbTypeEnum));
+                string[] typenames = Enum.GetNames(typeof(EntityDB.DatabaseType));
                 foreach (string tn in typenames)
                 {
                     selDBType.Items.Add(new ListItem(tn , tn));
@@ -75,7 +75,7 @@ namespace ECWeb.WebForm
                 {
                     EJ.Databases dataitem = new EJ.Databases();
                     dataitem.conStr = txt_conStr.Text.Trim();
-                    dataitem.dbType = (EJ.Databases_dbTypeEnum) Enum.Parse( typeof(EJ.Databases_dbTypeEnum) ,  selDBType.SelectedValue);
+                    dataitem.dbType = (EntityDB.DatabaseType) Enum.Parse( typeof(EntityDB.DatabaseType) ,  selDBType.SelectedValue);
                     dataitem.dllPath = txt_dllPath.Text.Trim();
                     dataitem.Name = txt_Name.Text.Trim();
                     dataitem.NameSpace = txtNamespace.Text.Trim();
@@ -83,7 +83,7 @@ namespace ECWeb.WebForm
                     dataitem.ProjectID = Request.QueryString["projectid"].ToInt();
                     db.Update(dataitem);
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(dataitem.dbType.ToString());
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(dataitem.dbType);
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();
@@ -130,10 +130,10 @@ namespace ECWeb.WebForm
                 if (data.dbType != oldData.dbType)
                 {
                     //变更数据库类型
-                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(data.dbType.ToString());
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(data.dbType);
                     dbservice.Create(data);
                     //更新到现在的数据结构
-                    var invokeDB = DBHelper.CreateInvokeDatabase(data);
+                    var invokeDB = EntityDB.Design.DBHelper.CreateInvokeDatabase(data);
                     var dbconfig = invokeDB.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
                     dbconfig.DatabaseGuid = data.Guid;
                     invokeDB.DBContext.BeginTransaction();
@@ -178,7 +178,7 @@ namespace ECWeb.WebForm
                 }
                 else if (data.Name.ToLower() != oldData.Name.ToLower())
                 {
-                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(oldData.dbType.ToString());
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(oldData.dbType);
                     dbservice.ChangeName(oldData, data.Name, data.conStr);
                 }
                 this.WriteJsToTheEndOfForm("function webBrowser_start(){$('#btnClose')[0].click();}");

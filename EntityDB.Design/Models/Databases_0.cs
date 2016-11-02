@@ -9,30 +9,6 @@ using System.Linq;
 using System.Text;
 namespace EJ{
 
-/// <summary>
-/// 
-	/// </summary>
-public enum Databases_dbTypeEnum:int
-{
-    
-
-/// <summary>
-/// 
-	/// </summary>
-SqlServer = 1,
-
-/// <summary>
-/// 
-	/// </summary>
-
-Sqlite = 2,
-
-/// <summary>
-/// 
-	/// </summary>
-
-MySql=3,
-}
 
     /// <summary>
 	/// 数据库
@@ -120,12 +96,12 @@ String _Name;
             }
         }
 
-Databases_dbTypeEnum _dbType=(Databases_dbTypeEnum)(1);
+        EntityDB.DatabaseType _dbType = (EntityDB.DatabaseType)(1);
 /// <summary>
 /// 数据库类型
 	/// </summary>
 [EntityDB.WayLinqColumnAttribute(Comment="",Caption="数据库类型",Storage = "_dbType",DbType="int")]
-        public Databases_dbTypeEnum dbType
+        public EntityDB.DatabaseType dbType
         {
             get
             {

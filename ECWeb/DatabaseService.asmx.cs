@@ -197,7 +197,7 @@ namespace ECWeb
                     var database = db.Databases.FirstOrDefault(m => m.id == table.DatabaseID);
                     var invokingDB = DBHelper.CreateInvokeDatabase(database);
                     
-                        IDatabaseDesignService service = DBHelper.CreateInstance<IDatabaseDesignService>(invokingDB.GetType().Name);
+                        IDatabaseDesignService service = DBHelper.CreateDatabaseDesignService(invokingDB.DBContext.DatabaseType);
                         var columns = db.DBColumn.Where(m=>m.TableID == table.id).ToList();
                         var pkcolumn = columns.FirstOrDefault(m => m.IsPKID == true && m.TableID == table.id);
                         if (pkcolumn == null)
@@ -323,7 +323,7 @@ namespace ECWeb
                     var invokingDB = DBHelper.CreateInvokeDatabase(database);
                     {
                         //不开事务，太慢
-                        var service = DBHelper.CreateInstance<IDatabaseDesignService>(database.dbType.ToString());
+                        var service = DBHelper.CreateDatabaseDesignService(database.dbType);
                         service.ImportData(invokingDB, db, dset, clearDataFirst);
                         dset.Dispose();
                     }
@@ -569,7 +569,7 @@ namespace ECWeb
                 var database = db.Databases.FirstOrDefault(m => m.id == dbid);
                 var invokingDB = DBHelper.CreateInvokeDatabase(database);
                 {
-                    IDatabaseDesignService service = DBHelper.CreateInstance<IDatabaseDesignService>(invokingDB.GetType().Name);
+                    IDatabaseDesignService service = DBHelper.CreateDatabaseDesignService(invokingDB.DBContext.DatabaseType);
                     return service.GetObjectFormat();
                 }
             }
@@ -1150,7 +1150,7 @@ namespace ECWeb
 
                     dset.Dispose();
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(database.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService(database.dbType);
                     dbservice.Create(database);
 
                     db.CommitTransaction();
@@ -1171,7 +1171,7 @@ namespace ECWeb
         /// <param name="dllpath"></param>
         /// <param name="dbname"></param>
         [WebMethod(EnableSession = true)]
-        public void CreateDatabase(int projectid, EJ.Databases_dbTypeEnum databaseType, string connectionString, string dllpath, string dbname)
+        public void CreateDatabase(int projectid, EntityDB.DatabaseType databaseType, string connectionString, string dllpath, string dbname)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆"); 
@@ -1190,7 +1190,7 @@ namespace ECWeb
                     dataitem.Guid = Guid.NewGuid().ToString();
                     db.Update(dataitem);
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(dataitem.dbType.ToString());
+                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService(dataitem.dbType);
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace EntityDB
 {
+    [Attributes.DatabaseTypeAttribute( DatabaseType.Sqlite)]
     class SqliteService:IDatabaseService
     {
         protected DatabaseFacade _database;

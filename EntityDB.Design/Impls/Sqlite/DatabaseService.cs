@@ -9,6 +9,7 @@ using System.Web;
 
 namespace EntityDB.Design.Database.Sqlite
 {
+    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
     public class DatabaseService : IDatabaseDesignService
     {
 

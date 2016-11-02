@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionCapture.cs" />
+    <Compile Include="Attributes\DatabaseTypeAttribute.cs" />
     <Compile Include="Attributes\TableAttribute.cs" />
     <Compile Include="CustomDataItem.cs" />
     <Compile Include="DataBaseService\IDatabaseService.cs" />

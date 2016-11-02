@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace EntityDB
 {
+    [Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
     class MySqlService:SqliteService
     { 
 

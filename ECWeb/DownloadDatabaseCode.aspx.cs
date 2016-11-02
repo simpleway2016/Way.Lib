@@ -22,8 +22,8 @@ namespace ECWeb
                 var tables = db.DBTable.Where(m => m.DatabaseID == databaseid).ToList();
                 System.IO.BinaryWriter bw = new System.IO.BinaryWriter( Response.OutputStream);
 
-                var invokingDB = DBHelper.CreateInvokeDatabase(database);
-                IDatabaseDesignService dbservice = DBHelper.CreateInstance<IDatabaseDesignService>(database.dbType.ToString());
+                var invokingDB = EntityDB.Design.DBHelper.CreateInvokeDatabase(database);
+                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(database.dbType);
                 List<EJ.DBTable> viewtables = new List<EJ.DBTable>();
                 List<EJ.DBColumn> viewcolumns = new List<EJ.DBColumn>();
                 dbservice.GetViews(invokingDB, out viewtables, out viewcolumns);

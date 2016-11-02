@@ -1576,7 +1576,7 @@ namespace EJClient.Web {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/CreateDatabase", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void CreateDatabase(int projectid, Databases_dbTypeEnum databaseType, string connectionString, string dllpath, string dbname) {
+        public void CreateDatabase(int projectid, DatabaseType databaseType, string connectionString, string dllpath, string dbname) {
             this.Invoke("CreateDatabase", new object[] {
                         projectid,
                         databaseType,
@@ -1586,12 +1586,12 @@ namespace EJClient.Web {
         }
         
         /// <remarks/>
-        public void CreateDatabaseAsync(int projectid, Databases_dbTypeEnum databaseType, string connectionString, string dllpath, string dbname) {
+        public void CreateDatabaseAsync(int projectid, DatabaseType databaseType, string connectionString, string dllpath, string dbname) {
             this.CreateDatabaseAsync(projectid, databaseType, connectionString, dllpath, dbname, null);
         }
         
         /// <remarks/>
-        public void CreateDatabaseAsync(int projectid, Databases_dbTypeEnum databaseType, string connectionString, string dllpath, string dbname, object userState) {
+        public void CreateDatabaseAsync(int projectid, DatabaseType databaseType, string connectionString, string dllpath, string dbname, object userState) {
             if ((this.CreateDatabaseOperationCompleted == null)) {
                 this.CreateDatabaseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCreateDatabaseOperationCompleted);
             }
@@ -2273,7 +2273,7 @@ namespace EJClient.Web {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1055.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/")]
-    public enum Databases_dbTypeEnum {
+    public enum DatabaseType {
         
         /// <remarks/>
         SqlServer,

@@ -11,6 +11,7 @@ using System.Web;
 
 namespace EntityDB.Design.Database.SqlServer
 {
+    [EntityDB.Attributes.DatabaseTypeAttribute( DatabaseType.SqlServer)]
     public class DatabaseService : IDatabaseDesignService
     {
         public void Create(EJ.Databases database)

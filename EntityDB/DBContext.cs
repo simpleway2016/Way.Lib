@@ -9,11 +9,26 @@ using System.Threading.Tasks;
 
 namespace EntityDB
 {
-    public enum DatabaseType
+    public enum DatabaseType:int 
     {
-        SqlServer = 0,
-        Sqlite = 1,
-        MySql = 2,
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        SqlServer = 1,
+
+        /// <summary>
+        /// 
+        /// </summary>
+
+        Sqlite = 2,
+
+        /// <summary>
+        /// 
+        /// </summary>
+
+        MySql = 3,
     }
     public class DatabaseModifyEventArg
     {

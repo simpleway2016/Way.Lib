@@ -26,7 +26,7 @@ namespace EntityDB.Design
                 EntityDB.IDatabaseService db = dbContext.Database;
                 EntityDB.DatabaseType dbType = dbContext.DatabaseType;
 
-                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateInstance<IDatabaseDesignService>(dbType.ToString());
+                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(dbType);
                 dbservice.CreateEasyJobTable(db);
 
                 var dbconfig = db.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();

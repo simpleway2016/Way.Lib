@@ -45,8 +45,8 @@ namespace EntityDB.Design.Actions
         public override void Invoke( EntityDB.IDatabaseService invokingDB)
         {
   
-             ITableDesignService service = DBHelper.CreateInstance<ITableDesignService>(invokingDB.GetType().Name);
-             service.CreateTable(invokingDB, this.Table, this.Columns, IDXConfigs);
+             ITableDesignService service = DBHelper.CreateTableDesignService(invokingDB.DBContext.DatabaseType);
+            service.CreateTable(invokingDB, this.Table, this.Columns, IDXConfigs);
         }
         public override string ToString()
         {

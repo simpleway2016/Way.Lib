@@ -5,31 +5,7 @@ using System.Web;
 
 namespace ECWeb
 {
-    public class DBHelper
-    {
-        public static T CreateInstance<T>(string dbServerType)
-        {
-            dbServerType = dbServerType.Replace("Service", "");
-            dbServerType = "." + dbServerType + ".";
-            Type t = AppHelper.ViewInterfaceTypes<T>().Where(m => m.FullName.Contains(dbServerType)).FirstOrDefault();
 
-            return (T)Activator.CreateInstance(t);
-        }
-
-        public static EntityDB.IDatabaseService CreateInvokeDatabase(EJ.Databases databaseConfig)
-        {
-            string conStr = null;
-            if (System.Web.HttpRuntime.AppDomainAppPath != null)
-            {
-                conStr = string.Format(databaseConfig.conStr, System.Web.HttpRuntime.AppDomainAppPath);
-            }
-            else
-            {
-                conStr = string.Format(databaseConfig.conStr,AppDomain.CurrentDomain.BaseDirectory);
-            }
-            return EntityDB.DBContext.CreateDatabaseService(conStr, (EntityDB.DatabaseType)Enum.Parse(typeof(EntityDB.DatabaseType), databaseConfig.dbType.ToString()));
-        }
-    }
     public static class MyExtensions
     {
         static System.Web.Script.Serialization.JavaScriptSerializer json = new System.Web.Script.Serialization.JavaScriptSerializer();

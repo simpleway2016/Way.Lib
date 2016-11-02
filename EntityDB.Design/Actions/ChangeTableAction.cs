@@ -93,7 +93,7 @@ namespace EntityDB.Design.Actions
          }
          public override void Invoke(EntityDB.IDatabaseService invokingDB)
         {
-            ITableDesignService service = DBHelper.CreateInstance<ITableDesignService>(invokingDB.GetType().Name);
+            ITableDesignService service = DBHelper.CreateTableDesignService(invokingDB.DBContext.DatabaseType);
              service.ChangeTable(invokingDB, OldTableName, NewTableName, newColumns, changedColumns, deletedColumns,otherColumns , IDXConfigs);
         }
 

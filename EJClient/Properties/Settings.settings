@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="EJClient_Web_DatabaseService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost:888/DatabaseService.asmx</Value>
+      <Value Profile="(Default)">http://localhost:889/DatabaseService.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -28,8 +28,8 @@ namespace EntityDB.Design.Actions
          public override void Invoke(EntityDB.IDatabaseService invokingDB)
         {
   
-             ITableDesignService service = DBHelper.CreateInstance<ITableDesignService>(invokingDB.GetType().Name);
-             service.DeleteTable( invokingDB , this.TableName);
+             ITableDesignService service = DBHelper.CreateTableDesignService(invokingDB.DBContext.DatabaseType);
+            service.DeleteTable( invokingDB , this.TableName);
         }
 
         public override string ToString()

@@ -45,13 +45,78 @@ namespace EntityDB.Design
     }
     public class DBHelper
     {
-        public static T CreateInstance<T>(string dbServerType)
+        static Dictionary<EntityDB.DatabaseType,Type> _DatabaseDesignServiceTypes;
+        static Dictionary<EntityDB.DatabaseType, Type> DatabaseDesignServiceTypes
         {
-            dbServerType = dbServerType.Replace("Service", "");
-            dbServerType = "." + dbServerType + ".";
-            Type t = AppHelper.ViewInterfaceTypes<T>().Where(m => m.FullName.Contains(dbServerType)).FirstOrDefault();
+            get
+            {
+                if (_DatabaseDesignServiceTypes == null)
+                {
+                    var compareType = typeof(EntityDB.Design.Services.IDatabaseDesignService);
+                    _DatabaseDesignServiceTypes = new Dictionary<DatabaseType, Type>();
+                    var types = typeof(EntityDB.Design.Services.IDatabaseDesignService).Assembly.GetTypes();
+                    foreach (var type in types)
+                    {
+                        if (type.GetInterfaces().Any( m=>m == compareType))
+                        {
+                            var attrs = type.GetCustomAttributes(typeof(EntityDB.Attributes.DatabaseTypeAttribute), false);
+                            if (attrs.Length > 0)
+                            {
+                                EntityDB.Attributes.DatabaseTypeAttribute att = (EntityDB.Attributes.DatabaseTypeAttribute)attrs[0];
+                                _DatabaseDesignServiceTypes[att.DBType] = type;
+                            }
+                        }
+                    }
+                }
+                return _DatabaseDesignServiceTypes;
+            }
+        }
 
-            return (T)Activator.CreateInstance(t);
+
+        static Dictionary<EntityDB.DatabaseType, Type> _TableDesignServiceTypes;
+        static Dictionary<EntityDB.DatabaseType, Type> TableDesignServiceTypes
+        {
+            get
+            {
+                if (_TableDesignServiceTypes == null)
+                {
+                    var compareType = typeof(EntityDB.Design.Services.ITableDesignService);
+                    _TableDesignServiceTypes = new Dictionary<DatabaseType, Type>();
+                    var types = typeof(EntityDB.Design.Services.ITableDesignService).Assembly.GetTypes();
+                    foreach (var type in types)
+                    {
+                        if (type.GetInterfaces().Any(m => m == compareType))
+                        {
+                            var attrs = type.GetCustomAttributes(typeof(EntityDB.Attributes.DatabaseTypeAttribute), false);
+                            if (attrs.Length > 0)
+                            {
+                                EntityDB.Attributes.DatabaseTypeAttribute att = (EntityDB.Attributes.DatabaseTypeAttribute)attrs[0];
+                                _DatabaseDesignServiceTypes[att.DBType] = type;
+                            }
+                        }
+                    }
+                }
+                return _TableDesignServiceTypes;
+            }
+        }
+
+        public static EntityDB.Design.Services.IDatabaseDesignService CreateDatabaseDesignService(EntityDB.DatabaseType dbtype)
+        {
+            var type = DatabaseDesignServiceTypes[dbtype];
+            if (type == null)
+            {
+                throw new Exception(dbtype + "没有对应的IDatabaseDesignService实现类");
+            }
+            return (EntityDB.Design.Services.IDatabaseDesignService)Activator.CreateInstance(DatabaseDesignServiceTypes[dbtype]);
+        }
+        public static EntityDB.Design.Services.ITableDesignService CreateTableDesignService(EntityDB.DatabaseType dbtype)
+        {
+            var type = TableDesignServiceTypes[dbtype];
+            if (type == null)
+            {
+                throw new Exception(dbtype + "没有对应的ITableDesignService实现类");
+            }
+            return (EntityDB.Design.Services.ITableDesignService)Activator.CreateInstance(DatabaseDesignServiceTypes[dbtype]);
         }
 
         public static EntityDB.IDatabaseService CreateInvokeDatabase(EJ.Databases databaseConfig)

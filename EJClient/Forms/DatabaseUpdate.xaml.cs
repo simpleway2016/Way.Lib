@@ -43,7 +43,7 @@ namespace EJClient.Forms
             {
             }
 
-            string[] typenames = Enum.GetNames(typeof(EJ.Databases_dbTypeEnum));
+            string[] typenames = Enum.GetNames(typeof(EntityDB.DatabaseType));
             foreach (string tn in typenames)
             {
                 cmbDBType.Items.Add(tn);
@@ -132,7 +132,7 @@ namespace EJClient.Forms
                     System.Web.Script.Serialization.JavaScriptSerializer jsonObj = new System.Web.Script.Serialization.JavaScriptSerializer();
                     var db = EntityDB.DBContext.CreateDatabaseService(m_conStr, (EntityDB.DatabaseType)Enum.Parse(typeof(EntityDB.DatabaseType), m_currentDBType));
 
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateInstance<IDatabaseDesignService>(m_currentDBType);
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(db.DBContext.DatabaseType);
                    
                     if (dbservice == null)
                         throw new Exception("无法初始化IDatabaseService for " + m_currentDBType);

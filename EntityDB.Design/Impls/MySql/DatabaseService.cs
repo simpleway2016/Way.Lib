@@ -9,6 +9,7 @@ using System.Web;
 
 namespace EntityDB.Design.Database.MySql
 {
+    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
     public class DatabaseService : IDatabaseDesignService
     {
 
