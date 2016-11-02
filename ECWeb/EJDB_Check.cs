@@ -138,35 +138,5 @@ namespace ECWeb
         }
     }
 
-    public class BugItem : EJ.Bug
-    {
-        public string SubmitUserName
-        {
-            get;
-            set;
-        }
-        public string HandlerUserName
-        {
-            get;
-            set;
-        }
-    }
-    public class BugHistoryItem
-    {
-        public string UserName
-        {
-            get;
-            set;
-        }
-        public byte[] Content
-        {
-            get;
-            set;
-        }
-        public DateTime? SubmitTime
-        {
-            get;
-            set;
-        }
-    }
+   
 }

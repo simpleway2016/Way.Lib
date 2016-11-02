@@ -1,10 +1,10 @@
-﻿using EntityDB.Design.Database.Services;
+﻿using EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace EntityDB.Design.Database.Actions
+namespace EntityDB.Design.Actions
 {
     public class ChangeTableAction : Action
     {

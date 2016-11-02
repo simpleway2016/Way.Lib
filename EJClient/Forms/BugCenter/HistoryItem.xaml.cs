@@ -20,12 +20,12 @@ namespace EJClient.Forms.BugCenter
     /// </summary>
     public partial class HistoryItem : StackPanel
     {
-        public ECWeb.BugHistoryItem Data
+        public EntityDB.Design.BugHistoryItem Data
         {
             get;
             private set;
         }
-        public HistoryItem(ECWeb.BugHistoryItem data , double width)
+        public HistoryItem(EntityDB.Design.BugHistoryItem data , double width)
         {
             this.Data = data;
             InitializeComponent();

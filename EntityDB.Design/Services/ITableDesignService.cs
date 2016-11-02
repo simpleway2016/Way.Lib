@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace EntityDB.Design.Database.Services
+namespace EntityDB.Design.Services
 {
     public interface ITableDesignService
     {

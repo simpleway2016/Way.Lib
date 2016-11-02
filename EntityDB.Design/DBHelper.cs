@@ -12,7 +12,37 @@ namespace EntityDB.Design
         public string[] ColumnNames;
         public string Name;
     }
-
+    public class BugItem : EJ.Bug
+    {
+        public string SubmitUserName
+        {
+            get;
+            set;
+        }
+        public string HandlerUserName
+        {
+            get;
+            set;
+        }
+    }
+    public class BugHistoryItem
+    {
+        public string UserName
+        {
+            get;
+            set;
+        }
+        public byte[] Content
+        {
+            get;
+            set;
+        }
+        public DateTime? SubmitTime
+        {
+            get;
+            set;
+        }
+    }
     public class DBHelper
     {
         public static T CreateInstance<T>(string dbServerType)

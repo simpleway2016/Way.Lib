@@ -93,19 +93,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database\Actions\Action.cs" />
-    <Compile Include="Database\Actions\ChangeTableAction.cs" />
-    <Compile Include="Database\Actions\CreateTableAction.cs" />
-    <Compile Include="Database\Actions\DeleteTableAction.cs" />
-    <Compile Include="Database\MySql\DatabaseService.cs" />
-    <Compile Include="Database\MySql\TableService.cs" />
-    <Compile Include="Database\Services\DataBaseConfig.cs" />
-    <Compile Include="Database\Services\IDatabaseDesignService.cs" />
-    <Compile Include="Database\Services\ITableDesignService.cs" />
-    <Compile Include="Database\Sqlite\DatabaseService.cs" />
-    <Compile Include="Database\Sqlite\TableService.cs" />
-    <Compile Include="Database\SqlServer\DatabaseService.cs" />
-    <Compile Include="Database\SqlServer\TableService.cs" />
+    <Compile Include="Actions\Action.cs" />
+    <Compile Include="Actions\ChangeTableAction.cs" />
+    <Compile Include="Actions\CreateTableAction.cs" />
+    <Compile Include="Actions\DeleteTableAction.cs" />
+    <Compile Include="Impls\MySql\DatabaseService.cs" />
+    <Compile Include="Impls\MySql\TableService.cs" />
+    <Compile Include="Services\DataBaseConfig.cs" />
+    <Compile Include="Services\IDatabaseDesignService.cs" />
+    <Compile Include="Services\ITableDesignService.cs" />
+    <Compile Include="Impls\Sqlite\DatabaseService.cs" />
+    <Compile Include="Impls\Sqlite\TableService.cs" />
+    <Compile Include="Impls\SqlServer\DatabaseService.cs" />
+    <Compile Include="Impls\SqlServer\TableService.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DBUpgrade\DBUpgrade.cs" />
     <Compile Include="Models\BugHandleHistory_0.cs" />

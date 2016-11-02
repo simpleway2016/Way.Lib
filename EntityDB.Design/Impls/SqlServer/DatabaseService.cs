@@ -1,4 +1,5 @@
-﻿using EntityDB.Design.Database.Services;
+﻿using EntityDB.Design.Services;
+using EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;

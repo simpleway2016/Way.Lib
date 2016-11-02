@@ -1,4 +1,4 @@
-﻿using EntityDB.Design.Database.Services;
+﻿using EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,8 +49,8 @@ namespace EntityDB.Design
                         string json = datarow["content"].ToString();
 
 
-                        Type type = typeof(EntityDB.Design.Database.Actions.Action).Assembly.GetType(actionType);
-                        var actionItem = (EntityDB.Design.Database.Actions.Action)jsonObj.Deserialize(json, type);
+                        Type type = typeof(EntityDB.Design.Actions.Action).Assembly.GetType(actionType);
+                        var actionItem = (EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
 
                         actionItem.Invoke(db);
 

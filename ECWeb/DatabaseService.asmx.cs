@@ -1,7 +1,7 @@
 ﻿
 using EntityDB.Design;
-using EntityDB.Design.Database.Actions;
-using EntityDB.Design.Database.Services;
+using EntityDB.Design.Actions;
+using EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
