@@ -107,7 +107,7 @@
     <Compile Include="Impls\SqlServer\DatabaseService.cs" />
     <Compile Include="Impls\SqlServer\TableService.cs" />
     <Compile Include="DBHelper.cs" />
-    <Compile Include="DBUpgrade\DBUpgrade.cs" />
+    <Compile Include="DBUpgrade.cs" />
     <Compile Include="Models\BugHandleHistory_0.cs" />
     <Compile Include="Models\BugImages_0.cs" />
     <Compile Include="Models\Bug_0.cs" />
