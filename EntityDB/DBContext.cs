@@ -383,7 +383,7 @@ namespace EntityDB
             if (ToArrayMethod == null)
             {
                 Type queryType = typeof(System.Linq.Enumerable);
-                var methods = queryType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Where(m => m.Name == "ToList");
+                var methods = queryType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Where(m => m.Name == "ToArray");
                 foreach (System.Reflection.MethodInfo method in methods)
                 {
                     if (method.IsGenericMethod)
