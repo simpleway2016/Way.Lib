@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.0.0.5</version>
+    <version>1.0.0.6</version>
     <title>EntityDB.Design</title>
     <authors>Way</authors>
     <owners>Way</owners>
@@ -13,6 +13,7 @@
     <description>EntityDB.Design</description>
     <dependencies>
       <dependency id="EntityDB" version="1.0.0.1"></dependency>
+      <dependency id="AppLib" version="1.0.0.1"></dependency>
     </dependencies>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright 2016</copyright>
