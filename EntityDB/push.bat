@@ -1,0 +1,3 @@
+nuget pack EntityDB.csproj
+nuget push EntityDB.1.0.0.1.nupkg -Source https://www.nuget.org/api/v2/package
+pause

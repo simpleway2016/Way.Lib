@@ -11,10 +11,15 @@ namespace EntityDB.Design
     {
         public static void Upgrade(EntityDB.DBContext dbContext)
         {
-            var stream = dbContext.GetType().Assembly.GetManifestResourceStream("database.actions");
+            Type dllType = dbContext.GetType();
+            while(dllType.BaseType != typeof(EntityDB.DBContext))
+            {
+                dllType = dllType.BaseType;
+            }
+            var stream = dllType.Assembly.GetManifestResourceStream("database.actions");
             if(stream == null)
             {
-                throw new Exception(dbContext.GetType().Assembly.FullName + " 没有包含数据库结构！");
+                throw new Exception(dllType.Assembly.FullName + " 没有包含数据库结构！");
             }
             using (var dset = new System.Data.DataSet())
             {
@@ -48,7 +53,10 @@ namespace EntityDB.Design
 
                         string json = datarow["content"].ToString();
 
-
+                        if (actionType.StartsWith("ECWeb.Database.Actions"))
+                        {
+                            actionType = "EntityDB.Design." + actionType.Substring("ECWeb.Database.".Length);
+                        }
                         Type type = typeof(EntityDB.Design.Actions.Action).Assembly.GetType(actionType);
                         var actionItem = (EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
 

@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLib", "AppLib\AppLib.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityDB.Design", "EntityDB.Design\EntityDB.Design.csproj", "{A8E2B825-59C5-4A8A-88F8-A12C4013C018}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{A11701A0-6E1D-4637-B0FE-AD7B7632CA8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{A8E2B825-59C5-4A8A-88F8-A12C4013C018}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8E2B825-59C5-4A8A-88F8-A12C4013C018}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8E2B825-59C5-4A8A-88F8-A12C4013C018}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A11701A0-6E1D-4637-B0FE-AD7B7632CA8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11701A0-6E1D-4637-B0FE-AD7B7632CA8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11701A0-6E1D-4637-B0FE-AD7B7632CA8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11701A0-6E1D-4637-B0FE-AD7B7632CA8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -91,7 +91,7 @@ namespace EntityDB.Design
                             if (attrs.Length > 0)
                             {
                                 EntityDB.Attributes.DatabaseTypeAttribute att = (EntityDB.Attributes.DatabaseTypeAttribute)attrs[0];
-                                _DatabaseDesignServiceTypes[att.DBType] = type;
+                                _TableDesignServiceTypes[att.DBType] = type;
                             }
                         }
                     }
@@ -116,7 +116,7 @@ namespace EntityDB.Design
             {
                 throw new Exception(dbtype + "没有对应的ITableDesignService实现类");
             }
-            return (EntityDB.Design.Services.ITableDesignService)Activator.CreateInstance(DatabaseDesignServiceTypes[dbtype]);
+            return (EntityDB.Design.Services.ITableDesignService)Activator.CreateInstance(TableDesignServiceTypes[dbtype]);
         }
 
         public static EntityDB.IDatabaseService CreateInvokeDatabase(EJ.Databases databaseConfig)

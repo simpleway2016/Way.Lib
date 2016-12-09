@@ -8,7 +8,7 @@ using System.Web;
 
 namespace EntityDB.Design.Database.Sqlite
 {
-    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
+    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
     public class TableService : ITableDesignService
     {
         string getSqliteType(string dbtype)
