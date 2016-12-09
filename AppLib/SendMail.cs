@@ -4,7 +4,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 namespace AppLib
 {
-    /**/
+    
     /// <summary>  
     /// 发送邮件的类  
     /// </summary>

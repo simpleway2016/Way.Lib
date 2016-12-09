@@ -40,7 +40,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AspNetPager">
-      <HintPath>..\..\..\AspNetPager.dll</HintPath>
+      <HintPath>..\AspNetPager.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.1.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
