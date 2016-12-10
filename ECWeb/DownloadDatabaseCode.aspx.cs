@@ -23,7 +23,7 @@ namespace ECWeb
                 System.IO.BinaryWriter bw = new System.IO.BinaryWriter( Response.OutputStream);
 
                 var invokingDB = EntityDB.Design.DBHelper.CreateInvokeDatabase(database);
-                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(database.dbType);
+                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)database.dbType);
                 List<EJ.DBTable> viewtables = new List<EJ.DBTable>();
                 List<EJ.DBColumn> viewcolumns = new List<EJ.DBColumn>();
                 dbservice.GetViews(invokingDB, out viewtables, out viewcolumns);

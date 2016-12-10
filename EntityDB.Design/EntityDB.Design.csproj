@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyJobDataObjects">
+      <HintPath>.\EasyJobDataObjects.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.1.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
       <Private>True</Private>
@@ -118,26 +121,6 @@
     <Compile Include="Impls\SqlServer\TableService.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DBUpgrade.cs" />
-    <Compile Include="Models\BugHandleHistory_0.cs" />
-    <Compile Include="Models\BugImages_0.cs" />
-    <Compile Include="Models\Bug_0.cs" />
-    <Compile Include="Models\Databases_0.cs" />
-    <Compile Include="Models\DBColumn_0.cs" />
-    <Compile Include="Models\DBDeleteConfig_0.cs" />
-    <Compile Include="Models\DBModule_0.cs" />
-    <Compile Include="Models\DBPower_0.cs" />
-    <Compile Include="Models\DBTable_0.cs" />
-    <Compile Include="Models\DLLImport_0.cs" />
-    <Compile Include="Models\EasyJob_db_linq.cs" />
-    <Compile Include="Models\IDXIndex_0.cs" />
-    <Compile Include="Models\InterfaceInModule_0.cs" />
-    <Compile Include="Models\InterfaceModulePower_0.cs" />
-    <Compile Include="Models\InterfaceModule_0.cs" />
-    <Compile Include="Models\ProjectPower_0.cs" />
-    <Compile Include="Models\Project_0.cs" />
-    <Compile Include="Models\TableInModule_0.cs" />
-    <Compile Include="Models\TablePower_0.cs" />
-    <Compile Include="Models\User_0.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

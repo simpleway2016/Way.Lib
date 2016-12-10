@@ -24,19 +24,19 @@ namespace ECWeb
                 if (_Port2DBConfirgs == null)
                 {
                     _Port2DBConfirgs = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("/port2db.config")).ToJsonObject<Port2DBConfirg[]>();
-                    var currentFilePath = HttpContext.Current.Server.MapPath("/EasyJob_cur.db");
-                    var nullFilePath = HttpContext.Current.Server.MapPath("/EasyJob.db");
-                    if (System.IO.File.Exists(nullFilePath) && File.Exists(currentFilePath) == false)
-                    {
-                        File.Copy(nullFilePath, currentFilePath);
-                    }
-                    foreach (var item in _Port2DBConfirgs)
-                    {
-                        if (item.ConnectionString.Contains("EasyJob.db"))
-                        {
-                            item.ConnectionString = item.ConnectionString.Replace("EasyJob.db", "EasyJob_cur.db");
-                        }
-                    }
+                    //var currentFilePath = HttpContext.Current.Server.MapPath("/EasyJob_cur.db");
+                    //var nullFilePath = HttpContext.Current.Server.MapPath("/EasyJob.db");
+                    //if (System.IO.File.Exists(nullFilePath) && File.Exists(currentFilePath) == false)
+                    //{
+                    //    File.Copy(nullFilePath, currentFilePath);
+                    //}
+                    //foreach (var item in _Port2DBConfirgs)
+                    //{
+                    //    if (item.ConnectionString.Contains("EasyJob.db"))
+                    //    {
+                    //        item.ConnectionString = item.ConnectionString.Replace("EasyJob.db", "EasyJob_cur.db");
+                    //    }
+                    //}
                 }
                 return _Port2DBConfirgs;
             }

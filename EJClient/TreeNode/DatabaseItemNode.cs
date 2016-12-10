@@ -84,6 +84,9 @@ namespace EJClient.TreeNode
                 var dset = new System.Data.DataSet();
                 dset.Tables.Add(dt);
                 dset.DataSetName = this.Database.Guid;
+                string path = Path.GetDirectoryName(filename);
+                if (Directory.Exists(path) == false)
+                    Directory.CreateDirectory(path);
                 System.IO.FileStream fs = System.IO.File.Create(filename);
                 dt.WriteXml(fs, System.Data.XmlWriteMode.WriteSchema);
                 fs.Close();

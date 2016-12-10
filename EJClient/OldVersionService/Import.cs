@@ -24,7 +24,7 @@ namespace EJClient.OldVersionService
             database.NameSpace = proConfig.NameSpace;
             database.dllPath = proConfig.ClassFileFolder;
             database.conStr = string.Format("server={0};uid={1};pwd={2};database={3}", proConfig.DataServerName, proConfig.DataUserName, proConfig.DataPassword, proConfig.DataBaseName);
-            database.dbType = EntityDB.DatabaseType.SqlServer;
+            database.dbType = (EJ.Databases_dbTypeEnum)(int)EntityDB.DatabaseType.SqlServer;
 
             XMLReadAndWrite xrw = new XMLReadAndWrite();
             xrw.Read(configFile, dataset);

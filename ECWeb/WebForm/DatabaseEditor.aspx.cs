@@ -75,7 +75,7 @@ namespace ECWeb.WebForm
                 {
                     EJ.Databases dataitem = new EJ.Databases();
                     dataitem.conStr = txt_conStr.Text.Trim();
-                    dataitem.dbType = (EntityDB.DatabaseType) Enum.Parse( typeof(EntityDB.DatabaseType) ,  selDBType.SelectedValue);
+                    dataitem.dbType = (EJ.Databases_dbTypeEnum) Enum.Parse( typeof(EJ.Databases_dbTypeEnum) ,  selDBType.SelectedValue);
                     dataitem.dllPath = txt_dllPath.Text.Trim();
                     dataitem.Name = txt_Name.Text.Trim();
                     dataitem.NameSpace = txtNamespace.Text.Trim();
@@ -83,7 +83,7 @@ namespace ECWeb.WebForm
                     dataitem.ProjectID = Request.QueryString["projectid"].ToInt();
                     db.Update(dataitem);
 
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(dataitem.dbType);
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)dataitem.dbType);
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();
@@ -130,7 +130,7 @@ namespace ECWeb.WebForm
                 if (data.dbType != oldData.dbType)
                 {
                     //变更数据库类型
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(data.dbType);
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)data.dbType);
                     dbservice.Create(data);
                     //更新到现在的数据结构
                     var invokeDB = EntityDB.Design.DBHelper.CreateInvokeDatabase(data);
@@ -178,7 +178,7 @@ namespace ECWeb.WebForm
                 }
                 else if (data.Name.ToLower() != oldData.Name.ToLower())
                 {
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(oldData.dbType);
+                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)oldData.dbType);
                     dbservice.ChangeName(oldData, data.Name, data.conStr);
                 }
                 this.WriteJsToTheEndOfForm("function webBrowser_start(){$('#btnClose')[0].click();}");

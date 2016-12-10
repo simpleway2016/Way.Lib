@@ -42,6 +42,7 @@ namespace ECWeb
             }
             using (EJDB db = new EJDB())
             {
+               
                 if (db.User.Any() == false)
                 {
                     //如果没有任何用户，需要添加一个sa用户
@@ -55,6 +56,7 @@ namespace ECWeb
                 if(user.Password != pwd)
                     throw new Exception("用户名密码错误");
                 Session["user"] = user;
+
                 return new int[]{(int)user.Role,user.id.Value};
             }
         }
@@ -268,6 +270,74 @@ namespace ECWeb
                 return dt;
             }
         }
+
+        /// <summary>
+        /// 把数据库设为新创建的状态，所有表都是createTable
+        /// </summary>
+        /// <param name="databaseid"></param>
+        void setDataBaseIsNEW(int databaseid)
+        {
+            if (this.User == null)
+                throw new Exception("请重新登陆");
+            EntityDB.IDatabaseService invokingDB = null;
+            using (EJDB db = new EJDB())
+            {
+                db.BeginTransaction();
+                try
+                {
+                    object lastid = null;
+                    var database = db.Databases.FirstOrDefault(m => m.id == databaseid);
+                    db.Database.ExecSqlString("delete from __action where databaseid=" + databaseid);
+                    var tables = db.DBTable.Where(m => m.DatabaseID == databaseid).ToArray();
+                    foreach (var dbtable in tables)
+                    {
+                        var columns = db.DBColumn.Where(m => m.TableID == dbtable.id).ToArray();
+                        var idxInfos = db.IDXIndex.Where(m => m.TableID == dbtable.id).ToArray();
+                        IndexInfo[] indexInfos = new IndexInfo[idxInfos.Length];
+                        for (int i = 0; i < indexInfos.Length; i++)
+                        {
+                            indexInfos[i] = new IndexInfo()
+                            {
+                                ColumnNames = idxInfos[i].Keys.Split(','),
+                                IsClustered = idxInfos[i].IsClustered.GetValueOrDefault(),
+                                IsUnique = idxInfos[i].IsUnique.GetValueOrDefault(),
+                            };
+
+                        }
+                        var action = new CreateTableAction(dbtable, columns, indexInfos);
+                        lastid = action.Save(db, database.id.GetValueOrDefault());
+                    }
+
+
+                    string conStr = string.Format(database.conStr, HttpContext.Current.Request.MapPath("/"));
+                    if (conStr.ToLower() == db.Database.ConnectionString.ToLower())
+                    {
+                        invokingDB = db.Database;
+                    }
+                    else
+                    {
+                        invokingDB = DBHelper.CreateInvokeDatabase(database);
+                    }
+
+                    if (lastid != null)
+                        SetLastUpdateID(lastid, database.Guid, invokingDB);
+                    db.CommitTransaction();
+                }
+                catch (Exception ex)
+                {
+                    db.RollbackTransaction();
+                    throw ex;
+                }
+                finally
+                {
+                    if (invokingDB != null && invokingDB != db.Database)
+                    {
+                        invokingDB.DBContext.Dispose();
+                    }
+                }
+            }
+        }
+
         [WebMethod(EnableSession = true)]
         public void RemoveTableFromModule(int tableInModuleId,int tableid)
         {
@@ -323,7 +393,7 @@ namespace ECWeb
                     var invokingDB = DBHelper.CreateInvokeDatabase(database);
                     {
                         //不开事务，太慢
-                        var service = DBHelper.CreateDatabaseDesignService(database.dbType);
+                        var service = DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)database.dbType);
                         service.ImportData(invokingDB, db, dset, clearDataFirst);
                         dset.Dispose();
                     }
@@ -1150,7 +1220,7 @@ namespace ECWeb
 
                     dset.Dispose();
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService(database.dbType);
+                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)database.dbType);
                     dbservice.Create(database);
 
                     db.CommitTransaction();
@@ -1183,14 +1253,14 @@ namespace ECWeb
                 {
                     EJ.Databases dataitem = new EJ.Databases();
                     dataitem.conStr = connectionString;
-                    dataitem.dbType = databaseType;
+                    dataitem.dbType = (EJ.Databases_dbTypeEnum)(int)databaseType;
                     dataitem.dllPath = dllpath;
                     dataitem.Name = dbname;
                     dataitem.ProjectID = projectid;
                     dataitem.Guid = Guid.NewGuid().ToString();
                     db.Update(dataitem);
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService(dataitem.dbType);
+                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)dataitem.dbType);
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();
