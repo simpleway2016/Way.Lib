@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.0.0.7</version>
+    <version>$version$</version>
     <title>EntityDB.Design</title>
     <authors>Way</authors>
     <owners>Way</owners>
