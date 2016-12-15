@@ -11,13 +11,21 @@ namespace EntityDB.Design.Database.Sqlite
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
     public class TableService : ITableDesignService
     {
-        string getSqliteType(string dbtype)
+        string getSqliteType(string dbtype,string length)
         {
             dbtype = dbtype.ToLower();
-
-            if (dbtype.Contains("char"))
-                return "TEXT";
-
+            // COLLATE NOCASE查询时，不区分大小写
+            if (dbtype.Contains("text"))
+                return "TEXT COLLATE NOCASE";
+            else if (dbtype.Contains("char"))
+            {
+                if (!string.IsNullOrEmpty(length))
+                    return dbtype + "(" + length + ") COLLATE NOCASE";
+                else
+                {
+                    return dbtype + "(50) COLLATE NOCASE";
+                }
+            }
             if (dbtype.Contains("int"))
                 return "INTEGER";
 
@@ -61,7 +69,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (i > 0)
                         sqlstr += ",\r\n";
 
-                    sqlstr += "[" + column.Name + "] " + getSqliteType(column.dbType) + "";
+                    sqlstr += "[" + column.Name + "] " + getSqliteType(column.dbType ,column.length) + "";
 
                     if (column.IsPKID == true)
                     {
@@ -235,7 +243,7 @@ CREATE TABLE [" + table.Name + @"] (
                 foreach (var column in addColumns)
                 {
                     #region 新增字段
-                    string sql = "alter table [" + newTableName + "] add [" + column.Name + "] [" + getSqliteType( column.dbType) + "]";
+                    string sql = "alter table [" + newTableName + "] add [" + column.Name + "] " + getSqliteType( column.dbType, column.length) ;
 
                     if (column.IsPKID == true)
                     {
