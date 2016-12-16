@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>EntityDB.Design</description>
     <dependencies>
-      <dependency id="EntityDB" version="1.0.0.1"></dependency>
+      <dependency id="EntityDB" version="1.0.0.2"></dependency>
       <dependency id="AppLib" version="1.0.0.1"></dependency>
     </dependencies>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>

@@ -66,6 +66,7 @@ namespace EntityDB
         {
             get
             {
+                //在DBContext 静态构造函数中调用一下，进行初始化，防止多线程同时运行这里来，造成冲突
                 if (_DatabaseServiceTypes == null)
                 {
                     var compareType = typeof(IDatabaseService);
@@ -110,6 +111,10 @@ namespace EntityDB
             if (SetConfigurationed == false)
             {
                 SetConfigurationed = true;
+
+                //在DBContext 静态构造函数中调用一下，进行初始化，防止多线程同时运行这里来，造成冲突
+                var t = DatabaseServiceTypes.Count;
+
                 //防止有些dll版本不对，无法加载
                 AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
                 BeforeDelete += Database_BeforeDelete;

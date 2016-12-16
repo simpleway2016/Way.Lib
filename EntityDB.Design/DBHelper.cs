@@ -45,11 +45,17 @@ namespace EntityDB.Design
     }
     public class DBHelper
     {
+        static DBHelper()
+        {
+            var t = DatabaseDesignServiceTypes.Count;
+            t = TableDesignServiceTypes.Count;
+        }
         static Dictionary<EntityDB.DatabaseType,Type> _DatabaseDesignServiceTypes;
         static Dictionary<EntityDB.DatabaseType, Type> DatabaseDesignServiceTypes
         {
             get
             {
+                //在DBHelper 静态构造函数中调用一下，进行初始化，防止多线程同时运行这里来，造成冲突
                 if (_DatabaseDesignServiceTypes == null)
                 {
                     var compareType = typeof(EntityDB.Design.Services.IDatabaseDesignService);
@@ -78,6 +84,7 @@ namespace EntityDB.Design
         {
             get
             {
+                //在DBHelper 静态构造函数中调用一下，进行初始化，防止多线程同时运行这里来，造成冲突
                 if (_TableDesignServiceTypes == null)
                 {
                     var compareType = typeof(EntityDB.Design.Services.ITableDesignService);
