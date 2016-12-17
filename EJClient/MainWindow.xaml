@@ -9,8 +9,8 @@
             <!--<MenuItem Header="从config文件导入..." Click="MenuItem_从config文件导入_Click_1"></MenuItem>-->
         </ContextMenu>
         <ContextMenu x:Key="treeMenu_databaseItem">
-            
-            <MenuItem Header="编译..." Click="MenuItem_编译_Click_1"></MenuItem>
+
+            <MenuItem Header="生成模型代码..." Click="MenuItem_生成模型代码_Click_1"></MenuItem>
             <Separator></Separator>
             <MenuItem Header="导出结构脚本..." Click="MenuItem_导出更新_Click_1"></MenuItem>
             <Separator></Separator>

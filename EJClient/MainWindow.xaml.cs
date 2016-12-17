@@ -268,14 +268,21 @@ namespace EJClient
                 }
             }
         }
-        private void MenuItem_编译_Click_1(object sender, RoutedEventArgs e)
+        private void MenuItem_生成模型代码_Click_1(object sender, RoutedEventArgs e)
         {
             DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
+            using (System.Windows.Forms.SaveFileDialog fd = new System.Windows.Forms.SaveFileDialog())
+            {
+                fd.FileName = selectedItem.Database.Name + ".cs";
+                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                  
+                    Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value , fd.FileName);
+                    code.Owner = this;
+                    code.ShowDialog();
+                }
+            }
 
-            selectedItem.OutputAction(AppDomain.CurrentDomain.BaseDirectory + "codes\\database.actions");
-            Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value);
-            code.Owner = this;
-            code.ShowDialog();
         }
         private void MenuItem_新建目录_Click_1(object sender, RoutedEventArgs e)
         {

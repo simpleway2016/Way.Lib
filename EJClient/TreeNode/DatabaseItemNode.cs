@@ -76,6 +76,7 @@ namespace EJClient.TreeNode
                 this.Parent.Children.Remove(this);
             }
         }
+
         public void OutputAction(string filename)
         {
             using (Web.DatabaseService web = Helper.CreateWebService())

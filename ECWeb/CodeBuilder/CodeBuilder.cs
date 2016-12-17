@@ -72,38 +72,31 @@ break;
 
             StringBuilder result = new StringBuilder();
             result.Append(@"
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-namespace " + nameSpace + @".DB
-{
-
+namespace "+nameSpace+@".DB{
     /// <summary>
 	/// 
 	/// </summary>
- [System.Data.Linq.Mapping.DatabaseAttribute(Name = """ + database + @""")]
-    public class " + database + @" : EntityDB.DBContext
+    public class " + database + @" : Way.EntityDB.DBContext
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name=""connection""></param>
         /// <param name=""dbType""></param>
-        public " + database + @"(string connection, EntityDB.DatabaseType dbType): base(connection, dbType)
+        public " + database + @"(string connection, Way.EntityDB.DatabaseType dbType): base(connection, dbType)
         {
             if (!setEvented)
             {
-                EntityDB.Design.DBUpgrade.Upgrade(this);
+                Way.EntityDB.Design.DBUpgrade.Upgrade(this,_designData);
                 setEvented = true;
-                EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
+                Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
             }
         }
 
         static bool setEvented = false;
  
 
-        static void Database_BeforeDelete(object sender, EntityDB.DatabaseModifyEventArg e)
+        static void Database_BeforeDelete(object sender, Way.EntityDB.DatabaseModifyEventArg e)
         {
             var db =  sender as " + database + @";
             if (db == null)
@@ -142,14 +135,16 @@ System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
             {
                 if (_" + t.Name + @" == null)
                 {
-                    _" + t.Name + @" = new EntityDB.WayQueryable<" + nameSpace + @"." + t.Name + @">(this.Set<" + nameSpace + @"." + t.Name + @">());
+                    _" + t.Name + @" = new Way.EntityDB.WayQueryable<" + nameSpace + @"." + t.Name + @">(this.Set<" + nameSpace + @"." + t.Name + @">());
                 }
                 return _" + t.Name + @";
             }
         }
 ");
             }
-            result.Append("}}");
+            result.Append("\r\n");
+            result.Append("static string _designData = \"\";");
+            result.Append("}}\r\n");
             return result.ToString();
         }
         public string[] BuildTable(EJDB db,string nameSpace, EJ.DBTable table)
@@ -312,13 +307,12 @@ namespace " + nameSpace + @"{
             
 
             result.Append(@"
+
     /// <summary>
 	/// " + table.caption + @"
 	/// </summary>
-    [Serializable]
-    [EntityDB.Attributes.Table(""" + (pkcolumn == null ? "" : pkcolumn.Name.Trim()) + @""")]
-    [System.Data.Linq.Mapping.TableAttribute(Name = @""" + table.Name.Trim() + @""")]
-    public class " + table.Name + @" :EntityDB.DataItem
+    [Way.EntityDB.Attributes.Table("""+ table.Name + @""",""" + (pkcolumn == null ? "" : pkcolumn.Name.Trim()) + @""")]
+    public class " + table.Name + @" :Way.EntityDB.DataItem
     {
 
 /// <summary>
@@ -366,7 +360,7 @@ public  " + table.Name + @"()
                 }
                 if (column.IsAutoIncrement == true)
                 {
-                    att += ",AutoSync=AutoSync.OnInsert,IsDbGenerated=true";
+                    att += ",IsDbGenerated=true";
                 }
                 if (column.CanNull == false)
                 {
@@ -446,7 +440,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 /// <summary>
 /// " + column.caption + @"
 	/// </summary>
-[EntityDB.WayLinqColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
+[Way.EntityDB.WayLinqColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
         public " + dataType + @" " + column.Name + @"
         {
             get
@@ -467,18 +461,9 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 ");
             }
 
-            result.Append("}}");
+            result.Append("}}\r\n");
 
-            result.Insert(0, @"
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.Linq.Mapping;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-namespace " + nameSpace + @"{
+            result.Insert(0, @"namespace " + nameSpace + @"{
 " + enumDefines);
 
             return result.ToString();
@@ -557,8 +542,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.Linq.Mapping;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
