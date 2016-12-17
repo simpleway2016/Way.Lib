@@ -1,5 +1,5 @@
 ﻿
-using EntityDB.Design.Services;
+using Way.EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,29 +22,13 @@ namespace ECWeb
                 var tables = db.DBTable.Where(m => m.DatabaseID == databaseid).ToList();
                 System.IO.BinaryWriter bw = new System.IO.BinaryWriter( Response.OutputStream);
 
-                var invokingDB = EntityDB.Design.DBHelper.CreateInvokeDatabase(database);
-                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)database.dbType);
-                List<EJ.DBTable> viewtables = new List<EJ.DBTable>();
-                List<EJ.DBColumn> viewcolumns = new List<EJ.DBColumn>();
-                dbservice.GetViews(invokingDB, out viewtables, out viewcolumns);
-
+                var invokingDB = Way.EntityDB.Design.DBHelper.CreateInvokeDatabase(database);
+                IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)database.dbType);
+              
                
-
-               
-                bw.Write(tables.Count * 1 + 1 + viewtables.Count);
+                bw.Write(tables.Count * 1 + 1 );
                 Database.ICodeBuilder codeBuilder = new Database.CodeBuilder();
 
-                foreach (var table in viewtables)
-                {
-                    string code = codeBuilder.BuildOldClassCode(db, database.NameSpace + ".View", table, viewcolumns.Where(m => m.TableID == table.id).ToList());
-                    if (code != null)
-                    {
-                        bw.Write(table.Name + "_view_" + ".cs");
-                        byte[] bs = System.Text.Encoding.UTF8.GetBytes(code);
-                        bw.Write(bs.Length);
-                        bw.Write(bs);
-                    }
-                }
 
                 foreach (var table in tables)
                 {
@@ -60,7 +44,7 @@ namespace ECWeb
                 if (true)
                 {
                     bw.Write(database.Name + "_db_linq.cs" );
-                    string code = codeBuilder.BuilderDB(db, database.Name, database.NameSpace, tables);
+                    string code = codeBuilder.BuilderDB(db, database, database.NameSpace, tables);
                     byte[] bs = System.Text.Encoding.UTF8.GetBytes(code);
                     bw.Write(bs.Length);
                     bw.Write(bs);

@@ -81,7 +81,7 @@ namespace EJClient.TreeNode
         {
             using (Web.DatabaseService web = Helper.CreateWebService())
             {
-                var dt = web.GetActions(Database.id.Value);
+                var dt =   web.GetActions(Database.id.Value);
                 var dset = new System.Data.DataSet();
                 dset.Tables.Add(dt);
                 dset.DataSetName = this.Database.Guid;

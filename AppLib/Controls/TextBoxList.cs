@@ -188,14 +188,14 @@ namespace AppLib.Controls
                     {
                         if (KeyTextField != KeyIDField)
                         {
-                            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                             {
 
                                 Type dtType = db.GetType();
                                 var query = dtType.GetProperty(KeyTableName).GetValue(db);
-                                query = EntityDB.DBContext.InvokeWhereEquals(query, KeyIDField, value);
-                                query = EntityDB.DBContext.InvokeSelect(query, KeyTextField);
-                                this.Text = Convert.ToString(EntityDB.DBContext.InvokeFirstOrDefault(query));
+                                query = Way.EntityDB.DBContext.InvokeWhereEquals(query, KeyIDField, value);
+                                query = Way.EntityDB.DBContext.InvokeSelect(query, KeyTextField);
+                                this.Text = Convert.ToString(Way.EntityDB.DBContext.InvokeFirstOrDefault(query));
                             }
                         }
                         else
@@ -257,7 +257,7 @@ namespace AppLib.Controls
 <div>
 ");
 
-                        using (EntityDB.DBContext database = AppHelper.CreateLinqDataBase(jsonObject.DatabaseConfig))
+                        using (Way.EntityDB.DBContext database = AppHelper.CreateLinqDataBase(jsonObject.DatabaseConfig))
                         {
                             int pageindex = 0;
                             try
@@ -301,7 +301,7 @@ namespace AppLib.Controls
                                 try
                                 {
                                     log.Log("条件过滤:{0}", termstring);
-                                    query = EntityDB.DBContext.GetQueryByString(query, termstring);
+                                    query = Way.EntityDB.DBContext.GetQueryByString(query, termstring);
                                     log.Log("过滤后:{0}", query);
                                 }
                                 catch (Exception ex)
@@ -312,7 +312,7 @@ namespace AppLib.Controls
 
                             if (Page.Request.QueryString["key"].Length > 0)
                             {
-                                query = EntityDB.DBContext.InvokeWhereWithMethod(query, typeof(string).GetMethod("Contains"), jsonObject.KeyTextField, Page.Request.QueryString["key"]);
+                                query = Way.EntityDB.DBContext.InvokeWhereWithMethod(query, typeof(string).GetMethod("Contains"), jsonObject.KeyTextField, Page.Request.QueryString["key"]);
                                 
                             }
 
@@ -320,7 +320,7 @@ namespace AppLib.Controls
                             {
                                 try
                                 {
-                                    query = EntityDB.DBContext.GetQueryForOrderBy(query, orderby);
+                                    query = Way.EntityDB.DBContext.GetQueryForOrderBy(query, orderby);
                                 }
                                 catch (Exception ex)
                                 {
@@ -374,7 +374,7 @@ namespace AppLib.Controls
                             }
                             try
                             {
-                                query = EntityDB.DBContext.InvokeSelect(query , jsonObject.KeyTextField);
+                                query = Way.EntityDB.DBContext.InvokeSelect(query , jsonObject.KeyTextField);
                                 System.Collections.IEnumerable datasource = (System.Collections.IEnumerable)query;
                                 foreach (var textitem in datasource)
                                 {
@@ -456,13 +456,13 @@ namespace AppLib.Controls
                     {
                         if (KeyTextField != KeyIDField)
                         {
-                            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                             {
                                 Type dtType = db.GetType();
                                 var query = dtType.GetProperty(KeyTableName).GetValue(db);
-                                query = EntityDB.DBContext.InvokeWhereEquals(query, KeyTextField, this.Text);
-                                query = EntityDB.DBContext.InvokeSelect(query , KeyIDField);
-                                _ValueID = Convert.ToString( EntityDB.DBContext.InvokeFirstOrDefault(query));
+                                query = Way.EntityDB.DBContext.InvokeWhereEquals(query, KeyTextField, this.Text);
+                                query = Way.EntityDB.DBContext.InvokeSelect(query , KeyIDField);
+                                _ValueID = Convert.ToString( Way.EntityDB.DBContext.InvokeFirstOrDefault(query));
                             }
                         }
                         else

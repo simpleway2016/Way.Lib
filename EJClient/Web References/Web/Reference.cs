@@ -858,25 +858,25 @@ namespace EJClient.Web {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/ImportData", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void ImportData(System.Data.DataSet dset, int databaseid, bool clearDataFirst) {
+        public void ImportData(System.Data.DataSet dataset, int databaseid, bool clearDataFirst) {
             this.Invoke("ImportData", new object[] {
-                        dset,
+                        dataset,
                         databaseid,
                         clearDataFirst});
         }
         
         /// <remarks/>
-        public void ImportDataAsync(System.Data.DataSet dset, int databaseid, bool clearDataFirst) {
-            this.ImportDataAsync(dset, databaseid, clearDataFirst, null);
+        public void ImportDataAsync(System.Data.DataSet dataset, int databaseid, bool clearDataFirst) {
+            this.ImportDataAsync(dataset, databaseid, clearDataFirst, null);
         }
         
         /// <remarks/>
-        public void ImportDataAsync(System.Data.DataSet dset, int databaseid, bool clearDataFirst, object userState) {
+        public void ImportDataAsync(System.Data.DataSet dataset, int databaseid, bool clearDataFirst, object userState) {
             if ((this.ImportDataOperationCompleted == null)) {
                 this.ImportDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnImportDataOperationCompleted);
             }
             this.InvokeAsync("ImportData", new object[] {
-                        dset,
+                        dataset,
                         databaseid,
                         clearDataFirst}, this.ImportDataOperationCompleted, userState);
         }

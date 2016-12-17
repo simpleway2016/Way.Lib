@@ -229,9 +229,24 @@ namespace Way.EntityDB
         }
         #endregion
 
-        #region 动态query
+#region 动态query
+#if NET46
+        public static object GetQueryByString(object linqQuery, string stringQuery)
+        {
+            Type dataType = linqQuery.GetType().GetGenericArguments()[0];
+            Type dynamicQueryableType = typeof(DynamicQueryable);
+            var methods = dynamicQueryableType.GetMethods(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            foreach (System.Reflection.MethodInfo method in methods)
+            {
+                if (method.Name != "Where" || method.IsGenericMethod == false)
+                    continue;
+                System.Reflection.MethodInfo mmm = method.MakeGenericMethod(dataType);
+                return mmm.Invoke(null, new object[] { linqQuery, stringQuery, null });
 
-     
+            }
+            return linqQuery;
+        }
+#endif
 
         public static bool InvokeAny(object linqQuery, string propertyName, object value)
         {
@@ -630,7 +645,7 @@ namespace Way.EntityDB
             }
             return linqQuery;
         }
-        #endregion
+#endregion
 
 
        
@@ -682,7 +697,7 @@ namespace Way.EntityDB
         }
 
 
-        #region 数据更新、添加、删除操作
+#region 数据更新、添加、删除操作
         /// <summary>
         /// 更新对象数据到数据库
         /// </summary>
@@ -879,7 +894,7 @@ namespace Way.EntityDB
             }
 
         }
-        #endregion
+#endregion
 
 
 

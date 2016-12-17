@@ -11,18 +11,10 @@ namespace Way.EntityDB.Design
     {
         public static void Upgrade(EntityDB.DBContext dbContext,string designData)
         {
-            var dllType = dbContext.GetType().GetTypeInfo();
-            while(dllType.BaseType != typeof(EntityDB.DBContext))
-            {
-                dllType = dllType.BaseType.GetTypeInfo();
-            }
-            var stream = dllType.Assembly.GetManifestResourceStream("database.actions");
-            if(stream == null)
-            {
-                throw new Exception(dllType.Assembly.FullName + " 没有包含数据库结构！");
-            }
-            byte[] bs = new byte[stream.Length];
-            stream.Read(bs, 0, bs.Length);
+            if (designData.IsNullOrEmpty())
+                return;
+         
+            byte[] bs = System.Convert.FromBase64String(designData);
 
             using (var dset = Newtonsoft.Json.JsonConvert.DeserializeObject<WayDataSet>(System.Text.Encoding.UTF8.GetString(bs)))
             {
@@ -41,7 +33,7 @@ namespace Way.EntityDB.Design
                 var dtable = dset.Tables[0];
                 try
                 {
-                    var query = dtable.Rows.Where(m=>(int)m["id"] > dbconfig.LastUpdatedID).OrderBy(m=>(int)m["id"]);
+                    var query = dtable.Rows.Where(m=>(long)m["id"] > dbconfig.LastUpdatedID).OrderBy(m=>(long)m["id"]);
 
                     int count = query.Count();
                     int done = 0;

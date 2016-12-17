@@ -85,7 +85,7 @@ namespace AppLib.Controls.Editor
                     list.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
                     IReferenceService referenceService = (IReferenceService)_iGetService.GetService(typeof(System.ComponentModel.Design.IReferenceService));
-                    object[] types = referenceService.GetReferences(typeof(EntityDB.DBContext));
+                    object[] types = referenceService.GetReferences(typeof(Way.EntityDB.DBContext));
 
                     for (int i = 0; i < types.Length; i++)
                     {

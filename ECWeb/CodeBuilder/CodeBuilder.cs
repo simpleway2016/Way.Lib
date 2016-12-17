@@ -19,7 +19,7 @@ namespace ECWeb.Database
     public class CodeBuilder : ICodeBuilder
     {
         
-        public  string BuilderDB(EJDB db,string database, string nameSpace,List<EJ.DBTable> tables)
+        public  string BuilderDB(EJDB db, EJ.Databases databaseObj, string nameSpace,List<EJ.DBTable> tables)
         {
 
             StringBuilder _Database_deleteCodes = new StringBuilder();
@@ -76,14 +76,14 @@ namespace "+nameSpace+@".DB{
     /// <summary>
 	/// 
 	/// </summary>
-    public class " + database + @" : Way.EntityDB.DBContext
+    public class " + databaseObj.Name + @" : Way.EntityDB.DBContext
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name=""connection""></param>
         /// <param name=""dbType""></param>
-        public " + database + @"(string connection, Way.EntityDB.DatabaseType dbType): base(connection, dbType)
+        public " + databaseObj.Name + @"(string connection, Way.EntityDB.DatabaseType dbType): base(connection, dbType)
         {
             if (!setEvented)
             {
@@ -98,7 +98,7 @@ namespace "+nameSpace+@".DB{
 
         static void Database_BeforeDelete(object sender, Way.EntityDB.DatabaseModifyEventArg e)
         {
-            var db =  sender as " + database + @";
+            var db =  sender as " + nameSpace + ".DB." + databaseObj.Name + @";
             if (db == null)
                 return;
 
@@ -143,7 +143,13 @@ System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
 ");
             }
             result.Append("\r\n");
-            result.Append("static string _designData = \"\";");
+
+
+            var dt = db.Database.SelectDataSet("select * from __action where databaseid=" + databaseObj.id + " order by [id]");
+            dt.Tables[0].TableName = databaseObj.dbType.ToString();
+            dt.DataSetName = databaseObj.Guid;
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(dt);
+            result.Append("static string _designData = \""+ System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json)) +"\";");
             result.Append("}}\r\n");
             return result.ToString();
         }

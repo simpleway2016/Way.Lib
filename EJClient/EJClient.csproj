@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EJClient</RootNamespace>
     <AssemblyName>EJClient</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -62,9 +62,6 @@
     <ApplicationIcon>imgs\easy.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyJobDataObjects">
-      <HintPath>..\EntityDB.Design\EasyJobDataObjects.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.1.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
       <Private>True</Private>
@@ -146,6 +143,9 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UIAutomationProvider" />
+    <Reference Include="Way.EntityDB">
+      <HintPath>..\Way.EntityDB\bin\Debug\net46\Way.EntityDB.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -530,14 +530,6 @@
     <ProjectReference Include="..\Copy\Copy.csproj">
       <Project>{90f86d77-0178-46b5-bf34-9f80d14cc343}</Project>
       <Name>Copy</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EntityDB.Design\EntityDB.Design.csproj">
-      <Project>{a8e2b825-59c5-4a8a-88f8-a12c4013c018}</Project>
-      <Name>EntityDB.Design</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EntityDB\EntityDB.csproj">
-      <Project>{0d7c92f4-47b8-4ebf-9005-74d915b9b469}</Project>
-      <Name>EntityDB</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

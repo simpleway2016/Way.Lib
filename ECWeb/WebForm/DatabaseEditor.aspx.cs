@@ -1,5 +1,5 @@
 ﻿
-using EntityDB.Design.Services;
+using Way.EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ namespace ECWeb.WebForm
                     }
                 }
                 
-                string[] typenames = Enum.GetNames(typeof(EntityDB.DatabaseType));
+                string[] typenames = Enum.GetNames(typeof(Way.EntityDB.DatabaseType));
                 foreach (string tn in typenames)
                 {
                     selDBType.Items.Add(new ListItem(tn , tn));
@@ -83,7 +83,7 @@ namespace ECWeb.WebForm
                     dataitem.ProjectID = Request.QueryString["projectid"].ToInt();
                     db.Update(dataitem);
 
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)dataitem.dbType);
+                    IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();
@@ -130,10 +130,10 @@ namespace ECWeb.WebForm
                 if (data.dbType != oldData.dbType)
                 {
                     //变更数据库类型
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)data.dbType);
+                    IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)data.dbType);
                     dbservice.Create(data);
                     //更新到现在的数据结构
-                    var invokeDB = EntityDB.Design.DBHelper.CreateInvokeDatabase(data);
+                    var invokeDB = Way.EntityDB.Design.DBHelper.CreateInvokeDatabase(data);
                     var dbconfig = invokeDB.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
                     dbconfig.DatabaseGuid = data.Guid;
                     invokeDB.DBContext.BeginTransaction();
@@ -143,7 +143,7 @@ namespace ECWeb.WebForm
                         int? lastid = null;
                         using( var dt = db.Database.SelectTable("select * from __action where id>"+dbconfig.LastUpdatedID+" and databaseid=" + data.id + " order by [id]"))
                         {
-                            foreach (System.Data.DataRow datarow in dt.Rows)
+                            foreach (var datarow in dt.Rows)
                             {
                                 string actiontype = datarow["type"].ToString();
                                 int id = Convert.ToInt32(datarow["id"]);
@@ -151,8 +151,8 @@ namespace ECWeb.WebForm
                                 string json = datarow["content"].ToString();
 
 
-                                Type type = typeof(EntityDB.Design.Actions.Action).Assembly.GetType(actiontype);
-                                var actionItem = (EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
+                                Type type = typeof(Way.EntityDB.Design.Actions.Action).Assembly.GetType(actiontype);
+                                var actionItem = (Way.EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
 
                                 actionItem.Invoke(invokeDB);
 
@@ -164,7 +164,7 @@ namespace ECWeb.WebForm
                             }
                         }
 
-                        var obj = new EntityDB.CustomDataItem("__WayEasyJob", null, null);
+                        var obj = new Way.EntityDB.CustomDataItem("__WayEasyJob", null, null);
                         obj.SetValue("contentConfig", dbconfig.ToJsonString());
                         invokeDB.Update(obj);
 
@@ -178,7 +178,7 @@ namespace ECWeb.WebForm
                 }
                 else if (data.Name.ToLower() != oldData.Name.ToLower())
                 {
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)oldData.dbType);
+                    IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)oldData.dbType);
                     dbservice.ChangeName(oldData, data.Name, data.conStr);
                 }
                 this.WriteJsToTheEndOfForm("function webBrowser_start(){$('#btnClose')[0].click();}");

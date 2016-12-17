@@ -87,7 +87,7 @@ namespace EJClient.Forms.BugCenter
                 Helper.ShowError(e.Error);
             else
             {
-                EntityDB.Design.BugHistoryItem[] result = e.Result.ToJsonObject<EntityDB.Design.BugHistoryItem[]>();
+                Way.EntityDB.Design.BugHistoryItem[] result = e.Result.ToJsonObject<Way.EntityDB.Design.BugHistoryItem[]>();
                 foreach (var data in result)
                 {
                     HistoryItem control = new HistoryItem(data , historiesPanel.ActualWidth);

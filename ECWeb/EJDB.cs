@@ -55,19 +55,19 @@ namespace ECWeb
 
         static bool setted = false;
         public EJDB()
-            : base(GetConnectionString() , EntityDB.DatabaseType.Sqlite)
+            : base(GetConnectionString() , Way.EntityDB.DatabaseType.Sqlite)
         {
             if (!setted)
             {
                 setted = true;
-                EntityDB.DBContext.BeforeInsert += Database_BeforeInsert;
-                EntityDB.DBContext.AfterInsert += Database_AfterInsert;
-                EntityDB.DBContext.BeforeUpdate += Database_BeforeUpdate;
-                EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
+                Way.EntityDB.DBContext.BeforeInsert += Database_BeforeInsert;
+                Way.EntityDB.DBContext.AfterInsert += Database_AfterInsert;
+                Way.EntityDB.DBContext.BeforeUpdate += Database_BeforeUpdate;
+                Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
             }
         }
 
-        void Database_AfterInsert(object sender, EntityDB.DatabaseModifyEventArg e)
+        void Database_AfterInsert(object sender, Way.EntityDB.DatabaseModifyEventArg e)
         {
             EJDB db = sender as EJDB;
             if (db == null)
@@ -94,7 +94,7 @@ namespace ECWeb
             }
         }
 
-        void Database_BeforeDelete(object sender, EntityDB.DatabaseModifyEventArg e)
+        void Database_BeforeDelete(object sender, Way.EntityDB.DatabaseModifyEventArg e)
         {
             if (e.DataItem is EJ.DLLImport)
             {
@@ -139,7 +139,7 @@ namespace ECWeb
             }
         }
 
-        static void Database_BeforeUpdate(object sender, EntityDB.DatabaseModifyEventArg e)
+        static void Database_BeforeUpdate(object sender, Way.EntityDB.DatabaseModifyEventArg e)
         {
             if (e.DataItem is EJ.DLLImport)
             {
@@ -158,7 +158,7 @@ namespace ECWeb
             }
         }
 
-        static void Database_BeforeInsert(object sender, EntityDB.DatabaseModifyEventArg e)
+        static void Database_BeforeInsert(object sender, Way.EntityDB.DatabaseModifyEventArg e)
         {
             if (e.DataItem is EJ.DLLImport)
             {

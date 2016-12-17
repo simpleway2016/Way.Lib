@@ -1,5 +1,5 @@
 ﻿
-using EntityDB.Design.Services;
+using Way.EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +43,7 @@ namespace EJClient.Forms
             {
             }
 
-            string[] typenames = Enum.GetNames(typeof(EntityDB.DatabaseType));
+            string[] typenames = Enum.GetNames(typeof(Way.EntityDB.DatabaseType));
             foreach (string tn in typenames)
             {
                 cmbDBType.Items.Add(tn);
@@ -130,9 +130,9 @@ namespace EJClient.Forms
 
                     System.Data.DataTable dtable = dset.Tables[0];
                     System.Web.Script.Serialization.JavaScriptSerializer jsonObj = new System.Web.Script.Serialization.JavaScriptSerializer();
-                    var db = EntityDB.DBContext.CreateDatabaseService(m_conStr, (EntityDB.DatabaseType)Enum.Parse(typeof(EntityDB.DatabaseType), m_currentDBType));
+                    var db = Way.EntityDB.DBContext.CreateDatabaseService(m_conStr, (Way.EntityDB.DatabaseType)Enum.Parse(typeof(Way.EntityDB.DatabaseType), m_currentDBType));
 
-                    IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(db.DBContext.DatabaseType);
+                    IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService(db.DBContext.DatabaseType);
                    
                     if (dbservice == null)
                         throw new Exception("无法初始化IDatabaseService for " + m_currentDBType);
@@ -159,8 +159,8 @@ namespace EJClient.Forms
                             string json = datarow["content"].ToString();
                            
 
-                            Type type = typeof(EntityDB.Design.Actions.Action).Assembly.GetType(actionType);
-                            var actionItem = (EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
+                            Type type = typeof(Way.EntityDB.Design.Actions.Action).Assembly.GetType(actionType);
+                            var actionItem = (Way.EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
 
                             setOutputText(string.Format("{0}、{1}", id, actionItem));
                             actionItem.Invoke(db);
@@ -176,7 +176,7 @@ namespace EJClient.Forms
                         }
                         if (lastid != null)
                         {
-                            EntityDB.Design.DBUpgrade.SetLastUpdateID(lastid.Value,  dset.DataSetName , db);
+                            Way.EntityDB.Design.DBUpgrade.SetLastUpdateID(lastid.Value,  dset.DataSetName , db);
                         }
                         db.DBContext.CommitTransaction();
                     }

@@ -1,13 +1,14 @@
 ﻿
-using EntityDB.Design;
-using EntityDB.Design.Actions;
-using EntityDB.Design.Services;
+using Way.EntityDB.Design;
+using Way.EntityDB.Design.Actions;
+using Way.EntityDB.Design.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Services;
+using Way.EntityDB;
 
 namespace ECWeb
 {
@@ -25,7 +26,7 @@ namespace ECWeb
         public string test( )
         {
             //string constr = @"data source=D:\代码\EasyJob\ECWeb\test.sqlite";
-            //using (EntityDB.IDataBaseService db = EntityDB.IDataBaseService.CreateDatabase(constr, DataSpace.DatabaseType.Sqlite))
+            //using (Way.EntityDB.IDataBaseService db = Way.EntityDB.IDataBaseService.CreateDatabase(constr, DataSpace.DatabaseType.Sqlite))
             //{
             //    var dt = db.Select("select * from (select * from t1) as t2");
             //}
@@ -212,7 +213,7 @@ namespace ECWeb
                         {
                             if (drow.RowState == System.Data.DataRowState.Added)
                             {
-                                var dataitem = new EntityDB.CustomDataItem(table.Name , null,null);
+                                var dataitem = new Way.EntityDB.CustomDataItem(table.Name , null,null);
                                 foreach (var column in columns)
                                 {
                                     if(column.IsAutoIncrement == false)
@@ -222,7 +223,7 @@ namespace ECWeb
                             }
                             else if (drow.RowState == System.Data.DataRowState.Modified)
                             {
-                                var dataitem = new EntityDB.CustomDataItem(table.Name, pkcolumn.Name, drow[pkcolumn.Name]);
+                                var dataitem = new Way.EntityDB.CustomDataItem(table.Name, pkcolumn.Name, drow[pkcolumn.Name]);
                                 foreach (var column in columns)
                                 {
                                     if (column.IsAutoIncrement == false && column.IsPKID == false)
@@ -267,7 +268,7 @@ namespace ECWeb
                 var database = db.Databases.FirstOrDefault(m=>m.id == databaseid);
                 var dt = db.Database.SelectTable("select * from __action where databaseid=" + databaseid + " order by [id]");
                 dt.TableName = database.dbType.ToString();
-                return dt;
+                return dt.ToDataTable();
             }
         }
 
@@ -279,7 +280,7 @@ namespace ECWeb
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
-            EntityDB.IDatabaseService invokingDB = null;
+            Way.EntityDB.IDatabaseService invokingDB = null;
             using (EJDB db = new EJDB())
             {
                 db.BeginTransaction();
@@ -362,38 +363,39 @@ namespace ECWeb
                 string sql = System.Text.Encoding.UTF8.GetString(bs);
                 var dbtable = db.DBTable.FirstOrDefault(m => m.id == tableid);
                 var database = db.Databases.FirstOrDefault(m => m.id == dbtable.DatabaseID);
-                EntityDB.IDatabaseService invokingDB = DBHelper.CreateInvokeDatabase(database);
+                Way.EntityDB.IDatabaseService invokingDB = DBHelper.CreateInvokeDatabase(database);
 
                 if (sql.StartsWith("select "))
                 {
                    
                     var dt = invokingDB.SelectTable(sql, pageindex * pagesize, pagesize);
                     dt.TableName = invokingDB.ExecSqlString(string.Format("select count(*) from ({0}) as t1", sql)).ToString();
-                    return dt;
+                    return dt.ToDataTable();
                 }
                 else
                 {
                     var dt = invokingDB.SelectTable(sql );
                     dt.TableName = dt.Rows.Count.ToString();
                    
-                    return dt;
+                    return dt.ToDataTable();
                 }
             }
         }
         [WebMethod(EnableSession = true)]
-        public void ImportData(System.Data.DataSet dset , int databaseid,bool clearDataFirst)
+        public void ImportData(System.Data.DataSet dataset , int databaseid,bool clearDataFirst)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             try
             {
+                WayDataSet dset = new WayDataSet(dataset);
                 using (EJDB db = new EJDB())
                 {
                     var database = db.Databases.FirstOrDefault(m => m.id == databaseid);
                     var invokingDB = DBHelper.CreateInvokeDatabase(database);
                     {
                         //不开事务，太慢
-                        var service = DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)database.dbType);
+                        var service = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)database.dbType);
                         service.ImportData(invokingDB, db, dset, clearDataFirst);
                         dset.Dispose();
                     }
@@ -434,7 +436,7 @@ namespace ECWeb
                     {
                         dataset.Tables[i].TableName = tablenames[i];
                     }
-                    return dataset;
+                    return dataset.ToDataSet();
                 }
 
             }
@@ -663,7 +665,7 @@ namespace ECWeb
                 throw new Exception("请重新登陆"); 
             using (EJDB db = new EJDB())
             {
-                EntityDB.IDatabaseService invokingDB = null;
+                Way.EntityDB.IDatabaseService invokingDB = null;
                 IndexInfo[] idxConfigs = idxJson.ToJsonObject<IndexInfo[]>();
 
                 EJ.DBTable newtable = newtablejson.ToJsonObject<EJ.DBTable>();
@@ -818,7 +820,7 @@ namespace ECWeb
             } 
         }
 
-        public static void SetLastUpdateID(object actionid, string databaseGuid, EntityDB.IDatabaseService db)
+        public static void SetLastUpdateID(object actionid, string databaseGuid, Way.EntityDB.IDatabaseService db)
         {
             if (databaseGuid.IsNullOrEmpty())
                 throw new Exception("Database Guid can not be empty");
@@ -826,7 +828,7 @@ namespace ECWeb
             dbconfig.LastUpdatedID = Convert.ToInt32(actionid);
             dbconfig.DatabaseGuid = databaseGuid;
 
-            var data = new EntityDB.CustomDataItem("__WayEasyJob",null,null);
+            var data = new Way.EntityDB.CustomDataItem("__WayEasyJob",null,null);
             data.SetValue("contentConfig", dbconfig.ToJsonString());
             db.Update(data);
         }
@@ -933,7 +935,7 @@ namespace ECWeb
             if (this.User == null)
                 throw new Exception("请重新登陆"); 
 
-            EntityDB.IDatabaseService invokingDB = null;
+            Way.EntityDB.IDatabaseService invokingDB = null;
             using (EJDB db = new EJDB())
             {
                 try
@@ -999,7 +1001,7 @@ namespace ECWeb
 
             using (EJDB db = new EJDB())
             {
-                EntityDB.IDatabaseService invokingDB = null;
+                Way.EntityDB.IDatabaseService invokingDB = null;
                 EJ.DBTable table = tablejson.ToJsonObject<EJ.DBTable>();
                 EJ.DBColumn[] columns = columnsJson.ToJsonObject<EJ.DBColumn[]>();
                 IndexInfo[] idxConfigs = idxJson.ToJsonObject<IndexInfo[]>();
@@ -1220,7 +1222,7 @@ namespace ECWeb
 
                     dset.Dispose();
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)database.dbType);
+                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)database.dbType);
                     dbservice.Create(database);
 
                     db.CommitTransaction();
@@ -1241,7 +1243,7 @@ namespace ECWeb
         /// <param name="dllpath"></param>
         /// <param name="dbname"></param>
         [WebMethod(EnableSession = true)]
-        public void CreateDatabase(int projectid, EntityDB.DatabaseType databaseType, string connectionString, string dllpath, string dbname)
+        public void CreateDatabase(int projectid, Way.EntityDB.DatabaseType databaseType, string connectionString, string dllpath, string dbname)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆"); 
@@ -1260,7 +1262,7 @@ namespace ECWeb
                     dataitem.Guid = Guid.NewGuid().ToString();
                     db.Update(dataitem);
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((EntityDB.DatabaseType)(int)dataitem.dbType);
+                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
                     dbservice.Create(dataitem);
 
                     db.CommitTransaction();

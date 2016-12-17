@@ -62,9 +62,9 @@ namespace AppLib.Controls.Editor
                         try
                         {
                             Type tableType = table.PropertyType.GetGenericArguments()[0];
-                            EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+                            Way.EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(Way.EntityDB.Attributes.Table)) as Way.EntityDB.Attributes.Table;
                             if (tableAtt == null)
-                                tableAtt = new EntityDB.Attributes.Table("");
+                                tableAtt = new Way.EntityDB.Attributes.Table("","");
 
                             IComponentChangeService sv = (IComponentChangeService)context.GetService(typeof(IComponentChangeService));
                             sv.OnComponentChanging(this.context.Instance, null);
@@ -95,9 +95,9 @@ namespace AppLib.Controls.Editor
                 else if (this.context.Instance is EntityEditor)
                 {
                     Type tableType = table.PropertyType.GetGenericArguments()[0];
-                    EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+                    Way.EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(Way.EntityDB.Attributes.Table)) as Way.EntityDB.Attributes.Table;
                     if (tableAtt == null)
-                        tableAtt = new EntityDB.Attributes.Table("");
+                        tableAtt = new Way.EntityDB.Attributes.Table("","");
 
                     IComponentChangeService sv = (IComponentChangeService)context.GetService(typeof(IComponentChangeService));
                     sv.OnComponentChanging(this.context.Instance, null);
@@ -133,7 +133,7 @@ namespace AppLib.Controls.Editor
 
                 //ITypeDiscoveryService可以发现工程代码里写的所有类型
                 ITypeDiscoveryService typeDisconvery = (ITypeDiscoveryService)_iGetService.GetService(typeof(System.ComponentModel.Design.ITypeDiscoveryService));
-                System.Collections.ICollection alldbTypes = typeDisconvery.GetTypes(typeof(EntityDB.DBContext), true);
+                System.Collections.ICollection alldbTypes = typeDisconvery.GetTypes(typeof(Way.EntityDB.DBContext), true);
                 string stringType = AppHelper.GetDatabaseLinqType(this.context.Instance);
                 foreach (Type t in alldbTypes)
                 {
@@ -145,7 +145,7 @@ namespace AppLib.Controls.Editor
                 }
                 if (linqDBType == null)
                     throw new Exception("请先设置DatabaseConfig属性");
-                Type firstParentType = typeof(EntityDB.DBContext);
+                Type firstParentType = typeof(Way.EntityDB.DBContext);
                 Type microsoftType = firstParentType.BaseType;
                 try
                 {

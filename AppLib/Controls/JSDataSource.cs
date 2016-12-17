@@ -209,14 +209,14 @@ System.ComponentModel.Editor(typeof(Editor.CollectionBaseEditor), typeof(System.
             }
             if (KeyTextField != KeyIDField)
             {
-                using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                 {
                     Type dbType = db.GetType();
                     var query = dbType.GetProperty(KeyTableName).GetValue(db);
-                    query = EntityDB.DBContext.InvokeWhereEquals(query, KeyTextField, text);
-                    query = EntityDB.DBContext.InvokeSelect(query, KeyIDField);
+                    query = Way.EntityDB.DBContext.InvokeWhereEquals(query, KeyTextField, text);
+                    query = Way.EntityDB.DBContext.InvokeSelect(query, KeyIDField);
 
-                    return Convert.ToString(EntityDB.DBContext.InvokeFirstOrDefault(query));
+                    return Convert.ToString(Way.EntityDB.DBContext.InvokeFirstOrDefault(query));
                 }
             }
             else
@@ -233,14 +233,14 @@ System.ComponentModel.Editor(typeof(Editor.CollectionBaseEditor), typeof(System.
             }
             if (KeyTextField != KeyIDField)
             {
-                using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                 {
                     Type dbType = db.GetType();
                     var query = dbType.GetProperty(KeyTableName).GetValue(db);
-                    query = EntityDB.DBContext.InvokeWhereEquals(query, KeyIDField, value);
-                    query = EntityDB.DBContext.InvokeSelect(query, KeyTextField);
+                    query = Way.EntityDB.DBContext.InvokeWhereEquals(query, KeyIDField, value);
+                    query = Way.EntityDB.DBContext.InvokeSelect(query, KeyTextField);
 
-                    return Convert.ToString(EntityDB.DBContext.InvokeFirstOrDefault(query));
+                    return Convert.ToString(Way.EntityDB.DBContext.InvokeFirstOrDefault(query));
 
                 }
             }
@@ -260,7 +260,7 @@ System.ComponentModel.Editor(typeof(Editor.CollectionBaseEditor), typeof(System.
             {
                 if (!string.IsNullOrEmpty(DatabaseConfig) && !string.IsNullOrEmpty(KeyTableName))
                 {
-                    using (EntityDB.DBContext database = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                    using (Way.EntityDB.DBContext database = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                     {
                         Type dbType = database.GetType();
                         var queryPinfos = dbType.GetProperties().Where(m => m.Name == KeyTableName);
@@ -286,7 +286,7 @@ System.ComponentModel.Editor(typeof(Editor.CollectionBaseEditor), typeof(System.
                         {
                             try
                             {
-                                query = EntityDB.DBContext.GetQueryByString(query, KeyTermString);
+                                query = Way.EntityDB.DBContext.GetQueryByString(query, KeyTermString);
                             }
                             catch (Exception ex)
                             {
@@ -296,7 +296,7 @@ System.ComponentModel.Editor(typeof(Editor.CollectionBaseEditor), typeof(System.
                         {
                             try
                             {
-                                query = EntityDB.DBContext.GetQueryForOrderBy(query, KeyOrderString);
+                                query = Way.EntityDB.DBContext.GetQueryForOrderBy(query, KeyOrderString);
                             }
                             catch (Exception ex)
                             {
@@ -304,7 +304,7 @@ System.ComponentModel.Editor(typeof(Editor.CollectionBaseEditor), typeof(System.
                         }
 
                         System.Collections.IEnumerable datasource = query as System.Collections.IEnumerable;
-                        foreach (EntityDB.DataItem dataitem in datasource)
+                        foreach (Way.EntityDB.DataItem dataitem in datasource)
                         {
                             DataSourceItem item = (new DataSourceItem()
                             {

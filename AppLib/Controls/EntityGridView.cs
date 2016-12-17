@@ -1,4 +1,4 @@
-﻿using EntityDB;
+﻿using Way.EntityDB;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -129,7 +129,7 @@ namespace AppLib.Controls
         #endregion
 
         #region 私有变量
-        EntityDB.DBContext Database;
+        Way.EntityDB.DBContext Database;
         internal System.Web.UI.Design.WebFormsRootDesigner WebFormsRootDesigner;
         #endregion
 
@@ -566,16 +566,16 @@ namespace AppLib.Controls
                                 Text = "",
                                 Value = ""
                             });
-                            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                             {
-                                using (System.Data.DataTable dtable = db.Database.SelectTable(sql))
+                                using (var dtable = db.Database.SelectTable(sql))
                                 {
-                                    foreach (System.Data.DataRow drow in dtable.Rows)
+                                    foreach (var drow in dtable.Rows)
                                     {
                                         list.Items.Add(new ListItem()
                                         {
-                                            Text = drow[1].ToString(),
-                                            Value = drow[0].ToString()
+                                            Text = drow[dtable.Columns[1].ColumnName].ToString(),
+                                            Value = drow[dtable.Columns[0].ColumnName].ToString()
                                         });
                                     }
                                 }
@@ -850,7 +850,7 @@ namespace AppLib.Controls
             }
             string[] deletingIds = intarr.ToArray();
             ControlEventArg arg = new ControlEventArg();
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
             {
                 if (DeleteDatas != null)
                 {
@@ -865,8 +865,8 @@ namespace AppLib.Controls
                     {
                         try
                         {
-                            object[] atts = m_dataType.GetCustomAttributes(typeof(EntityDB.Attributes.Table), true);
-                            pkid = ((EntityDB.Attributes.Table)atts[0]).IDField;
+                            object[] atts = m_dataType.GetCustomAttributes(typeof(Way.EntityDB.Attributes.Table), true);
+                            pkid = ((Way.EntityDB.Attributes.Table)atts[0]).IDField;
                         }
                         catch
                         {
@@ -882,7 +882,7 @@ namespace AppLib.Controls
                                 var dataitem = DBContext.InvokeFirstOrDefault(dateitemquery);
                                 if (dataitem != null)
                                 {
-                                    db.Delete(dataitem as EntityDB.DataItem);
+                                    db.Delete(dataitem as Way.EntityDB.DataItem);
                                 }
                             }
                         }
@@ -964,7 +964,7 @@ namespace AppLib.Controls
 
         protected virtual void LinqBind()
         {
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
             {
                 this.DBContextOnBinding = db;
                 object query = OnGettingDataSource(db);
@@ -978,8 +978,8 @@ namespace AppLib.Controls
                 {
                     try
                     {
-                        object[] atts = m_dataType.GetCustomAttributes(typeof(EntityDB.Attributes.Table), true);
-                        pkid = ((EntityDB.Attributes.Table)atts[0]).IDField;
+                        object[] atts = m_dataType.GetCustomAttributes(typeof(Way.EntityDB.Attributes.Table), true);
+                        pkid = ((Way.EntityDB.Attributes.Table)atts[0]).IDField;
                     }
                     catch
                     {
@@ -994,7 +994,7 @@ namespace AppLib.Controls
                     string termstring = this.SqlTermString;
                     if (!string.IsNullOrEmpty(termstring))
                     {
-                        query = EntityDB.DBContext.GetQueryByString(query, termstring);
+                        query = Way.EntityDB.DBContext.GetQueryByString(query, termstring);
                         if (query == null)
                             throw new Exception("GetQueryByString return null");
                     }
@@ -1026,7 +1026,7 @@ namespace AppLib.Controls
                
                 if (!string.IsNullOrEmpty(order))
                 {
-                    query = EntityDB.DBContext.GetQueryForOrderBy(query, order);
+                    query = Way.EntityDB.DBContext.GetQueryForOrderBy(query, order);
                 }
 
                 if (AfterBindSearchLinqQuery != null)
@@ -1182,7 +1182,7 @@ namespace AppLib.Controls
             LinqBind();
         }
 
-        void doStatistical(EntityDB.DBContext db, TableCell cell, DataControlField column, object dataItem)
+        void doStatistical(Way.EntityDB.DBContext db, TableCell cell, DataControlField column, object dataItem)
         {
             if (column is EntityGridViewColumn)
             {
@@ -1207,7 +1207,7 @@ namespace AppLib.Controls
             }
         }
 
-        protected virtual void OnCellDataBound(EntityDB.DBContext db, TableCell cell, DataControlField column, object dataItem)
+        protected virtual void OnCellDataBound(Way.EntityDB.DBContext db, TableCell cell, DataControlField column, object dataItem)
         {
             object cellValue = null;
             if (column is BoundField)
@@ -1216,7 +1216,7 @@ namespace AppLib.Controls
                 try
                 {
                     BoundField bf = column as BoundField;
-                    cellValue = EntityDB.DataItem.GetValue(dataItem, bf.DataField);
+                    cellValue = Way.EntityDB.DataItem.GetValue(dataItem, bf.DataField);
                     if (cellValue == null)
                     {
                         cell.Text = "&nbsp;";
@@ -1266,9 +1266,9 @@ namespace AppLib.Controls
                                 bindingDataField = bindingDataField.Substring(0, bindingDataField.IndexOf("\""));
 
                                 string bindingvalue = "";
-                                if (dataItem is EntityDB.DataItem)
+                                if (dataItem is Way.EntityDB.DataItem)
                                 {
-                                    bindingvalue = Convert.ToString(((EntityDB.DataItem)dataItem).GetValue(bindingDataField));
+                                    bindingvalue = Convert.ToString(((Way.EntityDB.DataItem)dataItem).GetValue(bindingDataField));
 
                                 }
 
@@ -1438,7 +1438,7 @@ namespace AppLib.Controls
             base.OnRowDataBound(e);
         }
 
-        internal void MakeSearch(Type tableType , EntityDB.Attributes.Table tableAtt , System.Reflection.PropertyInfo[] columns
+        internal void MakeSearch(Type tableType , Way.EntityDB.Attributes.Table tableAtt , System.Reflection.PropertyInfo[] columns
             , System.ComponentModel.ITypeDescriptorContext context)
         {
             //System.Diagnostics.Debugger.Launch();
@@ -1498,7 +1498,7 @@ namespace AppLib.Controls
                 }
                 foreach (var pinfo in datasource)
                 {
-                    EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(EntityDB.WayLinqColumnAttribute)) as EntityDB.WayLinqColumnAttribute;
+                    Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
                     if (columnAtt == null)
                         columnAtt = new WayLinqColumnAttribute();
 
@@ -1521,7 +1521,7 @@ namespace AppLib.Controls
             {
                 if (pinfo.Name == tableAtt.IDField)
                     continue;
-                EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(EntityDB.WayLinqColumnAttribute)) as EntityDB.WayLinqColumnAttribute;
+                Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
                 if (columnAtt == null)
                     columnAtt = new WayLinqColumnAttribute();
 
@@ -1572,9 +1572,9 @@ namespace AppLib.Controls
         internal void MakeColumns(Type tableType,  System.ComponentModel.ITypeDescriptorContext context)
         {
 
-            EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+            Way.EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(Way.EntityDB.Attributes.Table)) as Way.EntityDB.Attributes.Table;
             if (tableAtt == null)
-                tableAtt = new EntityDB.Attributes.Table("");
+                tableAtt = new Way.EntityDB.Attributes.Table("","");
 
             var properies = tableType.GetProperties();
             properies = (from m in properies
@@ -1603,7 +1603,7 @@ namespace AppLib.Controls
                 }
                 foreach (var pinfo in datasource)
                 {
-                    EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(EntityDB.WayLinqColumnAttribute)) as EntityDB.WayLinqColumnAttribute;
+                    Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
                     if (columnAtt == null)
                         columnAtt = new WayLinqColumnAttribute();
 
@@ -1620,7 +1620,7 @@ namespace AppLib.Controls
 
             foreach (var pinfo in bkcolumns)
             {
-                EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(EntityDB.WayLinqColumnAttribute)) as EntityDB.WayLinqColumnAttribute;
+                Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
                 if (columnAtt == null)
                     columnAtt = new WayLinqColumnAttribute();
 

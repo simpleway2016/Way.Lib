@@ -180,7 +180,7 @@ public class AppHelper
          return null;      
     }
 
-    internal static EntityDB.DBContext CreateLinqDataBase(string fullname)
+    internal static Way.EntityDB.DBContext CreateLinqDataBase(string fullname)
     {
         if(fullname.IsNullOrEmpty())
             throw new Exception("DatabaseConfig为空");
@@ -195,10 +195,10 @@ public class AppHelper
         //    ParameterInfo[] pinfos = info.GetParameters();
         //    if (pinfos.Length == 1 && pinfos[0].ParameterType.IsSubclassOf(typeof(DataSpace.Database)))
         //    {
-        //        return (EntityDB.DBContext)Activator.CreateInstance(type, new object[] { DataSpace.Database.CreateDatabase(conStrs[databaseConfig]) });
+        //        return (Way.EntityDB.DBContext)Activator.CreateInstance(type, new object[] { DataSpace.Database.CreateDatabase(conStrs[databaseConfig]) });
         //    }
         //}
-        return (EntityDB.DBContext)Activator.CreateInstance(type);
+        return (Way.EntityDB.DBContext)Activator.CreateInstance(type);
     }
 
 
@@ -536,7 +536,7 @@ public class AppHelper
         Type type = FindTypeByFullname(control.DatabaseConfig);
         if (type == null)
             throw new Exception("找不到类型" + control.DatabaseConfig);
-        Type contextBaseType = typeof(EntityDB.DBContext);
+        Type contextBaseType = typeof(Way.EntityDB.DBContext);
 
         while (type.BaseType != contextBaseType)
         {
@@ -566,7 +566,7 @@ public class AppHelper
         //找出当前数据库对应的对象
         Assembly assembly = GetDatabaseAssembly(control);
         Type dataType = null;
-        Type baseType = typeof(EntityDB.DataItem);
+        Type baseType = typeof(Way.EntityDB.DataItem);
         Type[] types = assembly.GetTypes();
         foreach (Type t in types)
         {
@@ -584,7 +584,7 @@ public class AppHelper
         //找出当前数据库对应的对象
         Assembly assembly = GetDatabaseAssembly(control);
         Type dataType = null;
-        Type baseType = typeof(EntityDB.DataItem);
+        Type baseType = typeof(Way.EntityDB.DataItem);
         Type[] types = assembly.GetTypes();
         foreach (Type t in types)
         {

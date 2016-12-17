@@ -34,7 +34,7 @@ namespace EJClient.UI
             {
                 using (Web.DatabaseService web = Helper.CreateWebService())
                 {
-                    listView.ItemsSource = web.GetMyBugs().ToJsonObject<EntityDB.Design.BugItem[]>();
+                    listView.ItemsSource = web.GetMyBugs().ToJsonObject<Way.EntityDB.Design.BugItem[]>();
                 }
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace EJClient.UI
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            var bug = (EntityDB.Design.BugItem)item;
+            var bug = (Way.EntityDB.Design.BugItem)item;
             return (DataTemplate)this.GetType().GetProperty(bug.Status.ToString()).GetValue(this);
         }
     }
@@ -89,7 +89,7 @@ namespace EJClient.UI
             //{
             //    return Brushes.Beige;
             //}
-            var bug = (EntityDB.Design.BugItem)item.DataContext;
+            var bug = (Way.EntityDB.Design.BugItem)item.DataContext;
             if (bug.Status == EJ.Bug_StatusEnum.提交给开发人员)
                 return new SolidColorBrush(Color.FromArgb(255,251,171,177));
             else if (bug.Status == EJ.Bug_StatusEnum.反馈给提交者)

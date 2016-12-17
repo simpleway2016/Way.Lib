@@ -86,7 +86,7 @@ namespace AppLib.Controls.Editor
 
                     //ITypeDiscoveryService可以发现工程代码里写的所有类型
                     ITypeDiscoveryService typeDisconvery = (ITypeDiscoveryService)_iGetService.GetService(typeof(System.ComponentModel.Design.ITypeDiscoveryService));
-                    System.Collections.ICollection alldbTypes = typeDisconvery.GetTypes(typeof(EntityDB.DBContext), true);
+                    System.Collections.ICollection alldbTypes = typeDisconvery.GetTypes(typeof(Way.EntityDB.DBContext), true);
                     string stringType = AppHelper.GetDatabaseLinqType(this.context.Instance);
                     foreach (Type t in alldbTypes)
                     {

@@ -65,7 +65,7 @@ namespace Way.EntityDB.Design
                     {
                         if (type.GetInterfaces().Any( m=>m == compareType))
                         {
-                            var att = type.GetTypeInfo().GetCustomAttributes(typeof(Attributes.DatabaseTypeAttribute)) as Attributes.DatabaseTypeAttribute;
+                            var att = type.GetTypeInfo().GetCustomAttribute(typeof(Attributes.DatabaseTypeAttribute)) as Attributes.DatabaseTypeAttribute;
                             if (att != null)
                             {
                                  _DatabaseDesignServiceTypes[att.DBType] = type;

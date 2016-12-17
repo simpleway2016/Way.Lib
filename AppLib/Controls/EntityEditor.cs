@@ -394,7 +394,7 @@ namespace AppLib.Controls
                 if (true)
                 {
                     #region linq
-                    var dataitem = CurrentDataItem as EntityDB.DataItem;
+                    var dataitem = CurrentDataItem as Way.EntityDB.DataItem;
                     foreach (System.Web.UI.WebControls.WebControl ctrl in this.ChildControls)
                     {
                         if (ctrl is Label)
@@ -459,11 +459,11 @@ namespace AppLib.Controls
                 if (CurrentMode == ActionType.Insert)
                 {
 
-                    EntityDB.DataItem dataitem = CurrentDataItem as EntityDB.DataItem;
+                    Way.EntityDB.DataItem dataitem = CurrentDataItem as Way.EntityDB.DataItem;
                         #region insert
 
 
-                        using (EntityDB.DBContext database = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                        using (Way.EntityDB.DBContext database = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                         {
                             //database.BeginTransaction();
                             try
@@ -506,11 +506,11 @@ namespace AppLib.Controls
                 else
                 {
                  
-                        var dataitem = CurrentDataItem as EntityDB.DataItem;
+                        var dataitem = CurrentDataItem as Way.EntityDB.DataItem;
                         #region update
 
 
-                        using (EntityDB.DBContext database = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                        using (Way.EntityDB.DBContext database = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                         {
                             //database.BeginTransaction();
                             try
@@ -780,7 +780,7 @@ namespace AppLib.Controls
                 {
                     throw new Exception("database.config未设置对应的Linq数据库类");
                 }
-                using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                 {
                     Type dbType = db.GetType();
 
@@ -816,7 +816,7 @@ namespace AppLib.Controls
                 }
 
                 #region linq
-                using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                 {
                     Type dbType = db.GetType();
 
@@ -844,8 +844,8 @@ namespace AppLib.Controls
                     {
                         try
                         {
-                            object[] atts = dataType.GetCustomAttributes(typeof(EntityDB.Attributes.Table), true);
-                            pkid = ((EntityDB.Attributes.Table)atts[0]).IDField;
+                            object[] atts = dataType.GetCustomAttributes(typeof(Way.EntityDB.Attributes.Table), true);
+                            pkid = ((Way.EntityDB.Attributes.Table)atts[0]).IDField;
                         }
                         catch
                         {
@@ -896,7 +896,7 @@ namespace AppLib.Controls
                 this.CurrentMode = ActionType.Update;
                 CurrentActionDescription = "编辑";
 
-                using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+                using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
                 {
                     Type dataType = AppHelper.GetDataItemType(this, this.TableName);
                     if (dataType == null)
@@ -905,7 +905,7 @@ namespace AppLib.Controls
                        
                         PropertyInfo pinfo = db.GetType().GetProperty(this.TableName , BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                         object tablequery = pinfo.GetValue(db);
-                        tablequery = EntityDB.DBContext.GetQueryByString(tablequery, IDFieldName + "=" + dataID);
+                        tablequery = Way.EntityDB.DBContext.GetQueryByString(tablequery, IDFieldName + "=" + dataID);
                         Type tdataType = pinfo.PropertyType.GetGenericArguments()[0];
 
                         //FirstOrDefault
@@ -962,7 +962,7 @@ namespace AppLib.Controls
 
         void Bind()
         {
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
             {
 
                 foreach (System.Web.UI.WebControls.WebControl ctrl in this.ChildControls)
@@ -977,14 +977,14 @@ namespace AppLib.Controls
                         string sql = ctrl.Attributes["_sql"];
                         if (!string.IsNullOrEmpty(sql))
                         {
-                            using (System.Data.DataTable dtable = db.Database.SelectTable(sql))
+                            using (var dtable = db.Database.SelectTable(sql))
                             {
-                                foreach (System.Data.DataRow drow in dtable.Rows)
+                                foreach (var drow in dtable.Rows)
                                 {
                                     list.Items.Add(new ListItem()
                                     {
-                                        Text = drow[1].ToString(),
-                                        Value = drow[0].ToString()
+                                        Text = drow[dtable.Columns[1].ColumnName].ToString(),
+                                        Value = drow[dtable.Columns[0].ColumnName].ToString()
                                     });
                                 }
                             }
@@ -1035,7 +1035,7 @@ namespace AppLib.Controls
                     if (ctrl is TextBox && ((TextBox)ctrl).TextMode == TextBoxMode.Password)
                         continue;
 
-                    SetControlValue(ctrl, ((EntityDB.DataItem)this.CurrentDataItem).GetValue(datafield));
+                    SetControlValue(ctrl, ((Way.EntityDB.DataItem)this.CurrentDataItem).GetValue(datafield));
                 }
                 #endregion
             }
@@ -1047,9 +1047,9 @@ namespace AppLib.Controls
             if (this.Controls.Count > 0)
                 return;
 
-            EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+            Way.EntityDB.Attributes.Table tableAtt = tableType.GetCustomAttribute(typeof(Way.EntityDB.Attributes.Table)) as Way.EntityDB.Attributes.Table;
             if (tableAtt == null)
-                tableAtt = new EntityDB.Attributes.Table("");
+                tableAtt = new Way.EntityDB.Attributes.Table("","");
 
             var properies = tableType.GetProperties();
             properies = (from m in properies
@@ -1100,9 +1100,9 @@ namespace AppLib.Controls
                 }
                 foreach (var pinfo in datasource)
                 {
-                    EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(EntityDB.WayLinqColumnAttribute)) as EntityDB.WayLinqColumnAttribute;
+                    Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
                     if (columnAtt == null)
-                        columnAtt = new EntityDB.WayLinqColumnAttribute();
+                        columnAtt = new Way.EntityDB.WayLinqColumnAttribute();
                     frm2.listBox1.Items.Add(columnAtt.Caption + " - " + pinfo.Name);
                 }
                 
@@ -1147,9 +1147,9 @@ namespace AppLib.Controls
                     }
                 }
                 string content = null;
-                EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(EntityDB.WayLinqColumnAttribute)) as EntityDB.WayLinqColumnAttribute;
+                Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
                 if (columnAtt == null)
-                    columnAtt = new EntityDB.WayLinqColumnAttribute();
+                    columnAtt = new Way.EntityDB.WayLinqColumnAttribute();
 
                 if (pinfo.PropertyType == typeof(DateTime) || pinfo.PropertyType == typeof(DateTime?))
                 {

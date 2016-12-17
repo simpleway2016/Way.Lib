@@ -1,4 +1,4 @@
-﻿using EntityDB;
+﻿using Way.EntityDB;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -106,7 +106,7 @@ namespace AppLib.Controls
         public void SetSelectedText(string[] texts)
         {
             StringBuilder selectedvalue = new StringBuilder();
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
             {
                 Type dbtype = db.GetType();
                 for (int i = 0; i < texts.Length; i++)
@@ -142,7 +142,7 @@ namespace AppLib.Controls
         {
             List<string> texts = new List<string>();
            
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
             {
                 Type dbtype = db.GetType();
                 string[] ids = this.SelectedValue.Split(',');
@@ -206,7 +206,7 @@ namespace AppLib.Controls
             StringBuilder arrValue = new StringBuilder();
             arrValue.Append(value);
 
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(this.DatabaseConfig))
             {    
                 Type objType = db.GetType();
 
@@ -262,7 +262,7 @@ namespace AppLib.Controls
 
                             if (!string.IsNullOrEmpty(item.TermString))
                             {
-                                query = EntityDB.DBContext.GetQueryByString(query, item.TermString);
+                                query = Way.EntityDB.DBContext.GetQueryByString(query, item.TermString);
                             }
                             query = DBContext.InvokeWhereEquals(query, item.KeyIDField, value);
 
@@ -365,7 +365,7 @@ cursor:pointer;
             string[] selectedValues = Page.Request.QueryString["allid"].Split(',');
 
 
-            using (EntityDB.DBContext db = AppHelper.CreateLinqDataBase(jsonObject.DatabaseConfig))
+            using (Way.EntityDB.DBContext db = AppHelper.CreateLinqDataBase(jsonObject.DatabaseConfig))
             {
 
                 object lastid = null;
@@ -431,7 +431,7 @@ cursor:pointer;
                         
                             try
                             {
-                                query = EntityDB.DBContext.GetQueryByString(query, termstring);
+                                query = Way.EntityDB.DBContext.GetQueryByString(query, termstring);
                             }
                             catch (Exception ex)
                             {
@@ -443,7 +443,7 @@ cursor:pointer;
                     {
                         try
                         {
-                            query = EntityDB.DBContext.GetQueryForOrderBy(query, pcitem.OrderString);
+                            query = Way.EntityDB.DBContext.GetQueryForOrderBy(query, pcitem.OrderString);
 
                         }
                         catch (Exception ex)

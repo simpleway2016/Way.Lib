@@ -234,7 +234,7 @@
       <s:element name="ImportData">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="dset">
+            <s:element minOccurs="0" maxOccurs="1" name="dataset">
               <s:complexType>
                 <s:sequence>
                   <s:element ref="s:schema" />
