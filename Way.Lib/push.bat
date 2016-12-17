@@ -1,0 +1,4 @@
+
+dotnet pack
+
+pause
