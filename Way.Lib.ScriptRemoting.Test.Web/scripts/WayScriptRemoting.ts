@@ -1060,7 +1060,7 @@ class WayProgressBar {
                 loadele.show();
                 this.loading.play();
             }
-        },500);
+        },1000);
         
     }
     hide(): void {
@@ -1540,10 +1540,10 @@ class WayGridView extends WayBaseObject implements IPageable {
         else if (typeof this.datasource == "string") {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, (ret, pkid, err) => {
+                this.hideLoading();
                 if (mytranId != this.transcationID)
                     return;
-
-                this.hideLoading();
+              
                 if (err) {
                     this.hasMorePage = true;
                     this.onErr(err);

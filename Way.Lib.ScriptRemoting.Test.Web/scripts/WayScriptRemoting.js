@@ -20,13 +20,13 @@ var WayCookie = (function () {
         try {
             var cookieStr = document.cookie;
             if (cookieStr.length > 0) {
-                var cookieArr = cookieStr.split(";");
+                var cookieArr = cookieStr.split(";"); //将cookie信息转换成数组
                 for (var i = 0; i < cookieArr.length; i++) {
-                    var cookieVal = cookieArr[i].split("=");
+                    var cookieVal = cookieArr[i].split("="); //将每一组cookie(cookie名和值)也转换成数组
                     if (cookieVal[0].trim() == name) {
                         var v = cookieVal[1].trim();
                         if (v != "") {
-                            return window.unescape(v);
+                            return window.unescape(v); //返回需要提取的cookie值
                         }
                     }
                 }
@@ -60,6 +60,7 @@ var WayScriptRemoting = (function (_super) {
         WayScriptRemoting.getServerAddress();
     }
     Object.defineProperty(WayScriptRemoting.prototype, "onmessage", {
+        //长连接接收到信息触发
         get: function () {
             return this._onmessage;
         },
@@ -101,7 +102,7 @@ var WayScriptRemoting = (function (_super) {
             ws.send("{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
         ws.onmessage = function (evt) {
-            ws.onerror = null;
+            ws.onerror = null; //必须把它设置为null，否则关闭时，会触发onerror
             ws.send("{'Action':'exit'}");
             var result;
             eval("result=" + evt.data);
@@ -205,6 +206,7 @@ var WayScriptRemoting = (function (_super) {
                         }
                     }
                     else {
+                        //计算服务器接收进度
                         if (callback) {
                             handler.offset = parseInt(resultObj.result);
                             try {
@@ -246,6 +248,7 @@ var WayScriptRemoting = (function (_super) {
                 }
                 else {
                     if (!finished) {
+                        //续传
                         if (handler.abort == false) {
                             _this.uploadFile(file, callback, handler);
                         }
@@ -284,7 +287,7 @@ var WayScriptRemoting = (function (_super) {
                 ws.send(socketData);
             };
             ws.onmessage = function (evt) {
-                ws.onerror = null;
+                ws.onerror = null; //必须先设置这里，再准备断开连接
                 ws.send("{'Action':'exit'}");
                 if (_this.onInvokeFinish) {
                     _this.onInvokeFinish(name, parameters);
@@ -353,7 +356,7 @@ var WayScriptRemoting = (function (_super) {
             _this.connect();
         };
     };
-    WayScriptRemoting.ServerAddress = null;
+    WayScriptRemoting.ServerAddress = null; //"localhost:9090";
     return WayScriptRemoting;
 }(WayBaseObject));
 var WayScriptRemotingChild = (function (_super) {
@@ -389,7 +392,7 @@ var WayScriptInvoker = (function () {
         this.xmlHttp.onreadystatechange = function () { return _this.xmlHttpStatusChanged(); };
         this.xmlHttp.open("POST", this.url, this.async);
         this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        this.xmlHttp.send(p);
+        this.xmlHttp.send(p); //null,对ff浏览器是必须的
     };
     WayScriptInvoker.prototype.xmlHttpStatusChanged = function () {
         if (this.xmlHttp.readyState == 4) {
@@ -416,15 +419,18 @@ var WayScriptInvoker = (function () {
     };
     WayScriptInvoker.prototype.createXMLHttp = function () {
         var request = false;
+        // Microsoft browsers
         if (window.XMLHttpRequest) {
             request = new XMLHttpRequest();
         }
         else if (window.ActiveXObject) {
             try {
+                //Internet Explorer
                 request = new ActiveXObject("Msxml2.XMLHTTP");
             }
             catch (e1) {
                 try {
+                    //Internet Explorer
                     request = new ActiveXObject("Microsoft.XMLHTTP");
                 }
                 catch (e2) {
@@ -449,6 +455,7 @@ var WayTemplate = (function () {
 var WayHelper = (function () {
     function WayHelper() {
     }
+    //判断数组是否包含某个值
     WayHelper.contains = function (arr, value) {
         for (var i = 0; i < arr.length; i++) {
             if (arr[i] == value)
@@ -563,6 +570,7 @@ var WayBindingElement = (function (_super) {
                         eleMember = eleMember.match(/(\w|\.)+/g)[0];
                         var dataMember = match.match(dataMemberExp)[0];
                         dataMember = dataMember.substr(1);
+                        //检查data.member是否存在
                         if (_dataSource) {
                             var fields = dataMember.split('.');
                             var findingObj = _dataSource;
@@ -614,7 +622,7 @@ var WayBindingElement = (function (_super) {
     WayBindingElement.prototype.onvalueChanged = function (fromWhichConfig) {
         try {
             if (this.configs.length == 0)
-                return;
+                return; //绑定已经移除了
             if (fromWhichConfig.elementMember == "value") {
                 var model = this.model;
                 eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify(fromWhichConfig.element.value) + ";");
@@ -744,6 +752,7 @@ var WayDataBindHelper = (function () {
             }
         }
     };
+    //获取htmlElement里面所有用于绑定的字段名称
     WayDataBindHelper.getBindingFields = function (element, expressionExp, dataMemberExp) {
         if (expressionExp === void 0) { expressionExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g; }
         if (dataMemberExp === void 0) { dataMemberExp = /\@(\w|\.)+/g; }
@@ -949,7 +958,7 @@ var WayProgressBar = (function () {
                 loadele.show();
                 _this.loading.play();
             }
-        }, 500);
+        }, 1000);
     };
     WayProgressBar.prototype.hide = function () {
         if (this.showRef > 0)
@@ -1144,11 +1153,14 @@ var WayGridView = (function (_super) {
         _super.call(this);
         this.itemTemplates = [];
         this.items = [];
+        //原始itemdata
         this.originalItems = [];
         this.pageinfo = new WayPageInfo();
         this.fieldExp = /\{\@(\w|\.|\:)+\}/g;
         this.loading = new WayProgressBar("#cccccc");
+        // 标识当前绑定数据的事物id
         this.transcationID = 1;
+        //定义item._status的数据原型，可以修改此原型达到期望的目的
         this.itemStatusModel = { Selected: false };
         try {
             this.dbContext = new WayDBContext(controller, null);
@@ -1209,10 +1221,23 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.getTemplateOuterHtml = function (element) {
         return element.innerHTML;
+        //var ctrl: JQuery = $(element);
+        //ctrl.css("display", "");
+        //ctrl.removeAttr("_for");
+        //ctrl.removeAttr("_match");
+        //ctrl.removeAttr("_mode");
+        //var html = "<" + ctrl[0].tagName + " ";
+        //for (var i = 0; i < ctrl[0].attributes.length; i++) {
+        //    html += ctrl[0].attributes[i].name + "=" + JSON.stringify(ctrl[0].attributes[i].value) + " ";
+        //}
+        //html += ">" + element.innerHTML + "</" + ctrl[0].tagName + ">";
+        //return html;
     };
+    //添加item模板
     WayGridView.prototype.addItemTemplate = function (temp) {
         this.itemTemplates.push(temp);
     };
+    //删除item模板
     WayGridView.prototype.removeItemTemplate = function (temp) {
         this.itemTemplates[this.itemTemplates.indexOf(temp)] = null;
     };
@@ -1265,6 +1290,7 @@ var WayGridView = (function (_super) {
             });
         }
         else {
+            //没有值变化
             var idvalue;
             if (this.primaryKey) {
                 eval("idvalue=model." + this.primaryKey + ";");
@@ -1305,9 +1331,12 @@ var WayGridView = (function (_super) {
         }
         return result;
     };
+    //绑定数据
     WayGridView.prototype.databind = function () {
         this.footerItem = null;
+        //清除内容
         for (var i = 0; i < this.items.length; i++) {
+            //消除绑定
             WayDataBindHelper.removeDataBind(this.items[i][0]);
         }
         this.items = [];
@@ -1315,6 +1344,7 @@ var WayGridView = (function (_super) {
         while (this.itemContainer[0].children.length > 0) {
             this.itemContainer[0].removeChild(this.itemContainer[0].children[0]);
         }
+        //bind header
         if (this.header) {
             var headerObj = $(this.header.content);
             this.itemContainer.append(headerObj);
@@ -1328,7 +1358,7 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.shouldLoadMorePage = function () {
         var _this = this;
-        this.hasMorePage = false;
+        this.hasMorePage = false; //设为false，可以禁止期间被Pager再次调用
         this.transcationID++;
         var mytranId = this.transcationID;
         if (typeof this.datasource == "function") {
@@ -1348,9 +1378,9 @@ var WayGridView = (function (_super) {
         else if (typeof this.datasource == "string") {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, function (ret, pkid, err) {
+                _this.hideLoading();
                 if (mytranId != _this.transcationID)
                     return;
-                _this.hideLoading();
                 if (err) {
                     _this.hasMorePage = true;
                     _this.onErr(err);
@@ -1379,6 +1409,7 @@ var WayGridView = (function (_super) {
             this.binddatas(this.datasource);
         }
     };
+    //把两个table的td设为一样的宽度
     WayGridView.prototype.setSameWidthForTables = function (tableSource, tableHeader) {
         while (tableSource[0].tagName != "TABLE") {
             tableSource = $(tableSource[0].children[0]);
@@ -1445,9 +1476,11 @@ var WayGridView = (function (_super) {
         }
         return null;
     };
+    //改变指定item为指定的mode
     WayGridView.prototype.changeMode = function (itemIndex, mode) {
         try {
             var item = this.items[itemIndex];
+            //移除数据绑定
             WayDataBindHelper.removeDataBind(item[0]);
             var newItem = this.createItem(itemIndex, mode);
             this.items[itemIndex] = newItem;
@@ -1469,6 +1502,8 @@ var WayGridView = (function (_super) {
             alert("changeMode error:" + e.message);
         }
     };
+    //接受item数据的更新，如当前item的数据和很多input进行绑定，input值改变后，并且同步到数据库，
+    //那么updateItemData方法就是同步本地GridView，否则调用changeMode，item显示的值还是原来的值
     WayGridView.prototype.acceptItemChanged = function (itemIndex) {
         var item = this.items[itemIndex];
         var mydata = item._data.getSource();
@@ -1476,6 +1511,7 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.createItem = function (itemIndex, mode) {
         if (mode === void 0) { mode = ""; }
+        //把数据克隆一份
         var currentItemStatus;
         if (itemIndex < this.items.length) {
             currentItemStatus = this.items[itemIndex]._status;
@@ -1534,12 +1570,14 @@ var WayGridView = (function (_super) {
         }
         var item = $(itemContent);
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
+        //创建status
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
         item._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g);
         if (typeof myChangeFunc == "function") {
             item._status.onchange = myChangeFunc;
         }
+        //建立验证
         if (true) {
             var bindItemElements = item.find("*[_databind]");
             var validators = [];
@@ -1562,6 +1600,7 @@ var WayGridView = (function (_super) {
                 };
             }
         }
+        ////////////
         item._data = model;
         if (this.onCreateItem) {
             this.onCreateItem(item, mode);
@@ -1570,6 +1609,7 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.binddatas = function (datas) {
         try {
+            //bind items
             for (var i = 0; i < datas.length; i++) {
                 this.originalItems.push(datas[i]);
                 var itemindex = this.items.length;
@@ -1582,6 +1622,7 @@ var WayGridView = (function (_super) {
                 }
                 this.items.push(item);
             }
+            //bind footer
             if (!this.footerItem && this.footer) {
                 this.footerItem = $(this.footer.content);
                 this.itemContainer.append(this.footerItem);
@@ -1596,3 +1637,4 @@ var WayGridView = (function (_super) {
     };
     return WayGridView;
 }(WayBaseObject));
+//# sourceMappingURL=WayScriptRemoting.js.map
