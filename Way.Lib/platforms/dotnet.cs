@@ -7,28 +7,12 @@ using System.Threading.Tasks;
 
 namespace Way.Lib
 {
-    class PlatformHelper
+    public class PlatformHelper
     {
-        public static void setAssemblyResolve()
+        public static Assembly[] GetAppAssemblies()
         {
-           
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
-        static List<string> tryLoadedAssemblyNames = new List<string>();
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            string name = args.Name.Split(',')[0].Trim();
-            //if (name.StartsWith("Microsoft.VisualStudio.Web.PageInspector.Tracing.resources"))
-            //    return null;
-            if (tryLoadedAssemblyNames.Contains(name))
-            {
-                throw new Exception($"无法加载程序集{name}");
-            }
-            tryLoadedAssemblyNames.Add(name);
-            var assembly = Assembly.Load(name);
-            return assembly;
-        }
-
         public static string GetAppDirectory()
         {
             if (System.Web.HttpRuntime.AppDomainAppPath != null)

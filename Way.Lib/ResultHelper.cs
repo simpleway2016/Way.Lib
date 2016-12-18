@@ -118,6 +118,37 @@ namespace Way.Lib
             return null;
         }
 
+        public static object InvokeCount(object linqQuery)
+        {
+            Type objectType = linqQuery.GetType();
+            Type dataType = null;
+
+            if (objectType.IsArray)
+            {
+                dataType = objectType.GetElementType();
+            }
+            else
+            {
+                dataType = objectType.GetTypeInfo().GetGenericArguments()[0];
+            }
+
+            Type myType = (linqQuery is System.Linq.IQueryable) ? typeof(System.Linq.Queryable) : typeof(System.Linq.Enumerable);
+            var methods = myType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Where(m => m.Name == "Count");
+            foreach (System.Reflection.MethodInfo method in methods)
+            {
+                if (method.GetParameters().Length == 1)
+                {
+                    System.Reflection.MethodInfo mmm = method.MakeGenericMethod(dataType);
+                    if (mmm != null)
+                    {
+                        return mmm.Invoke(null, new object[] { linqQuery });
+                    }
+                }
+            }
+            return null;
+        }
+
+
         public static object InvokeSelect(object linqQuery, string[] propertyNames)
         {
             Type objectType = linqQuery.GetType();

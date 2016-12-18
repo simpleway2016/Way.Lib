@@ -1,0 +1,7 @@
+﻿之前在写58HouseSearch项目迁移到asp.net core简单提过AngleSharp库，一个基于.NET（C#）开发的专门为解析xHTML源码的DLL组件。
+
+AngleSharp主页在这里：https://anglesharp.github.io/，
+
+博客园文章：解析HTML利器AngleSharp介绍，
+
+Nuget地址:Nuget AngleSharp 安装命令：Install-Package AngleSharp

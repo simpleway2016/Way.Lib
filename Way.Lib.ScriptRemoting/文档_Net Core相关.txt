@@ -1,0 +1,6 @@
+﻿http://www.person168.com/?p=166
+AppDomains是用作不同的目的。对于代码隔离来说，我们建议使用进程或者容器来代替。对于动态加载的程序集，建议使用新的AssemblyLoadContext 类。
+
+
+拥抱.NET Core，如何开发一个跨平台类库 (1)
+http://www.cnblogs.com/ants/p/5740473.html
