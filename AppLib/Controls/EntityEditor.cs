@@ -185,15 +185,29 @@ namespace AppLib.Controls
             }
         }
 
-
+        object _CurrentDataItem = null;
         public object CurrentDataItem
         {
             get{
-                return ViewState["CurrentDataItem"];
+                if (_CurrentDataItem != null)
+                    return _CurrentDataItem;
+                if (ViewState["CurrentDataItem"] != null)
+                {
+                    Type type = ViewState["CurrentDataItemType"] as Type;
+                    _CurrentDataItem = Newtonsoft.Json.JsonConvert.DeserializeObject(ViewState["CurrentDataItem"].ToString() , type);
+                }
+                return _CurrentDataItem;
             }
             set
             {
-                ViewState["CurrentDataItem"] = value;
+                _CurrentDataItem = value;
+                if (value == null)
+                    ViewState["CurrentDataItem"] = null;
+                else
+                {
+                    ViewState["CurrentDataItemType"] = value.GetType();
+                    ViewState["CurrentDataItem"] = Newtonsoft.Json.JsonConvert.SerializeObject(value);
+                }
             }
         }
 
