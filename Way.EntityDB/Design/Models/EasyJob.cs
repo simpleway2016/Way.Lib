@@ -2840,12 +2840,18 @@ namespace EJ.DB{
         {
             if (!setEvented)
             {
-                Way.EntityDB.Design.DBUpgrade.Upgrade(this,_designData);
-                setEvented = true;
-                Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
+                lock (lockObj)
+                {
+                    if (!setEvented)
+                    {
+                        Way.EntityDB.Design.DBUpgrade.Upgrade(this, _designData);
+                        setEvented = true;
+                        Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
+                    }
+                }
             }
         }
-
+        static object lockObj = new object();
         static bool setEvented = false;
  
 

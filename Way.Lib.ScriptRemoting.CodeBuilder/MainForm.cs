@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,25 +13,27 @@ namespace Way.Lib.ScriptRemoting.CodeBuilder
 {
     public partial class MainForm : Form
     {
-        static private string xulrunnerPath = Application.StartupPath + "\\xulrunner";
-        Gecko.GeckoWebBrowser browser;
+      
         public MainForm()
         {
             InitializeComponent();
+            if(Directory.Exists(Application.StartupPath + "\\temp") == false)
+            {
+                Directory.CreateDirectory(Application.StartupPath + "\\temp");
+            }
+            Stream stream = typeof(MainForm).Assembly.GetManifestResourceStream("Way.Lib.ScriptRemoting.CodeBuilder.index.html");
+            byte[] htmlBytes = new byte[stream.Length];
+            stream.Read(htmlBytes, 0, htmlBytes.Length);
+            File.WriteAllBytes(Application.StartupPath + "\\temp\\index.html", htmlBytes);
 
-            Skybound.Gecko.Xpcom.Initialize(xulrunnerPath);
-            GeckoPreferences.User["gfx.font_rendering.graphite.enabled"] = true;
+            stream = typeof(MainForm).Assembly.GetManifestResourceStream("Way.Lib.ScriptRemoting.CodeBuilder.jquery.js");
+            htmlBytes = new byte[stream.Length];
+            stream.Read(htmlBytes, 0, htmlBytes.Length);
+            File.WriteAllBytes(Application.StartupPath + "\\temp\\jquery.js", htmlBytes);
 
-            browser = new Gecko.GeckoWebBrowser();
-            browser.Dock = DockStyle.Fill;
-            this.Controls.Add(browser);
-            browser.DocumentCompleted += Browser_DocumentCompleted;
-            browser.Navigate("http://mail.qq.com");
+            webBrowser1.Navigate("file:///"+ Application.StartupPath + "\\temp\\index.html");
         }
 
-        private void Browser_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
-        {
-
-        }
+       
     }
 }
