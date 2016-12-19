@@ -86,10 +86,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     throw new Exception("无法找到类" + fullname);
                 }
-                else if (type.GetTypeInfo().GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
-                {
-                    throw new Exception(fullname + "无权访问");
-                }
+
                 try
                 {
                     DataSourceTypes.Add(fullname, type);
@@ -372,10 +369,7 @@ namespace Way.Lib.ScriptRemoting
                 if (propertyName.EndsWith("()"))
                 {
                     var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
-                    if (method.GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
-                    {
-                        throw new Exception(propertyName + "函数不是RemotingMethod");
-                    }
+
                     result = method.Invoke(obj, null);
                 }
                 else
@@ -547,10 +541,7 @@ namespace Way.Lib.ScriptRemoting
             if (propertyName.EndsWith("()"))
             {
                 var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
-                if (method.GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
-                {
-                    throw new Exception(propertyName + "函数不是RemotingMethod");
-                }
+
                 result = method.Invoke(obj, null);
             }
             else
@@ -597,10 +588,7 @@ namespace Way.Lib.ScriptRemoting
             if (propertyName.EndsWith("()"))
             {
                 var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
-                if (method.GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
-                {
-                    throw new Exception(propertyName + "函数不是RemotingMethod");
-                }
+
                 result = method.Invoke(obj, null);
             }
             else
