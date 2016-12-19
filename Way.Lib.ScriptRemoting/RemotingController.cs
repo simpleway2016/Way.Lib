@@ -86,10 +86,10 @@ namespace Way.Lib.ScriptRemoting
                 {
                     throw new Exception("无法找到类" + fullname);
                 }
-                if (type.GetTypeInfo().GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
-                {
-                    throw new Exception("类" + fullname + "没有标记RemotingMethod");
-                }
+                //if (type.GetTypeInfo().GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
+                //{
+                //    throw new Exception("类" + fullname + "没有标记RemotingMethod");
+                //}
                 try
                 {
                     DataSourceTypes.Add(fullname, type);
