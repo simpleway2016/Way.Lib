@@ -259,6 +259,19 @@ namespace Way.Lib
 
         public static Expression CreateSelectExpression(ParameterExpression n, string[] fields)
         {
+            string[] newFields = new string[fields.Length];
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i].Contains(":"))
+                {
+                    newFields[i] = fields[i].Substring(0, fields[i].IndexOf(":"));
+                }
+                else
+                {
+                    newFields[i] = fields[i];
+                }
+            }
+            fields = newFields;
             Type targetType = n.Type;
             List<MemberAssignment> binds = new List<MemberAssignment>();
             foreach (string field in fields)

@@ -1197,6 +1197,8 @@ class WayDBContext {
         }
         this.datasource = _datasource;
     }
+
+   
     getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel:any, callback: (_data: any,_pkid:any, err: any) => void): void {
         searchModel = searchModel ? JSON.stringify(searchModel) : "";
         this.remoting.pageInvoke("GetDataSource", [pageinfo, this.datasource, bindFields, searchModel], (ret, err) => {
@@ -1694,6 +1696,27 @@ class WayGridView extends WayBaseObject implements IPageable {
         this.originalItems[itemIndex] = WayHelper.clone(mydata);
     }
 
+    //从服务器更新指定item的数据，并重新绑定
+    rebindItemFromServer(itemIndex: number,mode:string, callback: (data: any, err: any) => void) {
+        var searchmodel = {};
+        var item = this.items[itemIndex];
+        searchmodel[this.primaryKey] = (<any>item)._data[this.primaryKey];
+        this.dbContext.getDataItem(this.getBindFields(), searchmodel, (data: any, err: any) => {
+            if (!err) {
+                this.originalItems[itemIndex] = data;
+                try {
+                    if (typeof mode == "undefined")
+                        mode = (<any>item)._mode;
+                    this.changeMode(itemIndex, mode);
+                }
+                catch (e) {
+                    alert(e.message);
+                }
+            }
+            if (callback)
+                callback(data, err);
+        });
+    }
    
     private createItem(itemIndex: any, mode: string = ""): JQuery {
         //把数据克隆一份
@@ -1799,6 +1822,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
         ////////////
         (<any>item)._data = model;
+        (<any>item)._mode = mode;
 
         if (this.onCreateItem) {
             this.onCreateItem(item, mode);

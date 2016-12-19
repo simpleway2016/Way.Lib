@@ -34,7 +34,7 @@ namespace Way.Lib.ScriptRemoting
             get;
             internal set;
         }
-
+        
         /// <summary>
         /// 获取当前上下文对应的Session
         /// </summary>
@@ -86,7 +86,10 @@ namespace Way.Lib.ScriptRemoting
                 {
                     throw new Exception("无法找到类" + fullname);
                 }
-
+                if (type.GetTypeInfo().GetCustomAttribute(typeof(RemotingMethodAttribute)) == null)
+                {
+                    throw new Exception("类" + fullname + "没有标记RemotingMethod");
+                }
                 try
                 {
                     DataSourceTypes.Add(fullname, type);
@@ -334,9 +337,50 @@ namespace Way.Lib.ScriptRemoting
         }
 
         static Dictionary<string, Type> DataSourceTypes = new Dictionary<string, Type>();
-        protected virtual void OnGettingDataSource(string fullname,string target)
+
+        /// <summary>
+        /// 根据数据源名称，返回数据源路径
+        /// </summary>
+        /// <param name="datasourceName">数据源名称</param>
+        /// <returns></returns>
+        protected virtual string OnGetDataSourcePath(string datasourceName)
         {
+            return null;
         }
+
+        object GetDataSource(string target, Dictionary<string, object> activeObjs)
+        {
+            int index = target.LastIndexOf(".");
+            string propertyName = target.Substring(index + 1);
+            string fullname = target.Substring(0, index);
+
+            object obj = null;
+            Type type = null;
+            if (activeObjs.ContainsKey(fullname) == false)
+            {
+
+                type = getType(fullname);
+                obj = Activator.CreateInstance(type);
+                activeObjs[fullname] = obj;
+            }
+            else
+            {
+                obj = activeObjs[fullname];
+                   type = obj.GetType();
+            }
+
+            if (propertyName.EndsWith("()"))
+            {
+                var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
+
+                return method.Invoke(obj, null);
+            }
+            else
+            {
+                return type.GetProperty(propertyName).GetValue(obj);
+            }
+        }
+
         /// <summary>
         /// 通用获取数据的函数
         /// </summary>
@@ -348,34 +392,20 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
         {
-           
-            int index = target.LastIndexOf(".");
-            string propertyName = target.Substring(index + 1);
-            string fullname = target.Substring(0, index);
-
-            this.OnGettingDataSource(fullname, propertyName);
+            target = this.OnGetDataSourcePath(target);
+            if (target == null)
+            {
+                throw new Exception("请override OnGetDataSourcePath函数，返回正确的数据路径");
+            }
 
             string pkid = null;//主键值
-            Type type = getType(fullname);
+
             Dictionary<string, object> activeObjs = new Dictionary<string, object>();
             try
             {
-                object obj = Activator.CreateInstance(type);
-                activeObjs[fullname] = obj;
 
                 object[] arrResult = null;
-                object result = null;
-
-                if (propertyName.EndsWith("()"))
-                {
-                    var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
-
-                    result = method.Invoke(obj, null);
-                }
-                else
-                {
-                    result = type.GetProperty(propertyName).GetValue(obj);
-                }
+                object result = GetDataSource(target, activeObjs);
 
                 Type dataItemType = result.GetType();
                 if (dataItemType.IsArray)
@@ -427,7 +457,6 @@ namespace Way.Lib.ScriptRemoting
                         if (field.Contains(":"))
                         {
                             string[] fieldInfo = field.Split(':');
-                            string[] memeberInfo = fieldInfo[1].Split('.');
 
                             object fieldValue = ResultHelper.GetPropertyValue(dataitem, fieldInfo[0]);
                             if (fieldValue == null)
@@ -439,31 +468,14 @@ namespace Way.Lib.ScriptRemoting
 
                             ResultHelper.SetJsonDataValue(jData, fieldInfo[0] + ".value", fieldValue);
 
-                            StringBuilder myfullName = new StringBuilder();
-                            for (int i = 0; i < memeberInfo.Length - 2; i++)
-                            {
-                                if (myfullName.Length > 0)
-                                    myfullName.Append('.');
-                                myfullName.Append(memeberInfo[i]);
-                            }
-                            object myDataSourceObj = null;
-                            Type myType = type;
-                            if (myfullName.Length == 0)
-                            {
-                                myDataSourceObj = obj;
-                            }
-                            else
-                            {
-                                myDataSourceObj = activeObjs[myfullName.ToString()];
-                                if (myDataSourceObj == null)
-                                {
-                                    myType = getType(myfullName.ToString());
-                                    myDataSourceObj = Activator.CreateInstance(myType);
-                                    activeObjs[myfullName.ToString()] = myDataSourceObj;
-                                }
-                            }
-                            object query = myType.GetProperty(memeberInfo[memeberInfo.Length - 2]).GetValue(myDataSourceObj);
-                            object findedDataItem = ResultHelper.InvokeWhereEquals(query, memeberInfo[memeberInfo.Length - 1], fieldValue);
+                            string otherTarget = fieldInfo[1].Substring(0, fieldInfo[1].IndexOf("."));
+                            otherTarget = OnGetDataSourcePath(otherTarget);
+
+                            object query = GetDataSource(otherTarget , activeObjs);
+
+                            string compareProName = fieldInfo[1].Substring(fieldInfo[1].LastIndexOf(".") + 1);
+
+                            object findedDataItem = ResultHelper.InvokeWhereEquals(query, compareProName, fieldValue);
                             findedDataItem = ResultHelper.InvokeSelect(findedDataItem , fieldInfo[2]);
                            
                             if (findedDataItem != null)
@@ -530,6 +542,7 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public int Count(string target,string searchJsonStr)
         {
+            target = this.OnGetDataSourcePath(target);
             int index = target.LastIndexOf(".");
             string propertyName = target.Substring(index + 1);
             string fullname = target.Substring(0, index);
@@ -577,6 +590,7 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object Sum(string target, string[] fields, string searchJsonStr)
         {
+            target = OnGetDataSourcePath(target);
             int index = target.LastIndexOf(".");
             string propertyName = target.Substring(index + 1);
             string fullname = target.Substring(0, index);
@@ -626,7 +640,7 @@ namespace Way.Lib.ScriptRemoting
             return finallResult;
         }
 
-        protected virtual void OnSavingData(object dataitem)
+        protected virtual void OnBeforeSavingData(object dataitem)
         {
         }
 
@@ -639,6 +653,7 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object SaveData(string target,string dataJson)
         {
+            target = OnGetDataSourcePath(target);
             int index = target.LastIndexOf(".");
             string propertyName = target.Substring(index + 1);
             string fullname = target.Substring(0, index);
@@ -657,7 +672,7 @@ namespace Way.Lib.ScriptRemoting
             {
                 throw new Exception("dataitem is not EntityDB.DataItem");
             }
-            this.OnSavingData(dataitem);
+            this.OnBeforeSavingData(dataitem);
             dbContext.Update(dataitem);
             if (myTableAttr.IDField.IsNullOrEmpty())
                 return null;

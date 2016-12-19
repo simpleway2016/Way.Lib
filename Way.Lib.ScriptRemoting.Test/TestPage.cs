@@ -13,12 +13,22 @@ namespace Way.Lib.ScriptRemoting.Test
     public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
 
-        protected override void OnGettingDataSource(string fullname, string target)
+        protected override string OnGetDataSourcePath(string datasourceName)
         {
-            base.OnGettingDataSource(fullname, target);
+            if (datasourceName == "grid")
+            {
+                return "Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn";
+            }
+            else if (datasourceName == "DBTable")
+            {
+                return "Way.Lib.ScriptRemoting.WinTest.MyDB.DBTable";
+            }
+            return null;
         }
-        protected override void OnSavingData(object dataitem)
+        protected override void OnBeforeSavingData(object dataitem)
         {
+            EJ.DBColumn column = dataitem as EJ.DBColumn;
+            column.TableID = 3;
             this.SendMessage( Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
         }
 

@@ -1509,6 +1509,28 @@ var WayGridView = (function (_super) {
         var mydata = item._data.getSource();
         this.originalItems[itemIndex] = WayHelper.clone(mydata);
     };
+    //从服务器更新指定item的数据，并重新绑定
+    WayGridView.prototype.rebindItemFromServer = function (itemIndex, mode, callback) {
+        var _this = this;
+        var searchmodel = {};
+        var item = this.items[itemIndex];
+        searchmodel[this.primaryKey] = item._data[this.primaryKey];
+        this.dbContext.getDataItem(this.getBindFields(), searchmodel, function (data, err) {
+            if (!err) {
+                _this.originalItems[itemIndex] = data;
+                try {
+                    if (typeof mode == "undefined")
+                        mode = item._mode;
+                    _this.changeMode(itemIndex, mode);
+                }
+                catch (e) {
+                    alert(e.message);
+                }
+            }
+            if (callback)
+                callback(data, err);
+        });
+    };
     WayGridView.prototype.createItem = function (itemIndex, mode) {
         if (mode === void 0) { mode = ""; }
         //把数据克隆一份
@@ -1602,6 +1624,7 @@ var WayGridView = (function (_super) {
         }
         ////////////
         item._data = model;
+        item._mode = mode;
         if (this.onCreateItem) {
             this.onCreateItem(item, mode);
         }
