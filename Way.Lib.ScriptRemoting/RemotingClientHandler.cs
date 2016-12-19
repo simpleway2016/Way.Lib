@@ -182,7 +182,7 @@ namespace Way.Lib.ScriptRemoting
                     if (type != null)
                     {
                         pageDefine = new ScriptRemoting.TypeDefine();
-                        pageDefine.PageType = type;
+                        pageDefine.ControllerType = type;
                         break;
                     }
                 }
@@ -190,12 +190,12 @@ namespace Way.Lib.ScriptRemoting
                 {
                     throw new Exception("无法找到" + remoteName + "类定义");
                 }
-                if (pageDefine.PageType != RemotingPageType && pageDefine.PageType.GetTypeInfo().IsSubclassOf(RemotingPageType) == false)
+                if (pageDefine.ControllerType != RemotingPageType && pageDefine.ControllerType.GetTypeInfo().IsSubclassOf(RemotingPageType) == false)
                 {
                     throw new Exception(remoteName + "不是RemotingPage的子类");
                 }
 
-                MethodInfo[] methods = pageDefine.PageType.GetMethods();
+                MethodInfo[] methods = pageDefine.ControllerType.GetMethods();
                 foreach (MethodInfo m in methods)
                 {
                     if (m.GetCustomAttribute<RemotingMethodAttribute>() != null)
@@ -258,7 +258,7 @@ namespace Way.Lib.ScriptRemoting
     return func;
 }(WayScriptRemoting));
 ");
-                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.PageType);
+                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.SocketID = Guid.NewGuid().ToString().Replace("-", "");
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
@@ -287,7 +287,7 @@ namespace Way.Lib.ScriptRemoting
                 string remoteName = msgBag.ClassFullName;
                 var pageDefine = checkRemotingName(remoteName);
 
-                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.PageType);
+                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.SocketID = msgBag.SocketID;
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
@@ -308,7 +308,7 @@ namespace Way.Lib.ScriptRemoting
                 string remoteName = msgBag.ClassFullName;
                 var pageDefine = checkRemotingName(remoteName);
 
-                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.PageType);
+                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.SocketID = this.SocketID;
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
@@ -391,7 +391,7 @@ namespace Way.Lib.ScriptRemoting
     }
     class TypeDefine
     {
-        public Type PageType;
+        public Type ControllerType;
         public List<MethodInfo> Methods = new List<MethodInfo>();
     }
     class MessageBag
