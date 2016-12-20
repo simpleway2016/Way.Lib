@@ -1364,9 +1364,9 @@ var WayGridView = (function (_super) {
         if (typeof this.datasource == "function") {
             this.showLoading();
             this.datasource(function (ret, err) {
+                _this.hideLoading();
                 if (mytranId != _this.transcationID)
                     return;
-                _this.hideLoading();
                 if (err) {
                     _this.onErr(err);
                 }

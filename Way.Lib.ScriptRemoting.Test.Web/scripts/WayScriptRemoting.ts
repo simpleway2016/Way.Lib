@@ -1527,10 +1527,10 @@ class WayGridView extends WayBaseObject implements IPageable {
         if (typeof this.datasource == "function") {
             this.showLoading();
             this.datasource((ret, err) => {
+                this.hideLoading();
                 if (mytranId != this.transcationID)
                     return;
 
-                this.hideLoading();
                 if (err) {
                     this.onErr(err);
                 }
