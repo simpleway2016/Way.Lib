@@ -92,6 +92,39 @@
       <s:element name="ChangeModuleParentResponse">
         <s:complexType />
       </s:element>
+      <s:element name="GetProjectNameByColumnId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="columnid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetProjectNameByColumnIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetProjectNameByColumnIdResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetNamespacePathByColumnId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="columnId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetNamespacePathByColumnIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetNamespacePathByColumnIdResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="ChangePassword">
         <s:complexType>
           <s:sequence>
@@ -157,11 +190,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfString">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="SaveDataTableResponse">
         <s:complexType />
       </s:element>
@@ -381,6 +409,21 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetColumnsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnNamesByTableName">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="tablename" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="databaseid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetColumnNamesByTableNameResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetColumnNamesByTableNameResult" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -928,6 +971,18 @@
   <wsdl:message name="ChangeModuleParentSoapOut">
     <wsdl:part name="parameters" element="tns:ChangeModuleParentResponse" />
   </wsdl:message>
+  <wsdl:message name="GetProjectNameByColumnIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetProjectNameByColumnId" />
+  </wsdl:message>
+  <wsdl:message name="GetProjectNameByColumnIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetProjectNameByColumnIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetNamespacePathByColumnIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetNamespacePathByColumnId" />
+  </wsdl:message>
+  <wsdl:message name="GetNamespacePathByColumnIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetNamespacePathByColumnIdResponse" />
+  </wsdl:message>
   <wsdl:message name="ChangePasswordSoapIn">
     <wsdl:part name="parameters" element="tns:ChangePassword" />
   </wsdl:message>
@@ -1041,6 +1096,12 @@
   </wsdl:message>
   <wsdl:message name="GetColumnsSoapOut">
     <wsdl:part name="parameters" element="tns:GetColumnsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnNamesByTableNameSoapIn">
+    <wsdl:part name="parameters" element="tns:GetColumnNamesByTableName" />
+  </wsdl:message>
+  <wsdl:message name="GetColumnNamesByTableNameSoapOut">
+    <wsdl:part name="parameters" element="tns:GetColumnNamesByTableNameResponse" />
   </wsdl:message>
   <wsdl:message name="GetDBModuleListSoapIn">
     <wsdl:part name="parameters" element="tns:GetDBModuleList" />
@@ -1293,6 +1354,14 @@
       <wsdl:input message="tns:ChangeModuleParentSoapIn" />
       <wsdl:output message="tns:ChangeModuleParentSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetProjectNameByColumnId">
+      <wsdl:input message="tns:GetProjectNameByColumnIdSoapIn" />
+      <wsdl:output message="tns:GetProjectNameByColumnIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNamespacePathByColumnId">
+      <wsdl:input message="tns:GetNamespacePathByColumnIdSoapIn" />
+      <wsdl:output message="tns:GetNamespacePathByColumnIdSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="ChangePassword">
       <wsdl:input message="tns:ChangePasswordSoapIn" />
       <wsdl:output message="tns:ChangePasswordSoapOut" />
@@ -1368,6 +1437,10 @@
     <wsdl:operation name="GetColumns">
       <wsdl:input message="tns:GetColumnsSoapIn" />
       <wsdl:output message="tns:GetColumnsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnNamesByTableName">
+      <wsdl:input message="tns:GetColumnNamesByTableNameSoapIn" />
+      <wsdl:output message="tns:GetColumnNamesByTableNameSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetDBModuleList">
       <wsdl:input message="tns:GetDBModuleListSoapIn" />
@@ -1583,6 +1656,24 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetProjectNameByColumnId">
+      <soap:operation soapAction="http://tempuri.org/GetProjectNameByColumnId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNamespacePathByColumnId">
+      <soap:operation soapAction="http://tempuri.org/GetNamespacePathByColumnId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="ChangePassword">
       <soap:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
       <wsdl:input>
@@ -1747,6 +1838,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetColumns">
       <soap:operation soapAction="http://tempuri.org/GetColumns" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnNamesByTableName">
+      <soap:operation soapAction="http://tempuri.org/GetColumnNamesByTableName" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2153,6 +2253,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetProjectNameByColumnId">
+      <soap12:operation soapAction="http://tempuri.org/GetProjectNameByColumnId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNamespacePathByColumnId">
+      <soap12:operation soapAction="http://tempuri.org/GetNamespacePathByColumnId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="ChangePassword">
       <soap12:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
       <wsdl:input>
@@ -2317,6 +2435,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetColumns">
       <soap12:operation soapAction="http://tempuri.org/GetColumns" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetColumnNamesByTableName">
+      <soap12:operation soapAction="http://tempuri.org/GetColumnNamesByTableName" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

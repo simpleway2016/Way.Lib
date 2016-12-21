@@ -10,7 +10,10 @@
             <ContextMenu x:Name="contextMenu">
                 <MenuItem Header="查看数据..." Click="MenuItem_ViewData_1"></MenuItem>
                 <Separator></Separator>
+                <MenuItem Header="代码生成器..." x:Name="menuCodeBuilders"></MenuItem>
+                <Separator></Separator>
                 <MenuItem Header="从模块移除..." Click="MenuItem_移除_1"></MenuItem>
+                
             </ContextMenu>
         </Border.ContextMenu>
         <StackPanel>

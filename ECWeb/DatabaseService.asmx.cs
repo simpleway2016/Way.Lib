@@ -130,6 +130,30 @@ namespace ECWeb
         }
 
         [WebMethod(EnableSession = true)]
+        public string GetProjectNameByColumnId(int columnid)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var column = db.DBColumn.FirstOrDefault(m => m.id == columnid);
+                var table = db.DBTable.FirstOrDefault(m => m.id == column.TableID);
+                var database = db.Databases.FirstOrDefault(m => m.id == table.DatabaseID);
+                return database.Name;
+            }
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string[] GetNamespacePathByColumnId(int columnId)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var column = db.DBColumn.FirstOrDefault(m => m.id == columnId);
+                var table = db.DBTable.FirstOrDefault(m => m.id == column.TableID);
+                var database = db.Databases.FirstOrDefault(m => m.id == table.DatabaseID);
+                return new string[] {database.NameSpace + ".DB." + database.Name , table.Name };
+            }
+        }
+
+        [WebMethod(EnableSession = true)]
         public void ChangePassword(string oldpwd,string newpwd)
         {
             if (this.User == null)
@@ -582,7 +606,23 @@ namespace ECWeb
                             where m.TableID == tableid
                             orderby m.orderid
                             select m;
-                return result.ToList().ToJsonString();
+                return result.ToArray().ToJsonString();
+            }
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetColumnNamesByTableName(string tablename, int databaseid)
+        {
+            if (this.User == null)
+                throw new Exception("请重新登陆");
+            using (EJDB db = new EJDB())
+            {
+                var result = from m in db.DBColumn
+                             join t in db.DBTable on m.TableID equals t.id
+                             where t.Name == tablename && t.DatabaseID == databaseid
+                             orderby m.orderid
+                             select m.Name;
+                return result.ToArray().ToJsonString();
             }
         }
         [WebMethod(EnableSession = true)]

@@ -60,7 +60,45 @@ namespace EJClient.UI
             InitializeComponent();
             this.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             this.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+            loadCoderBuilders();
         }
+        static List<AppCodeBuilder.IAppCodeBuilder> s_AllBuilders;
+        void loadCoderBuilders()
+        {
+            if (s_AllBuilders == null)
+            {
+                string fullname = typeof(AppCodeBuilder.IAppCodeBuilder).FullName;
+                s_AllBuilders = new List<AppCodeBuilder.IAppCodeBuilder>();
+                   var types = typeof(AppCodeBuilder.IAppCodeBuilder).Assembly.GetTypes().Where(m => m.GetInterface(fullname) != null).OrderBy(m => m.Name);
+                foreach (var type in types)
+                {
+                    var builder = (AppCodeBuilder.IAppCodeBuilder)Activator.CreateInstance(type);
+                    s_AllBuilders.Add(builder);
+                    
+                }
+            }
+            foreach (var builder in s_AllBuilders)
+            {
+                MenuItem menuitem = new MenuItem();
+                menuitem.Header = builder.Name + "...";
+                menuitem.Tag = builder;
+                menuitem.Click += builder_Click;
+                menuCodeBuilders.Items.Add(menuitem);
+            }
+        }
+
+        private void builder_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuitem = (MenuItem)e.Source;
+            var builder = (AppCodeBuilder.IAppCodeBuilder)menuitem.Tag;
+
+            var form = new AppCodeBuilder.BuilderWindow(this.DataSource.Table.id.Value, this.DataSource.Table.DatabaseID.Value, builder);
+            form.Owner = MainWindow.instance;
+            form.Show();
+        }
+
+
 
         /// <summary>
         /// 从服务器更新当前UI

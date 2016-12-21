@@ -44,6 +44,10 @@ namespace EJClient.Web {
         
         private System.Threading.SendOrPostCallback ChangeModuleParentOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetProjectNameByColumnIdOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetNamespacePathByColumnIdOperationCompleted;
+        
         private System.Threading.SendOrPostCallback ChangePasswordOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetCurrentUserProjectListOperationCompleted;
@@ -81,6 +85,8 @@ namespace EJClient.Web {
         private System.Threading.SendOrPostCallback GetColumnNamesOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetColumnsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetColumnNamesByTableNameOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDBModuleListOperationCompleted;
         
@@ -216,6 +222,12 @@ namespace EJClient.Web {
         public event ChangeModuleParentCompletedEventHandler ChangeModuleParentCompleted;
         
         /// <remarks/>
+        public event GetProjectNameByColumnIdCompletedEventHandler GetProjectNameByColumnIdCompleted;
+        
+        /// <remarks/>
+        public event GetNamespacePathByColumnIdCompletedEventHandler GetNamespacePathByColumnIdCompleted;
+        
+        /// <remarks/>
         public event ChangePasswordCompletedEventHandler ChangePasswordCompleted;
         
         /// <remarks/>
@@ -271,6 +283,9 @@ namespace EJClient.Web {
         
         /// <remarks/>
         public event GetColumnsCompletedEventHandler GetColumnsCompleted;
+        
+        /// <remarks/>
+        public event GetColumnNamesByTableNameCompletedEventHandler GetColumnNamesByTableNameCompleted;
         
         /// <remarks/>
         public event GetDBModuleListCompletedEventHandler GetDBModuleListCompleted;
@@ -584,6 +599,64 @@ namespace EJClient.Web {
             if ((this.ChangeModuleParentCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ChangeModuleParentCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/GetProjectNameByColumnId", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string GetProjectNameByColumnId(int columnid) {
+            object[] results = this.Invoke("GetProjectNameByColumnId", new object[] {
+                        columnid});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetProjectNameByColumnIdAsync(int columnid) {
+            this.GetProjectNameByColumnIdAsync(columnid, null);
+        }
+        
+        /// <remarks/>
+        public void GetProjectNameByColumnIdAsync(int columnid, object userState) {
+            if ((this.GetProjectNameByColumnIdOperationCompleted == null)) {
+                this.GetProjectNameByColumnIdOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetProjectNameByColumnIdOperationCompleted);
+            }
+            this.InvokeAsync("GetProjectNameByColumnId", new object[] {
+                        columnid}, this.GetProjectNameByColumnIdOperationCompleted, userState);
+        }
+        
+        private void OnGetProjectNameByColumnIdOperationCompleted(object arg) {
+            if ((this.GetProjectNameByColumnIdCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetProjectNameByColumnIdCompleted(this, new GetProjectNameByColumnIdCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/GetNamespacePathByColumnId", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string[] GetNamespacePathByColumnId(int columnId) {
+            object[] results = this.Invoke("GetNamespacePathByColumnId", new object[] {
+                        columnId});
+            return ((string[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetNamespacePathByColumnIdAsync(int columnId) {
+            this.GetNamespacePathByColumnIdAsync(columnId, null);
+        }
+        
+        /// <remarks/>
+        public void GetNamespacePathByColumnIdAsync(int columnId, object userState) {
+            if ((this.GetNamespacePathByColumnIdOperationCompleted == null)) {
+                this.GetNamespacePathByColumnIdOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetNamespacePathByColumnIdOperationCompleted);
+            }
+            this.InvokeAsync("GetNamespacePathByColumnId", new object[] {
+                        columnId}, this.GetNamespacePathByColumnIdOperationCompleted, userState);
+        }
+        
+        private void OnGetNamespacePathByColumnIdOperationCompleted(object arg) {
+            if ((this.GetNamespacePathByColumnIdCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetNamespacePathByColumnIdCompleted(this, new GetNamespacePathByColumnIdCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1148,6 +1221,37 @@ namespace EJClient.Web {
             if ((this.GetColumnsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetColumnsCompleted(this, new GetColumnsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/GetColumnNamesByTableName", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string GetColumnNamesByTableName(string tablename, int databaseid) {
+            object[] results = this.Invoke("GetColumnNamesByTableName", new object[] {
+                        tablename,
+                        databaseid});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetColumnNamesByTableNameAsync(string tablename, int databaseid) {
+            this.GetColumnNamesByTableNameAsync(tablename, databaseid, null);
+        }
+        
+        /// <remarks/>
+        public void GetColumnNamesByTableNameAsync(string tablename, int databaseid, object userState) {
+            if ((this.GetColumnNamesByTableNameOperationCompleted == null)) {
+                this.GetColumnNamesByTableNameOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetColumnNamesByTableNameOperationCompleted);
+            }
+            this.InvokeAsync("GetColumnNamesByTableName", new object[] {
+                        tablename,
+                        databaseid}, this.GetColumnNamesByTableNameOperationCompleted, userState);
+        }
+        
+        private void OnGetColumnNamesByTableNameOperationCompleted(object arg) {
+            if ((this.GetColumnNamesByTableNameCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetColumnNamesByTableNameCompleted(this, new GetColumnNamesByTableNameCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2403,6 +2507,58 @@ namespace EJClient.Web {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void GetProjectNameByColumnIdCompletedEventHandler(object sender, GetProjectNameByColumnIdCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetProjectNameByColumnIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetProjectNameByColumnIdCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void GetNamespacePathByColumnIdCompletedEventHandler(object sender, GetNamespacePathByColumnIdCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetNamespacePathByColumnIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetNamespacePathByColumnIdCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
     public delegate void ChangePasswordCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
     
     /// <remarks/>
@@ -2772,6 +2928,32 @@ namespace EJClient.Web {
         private object[] results;
         
         internal GetColumnsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void GetColumnNamesByTableNameCompletedEventHandler(object sender, GetColumnNamesByTableNameCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetColumnNamesByTableNameCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetColumnNamesByTableNameCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
