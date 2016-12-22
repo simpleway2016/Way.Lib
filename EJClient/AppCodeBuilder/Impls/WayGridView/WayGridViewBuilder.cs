@@ -86,10 +86,13 @@ namespace EJClient.AppCodeBuilder
                         itemTemplate = File.ReadAllText($"{templateFolderPath}ServerController.Item.txt", encode);
 
 
-                        bodyTemplate = bodyTemplate.Replace("{@ControlId}", this.ControlId);
-                        bodyTemplate = bodyTemplate.Replace("{@ControlDatasource}", $"{pathinfo[0]}.{pathinfo[1]}");
+                        string datasource = $"{pathinfo[0]}.{pathinfo[1]}";
 
                         StringBuilder buffer = new StringBuilder();
+                        buffer.AppendLine(@"    if (datasourceName == """+this.ControlId+@"_datasource"")
+    {
+        return """+ datasource + @""";
+    }");
                         foreach (var column in columns)
                         {
                             if (column.RelaTableName.IsNullOrEmpty() == false && column.RelaColumnName.IsNullOrEmpty() == false && column.DisplayColumnName.IsNullOrEmpty() == false)
@@ -167,7 +170,9 @@ namespace EJClient.AppCodeBuilder
                       
                     
                         htmlTemplate = htmlTemplate.Replace("{@ControlId}", this.ControlId)
-                            .Replace("{@PageSize}" , this.PageSize.ToString());
+                            .Replace("{@PageSize}" , this.PageSize.ToString())
+                            .Replace("{@ControlDatasource}", this.ControlId + "_datasource");
+                        
 
                         if (this.ShowSearchArea)
                         {
