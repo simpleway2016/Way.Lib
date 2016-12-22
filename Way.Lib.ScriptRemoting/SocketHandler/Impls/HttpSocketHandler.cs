@@ -141,14 +141,7 @@ namespace Way.Lib.ScriptRemoting
                         outputHttpResponse(data);
                     }, null, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
                     rs.OnReceived(json);
-                    //wait for close
-                    try
-                    {
-                        this.Connection.mClient.ReceiveDatas(1);
-                    }
-                    catch
-                    {
-                    }
+                   
                 }
                 else if (this.Connection.mKeyValues["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
                 {
@@ -211,6 +204,20 @@ namespace Way.Lib.ScriptRemoting
             }
             catch
             {
+            }
+
+
+            //wait for close
+            while (true)
+            {
+                try
+                {
+                    this.Connection.mClient.ReceiveDatas(1);
+                }
+                catch
+                {
+                    break;
+                }
             }
             this.Connection.mClient.Close();
         }

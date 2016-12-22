@@ -79,7 +79,6 @@ namespace Way.Lib.ScriptRemoting
                             if (type != null)
                                 break;
                         }
-
                     }
                 }
                 if (type == null)
