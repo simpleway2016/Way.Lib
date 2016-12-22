@@ -26,6 +26,9 @@
     <Content Include="GridViewTest.html" />
     <Content Include="scripts\jquery.js" />
     <Content Include="scripts\sonic.js" />
+    <Content Include="scripts\WayScriptRemoting.js">
+      <DependentUpon>WayScriptRemoting.ts</DependentUpon>
+    </Content>
     <Content Include="test.html" />
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +64,9 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="scripts\WayScriptRemoting.js.map">
+      <DependentUpon>WayScriptRemoting.js</DependentUpon>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

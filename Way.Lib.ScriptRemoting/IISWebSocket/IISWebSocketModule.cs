@@ -90,7 +90,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 //     IHttpHandler handler = routeData.RouteHandler.GetHttpHandler(requestContext);
                 context.RemapHandler(this);
             }
-            else if (context.Request.RawUrl.ToLower().StartsWith("/invoke?a="))
+            else if (context.Request.RawUrl.ToLower().StartsWith("/wayscriptremoting_invoke?a="))
             {
                 string json = context.Request.Form["m"];
                 RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>

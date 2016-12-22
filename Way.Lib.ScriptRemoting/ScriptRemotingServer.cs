@@ -15,6 +15,7 @@ using System.Reflection;
 #else
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 #endif
 namespace Way.Lib.ScriptRemoting
 {
@@ -197,11 +198,12 @@ namespace Way.Lib.ScriptRemoting
             {
                 new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
             }
-            throw new NotImplementedException();
-            routes.MapRoute(
-                    name: "WayScriptRemoting",
-                    template: "invoke" );
-
+            var route = new IISWebSocket.CoreMvcRoute();
+            var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
+            routes.Routes.Add(new Route(route, "wayscriptremoting_invoke", resolver));
+            routes.Routes.Add(new Route(route, "wayscriptremoting", resolver));
+            routes.Routes.Add(new Route(route, "wayscriptremoting_socket", resolver));
+            
 
         }
 #endif

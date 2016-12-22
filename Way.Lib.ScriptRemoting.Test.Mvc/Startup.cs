@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net.WebSockets;
+using Microsoft.AspNetCore.Http;
 
 namespace Way.Lib.ScriptRemoting.Test.Mvc
 {
@@ -56,17 +58,34 @@ namespace Way.Lib.ScriptRemoting.Test.Mvc
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseStaticFiles();
-
+            app.UseMiddleware<RequestLoggerMiddleware>();
             app.UseMvc(routes =>
             {
+                Way.Lib.ScriptRemoting.ScriptRemotingServer.StartForMvc(routes, 1);
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+    }
+
+    public class RequestLoggerMiddleware
+    {
+        private readonly RequestDelegate _next;
+
+        public RequestLoggerMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
+        {
+            _next = next;
+
+        }
+
+        public async Task Invoke(HttpContext context)
+        {
+            await _next.Invoke(context);
         }
     }
 }

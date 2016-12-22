@@ -4,3 +4,6 @@
 /// <reference path="lib/jquery/dist/jquery.js" />
 /// <reference path="lib/jquery-validation/dist/jquery.validate.js" />
 /// <reference path="lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js" />
+/// <reference path="scripts/jquery.js" />
+/// <reference path="scripts/sonic.js" />
+/// <reference path="scripts/wayscriptremoting.js" />

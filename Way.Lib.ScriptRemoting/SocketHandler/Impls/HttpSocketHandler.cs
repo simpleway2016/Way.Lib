@@ -132,7 +132,7 @@ namespace Way.Lib.ScriptRemoting
                         outputFile(ScriptRemotingServer.ScriptFilePath , lastWriteTime);
                     }
                 }
-                else if (this.Connection.mKeyValues["POST"].ToSafeString().ToLower().StartsWith("/invoke?a="))
+                else if (this.Connection.mKeyValues["POST"].ToSafeString().ToLower().StartsWith("/wayscriptremoting_invoke?a="))
                 {
                     urlRequestHandler();
                     string json = RequestForms["m"];
