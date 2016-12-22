@@ -113,9 +113,8 @@ class WayScriptRemoting extends WayBaseObject {
         }
 
         WayScriptRemoting.getServerAddress();
-        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke");
+        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke?a=1");
         invoker.async = false;
-        invoker.method = "GET";
         var result;
         var hasErr = null;
         invoker.onCompleted = (ret, err) => {
@@ -331,8 +330,7 @@ class WayScriptRemoting extends WayBaseObject {
                 });
             }
 
-            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke");
-            invoker.method = "GET";
+            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke?a=1");
             invoker.onCompleted = (ret, err) => {
                 if (this.onInvokeFinish) {
                     this.onInvokeFinish(name, parameters);

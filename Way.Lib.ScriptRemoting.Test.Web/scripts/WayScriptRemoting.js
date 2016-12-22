@@ -104,9 +104,8 @@ var WayScriptRemoting = (function (_super) {
                 return WayScriptRemoting.ExistControllers[i];
         }
         WayScriptRemoting.getServerAddress();
-        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke");
+        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke?a=1");
         invoker.async = false;
-        invoker.method = "GET";
         var result;
         var hasErr = null;
         invoker.onCompleted = function (ret, err) {
@@ -317,8 +316,7 @@ var WayScriptRemoting = (function (_super) {
                     paramerStr += JSON.stringify(itemstr);
                 });
             }
-            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke");
-            invoker.method = "GET";
+            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke?a=1");
             invoker.onCompleted = function (ret, err) {
                 if (_this.onInvokeFinish) {
                     _this.onInvokeFinish(name, parameters);
