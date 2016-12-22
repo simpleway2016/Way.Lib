@@ -29,7 +29,7 @@ namespace Way.Lib.ScriptRemoting.Test
         {
             EJ.DBColumn column = dataitem as EJ.DBColumn;
             column.TableID = 3;
-            this.SendMessage( Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
+            this.SendMessage( "Newtonsoft.Json.JsonConvert.SerializeObject(dataitem)");
         }
 
 

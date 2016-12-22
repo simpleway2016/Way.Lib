@@ -123,6 +123,7 @@ class WayScriptRemoting extends WayBaseObject {
             }
             else {
                 eval("result=" + ret);
+               
             }
         };
         invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);

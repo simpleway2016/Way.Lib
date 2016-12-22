@@ -96,9 +96,10 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                 {
                     context.Response.Write(data);
-                    context.Response.End();
+                    
                 }, null, context.Request.UserHostAddress.Split(':')[0]);
                 rs.OnReceived(json);
+                context.Response.End();
             }
             else if( context.Request.RawUrl.ToLower().EndsWith("wayscriptremoting") )
             {

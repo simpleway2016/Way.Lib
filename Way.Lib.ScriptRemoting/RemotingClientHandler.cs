@@ -351,14 +351,14 @@ namespace Way.Lib.ScriptRemoting
                     string objstr;
                     if (resultObj is Dictionary<string, object>[])
                     {
-                       
+
                         objstr = ResultHelper.ToJson((Dictionary<string, object>[])resultObj);
                     }
                     else
                     {
                         objstr = Newtonsoft.Json.JsonConvert.SerializeObject(resultObj);
                     }
-                    var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) +"}";
+                    var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + "}";
                     mSendDataFunc(dataStr);
                 }
             }
