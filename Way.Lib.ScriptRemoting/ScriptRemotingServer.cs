@@ -11,6 +11,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 
+#if NET46
+#else
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+#endif
 namespace Way.Lib.ScriptRemoting
 {
     /// <summary>
@@ -142,6 +147,8 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
+
+
 #if NET46
         /// <summary>
         /// 在Asp.Net中启用ScriptRemoting
@@ -177,6 +184,25 @@ namespace Way.Lib.ScriptRemoting
             Root = System.Web.HttpRuntime.AppDomainAppPath;
             makeTscFiles(Root);
             System.Web.HttpApplication.RegisterModule(typeof(IISWebSocket.IISWebSocketModule));
+        }
+#else
+        /// <summary>
+        ///  在MVC Core中启用ScriptRemoting
+        /// </summary>
+        /// <param name="routes"></param>
+        /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
+        public static void StartForMvc(Microsoft.AspNetCore.Routing.IRouteBuilder routes, int gcCollectInterval)
+        {
+            if (gcCollectInterval > 0)
+            {
+                new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
+            }
+            throw new NotImplementedException();
+            routes.MapRoute(
+                    name: "WayScriptRemoting",
+                    template: "invoke" );
+
+
         }
 #endif
         /// <summary>
