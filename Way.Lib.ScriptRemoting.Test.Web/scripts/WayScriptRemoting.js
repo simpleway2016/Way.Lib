@@ -96,6 +96,10 @@ var WayScriptRemoting = (function (_super) {
         }
     };
     WayScriptRemoting.createRemotingController = function (remoteName) {
+        for (var i = 0; i < WayScriptRemoting.ExistControllers.length; i++) {
+            if (WayScriptRemoting.ExistControllers[i].classFullName == remoteName)
+                return WayScriptRemoting.ExistControllers[i];
+        }
         WayScriptRemoting.getServerAddress();
         var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/initcontroller");
         invoker.async = false;
@@ -116,6 +120,7 @@ var WayScriptRemoting = (function (_super) {
         var func;
         eval("func = " + result.text);
         var page = new func(remoteName, result.SocketID);
+        WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
     };
@@ -381,6 +386,7 @@ var WayScriptRemoting = (function (_super) {
         };
     };
     WayScriptRemoting.ServerAddress = null; //"localhost:9090";
+    WayScriptRemoting.ExistControllers = [];
     return WayScriptRemoting;
 }(WayBaseObject));
 var WayScriptRemotingChild = (function (_super) {
@@ -1114,7 +1120,7 @@ var WayDBContext = (function () {
             this.remoting = controller;
         }
         else {
-            this.remoting = new WayScriptRemoting(controller, "");
+            this.remoting = WayScriptRemoting.createRemotingController(controller);
         }
         this.datasource = _datasource;
     }

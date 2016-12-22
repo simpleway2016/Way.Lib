@@ -95,12 +95,15 @@
     <script lang="ja">
 
         var testPage = WayScriptRemoting.createRemotingController("Way.Lib.ScriptRemoting.Test.TestPage");
+        testPage.onmesage = function (e) {
+            alert(e);
+        }
        
         var grid;
 
         function onReady()
         {
-            grid = new WayGridView("grid", testPage, 10);
+            grid = new WayGridView("grid", "Way.Lib.ScriptRemoting.Test.TestPage", 10);
             //grid.header = new WayTemplate( '<tr><td>H1</td><td>H2</td></tr>');
             //grid.footer = new WayTemplate('<tr><td>footer1</td><td>F2</td></tr>');
             //{$ItemIndex}代表当前Item的索引号

@@ -71,7 +71,7 @@ class WayScriptRemoting extends WayBaseObject {
     private socket: WebSocket;
 
     static ServerAddress: string = null;//"localhost:9090";
-
+    static ExistControllers: WayScriptRemoting[] = [];
     constructor(remoteName: string, socketid: string) {
         super();
         this.classFullName = remoteName;
@@ -103,6 +103,11 @@ class WayScriptRemoting extends WayBaseObject {
     }
 
     static createRemotingController(remoteName: string): WayScriptRemoting {
+        for (var i = 0; i < WayScriptRemoting.ExistControllers.length; i++) {
+            if (WayScriptRemoting.ExistControllers[i].classFullName == remoteName)
+                return WayScriptRemoting.ExistControllers[i];
+        }
+
         WayScriptRemoting.getServerAddress();
         var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/initcontroller");
         invoker.async = false;
@@ -126,6 +131,7 @@ class WayScriptRemoting extends WayBaseObject {
         eval("func = " + result.text);
 
         var page = <WayScriptRemoting>new func(remoteName, result.SocketID);
+        WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID)
         return page;
     }
@@ -1225,7 +1231,7 @@ class WayDBContext {
             this.remoting = <any>controller;
         }
         else {
-            this.remoting = new WayScriptRemoting(controller, "");
+            this.remoting = WayScriptRemoting.createRemotingController(controller);
         }
         this.datasource = _datasource;
     }
