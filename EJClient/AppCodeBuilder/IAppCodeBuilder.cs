@@ -9,7 +9,7 @@ namespace EJClient.AppCodeBuilder
     public interface IAppCodeBuilder
     {
         string Name { get; }
-        string DefaultControlId { get; }
-        List<SampleCode> Build(SampleColumn[] columns,string controlId);
+
+        List<SampleCode> Build(SampleColumn[] columns);
     }
 }

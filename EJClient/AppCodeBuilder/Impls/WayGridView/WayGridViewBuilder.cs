@@ -3,20 +3,37 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EJClient.AppCodeBuilder
 {
     class WayGridViewBuilder : IAppCodeBuilder
     {
-        public string DefaultControlId
+        public WayGridViewBuilder()
         {
-            get
-            {
-                return "grid1";
-            }
+            this.ControlId = "grid1";
+            this.PageSize = 10;
         }
 
+        public string ControlId
+        {
+            get;
+            set;
+        }
+       
+        public int PageSize
+        {
+            get;
+            set;
+        }
+        [System.ComponentModel.Description("显示搜索区")]
+        public bool ShowSearchArea
+        {
+            get;
+            set;
+        }
+        [System.ComponentModel.Browsable(false)]
         public string Name
         {
             get
@@ -25,7 +42,7 @@ namespace EJClient.AppCodeBuilder
             }
         }
       
-        public List<SampleCode> Build(SampleColumn[] columns, string controlId)
+        public List<SampleCode> Build(SampleColumn[] columns)
         {
             columns = columns.Where(m => m.IsChecked).ToArray();
             if (columns.Length == 0)
@@ -36,6 +53,8 @@ namespace EJClient.AppCodeBuilder
                 string templateFolderPath = AppDomain.CurrentDomain.BaseDirectory + "codeTemplate";
                 if (System.IO.Directory.Exists(templateFolderPath) == false)
                     throw new Exception("缺乏模板codeTemplate文件夹，不能生成代码");
+
+                var encode = System.Text.Encoding.GetEncoding("gb2312");
 
                 using (var web = Helper.CreateWebService())
                 {
@@ -63,11 +82,11 @@ namespace EJClient.AppCodeBuilder
                         result.Add(codeitem);
                         codeitem.Name = "服务器Controller代码";
 
-                        bodyTemplate = File.ReadAllText($"{templateFolderPath}ServerController.txt", System.Text.Encoding.UTF8);
-                        itemTemplate = File.ReadAllText($"{templateFolderPath}ServerController.Item.txt", System.Text.Encoding.UTF8);
+                        bodyTemplate = File.ReadAllText($"{templateFolderPath}ServerController.txt", encode);
+                        itemTemplate = File.ReadAllText($"{templateFolderPath}ServerController.Item.txt", encode);
 
 
-                        bodyTemplate = bodyTemplate.Replace("{@ControlId}", controlId);
+                        bodyTemplate = bodyTemplate.Replace("{@ControlId}", this.ControlId);
                         bodyTemplate = bodyTemplate.Replace("{@ControlDatasource}", $"{pathinfo[0]}.{pathinfo[1]}");
 
                         StringBuilder buffer = new StringBuilder();
@@ -87,6 +106,48 @@ namespace EJClient.AppCodeBuilder
                     }
                     #endregion
 
+                    #region 搜索区
+                    if(this.ShowSearchArea)
+                    {
+                        string htmlTemplate;
+                       
+                        codeitem = new AppCodeBuilder.SampleCode(150);
+                        result.Add(codeitem);
+                        codeitem.Name = "html实现搜索代码";
+
+                        htmlTemplate = File.ReadAllText($"{templateFolderPath}html.Search.txt", encode);
+                        string textBoxTemplate = File.ReadAllText($"{templateFolderPath}html.Search.Item.textbox.txt", encode);
+                        string dropdownlistTemplate = File.ReadAllText($"{templateFolderPath}html.Search.Item.dropdownlist.txt", encode);
+
+
+                        htmlTemplate = htmlTemplate.Replace("{@ControlId}", this.ControlId)
+                            .Replace("{@SearchElementId}", this.ControlId + "_search");
+
+                        StringBuilder itemBuffer = new StringBuilder();
+                        foreach (var column in columns)
+                        {
+                            if (column.EnumDefine.IsNullOrEmpty() == false && column.dbType.Contains("int"))
+                            {
+                                MatchCollection matches = Regex.Matches(column.EnumDefine, @"(?<n>(\w)+)( )?\=");
+                                StringBuilder options = new StringBuilder();
+                                options.AppendLine($"<option value=\"\"></option>");
+                                foreach (Match m in matches )
+                                {
+                                    options.AppendLine($"<option value=\"{m.Groups["n"].Value}\">{m.Groups["n"].Value}</option>");
+                                }
+                                itemBuffer.AppendLine(dropdownlistTemplate.Replace("{@Caption}", column.caption).Replace("{@Name}", column.Name).Replace("{@Options}", options.ToString()));
+                            }
+                            else
+                            {
+                                itemBuffer.AppendLine(textBoxTemplate.Replace("{@Caption}", column.caption).Replace("{@Name}", column.Name));
+                            }
+                        }
+                       
+                        htmlTemplate = htmlTemplate.Replace("{@Items}", itemBuffer.ToString());
+                        codeitem.Code = htmlTemplate;
+                    }
+                    #endregion
+
                     #region html代码
                     if (true)
                     {
@@ -94,17 +155,24 @@ namespace EJClient.AppCodeBuilder
                         string itemTemplate;
                         string headerItemTemplate;
                         string footerItemTemplate;
-                        codeitem = new AppCodeBuilder.SampleCode(250);
+                        codeitem = new AppCodeBuilder.SampleCode(350);
                         result.Add(codeitem);
                         codeitem.Name = "html代码";
 
-                        htmlTemplate = File.ReadAllText($"{templateFolderPath}html.txt", System.Text.Encoding.UTF8);
-                        itemTemplate = File.ReadAllText($"{templateFolderPath}html.Item.txt", System.Text.Encoding.UTF8);
-                        headerItemTemplate = File.ReadAllText($"{templateFolderPath}html.HeaderItem.txt", System.Text.Encoding.UTF8);
-                        footerItemTemplate = File.ReadAllText($"{templateFolderPath}html.FooterItem.txt", System.Text.Encoding.UTF8);
+                        htmlTemplate = File.ReadAllText($"{templateFolderPath}html.txt", encode);
+                        itemTemplate = File.ReadAllText($"{templateFolderPath}html.Item.txt", encode);
+                        headerItemTemplate = File.ReadAllText($"{templateFolderPath}html.HeaderItem.txt", encode);
+                        footerItemTemplate = File.ReadAllText($"{templateFolderPath}html.FooterItem.txt", encode);
 
+                      
                     
-                        htmlTemplate = htmlTemplate.Replace("{@ControlId}", controlId);
+                        htmlTemplate = htmlTemplate.Replace("{@ControlId}", this.ControlId)
+                            .Replace("{@PageSize}" , this.PageSize.ToString());
+
+                        if (this.ShowSearchArea)
+                        {
+                            htmlTemplate = htmlTemplate.Replace("{@SetSearchExpression}", this.ControlId + ".searchModel = WayDataBindHelper.dataBind(\""+this.ControlId+"_search\", {});");
+                        }
 
                         StringBuilder itemBuffer = new StringBuilder();
                         foreach (var column in columns)

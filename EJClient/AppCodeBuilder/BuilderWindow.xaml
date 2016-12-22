@@ -6,13 +6,10 @@
         xmlns:local="clr-namespace:EJClient.AppCodeBuilder"
         mc:Ignorable="d"
         Title="WayGridView Code Builder" Height="769.903" Width="1123.301">
-    <StackPanel Orientation="Vertical">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock  Text="control id:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,3,0,0"></TextBlock>
-            <TextBox x:Name="txtControlId" Text="" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,3,0,0"></TextBox>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Margin="0,5,0,0">
-            <ListView x:Name="lstColumns" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Left" VerticalAlignment="Stretch" Width="520" Orientation="Vertical">
+            <WindowsFormsHost x:Name="hostBuilderPG" VerticalAlignment="Top" Margin="3,0,0,0" HorizontalAlignment="Stretch" Height="220" />
+            <ListView x:Name="lstColumns" VerticalAlignment="Stretch">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="列" Width="160">
@@ -53,27 +50,22 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-            <Button x:Name="btnMake" Content="生成" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,5,0,0" Width="75" Click="btnMake_Click"/>
-            <ListView x:Name="lstCodes" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,0,0,0" >
-                <ListView.Template>
-                    <ControlTemplate>
-                        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top" IsItemsHost="True"/>
-                    </ControlTemplate>
-                </ListView.Template>
-                <ListView.ItemTemplate>
-                    <HierarchicalDataTemplate>
-                        <StackPanel  HorizontalAlignment="Stretch" VerticalAlignment="Top" >
-                            <Grid>
-                                <TextBlock  Text="{Binding Name}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,3,0,0"></TextBlock>
-                                <Button  Content=" 复制 " Tag="{Binding}" Click="btnCopy_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"></Button>
-                            </Grid>
-                            <TextBox Text="{Binding Code}" Height="{Binding Height}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,3,5,0"></TextBox>
-
-                        </StackPanel>
-                    </HierarchicalDataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
         </StackPanel>
-    </StackPanel>
-   
+
+        <Button x:Name="btnMake" DockPanel.Dock="Left" Content="生成" VerticalAlignment="Top" Margin="10,5,0,0" Width="75" Click="btnMake_Click"/>
+        <ListView x:Name="lstCodes" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="10,0,10,0">
+            <ListView.ItemTemplate>
+                <HierarchicalDataTemplate>
+                    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,20,0" >
+                        <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                            <Button  Content=" 复制 " Tag="{Binding}" Click="btnCopy_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,3,0,0"></Button>
+                            <TextBlock  Text="{Binding Name}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="60,3,0,0"></TextBlock>
+                        </Grid>
+                        <TextBox DockPanel.Dock="Top" Text="{Binding Code}" HorizontalAlignment="Stretch" Height="{Binding Height}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,3,0,0"></TextBox>
+
+                    </DockPanel>
+                </HierarchicalDataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </DockPanel>
 </Window>

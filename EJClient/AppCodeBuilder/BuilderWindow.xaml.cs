@@ -23,13 +23,19 @@ namespace EJClient.AppCodeBuilder
         int _databaseid;
         SampleColumn[] _columns;
         IAppCodeBuilder _builder;
+        System.Windows.Forms.PropertyGrid _propertyGrid;
         public BuilderWindow(int tableid,int databaseid, IAppCodeBuilder builder)
         {
             _builder = builder;
             _databaseid = databaseid;
                _TableId = tableid;
             InitializeComponent();
-            txtControlId.Text = builder.DefaultControlId;
+
+            _propertyGrid = new System.Windows.Forms.PropertyGrid();
+            _propertyGrid.LineColor = System.Drawing.ColorTranslator.FromHtml("#cccccc");
+            _propertyGrid.SelectedObject = builder;
+            hostBuilderPG.Child = _propertyGrid;
+
             loadColumns();
         }
 
@@ -74,7 +80,7 @@ namespace EJClient.AppCodeBuilder
 
         private void btnMake_Click(object sender, RoutedEventArgs e)
         {
-            var codes = _builder.Build(_columns, txtControlId.Text.Trim());
+            var codes = _builder.Build(_columns);
             lstCodes.ItemsSource = codes;
         }
 
