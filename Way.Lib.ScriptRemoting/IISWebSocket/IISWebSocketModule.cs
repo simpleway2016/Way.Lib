@@ -90,6 +90,16 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 //     IHttpHandler handler = routeData.RouteHandler.GetHttpHandler(requestContext);
                 context.RemapHandler(this);
             }
+            else if (context.Request.RawUrl.ToLower().StartsWith("/invoke?m="))
+            {
+                string json = System.Web.HttpUtility.UrlDecode(context.Request.RawUrl.Substring("/invoke?m=".Length) , System.Text.Encoding.UTF8);
+                RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
+                {
+                    context.Response.Write(data);
+                    context.Response.End();
+                }, null, context.Request.UserHostAddress.Split(':')[0]);
+                rs.OnReceived(json);
+            }
             else if( context.Request.RawUrl.ToLower().EndsWith("wayscriptremoting") )
             {
                 //m_client.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + System.Web.HttpWorkerRequest.GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));

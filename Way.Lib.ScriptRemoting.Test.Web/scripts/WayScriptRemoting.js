@@ -104,7 +104,7 @@ var WayScriptRemoting = (function (_super) {
                 return WayScriptRemoting.ExistControllers[i];
         }
         WayScriptRemoting.getServerAddress();
-        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/initcontroller");
+        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke");
         invoker.async = false;
         invoker.method = "GET";
         var result;
@@ -308,42 +308,36 @@ var WayScriptRemoting = (function (_super) {
             if (this.onBeforeInvoke) {
                 this.onBeforeInvoke(name, parameters);
             }
-            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress);
-            ws.onopen = function () {
-                var paramerStr = "";
-                if (parameters) {
-                    parameters.forEach(function (p) {
-                        if (paramerStr.length > 0)
-                            paramerStr += ",";
-                        var itemstr = JSON.stringify(p);
-                        paramerStr += JSON.stringify(itemstr);
-                    });
-                }
-                var socketData = "{'ClassFullName':'" + _this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + _this.SocketID + "'}";
-                ws.send(socketData);
-            };
-            ws.onmessage = function (evt) {
-                ws.onerror = null; //必须先设置这里，再准备断开连接
-                ws.send("{'Action':'exit'}");
+            var paramerStr = "";
+            if (parameters) {
+                parameters.forEach(function (p) {
+                    if (paramerStr.length > 0)
+                        paramerStr += ",";
+                    var itemstr = JSON.stringify(p);
+                    paramerStr += JSON.stringify(itemstr);
+                });
+            }
+            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/invoke");
+            invoker.method = "GET";
+            invoker.onCompleted = function (ret, err) {
                 if (_this.onInvokeFinish) {
                     _this.onInvokeFinish(name, parameters);
                 }
-                var resultObj;
-                eval("resultObj=" + evt.data);
-                if (resultObj.type == WayScriptRemotingMessageType.Result) {
-                    callback(resultObj.result, null);
+                if (err) {
+                    callback(null, err);
                 }
-                else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
-                    callback(null, resultObj.result);
+                else {
+                    var resultObj;
+                    eval("resultObj=" + ret);
+                    if (resultObj.type == WayScriptRemotingMessageType.Result) {
+                        callback(resultObj.result, null);
+                    }
+                    else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
+                        callback(null, resultObj.result);
+                    }
                 }
             };
-            ws.onerror = function (evt) {
-                ws.onmessage = null;
-                if (_this.onInvokeFinish) {
-                    _this.onInvokeFinish(name, parameters);
-                }
-                callback(null, "无法连接服务器");
-            };
+            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}"]);
         }
         catch (e) {
             callback(null, e.message);

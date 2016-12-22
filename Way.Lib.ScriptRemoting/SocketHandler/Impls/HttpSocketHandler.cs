@@ -132,9 +132,9 @@ namespace Way.Lib.ScriptRemoting
                         outputFile(ScriptRemotingServer.ScriptFilePath , lastWriteTime);
                     }
                 }
-                else if (this.Connection.mKeyValues["GET"].ToSafeString().ToLower().StartsWith("/initcontroller?m="))
+                else if (this.Connection.mKeyValues["GET"].ToSafeString().ToLower().StartsWith("/invoke?m="))
                 {
-                    string json = WebUtility.UrlDecode( this.Connection.mKeyValues["GET"].ToString().Substring("/initcontroller?m=".Length));
+                    string json = WebUtility.UrlDecode(this.Connection.mKeyValues["GET"].ToString().Substring("/invoke?m=".Length));
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
                         outputHttpResponse(data);
