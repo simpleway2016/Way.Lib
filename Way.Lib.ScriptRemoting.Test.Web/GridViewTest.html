@@ -94,8 +94,8 @@
     
     <script lang="ja">
 
-        var testPage;
-
+        var testPage = WayScriptRemoting.createRemotingController("Way.Lib.ScriptRemoting.Test.TestPage");
+       
         var grid;
 
         function onReady()
@@ -148,7 +148,7 @@
             }
             grid.databind();
         }
-
+        onReady();
         
 
         function goSearch()
@@ -156,24 +156,7 @@
             grid.search();
         }
 
-        WayScriptRemoting.createRemoting("Way.Lib.ScriptRemoting.Test.TestPage", function (obj, err) {
-            if(err)
-            {
-                alert("页面:" + err);
-            }
-            else {
-                testPage = obj;
-                testPage.onmessage = function (msg) {
-                    alert("即时消息：" + msg);
-                }
-                onReady();
-                //grid.datasource = function (cal) {
-                //    testPage.getDatas( 22 , {index:2,size:13} , cal);
-                //};
-                
-            }
-        });
-
+     
 
         function edit(itemIndex) {
             try {

@@ -95,7 +95,23 @@ var WayScriptRemoting = (function (_super) {
             }
         }
     };
-    WayScriptRemoting.createRemoting = function (remoteName, callback) {
+    WayScriptRemoting.createRemotingController = function (remoteName) {
+        WayScriptRemoting.getServerAddress();
+        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/initcontroller");
+        invoker.async = false;
+        invoker.method = "GET";
+        var result;
+        invoker.onCompleted = function (ret, err) {
+            eval("result=" + ret);
+        };
+        invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
+        var func;
+        eval("func = " + result.text);
+        var page = new func(remoteName, result.SocketID);
+        WayCookie.setCookie("WayScriptRemoting", result.SessionID);
+        return page;
+    };
+    WayScriptRemoting.createRemotingControllerAsync = function (remoteName, callback) {
         WayScriptRemoting.getServerAddress();
         var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress);
         ws.onopen = function () {
@@ -369,6 +385,7 @@ var WayScriptRemotingChild = (function (_super) {
 var WayScriptInvoker = (function () {
     function WayScriptInvoker(_url) {
         this.async = true;
+        this.method = "POST";
         if (_url) {
             this.url = _url;
         }
@@ -390,29 +407,34 @@ var WayScriptInvoker = (function () {
         if (this.onBeforeInvoke)
             this.onBeforeInvoke();
         this.xmlHttp.onreadystatechange = function () { return _this.xmlHttpStatusChanged(); };
-        this.xmlHttp.open("POST", this.url, this.async);
-        this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        this.xmlHttp.send(p); //null,对ff浏览器是必须的
+        if (this.method == "POST") {
+            this.xmlHttp.open("POST", this.url, this.async);
+            this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            this.xmlHttp.send(p); //null,对ff浏览器是必须的
+        }
+        else {
+            var myurl = this.url;
+            if (myurl.indexOf("?") < 0)
+                myurl += "?";
+            else
+                myurl += "&";
+            myurl += p;
+            this.xmlHttp.open("GET", myurl, this.async);
+            this.xmlHttp.send(null);
+        }
     };
     WayScriptInvoker.prototype.xmlHttpStatusChanged = function () {
         if (this.xmlHttp.readyState == 4) {
             if (this.onInvokeFinish)
                 this.onInvokeFinish();
             if (this.xmlHttp.status == 200) {
-                var resultObj = false;
-                eval("resultObj=" + this.xmlHttp.responseText);
-                if (resultObj && resultObj.Error) {
-                    if (this.onError) {
-                        this.onError(resultObj.Error);
-                    }
-                }
-                else if (this.onCompleted) {
-                    this.onCompleted(resultObj.result);
+                if (this.onCompleted) {
+                    this.onCompleted(this.xmlHttp.responseText, null);
                 }
             }
             else {
-                if (this.onError) {
-                    this.onError("无法连接服务器");
+                if (this.onCompleted) {
+                    this.onCompleted(null, "无法连接服务器");
                 }
             }
         }

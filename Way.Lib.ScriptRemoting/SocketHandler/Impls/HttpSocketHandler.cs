@@ -7,7 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Threading;
 namespace Way.Lib.ScriptRemoting
 {
     class HttpSocketHandler : ISocketHandler
@@ -130,6 +130,23 @@ namespace Way.Lib.ScriptRemoting
                     else
                     {
                         outputFile(ScriptRemotingServer.ScriptFilePath , lastWriteTime);
+                    }
+                }
+                else if (this.Connection.mKeyValues["GET"].ToSafeString().ToLower().StartsWith("/initcontroller?m="))
+                {
+                    string json = WebUtility.UrlDecode( this.Connection.mKeyValues["GET"].ToString().Substring("/initcontroller?m=".Length));
+                    RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
+                    {
+                        outputHttpResponse(data);
+                    }, null, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
+                    rs.OnReceived(json);
+                    //wait for close
+                    try
+                    {
+                        this.Connection.mClient.ReceiveDatas(1);
+                    }
+                    catch
+                    {
                     }
                 }
                 else if (this.Connection.mKeyValues["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
