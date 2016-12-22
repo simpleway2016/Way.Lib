@@ -108,10 +108,19 @@ class WayScriptRemoting extends WayBaseObject {
         invoker.async = false;
         invoker.method = "GET";
         var result;
+        var hasErr = null;
         invoker.onCompleted = (ret, err) => {
-            eval("result=" + ret);
+            if (err) {
+                hasErr = err;
+            }
+            else {
+                eval("result=" + ret);
+            }
         };
         invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
+
+        if (hasErr)
+            throw hasErr;
 
         var func;
         eval("func = " + result.text);
@@ -121,7 +130,7 @@ class WayScriptRemoting extends WayBaseObject {
         return page;
     }
 
-    static createRemotingControllerAsync(remoteName: string, callback: (obj: WayScriptRemoting, err: string) => void): void {
+    private static createRemotingControllerAsync(remoteName: string, callback: (obj: WayScriptRemoting, err: string) => void): void {
         WayScriptRemoting.getServerAddress();
         var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress);
         ws.onopen = () => {

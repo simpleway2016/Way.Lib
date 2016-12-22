@@ -101,10 +101,18 @@ var WayScriptRemoting = (function (_super) {
         invoker.async = false;
         invoker.method = "GET";
         var result;
+        var hasErr = null;
         invoker.onCompleted = function (ret, err) {
-            eval("result=" + ret);
+            if (err) {
+                hasErr = err;
+            }
+            else {
+                eval("result=" + ret);
+            }
         };
         invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
+        if (hasErr)
+            throw hasErr;
         var func;
         eval("func = " + result.text);
         var page = new func(remoteName, result.SocketID);
