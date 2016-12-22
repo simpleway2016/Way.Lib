@@ -132,7 +132,7 @@ var WayScriptRemoting = (function (_super) {
     };
     WayScriptRemoting.createRemotingControllerAsync = function (remoteName, callback) {
         WayScriptRemoting.getServerAddress();
-        var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+        var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         ws.onopen = function () {
             ws.send("{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
@@ -219,7 +219,7 @@ var WayScriptRemoting = (function (_super) {
             if (!handler) {
                 handler = new WayScriptRemotingUploadHandler();
             }
-            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = function () {
                 ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + _this.SocketID + "'}");
@@ -343,7 +343,7 @@ var WayScriptRemoting = (function (_super) {
     };
     WayScriptRemoting.prototype.connect = function () {
         var _this = this;
-        this.socket = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+        this.socket = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         this.socket.onopen = function () {
             try {
                 if (_this.onconnect) {

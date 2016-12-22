@@ -39,7 +39,7 @@ class WayCookie {
 }
 
 class WayBaseObject {
-    
+
 }
 
 class WayScriptRemotingUploadHandler {
@@ -123,7 +123,7 @@ class WayScriptRemoting extends WayBaseObject {
             }
             else {
                 eval("result=" + ret);
-               
+
             }
         };
         invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
@@ -131,8 +131,7 @@ class WayScriptRemoting extends WayBaseObject {
         if (hasErr) {
             throw hasErr;
         }
-        else if (result.err)
-        {
+        else if (result.err) {
             throw result.err;
         }
 
@@ -147,7 +146,7 @@ class WayScriptRemoting extends WayBaseObject {
 
     private static createRemotingControllerAsync(remoteName: string, callback: (obj: WayScriptRemoting, err: string) => void): void {
         WayScriptRemoting.getServerAddress();
-        var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+        var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         ws.onopen = () => {
             ws.send("{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
@@ -239,7 +238,7 @@ class WayScriptRemoting extends WayBaseObject {
             if (!handler) {
                 handler = new WayScriptRemotingUploadHandler();
             }
-            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = () => {
                 ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}");
@@ -353,7 +352,7 @@ class WayScriptRemoting extends WayBaseObject {
             };
             invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}"]);
 
-            //var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+            //var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             //ws.onopen = () => {
             //    var paramerStr = "";
             //    if (parameters) {
@@ -368,7 +367,7 @@ class WayScriptRemoting extends WayBaseObject {
             //    ws.send(socketData);
             //};
             //ws.onmessage = (evt: any) => {
-                
+
             //    ws.onerror = null;//必须先设置这里，再准备断开连接
             //    ws.send("{'Action':'exit'}");
 
@@ -401,7 +400,7 @@ class WayScriptRemoting extends WayBaseObject {
     }
 
     private connect(): void {
-        this.socket = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting");
+        this.socket = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         this.socket.onopen = () => {
             try {
                 if (this.onconnect) {
@@ -457,7 +456,7 @@ class WayScriptInvoker {
     async: boolean = true;
     onBeforeInvoke: () => any;
     onInvokeFinish: () => any;
-    onCompleted: (result: any,err:any) => any;
+    onCompleted: (result: any, err: any) => any;
     method: string = "POST";
     private xmlHttp: any;
 
@@ -499,7 +498,7 @@ class WayScriptInvoker {
                 myurl += "&";
             myurl += p;
             this.xmlHttp.open("GET", myurl, this.async);
-            this.xmlHttp.send(null); 
+            this.xmlHttp.send(null);
         }
     }
 
@@ -511,7 +510,7 @@ class WayScriptInvoker {
 
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
-                    this.onCompleted(this.xmlHttp.responseText , null);
+                    this.onCompleted(this.xmlHttp.responseText, null);
                 }
             }
             else {
@@ -567,7 +566,7 @@ class WayTemplate {
 
 class WayHelper {
     //判断数组是否包含某个值
-    static contains(arr,value): boolean {
+    static contains(arr, value): boolean {
         for (var i = 0; i < arr.length; i++) {
             if (arr[i] == value)
                 return true;
@@ -751,7 +750,7 @@ class WayBindingElement extends WayBaseObject {
 
 
     private onvalueChanged(fromWhichConfig: WayBindMemberConfig): void {
- 
+
         try {
             if (this.configs.length == 0)
                 return;//绑定已经移除了
@@ -796,7 +795,7 @@ class WayBindingElement extends WayBaseObject {
 class WayDataBindHelper {
     static bindings: WayBindingElement[] = [];
 
-    static getObjectStr(obj: any, onchangeMembers: string[],parent: any): string {
+    static getObjectStr(obj: any, onchangeMembers: string[], parent: any): string {
         var getmodelStr;
         if (!parent) {
             parent = "";
@@ -806,7 +805,7 @@ class WayDataBindHelper {
             getmodelStr = "this.getModel()";
         }
 
-        if ( obj != null && typeof obj == "object") {
+        if (obj != null && typeof obj == "object") {
             var str = "{";
             if (parent == "") {
                 str += "getSource:function(){return item;}";
@@ -834,7 +833,7 @@ class WayDataBindHelper {
                     onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 str += "get " + pro + "(){return item." + parent + pro + ";},"
-                str += "set " + pro + "(v){if(item." + parent + pro + "!=v){item." + parent + pro + "=v;"+onchangeStr+"}}";
+                str += "set " + pro + "(v){if(item." + parent + pro + "!=v){item." + parent + pro + "=v;" + onchangeStr + "}}";
                 index++;
             }
             str += "}";
@@ -845,7 +844,7 @@ class WayDataBindHelper {
         }
     }
 
-    private static setSubObjectModel(model,rootModel): void {
+    private static setSubObjectModel(model, rootModel): void {
         for (var p in model) {
             var value = model[p];
 
@@ -866,7 +865,7 @@ class WayDataBindHelper {
             obj = obj.getSource();
         }
 
-        
+
 
         var str = WayDataBindHelper.getObjectStr(obj, onchangeMembers, null);
         str = "result=(function(item,itemIndex,onProChange){ return " + str + ";})(obj,_itemIndex,_onchange);"
@@ -904,7 +903,7 @@ class WayDataBindHelper {
     //获取htmlElement里面所有用于绑定的字段名称
     static getBindingFields(element: HTMLElement,
         expressionExp: RegExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g,
-        dataMemberExp: RegExp = /\@(\w|\.)+/g):string[] {
+        dataMemberExp: RegExp = /\@(\w|\.)+/g): string[] {
         if (typeof element == "string") {
             element = document.getElementById(<any>element);
         }
@@ -932,7 +931,7 @@ class WayDataBindHelper {
         var onchangeMembers = bindingInfo.getDataMembers();
 
         var model = WayDataBindHelper.cloneObjectForBind(data, tag, onchangeMembers, WayDataBindHelper.onchange);
-        
+
         var finded = false;
         bindingInfo.model = model;
 
@@ -946,7 +945,7 @@ class WayDataBindHelper {
         if (!finded) {
             WayDataBindHelper.bindings.push(bindingInfo);
         }
-        
+
         return model;
     }
 }
@@ -1009,8 +1008,7 @@ class WayPager {
         var y = this.scrollable.scrollTop();
         var x = this.scrollable.scrollLeft();
         var height = this.scrollable.height();
-        if (y + height > this.scrollable[0].scrollHeight * 0.86)
-        {
+        if (y + height > this.scrollable[0].scrollHeight * 0.86) {
             this.control.shouldLoadMorePage();
         }
     }
@@ -1039,7 +1037,7 @@ class WayProgressBar {
         e = e ? e : window.event;
         var x = e.clientX;
         var y = e.clientY;
-        
+
         this.lastMouseDownLocation = { "x": x, "y": y };
         this.lastMouseDownTime = new Date().getTime();
     }
@@ -1105,7 +1103,7 @@ class WayProgressBar {
             this.showRef++;
             if (this.lastMouseDownTime && new Date().getTime() - this.lastMouseDownTime < 1000) {
                 x = this.lastMouseDownLocation.x - 50;
-                y = this.lastMouseDownLocation.y ;
+                y = this.lastMouseDownLocation.y;
 
                 loadele.css({
                     "left": x + "px",
@@ -1115,7 +1113,7 @@ class WayProgressBar {
             }
             return;
         }
-       
+
         var offset = centerElement.offset();
         var x, y;
         if (this.lastMouseDownTime) {
@@ -1140,11 +1138,11 @@ class WayProgressBar {
                 loadele.show();
                 this.loading.play();
             }
-        },1000);
-        
+        }, 1000);
+
     }
     hide(): void {
-       
+
         if (this.showRef > 0)
             this.showRef--;
         if (this.showRef > 0)
@@ -1167,7 +1165,7 @@ class WayPopup {
             this.container.css({
                 "position": "absolute",
                 "visibility": "hidden",
-                "z-index":199,
+                "z-index": 199,
             });
             this.container.click(() => {
                 this.hide();
@@ -1195,7 +1193,7 @@ class WayPopup {
         }
         this.container.css({
             "left": x + "px",
-            "top":y+"px",
+            "top": y + "px",
             "visibility": "visible"
         });
     }
@@ -1212,7 +1210,7 @@ class WayValidator {
     element: JQuery;
     popup: WayPopup;
     constructor(_element: HTMLElement) {
-        this.element =$( _element);
+        this.element = $(_element);
         if (_element.addEventListener) {
             _element.addEventListener("change", () => { this.onvalueChanged(); });
         }
@@ -1278,8 +1276,8 @@ class WayDBContext {
         this.datasource = _datasource;
     }
 
-   
-    getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel:any, callback: (_data: any,_pkid:any, err: any) => void): void {
+
+    getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel: any, callback: (_data: any, _pkid: any, err: any) => void): void {
         searchModel = searchModel ? JSON.stringify(searchModel) : "";
         this.remoting.pageInvoke("GetDataSource", [pageinfo, this.datasource, bindFields, searchModel], (ret, err) => {
             if (err) {
@@ -1318,7 +1316,7 @@ class WayDBContext {
         });
     }
 
-    saveData(data: any, primaryKey:string , callback: (data: any, err: any) =>void): void {
+    saveData(data: any, primaryKey: string, callback: (data: any, err: any) => void): void {
         this.remoting.pageInvoke("SaveData", [this.datasource, JSON.stringify(data)], (idvalue: any, err: any) => {
             if (err) {
                 callback(data, err);
@@ -1331,11 +1329,11 @@ class WayDBContext {
             }
         });
     }
-    count( searchModel: any, callback: (data: any, err: any) => void): void {
+    count(searchModel: any, callback: (data: any, err: any) => void): void {
 
         searchModel = searchModel ? JSON.stringify(searchModel) : "";
 
-        this.remoting.pageInvoke("Count", [this.datasource,  searchModel], callback);
+        this.remoting.pageInvoke("Count", [this.datasource, searchModel], callback);
     }
     sum(fields: string[], searchModel: any, callback: (data: any, err: any) => void): void {
 
@@ -1365,7 +1363,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     hasMorePage: boolean;
 
     //定义item._status的数据原型，可以修改此原型达到期望的目的
-    itemStatusModel : any = { Selected : false };
+    itemStatusModel: any = { Selected: false };
 
     //header模板
     header: WayTemplate;
@@ -1390,14 +1388,14 @@ class WayGridView extends WayBaseObject implements IPageable {
     //item创建后触发
     onCreateItem: (item: JQuery, model: string) => void;
     //在从服务器拉取数据，并创建item后触发
-    onAfterCreateItems:(total:number,hasMore:boolean)=>void;
+    onAfterCreateItems: (total: number, hasMore: boolean) => void;
     //item大小变化事件
     onItemSizeChanged: () => void;
 
-    constructor(elementId: string,controller:string,_pagesize:number = 10) {
+    constructor(elementId: string, controller: string, _pagesize: number = 10) {
         super();
         try {
-            this.dbContext = new WayDBContext(controller,null)
+            this.dbContext = new WayDBContext(controller, null)
             this.element = $("#" + elementId);
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
@@ -1425,7 +1423,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 else if (_for == "footer") {
                     this.footer = new WayTemplate(this.getTemplateOuterHtml(templateItem));
                 }
-                else if(_for == "item"){
+                else if (_for == "item") {
                     var mode = templateItem.getAttribute("_mode");
                     var match = templateItem.getAttribute("_match");
                     var temp = new WayTemplate(this.getTemplateOuterHtml(templateItem), match, mode);
@@ -1481,7 +1479,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         return content;
     }
 
-    count( callback: (data: any, err: any) => void): void {
+    count(callback: (data: any, err: any) => void): void {
         this.showLoading();
         this.dbContext.count(this.searchModel, (data: any, err: any) => {
             this.hideLoading();
@@ -1496,7 +1494,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         });
     }
 
-    save(itemIndex: number , callback:(idvalue:any,err:any)=>void): void {
+    save(itemIndex: number, callback: (idvalue: any, err: any) => void): void {
         var item = this.items[itemIndex];
         var model = (<any>item)._data;
         var data = this.originalItems[itemIndex];
@@ -1520,7 +1518,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                     }
                 }
             });
-           
+
         }
         else {
             //没有值变化
@@ -1625,7 +1623,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.hideLoading();
                 if (mytranId != this.transcationID)
                     return;
-              
+
                 if (err) {
                     this.hasMorePage = true;
                     this.onErr(err);
@@ -1716,7 +1714,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                         var field = str.substr(1, str.length - 1);
                         matchStr = matchStr.replace(str, JSON.stringify(eval("data." + field)));
                     }
-           
+
                     if (eval(matchStr) == true) {
                         return itemTemplalte;
                     }
@@ -1777,7 +1775,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     }
 
     //从服务器更新指定item的数据，并重新绑定
-    rebindItemFromServer(itemIndex: number,mode:string, callback: (data: any, err: any) => void) {
+    rebindItemFromServer(itemIndex: number, mode: string, callback: (data: any, err: any) => void) {
         var searchmodel = {};
         var item = this.items[itemIndex];
         searchmodel[this.primaryKey] = (<any>item)._data[this.primaryKey];
@@ -1792,7 +1790,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 callback(data, err);
         });
     }
-   
+
     private createItem(itemIndex: any, mode: string = ""): JQuery {
         //把数据克隆一份
         var currentItemStatus;
@@ -1822,8 +1820,8 @@ class WayGridView extends WayBaseObject implements IPageable {
                 }
             }
         }
-       
-       
+
+
         var match = itemContent.match(this.fieldExp);
         if (match) {
             for (var j = 0; j < match.length; j++) {
@@ -1835,11 +1833,11 @@ class WayGridView extends WayBaseObject implements IPageable {
                 }
                 else {
                     var value = eval("data." + field);
-                    if ( value == null || typeof value == "undefined")
+                    if (value == null || typeof value == "undefined")
                         value = "";
 
                     if (typeof value == "object") {
-                        
+
                         if (typeof value.caption != "undefined") {
                             itemContent = itemContent.replace(str, value.caption);
                         }
@@ -1856,20 +1854,20 @@ class WayGridView extends WayBaseObject implements IPageable {
                 }
             }
         }
-        
+
         var item = $(itemContent);
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
         //创建status
-       
+
 
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
-       
+
         (<any>item)._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g);
         if (typeof myChangeFunc == "function") {
             (<any>item)._status.onchange = myChangeFunc;
         }
-        
+
         //建立验证
         if (true) {
             var bindItemElements = item.find("*[_databind]");
@@ -1902,13 +1900,13 @@ class WayGridView extends WayBaseObject implements IPageable {
         if (this.onCreateItem) {
             this.onCreateItem(item, mode);
         }
-        
+
         return item;
     }
 
     private binddatas(datas: any[]): void {
         try {
-            
+
             //bind items
             for (var i = 0; i < datas.length; i++) {
                 this.originalItems.push(datas[i]);
