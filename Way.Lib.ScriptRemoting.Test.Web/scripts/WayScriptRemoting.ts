@@ -1,4 +1,8 @@
 ﻿
+window.onerror = (msg) => {
+    alert(msg);
+}
+
 enum WayScriptRemotingMessageType {
     Result = 1,
     Notify = 2,
@@ -124,8 +128,13 @@ class WayScriptRemoting extends WayBaseObject {
         };
         invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
 
-        if (hasErr)
+        if (hasErr) {
             throw hasErr;
+        }
+        else if (result.err)
+        {
+            throw result.err;
+        }
 
         var func;
         eval("func = " + result.text);
@@ -724,7 +733,7 @@ class WayBindingElement extends WayBaseObject {
             }
         }
         catch (e) {
-            alert("WayBindingElement onvalueChanged error:" + e.message);
+            throw "WayBindingElement onvalueChanged error:" + e.message;
         }
     }
 
@@ -1207,7 +1216,7 @@ class WayValidator {
                     }
                 }
                 catch (e) {
-                    alert("数据验证发生错误，" + e.message);
+                    throw "数据验证发生错误，" + e.message;
                 }
             }
         }
@@ -1341,7 +1350,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         this.dbContext.datasource = _v;
     }
 
-    //用于自定义显示错误，默认是alert
+    //用于自定义显示错误
     onerror: (err: any) => void;
     //在databind调用时触发
     onDatabind: () => void;
@@ -1393,7 +1402,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         }
         catch (e) {
-            alert("WayGridView构造函数错误，" + e.message);
+            throw "WayGridView构造函数错误，" + e.message;
         }
     }
 
@@ -1496,7 +1505,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             this.onerror(err);
         }
         else
-            alert("发生错误：" + err);
+            throw err;
     }
 
     private contains(arr: string[], find: string): boolean {
@@ -1721,7 +1730,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             return newItem;
         }
         catch (e) {
-            alert("changeMode error:" + e.message);
+            throw "changeMode error:" + e.message;
         }
     }
 
@@ -1742,14 +1751,9 @@ class WayGridView extends WayBaseObject implements IPageable {
         this.dbContext.getDataItem(this.getBindFields(), searchmodel, (data: any, err: any) => {
             if (!err) {
                 this.originalItems[itemIndex] = data;
-                try {
-                    if (typeof mode == "undefined")
-                        mode = (<any>item)._mode;
-                    this.changeMode(itemIndex, mode);
-                }
-                catch (e) {
-                    alert(e.message);
-                }
+                if (typeof mode == "undefined")
+                    mode = (<any>item)._mode;
+                this.changeMode(itemIndex, mode);
             }
             if (callback)
                 callback(data, err);

@@ -3,6 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+window.onerror = function (msg) {
+    alert(msg);
+};
 var WayScriptRemotingMessageType;
 (function (WayScriptRemotingMessageType) {
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["Result"] = 1] = "Result";
@@ -115,8 +118,12 @@ var WayScriptRemoting = (function (_super) {
             }
         };
         invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
-        if (hasErr)
+        if (hasErr) {
             throw hasErr;
+        }
+        else if (result.err) {
+            throw result.err;
+        }
         var func;
         eval("func = " + result.text);
         var page = new func(remoteName, result.SocketID);
@@ -669,7 +676,7 @@ var WayBindingElement = (function (_super) {
             }
         }
         catch (e) {
-            alert("WayBindingElement onvalueChanged error:" + e.message);
+            throw "WayBindingElement onvalueChanged error:" + e.message;
         }
     };
     WayBindingElement.prototype.getDataMembers = function () {
@@ -1100,7 +1107,7 @@ var WayValidator = (function () {
                     }
                 }
                 catch (e) {
-                    alert("数据验证发生错误，" + e.message);
+                    throw "数据验证发生错误，" + e.message;
                 }
             }
         }
@@ -1232,7 +1239,7 @@ var WayGridView = (function (_super) {
             }
         }
         catch (e) {
-            alert("WayGridView构造函数错误，" + e.message);
+            throw "WayGridView构造函数错误，" + e.message;
         }
     }
     Object.defineProperty(WayGridView.prototype, "datasource", {
@@ -1339,7 +1346,7 @@ var WayGridView = (function (_super) {
             this.onerror(err);
         }
         else
-            alert("发生错误：" + err);
+            throw err;
     };
     WayGridView.prototype.contains = function (arr, find) {
         for (var i = 0; i < arr.length; i++) {
@@ -1535,7 +1542,7 @@ var WayGridView = (function (_super) {
             return newItem;
         }
         catch (e) {
-            alert("changeMode error:" + e.message);
+            throw "changeMode error:" + e.message;
         }
     };
     //接受item数据的更新，如当前item的数据和很多input进行绑定，input值改变后，并且同步到数据库，
@@ -1554,14 +1561,9 @@ var WayGridView = (function (_super) {
         this.dbContext.getDataItem(this.getBindFields(), searchmodel, function (data, err) {
             if (!err) {
                 _this.originalItems[itemIndex] = data;
-                try {
-                    if (typeof mode == "undefined")
-                        mode = item._mode;
-                    _this.changeMode(itemIndex, mode);
-                }
-                catch (e) {
-                    alert(e.message);
-                }
+                if (typeof mode == "undefined")
+                    mode = item._mode;
+                _this.changeMode(itemIndex, mode);
             }
             if (callback)
                 callback(data, err);
