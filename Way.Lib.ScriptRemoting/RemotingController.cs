@@ -23,6 +23,19 @@ namespace Way.Lib.ScriptRemoting
         public int PageSize;
     }
 
+    public class DatasourceDefine
+    {
+        /// <summary>
+        /// 数据源所属类型
+        /// </summary>
+        public Type TargetType { get; set; }
+        /// <summary>
+        /// 属性名称或者方法名称
+        /// </summary>
+        public string PropertyOrMethodName { get; set; }
+    }
+
+
     /// <summary>
     /// 
     /// </summary>
@@ -342,42 +355,39 @@ namespace Way.Lib.ScriptRemoting
         /// </summary>
         /// <param name="datasourceName">数据源名称</param>
         /// <returns></returns>
-        protected virtual string OnGetDataSourcePath(string datasourceName)
+        protected virtual DatasourceDefine OnGetDataSourcePath(string datasourceName)
         {
             return null;
         }
 
-        object GetDataSource(string target, Dictionary<string, object> activeObjs)
+        object GetDataSource(DatasourceDefine datasourceDefine, Dictionary<Type, object> activeObjs)
         {
-            int index = target.LastIndexOf(".");
-            string propertyName = target.Substring(index + 1);
-            string fullname = target.Substring(0, index);
-
             object obj = null;
-            Type type = null;
-            if (activeObjs.ContainsKey(fullname) == false)
+            if (activeObjs == null || activeObjs.ContainsKey(datasourceDefine.TargetType) == false)
             {
-
-                type = getType(fullname);
-                obj = Activator.CreateInstance(type);
-                activeObjs[fullname] = obj;
+                obj = Activator.CreateInstance(datasourceDefine.TargetType);
+                if (activeObjs != null)
+                {
+                    activeObjs[datasourceDefine.TargetType] = obj;
+                }
             }
             else
             {
-                obj = activeObjs[fullname];
-                   type = obj.GetType();
+                obj = activeObjs[datasourceDefine.TargetType];
             }
 
-            if (propertyName.EndsWith("()"))
+            var pro = datasourceDefine.TargetType.GetProperty(datasourceDefine.PropertyOrMethodName);
+            if (pro != null)
             {
-                var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
+                return pro.GetValue(obj);
+            }
+            else
+            {
+                var method = datasourceDefine.TargetType.GetMethod(datasourceDefine.PropertyOrMethodName);
 
                 return method.Invoke(obj, null);
             }
-            else
-            {
-                return type.GetProperty(propertyName).GetValue(obj);
-            }
+            
         }
 
         /// <summary>
@@ -391,20 +401,16 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
         {
-            target = this.OnGetDataSourcePath(target);
-            if (target == null)
-            {
-                throw new Exception("请override OnGetDataSourcePath函数，返回正确的数据路径");
-            }
-
+            var datasourceDefine = this.OnGetDataSourcePath(target);
+         
             string pkid = null;//主键值
 
-            Dictionary<string, object> activeObjs = new Dictionary<string, object>();
+            Dictionary<Type, object> activeObjs = new Dictionary<Type, object>();
             try
             {
 
                 object[] arrResult = null;
-                object result = GetDataSource(target, activeObjs);
+                object result = GetDataSource(datasourceDefine, activeObjs);
 
                 Type dataItemType = result.GetType();
                 if (dataItemType.IsArray)
@@ -468,9 +474,8 @@ namespace Way.Lib.ScriptRemoting
                             ResultHelper.SetJsonDataValue(jData, fieldInfo[0] + ".value", fieldValue);
 
                             string otherTarget = fieldInfo[1].Substring(0, fieldInfo[1].IndexOf("."));
-                            otherTarget = OnGetDataSourcePath(otherTarget);
 
-                            object query = GetDataSource(otherTarget , activeObjs);
+                            object query = GetDataSource(OnGetDataSourcePath(otherTarget), activeObjs);
 
                             string compareProName = fieldInfo[1].Substring(fieldInfo[1].LastIndexOf(".") + 1);
 
@@ -522,7 +527,7 @@ namespace Way.Lib.ScriptRemoting
             }
             finally
             {
-                foreach( KeyValuePair<string,object> item in activeObjs )
+                foreach( KeyValuePair<Type,object> item in activeObjs )
                 {
                     if(item.Value is IDisposable)
                     {
@@ -541,42 +546,43 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public int Count(string target,string searchJsonStr)
         {
-            target = this.OnGetDataSourcePath(target);
-            int index = target.LastIndexOf(".");
-            string propertyName = target.Substring(index + 1);
-            string fullname = target.Substring(0, index);
-
-            Type type = getType(fullname);
-            object obj = Activator.CreateInstance(type);
-            object result = null;
-
-            if (propertyName.EndsWith("()"))
+            var datasourceDefine = this.OnGetDataSourcePath(target);
+            Dictionary<Type, object> dbcontexts = new Dictionary<Type, object>();
+            object result = GetDataSource(datasourceDefine, dbcontexts);
+            try
             {
-                var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
+                Type dataItemType = result.GetType();
+                if (dataItemType.IsArray)
+                {
+                    dataItemType = dataItemType.GetElementType();
+                }
+                else if (dataItemType.GetTypeInfo().IsGenericType)
+                {
+                    dataItemType = dataItemType.GetGenericArguments()[0];
+                }
 
-                result = method.Invoke(obj, null);
-            }
-            else
-            {
-                result = type.GetProperty(propertyName).GetValue(obj);
-            }
+                if (searchJsonStr.IsNullOrEmpty() == false)
+                {
+                    var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
+                    result = search(result, dataItemType, searchModel);
+                }
 
-            Type dataItemType = result.GetType();
-            if (dataItemType.IsArray)
-            {
-                dataItemType = dataItemType.GetElementType();
+                return Convert.ToInt32(ResultHelper.InvokeCount(result));
             }
-            else if (dataItemType.GetTypeInfo().IsGenericType)
+            catch(Exception ex)
             {
-                dataItemType = dataItemType.GetGenericArguments()[0];
+                throw ex;
             }
-
-            if (searchJsonStr.IsNullOrEmpty() == false)
+            finally
             {
-                var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
-                result = search(result, dataItemType, searchModel);
+                foreach (var obj in dbcontexts)
+                {
+                    if (obj is IDisposable)
+                    {
+                        ((IDisposable)result).Dispose();
+                    }
+                }
             }
-            return Convert.ToInt32( ResultHelper.InvokeCount(result));
         }
 
         /// <summary>
@@ -589,54 +595,54 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object Sum(string target, string[] fields, string searchJsonStr)
         {
-            target = OnGetDataSourcePath(target);
-            int index = target.LastIndexOf(".");
-            string propertyName = target.Substring(index + 1);
-            string fullname = target.Substring(0, index);
-
-            Type type = getType(fullname);
-            object obj = Activator.CreateInstance(type);
-            object result = null;
-
-            if (propertyName.EndsWith("()"))
+            var datasourceDefine = OnGetDataSourcePath(target);
+            var dbcontexts = new Dictionary<Type, object>();
+            object result = GetDataSource(datasourceDefine, dbcontexts);
+            try
             {
-                var method = type.GetMethod(propertyName.Substring(0, propertyName.Length - 2));
+                Type dataItemType = result.GetType();
+                if (dataItemType.IsArray)
+                {
+                    dataItemType = dataItemType.GetElementType();
+                }
+                else if (dataItemType.GetTypeInfo().IsGenericType)
+                {
+                    dataItemType = dataItemType.GetGenericArguments()[0];
+                }
 
-                result = method.Invoke(obj, null);
+                if (searchJsonStr.IsNullOrEmpty() == false)
+                {
+                    var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
+                    result = search(result, dataItemType, searchModel);
+                }
+
+                Dictionary<string, object> finallResult = new Dictionary<string, object>();
+                foreach (string field in fields)
+                {
+                    if (field.Length == 0)
+                        continue;
+
+                    var query = ResultHelper.InvokeSelect(result, field);
+                    var value = ResultHelper.InvokeSum(query);
+                    finallResult[field] = value;
+                }
+                
+                return finallResult;
             }
-            else
+            catch (Exception ex)
             {
-                result = type.GetProperty(propertyName).GetValue(obj);
+                throw ex;
             }
-
-            Type dataItemType = result.GetType();
-            if (dataItemType.IsArray)
+            finally
             {
-                dataItemType = dataItemType.GetElementType();
+                foreach (var obj in dbcontexts)
+                {
+                    if (obj is IDisposable)
+                    {
+                        ((IDisposable)result).Dispose();
+                    }
+                }
             }
-            else if (dataItemType.GetTypeInfo().IsGenericType)
-            {
-                dataItemType = dataItemType.GetGenericArguments()[0];
-            }
-
-            if (searchJsonStr.IsNullOrEmpty() == false)
-            {
-                var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
-                result = search(result, dataItemType, searchModel);
-            }
-
-            Dictionary<string, object> finallResult = new Dictionary<string, object>();
-            foreach (string field in fields)
-            {
-                if (field.Length == 0)
-                    continue;
-
-                var query = ResultHelper.InvokeSelect(result, field);
-                var value = ResultHelper.InvokeSum(query);
-                finallResult[field] = value;
-            }
-
-            return finallResult;
         }
 
         protected virtual void OnBeforeSavingData(object dataitem)
@@ -652,30 +658,36 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object SaveData(string target,string dataJson)
         {
-            target = OnGetDataSourcePath(target);
-            int index = target.LastIndexOf(".");
-            string propertyName = target.Substring(index + 1);
-            string fullname = target.Substring(0, index);
-
-
-            Type type = getType(fullname);
-            var dbContext = Activator.CreateInstance(type) as EntityDB.DBContext;
+            var datasourceDefine = OnGetDataSourcePath(target);
+           
+            var dbContext = Activator.CreateInstance(datasourceDefine.TargetType) as EntityDB.DBContext;
             if (dbContext == null)
             {
-                throw new Exception(fullname + " is not " + typeof(EntityDB.DBContext).FullName);
+                throw new Exception(datasourceDefine.TargetType.FullName + " is not " + typeof(EntityDB.DBContext).FullName);
             }
-            var tableType = type.GetProperty(propertyName).PropertyType.GetGenericArguments()[0];
-            EntityDB.Attributes.Table myTableAttr = tableType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
-            var dataitem = Newtonsoft.Json.JsonConvert.DeserializeObject(dataJson, tableType) as EntityDB.DataItem;
-            if (dataitem == null)
+            try
             {
-                throw new Exception("dataitem is not EntityDB.DataItem");
+                var tableType = datasourceDefine.TargetType.GetProperty(datasourceDefine.PropertyOrMethodName).PropertyType.GetGenericArguments()[0];
+                EntityDB.Attributes.Table myTableAttr = tableType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+                var dataitem = Newtonsoft.Json.JsonConvert.DeserializeObject(dataJson, tableType) as EntityDB.DataItem;
+                if (dataitem == null)
+                {
+                    throw new Exception("dataitem is not EntityDB.DataItem");
+                }
+                this.OnBeforeSavingData(dataitem);
+                dbContext.Update(dataitem);
+                if (myTableAttr.IDField.IsNullOrEmpty())
+                    return null;
+                return dataitem.GetValue(myTableAttr.IDField);
             }
-            this.OnBeforeSavingData(dataitem);
-            dbContext.Update(dataitem);
-            if (myTableAttr.IDField.IsNullOrEmpty())
-                return null;
-            return dataitem.GetValue(myTableAttr.IDField);
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                dbContext.Dispose();
+            }
         }
         /// <summary>
         /// 文件开始传输

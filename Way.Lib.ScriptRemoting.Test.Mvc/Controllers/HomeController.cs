@@ -10,6 +10,7 @@ namespace Way.Lib.ScriptRemoting.Test.Mvc.Controllers
     {
         public IActionResult Index()
         {
+            var tt = this.ControllerContext.HttpContext.WebSockets.IsWebSocketRequest;
             return View();
         }
 

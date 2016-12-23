@@ -24,7 +24,7 @@ namespace Way.Lib.ScriptRemoting
     /// </summary>
     public static class ScriptRemotingServer
     {
-        internal static List<IRouter> Routers = new List<IRouter>();
+        internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal static string ScriptFilePath;
         static SocketServer socketServer;
         internal static string Root;
@@ -190,20 +190,25 @@ namespace Way.Lib.ScriptRemoting
         /// <summary>
         ///  在MVC Core中启用ScriptRemoting
         /// </summary>
-        /// <param name="routes"></param>
+        /// <param name="app"></param>
         /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
-        public static void StartForMvc(Microsoft.AspNetCore.Routing.IRouteBuilder routes, int gcCollectInterval)
+        public static void StartForMvc(IApplicationBuilder app, int gcCollectInterval)
         {
             if (gcCollectInterval > 0)
             {
                 new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
             }
             var route = new IISWebSocket.CoreMvcRoute();
-            var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
-            routes.Routes.Add(new Route(route, "wayscriptremoting_invoke", resolver));
-            routes.Routes.Add(new Route(route, "wayscriptremoting", resolver));
-            routes.Routes.Add(new Route(route, "wayscriptremoting_socket", resolver));
-            
+            //var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
+            //routes.Routes.Add(new Route(route, "wayscriptremoting_invoke", resolver));
+            //routes.Routes.Add(new Route(route, "wayscriptremoting", resolver));
+            //routes.Routes.Add(new Route(route, "wayscriptremoting_socket", resolver));
+            app.UseWebSockets();
+
+            app.Use(async (http, next) =>
+            {
+                await route.Handle(http, next);
+            });
 
         }
 #endif
@@ -211,7 +216,7 @@ namespace Way.Lib.ScriptRemoting
         /// 注册路由器
         /// </summary>
         /// <param name="router"></param>
-        public static void RegisterRouter(IRouter router)
+        public static void RegisterRouter(IUrlRouter router)
         {
             Routers.Add(router);
         }

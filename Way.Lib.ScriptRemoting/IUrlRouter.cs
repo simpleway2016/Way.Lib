@@ -9,7 +9,7 @@ namespace Way.Lib.ScriptRemoting
     /// <summary>
     /// 自定义路由接口
     /// </summary>
-    public interface IRouter
+    public interface IUrlRouter
     {
         /// <summary>
         /// 

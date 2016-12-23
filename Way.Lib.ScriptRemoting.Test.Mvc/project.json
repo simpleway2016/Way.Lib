@@ -24,7 +24,8 @@
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
     "Way.EntityDB": "1.0.0.1",
     "Way.Lib.ScriptRemoting": "1.0.0-*",
-    "Way.Lib": "1.0.0.2"
+    "Way.Lib": "1.0.0.2",
+    "Microsoft.AspNetCore.WebSockets.Server": "0.1.0"
   },
 
   "tools": {

@@ -48,6 +48,7 @@ namespace Way.Lib.ScriptRemoting.Test.Mvc
             loggerFactory.AddDebug();
 
             app.UseApplicationInsightsRequestTelemetry();
+           
 
             if (env.IsDevelopment())
             {
@@ -62,10 +63,10 @@ namespace Way.Lib.ScriptRemoting.Test.Mvc
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseStaticFiles();
-            app.UseMiddleware<RequestLoggerMiddleware>();
+            Way.Lib.ScriptRemoting.ScriptRemotingServer.StartForMvc(app, 1);
             app.UseMvc(routes =>
             {
-                Way.Lib.ScriptRemoting.ScriptRemotingServer.StartForMvc(routes, 1);
+                
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
@@ -80,7 +81,7 @@ namespace Way.Lib.ScriptRemoting.Test.Mvc
         public RequestLoggerMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
         {
             _next = next;
-
+            
         }
 
         public async Task Invoke(HttpContext context)

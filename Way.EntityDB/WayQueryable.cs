@@ -204,7 +204,8 @@ namespace Way.EntityDB
 
         void IDisposable.Dispose()
         {
-            _MyEnumerator.Dispose();
+            if(_MyEnumerator != null)
+                _MyEnumerator.Dispose();
             _MyEnumerator = null;
         }
     }
