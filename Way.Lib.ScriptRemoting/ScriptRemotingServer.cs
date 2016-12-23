@@ -259,7 +259,19 @@ namespace Way.Lib.ScriptRemoting
                     var task = m_listener.AcceptSocketAsync();
                     task.Wait();
                     //Debug.WriteLine("new socket in");
-                    onConnect(task.Result);
+                    var socket = task.Result;
+
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            Connection session = new Connection(socket);
+                            session.OnConnect();
+                        }
+                        catch
+                        {
+                        }
+                    });
                 }
                 catch
                 {
@@ -268,19 +280,5 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        async void onConnect(Socket socket)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    Connection session = new Connection(socket);
-                    session.OnConnect();
-                }
-                catch
-                {
-                }
-            });
-        }
     }
 }
