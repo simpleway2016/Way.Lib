@@ -77,34 +77,38 @@ namespace EJClient.AppCodeBuilder
                     if (true)
                     {
                         string bodyTemplate;
-                        string itemTemplate;
                         codeitem = new AppCodeBuilder.SampleCode(150);
                         result.Add(codeitem);
                         codeitem.Name = "服务器Controller代码";
 
                         bodyTemplate = File.ReadAllText($"{templateFolderPath}ServerController.txt", encode);
-                        itemTemplate = File.ReadAllText($"{templateFolderPath}ServerController.Item.txt", encode);
-
 
                         string datasource = $"{pathinfo[0]}.{pathinfo[1]}";
 
                         StringBuilder buffer = new StringBuilder();
                         buffer.AppendLine(@"    if (datasourceName == """+this.ControlId+@"_datasource"")
     {
-        return """+ datasource + @""";
+        return new DatasourceDefine()
+        {
+            TargetType = typeof(" + pathinfo[0] + @"),
+            PropertyOrMethodName = """ + pathinfo[1] + @"""
+        };
     }");
                         foreach (var column in columns)
                         {
                             if (column.RelaTableName.IsNullOrEmpty() == false && column.RelaColumnName.IsNullOrEmpty() == false && column.DisplayColumnName.IsNullOrEmpty() == false)
                             {
-
-                                string mystr = itemTemplate;
-                                mystr = mystr.Replace("{@ItemName}", column.RelaTableName);
-                                mystr = mystr.Replace("{@ItemDatasource}", $"{pathinfo[0]}.{column.RelaTableName}");
-                                buffer.AppendLine(mystr);
+                                buffer.AppendLine(@"    else if (datasourceName == """ + column.RelaTableName + @""")
+    {
+        return new DatasourceDefine()
+        {
+            TargetType = typeof(" + pathinfo[0] + @"),
+            PropertyOrMethodName = """ + column.RelaTableName + @"""
+        };
+    }");
                             }
                         }
-                        bodyTemplate = bodyTemplate.Replace("{@Items}", buffer.ToString());
+                        bodyTemplate = bodyTemplate.Replace("{%Items}", buffer.ToString());
                         codeitem.Code = bodyTemplate;
                     }
                     #endregion
@@ -123,8 +127,8 @@ namespace EJClient.AppCodeBuilder
                         string dropdownlistTemplate = File.ReadAllText($"{templateFolderPath}html.Search.Item.dropdownlist.txt", encode);
 
 
-                        htmlTemplate = htmlTemplate.Replace("{@ControlId}", this.ControlId)
-                            .Replace("{@SearchElementId}", this.ControlId + "_search");
+                        htmlTemplate = htmlTemplate.Replace("{%ControlId}", this.ControlId)
+                            .Replace("{%SearchElementId}", this.ControlId + "_search");
 
                         StringBuilder itemBuffer = new StringBuilder();
                         foreach (var column in columns)
@@ -138,15 +142,15 @@ namespace EJClient.AppCodeBuilder
                                 {
                                     options.AppendLine($"<option value=\"{m.Groups["n"].Value}\">{m.Groups["n"].Value}</option>");
                                 }
-                                itemBuffer.AppendLine(dropdownlistTemplate.Replace("{@Caption}", column.caption).Replace("{@Name}", column.Name).Replace("{@Options}", options.ToString()));
+                                itemBuffer.AppendLine(dropdownlistTemplate.Replace("{%Caption}", column.caption).Replace("{%Name}", column.Name).Replace("{%Options}", options.ToString()));
                             }
                             else
                             {
-                                itemBuffer.AppendLine(textBoxTemplate.Replace("{@Caption}", column.caption).Replace("{@Name}", column.Name));
+                                itemBuffer.AppendLine(textBoxTemplate.Replace("{%Caption}", column.caption).Replace("{%Name}", column.Name));
                             }
                         }
                        
-                        htmlTemplate = htmlTemplate.Replace("{@Items}", itemBuffer.ToString());
+                        htmlTemplate = htmlTemplate.Replace("{%Items}", itemBuffer.ToString());
                         codeitem.Code = htmlTemplate;
                     }
                     #endregion
@@ -169,34 +173,34 @@ namespace EJClient.AppCodeBuilder
 
                       
                     
-                        htmlTemplate = htmlTemplate.Replace("{@ControlId}", this.ControlId)
-                            .Replace("{@PageSize}" , this.PageSize.ToString())
-                            .Replace("{@ControlDatasource}", this.ControlId + "_datasource");
+                        htmlTemplate = htmlTemplate.Replace("{%ControlId}", this.ControlId)
+                            .Replace("{%PageSize}" , this.PageSize.ToString())
+                            .Replace("{%ControlDatasource}", this.ControlId + "_datasource");
                         
 
                         if (this.ShowSearchArea)
                         {
-                            htmlTemplate = htmlTemplate.Replace("{@SetSearchExpression}", this.ControlId + ".searchModel = WayDataBindHelper.dataBind(\""+this.ControlId+"_search\", {});");
+                            htmlTemplate = htmlTemplate.Replace("{%SetSearchExpression}", this.ControlId + ".searchModel = WayDataBindHelper.dataBind(\""+this.ControlId+"_search\", {});");
                         }
 
                         StringBuilder itemBuffer = new StringBuilder();
                         foreach (var column in columns)
                         {
-                            itemBuffer.AppendLine( itemTemplate.Replace("{@Text}" , "{@"+column.Name+"}") );
+                            itemBuffer.AppendLine( itemTemplate.Replace("{%Text}" , "{%"+column.Name+"}") );
                         }
                         StringBuilder headerBuffer = new StringBuilder();
                         foreach (var column in columns)
                         {
-                            headerBuffer.AppendLine(itemTemplate.Replace("{@Text}", column.caption));
+                            headerBuffer.AppendLine(itemTemplate.Replace("{%Text}", column.caption));
                         }
                         StringBuilder footerBuffer = new StringBuilder();
                         foreach (var column in columns)
                         {
-                            footerBuffer.AppendLine(itemTemplate.Replace("{@Text}", column.caption));
+                            footerBuffer.AppendLine(itemTemplate.Replace("{%Text}", column.caption));
                         }
-                        htmlTemplate = htmlTemplate.Replace("{@Items}", itemBuffer.ToString());
-                        htmlTemplate = htmlTemplate.Replace("{@HeaderItems}", headerBuffer.ToString());
-                        htmlTemplate = htmlTemplate.Replace("{@FooterItems}", footerBuffer.ToString());
+                        htmlTemplate = htmlTemplate.Replace("{%Items}", itemBuffer.ToString());
+                        htmlTemplate = htmlTemplate.Replace("{%HeaderItems}", headerBuffer.ToString());
+                        htmlTemplate = htmlTemplate.Replace("{%FooterItems}", footerBuffer.ToString());
                         codeitem.Code = htmlTemplate;
                     }
                     #endregion
