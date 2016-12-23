@@ -96,7 +96,7 @@ namespace EJClient.AppCodeBuilder
                         {
                             if (column.RelaTableName.IsNullOrEmpty() == false && column.RelaColumnName.IsNullOrEmpty() == false && column.DisplayColumnName.IsNullOrEmpty() == false)
                             {
-                                buffer.AppendLine(@"    else if (datasourceName == """ + column.RelaTableName + @""")
+                                buffer.AppendLine(@"    if (datasourceName == """ + column.RelaTableName + @""")
     {
         return new DatasourceDefine()
         {
