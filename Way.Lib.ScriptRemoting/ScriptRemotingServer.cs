@@ -230,6 +230,7 @@ namespace Way.Lib.ScriptRemoting
         public SocketServer(int port)
         {
             m_Port = port;
+            
         }
 
         public void Start()
@@ -258,25 +259,28 @@ namespace Way.Lib.ScriptRemoting
                     var task = m_listener.AcceptSocketAsync();
                     task.Wait();
                     //Debug.WriteLine("new socket in");
-                    Socket socket = task.Result;
-                    
-                    new Thread(() =>
-                    {
-                        try
-                        {
-                            Connection session = new Connection(socket);
-                            session.OnConnect();
-                        }
-                        catch
-                        {
-                        }
-                    }).Start();
+                    onConnect(task.Result);
                 }
                 catch
                 {
                     break;
                 }
             }
+        }
+
+        async void onConnect(Socket socket)
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    Connection session = new Connection(socket);
+                    session.OnConnect();
+                }
+                catch
+                {
+                }
+            });
         }
     }
 }
