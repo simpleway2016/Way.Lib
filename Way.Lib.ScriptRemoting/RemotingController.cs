@@ -158,66 +158,73 @@ namespace Way.Lib.ScriptRemoting
             {
 
                 PropertyInfo pinfo;
-                Expression left = ResultHelper.GetPropertyExpression(param, dataItemType, searchKeyPair.Key, out pinfo);
+                Expression paramExpression = ResultHelper.GetPropertyExpression(param, dataItemType, searchKeyPair.Key, out pinfo);
                 Type ptype = pinfo.PropertyType;
 
                 if (ptype.GetTypeInfo().IsGenericType)
                 {
                     ptype = ptype.GetGenericArguments()[0];
-                    left = Expression.Convert(left, ptype);
+                    paramExpression = Expression.Convert(paramExpression, ptype);
                 }
-
+                List<Expression> doneExpressions = new List<Expression>();
                 if (ptype == typeof(string))
                 {
-                    left = Expression.Call(left,
+                    doneExpressions.Add(Expression.Call(paramExpression,
                         typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
-                        Expression.Constant(searchKeyPair.Value));
+                        Expression.Constant(searchKeyPair.Value)));
                 }
                 else if (ptype == typeof(int) || ptype == typeof(double) || ptype == typeof(decimal) || ptype == typeof(float) || ptype == typeof(short) || ptype == typeof(long))
                 {
-                    string value = searchKeyPair.Value.ToString();
-                    if (value.StartsWith(">="))
+                    string[] pairValues = searchKeyPair.Value.ToString().Split(' ');
+                    for(int i = 0; i < pairValues.Length; i ++)
                     {
-                        value = value.Replace(">=", "");
-                        //等式右边的值
-                        Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                        left = Expression.GreaterThanOrEqual(left, right);
-                    }
-                    else if (value.StartsWith(">"))
-                    {
-                        value = value.Replace(">", "");
-                        //等式右边的值
-                        Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                        left = Expression.GreaterThan(left, right);
-                    }
-                    else if (value.StartsWith("<="))
-                    {
-                        value = value.Replace("<=", "");
-                        //等式右边的值
-                        Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                        left = Expression.LessThanOrEqual(left, right);
-                    }
-                    else if (value.StartsWith("<"))
-                    {
-                        value = value.Replace("<", "");
-                        //等式右边的值
-                        Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                        left = Expression.LessThan(left, right);
-                    }
-                    else
-                    {
-                        //等式右边的值
-                        try
-                        {
-                            value = value.Replace("=", "");
-                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                            left = Expression.Equal(left, right);
-                        }
-                        catch
-                        {
+                        string value = pairValues[i];
+                        if (value.Length == 0)
                             continue;
+                        if (value.StartsWith(">="))
+                        {
+                            value = value.Replace(">=", "");
+                            //等式右边的值
+                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            doneExpressions.Add(Expression.GreaterThanOrEqual(paramExpression, right));
+                        }
+                        else if (value.StartsWith(">"))
+                        {
+                            value = value.Replace(">", "");
+                            //等式右边的值
+                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            doneExpressions.Add(Expression.GreaterThan(paramExpression, right));
+                        }
+                        else if (value.StartsWith("<="))
+                        {
+                            value = value.Replace("<=", "");
+                            //等式右边的值
+                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            doneExpressions.Add(Expression.LessThanOrEqual(paramExpression, right));
+                        }
+                        else if (value.StartsWith("<"))
+                        {
+                            value = value.Replace("<", "");
+                            //等式右边的值
+                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            doneExpressions.Add(Expression.LessThan(paramExpression, right));
+                        }
+                        else
+                        {
+                            //等式右边的值
+                            try
+                            {
+                                value = value.Replace("=", "");
+                                Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                                doneExpressions.Add(Expression.Equal(paramExpression, right));
+                            }
+                            catch
+                            {
+                                continue;
+                            }
                         }
                     }
+                    
                 }
                 //else if (control is System.Web.UI.WebControls.ListControl || control is TextBoxList || control is ParentToChildSelector)
                 //{
@@ -317,13 +324,13 @@ namespace Way.Lib.ScriptRemoting
                 //    }
                 //}
 
-                if (left != null)
+               foreach( var itemexpression in doneExpressions )
                 {
                     //left = Expression.Lambda(left, param);
                     if (totalExpression == null)
-                        totalExpression = left;
+                        totalExpression = itemexpression;
                     else
-                        totalExpression = Expression.AndAlso(totalExpression, left);
+                        totalExpression = Expression.AndAlso(totalExpression, itemexpression);
                 }
             }
 
