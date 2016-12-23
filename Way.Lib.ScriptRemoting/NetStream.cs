@@ -93,12 +93,12 @@ namespace Way.Lib.ScriptRemoting
         public NetStream(string Address, int port)
         {
 
-            Socket socket2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket2.SendTimeout = 6000;
-            socket2.ReceiveTimeout = 6000;
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.SendTimeout = 6000;
+            socket.ReceiveTimeout = 6000;
 
-            socket2.Connect(IPAddress.Parse(Address), port);
-            this.m_ClientSocket = socket2;
+            socket.Connect(IPAddress.Parse(Address), port);
+            this.m_ClientSocket = socket;
         }
 
         /// <summary>
