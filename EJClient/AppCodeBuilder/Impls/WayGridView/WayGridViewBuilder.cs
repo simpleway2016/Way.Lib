@@ -83,8 +83,6 @@ namespace EJClient.AppCodeBuilder
 
                         bodyTemplate = File.ReadAllText($"{templateFolderPath}ServerController.txt", encode);
 
-                        string datasource = $"{pathinfo[0]}.{pathinfo[1]}";
-
                         StringBuilder buffer = new StringBuilder();
                         buffer.AppendLine(@"    if (datasourceName == """+this.ControlId+@"_datasource"")
     {
