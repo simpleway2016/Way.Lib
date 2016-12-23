@@ -18,10 +18,6 @@
     "net46": {
       "frameworkAssemblies": {
         "System.Web": "4.0.0.0"
-      },
-      "dependencies": {
-        "Microsoft.AspNet.Mvc": "5.2.3",
-        "Microsoft.AspNet.WebApi.Core": "5.2.3"
       }
     }
   }

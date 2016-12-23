@@ -207,7 +207,7 @@ namespace Way.Lib.ScriptRemoting
 
             app.Use(async (http, next) =>
             {
-                await route.Handle(http, next);
+                await route.HandleRequest(http, next);
             });
 
         }
@@ -257,7 +257,9 @@ namespace Way.Lib.ScriptRemoting
                 {
                     var task = m_listener.AcceptSocketAsync();
                     task.Wait();
+                    //Debug.WriteLine("new socket in");
                     Socket socket = task.Result;
+                    
                     new Thread(() =>
                     {
                         try

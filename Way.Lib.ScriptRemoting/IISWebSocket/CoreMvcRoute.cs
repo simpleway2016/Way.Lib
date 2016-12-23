@@ -73,7 +73,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
             rs.OnDisconnected();
         }
 
-        public Task Handle(HttpContext context , Func<Task> next)
+        public Task HandleRequest(HttpContext context , Func<Task> next)
         {
             string clientip = context.Connection.RemoteIpAddress.ToString().Split(':')[0];
             if (context.WebSockets.IsWebSocketRequest)
@@ -118,6 +118,8 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 }
                 else
                 {
+                    if(next == null)
+                        return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
                     return next();
                 }
             }
@@ -125,53 +127,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
 
         public Task RouteAsync(RouteContext context)
         {
-            string clientip = context.HttpContext.Connection.RemoteIpAddress.ToString().Split(':')[0];
-            if (context.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                var task = context.HttpContext.WebSockets.AcceptWebSocketAsync();
-                task.Wait();
-                var websocket = task.Result;
-                return ProcessChat(websocket, clientip);
-            }
-            else
-            {
-                if (context.HttpContext.Request.Path.Value.EndsWith("wayscriptremoting"))
-                {
-                    var since = context.HttpContext.Request.Headers["If-Modified-Since"];
-                    var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
-                    if (lastWriteTime == since)
-                    {
-                        //context.HttpContext.Response.StatusDescription = System.Web.HttpWorkerRequest.GetStatusDescription(304);
-                        context.HttpContext.Response.StatusCode = 304;
-                        return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
-
-                    }
-                    else
-                    {
-                        context.HttpContext.Response.Headers.Add("Last-Modified", lastWriteTime);
-                        string content = System.Text.Encoding.UTF8.GetString(System.IO.File.ReadAllBytes(ScriptRemotingServer.ScriptFilePath));
-                        return context.HttpContext.Response.WriteAsync(content);
-                    }
-                }
-                else if (context.HttpContext.Request.Path.Value.ToLower().StartsWith("/wayscriptremoting_invoke"))
-                {
-                    string json = context.HttpContext.Request.Form["m"];
-                    string content = null;
-
-                    RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
-                    {
-                        content = data;
-
-                    }, null, clientip);
-                    rs.OnReceived(json);
-
-                    return context.HttpContext.Response.WriteAsync(content);
-                }
-                else
-                {
-                    return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
-                }
-            }
+            return HandleRequest(context.HttpContext, null);
         }
     }
 

@@ -32,7 +32,7 @@ namespace Way.Lib.ScriptRemoting
                 while (true)
                 {
                     string line = mClient.ReadLine();
-                    Debug.WriteLine(line);
+                    //Debug.WriteLine(line);
                     if (line.Length == 0)
                         break;
                     else
