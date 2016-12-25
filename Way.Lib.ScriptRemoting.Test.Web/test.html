@@ -8,14 +8,26 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title></title>
     <style>
-        div {
-        padding:3px;
-        display:flex;
-        flex-direction:column;
+        html {
+        font-size:12px;
+        }
+        .box {
+  display: flex;
+  flex-direction:row;
+}
+
+        div[_child] {
+       background-color:#ccc;
         }
     </style>
 </head>
 <body>
-  awefw
+    <script lang="ja">
+        document.documentElement.style.fontSize = "30px";
+    </script>
+  <div class="box" style="width:200px;height:500px;background-color:#000000;">
+      <div _child="1" style="flex:1;height:70px;margin:1rem 0.5rem 0 1rem;align-items:center;display:flex;justify-content:center;font-size:1rem;"> a </div>
+      <div  _child="1" style="flex:0.5;height:70px;margin:1rem 1rem 0 0.5rem;">b</div>
+  </div>
 </body>
 </html>
