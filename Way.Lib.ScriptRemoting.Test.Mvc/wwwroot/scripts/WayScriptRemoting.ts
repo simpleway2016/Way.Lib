@@ -1359,7 +1359,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     private fieldExp: RegExp = /\{\@(\w|\.|\:)+\}/g;
     private loading: WayProgressBar = new WayProgressBar("#cccccc");
     private footerItem: JQuery;
-    // 标识当前绑定数据的事物id
+    // 标识当前绑定数据的事务id
     private transcationID: number = 1;
     private primaryKey: string;
     hasMorePage: boolean;
