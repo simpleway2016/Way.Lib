@@ -919,6 +919,24 @@ class WayDataBindHelper {
         }
         return onchangeMembers;
     }
+    //替换html里的变量
+    static replaceHtmlFields(templateHtml, data):string
+	{
+        var expression = /\{\@([\w|\.]+)\}/g;
+        var html = templateHtml;
+        while (true) {
+            var r = expression.exec(templateHtml);
+            if (!r)
+                break;
+            try {
+                html = html.replace(r[0], eval("data." + r[1]));
+            }
+            catch (e) {
+                html = html.replace(r[0], "");
+            }
+        }
+        return html;
+    }
 
     static dataBind(element: HTMLElement, data: any, tag: any = null,
         expressionExp: RegExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g,
