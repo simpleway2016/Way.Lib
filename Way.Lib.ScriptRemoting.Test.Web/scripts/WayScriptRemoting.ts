@@ -1344,7 +1344,7 @@ class WayDBContext {
 }
 
 class WayGridView extends WayBaseObject implements IPageable {
-    private element: JQuery;
+    element: JQuery;
     private itemContainer: JQuery;
     private itemTemplates: WayTemplate[] = [];
     items: JQuery[] = [];
