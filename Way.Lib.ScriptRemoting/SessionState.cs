@@ -21,13 +21,7 @@ namespace Way.Lib.ScriptRemoting
         /// 最后一次使用session的时间
         /// </summary>
         internal DateTime LastUseTime;
-        /// <summary>
-        /// 该Session当前有几个长连接
-        /// </summary>
-        internal int KeepAliveCount;
 
-        internal ConcurrentDictionary<string, Action> OnKeepAliveConnectEvents = new ConcurrentDictionary<string, Action>();
-        internal ConcurrentDictionary<string, Action> OnKeepAliveCloseEvents = new ConcurrentDictionary<string, Action>();
         internal static System.Collections.Hashtable ThreadSessions = Hashtable.Synchronized(new Hashtable());
 
         public string SessionID
@@ -85,17 +79,15 @@ namespace Way.Lib.ScriptRemoting
                 {
                     foreach (var kv in AllSessions)
                     {
-                        if(kv.Value.KeepAliveCount <=0 && (DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
+                        if((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
                         {
                             lock (AllSessionsLock)
                             {
                                 //在lock中重新判断
-                                if (kv.Value.KeepAliveCount <= 0 && (DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
+                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
                                 {
                                     AllSessions.Remove(kv.Key);
                                     kv.Value.Clear();
-                                    kv.Value.OnKeepAliveCloseEvents.Clear();
-                                    kv.Value.OnKeepAliveConnectEvents.Clear();
                                 }
                             }
                             break;
@@ -110,21 +102,6 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        /// <summary>
-        /// 标识增加一个长连接
-        /// </summary>
-        internal void KeepAliveEntry()
-        {
-            this.LastUseTime = DateTime.Now;
-            System.Threading.Interlocked.Increment(ref KeepAliveCount);
-        }
-        /// <summary>
-        /// 标识减少一个长连接
-        /// </summary>
-        internal void KeepAliveExit()
-        {
-            this.LastUseTime = DateTime.Now;
-            System.Threading.Interlocked.Decrement(ref KeepAliveCount);
-        }
+       
     }
 }

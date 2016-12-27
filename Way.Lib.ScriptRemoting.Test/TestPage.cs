@@ -37,7 +37,7 @@ namespace Way.Lib.ScriptRemoting.Test
         {
             EJ.DBColumn column = dataitem as EJ.DBColumn;
             column.TableID = 3;
-            this.SendMessage( Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
+            SendGroupMessage("g1" , Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
         }
 
 
@@ -122,10 +122,6 @@ namespace Way.Lib.ScriptRemoting.Test
         }
         protected override void OnLoad()
         {
-            this.SetOnKeepAliveClose(()=>
-            {
-                Debug.WriteLine("KeepAlive Closed");
-            });
             base.OnLoad();
         }
 

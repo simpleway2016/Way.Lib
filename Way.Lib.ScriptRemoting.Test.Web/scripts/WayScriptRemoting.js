@@ -55,13 +55,26 @@ var WayScriptRemotingUploadHandler = (function () {
 }());
 var WayScriptRemoting = (function (_super) {
     __extends(WayScriptRemoting, _super);
-    function WayScriptRemoting(remoteName, socketid) {
+    function WayScriptRemoting(remoteName) {
         _super.call(this);
         this.mDoConnected = false;
         this.classFullName = remoteName;
-        this.SocketID = socketid;
         WayScriptRemoting.getServerAddress();
     }
+    Object.defineProperty(WayScriptRemoting.prototype, "groupName", {
+        get: function () {
+            return this.groupName;
+        },
+        set: function (value) {
+            this._groupName = value;
+            if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
+                this.mDoConnected = true;
+                this.connect();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(WayScriptRemoting.prototype, "onmessage", {
         //长连接接收到信息触发
         get: function () {
@@ -69,7 +82,7 @@ var WayScriptRemoting = (function (_super) {
         },
         set: function (func) {
             this._onmessage = func;
-            if (!this.mDoConnected) {
+            if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
                 this.mDoConnected = true;
                 this.connect();
             }
@@ -125,7 +138,7 @@ var WayScriptRemoting = (function (_super) {
         }
         var func;
         eval("func = " + result.text);
-        var page = new func(remoteName, result.SocketID);
+        var page = new func(remoteName);
         WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
@@ -148,7 +161,7 @@ var WayScriptRemoting = (function (_super) {
                 try {
                     var func;
                     eval("func = " + result.text);
-                    var page = new func(remoteName, result.SocketID);
+                    var page = new func(remoteName);
                     WayCookie.setCookie("WayScriptRemoting", result.SessionID);
                     callback(page, null);
                 }
@@ -222,7 +235,7 @@ var WayScriptRemoting = (function (_super) {
             var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = function () {
-                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + _this.SocketID + "'}");
+                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
                 ws.binaryType = "arraybuffer";
                 _this.sendFile(ws, file, reader, size, handler.offset, 102400, callback, handler);
             };
@@ -302,10 +315,9 @@ var WayScriptRemoting = (function (_super) {
         }
     };
     WayScriptRemoting.prototype.pageInvoke = function (name, parameters, callback) {
-        var _this = this;
         try {
-            if (this.onBeforeInvoke) {
-                this.onBeforeInvoke(name, parameters);
+            if (WayScriptRemoting.onBeforeInvoke) {
+                WayScriptRemoting.onBeforeInvoke(name, parameters);
             }
             var paramerStr = "";
             if (parameters) {
@@ -318,8 +330,8 @@ var WayScriptRemoting = (function (_super) {
             }
             var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
             invoker.onCompleted = function (ret, err) {
-                if (_this.onInvokeFinish) {
-                    _this.onInvokeFinish(name, parameters);
+                if (WayScriptRemoting.onInvokeFinish) {
+                    WayScriptRemoting.onInvokeFinish(name, parameters);
                 }
                 if (err) {
                     callback(null, err);
@@ -335,7 +347,7 @@ var WayScriptRemoting = (function (_super) {
                     }
                 }
             };
-            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}"]);
+            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
         }
         catch (e) {
             callback(null, e.message);
@@ -352,7 +364,7 @@ var WayScriptRemoting = (function (_super) {
             }
             catch (e) {
             }
-            _this.socket.send("{'SocketID':'" + _this.SocketID + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+            _this.socket.send("{'GroupName':'" + _this._groupName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
         this.socket.onmessage = function (evt) {
             var resultObj;
@@ -804,6 +816,23 @@ var WayDataBindHelper = (function () {
             }
         }
         return onchangeMembers;
+    };
+    //替换html里的变量
+    WayDataBindHelper.replaceHtmlFields = function (templateHtml, data) {
+        var expression = /\{\@([\w|\.]+)\}/g;
+        var html = templateHtml;
+        while (true) {
+            var r = expression.exec(templateHtml);
+            if (!r)
+                break;
+            try {
+                html = html.replace(r[0], eval("data." + r[1]));
+            }
+            catch (e) {
+                html = html.replace(r[0], "");
+            }
+        }
+        return html;
     };
     WayDataBindHelper.dataBind = function (element, data, tag, expressionExp, dataMemberExp) {
         if (tag === void 0) { tag = null; }

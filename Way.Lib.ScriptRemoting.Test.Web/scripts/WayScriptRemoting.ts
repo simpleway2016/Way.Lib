@@ -48,11 +48,22 @@ class WayScriptRemotingUploadHandler {
 }
 
 class WayScriptRemoting extends WayBaseObject {
-    onBeforeInvoke: (name: string, parameters: any[]) => any;
-    onInvokeFinish: (name: string, parameters: any[]) => any;
+    static onBeforeInvoke: (name: string, parameters: any[]) => any;
+    static onInvokeFinish: (name: string, parameters: any[]) => any;
 
     classFullName: string;
-    SocketID: string;
+    private _groupName: string;
+    get groupName(): string {
+        return this.groupName;
+    }
+    set groupName(value: string) {
+        this._groupName = value;
+        if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
+            this.mDoConnected = true;
+            this.connect();
+        }
+    }
+
     //当长连接异常时触发
     onerror: (err: any) => any;
     //当长连接正常连上时触发
@@ -66,7 +77,7 @@ class WayScriptRemoting extends WayBaseObject {
     }
     set onmessage(func: (msg: any) => any) {
         this._onmessage = func;
-        if (!this.mDoConnected) {
+        if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
             this.mDoConnected = true;
             this.connect();
         }
@@ -76,10 +87,9 @@ class WayScriptRemoting extends WayBaseObject {
 
     static ServerAddress: string = null;//"localhost:9090";
     static ExistControllers: WayScriptRemoting[] = [];
-    constructor(remoteName: string, socketid: string) {
+    constructor(remoteName: string) {
         super();
         this.classFullName = remoteName;
-        this.SocketID = socketid;
         WayScriptRemoting.getServerAddress();
     }
 
@@ -138,7 +148,7 @@ class WayScriptRemoting extends WayBaseObject {
         var func;
         eval("func = " + result.text);
 
-        var page = <WayScriptRemoting>new func(remoteName, result.SocketID);
+        var page = <WayScriptRemoting>new func(remoteName);
         WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID)
         return page;
@@ -164,7 +174,7 @@ class WayScriptRemoting extends WayBaseObject {
                     var func;
                     eval("func = " + result.text);
 
-                    var page = <WayScriptRemoting>new func(remoteName, result.SocketID);
+                    var page = <WayScriptRemoting>new func(remoteName);
                     WayCookie.setCookie("WayScriptRemoting", result.SessionID)
                     callback(page, null);
                 }
@@ -241,7 +251,7 @@ class WayScriptRemoting extends WayBaseObject {
             var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = () => {
-                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}");
+                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
                 ws.binaryType = "arraybuffer";
                 this.sendFile(ws, file, reader, size, handler.offset, 102400, callback, handler);
             };
@@ -316,8 +326,8 @@ class WayScriptRemoting extends WayBaseObject {
 
     pageInvoke(name: string, parameters: any[], callback: any) {
         try {
-            if (this.onBeforeInvoke) {
-                this.onBeforeInvoke(name, parameters);
+            if (WayScriptRemoting.onBeforeInvoke) {
+                WayScriptRemoting.onBeforeInvoke(name, parameters);
             }
 
             var paramerStr = "";
@@ -332,8 +342,8 @@ class WayScriptRemoting extends WayBaseObject {
 
             var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
             invoker.onCompleted = (ret, err) => {
-                if (this.onInvokeFinish) {
-                    this.onInvokeFinish(name, parameters);
+                if (WayScriptRemoting.onInvokeFinish) {
+                    WayScriptRemoting.onInvokeFinish(name, parameters);
                 }
                 if (err) {
                     callback(null, err);
@@ -350,48 +360,8 @@ class WayScriptRemoting extends WayBaseObject {
                     }
                 }
             };
-            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}"]);
-
-            //var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
-            //ws.onopen = () => {
-            //    var paramerStr = "";
-            //    if (parameters) {
-            //        parameters.forEach((p) => {
-            //            if (paramerStr.length > 0)
-            //                paramerStr += ",";
-            //            var itemstr = JSON.stringify(p);
-            //            paramerStr += JSON.stringify(itemstr);
-            //        });
-            //    }
-            //    var socketData = "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}";
-            //    ws.send(socketData);
-            //};
-            //ws.onmessage = (evt: any) => {
-
-            //    ws.onerror = null;//必须先设置这里，再准备断开连接
-            //    ws.send("{'Action':'exit'}");
-
-            //    if (this.onInvokeFinish) {
-            //        this.onInvokeFinish(name, parameters);
-            //    }
-
-            //    var resultObj;
-            //    eval("resultObj=" + evt.data);
-
-            //    if (resultObj.type == WayScriptRemotingMessageType.Result) {
-            //        callback(resultObj.result, null);
-            //    }
-            //    else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
-            //        callback(null, resultObj.result);
-            //    }
-            //};
-            //ws.onerror = (evt: any) => {
-            //    ws.onmessage = null;
-            //    if (this.onInvokeFinish) {
-            //        this.onInvokeFinish(name, parameters);
-            //    }
-            //    callback(null, "无法连接服务器");
-            //};
+            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
+            
         }
         catch (e) {
             callback(null, e.message);
@@ -409,7 +379,7 @@ class WayScriptRemoting extends WayBaseObject {
             }
             catch (e) {
             }
-            this.socket.send("{'SocketID':'" + this.SocketID + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+            this.socket.send("{'GroupName':'" + this._groupName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
         this.socket.onmessage = (evt: any) => {
             var resultObj;

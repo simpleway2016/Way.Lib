@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,17 +23,16 @@ namespace Way.Lib.ScriptRemoting
             private set;
         }
         static Type RemotingPageType = typeof(RemotingController);
-        internal static ConcurrentDictionary<string, RemotingClientHandler> KeepAliveHandlers = new ConcurrentDictionary<string, RemotingClientHandler>();
+        internal static ArrayList KeepAliveHandlers = ArrayList.Synchronized(new ArrayList());
         static ConcurrentDictionary<string, TypeDefine> ExistTypes = new ConcurrentDictionary<string, TypeDefine>();
         public delegate void SendDataHandler(string data);
         SendDataHandler mSendDataFunc;
         Action mCloseStreamHandler;
         SessionState Session;
-        string SocketID;
+        internal string GroupName;
         IUploadFileHandler mUploadFileHandler;
         int mFileGettedSize = 0;
         MessageBag mCurrentBag;
-        bool mIsKeepAliveConnect;
         string mClientIP;
 
         public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP)
@@ -79,19 +79,17 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else if (msgBag.MethodName.IsNullOrEmpty() == false)
                 {
-                    this.SocketID = msgBag.SocketID;
+                   
                     handleMethodInvoke(msgBag);
                 }
-                else if (msgBag.SocketID.IsNullOrEmpty() == false)
+                else if (msgBag.GroupName.IsNullOrEmpty() == false)
                 {
-                    this.Session.KeepAliveEntry();
-                    this.SocketID = msgBag.SocketID;
-                    KeepAliveHandlers[this.SocketID] = this;
-                    mIsKeepAliveConnect = true;
-                    if (this.Session.OnKeepAliveConnectEvents.ContainsKey(this.SocketID))
+                    this.GroupName = msgBag.GroupName;
+                    if(RemotingController.MessageReceiverConnect(this.Session , this.GroupName) == false)
                     {
-                        this.Session.OnKeepAliveConnectEvents[this.SocketID]();
+                        throw new Exception("服务器拒绝你接收信息");
                     }
+                    KeepAliveHandlers.Add(this);
                     return;
                 }
             }
@@ -153,14 +151,13 @@ namespace Way.Lib.ScriptRemoting
                 }
                 mUploadFileHandler = null;
             }
-            if ( mIsKeepAliveConnect)
+            try
             {
-                this.Session.KeepAliveExit();
-
-                if (this.Session.OnKeepAliveCloseEvents.ContainsKey(this.SocketID))
-                {
-                    this.Session.OnKeepAliveCloseEvents[this.SocketID]();
-                }
+                if(this.GroupName.IsNullOrEmpty() == false)
+                KeepAliveHandlers.Remove(this);
+            }
+            catch
+            {
             }
         }
         
@@ -259,15 +256,13 @@ namespace Way.Lib.ScriptRemoting
 }(WayScriptRemoting));
 ");
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
-                currentPage.SocketID = Guid.NewGuid().ToString().Replace("-", "");
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
 
                 mSendDataFunc(Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
                     text = methodOutput.ToString(),
-                    SessionID = this.Session.SessionID,
-                    SocketID = currentPage.SocketID,
+                    SessionID = this.Session.SessionID
                 }));
             }
             catch (Exception ex)
@@ -288,7 +283,6 @@ namespace Way.Lib.ScriptRemoting
                 var pageDefine = checkRemotingName(remoteName);
 
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
-                currentPage.SocketID = msgBag.SocketID;
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
@@ -309,7 +303,6 @@ namespace Way.Lib.ScriptRemoting
                 var pageDefine = checkRemotingName(remoteName);
 
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
-                currentPage.SocketID = this.SocketID;
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
 
@@ -397,7 +390,7 @@ namespace Way.Lib.ScriptRemoting
     class MessageBag
     {
         public string SessionID;
-        public string SocketID;
+        public string GroupName;
         public string ClassFullName;
         public string Action;
         public string MethodName;

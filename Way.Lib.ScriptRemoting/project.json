@@ -6,6 +6,7 @@
     "Microsoft.AspNetCore.Routing": "1.0.1",
     "Microsoft.AspNetCore.WebSockets.Server": "0.1.0",
     "NETStandard.Library": "1.6.1",
+    "System.Collections.NonGeneric": "4.0.1",
     "System.Runtime.Extensions": "4.3.0",
     "Way.EntityDB": "1.0.0.1",
     "Way.Lib": "1.0.0.2"

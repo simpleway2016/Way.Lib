@@ -47,7 +47,17 @@ namespace Way.Lib.ScriptRemoting
             get;
             internal set;
         }
-        
+        public delegate bool OnMessageReceiverConnectHandler(SessionState session ,string groupName);
+        /// <summary>
+        /// 当有客户端试图连接，接收group信息时触发，您可以return false，或者throw Exception，拒绝对方连接
+        /// </summary>
+        public static event OnMessageReceiverConnectHandler OnMessageReceiverConnect;
+        internal static bool MessageReceiverConnect(SessionState session ,string groupName)
+        {
+            if (OnMessageReceiverConnect == null)
+                return true;
+            return OnMessageReceiverConnect(session, groupName);
+        }
         /// <summary>
         /// 获取当前上下文对应的Session
         /// </summary>
@@ -709,40 +719,25 @@ namespace Way.Lib.ScriptRemoting
         }
 
         /// <summary>
-        /// 把消息发送到客户端，客户端对象的.onmessage会接收到，这个方法调用方必须catch exception
+        /// 把消息发送到客户端，客户端对象的.onmessage会接收到
         /// </summary>
+        /// <param name="groupName"></param>
         /// <param name="msg"></param>
-        public void SendMessage(string msg)
+        public static void SendGroupMessage(string groupName, string msg)
         {
-            if(RemotingClientHandler.KeepAliveHandlers.ContainsKey(this.SocketID) == false)
+            if (groupName.IsNullOrEmpty())
+                throw new Exception("groupName can not be empty");
+            for(int i = 0; i < RemotingClientHandler.KeepAliveHandlers.Count; i ++)
             {
-                throw new NotConnectKeepAliveException("客户端目前还没有成功与服务器建立长连接");
+                var handler = (RemotingClientHandler)RemotingClientHandler.KeepAliveHandlers[i];
+                if (handler!=null && handler.GroupName == groupName)
+                {
+                    handler.SendClientMessage(msg);
+                }
             }
-            RemotingClientHandler.KeepAliveHandlers[SocketID].SendClientMessage(msg);
+           
         }
 
-        /// <summary>
-        /// 设置当长连接connect时触发的action
-        /// </summary>
-        /// <param name="_OnKeepAliveConnect"></param>
-        public void SetOnKeepAliveConnect(Action _OnKeepAliveConnect)
-        {
-            if (this.SocketID.IsNullOrEmpty() == false)
-            {
-                this.Session.OnKeepAliveConnectEvents[this.SocketID] = _OnKeepAliveConnect;
-            }
-        }
-
-        /// <summary>
-        /// 设置当长连接close时触发的action
-        /// </summary>
-        /// <param name="_OnKeepAliveClose"></param>
-        public void SetOnKeepAliveClose(Action _OnKeepAliveClose)
-        {
-            if (this.SocketID.IsNullOrEmpty() == false)
-            {
-                this.Session.OnKeepAliveCloseEvents[this.SocketID] = _OnKeepAliveClose;
-            }
-        }
+       
     }
 }
