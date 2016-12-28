@@ -1302,6 +1302,7 @@ var WayGridView = (function (_super) {
         var isTouch = "ontouchstart" in touchEle[0];
         var moving = false;
         var isTouchToRefresh = false;
+        var win = $(window);
         var point;
         WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", function (e) {
             isTouchToRefresh = false;
@@ -1321,20 +1322,23 @@ var WayGridView = (function (_super) {
                     moving = false;
                     return;
                 }
+                e = e || window.event;
                 var y = isTouch ? e.touches[0].clientY : e.clientY;
                 y = (y - point.y);
                 if (y > 0) {
                     isTouchToRefresh = true;
+                    y = "translate(0px," + y + "px)";
+                    touchEle.css({
+                        "-webkit-transform": y,
+                        "-moz-transform": y,
+                        "transform": y
+                    });
                 }
-                y = "translate(0px," + y + "px)";
-                touchEle.css({
-                    "-webkit-transform": y,
-                    "-moz-transform": y,
-                    "transform": y
-                });
                 if (isTouchToRefresh) {
-                    if (e.stopPropagation)
+                    if (e.stopPropagation) {
                         e.stopPropagation();
+                        e.preventDefault();
+                    }
                     else
                         window.event.cancelBubble = true;
                 }
@@ -1343,9 +1347,10 @@ var WayGridView = (function (_super) {
         var touchoutFunc = function (e) {
             if (moving) {
                 moving = false;
-                var y = isTouch ? e.changeTouches[0].clientY : e.clientY;
+                e = e || window.event;
+                var y = isTouch ? e.changedTouches[0].clientY : e.clientY;
                 y = (y - point.y);
-                isTouchToRefresh = (y > 50);
+                isTouchToRefresh = (y > _this.element.height() * 0.15);
                 touchEle.css({
                     "transition": "transform 0.5s",
                     "-webkit-transform": "translate(0px,0px)",

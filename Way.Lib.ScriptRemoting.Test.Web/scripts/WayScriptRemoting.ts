@@ -1456,6 +1456,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         var isTouch = "ontouchstart" in touchEle[0];
         var moving = false;
         var isTouchToRefresh = false;
+
         var point;
         WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", (e)=>
         {
@@ -1471,28 +1472,33 @@ class WayGridView extends WayBaseObject implements IPageable {
             moving = true;
         }, undefined);
 
-        WayHelper.addEventListener(touchEle[0], isTouch ?  "touchmove":"mousemove", (e) => {
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchmove" : "mousemove", (e: TouchEvent) => {
             if (moving) {
                 if (this.element.scrollTop() > 0) {
                     moving = false;
                     return;
                 }
-
-                var y = isTouch ? e.touches[0].clientY : e.clientY;                y = (y - point.y);                if (y > 0) {                    isTouchToRefresh = true;                }                y = "translate(0px," + y + "px)";                touchEle.css({
-                    "-webkit-transform": y,                    "-moz-transform": y,                    "transform": y                });
+                e = e || <any>window.event;
+                var y = isTouch ? e.touches[0].clientY : (<any>e).clientY;                y = (y - point.y);                if (y > 0) {                    isTouchToRefresh = true;                    y = "translate(0px," + y + "px)";                    touchEle.css({
+                        "-webkit-transform": y,                        "-moz-transform": y,                        "transform": y                    });
+                }
                 if (isTouchToRefresh) {
                     if (e.stopPropagation)
+                    {
                         e.stopPropagation();
+                        e.preventDefault();
+                    }
                     else
                         window.event.cancelBubble = true;
                 }
                 
             }
         }, undefined);
+ 
+        var touchoutFunc = (e: TouchEvent) => {
 
-        var touchoutFunc = (e) => {
             if (moving) {
-                moving = false;                var y = isTouch ? e.changeTouches[0].clientY : e.clientY;                y = (y - point.y);                isTouchToRefresh = (y > 50);                touchEle.css({
+                moving = false;                               e = e || <any>window.event;                var y = isTouch ? e.changedTouches[0].clientY : (<any>e).clientY;                y = (y - point.y);                isTouchToRefresh = (y > this.element.height() * 0.15);                touchEle.css({
                     "transition": "transform 0.5s",                    "-webkit-transform": "translate(0px,0px)",                    "-moz-transform": "translate(0px,0px)",                    "transform": "translate(0px,0px)"                });
             }
         };
