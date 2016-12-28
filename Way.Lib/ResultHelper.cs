@@ -274,6 +274,7 @@ namespace Way.Lib
             fields = newFields;
             Type targetType = n.Type;
             List<MemberAssignment> binds = new List<MemberAssignment>();
+            List<string> existsProNames = new List<string>(fields.Length);
             foreach (string field in fields)
             {
                 PropertyInfo property;
@@ -289,6 +290,10 @@ namespace Way.Lib
                 {
                     throw new Exception($"{targetType.FullName}不包含属性{field}");
                 }
+                if (existsProNames.Contains(property.Name))
+                    continue;
+
+                existsProNames.Add(property.Name);
                 binds.Add(Expression.Bind(property, Expression.Property(n, property)));
             }
 

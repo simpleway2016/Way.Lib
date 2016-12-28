@@ -510,6 +510,14 @@ var WayHelper = (function () {
         }
         return false;
     };
+    WayHelper.addEventListener = function (element, eventName, listener, useCapture) {
+        if (element.addEventListener) {
+            element.addEventListener(eventName, listener, useCapture);
+        }
+        else {
+            element.attachEvent("on" + eventName, listener);
+        }
+    };
     //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
     WayHelper.fireEvent = function (el, eventName) {
         var evt;
@@ -1251,6 +1259,7 @@ var WayGridView = (function (_super) {
             if (bodyTemplate.length > 0) {
                 this.itemContainer = $(bodyTemplate[0].innerHTML);
                 this.element[0].appendChild(this.itemContainer[0]);
+                this.initRefreshEvent(this.itemContainer);
             }
             if (this.itemContainer[0].children.length > 0 && this.itemContainer[0].children[0].tagName == "TBODY") {
                 this.itemContainer = $(this.itemContainer[0].children[0]);
@@ -1288,6 +1297,74 @@ var WayGridView = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    WayGridView.prototype.initRefreshEvent = function (touchEle) {
+        var _this = this;
+        var isTouch = "ontouchstart" in touchEle[0];
+        var moving = false;
+        var isTouchToRefresh = false;
+        var point;
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", function (e) {
+            isTouchToRefresh = false;
+            if (_this.element.scrollTop() > 0)
+                return;
+            e = e || window.event;
+            touchEle.css("will-change", "transform");
+            point = {
+                x: isTouch ? e.touches[0].clientX : e.clientX,
+                y: isTouch ? e.touches[0].clientY : e.clientY
+            };
+            moving = true;
+        }, undefined);
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchmove" : "mousemove", function (e) {
+            if (moving) {
+                if (_this.element.scrollTop() > 0) {
+                    moving = false;
+                    return;
+                }
+                var y = isTouch ? e.touches[0].clientY : e.clientY;
+                y = (y - point.y);
+                if (y > 0) {
+                    isTouchToRefresh = true;
+                }
+                y = "translate(0px," + y + "px)";
+                touchEle.css({
+                    "-webkit-transform": y,
+                    "-moz-transform": y,
+                    "transform": y
+                });
+                if (isTouchToRefresh) {
+                    if (e.stopPropagation)
+                        e.stopPropagation();
+                    else
+                        window.event.cancelBubble = true;
+                }
+            }
+        }, undefined);
+        var touchoutFunc = function (e) {
+            if (moving) {
+                moving = false;
+                var y = isTouch ? e.changeTouches[0].clientY : e.clientY;
+                y = (y - point.y);
+                isTouchToRefresh = (y > 50);
+                touchEle.css({
+                    "transition": "transform 0.5s",
+                    "-webkit-transform": "translate(0px,0px)",
+                    "-moz-transform": "translate(0px,0px)",
+                    "transform": "translate(0px,0px)"
+                });
+            }
+        };
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        WayHelper.addEventListener(touchEle[0], "transitionend", function (e) {
+            touchEle.css({
+                "transition": "",
+                "will-change": "auto"
+            });
+            if (isTouchToRefresh) {
+                _this.search();
+            }
+        }, true);
+    };
     WayGridView.prototype.search = function () {
         this.databind();
     };
@@ -1406,6 +1483,9 @@ var WayGridView = (function (_super) {
                     }
                 }
             }
+        }
+        if (this.primaryKey && this.primaryKey.length > 0) {
+            result.push(this.primaryKey);
         }
         return result;
     };

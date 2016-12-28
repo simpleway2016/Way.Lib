@@ -544,6 +544,15 @@ class WayHelper {
         return false;
     }
 
+    static addEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
+        if (element.addEventListener) {
+            element.addEventListener(eventName, listener, useCapture);
+        }
+        else {
+            (<any>element).attachEvent("on" + eventName, listener);
+        }
+    }
+
     //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
     static fireEvent(el: HTMLElement, eventName:string):void {
         var evt;
@@ -1409,6 +1418,8 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (bodyTemplate.length > 0) {
                 this.itemContainer = $(bodyTemplate[0].innerHTML);
                 this.element[0].appendChild(this.itemContainer[0]);
+
+                this.initRefreshEvent(this.itemContainer);
             }
 
             if (this.itemContainer[0].children.length > 0 && this.itemContainer[0].children[0].tagName == "TBODY") {
@@ -1433,11 +1444,71 @@ class WayGridView extends WayBaseObject implements IPageable {
                     this.addItemTemplate(temp);
                 }
             }
-
+            
         }
         catch (e) {
             throw "WayGridView构造函数错误，" + e.message;
         }
+    }
+
+    private initRefreshEvent(touchEle: JQuery): void {
+
+        var isTouch = "ontouchstart" in touchEle[0];
+        var moving = false;
+        var isTouchToRefresh = false;
+        var point;
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", (e)=>
+        {
+            isTouchToRefresh = false;
+            if (this.element.scrollTop() > 0)
+                return;
+
+            e = e || window.event;
+            touchEle.css("will-change", "transform");
+            point = {
+                x: isTouch ? e.touches[0].clientX : e.clientX ,                y: isTouch ? e.touches[0].clientY : e.clientY 
+            };
+            moving = true;
+        }, undefined);
+
+        WayHelper.addEventListener(touchEle[0], isTouch ?  "touchmove":"mousemove", (e) => {
+            if (moving) {
+                if (this.element.scrollTop() > 0) {
+                    moving = false;
+                    return;
+                }
+
+                var y = isTouch ? e.touches[0].clientY : e.clientY;                y = (y - point.y);                if (y > 0) {                    isTouchToRefresh = true;                }                y = "translate(0px," + y + "px)";                touchEle.css({
+                    "-webkit-transform": y,                    "-moz-transform": y,                    "transform": y                });
+                if (isTouchToRefresh) {
+                    if (e.stopPropagation)
+                        e.stopPropagation();
+                    else
+                        window.event.cancelBubble = true;
+                }
+                
+            }
+        }, undefined);
+
+        var touchoutFunc = (e) => {
+            if (moving) {
+                moving = false;                var y = isTouch ? e.changeTouches[0].clientY : e.clientY;                y = (y - point.y);                isTouchToRefresh = (y > 50);                touchEle.css({
+                    "transition": "transform 0.5s",                    "-webkit-transform": "translate(0px,0px)",                    "-moz-transform": "translate(0px,0px)",                    "transform": "translate(0px,0px)"                });
+            }
+        };
+
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        
+
+        WayHelper.addEventListener(touchEle[0], "transitionend", (e) => {
+            touchEle.css({
+                "transition": "",
+                "will-change": "auto"
+            });
+            if (isTouchToRefresh) {
+                this.search();
+            }
+        }, true);
     }
 
     search(): void {
@@ -1502,10 +1573,13 @@ class WayGridView extends WayBaseObject implements IPageable {
         var model = (<any>item)._data;
         var data = this.originalItems[itemIndex];
         var changedData = WayHelper.getDataForDiffent(data, model);
+       
         if (changedData) {
+           
             if (this.primaryKey && this.primaryKey.length > 0) {
                 eval("changedData." + this.primaryKey + "=model." + this.primaryKey + ";");
             }
+
             this.showLoading();
             this.dbContext.saveData(changedData, this.primaryKey, (data, err) => {
                 this.hideLoading();
@@ -1566,6 +1640,9 @@ class WayGridView extends WayBaseObject implements IPageable {
                     }
                 }
             }
+        }
+        if (this.primaryKey && this.primaryKey.length > 0) {
+            result.push(this.primaryKey);
         }
         return result;
     }
