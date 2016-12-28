@@ -1246,6 +1246,8 @@ var WayGridView = (function (_super) {
         this.loading = new WayProgressBar("#cccccc");
         // 标识当前绑定数据的事物id
         this.transcationID = 1;
+        //是否支持下拉刷新,在不支持touch的设备下，默认值为false
+        this.supportDropdownRefresh = true;
         //定义item._status的数据原型，可以修改此原型达到期望的目的
         this.itemStatusModel = { Selected: false };
         try {
@@ -1300,11 +1302,14 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.initRefreshEvent = function (touchEle) {
         var _this = this;
         var isTouch = "ontouchstart" in touchEle[0];
+        if (!isTouch)
+            this.supportDropdownRefresh = false;
         var moving = false;
         var isTouchToRefresh = false;
-        var win = $(window);
         var point;
         WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", function (e) {
+            if (!_this.supportDropdownRefresh)
+                return;
             isTouchToRefresh = false;
             if (_this.element.scrollTop() > 0)
                 return;

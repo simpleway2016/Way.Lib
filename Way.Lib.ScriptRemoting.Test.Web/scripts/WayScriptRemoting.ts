@@ -1374,6 +1374,9 @@ class WayGridView extends WayBaseObject implements IPageable {
     private primaryKey: string;
     hasMorePage: boolean;
 
+    //是否支持下拉刷新,在不支持touch的设备下，默认值为false
+    supportDropdownRefresh: boolean = true;
+
     //定义item._status的数据原型，可以修改此原型达到期望的目的
     itemStatusModel: any = { Selected: false };
 
@@ -1454,12 +1457,18 @@ class WayGridView extends WayBaseObject implements IPageable {
     private initRefreshEvent(touchEle: JQuery): void {
 
         var isTouch = "ontouchstart" in touchEle[0];
+        if (!isTouch)
+            this.supportDropdownRefresh = false;
+
         var moving = false;
         var isTouchToRefresh = false;
 
         var point;
         WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", (e)=>
         {
+            if (!this.supportDropdownRefresh)
+                return;
+
             isTouchToRefresh = false;
             if (this.element.scrollTop() > 0)
                 return;
