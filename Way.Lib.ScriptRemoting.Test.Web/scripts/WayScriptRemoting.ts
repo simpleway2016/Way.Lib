@@ -1412,6 +1412,11 @@ class WayGridView extends WayBaseObject implements IPageable {
         try {
             this.dbContext = new WayDBContext(controller, null)
             this.element = $("#" + elementId);
+
+            var isTouch = "ontouchstart" in this.element[0];
+            if (!isTouch)
+                this.supportDropdownRefresh = false;
+
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[_for='body']");
@@ -1422,6 +1427,11 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.itemContainer = $(bodyTemplate[0].innerHTML);
                 this.element[0].appendChild(this.itemContainer[0]);
 
+                this.initRefreshEvent(this.itemContainer);
+            }
+            else if (this.supportDropdownRefresh) {
+                this.itemContainer = $(document.createElement("DIV"));
+                this.element[0].appendChild(this.itemContainer[0]);
                 this.initRefreshEvent(this.itemContainer);
             }
 
@@ -1453,7 +1463,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             throw "WayGridView构造函数错误，" + e.message;
         }
     }
-
+    //初始化下拉刷新事件
     private initRefreshEvent(touchEle: JQuery): void {
 
         var isTouch = "ontouchstart" in touchEle[0];

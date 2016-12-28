@@ -1253,6 +1253,9 @@ var WayGridView = (function (_super) {
         try {
             this.dbContext = new WayDBContext(controller, null);
             this.element = $("#" + elementId);
+            var isTouch = "ontouchstart" in this.element[0];
+            if (!isTouch)
+                this.supportDropdownRefresh = false;
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[_for='body']");
@@ -1260,6 +1263,11 @@ var WayGridView = (function (_super) {
             this.itemContainer = this.element;
             if (bodyTemplate.length > 0) {
                 this.itemContainer = $(bodyTemplate[0].innerHTML);
+                this.element[0].appendChild(this.itemContainer[0]);
+                this.initRefreshEvent(this.itemContainer);
+            }
+            else if (this.supportDropdownRefresh) {
+                this.itemContainer = $(document.createElement("DIV"));
                 this.element[0].appendChild(this.itemContainer[0]);
                 this.initRefreshEvent(this.itemContainer);
             }
@@ -1299,6 +1307,7 @@ var WayGridView = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    //初始化下拉刷新事件
     WayGridView.prototype.initRefreshEvent = function (touchEle) {
         var _this = this;
         var isTouch = "ontouchstart" in touchEle[0];
