@@ -544,6 +544,21 @@ class WayHelper {
         return false;
     }
 
+    //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
+    static fireEvent(el: HTMLElement, eventName:string):void {
+        var evt;
+        if (document.createEvent) { // DOM Level 2 standard 
+            evt = document.createEvent("HTMLEvents");
+            // 3个参数：事件类型，是否冒泡，是否阻止浏览器的默认行为  
+            evt.initEvent(eventName, true, true);
+            //evt.initMouseEvent(eventName, true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            el.dispatchEvent(evt);
+        }
+        else if ((<any>el).fireEvent) { // IE 
+            (<any>el).fireEvent('on' + eventName);
+        }
+    }
+
     static getDataForDiffent(originalData: any, currentData: any): any {
         var result = null;
         for (var p in originalData) {

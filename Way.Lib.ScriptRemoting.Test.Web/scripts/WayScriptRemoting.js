@@ -510,6 +510,20 @@ var WayHelper = (function () {
         }
         return false;
     };
+    //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
+    WayHelper.fireEvent = function (el, eventName) {
+        var evt;
+        if (document.createEvent) {
+            evt = document.createEvent("HTMLEvents");
+            // 3个参数：事件类型，是否冒泡，是否阻止浏览器的默认行为  
+            evt.initEvent(eventName, true, true);
+            //evt.initMouseEvent(eventName, true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            el.dispatchEvent(evt);
+        }
+        else if (el.fireEvent) {
+            el.fireEvent('on' + eventName);
+        }
+    };
     WayHelper.getDataForDiffent = function (originalData, currentData) {
         var result = null;
         for (var p in originalData) {
