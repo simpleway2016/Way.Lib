@@ -1386,9 +1386,9 @@ class WayGridView extends WayBaseObject implements IPageable {
     private primaryKey: string;
     hasMorePage: boolean;
 
-    //是否支持下拉刷新,在不支持touch的设备下，默认值为false
+    //是否支持下拉刷新
     //下拉刷新必须定义body模板
-    supportDropdownRefresh: boolean = true;
+    supportDropdownRefresh: boolean = false;
 
     //定义item._status的数据原型，可以修改此原型达到期望的目的
     itemStatusModel: any = { Selected: false };

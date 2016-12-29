@@ -1257,9 +1257,9 @@ var WayGridView = (function (_super) {
         this.loading = new WayProgressBar("#cccccc");
         // 标识当前绑定数据的事物id
         this.transcationID = 1;
-        //是否支持下拉刷新,在不支持touch的设备下，默认值为false
+        //是否支持下拉刷新
         //下拉刷新必须定义body模板
-        this.supportDropdownRefresh = true;
+        this.supportDropdownRefresh = false;
         //定义item._status的数据原型，可以修改此原型达到期望的目的
         this.itemStatusModel = { Selected: false };
         //是否使用翻页模式
