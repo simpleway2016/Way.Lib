@@ -1264,6 +1264,8 @@ var WayGridView = (function (_super) {
         this.itemStatusModel = { Selected: false };
         //是否使用翻页模式
         this.pageMode = false;
+        //pageMode模式下，预先加载多少页数据
+        this.preLoadNumForPageMode = 1;
         try {
             this.dbContext = new WayDBContext(controller, null);
             this.element = $("#" + elementId);
@@ -1463,8 +1465,8 @@ var WayGridView = (function (_super) {
         var _this = this;
         this.showLoading();
         this.dbContext.sum(fields, this.searchModel, function (data, err) {
-            _this.hing();
-            callback(da);
+            _this.hideLoading();
+            callback(data, err);
         });
     };
     WayGridView.prototype.save = function (itemIndex, callback) {
@@ -1526,7 +1528,7 @@ var WayGridView = (function (_super) {
             if (match) {
                 for (var j = 0; j < match.length; j++) {
                     var str = match[j].toString();
-                    var field = r.substr(1, str.length - 1);
+                    var field = str.substr(1, str.length - 1);
                     if (!this.contains(result, field)) {
                         result.push(field);
                     }
@@ -1576,7 +1578,7 @@ var WayGridView = (function (_super) {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, function (ret, pkid, err) {
                 _this.hideLoading();
-                if (mytranId != thi)
+                if (mytranId != _this.transcationID)
                     return;
                 if (err) {
                     _this.hasMorePage = true;
@@ -1604,21 +1606,25 @@ var WayGridView = (function (_super) {
                 catch (e) {
                 }
             }
-            if (this.pageMode) {
-                //翻页模式
-                if (this.pageinfo.PageIndex == 1) {
-                    //一开始应该加载两页
-                    this.shouldLoadMorePage();
+            if (this.hasMorePage) {
+                if (this.pageMode) {
+                    //翻页模式
+                    //预加载
+                    if (this.preLoadNumForPageMode < 1)
+                        this.preLoadNumForPageMode = 1;
+                    if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
+                        this.shouldLoadMorePage();
+                    }
                 }
-            }
-            else {
-                if (this.hasMorePage && this.element[0].scrollHeight <= this.element.height() * 1.1) {
-                    this.shouldLoadMorePage();
+                else {
+                    if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                        this.shouldLoadMorePage();
+                    }
                 }
             }
         }
     };
-    WayGridView.prototype.gtDataByPgesize = function (datas) {
+    WayGridView.prototype.getDataByPagesize = function (datas) {
         if (datas.length <= this.pageinfo.PageSize)
             return datas;
         var result = [];
@@ -1885,7 +1891,7 @@ var WayGridView = (function (_super) {
         this.element[0].appendChild(this.itemContainer[0]);
         this.element.css({
             "overflow-x": "hidden",
-            "overflow-den": 
+            "overflow-y": "hidden"
         });
         this.itemContainer.css({
             "height": "100%",
@@ -1970,59 +1976,69 @@ var WayGridView = (function (_super) {
         this.element[0].ontouchcancel = function () {
             var desLocation = "translate(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0px)";
             _this.itemContainer.css({
-                "transition": "rm 0.5s",
+                "transition": "transform 0.5s",
                 "-webkit-transform": desLocation,
                 "-moz-transform": desLocation,
                 "transform": desLocation
             });
         };
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, unefined);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
         WayHelper.addEventListener(this.itemContainer[0], "transitionend", function (e) {
             _this.itemContainer.css({
                 "transition": "",
                 "will-change": "auto"
             });
-            if (_this.pageinfo.View)
-                ingPageIndex == _this.itemContainer[0].children.length - 1 && _this.hasMorePage;
-        });
-        {
-            this.shouldLoadMorePage();
+            if (_this.onViewPageIndexChange) {
+                _this.onViewPageIndexChange(_this.pageinfo.ViewingPageIndex);
+            }
+            if (_this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1 && _this.hasMorePage) {
+                _this.shouldLoadMorePage();
+            }
+        }, true);
+    };
+    //设置当前观看那一页，执行这个方法，pageMode必须是true
+    WayGridView.prototype.setViewPageIndex = function (index) {
+        if (this.pageMode) {
+            if (index >= 0 && index != this.pageinfo.ViewingPageIndex && index < this.itemContainer[0].children.length) {
+                this.pageinfo.ViewingPageIndex = index;
+                var desLocation = "translate(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0px)";
+                this.itemContainer.css({
+                    "transition": "transform 0.5s",
+                    "-webkit-transform": desLocation,
+                    "-moz-transform": desLocation,
+                    "transform": desLocation
+                });
+            }
+        }
+    };
+    WayGridView.prototype.binddatas_pageMode = function (datas) {
+        if (datas.length == 0)
+            return;
+        try {
+            if (!this.bodyTemplateHtml) {
+                this.bodyTemplateHtml = "<div></div>";
+            }
+            this.itemContainer.width(this.itemContainer.width() + this.element.width());
+            var divContainer = $(this.bodyTemplateHtml);
+            divContainer.css({
+                "width": this.element.width() + "px",
+                "height": this.element.height() + "px",
+                "float": "left",
+            });
+            this.itemContainer.append(divContainer);
+            //bind items
+            for (var i = 0; i < datas.length; i++) {
+                this.originalItems.push(datas[i]);
+                var itemindex = this.items.length;
+                var item = this.createItem(itemindex);
+                divContainer.append(item);
+                this.items.push(item);
+            }
+        }
+        catch (e) {
+            this.onErr("GridView.databind error:" + e.message);
         }
     };
     return WayGridView;
 }(WayBaseObject));
-true;
-;
-binddatas_pageMode(datas, any[]);
-void {
-    if: function (datas, length) { },
-    return: ,
-    try: {
-        if: function () { } } };
-!this.bodyTemplateHtml;
-{
-    alert("翻页模式必须定义body模板");
-    return;
-}
-this.itemContainer.width(this.itemContainer.width() + this.element.width());
-var divContainer = $(this.bodyTemplateHtml);
-divContainer.css({
-    "width": this.element.width() + "px",
-    "height": this.element.height() + "px",
-    "float": "left",
-});
-this.itemContainer.append(divContainer);
-//bind items
-for (var i = 0; i < datas.length; i++) {
-    this.originalItems.push(datas[i]);
-    var itemindex = this.items.length;
-    var item = this.createItem(itemindex);
-    divContainer.append(item);
-    this.items.push(item);
-}
-try {
-}
-catch (e) {
-    this.onErr("GridView.databind error:" + e.message);
-}
 //# sourceMappingURL=WayScriptRemoting.js.map

@@ -361,7 +361,7 @@ class WayScriptRemoting extends WayBaseObject {
                 }
             };
             invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
-
+            
         }
         catch (e) {
             callback(null, e.message);
@@ -561,7 +561,7 @@ class WayHelper {
         }
     }
     //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
-    static fireEvent(el: HTMLElement, eventName: string): void {
+    static fireEvent(el: HTMLElement, eventName:string):void {
         var evt;
         if (document.createEvent) { // DOM Level 2 standard 
             evt = document.createEvent("HTMLEvents");
@@ -921,7 +921,8 @@ class WayDataBindHelper {
         return onchangeMembers;
     }
     //替换html里的变量
-    static replaceHtmlFields(templateHtml, data): string {
+    static replaceHtmlFields(templateHtml, data):string
+	{
         var expression = /\{\@([\w|\.]+)\}/g;
         var html = templateHtml;
         while (true) {
@@ -1020,10 +1021,10 @@ class WayPager {
         this.scrollable = _scrollable;
         this.control = _ctrl;
         this.scrollListener = () => { this.onscroll(); };
-        WayHelper.addEventListener(_scrollable[0], "scroll", this.scrollListener, undefined);
+        WayHelper.addEventListener(_scrollable[0], "scroll", this.scrollListener , undefined);
     }
 
-
+    
 
     private onscroll(): void {
         if (!this.control.hasMorePage || this.control.pageMode)
@@ -1367,6 +1368,7 @@ class WayDBContext {
     }
 }
 
+
 class WayGridView extends WayBaseObject implements IPageable {
     element: JQuery;
     private itemContainer: JQuery;
@@ -1395,6 +1397,9 @@ class WayGridView extends WayBaseObject implements IPageable {
 
     //是否使用翻页模式
     pageMode: boolean = false;
+    //pageMode模式下，预先加载多少页数据
+    preLoadNumForPageMode: number = 1;
+    onViewPageIndexChange: (index: number) => void;
 
     //header模板
     header: WayTemplate;
@@ -1478,7 +1483,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                     this.addItemTemplate(temp);
                 }
             }
-
+            
         }
         catch (e) {
             throw "WayGridView构造函数错误，" + e.message;
@@ -1497,10 +1502,11 @@ class WayGridView extends WayBaseObject implements IPageable {
         touchEle.css("will-change", "transform");
         var point;
 
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) => {
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) =>
+        {
             if (!this.supportDropdownRefresh || this.pageMode)
                 return;
-
+           
             isTouchToRefresh = false;
             if (this.element.scrollTop() > 0) {
                 return;
@@ -1509,8 +1515,8 @@ class WayGridView extends WayBaseObject implements IPageable {
             e = e || window.event;
             touchEle.css("will-change", "transform");
             point = {
-                x: isTouch ? e.touches[0].clientX : e.clientX,
-                y: isTouch ? e.touches[0].clientY : e.clientY
+                x: isTouch ? e.touches[0].clientX : e.clientX ,
+                y: isTouch ? e.touches[0].clientY : e.clientY 
             };
             moving = true;
         }, true);
@@ -1526,7 +1532,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 y = (y - point.y);
                 if (y > 0) {
                     isTouchToRefresh = true;
-
+                    
                     y = "translate(0px," + y + "px)";
                     touchEle.css({
                         "-webkit-transform": y,
@@ -1535,22 +1541,23 @@ class WayGridView extends WayBaseObject implements IPageable {
                     });
                 }
                 if (isTouchToRefresh) {
-                    if (e.stopPropagation) {
+                    if (e.stopPropagation)
+                    {
                         e.stopPropagation();
                         e.preventDefault();
                     }
                     else
                         window.event.cancelBubble = true;
                 }
-
+                
             }
         }, true);
-
+ 
         var touchoutFunc = (e: TouchEvent) => {
 
             if (moving) {
                 moving = false;
-
+               
                 e = e || <any>window.event;
 
                 var y = isTouch ? e.changedTouches[0].clientY : (<any>e).clientY;
@@ -1567,7 +1574,8 @@ class WayGridView extends WayBaseObject implements IPageable {
         };
 
         WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
-  this.element[0].ontouchcancel = () => {
+
+        this.element[0].ontouchcancel = () => {
             isTouchToRefresh = false;
             touchEle.css({
                 "transition": "transform 0.5s",
@@ -1640,8 +1648,9 @@ class WayGridView extends WayBaseObject implements IPageable {
     sum(fields: string[], callback: (data: any, err: any) => void): void {
         this.showLoading();
         this.dbContext.sum(fields, this.searchModel, (data: any, err: any) => {
-            this.hing();
-            callback(da        });
+            this.hideLoading();
+            callback(data, err);
+        });
     }
 
     save(itemIndex: number, callback: (idvalue: any, err: any) => void): void {
@@ -1710,7 +1719,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (match) {
                 for (var j = 0; j < match.length; j++) {
                     var str = match[j].toString();
-                    var field r.substr(1, str.length - 1);
+                    var field = str.substr(1, str.length - 1);
                     if (!this.contains(result, field)) {
                         result.push(field);
                     }
@@ -1767,12 +1776,13 @@ class WayGridView extends WayBaseObject implements IPageable {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, (ret, pkid, err) => {
                 this.hideLoading();
-                if (mytranId != thi                  return;
+                if (mytranId != this.transcationID)
+                    return;
 
                 if (err) {
                     this.hasMorePage = true;
                     this.onErr(err);
-        }
+                }
                 else {
                     if (pkid != null) {
                         this.primaryKey = pkid;
@@ -1801,22 +1811,28 @@ class WayGridView extends WayBaseObject implements IPageable {
                 }
             }
 
-            if (this.pageMode) {
-                //翻页模式
-                if (this.pageinfo.PageIndex == 1) {
-                    //一开始应该加载两页
-                    this.shouldLoadMorePage();
+            if (this.hasMorePage) {
+                if (this.pageMode) {
+
+                    //翻页模式
+                    //预加载
+                    if (this.preLoadNumForPageMode < 1)
+                        this.preLoadNumForPageMode = 1;
+
+                    if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
+                        this.shouldLoadMorePage();
+                    }
                 }
-            }
-            else {
-                if (this.hasMorePage && this.element[0].scrollHeight <= this.element.height() * 1.1) {
-                    this.shouldLoadMorePage();
+                else {
+                    if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                        this.shouldLoadMorePage();
+                    }
                 }
             }
         }
     }
 
-    private gtDataByPgesize(datas: any[]): any {
+    private getDataByPagesize(datas: any[]): any {
         if (datas.length <= this.pageinfo.PageSize)
             return datas;
 
@@ -2121,7 +2137,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         this.element.css(
             {
                 "overflow-x": "hidden",
-                "overflow-den"
+                "overflow-y": "hidden"
             });
         this.itemContainer.css(
             {
@@ -2161,7 +2177,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 if (x > 0 && this.pageinfo.ViewingPageIndex == 0) {
                     x /= 3;
                 }
-                else if (x < 0 && this.pageinfo.ViewingPageIndex == this.itemContainer[0].children.length  - 1) {
+                else if (x < 0 && this.pageinfo.ViewingPageIndex == this.itemContainer[0].children.length - 1) {
                     x /= 3;
                 }
                 if (Math.abs(x) > 0) {
@@ -2225,14 +2241,14 @@ class WayGridView extends WayBaseObject implements IPageable {
             var desLocation = "translate(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0px)";
 
             this.itemContainer.css({
-                "transition": "rm 0.5s",
+                "transition": "transform 0.5s",
                 "-webkit-transform": desLocation,
                 "-moz-transform": desLocation,
                 "transform": desLocation
             });
         };
 
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, unefined);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
 
 
         WayHelper.addEventListener(this.itemContainer[0], "transitionend", (e) => {
@@ -2240,10 +2256,30 @@ class WayGridView extends WayBaseObject implements IPageable {
                 "transition": "",
                 "will-change": "auto"
             });
-            if (this.pageinfo.View ingPageIndex == this.itemContainer[0].children.length - 1 && this.hasMorePage) {
+            if (this.onViewPageIndexChange) {
+                this.onViewPageIndexChange(this.pageinfo.ViewingPageIndex);
+            }
+            if (this.pageinfo.ViewingPageIndex == this.itemContainer[0].children.length - 1 && this.hasMorePage) {
                 this.shouldLoadMorePage();
             }
         }, true);
+    }
+
+    //设置当前观看那一页，执行这个方法，pageMode必须是true
+    setViewPageIndex(index: number): void {
+        if (this.pageMode) {
+            if (index >= 0 && index != this.pageinfo.ViewingPageIndex && index < this.itemContainer[0].children.length) {
+                this.pageinfo.ViewingPageIndex = index;
+                var desLocation = "translate(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0px)";
+
+                this.itemContainer.css({
+                    "transition": "transform 0.5s",
+                    "-webkit-transform": desLocation,
+                    "-moz-transform": desLocation,
+                    "transform": desLocation
+                });
+            }
+        }
     }
 
     private binddatas_pageMode(datas: any[]): void {
@@ -2253,8 +2289,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         try {
             if (!this.bodyTemplateHtml) {
-                alert("翻页模式必须定义body模板");
-                return;
+                this.bodyTemplateHtml = "<div></div>";
             }
 
             this.itemContainer.width(this.itemContainer.width() + this.element.width() );
