@@ -1907,10 +1907,10 @@ var WayGridView = (function (_super) {
                 var x = isTouch ? e.touches[0].clientX : e.clientX;
                 x = (x - point.x);
                 if (x > 0 && _this.pageinfo.ViewingPageIndex == 0) {
-                    x = 0;
+                    x /= 3;
                 }
                 else if (x < 0 && _this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1) {
-                    x = 0;
+                    x /= 3;
                 }
                 if (Math.abs(x) > 0) {
                     isTouchToRefresh = true;
@@ -1937,12 +1937,6 @@ var WayGridView = (function (_super) {
                 e = e || window.event;
                 var x = isTouch ? e.changedTouches[0].clientX : e.clientX;
                 x = (x - point.x);
-                if (x > 0 && _this.pageinfo.ViewingPageIndex == 0) {
-                    x = 0;
-                }
-                else if (x < 0 && _this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1) {
-                    x = 0;
-                }
                 if (x != 0) {
                     if (x > _this.element.width() / 3 || (x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
                         if (_this.pageinfo.ViewingPageIndex > 0) {
@@ -1950,7 +1944,9 @@ var WayGridView = (function (_super) {
                         }
                     }
                     else if (-x > _this.element.width() / 3 || (-x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
-                        _this.pageinfo.ViewingPageIndex++;
+                        if (_this.pageinfo.ViewingPageIndex < _this.itemContainer[0].children.length - 1) {
+                            _this.pageinfo.ViewingPageIndex++;
+                        }
                     }
                     var desLocation = "translate(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0px)";
                     _this.itemContainer.css({
