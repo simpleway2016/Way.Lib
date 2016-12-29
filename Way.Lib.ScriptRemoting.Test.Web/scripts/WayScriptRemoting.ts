@@ -361,7 +361,7 @@ class WayScriptRemoting extends WayBaseObject {
                 }
             };
             invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
-            
+
         }
         catch (e) {
             callback(null, e.message);
@@ -552,9 +552,16 @@ class WayHelper {
             (<any>element).attachEvent("on" + eventName, listener);
         }
     }
-
+    static removeEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
+        if (element.removeEventListener) {
+            element.removeEventListener(eventName, listener, useCapture);
+        }
+        else {
+            (<any>element).detachEvent("on" + eventName, listener);
+        }
+    }
     //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
-    static fireEvent(el: HTMLElement, eventName:string):void {
+    static fireEvent(el: HTMLElement, eventName: string): void {
         var evt;
         if (document.createEvent) { // DOM Level 2 standard 
             evt = document.createEvent("HTMLEvents");
@@ -914,8 +921,7 @@ class WayDataBindHelper {
         return onchangeMembers;
     }
     //替换html里的变量
-    static replaceHtmlFields(templateHtml, data):string
-	{
+    static replaceHtmlFields(templateHtml, data): string {
         var expression = /\{\@([\w|\.]+)\}/g;
         var html = templateHtml;
         while (true) {
@@ -998,23 +1004,29 @@ class WayControlHelper {
 class WayPageInfo {
     PageIndex: number = 0;
     PageSize: number = 10;
+    //正在看第几页,for pageMode
+    ViewingPageIndex: number = 0;
 }
 interface IPageable {
     shouldLoadMorePage(): void;
     hasMorePage: boolean;
+    pageMode: boolean;
 }
 class WayPager {
     scrollable: JQuery;
     control: IPageable;
+    private scrollListener;
     constructor(_scrollable: JQuery, _ctrl: IPageable) {
         this.scrollable = _scrollable;
         this.control = _ctrl;
-
-        _scrollable.scroll(() => { this.onscroll(); });
+        this.scrollListener = () => { this.onscroll(); };
+        WayHelper.addEventListener(_scrollable[0], "scroll", this.scrollListener, undefined);
     }
 
+
+
     private onscroll(): void {
-        if (!this.control.hasMorePage)
+        if (!this.control.hasMorePage || this.control.pageMode)
             return;
 
         var y = this.scrollable.scrollTop();
@@ -1362,7 +1374,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     items: JQuery[] = [];
     //原始itemdata
     private originalItems = [];
-
+    private bodyTemplateHtml: string;
     private dbContext: WayDBContext;
     private pageinfo: WayPageInfo = new WayPageInfo();
     private pager: WayPager;
@@ -1375,10 +1387,14 @@ class WayGridView extends WayBaseObject implements IPageable {
     hasMorePage: boolean;
 
     //是否支持下拉刷新,在不支持touch的设备下，默认值为false
+    //下拉刷新必须定义body模板
     supportDropdownRefresh: boolean = true;
 
     //定义item._status的数据原型，可以修改此原型达到期望的目的
     itemStatusModel: any = { Selected: false };
+
+    //是否使用翻页模式
+    pageMode: boolean = false;
 
     //header模板
     header: WayTemplate;
@@ -1412,6 +1428,11 @@ class WayGridView extends WayBaseObject implements IPageable {
         try {
             this.dbContext = new WayDBContext(controller, null)
             this.element = $("#" + elementId);
+            this.element.css(
+                {
+                    "overflow-y": "auto",
+                    "-webkit-overflow-scrolling": "touch"
+                });
 
             var isTouch = "ontouchstart" in this.element[0];
             if (!isTouch)
@@ -1424,15 +1445,15 @@ class WayGridView extends WayBaseObject implements IPageable {
 
             this.itemContainer = this.element;
             if (bodyTemplate.length > 0) {
-                this.itemContainer = $(bodyTemplate[0].innerHTML);
+                this.bodyTemplateHtml = bodyTemplate[0].innerHTML;
+                this.itemContainer = $(this.bodyTemplateHtml);
                 this.element[0].appendChild(this.itemContainer[0]);
 
                 this.initRefreshEvent(this.itemContainer);
             }
-            else if (this.supportDropdownRefresh) {
-                this.itemContainer = $(document.createElement("DIV"));
-                this.element[0].appendChild(this.itemContainer[0]);
-                this.initRefreshEvent(this.itemContainer);
+            else {
+                //没有body模板，则不支持下拉刷新
+                this.supportDropdownRefresh = false;
             }
 
             if (this.itemContainer[0].children.length > 0 && this.itemContainer[0].children[0].tagName == "TBODY") {
@@ -1457,7 +1478,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                     this.addItemTemplate(temp);
                 }
             }
-            
+
         }
         catch (e) {
             throw "WayGridView构造函数错误，" + e.message;
@@ -1466,64 +1487,87 @@ class WayGridView extends WayBaseObject implements IPageable {
     //初始化下拉刷新事件
     private initRefreshEvent(touchEle: JQuery): void {
 
-        var isTouch = "ontouchstart" in touchEle[0];
+        var isTouch = "ontouchstart" in this.itemContainer[0];
         if (!isTouch)
             this.supportDropdownRefresh = false;
 
         var moving = false;
         var isTouchToRefresh = false;
-
+        //先预设一下,否则有时候第一次设置touchEle会白屏
+        touchEle.css("will-change", "transform");
         var point;
-        WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", (e)=>
-        {
-            if (!this.supportDropdownRefresh)
+
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) => {
+            if (!this.supportDropdownRefresh || this.pageMode)
                 return;
 
             isTouchToRefresh = false;
-            if (this.element.scrollTop() > 0)
+            if (this.element.scrollTop() > 0) {
                 return;
+            }
 
             e = e || window.event;
             touchEle.css("will-change", "transform");
             point = {
-                x: isTouch ? e.touches[0].clientX : e.clientX ,                y: isTouch ? e.touches[0].clientY : e.clientY 
+                x: isTouch ? e.touches[0].clientX : e.clientX,
+                y: isTouch ? e.touches[0].clientY : e.clientY
             };
             moving = true;
-        }, undefined);
+        }, true);
 
-        WayHelper.addEventListener(touchEle[0], isTouch ? "touchmove" : "mousemove", (e: TouchEvent) => {
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", (e: TouchEvent) => {
             if (moving) {
                 if (this.element.scrollTop() > 0) {
                     moving = false;
                     return;
                 }
                 e = e || <any>window.event;
-                var y = isTouch ? e.touches[0].clientY : (<any>e).clientY;                y = (y - point.y);                if (y > 0) {                    isTouchToRefresh = true;                    y = "translate(0px," + y + "px)";                    touchEle.css({
-                        "-webkit-transform": y,                        "-moz-transform": y,                        "transform": y                    });
+                var y = isTouch ? e.touches[0].clientY : (<any>e).clientY;
+                y = (y - point.y);
+                if (y > 0) {
+                    isTouchToRefresh = true;
+
+                    y = "translate(0px," + y + "px)";
+                    touchEle.css({
+                        "-webkit-transform": y,
+                        "-moz-transform": y,
+                        "transform": y
+                    });
                 }
                 if (isTouchToRefresh) {
-                    if (e.stopPropagation)
-                    {
+                    if (e.stopPropagation) {
                         e.stopPropagation();
                         e.preventDefault();
                     }
                     else
                         window.event.cancelBubble = true;
                 }
-                
+
             }
-        }, undefined);
- 
+        }, true);
+
         var touchoutFunc = (e: TouchEvent) => {
 
             if (moving) {
-                moving = false;                               e = e || <any>window.event;                var y = isTouch ? e.changedTouches[0].clientY : (<any>e).clientY;                y = (y - point.y);                isTouchToRefresh = (y > this.element.height() * 0.15);                touchEle.css({
-                    "transition": "transform 0.5s",                    "-webkit-transform": "translate(0px,0px)",                    "-moz-transform": "translate(0px,0px)",                    "transform": "translate(0px,0px)"                });
+                moving = false;
+
+                e = e || <any>window.event;
+
+                var y = isTouch ? e.changedTouches[0].clientY : (<any>e).clientY;
+                y = (y - point.y);
+
+                isTouchToRefresh = (y > this.element.height() * 0.15);
+                touchEle.css({
+                    "transition": "transform 0.5s",
+                    "-webkit-transform": "translate(0px,0px)",
+                    "-moz-transform": "translate(0px,0px)",
+                    "transform": "translate(0px,0px)"
+                });
             }
         };
 
-        WayHelper.addEventListener(touchEle[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
-        
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+
 
         WayHelper.addEventListener(touchEle[0], "transitionend", (e) => {
             touchEle.css({
@@ -1598,9 +1642,9 @@ class WayGridView extends WayBaseObject implements IPageable {
         var model = (<any>item)._data;
         var data = this.originalItems[itemIndex];
         var changedData = WayHelper.getDataForDiffent(data, model);
-       
+
         if (changedData) {
-           
+
             if (this.primaryKey && this.primaryKey.length > 0) {
                 eval("changedData." + this.primaryKey + "=model." + this.primaryKey + ";");
             }
@@ -1672,9 +1716,13 @@ class WayGridView extends WayBaseObject implements IPageable {
         return result;
     }
 
+
+
     //绑定数据
     databind(): void {
-
+        if (this.pageMode) {//翻页模式
+            this.initForPageMode();
+        }
         this.footerItem = null;
         //清除内容
         for (var i = 0; i < this.items.length; i++) {
@@ -1704,25 +1752,11 @@ class WayGridView extends WayBaseObject implements IPageable {
 
     shouldLoadMorePage(): void {
         this.hasMorePage = false;//设为false，可以禁止期间被Pager再次调用
+        var pageData;
 
         this.transcationID++;
         var mytranId = this.transcationID;
-        if (typeof this.datasource == "function") {
-            this.showLoading();
-            this.datasource((ret, err) => {
-                this.hideLoading();
-                if (mytranId != this.transcationID)
-                    return;
-
-                if (err) {
-                    this.onErr(err);
-                }
-                else {
-                    this.binddatas(ret);
-                }
-            });
-        }
-        else if (typeof this.datasource == "string") {
+        if (typeof this.datasource == "string") {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, (ret, pkid, err) => {
                 this.hideLoading();
@@ -1737,29 +1771,55 @@ class WayGridView extends WayBaseObject implements IPageable {
                     if (pkid != null) {
                         this.primaryKey = pkid;
                     }
+                    pageData = ret;
 
-                    this.binddatas(ret);
-                    this.pageinfo.PageIndex++;
-                    this.hasMorePage = ret.length >= this.pageinfo.PageSize;
-
-                    if (this.onAfterCreateItems) {
-                        try {
-                            this.onAfterCreateItems(this.items.length, this.hasMorePage);
-                        }
-                        catch (e) {
-                        }
-                    }
-
-                    if (this.hasMorePage && this.element[0].scrollHeight <= this.element.height() * 1.1) {
-                        this.shouldLoadMorePage();
-                    }
                 }
             });
 
         }
         else {
-            this.binddatas(this.datasource);
+            pageData = this.getDataByPagesize(this.datasource);
         }
+
+
+        if (pageData) {
+            this.binddatas(pageData);
+            this.pageinfo.PageIndex++;
+            this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+
+            if (this.onAfterCreateItems) {
+                try {
+                    this.onAfterCreateItems(this.items.length, this.hasMorePage);
+                }
+                catch (e) {
+                }
+            }
+
+            if (this.pageMode) {
+                //翻页模式
+                if (this.pageinfo.PageIndex == 1) {
+                    //一开始应该加载两页
+                    this.shouldLoadMorePage();
+                }
+            }
+            else {
+                if (this.hasMorePage && this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                    this.shouldLoadMorePage();
+                }
+            }
+        }
+    }
+
+    private getDataByPagesize(datas: any[]): any {
+        if (datas.length <= this.pageinfo.PageSize)
+            return datas;
+
+        var result = [];
+        var end = this.pageinfo.PageSize * (this.pageinfo.PageIndex + 1);
+        for (var i = this.pageinfo.PageSize * this.pageinfo.PageIndex; i < end && i < datas.length; i++) {
+            result.push(datas[i]);
+        }
+        return result;
     }
 
     //把两个table的td设为一样的宽度
@@ -2010,6 +2070,10 @@ class WayGridView extends WayBaseObject implements IPageable {
     }
 
     private binddatas(datas: any[]): void {
+        if (this.pageMode) {
+            this.binddatas_pageMode(datas);
+            return;
+        }
         try {
 
             //bind items
@@ -2036,6 +2100,169 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (this.onItemSizeChanged) {
                 this.onItemSizeChanged();
             }
+        }
+        catch (e) {
+            this.onErr("GridView.databind error:" + e.message);
+        }
+    }
+
+    private initForPageMode(): void {
+        if (this.itemContainer[0] != this.element[0]) {
+            this.itemContainer[0].parentElement.removeChild(this.itemContainer[0]);
+        }
+        this.itemContainer = $(document.createElement("DIV"));
+        this.element[0].appendChild(this.itemContainer[0]);
+        this.element.css(
+            {
+                "overflow-x": "hidden",
+                "overflow-y": "hidden"
+            });
+        this.itemContainer.css(
+            {
+                "height": "100%",
+                "width": "0px",
+                "will-change": "transform"
+            });
+
+        var isTouch = "ontouchstart" in this.itemContainer[0];
+        var point;
+        var moving;
+        var isTouchToRefresh = false;
+
+        this.element[0].ontouchstart = null;
+        this.element[0].ontouchend = null;
+        this.element[0].ontouchmove = null;
+
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) => {
+            isTouchToRefresh = false;
+            e = e || window.event;
+            this.itemContainer.css("will-change", "transform");
+            point = {
+                x: isTouch ? e.touches[0].clientX : e.clientX,
+                y: isTouch ? e.touches[0].clientY : e.clientY,
+                time: new Date().getTime()
+            };
+
+            moving = true;
+        }, true);
+
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", (e: TouchEvent) => {
+            if (moving) {
+
+                e = e || <any>window.event;
+                var x = isTouch ? e.touches[0].clientX : (<any>e).clientX;
+                x = (x - point.x);
+                if (x > 0 && this.pageinfo.ViewingPageIndex == 0) {
+                    x = 0;
+                }
+                else if (x < 0 && this.pageinfo.ViewingPageIndex == this.itemContainer[0].children.length - 1) {
+                    x = 0;
+                }
+                if (Math.abs(x) > 0) {
+                    isTouchToRefresh = true;
+                }
+
+                x = "translate(" + (x - this.pageinfo.ViewingPageIndex * this.element.width()) + "px,0px)";
+                this.itemContainer.css({
+                    "-webkit-transform": x,
+                    "-moz-transform": x,
+                    "transform": x
+                });
+
+                if (isTouchToRefresh) {
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                    else
+                        window.event.cancelBubble = true;
+                }
+
+            }
+        }, true);
+
+        var touchoutFunc = (e: TouchEvent) => {
+
+            if (moving) {
+                moving = false;
+
+                e = e || <any>window.event;
+
+                var x = isTouch ? e.changedTouches[0].clientX : (<any>e).clientX;
+                x = (x - point.x);
+                if (x > 0 && this.pageinfo.ViewingPageIndex == 0) {
+                    x = 0;
+                }
+                else if (x < 0 && this.pageinfo.ViewingPageIndex == this.itemContainer[0].children.length - 1) {
+                    x = 0;
+                }
+                if (x != 0) {
+                    if (x > this.element.width() / 3 || (x > this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                        if (this.pageinfo.ViewingPageIndex > 0) {
+                            this.pageinfo.ViewingPageIndex--;
+                        }
+                    }
+                    else if (-x > this.element.width() / 3 || (-x > this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                        this.pageinfo.ViewingPageIndex++;
+                    }
+
+                    var desLocation = "translate(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0px)";
+
+                    this.itemContainer.css({
+                        "transition": "transform 0.5s",
+                        "-webkit-transform": desLocation,
+                        "-moz-transform": desLocation,
+                        "transform": desLocation
+                    });
+                }
+            }
+        };
+
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+
+
+        WayHelper.addEventListener(this.itemContainer[0], "transitionend", (e) => {
+            this.itemContainer.css({
+                "transition": "",
+                "will-change": "auto"
+            });
+            if (this.pageinfo.ViewingPageIndex == this.itemContainer[0].children.length - 1 && this.hasMorePage) {
+                this.shouldLoadMorePage();
+            }
+        }, true);
+    }
+
+    private binddatas_pageMode(datas: any[]): void {
+
+        if (datas.length == 0)
+            return;
+
+        try {
+            if (!this.bodyTemplateHtml) {
+                alert("翻页模式必须定义body模板");
+                return;
+            }
+
+            this.itemContainer.width(this.itemContainer.width() + this.element.width());
+
+            var divContainer = $(this.bodyTemplateHtml);
+            divContainer.css(
+                {
+                    "width": this.element.width() + "px",
+                    "height": this.element.height() + "px",
+                    "float": "left",
+                });
+            this.itemContainer.append(divContainer);
+
+            //bind items
+            for (var i = 0; i < datas.length; i++) {
+                this.originalItems.push(datas[i]);
+                var itemindex = this.items.length;
+                var item = this.createItem(itemindex);
+                divContainer.append(item);
+                this.items.push(item);
+            }
+
         }
         catch (e) {
             this.onErr("GridView.databind error:" + e.message);

@@ -518,6 +518,14 @@ var WayHelper = (function () {
             element.attachEvent("on" + eventName, listener);
         }
     };
+    WayHelper.removeEventListener = function (element, eventName, listener, useCapture) {
+        if (element.removeEventListener) {
+            element.removeEventListener(eventName, listener, useCapture);
+        }
+        else {
+            element.detachEvent("on" + eventName, listener);
+        }
+    };
     //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
     WayHelper.fireEvent = function (el, eventName) {
         var evt;
@@ -922,6 +930,8 @@ var WayPageInfo = (function () {
     function WayPageInfo() {
         this.PageIndex = 0;
         this.PageSize = 10;
+        //正在看第几页,for pageMode
+        this.ViewingPageIndex = 0;
     }
     return WayPageInfo;
 }());
@@ -930,10 +940,11 @@ var WayPager = (function () {
         var _this = this;
         this.scrollable = _scrollable;
         this.control = _ctrl;
-        _scrollable.scroll(function () { _this.onscroll(); });
+        this.scrollListener = function () { _this.onscroll(); };
+        WayHelper.addEventListener(_scrollable[0], "scroll", this.scrollListener, undefined);
     }
     WayPager.prototype.onscroll = function () {
-        if (!this.control.hasMorePage)
+        if (!this.control.hasMorePage || this.control.pageMode)
             return;
         var y = this.scrollable.scrollTop();
         var x = this.scrollable.scrollLeft();
@@ -1247,12 +1258,19 @@ var WayGridView = (function (_super) {
         // 标识当前绑定数据的事物id
         this.transcationID = 1;
         //是否支持下拉刷新,在不支持touch的设备下，默认值为false
+        //下拉刷新必须定义body模板
         this.supportDropdownRefresh = true;
         //定义item._status的数据原型，可以修改此原型达到期望的目的
         this.itemStatusModel = { Selected: false };
+        //是否使用翻页模式
+        this.pageMode = false;
         try {
             this.dbContext = new WayDBContext(controller, null);
             this.element = $("#" + elementId);
+            this.element.css({
+                "overflow-y": "auto",
+                "-webkit-overflow-scrolling": "touch"
+            });
             var isTouch = "ontouchstart" in this.element[0];
             if (!isTouch)
                 this.supportDropdownRefresh = false;
@@ -1262,14 +1280,14 @@ var WayGridView = (function (_super) {
             var templates = this.element.find("script");
             this.itemContainer = this.element;
             if (bodyTemplate.length > 0) {
-                this.itemContainer = $(bodyTemplate[0].innerHTML);
+                this.bodyTemplateHtml = bodyTemplate[0].innerHTML;
+                this.itemContainer = $(this.bodyTemplateHtml);
                 this.element[0].appendChild(this.itemContainer[0]);
                 this.initRefreshEvent(this.itemContainer);
             }
-            else if (this.supportDropdownRefresh) {
-                this.itemContainer = $(document.createElement("DIV"));
-                this.element[0].appendChild(this.itemContainer[0]);
-                this.initRefreshEvent(this.itemContainer);
+            else {
+                //没有body模板，则不支持下拉刷新
+                this.supportDropdownRefresh = false;
             }
             if (this.itemContainer[0].children.length > 0 && this.itemContainer[0].children[0].tagName == "TBODY") {
                 this.itemContainer = $(this.itemContainer[0].children[0]);
@@ -1310,18 +1328,21 @@ var WayGridView = (function (_super) {
     //初始化下拉刷新事件
     WayGridView.prototype.initRefreshEvent = function (touchEle) {
         var _this = this;
-        var isTouch = "ontouchstart" in touchEle[0];
+        var isTouch = "ontouchstart" in this.itemContainer[0];
         if (!isTouch)
             this.supportDropdownRefresh = false;
         var moving = false;
         var isTouchToRefresh = false;
+        //先预设一下,否则有时候第一次设置touchEle会白屏
+        touchEle.css("will-change", "transform");
         var point;
-        WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", function (e) {
-            if (!_this.supportDropdownRefresh)
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
+            if (!_this.supportDropdownRefresh || _this.pageMode)
                 return;
             isTouchToRefresh = false;
-            if (_this.element.scrollTop() > 0)
+            if (_this.element.scrollTop() > 0) {
                 return;
+            }
             e = e || window.event;
             touchEle.css("will-change", "transform");
             point = {
@@ -1329,8 +1350,8 @@ var WayGridView = (function (_super) {
                 y: isTouch ? e.touches[0].clientY : e.clientY
             };
             moving = true;
-        }, undefined);
-        WayHelper.addEventListener(touchEle[0], isTouch ? "touchmove" : "mousemove", function (e) {
+        }, true);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", function (e) {
             if (moving) {
                 if (_this.element.scrollTop() > 0) {
                     moving = false;
@@ -1357,7 +1378,7 @@ var WayGridView = (function (_super) {
                         window.event.cancelBubble = true;
                 }
             }
-        }, undefined);
+        }, true);
         var touchoutFunc = function (e) {
             if (moving) {
                 moving = false;
@@ -1373,7 +1394,7 @@ var WayGridView = (function (_super) {
                 });
             }
         };
-        WayHelper.addEventListener(touchEle[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
         WayHelper.addEventListener(touchEle[0], "transitionend", function (e) {
             touchEle.css({
                 "transition": "",
@@ -1510,6 +1531,9 @@ var WayGridView = (function (_super) {
     };
     //绑定数据
     WayGridView.prototype.databind = function () {
+        if (this.pageMode) {
+            this.initForPageMode();
+        }
         this.footerItem = null;
         //清除内容
         for (var i = 0; i < this.items.length; i++) {
@@ -1536,23 +1560,10 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.shouldLoadMorePage = function () {
         var _this = this;
         this.hasMorePage = false; //设为false，可以禁止期间被Pager再次调用
+        var pageData;
         this.transcationID++;
         var mytranId = this.transcationID;
-        if (typeof this.datasource == "function") {
-            this.showLoading();
-            this.datasource(function (ret, err) {
-                _this.hideLoading();
-                if (mytranId != _this.transcationID)
-                    return;
-                if (err) {
-                    _this.onErr(err);
-                }
-                else {
-                    _this.binddatas(ret);
-                }
-            });
-        }
-        else if (typeof this.datasource == "string") {
+        if (typeof this.datasource == "string") {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, function (ret, pkid, err) {
                 _this.hideLoading();
@@ -1566,25 +1577,47 @@ var WayGridView = (function (_super) {
                     if (pkid != null) {
                         _this.primaryKey = pkid;
                     }
-                    _this.binddatas(ret);
-                    _this.pageinfo.PageIndex++;
-                    _this.hasMorePage = ret.length >= _this.pageinfo.PageSize;
-                    if (_this.onAfterCreateItems) {
-                        try {
-                            _this.onAfterCreateItems(_this.items.length, _this.hasMorePage);
-                        }
-                        catch (e) {
-                        }
-                    }
-                    if (_this.hasMorePage && _this.element[0].scrollHeight <= _this.element.height() * 1.1) {
-                        _this.shouldLoadMorePage();
-                    }
+                    pageData = ret;
                 }
             });
         }
         else {
-            this.binddatas(this.datasource);
+            pageData = this.getDataByPagesize(this.datasource);
         }
+        if (pageData) {
+            this.binddatas(pageData);
+            this.pageinfo.PageIndex++;
+            this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+            if (this.onAfterCreateItems) {
+                try {
+                    this.onAfterCreateItems(this.items.length, this.hasMorePage);
+                }
+                catch (e) {
+                }
+            }
+            if (this.pageMode) {
+                //翻页模式
+                if (this.pageinfo.PageIndex == 1) {
+                    //一开始应该加载两页
+                    this.shouldLoadMorePage();
+                }
+            }
+            else {
+                if (this.hasMorePage && this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                    this.shouldLoadMorePage();
+                }
+            }
+        }
+    };
+    WayGridView.prototype.getDataByPagesize = function (datas) {
+        if (datas.length <= this.pageinfo.PageSize)
+            return datas;
+        var result = [];
+        var end = this.pageinfo.PageSize * (this.pageinfo.PageIndex + 1);
+        for (var i = this.pageinfo.PageSize * this.pageinfo.PageIndex; i < end && i < datas.length; i++) {
+            result.push(datas[i]);
+        }
+        return result;
     };
     //把两个table的td设为一样的宽度
     WayGridView.prototype.setSameWidthForTables = function (tableSource, tableHeader) {
@@ -1803,6 +1836,10 @@ var WayGridView = (function (_super) {
         return item;
     };
     WayGridView.prototype.binddatas = function (datas) {
+        if (this.pageMode) {
+            this.binddatas_pageMode(datas);
+            return;
+        }
         try {
             //bind items
             for (var i = 0; i < datas.length; i++) {
@@ -1824,6 +1861,141 @@ var WayGridView = (function (_super) {
             }
             if (this.onItemSizeChanged) {
                 this.onItemSizeChanged();
+            }
+        }
+        catch (e) {
+            this.onErr("GridView.databind error:" + e.message);
+        }
+    };
+    WayGridView.prototype.initForPageMode = function () {
+        var _this = this;
+        if (this.itemContainer[0] != this.element[0]) {
+            this.itemContainer[0].parentElement.removeChild(this.itemContainer[0]);
+        }
+        this.itemContainer = $(document.createElement("DIV"));
+        this.element[0].appendChild(this.itemContainer[0]);
+        this.element.css({
+            "overflow-x": "hidden",
+            "overflow-y": "hidden"
+        });
+        this.itemContainer.css({
+            "height": "100%",
+            "width": "0px",
+            "will-change": "transform"
+        });
+        var isTouch = "ontouchstart" in this.itemContainer[0];
+        var point;
+        var moving;
+        var isTouchToRefresh = false;
+        this.element[0].ontouchstart = null;
+        this.element[0].ontouchend = null;
+        this.element[0].ontouchmove = null;
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
+            isTouchToRefresh = false;
+            e = e || window.event;
+            _this.itemContainer.css("will-change", "transform");
+            point = {
+                x: isTouch ? e.touches[0].clientX : e.clientX,
+                y: isTouch ? e.touches[0].clientY : e.clientY,
+                time: new Date().getTime()
+            };
+            moving = true;
+        }, true);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", function (e) {
+            if (moving) {
+                e = e || window.event;
+                var x = isTouch ? e.touches[0].clientX : e.clientX;
+                x = (x - point.x);
+                if (x > 0 && _this.pageinfo.ViewingPageIndex == 0) {
+                    x = 0;
+                }
+                else if (x < 0 && _this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1) {
+                    x = 0;
+                }
+                if (Math.abs(x) > 0) {
+                    isTouchToRefresh = true;
+                }
+                x = "translate(" + (x - _this.pageinfo.ViewingPageIndex * _this.element.width()) + "px,0px)";
+                _this.itemContainer.css({
+                    "-webkit-transform": x,
+                    "-moz-transform": x,
+                    "transform": x
+                });
+                if (isTouchToRefresh) {
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                    else
+                        window.event.cancelBubble = true;
+                }
+            }
+        }, true);
+        var touchoutFunc = function (e) {
+            if (moving) {
+                moving = false;
+                e = e || window.event;
+                var x = isTouch ? e.changedTouches[0].clientX : e.clientX;
+                x = (x - point.x);
+                if (x > 0 && _this.pageinfo.ViewingPageIndex == 0) {
+                    x = 0;
+                }
+                else if (x < 0 && _this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1) {
+                    x = 0;
+                }
+                if (x != 0) {
+                    if (x > _this.element.width() / 3 || (x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                        if (_this.pageinfo.ViewingPageIndex > 0) {
+                            _this.pageinfo.ViewingPageIndex--;
+                        }
+                    }
+                    else if (-x > _this.element.width() / 3 || (-x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                        _this.pageinfo.ViewingPageIndex++;
+                    }
+                    var desLocation = "translate(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0px)";
+                    _this.itemContainer.css({
+                        "transition": "transform 0.5s",
+                        "-webkit-transform": desLocation,
+                        "-moz-transform": desLocation,
+                        "transform": desLocation
+                    });
+                }
+            }
+        };
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        WayHelper.addEventListener(this.itemContainer[0], "transitionend", function (e) {
+            _this.itemContainer.css({
+                "transition": "",
+                "will-change": "auto"
+            });
+            if (_this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1 && _this.hasMorePage) {
+                _this.shouldLoadMorePage();
+            }
+        }, true);
+    };
+    WayGridView.prototype.binddatas_pageMode = function (datas) {
+        if (datas.length == 0)
+            return;
+        try {
+            if (!this.bodyTemplateHtml) {
+                alert("翻页模式必须定义body模板");
+                return;
+            }
+            this.itemContainer.width(this.itemContainer.width() + this.element.width());
+            var divContainer = $(this.bodyTemplateHtml);
+            divContainer.css({
+                "width": this.element.width() + "px",
+                "height": this.element.height() + "px",
+                "float": "left",
+            });
+            this.itemContainer.append(divContainer);
+            //bind items
+            for (var i = 0; i < datas.length; i++) {
+                this.originalItems.push(datas[i]);
+                var itemindex = this.items.length;
+                var item = this.createItem(itemindex);
+                divContainer.append(item);
+                this.items.push(item);
             }
         }
         catch (e) {
