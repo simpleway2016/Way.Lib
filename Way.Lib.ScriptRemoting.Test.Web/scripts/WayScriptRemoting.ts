@@ -2254,7 +2254,6 @@ class WayGridView extends WayBaseObject implements IPageable {
         WayHelper.addEventListener(this.itemContainer[0], "transitionend", (e) => {
             this.itemContainer.css({
                 "transition": "",
-                "will-change": "auto"
             });
             if (this.onViewPageIndexChange) {
                 this.onViewPageIndexChange(this.pageinfo.ViewingPageIndex);

@@ -1986,7 +1986,6 @@ var WayGridView = (function (_super) {
         WayHelper.addEventListener(this.itemContainer[0], "transitionend", function (e) {
             _this.itemContainer.css({
                 "transition": "",
-                "will-change": "auto"
             });
             if (_this.onViewPageIndexChange) {
                 _this.onViewPageIndexChange(_this.pageinfo.ViewingPageIndex);
