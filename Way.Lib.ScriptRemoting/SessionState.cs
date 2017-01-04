@@ -24,6 +24,9 @@ namespace Way.Lib.ScriptRemoting
 
         internal static System.Collections.Hashtable ThreadSessions = Hashtable.Synchronized(new Hashtable());
         public delegate void OnSessionRemovedHandler(SessionState session);
+        /// <summary>
+        /// session超时，被移除时触发的事件
+        /// </summary>
         public static event OnSessionRemovedHandler OnSessionRemoved;
         /// <summary>
         /// session超时时间，单位（分），默认30
@@ -71,8 +74,9 @@ namespace Way.Lib.ScriptRemoting
                     obj = new ScriptRemoting.SessionState(sessionid , clientIP);
                     AllSessions[sessionid] = obj;
                 }
+                obj.LastUseTime = DateTime.Now;
             }
-            obj.LastUseTime = DateTime.Now;
+         
             if (ThreadSessions.ContainsKey(Thread.CurrentThread) == false)
             {
                 ThreadSessions[Thread.CurrentThread] = obj;
