@@ -117,6 +117,9 @@ class WayScriptRemoting extends WayBaseObject {
     }
 
     static createRemotingController(remoteName: string): WayScriptRemoting {
+        if (!remoteName) {
+            return new WayScriptRemoting(null);
+        }
         for (var i = 0; i < WayScriptRemoting.ExistControllers.length; i++) {
             if (WayScriptRemoting.ExistControllers[i].classFullName == remoteName)
                 return WayScriptRemoting.ExistControllers[i];
