@@ -25,6 +25,14 @@ namespace Way.Lib.ScriptRemoting
         internal static System.Collections.Hashtable ThreadSessions = Hashtable.Synchronized(new Hashtable());
         public delegate void OnSessionRemovedHandler(SessionState session);
         public static event OnSessionRemovedHandler OnSessionRemoved;
+        /// <summary>
+        /// session超时时间，单位（分），默认30
+        /// </summary>
+        public static int Timeout
+        {
+            get;
+            set;
+        }
 
         public string SessionID
         {
@@ -74,19 +82,21 @@ namespace Way.Lib.ScriptRemoting
 
         internal static void CheckSessionTimeout()
         {
-            var timeout = 30;
+          
             while(true)
             {
+                if (Timeout <= 0)
+                    Timeout = 30;
                 try
                 {
                     foreach (var kv in AllSessions)
                     {
-                        if((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
+                        if((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
                         {
                             lock (AllSessionsLock)
                             {
                                 //在lock中重新判断
-                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
+                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
                                 {
                                     AllSessions.Remove(kv.Key);
                                     if(OnSessionRemoved != null)
