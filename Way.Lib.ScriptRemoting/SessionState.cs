@@ -93,31 +93,34 @@ namespace Way.Lib.ScriptRemoting
                     Timeout = 30;
                 try
                 {
-                    foreach (var kv in AllSessions)
+                    if (Timeout != int.MaxValue)
                     {
-                        if((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
+                        foreach (var kv in AllSessions)
                         {
-                            lock (AllSessionsLock)
+                            if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
                             {
-                                //在lock中重新判断
-                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
+                                lock (AllSessionsLock)
                                 {
-                                    AllSessions.Remove(kv.Key);
-                                    if(OnSessionRemoved != null)
+                                    //在lock中重新判断
+                                    if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
                                     {
-                                        try
+                                        AllSessions.Remove(kv.Key);
+                                        if (OnSessionRemoved != null)
                                         {
-                                            OnSessionRemoved(kv.Value);
-                                        }
-                                        catch
-                                        {
+                                            try
+                                            {
+                                                OnSessionRemoved(kv.Value);
+                                            }
+                                            catch
+                                            {
 
+                                            }
                                         }
+                                        kv.Value.Clear();
                                     }
-                                    kv.Value.Clear();
                                 }
+                                break;
                             }
-                            break;
                         }
                     }
                 }
