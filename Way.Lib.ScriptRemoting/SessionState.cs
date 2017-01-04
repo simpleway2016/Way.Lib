@@ -23,6 +23,8 @@ namespace Way.Lib.ScriptRemoting
         internal DateTime LastUseTime;
 
         internal static System.Collections.Hashtable ThreadSessions = Hashtable.Synchronized(new Hashtable());
+        public delegate void OnSessionRemovedHandler(SessionState session);
+        public static event OnSessionRemovedHandler OnSessionRemoved;
 
         public string SessionID
         {
@@ -87,6 +89,17 @@ namespace Way.Lib.ScriptRemoting
                                 if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > timeout)
                                 {
                                     AllSessions.Remove(kv.Key);
+                                    if(OnSessionRemoved != null)
+                                    {
+                                        try
+                                        {
+                                            OnSessionRemoved(kv.Value);
+                                        }
+                                        catch
+                                        {
+
+                                        }
+                                    }
                                     kv.Value.Clear();
                                 }
                             }
