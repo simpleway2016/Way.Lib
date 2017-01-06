@@ -424,6 +424,130 @@ class WayScriptRemotingChild extends WayScriptRemoting {
 
 }
 
+enum WayVirtualWebSocketStatus {
+    none = 0,
+    connected = 1,
+    error = 2,
+    closed = 3
+}
+
+class WayVirtualWebSocket {
+    private guid: string;
+    private url: string;
+    private status: WayVirtualWebSocketStatus = WayVirtualWebSocketStatus.none;
+    private errMsg: string;
+    private lastMessage: any;
+    private _onopen: (event: any) => void;
+    private _onmessage : (event: any) => void;
+    private _onclose: (event: any) => void;
+    private _onerror: (event: any) => void;
+
+    get onopen(): (event: any) => void {
+        return this._onopen;
+    }
+    set onopen(value: (event: any) => void) {
+        this._onopen = value;
+        if (this.status == WayVirtualWebSocketStatus.connected) {
+            if (this._onopen) {
+                this._onopen({});
+            }
+        }
+    }
+
+    get onmessage(): (event: any) => void {
+        return this._onmessage;
+    }
+    set onmessage(value: (event: any) => void) {
+        this._onmessage = value;
+        if (this.status == WayVirtualWebSocketStatus.connected) {
+            if (this._onmessage) {
+                this._onmessage({ data: this.lastMessage });
+            }
+        }
+    }
+
+    get onclose(): (event: any) => void {
+        return this._onclose;
+    }
+    set onclose(value: (event: any) => void) {
+        this._onclose = value;
+        if (this.status == WayVirtualWebSocketStatus.closed) {
+            if (this._onclose) {
+                this._onclose({  });
+            }
+        }
+    }
+
+    get onerror(): (event: any) => void {
+        return this._onerror;
+    }
+    set onerror(value: (event: any) => void) {
+        this._onerror = value;
+        if (this.status == WayVirtualWebSocketStatus.error) {
+            if (this._onerror) {
+                this._onerror({});
+            }
+        }
+    }
+
+    constructor(_url: string) {
+        var protocol = window.location.href.substr(0, window.location.href.indexOf(":"));
+        this.url = _url.replace("ws://", protocol + "://");
+        if (this.url.indexOf("?") > 0) {
+            this.url += "&";
+        }
+        else {
+            this.url += "?";
+        }
+        this.url += "WayVirtualWebSocket=1";
+
+        this.init();
+    }
+
+    private init(): void {
+        var invoker = new WayScriptInvoker(this.url);
+        invoker.onCompleted = (result, err) => {
+            if (err) {
+                this.status = WayVirtualWebSocketStatus.error;
+                this.errMsg = err;
+                if (this._onerror) {
+                    this._onerror({ data: this.errMsg });
+                }
+            }
+            else {
+                this.guid = result;
+                this.status = WayVirtualWebSocketStatus.connected;
+                if (this._onopen) {
+                    this._onopen({});
+                }
+            }
+        };
+        invoker.invoke(["mode", "init"]);
+    }
+
+    private receiveChannelConnect(): void {
+        var invoker = new WayScriptInvoker(this.url);
+        invoker.onCompleted = (result, err) => {
+            if (err) {
+                alert(err);
+
+                this.status = WayVirtualWebSocketStatus.error;
+                this.errMsg = err;
+                if (this._onerror) {
+                    this._onerror({ data: this.errMsg });
+                }
+            }
+            else {
+                this.lastMessage = result;
+                if (this._onmessage) {
+                    this._onmessage({ data: this.lastMessage });
+                }
+            }
+        };
+        invoker.invoke(["mode", "receive"]);
+    }
+}
+
 class WayScriptInvoker {
     url: string;
     async: boolean = true;

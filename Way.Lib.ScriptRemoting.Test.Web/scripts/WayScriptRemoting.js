@@ -112,6 +112,9 @@ var WayScriptRemoting = (function (_super) {
         }
     };
     WayScriptRemoting.createRemotingController = function (remoteName) {
+        if (!remoteName) {
+            return new WayScriptRemoting(null);
+        }
         for (var i = 0; i < WayScriptRemoting.ExistControllers.length; i++) {
             if (WayScriptRemoting.ExistControllers[i].classFullName == remoteName)
                 return WayScriptRemoting.ExistControllers[i];
@@ -407,6 +410,131 @@ var WayScriptRemotingChild = (function (_super) {
     }
     return WayScriptRemotingChild;
 }(WayScriptRemoting));
+var WayVirtualWebSocketStatus;
+(function (WayVirtualWebSocketStatus) {
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["none"] = 0] = "none";
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["connected"] = 1] = "connected";
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["error"] = 2] = "error";
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["closed"] = 3] = "closed";
+})(WayVirtualWebSocketStatus || (WayVirtualWebSocketStatus = {}));
+var WayVirtualWebSocket = (function () {
+    function WayVirtualWebSocket(_url) {
+        this.status = WayVirtualWebSocketStatus.none;
+        var protocol = window.location.href.substr(0, window.location.href.indexOf(":"));
+        this.url = _url.replace("ws://", protocol + "://");
+        if (this.url.indexOf("?") > 0) {
+            this.url += "&";
+        }
+        else {
+            this.url += "?";
+        }
+        this.url += "WayVirtualWebSocket=1";
+        this.init();
+    }
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onopen", {
+        get: function () {
+            return this._onopen;
+        },
+        set: function (value) {
+            this._onopen = value;
+            if (this.status == WayVirtualWebSocketStatus.connected) {
+                if (this._onopen) {
+                    this._onopen({});
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onmessage", {
+        get: function () {
+            return this._onmessage;
+        },
+        set: function (value) {
+            this._onmessage = value;
+            if (this.status == WayVirtualWebSocketStatus.connected) {
+                if (this._onmessage) {
+                    this._onmessage({ data: this.lastMessage });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onclose", {
+        get: function () {
+            return this._onclose;
+        },
+        set: function (value) {
+            this._onclose = value;
+            if (this.status == WayVirtualWebSocketStatus.closed) {
+                if (this._onclose) {
+                    this._onclose({});
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onerror", {
+        get: function () {
+            return this._onerror;
+        },
+        set: function (value) {
+            this._onerror = value;
+            if (this.status == WayVirtualWebSocketStatus.error) {
+                if (this._onerror) {
+                    this._onerror({});
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    WayVirtualWebSocket.prototype.init = function () {
+        var _this = this;
+        var invoker = new WayScriptInvoker(this.url);
+        invoker.onCompleted = function (result, err) {
+            if (err) {
+                _this.status = WayVirtualWebSocketStatus.error;
+                _this.errMsg = err;
+                if (_this._onerror) {
+                    _this._onerror({ data: _this.errMsg });
+                }
+            }
+            else {
+                _this.guid = result;
+                _this.status = WayVirtualWebSocketStatus.connected;
+                if (_this._onopen) {
+                    _this._onopen({});
+                }
+            }
+        };
+        invoker.invoke(["mode", "init"]);
+    };
+    WayVirtualWebSocket.prototype.receiveChannelConnect = function () {
+        var _this = this;
+        var invoker = new WayScriptInvoker(this.url);
+        invoker.onCompleted = function (result, err) {
+            if (err) {
+                alert(err);
+                _this.status = WayVirtualWebSocketStatus.error;
+                _this.errMsg = err;
+                if (_this._onerror) {
+                    _this._onerror({ data: _this.errMsg });
+                }
+            }
+            else {
+                _this.lastMessage = result;
+                if (_this._onmessage) {
+                    _this._onmessage({ data: _this.lastMessage });
+                }
+            }
+        };
+        invoker.invoke(["mode", "receive"]);
+    };
+    return WayVirtualWebSocket;
+}());
 var WayScriptInvoker = (function () {
     function WayScriptInvoker(_url) {
         this.async = true;
