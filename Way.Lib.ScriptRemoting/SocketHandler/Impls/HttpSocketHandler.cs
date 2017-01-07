@@ -125,11 +125,11 @@ namespace Way.Lib.ScriptRemoting
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
                     if (lastWriteTime == since)
                     {
-                        this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 "+ GetStatusDescription(304) +"\r\nConnection: Close\r\n\r\n"));
+                        this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
                     }
                     else
                     {
-                        outputFile(ScriptRemotingServer.ScriptFilePath , lastWriteTime);
+                        outputFile(ScriptRemotingServer.ScriptFilePath, lastWriteTime);
                     }
                 }
                 else if (this.Connection.mKeyValues["POST"].ToSafeString().ToLower().StartsWith("/wayscriptremoting_invoke?a="))
@@ -141,7 +141,18 @@ namespace Way.Lib.ScriptRemoting
                         outputHttpResponse(data);
                     }, null, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
                     rs.OnReceived(json);
-                   
+
+                }
+                else if (this.Connection.mKeyValues["POST"].ToSafeString().EndsWith("?WayVirtualWebSocket=1")
+                    || this.Connection.mKeyValues["POST"].ToSafeString().EndsWith("&WayVirtualWebSocket=1"))
+                {
+                    urlRequestHandler();
+                    new VirtualWebSocketHandler(this.Connection, RequestForms, (data) =>
+                   {
+                       outputHttpResponse(data);                      
+                   }).Handle();
+                
+                    return;
                 }
                 else if (this.Connection.mKeyValues["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
                 {

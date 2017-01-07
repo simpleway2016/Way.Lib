@@ -26,14 +26,16 @@ namespace Way.Lib.ScriptRemoting
         internal static ArrayList KeepAliveHandlers = ArrayList.Synchronized(new ArrayList());
         static ConcurrentDictionary<string, TypeDefine> ExistTypes = new ConcurrentDictionary<string, TypeDefine>();
         public delegate void SendDataHandler(string data);
-        SendDataHandler mSendDataFunc;
-        Action mCloseStreamHandler;
+        internal SendDataHandler mSendDataFunc;
+        internal Action mCloseStreamHandler;
         SessionState Session;
         internal string GroupName;
         IUploadFileHandler mUploadFileHandler;
         int mFileGettedSize = 0;
         MessageBag mCurrentBag;
         string mClientIP;
+        internal object Tag1;
+        internal object Tag2;
 
         public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP)
         {

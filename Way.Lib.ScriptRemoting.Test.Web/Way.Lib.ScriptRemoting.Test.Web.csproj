@@ -29,6 +29,7 @@
     <Content Include="scripts\WayScriptRemoting.js">
       <DependentUpon>WayScriptRemoting.ts</DependentUpon>
     </Content>
+    <Content Include="socketTest.html" />
     <Content Include="test.html" />
   </ItemGroup>
   <ItemGroup>

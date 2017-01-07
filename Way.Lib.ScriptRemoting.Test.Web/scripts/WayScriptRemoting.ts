@@ -437,10 +437,12 @@ class WayVirtualWebSocket {
     private status: WayVirtualWebSocketStatus = WayVirtualWebSocketStatus.none;
     private errMsg: string;
     private lastMessage: any;
+    private receiver: WayScriptInvoker;
     private _onopen: (event: any) => void;
     private _onmessage : (event: any) => void;
     private _onclose: (event: any) => void;
     private _onerror: (event: any) => void;
+    binaryType: string = "string";
 
     get onopen(): (event: any) => void {
         return this._onopen;
@@ -504,6 +506,13 @@ class WayVirtualWebSocket {
         this.init();
     }
 
+    close(): void {
+        this.status = WayVirtualWebSocketStatus.closed;
+        this.receiver.abort();
+        if (this._onclose) {
+            this._onclose({  });
+        }
+    }
     private init(): void {
         var invoker = new WayScriptInvoker(this.url);
         invoker.onCompleted = (result, err) => {
@@ -520,17 +529,45 @@ class WayVirtualWebSocket {
                 if (this._onopen) {
                     this._onopen({});
                 }
+                this.receiveChannelConnect();
             }
         };
         invoker.invoke(["mode", "init"]);
     }
 
-    private receiveChannelConnect(): void {
+    send(data): void {
         var invoker = new WayScriptInvoker(this.url);
         invoker.onCompleted = (result, err) => {
             if (err) {
-                alert(err);
+                this.status = WayVirtualWebSocketStatus.error;
+                this.errMsg = err;
+                if (this._onerror) {
+                    this._onerror({ data: this.errMsg });
+                }
+            }
+        }
+        if (this.binaryType == "arraybuffer") {
+            data = this.arrayBufferToString(data);
 
+        }
+        invoker.invoke(["mode", "send", "data", data, "id", this.guid, "binaryType", this.binaryType]);
+    }
+
+    private arrayBufferToString(data) {
+        var array = new Uint8Array(data);
+        var str = "";
+        for (var i = 0, len = array.length; i < len; ++i) {
+            str += "%" + array[i].toString(16);
+        }
+        
+        return str;
+    }
+
+    private receiveChannelConnect(): void {
+        this.receiver = new WayScriptInvoker(this.url);
+        this.receiver.setTimeout(0);
+        this.receiver.onCompleted = (result, err) => {
+            if (err) {
                 this.status = WayVirtualWebSocketStatus.error;
                 this.errMsg = err;
                 if (this._onerror) {
@@ -538,14 +575,30 @@ class WayVirtualWebSocket {
                 }
             }
             else {
+                //if (this.binaryType == "arraybuffer") {
+                //    var arr = result.split('%');
+                //    result = new ArrayBuffer(arr.length - 1);
+                //    var intArr = new Uint8Array(result);
+                //    for (var i = 1; i < arr.length; i++) {
+                //        intArr[i - 1] = parseInt(arr[i] , 16);
+                //    }
+                //}
                 this.lastMessage = result;
-                if (this._onmessage) {
+                if (this._onmessage && this.status == WayVirtualWebSocketStatus.connected) {
                     this._onmessage({ data: this.lastMessage });
+                }
+                if (this.status == WayVirtualWebSocketStatus.connected) {
+                    this.receiveChannelConnect();
                 }
             }
         };
-        invoker.invoke(["mode", "receive"]);
+        this.receiver.invoke(["mode", "receive", "id", this.guid, "binaryType", this.binaryType]);
     }
+}
+
+if ((<any>window).WebSocket) {
+    (<any>window).WebSocket = WayVirtualWebSocket;
+    
 }
 
 class WayScriptInvoker {
@@ -555,7 +608,7 @@ class WayScriptInvoker {
     onInvokeFinish: () => any;
     onCompleted: (result: any, err: any) => any;
     method: string = "POST";
-    private xmlHttp: any;
+    private xmlHttp: XMLHttpRequest;
 
     constructor(_url: string) {
         if (_url) {
@@ -566,7 +619,18 @@ class WayScriptInvoker {
         }
 
     }
-
+    abort(): void {
+        if (this.xmlHttp) {
+            this.xmlHttp.abort();
+        }
+    }
+    setTimeout(millseconds: number): void {
+        if (!this.xmlHttp) {
+            this.xmlHttp = this.createXMLHttp();
+        }
+        this.xmlHttp.timeout = millseconds;
+        
+    }
     invoke(nameAndValues: string[]): void {
         if (!this.xmlHttp) {
             this.xmlHttp = this.createXMLHttp();
@@ -582,6 +646,21 @@ class WayScriptInvoker {
             this.onBeforeInvoke();
 
         this.xmlHttp.onreadystatechange = () => this.xmlHttpStatusChanged();
+        this.xmlHttp.onerror = (e) => {
+            if (this.onInvokeFinish)
+                this.onInvokeFinish();
+            if (this.onCompleted) {
+                this.onCompleted(null, "无法连接服务器");
+            }
+        }
+        this.xmlHttp.ontimeout = () =>
+        {
+            if (this.onInvokeFinish)
+                this.onInvokeFinish();
+            if (this.onCompleted) {
+                this.onCompleted(null, "连接服务器超时");
+            }
+        }
         if (this.method == "POST") {
             this.xmlHttp.open("POST", this.url, this.async);
             this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -608,11 +687,6 @@ class WayScriptInvoker {
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
                     this.onCompleted(this.xmlHttp.responseText, null);
-                }
-            }
-            else {
-                if (this.onCompleted) {
-                    this.onCompleted(null, "无法连接服务器");
                 }
             }
         }
@@ -1903,9 +1977,10 @@ class WayGridView extends WayBaseObject implements IPageable {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, (ret, pkid, err) => {
                 this.hideLoading();
+                
                 if (mytranId != this.transcationID)
                     return;
-
+                
                 if (err) {
                     this.hasMorePage = true;
                     this.onErr(err);
@@ -1915,45 +1990,46 @@ class WayGridView extends WayBaseObject implements IPageable {
                         this.primaryKey = pkid;
                     }
                     pageData = ret;
-                    
+                    this.bindDataToGrid(pageData);
                 }
             });
 
         }
         else {
             pageData = this.getDataByPagesize(this.datasource);
+            this.bindDataToGrid(pageData);
+        }
+        
+    }
+
+    private bindDataToGrid(pageData: any): void {
+        this.binddatas(pageData);
+        this.pageinfo.PageIndex++;
+        this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+
+        if (this.onAfterCreateItems) {
+            try {
+                this.onAfterCreateItems(this.items.length, this.hasMorePage);
+            }
+            catch (e) {
+            }
         }
 
-        
-        if (pageData) {
-            this.binddatas(pageData);
-            this.pageinfo.PageIndex++;
-            this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+        if (this.hasMorePage) {
+            if (this.pageMode) {
 
-            if (this.onAfterCreateItems) {
-                try {
-                    this.onAfterCreateItems(this.items.length, this.hasMorePage);
-                }
-                catch (e) {
+                //翻页模式
+                //预加载
+                if (this.preLoadNumForPageMode < 1)
+                    this.preLoadNumForPageMode = 1;
+
+                if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
+                    this.shouldLoadMorePage();
                 }
             }
-
-            if (this.hasMorePage) {
-                if (this.pageMode) {
-
-                    //翻页模式
-                    //预加载
-                    if (this.preLoadNumForPageMode < 1)
-                        this.preLoadNumForPageMode = 1;
-
-                    if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
-                        this.shouldLoadMorePage();
-                    }
-                }
-                else {
-                    if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
-                        this.shouldLoadMorePage();
-                    }
+            else {
+                if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                    this.shouldLoadMorePage();
                 }
             }
         }

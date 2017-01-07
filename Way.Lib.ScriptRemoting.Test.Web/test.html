@@ -22,28 +22,13 @@
     </style>
 </head>
 <body>
-    <script lang="ja">
-        document.documentElement.style.fontSize = "30px";
-    </script>
-  <div class="box" style="width:200px;height:500px;background-color:#000000;">
-      <div _child="1" style="flex:1;height:70px;margin:1rem 0.5rem 0 1rem;align-items:center;display:flex;justify-content:center;font-size:1rem;"> a </div>
-      <div  _child="1" style="flex:0.5;height:70px;margin:1rem 1rem 0 0.5rem;">b</div>
-  </div>
-    <script lang="ja">
-        menuContainer[0].ontouchstart = function (e) {
-            moving = true;            grid1.element.css("will-change", "transform");            scrolltop = menuContainer.scrollTop();            point1 = {
-                x: e.touches[0].clientX,                y: e.touches[0].clientY
-            };
-        }        menuContainer[0].ontouchmove = function (e) {
-            if (moving) {
-                var y = e.touches[0].clientY;                scrolltop = (y - point1.y);                grid1.element.css("-webkit-transform", "translate(0px," + scrolltop + "px)");                grid1.element.css(" -moz-transform", "translate(0px," + scrolltop + "px)");                grid1.element.css("transform", "translate(0px," + scrolltop + "px)");
-            }
-        }        menuContainer[0].ontouchend = function (e) {
-            moving = false;            grid1.element.css("will-change", "auto");            document.getElementById("divPerformance").innerHTML = "end";            grid1.element[0].addEventListener("transitionend", function () {
-                grid1.element.css("transition", "");
-            }, true);            grid1.element.css("transition", "transform 0.5s");            grid1.element.css("-webkit-transform", "translate(0px,0px)");            grid1.element.css(" -moz-transform", "translate(0px,0px)");            grid1.element.css("transform", "translate(0px,0px)");
-        }
 
+    <script lang="ja">
+        var arr = new ArrayBuffer(2);
+        var arr2 = new Uint8Array(arr);
+        var str = "%f8%f2";
+        arr2[0] = parseInt("f8", 16);
+        alert(arr2[0]);
     </script>
 </body>
 </html>

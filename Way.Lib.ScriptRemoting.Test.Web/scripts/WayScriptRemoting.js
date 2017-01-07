@@ -420,6 +420,7 @@ var WayVirtualWebSocketStatus;
 var WayVirtualWebSocket = (function () {
     function WayVirtualWebSocket(_url) {
         this.status = WayVirtualWebSocketStatus.none;
+        this.binaryType = "string";
         var protocol = window.location.href.substr(0, window.location.href.indexOf(":"));
         this.url = _url.replace("ws://", protocol + "://");
         if (this.url.indexOf("?") > 0) {
@@ -491,6 +492,13 @@ var WayVirtualWebSocket = (function () {
         enumerable: true,
         configurable: true
     });
+    WayVirtualWebSocket.prototype.close = function () {
+        this.status = WayVirtualWebSocketStatus.closed;
+        this.receiver.abort();
+        if (this._onclose) {
+            this._onclose({});
+        }
+    };
     WayVirtualWebSocket.prototype.init = function () {
         var _this = this;
         var invoker = new WayScriptInvoker(this.url);
@@ -508,16 +516,42 @@ var WayVirtualWebSocket = (function () {
                 if (_this._onopen) {
                     _this._onopen({});
                 }
+                _this.receiveChannelConnect();
             }
         };
         invoker.invoke(["mode", "init"]);
     };
-    WayVirtualWebSocket.prototype.receiveChannelConnect = function () {
+    WayVirtualWebSocket.prototype.send = function (data) {
         var _this = this;
         var invoker = new WayScriptInvoker(this.url);
         invoker.onCompleted = function (result, err) {
             if (err) {
-                alert(err);
+                _this.status = WayVirtualWebSocketStatus.error;
+                _this.errMsg = err;
+                if (_this._onerror) {
+                    _this._onerror({ data: _this.errMsg });
+                }
+            }
+        };
+        if (this.binaryType == "arraybuffer") {
+            data = this.arrayBufferToString(data);
+        }
+        invoker.invoke(["mode", "send", "data", data, "id", this.guid, "binaryType", this.binaryType]);
+    };
+    WayVirtualWebSocket.prototype.arrayBufferToString = function (data) {
+        var array = new Uint8Array(data);
+        var str = "";
+        for (var i = 0, len = array.length; i < len; ++i) {
+            str += "%" + array[i].toString(16);
+        }
+        return str;
+    };
+    WayVirtualWebSocket.prototype.receiveChannelConnect = function () {
+        var _this = this;
+        this.receiver = new WayScriptInvoker(this.url);
+        this.receiver.setTimeout(0);
+        this.receiver.onCompleted = function (result, err) {
+            if (err) {
                 _this.status = WayVirtualWebSocketStatus.error;
                 _this.errMsg = err;
                 if (_this._onerror) {
@@ -525,16 +559,30 @@ var WayVirtualWebSocket = (function () {
                 }
             }
             else {
+                //if (this.binaryType == "arraybuffer") {
+                //    var arr = result.split('%');
+                //    result = new ArrayBuffer(arr.length - 1);
+                //    var intArr = new Uint8Array(result);
+                //    for (var i = 1; i < arr.length; i++) {
+                //        intArr[i - 1] = parseInt(arr[i] , 16);
+                //    }
+                //}
                 _this.lastMessage = result;
-                if (_this._onmessage) {
+                if (_this._onmessage && _this.status == WayVirtualWebSocketStatus.connected) {
                     _this._onmessage({ data: _this.lastMessage });
+                }
+                if (_this.status == WayVirtualWebSocketStatus.connected) {
+                    _this.receiveChannelConnect();
                 }
             }
         };
-        invoker.invoke(["mode", "receive"]);
+        this.receiver.invoke(["mode", "receive", "id", this.guid, "binaryType", this.binaryType]);
     };
     return WayVirtualWebSocket;
 }());
+if (window.WebSocket) {
+    window.WebSocket = WayVirtualWebSocket;
+}
 var WayScriptInvoker = (function () {
     function WayScriptInvoker(_url) {
         this.async = true;
@@ -546,6 +594,17 @@ var WayScriptInvoker = (function () {
             this.url = window.location.href;
         }
     }
+    WayScriptInvoker.prototype.abort = function () {
+        if (this.xmlHttp) {
+            this.xmlHttp.abort();
+        }
+    };
+    WayScriptInvoker.prototype.setTimeout = function (millseconds) {
+        if (!this.xmlHttp) {
+            this.xmlHttp = this.createXMLHttp();
+        }
+        this.xmlHttp.timeout = millseconds;
+    };
     WayScriptInvoker.prototype.invoke = function (nameAndValues) {
         var _this = this;
         if (!this.xmlHttp) {
@@ -560,6 +619,20 @@ var WayScriptInvoker = (function () {
         if (this.onBeforeInvoke)
             this.onBeforeInvoke();
         this.xmlHttp.onreadystatechange = function () { return _this.xmlHttpStatusChanged(); };
+        this.xmlHttp.onerror = function (e) {
+            if (_this.onInvokeFinish)
+                _this.onInvokeFinish();
+            if (_this.onCompleted) {
+                _this.onCompleted(null, "无法连接服务器");
+            }
+        };
+        this.xmlHttp.ontimeout = function () {
+            if (_this.onInvokeFinish)
+                _this.onInvokeFinish();
+            if (_this.onCompleted) {
+                _this.onCompleted(null, "连接服务器超时");
+            }
+        };
         if (this.method == "POST") {
             this.xmlHttp.open("POST", this.url, this.async);
             this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -583,11 +656,6 @@ var WayScriptInvoker = (function () {
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
                     this.onCompleted(this.xmlHttp.responseText, null);
-                }
-            }
-            else {
-                if (this.onCompleted) {
-                    this.onCompleted(null, "无法连接服务器");
                 }
             }
         }
@@ -1717,37 +1785,39 @@ var WayGridView = (function (_super) {
                         _this.primaryKey = pkid;
                     }
                     pageData = ret;
+                    _this.bindDataToGrid(pageData);
                 }
             });
         }
         else {
             pageData = this.getDataByPagesize(this.datasource);
+            this.bindDataToGrid(pageData);
         }
-        if (pageData) {
-            this.binddatas(pageData);
-            this.pageinfo.PageIndex++;
-            this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
-            if (this.onAfterCreateItems) {
-                try {
-                    this.onAfterCreateItems(this.items.length, this.hasMorePage);
-                }
-                catch (e) {
+    };
+    WayGridView.prototype.bindDataToGrid = function (pageData) {
+        this.binddatas(pageData);
+        this.pageinfo.PageIndex++;
+        this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+        if (this.onAfterCreateItems) {
+            try {
+                this.onAfterCreateItems(this.items.length, this.hasMorePage);
+            }
+            catch (e) {
+            }
+        }
+        if (this.hasMorePage) {
+            if (this.pageMode) {
+                //翻页模式
+                //预加载
+                if (this.preLoadNumForPageMode < 1)
+                    this.preLoadNumForPageMode = 1;
+                if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
+                    this.shouldLoadMorePage();
                 }
             }
-            if (this.hasMorePage) {
-                if (this.pageMode) {
-                    //翻页模式
-                    //预加载
-                    if (this.preLoadNumForPageMode < 1)
-                        this.preLoadNumForPageMode = 1;
-                    if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
-                        this.shouldLoadMorePage();
-                    }
-                }
-                else {
-                    if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
-                        this.shouldLoadMorePage();
-                    }
+            else {
+                if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                    this.shouldLoadMorePage();
                 }
             }
         }
