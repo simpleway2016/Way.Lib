@@ -33,6 +33,7 @@
     <Content Include="test.html" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="GridViewTest.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
     <TypeScriptCompile Include="scripts\WayScriptRemoting.ts" />
   </ItemGroup>

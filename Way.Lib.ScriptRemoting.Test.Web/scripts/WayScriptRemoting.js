@@ -1935,6 +1935,7 @@ var WayGridView = (function (_super) {
     //从服务器更新指定item的数据，并重新绑定
     WayGridView.prototype.rebindItemFromServer = function (itemIndex, mode, callback) {
         var _this = this;
+        if (callback === void 0) { callback = null; }
         var searchmodel = {};
         var item = this.items[itemIndex];
         searchmodel[this.primaryKey] = item._data[this.primaryKey];

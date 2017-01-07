@@ -1140,7 +1140,7 @@ class WayDataBindHelper {
         return html;
     }
 
-    static dataBind(element: HTMLElement, data: any, tag: any = null,
+    static dataBind(element: any, data: any, tag: any = null,
         expressionExp: RegExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g,
         dataMemberExp: RegExp = /\@(\w|\.)+/g): any {
         if (typeof element == "string") {
@@ -2165,7 +2165,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     }
 
     //从服务器更新指定item的数据，并重新绑定
-    rebindItemFromServer(itemIndex: number, mode: string, callback: (data: any, err: any) => void) {
+    rebindItemFromServer(itemIndex: number, mode: string, callback: (data: any, err: any) => void = null) {
         var searchmodel = {};
         var item = this.items[itemIndex];
         searchmodel[this.primaryKey] = (<any>item)._data[this.primaryKey];
