@@ -85,7 +85,35 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
             }
             else
             {
-                if (context.Request.Path.Value.EndsWith("wayscriptremoting"))
+                if (context.Request.QueryString.ToSafeString().Contains("WayVirtualWebSocket=1"))
+                {
+                    Dictionary<string, string> forms = new Dictionary<string, string>();
+                    foreach (string key in context.Request.Form.Keys)
+                    {
+                        forms.Add(key, context.Request.Form[key]);
+                    }
+                    return Task.Run(() =>
+                    {
+                        ManualResetEvent waitObject = new ManualResetEvent(false);
+                        new VirtualWebSocketHandler(forms, (data) =>
+                        {
+                            int statusCode = context.Response.StatusCode;
+                            context.Response.WriteAsync(data).Wait();
+                            waitObject.Set();
+                        }, () =>
+                        {
+                            return 1;
+                        }, () =>
+                        {
+                            waitObject.Set();
+                            return 0;
+                        }, clientip
+
+                      ).Handle();
+                        waitObject.WaitOne();
+                    });
+                }
+                else if (context.Request.Path.Value.EndsWith("wayscriptremoting"))
                 {
                     var since = context.Request.Headers["If-Modified-Since"];
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
@@ -118,7 +146,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 }
                 else
                 {
-                    if(next == null)
+                    if (next == null)
                         return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
                     return next();
                 }

@@ -36,6 +36,7 @@ namespace Way.Lib.ScriptRemoting
         string mClientIP;
         internal object Tag1;
         internal object Tag2;
+        internal DateTime _heartTime;
 
         public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP)
         {
@@ -43,6 +44,7 @@ namespace Way.Lib.ScriptRemoting
             mSendDataFunc = sendFunc;
             this.StreamType = RemotingStreamType.Text;
             mClientIP = clientIP;
+            _heartTime = DateTime.Now;
         }
         public virtual void OnReceived(string data)
         {
@@ -155,8 +157,10 @@ namespace Way.Lib.ScriptRemoting
             }
             try
             {
-                if(this.GroupName.IsNullOrEmpty() == false)
-                KeepAliveHandlers.Remove(this);
+                if (this.GroupName.IsNullOrEmpty() == false)
+                {
+                    KeepAliveHandlers.Remove(this);
+                }
             }
             catch
             {

@@ -732,7 +732,17 @@ namespace Way.Lib.ScriptRemoting
                 var handler = (RemotingClientHandler)RemotingClientHandler.KeepAliveHandlers[i];
                 if (handler!=null && handler.GroupName == groupName)
                 {
-                    handler.SendClientMessage(msg);
+                    Task.Run(()=>
+                    {
+                        try
+                        {
+                            handler.SendClientMessage(msg);
+                        }
+                        catch
+                        {
+                        }
+                    });
+                   
                 }
             }
            

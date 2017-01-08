@@ -10,161 +10,204 @@ namespace Way.Lib.ScriptRemoting
     {
         internal static System.Collections.Hashtable ActivedVirtualWebSocketHandler = Hashtable.Synchronized(new Hashtable());
         protected Dictionary<string, string> mRequestForms;
-        protected Connection mConnection;
         RemotingClientHandler.SendDataHandler mSendFunc;
-        
+        Func<int> mWaitForCloseFunc;
+        Func<int> mCloseConnectionFunc;
+        string mClientIP;
 
-        public VirtualWebSocketHandler(Connection con, Dictionary<string, string> forms, RemotingClientHandler.SendDataHandler sendFunc)
+        static VirtualWebSocketHandler()
         {
+            new System.Threading.Thread(() =>
+            {
+                while(true)
+                {
+                    try
+                    {
+                        foreach(string id in ActivedVirtualWebSocketHandler.Keys)
+                        {
+                            var handler = (RemotingClientHandler)ActivedVirtualWebSocketHandler[id];
+                            if(handler != null&&(DateTime.Now - handler._heartTime).TotalMinutes > 2)
+                            {
+                                handler.OnDisconnected();
+                                //删除
+                                ActivedVirtualWebSocketHandler.Remove(id);
+                                
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        continue;
+                    }
+                    System.Threading.Thread.Sleep(30000);
+                }
+            }).Start();
+        }
+
+        public VirtualWebSocketHandler(Dictionary<string, string> forms, 
+            RemotingClientHandler.SendDataHandler sendFunc, 
+            Func<int> waitForCloseFunc,
+            Func<int> closeConFunc,
+            string clientip)
+        {
+            mCloseConnectionFunc = closeConFunc;
+            mClientIP = clientip;
             mRequestForms = forms;
-            mConnection = con;
             mSendFunc = sendFunc;
+            mWaitForCloseFunc = waitForCloseFunc;
         }
 
         public void Handle()
         {
-            string mode = mRequestForms["mode"];
-            if (mode == "init")
+            try
             {
-                this.mSendFunc(Guid.NewGuid().ToString());
-            }
-            else if (mode == "receive")
-            {
-                string id = mRequestForms["id"];
-                string binaryType = mRequestForms["binaryType"];
-
-                RemotingClientHandler remotingHandler;
-
-                if (ActivedVirtualWebSocketHandler.ContainsKey(id))
+                string mode = mRequestForms["mode"];
+                if (mode == "init")
                 {
-                    remotingHandler = (RemotingClientHandler)ActivedVirtualWebSocketHandler[id];
-                   
+                    this.mSendFunc(Guid.NewGuid().ToString());
                 }
-                else
+                else if (mode == "heart")
                 {
-                    remotingHandler = new ScriptRemoting.RemotingClientHandler(null,null, mConnection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
-
-                    ActivedVirtualWebSocketHandler.Add(id , remotingHandler);
-                }
-                remotingHandler.Tag2 = true;
-                if (remotingHandler.mSendDataFunc == null)
-                {
-                    remotingHandler.mSendDataFunc = (data) =>
+                    string id = mRequestForms["id"];
+                    if (ActivedVirtualWebSocketHandler.ContainsKey(id))
                     {
+                        var remotingHandler = (RemotingClientHandler)ActivedVirtualWebSocketHandler[id];
+                        if (remotingHandler != null)
+                        {
+                            remotingHandler._heartTime = DateTime.Now;
+                        }
+                    }
+                }
+                else if (mode == "receive")
+                {
+                    string id = mRequestForms["id"];
+                    string binaryType = mRequestForms["binaryType"];
+
+                    RemotingClientHandler remotingHandler;
+
+                    if (ActivedVirtualWebSocketHandler.ContainsKey(id))
+                    {
+                        remotingHandler = (RemotingClientHandler)ActivedVirtualWebSocketHandler[id];
+
+                    }
+                    else
+                    {
+                        remotingHandler = new ScriptRemoting.RemotingClientHandler(null, null, mClientIP);
+
+                        ActivedVirtualWebSocketHandler.Add(id, remotingHandler);
+                    }
+                    remotingHandler.Tag2 = true;
+                    if (remotingHandler.mSendDataFunc == null)
+                    {
+                        remotingHandler.mSendDataFunc = (data) =>
+                        {
+                            try
+                            {
+                                int count = 0;
+                                while (remotingHandler.Tag1 == null && count < 500)
+                                {
+                                    System.Threading.Thread.Sleep(10);
+                                    count++;
+                                }
+
+                                RemotingClientHandler.SendDataHandler func = remotingHandler.Tag1 as RemotingClientHandler.SendDataHandler;
+                                if (func == null)
+                                {
+                                    if (ActivedVirtualWebSocketHandler.ContainsKey(id))
+                                    {
+                                        remotingHandler.OnDisconnected();
+                                        ActivedVirtualWebSocketHandler.Remove(id);
+                                      
+                                    }
+                                    remotingHandler.mCloseStreamHandler.Invoke();
+                                    return;
+                                }
+                                remotingHandler.Tag2 = false;
+                                remotingHandler.Tag1 = null;
+                                func.Invoke(data);
+                            }
+                            catch
+                            {
+                            }
+                        };
+                    }
+                    remotingHandler.mCloseStreamHandler = () =>
+                    {
+
                         try
                         {
-                            int count = 0;
-                            while (remotingHandler.Tag1 == null && count < 500)
-                            {
-                                System.Threading.Thread.Sleep(10);
-                                count++;
-                            }
+                            remotingHandler.OnDisconnected();
+                            mCloseConnectionFunc();
+                            ActivedVirtualWebSocketHandler.Remove(id);
 
-                            RemotingClientHandler.SendDataHandler func = remotingHandler.Tag1 as RemotingClientHandler.SendDataHandler;
-                            if (func == null)
-                            {
-                                remotingHandler.mCloseStreamHandler.Invoke();
-                                return;
-                            }
-                            remotingHandler.Tag2 = false;
-                            remotingHandler.Tag1 = null;
-                            func.Invoke(data);
                         }
                         catch
                         {
                         }
                     };
-                }
-                remotingHandler.mCloseStreamHandler = () =>
-                {
+                    remotingHandler.Tag1 = mSendFunc;
 
-                    try
+                    if (mWaitForCloseFunc() == 0)//如果不是0，表示是mvc结构，无法检测socket的断开状态
                     {
-                        this.mConnection.mClient.Close();
-                        ActivedVirtualWebSocketHandler.Remove(id);
-                    }
-                    catch
-                    {
-                    }
-                };
-                remotingHandler.Tag1 = mSendFunc;
 
-                while (true)
-                {
-                    try
-                    {
-                        this.mConnection.mClient.ReceiveDatas(1);
+                        if ((bool)remotingHandler.Tag2)
+                        {
+                            remotingHandler.OnDisconnected();
+                            if (ActivedVirtualWebSocketHandler.ContainsKey(id))
+                            {
+                                ActivedVirtualWebSocketHandler.Remove(id);
+                            }
+                        }
                     }
-                    catch
-                    {
-                        break;
-                    }
+                    return;
                 }
-               
-                this.mConnection.mClient.Close();
-                if ((bool)remotingHandler.Tag2)
+                else if (mode == "send")
                 {
+                    string data = mRequestForms["data"];
+                    string id = mRequestForms["id"];
+                    string binaryType = mRequestForms["binaryType"];
+                    int count = 0;
+                    while (!ActivedVirtualWebSocketHandler.ContainsKey(id) && count < 300)
+                    {
+                        System.Threading.Thread.Sleep(10);
+                        count++;
+                    }
                     if (ActivedVirtualWebSocketHandler.ContainsKey(id))
                     {
-                        ActivedVirtualWebSocketHandler.Remove(id);
-                    }
-                    remotingHandler.OnDisconnected();
-                }
-                return;
-            }
-            else if (mode == "send")
-            {
-                string data = mRequestForms["data"];
-                string id = mRequestForms["id"];
-                string binaryType = mRequestForms["binaryType"];
-                int count = 0;
-                while (!ActivedVirtualWebSocketHandler.ContainsKey(id) && count<300)
-                {
-                    System.Threading.Thread.Sleep(10);
-                    count++;
-                }
-                if (ActivedVirtualWebSocketHandler.ContainsKey(id))
-                {
-                    RemotingClientHandler handler = (RemotingClientHandler)ActivedVirtualWebSocketHandler[id];
-                    try
-                    {
-                        if (binaryType == "arraybuffer")
+                        RemotingClientHandler handler = (RemotingClientHandler)ActivedVirtualWebSocketHandler[id];
+                        try
                         {
-                            string[] strArr = data.Split('%');
-                            byte[] bs = new byte[strArr.Length - 1];
-                            for (int i = 1; i < strArr.Length; i++)
+                            if (binaryType == "arraybuffer")
                             {
-                                bs[i - 1] = (byte)Convert.ToInt32( strArr[i] , 16);
+                                string[] strArr = data.Split('%');
+                                byte[] bs = new byte[strArr.Length - 1];
+                                for (int i = 1; i < strArr.Length; i++)
+                                {
+                                    bs[i - 1] = (byte)Convert.ToInt32(strArr[i], 16);
+                                }
+                                handler.OnReceived(bs);
                             }
-                            handler.OnReceived(bs);
+                            else
+                            {
+                                handler.OnReceived(data);
+                            }
                         }
-                        else
+                        catch
                         {
-                            handler.OnReceived(data);
+
                         }
                     }
-                    catch
-                    {
-                        
-                    }
+                    mSendFunc("");
+
                 }
-                mSendFunc("");
-
             }
-
-            //wait for close
-            while (true)
+            catch
             {
-                try
-                {
-                    this.mConnection.mClient.ReceiveDatas(1);
-                }
-                catch
-                {
-                    break;
-                }
+
             }
-            this.mConnection.mClient.Close();
+            //wait for close
+            mWaitForCloseFunc();
         }
     }
 }

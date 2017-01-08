@@ -147,11 +147,33 @@ namespace Way.Lib.ScriptRemoting
                     || this.Connection.mKeyValues["POST"].ToSafeString().EndsWith("&WayVirtualWebSocket=1"))
                 {
                     urlRequestHandler();
-                    new VirtualWebSocketHandler(this.Connection, RequestForms, (data) =>
+                    new VirtualWebSocketHandler(RequestForms, (data) =>
                    {
-                       outputHttpResponse(data);                      
-                   }).Handle();
-                
+                       outputHttpResponse(data);
+                   }, () =>
+                     {
+                         while (true)
+                         {
+                             try
+                             {
+                                 this.Connection.mClient.ReceiveDatas(1);
+                             }
+                             catch
+                             {
+                                 break;
+                             }
+                         }
+                         this.Connection.mClient.Close();
+
+                         return 0;
+                     }, () =>
+                      {
+                          this.Connection.mClient.Close();
+                          return 0;
+                      }, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]
+
+                    ).Handle();
+
                     return;
                 }
                 else if (this.Connection.mKeyValues["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))

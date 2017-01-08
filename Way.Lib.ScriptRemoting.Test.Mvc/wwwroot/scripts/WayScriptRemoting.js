@@ -55,13 +55,26 @@ var WayScriptRemotingUploadHandler = (function () {
 }());
 var WayScriptRemoting = (function (_super) {
     __extends(WayScriptRemoting, _super);
-    function WayScriptRemoting(remoteName, socketid) {
+    function WayScriptRemoting(remoteName) {
         _super.call(this);
         this.mDoConnected = false;
         this.classFullName = remoteName;
-        this.SocketID = socketid;
         WayScriptRemoting.getServerAddress();
     }
+    Object.defineProperty(WayScriptRemoting.prototype, "groupName", {
+        get: function () {
+            return this.groupName;
+        },
+        set: function (value) {
+            this._groupName = value;
+            if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
+                this.mDoConnected = true;
+                this.connect();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(WayScriptRemoting.prototype, "onmessage", {
         //长连接接收到信息触发
         get: function () {
@@ -69,7 +82,7 @@ var WayScriptRemoting = (function (_super) {
         },
         set: function (func) {
             this._onmessage = func;
-            if (!this.mDoConnected) {
+            if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
                 this.mDoConnected = true;
                 this.connect();
             }
@@ -99,6 +112,9 @@ var WayScriptRemoting = (function (_super) {
         }
     };
     WayScriptRemoting.createRemotingController = function (remoteName) {
+        if (!remoteName) {
+            return new WayScriptRemoting(null);
+        }
         for (var i = 0; i < WayScriptRemoting.ExistControllers.length; i++) {
             if (WayScriptRemoting.ExistControllers[i].classFullName == remoteName)
                 return WayScriptRemoting.ExistControllers[i];
@@ -125,14 +141,14 @@ var WayScriptRemoting = (function (_super) {
         }
         var func;
         eval("func = " + result.text);
-        var page = new func(remoteName, result.SocketID);
+        var page = new func(remoteName);
         WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
     };
     WayScriptRemoting.createRemotingControllerAsync = function (remoteName, callback) {
         WayScriptRemoting.getServerAddress();
-        var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+        var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         ws.onopen = function () {
             ws.send("{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
@@ -148,7 +164,7 @@ var WayScriptRemoting = (function (_super) {
                 try {
                     var func;
                     eval("func = " + result.text);
-                    var page = new func(remoteName, result.SocketID);
+                    var page = new func(remoteName);
                     WayCookie.setCookie("WayScriptRemoting", result.SessionID);
                     callback(page, null);
                 }
@@ -219,10 +235,10 @@ var WayScriptRemoting = (function (_super) {
             if (!handler) {
                 handler = new WayScriptRemotingUploadHandler();
             }
-            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+            var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = function () {
-                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + _this.SocketID + "'}");
+                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
                 ws.binaryType = "arraybuffer";
                 _this.sendFile(ws, file, reader, size, handler.offset, 102400, callback, handler);
             };
@@ -302,10 +318,9 @@ var WayScriptRemoting = (function (_super) {
         }
     };
     WayScriptRemoting.prototype.pageInvoke = function (name, parameters, callback) {
-        var _this = this;
         try {
-            if (this.onBeforeInvoke) {
-                this.onBeforeInvoke(name, parameters);
+            if (WayScriptRemoting.onBeforeInvoke) {
+                WayScriptRemoting.onBeforeInvoke(name, parameters);
             }
             var paramerStr = "";
             if (parameters) {
@@ -318,8 +333,8 @@ var WayScriptRemoting = (function (_super) {
             }
             var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
             invoker.onCompleted = function (ret, err) {
-                if (_this.onInvokeFinish) {
-                    _this.onInvokeFinish(name, parameters);
+                if (WayScriptRemoting.onInvokeFinish) {
+                    WayScriptRemoting.onInvokeFinish(name, parameters);
                 }
                 if (err) {
                     callback(null, err);
@@ -335,7 +350,7 @@ var WayScriptRemoting = (function (_super) {
                     }
                 }
             };
-            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "','SocketID':'" + this.SocketID + "'}"]);
+            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
         }
         catch (e) {
             callback(null, e.message);
@@ -343,7 +358,7 @@ var WayScriptRemoting = (function (_super) {
     };
     WayScriptRemoting.prototype.connect = function () {
         var _this = this;
-        this.socket = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+        this.socket = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         this.socket.onopen = function () {
             try {
                 if (_this.onconnect) {
@@ -352,7 +367,7 @@ var WayScriptRemoting = (function (_super) {
             }
             catch (e) {
             }
-            _this.socket.send("{'SocketID':'" + _this.SocketID + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+            _this.socket.send("{'GroupName':'" + _this._groupName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
         this.socket.onmessage = function (evt) {
             var resultObj;
@@ -395,6 +410,188 @@ var WayScriptRemotingChild = (function (_super) {
     }
     return WayScriptRemotingChild;
 }(WayScriptRemoting));
+var WayVirtualWebSocketStatus;
+(function (WayVirtualWebSocketStatus) {
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["none"] = 0] = "none";
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["connected"] = 1] = "connected";
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["error"] = 2] = "error";
+    WayVirtualWebSocketStatus[WayVirtualWebSocketStatus["closed"] = 3] = "closed";
+})(WayVirtualWebSocketStatus || (WayVirtualWebSocketStatus = {}));
+var WayVirtualWebSocket = (function () {
+    function WayVirtualWebSocket(_url) {
+        this.status = WayVirtualWebSocketStatus.none;
+        this.binaryType = "string";
+        var exp = /http[s]?\:\/\/[\w|\:]+[\/]?/;
+        var httpstr = exp.exec(window.location.href)[0];
+        var exp2 = /ws\:\/\/[\w|\:]+[\/]?/;
+        var wsstr = exp2.exec(_url)[0];
+        this.url = _url.replace(wsstr, httpstr);
+        if (this.url.indexOf("?") > 0) {
+            this.url += "&";
+        }
+        else {
+            this.url += "?";
+        }
+        this.url += "WayVirtualWebSocket=1";
+        this.init();
+    }
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onopen", {
+        get: function () {
+            return this._onopen;
+        },
+        set: function (value) {
+            this._onopen = value;
+            if (this.status == WayVirtualWebSocketStatus.connected) {
+                if (this._onopen) {
+                    this._onopen({});
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onmessage", {
+        get: function () {
+            return this._onmessage;
+        },
+        set: function (value) {
+            this._onmessage = value;
+            if (this.status == WayVirtualWebSocketStatus.connected) {
+                if (this._onmessage) {
+                    this._onmessage({ data: this.lastMessage });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onclose", {
+        get: function () {
+            return this._onclose;
+        },
+        set: function (value) {
+            this._onclose = value;
+            if (this.status == WayVirtualWebSocketStatus.closed) {
+                if (this._onclose) {
+                    this._onclose({});
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayVirtualWebSocket.prototype, "onerror", {
+        get: function () {
+            return this._onerror;
+        },
+        set: function (value) {
+            this._onerror = value;
+            if (this.status == WayVirtualWebSocketStatus.error) {
+                if (this._onerror) {
+                    this._onerror({});
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    WayVirtualWebSocket.prototype.close = function () {
+        this.status = WayVirtualWebSocketStatus.closed;
+        this.receiver.abort();
+        if (this._onclose) {
+            this._onclose({});
+        }
+    };
+    WayVirtualWebSocket.prototype.init = function () {
+        var _this = this;
+        var invoker = new WayScriptInvoker(this.url);
+        invoker.onCompleted = function (result, err) {
+            if (err) {
+                _this.status = WayVirtualWebSocketStatus.error;
+                _this.errMsg = err;
+                if (_this._onerror) {
+                    _this._onerror({ data: _this.errMsg });
+                }
+            }
+            else {
+                _this.guid = result;
+                _this.status = WayVirtualWebSocketStatus.connected;
+                if (_this._onopen) {
+                    _this._onopen({});
+                }
+                _this.receiveChannelConnect();
+            }
+        };
+        invoker.invoke(["mode", "init"]);
+    };
+    WayVirtualWebSocket.prototype.send = function (data) {
+        var _this = this;
+        var invoker = new WayScriptInvoker(this.url);
+        invoker.onCompleted = function (result, err) {
+            if (err) {
+                _this.status = WayVirtualWebSocketStatus.error;
+                _this.errMsg = err;
+                if (_this._onerror) {
+                    _this._onerror({ data: _this.errMsg });
+                }
+            }
+        };
+        if (this.binaryType == "arraybuffer") {
+            data = this.arrayBufferToString(data);
+        }
+        invoker.invoke(["mode", "send", "data", data, "id", this.guid, "binaryType", this.binaryType]);
+    };
+    WayVirtualWebSocket.prototype.arrayBufferToString = function (data) {
+        var array = new Uint8Array(data);
+        var str = "";
+        for (var i = 0, len = array.length; i < len; ++i) {
+            str += "%" + array[i].toString(16);
+        }
+        return str;
+    };
+    WayVirtualWebSocket.prototype.receiveChannelConnect = function () {
+        var _this = this;
+        this.receiver = new WayScriptInvoker(this.url);
+        this.receiver.setTimeout(0);
+        this.receiver.onCompleted = function (result, err) {
+            if (err) {
+                _this.status = WayVirtualWebSocketStatus.error;
+                _this.errMsg = err;
+                if (_this._onerror) {
+                    _this._onerror({ data: _this.errMsg });
+                }
+            }
+            else {
+                //if (this.binaryType == "arraybuffer") {
+                //    var arr = result.split('%');
+                //    result = new ArrayBuffer(arr.length - 1);
+                //    var intArr = new Uint8Array(result);
+                //    for (var i = 1; i < arr.length; i++) {
+                //        intArr[i - 1] = parseInt(arr[i] , 16);
+                //    }
+                //}
+                _this.lastMessage = result;
+                if (_this._onmessage && _this.status == WayVirtualWebSocketStatus.connected) {
+                    _this._onmessage({ data: _this.lastMessage });
+                }
+                if (_this.status == WayVirtualWebSocketStatus.connected) {
+                    _this.receiveChannelConnect();
+                }
+            }
+        };
+        this.receiver.invoke(["mode", "receive", "id", this.guid, "binaryType", this.binaryType]);
+        setTimeout(function () { return _this.sendHeart(); }, 30000);
+    };
+    WayVirtualWebSocket.prototype.sendHeart = function () {
+        var _this = this;
+        if (this.status == WayVirtualWebSocketStatus.connected) {
+            var invoker = new WayScriptInvoker(this.url);
+            invoker.invoke(["mode", "heart", "id", this.guid]);
+            setTimeout(function () { return _this.sendHeart(); }, 30000);
+        }
+    };
+    return WayVirtualWebSocket;
+}());
 var WayScriptInvoker = (function () {
     function WayScriptInvoker(_url) {
         this.async = true;
@@ -406,6 +603,17 @@ var WayScriptInvoker = (function () {
             this.url = window.location.href;
         }
     }
+    WayScriptInvoker.prototype.abort = function () {
+        if (this.xmlHttp) {
+            this.xmlHttp.abort();
+        }
+    };
+    WayScriptInvoker.prototype.setTimeout = function (millseconds) {
+        if (!this.xmlHttp) {
+            this.xmlHttp = this.createXMLHttp();
+        }
+        this.xmlHttp.timeout = millseconds;
+    };
     WayScriptInvoker.prototype.invoke = function (nameAndValues) {
         var _this = this;
         if (!this.xmlHttp) {
@@ -420,6 +628,20 @@ var WayScriptInvoker = (function () {
         if (this.onBeforeInvoke)
             this.onBeforeInvoke();
         this.xmlHttp.onreadystatechange = function () { return _this.xmlHttpStatusChanged(); };
+        this.xmlHttp.onerror = function (e) {
+            if (_this.onInvokeFinish)
+                _this.onInvokeFinish();
+            if (_this.onCompleted) {
+                _this.onCompleted(null, "无法连接服务器");
+            }
+        };
+        this.xmlHttp.ontimeout = function () {
+            if (_this.onInvokeFinish)
+                _this.onInvokeFinish();
+            if (_this.onCompleted) {
+                _this.onCompleted(null, "连接服务器超时");
+            }
+        };
         if (this.method == "POST") {
             this.xmlHttp.open("POST", this.url, this.async);
             this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -443,11 +665,6 @@ var WayScriptInvoker = (function () {
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
                     this.onCompleted(this.xmlHttp.responseText, null);
-                }
-            }
-            else {
-                if (this.onCompleted) {
-                    this.onCompleted(null, "无法连接服务器");
                 }
             }
         }
@@ -497,6 +714,45 @@ var WayHelper = (function () {
                 return true;
         }
         return false;
+    };
+    WayHelper.createWebSocket = function (url) {
+        return new WayVirtualWebSocket(url);
+        //if ((<any>window).WebSocket) {
+        //    return new WebSocket(url);
+        //}
+        //else {
+        //    return <any>new WayVirtualWebSocket(url);
+        //}
+    };
+    WayHelper.addEventListener = function (element, eventName, listener, useCapture) {
+        if (element.addEventListener) {
+            element.addEventListener(eventName, listener, useCapture);
+        }
+        else {
+            element.attachEvent("on" + eventName, listener);
+        }
+    };
+    WayHelper.removeEventListener = function (element, eventName, listener, useCapture) {
+        if (element.removeEventListener) {
+            element.removeEventListener(eventName, listener, useCapture);
+        }
+        else {
+            element.detachEvent("on" + eventName, listener);
+        }
+    };
+    //触发htmlElement相关事件，如：fireEvent(myDiv , "click");
+    WayHelper.fireEvent = function (el, eventName) {
+        var evt;
+        if (document.createEvent) {
+            evt = document.createEvent("HTMLEvents");
+            // 3个参数：事件类型，是否冒泡，是否阻止浏览器的默认行为  
+            evt.initEvent(eventName, true, true);
+            //evt.initMouseEvent(eventName, true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            el.dispatchEvent(evt);
+        }
+        else if (el.fireEvent) {
+            el.fireEvent('on' + eventName);
+        }
     };
     WayHelper.getDataForDiffent = function (originalData, currentData) {
         var result = null;
@@ -805,6 +1061,23 @@ var WayDataBindHelper = (function () {
         }
         return onchangeMembers;
     };
+    //替换html里的变量
+    WayDataBindHelper.replaceHtmlFields = function (templateHtml, data) {
+        var expression = /\{\@([\w|\.]+)\}/g;
+        var html = templateHtml;
+        while (true) {
+            var r = expression.exec(templateHtml);
+            if (!r)
+                break;
+            try {
+                html = html.replace(r[0], eval("data." + r[1]));
+            }
+            catch (e) {
+                html = html.replace(r[0], "");
+            }
+        }
+        return html;
+    };
     WayDataBindHelper.dataBind = function (element, data, tag, expressionExp, dataMemberExp) {
         if (tag === void 0) { tag = null; }
         if (expressionExp === void 0) { expressionExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g; }
@@ -871,6 +1144,8 @@ var WayPageInfo = (function () {
     function WayPageInfo() {
         this.PageIndex = 0;
         this.PageSize = 10;
+        //正在看第几页,for pageMode
+        this.ViewingPageIndex = 0;
     }
     return WayPageInfo;
 }());
@@ -879,10 +1154,11 @@ var WayPager = (function () {
         var _this = this;
         this.scrollable = _scrollable;
         this.control = _ctrl;
-        _scrollable.scroll(function () { _this.onscroll(); });
+        this.scrollListener = function () { _this.onscroll(); };
+        WayHelper.addEventListener(_scrollable[0], "scroll", this.scrollListener, undefined);
     }
     WayPager.prototype.onscroll = function () {
-        if (!this.control.hasMorePage)
+        if (!this.control.hasMorePage || this.control.pageMode)
             return;
         var y = this.scrollable.scrollTop();
         var x = this.scrollable.scrollLeft();
@@ -1195,19 +1471,39 @@ var WayGridView = (function (_super) {
         this.loading = new WayProgressBar("#cccccc");
         // 标识当前绑定数据的事物id
         this.transcationID = 1;
+        //是否支持下拉刷新
+        //下拉刷新必须定义body模板
+        this.supportDropdownRefresh = false;
         //定义item._status的数据原型，可以修改此原型达到期望的目的
         this.itemStatusModel = { Selected: false };
+        //是否使用翻页模式
+        this.pageMode = false;
+        //pageMode模式下，预先加载多少页数据
+        this.preLoadNumForPageMode = 1;
         try {
             this.dbContext = new WayDBContext(controller, null);
             this.element = $("#" + elementId);
+            this.element.css({
+                "overflow-y": "auto",
+                "-webkit-overflow-scrolling": "touch"
+            });
+            var isTouch = "ontouchstart" in this.element[0];
+            if (!isTouch)
+                this.supportDropdownRefresh = false;
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[_for='body']");
             var templates = this.element.find("script");
             this.itemContainer = this.element;
             if (bodyTemplate.length > 0) {
-                this.itemContainer = $(bodyTemplate[0].innerHTML);
+                this.bodyTemplateHtml = bodyTemplate[0].innerHTML;
+                this.itemContainer = $(this.bodyTemplateHtml);
                 this.element[0].appendChild(this.itemContainer[0]);
+                this.initRefreshEvent(this.itemContainer);
+            }
+            else {
+                //没有body模板，则不支持下拉刷新
+                this.supportDropdownRefresh = false;
             }
             if (this.itemContainer[0].children.length > 0 && this.itemContainer[0].children[0].tagName == "TBODY") {
                 this.itemContainer = $(this.itemContainer[0].children[0]);
@@ -1245,6 +1541,95 @@ var WayGridView = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    //初始化下拉刷新事件
+    WayGridView.prototype.initRefreshEvent = function (touchEle) {
+        var _this = this;
+        var isTouch = "ontouchstart" in this.itemContainer[0];
+        if (!isTouch)
+            this.supportDropdownRefresh = false;
+        var moving = false;
+        var isTouchToRefresh = false;
+        //先预设一下,否则有时候第一次设置touchEle会白屏
+        touchEle.css("will-change", "transform");
+        var point;
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
+            if (!_this.supportDropdownRefresh || _this.pageMode)
+                return;
+            isTouchToRefresh = false;
+            if (_this.element.scrollTop() > 0) {
+                return;
+            }
+            e = e || window.event;
+            touchEle.css("will-change", "transform");
+            point = {
+                x: isTouch ? e.touches[0].clientX : e.clientX,
+                y: isTouch ? e.touches[0].clientY : e.clientY
+            };
+            moving = true;
+        }, true);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", function (e) {
+            if (moving) {
+                if (_this.element.scrollTop() > 0) {
+                    moving = false;
+                    return;
+                }
+                e = e || window.event;
+                var y = isTouch ? e.touches[0].clientY : e.clientY;
+                y = (y - point.y);
+                if (y > 0) {
+                    isTouchToRefresh = true;
+                    y = "translate(0px," + y + "px)";
+                    touchEle.css({
+                        "-webkit-transform": y,
+                        "-moz-transform": y,
+                        "transform": y
+                    });
+                }
+                if (isTouchToRefresh) {
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                    else
+                        window.event.cancelBubble = true;
+                }
+            }
+        }, true);
+        var touchoutFunc = function (e) {
+            if (moving) {
+                moving = false;
+                e = e || window.event;
+                var y = isTouch ? e.changedTouches[0].clientY : e.clientY;
+                y = (y - point.y);
+                isTouchToRefresh = (y > _this.element.height() * 0.15);
+                touchEle.css({
+                    "transition": "transform 0.5s",
+                    "-webkit-transform": "translate(0px,0px)",
+                    "-moz-transform": "translate(0px,0px)",
+                    "transform": "translate(0px,0px)"
+                });
+            }
+        };
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        this.element[0].ontouchcancel = function () {
+            isTouchToRefresh = false;
+            touchEle.css({
+                "transition": "transform 0.5s",
+                "-webkit-transform": "translate(0px,0px)",
+                "-moz-transform": "translate(0px,0px)",
+                "transform": "translate(0px,0px)"
+            });
+        };
+        WayHelper.addEventListener(touchEle[0], "transitionend", function (e) {
+            touchEle.css({
+                "transition": "",
+                "will-change": "auto"
+            });
+            if (isTouchToRefresh) {
+                _this.search();
+            }
+        }, true);
+    };
     WayGridView.prototype.search = function () {
         this.databind();
     };
@@ -1364,10 +1749,16 @@ var WayGridView = (function (_super) {
                 }
             }
         }
+        if (this.primaryKey && this.primaryKey.length > 0) {
+            result.push(this.primaryKey);
+        }
         return result;
     };
     //绑定数据
     WayGridView.prototype.databind = function () {
+        if (this.pageMode) {
+            this.initForPageMode();
+        }
         this.footerItem = null;
         //清除内容
         for (var i = 0; i < this.items.length; i++) {
@@ -1394,23 +1785,10 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.shouldLoadMorePage = function () {
         var _this = this;
         this.hasMorePage = false; //设为false，可以禁止期间被Pager再次调用
+        var pageData;
         this.transcationID++;
         var mytranId = this.transcationID;
-        if (typeof this.datasource == "function") {
-            this.showLoading();
-            this.datasource(function (ret, err) {
-                _this.hideLoading();
-                if (mytranId != _this.transcationID)
-                    return;
-                if (err) {
-                    _this.onErr(err);
-                }
-                else {
-                    _this.binddatas(ret);
-                }
-            });
-        }
-        else if (typeof this.datasource == "string") {
+        if (typeof this.datasource == "string") {
             this.showLoading();
             this.dbContext.getDatas(this.pageinfo, this.getBindFields(), this.searchModel, function (ret, pkid, err) {
                 _this.hideLoading();
@@ -1424,25 +1802,53 @@ var WayGridView = (function (_super) {
                     if (pkid != null) {
                         _this.primaryKey = pkid;
                     }
-                    _this.binddatas(ret);
-                    _this.pageinfo.PageIndex++;
-                    _this.hasMorePage = ret.length >= _this.pageinfo.PageSize;
-                    if (_this.onAfterCreateItems) {
-                        try {
-                            _this.onAfterCreateItems(_this.items.length, _this.hasMorePage);
-                        }
-                        catch (e) {
-                        }
-                    }
-                    if (_this.hasMorePage && _this.element[0].scrollHeight <= _this.element.height() * 1.1) {
-                        _this.shouldLoadMorePage();
-                    }
+                    pageData = ret;
+                    _this.bindDataToGrid(pageData);
                 }
             });
         }
         else {
-            this.binddatas(this.datasource);
+            pageData = this.getDataByPagesize(this.datasource);
+            this.bindDataToGrid(pageData);
         }
+    };
+    WayGridView.prototype.bindDataToGrid = function (pageData) {
+        this.binddatas(pageData);
+        this.pageinfo.PageIndex++;
+        this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+        if (this.onAfterCreateItems) {
+            try {
+                this.onAfterCreateItems(this.items.length, this.hasMorePage);
+            }
+            catch (e) {
+            }
+        }
+        if (this.hasMorePage) {
+            if (this.pageMode) {
+                //翻页模式
+                //预加载
+                if (this.preLoadNumForPageMode < 1)
+                    this.preLoadNumForPageMode = 1;
+                if (this.pageinfo.PageIndex <= this.preLoadNumForPageMode) {
+                    this.shouldLoadMorePage();
+                }
+            }
+            else {
+                if (this.element[0].scrollHeight <= this.element.height() * 1.1) {
+                    this.shouldLoadMorePage();
+                }
+            }
+        }
+    };
+    WayGridView.prototype.getDataByPagesize = function (datas) {
+        if (datas.length <= this.pageinfo.PageSize)
+            return datas;
+        var result = [];
+        var end = this.pageinfo.PageSize * (this.pageinfo.PageIndex + 1);
+        for (var i = this.pageinfo.PageSize * this.pageinfo.PageIndex; i < end && i < datas.length; i++) {
+            result.push(datas[i]);
+        }
+        return result;
     };
     //把两个table的td设为一样的宽度
     WayGridView.prototype.setSameWidthForTables = function (tableSource, tableHeader) {
@@ -1547,6 +1953,7 @@ var WayGridView = (function (_super) {
     //从服务器更新指定item的数据，并重新绑定
     WayGridView.prototype.rebindItemFromServer = function (itemIndex, mode, callback) {
         var _this = this;
+        if (callback === void 0) { callback = null; }
         var searchmodel = {};
         var item = this.items[itemIndex];
         searchmodel[this.primaryKey] = item._data[this.primaryKey];
@@ -1661,6 +2068,10 @@ var WayGridView = (function (_super) {
         return item;
     };
     WayGridView.prototype.binddatas = function (datas) {
+        if (this.pageMode) {
+            this.binddatas_pageMode(datas);
+            return;
+        }
         try {
             //bind items
             for (var i = 0; i < datas.length; i++) {
@@ -1682,6 +2093,162 @@ var WayGridView = (function (_super) {
             }
             if (this.onItemSizeChanged) {
                 this.onItemSizeChanged();
+            }
+        }
+        catch (e) {
+            this.onErr("GridView.databind error:" + e.message);
+        }
+    };
+    WayGridView.prototype.initForPageMode = function () {
+        var _this = this;
+        if (this.itemContainer[0] != this.element[0]) {
+            this.itemContainer[0].parentElement.removeChild(this.itemContainer[0]);
+        }
+        this.itemContainer = $(document.createElement("DIV"));
+        this.element[0].appendChild(this.itemContainer[0]);
+        this.element.css({
+            "overflow-x": "hidden",
+            "overflow-y": "hidden"
+        });
+        this.itemContainer.css({
+            "height": "100%",
+            "width": "0px",
+            "will-change": "transform"
+        });
+        var isTouch = "ontouchstart" in this.itemContainer[0];
+        var point;
+        var moving;
+        var isTouchToRefresh = false;
+        this.element[0].ontouchstart = null;
+        this.element[0].ontouchend = null;
+        this.element[0].ontouchmove = null;
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
+            isTouchToRefresh = false;
+            e = e || window.event;
+            _this.itemContainer.css("will-change", "transform");
+            point = {
+                x: isTouch ? e.touches[0].clientX : e.clientX,
+                y: isTouch ? e.touches[0].clientY : e.clientY,
+                time: new Date().getTime()
+            };
+            moving = true;
+        }, true);
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", function (e) {
+            if (moving) {
+                e = e || window.event;
+                var x = isTouch ? e.touches[0].clientX : e.clientX;
+                x = (x - point.x);
+                if (x > 0 && _this.pageinfo.ViewingPageIndex == 0) {
+                    x /= 3;
+                }
+                else if (x < 0 && _this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1) {
+                    x /= 3;
+                }
+                if (Math.abs(x) > 0) {
+                    isTouchToRefresh = true;
+                }
+                x = "translate(" + (x - _this.pageinfo.ViewingPageIndex * _this.element.width()) + "px,0px)";
+                _this.itemContainer.css({
+                    "-webkit-transform": x,
+                    "-moz-transform": x,
+                    "transform": x
+                });
+                if (isTouchToRefresh) {
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                    else
+                        window.event.cancelBubble = true;
+                }
+            }
+        }, true);
+        var touchoutFunc = function (e) {
+            if (moving) {
+                moving = false;
+                e = e || window.event;
+                var x = isTouch ? e.changedTouches[0].clientX : e.clientX;
+                x = (x - point.x);
+                if (x != 0) {
+                    if (x > _this.element.width() / 3 || (x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                        if (_this.pageinfo.ViewingPageIndex > 0) {
+                            _this.pageinfo.ViewingPageIndex--;
+                        }
+                    }
+                    else if (-x > _this.element.width() / 3 || (-x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                        if (_this.pageinfo.ViewingPageIndex < _this.itemContainer[0].children.length - 1) {
+                            _this.pageinfo.ViewingPageIndex++;
+                        }
+                    }
+                    var desLocation = "translate(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0px)";
+                    _this.itemContainer.css({
+                        "transition": "transform 0.5s",
+                        "-webkit-transform": desLocation,
+                        "-moz-transform": desLocation,
+                        "transform": desLocation
+                    });
+                }
+            }
+        };
+        this.element[0].ontouchcancel = function () {
+            var desLocation = "translate(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0px)";
+            _this.itemContainer.css({
+                "transition": "transform 0.5s",
+                "-webkit-transform": desLocation,
+                "-moz-transform": desLocation,
+                "transform": desLocation
+            });
+        };
+        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        WayHelper.addEventListener(this.itemContainer[0], "transitionend", function (e) {
+            _this.itemContainer.css({
+                "transition": "",
+            });
+            if (_this.onViewPageIndexChange) {
+                _this.onViewPageIndexChange(_this.pageinfo.ViewingPageIndex);
+            }
+            if (_this.pageinfo.ViewingPageIndex == _this.itemContainer[0].children.length - 1 && _this.hasMorePage) {
+                _this.shouldLoadMorePage();
+            }
+        }, true);
+    };
+    //设置当前观看那一页，执行这个方法，pageMode必须是true
+    WayGridView.prototype.setViewPageIndex = function (index) {
+        if (this.pageMode) {
+            if (index >= 0 && index != this.pageinfo.ViewingPageIndex && index < this.itemContainer[0].children.length) {
+                this.pageinfo.ViewingPageIndex = index;
+                var desLocation = "translate(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0px)";
+                this.itemContainer.css({
+                    "transition": "transform 0.5s",
+                    "-webkit-transform": desLocation,
+                    "-moz-transform": desLocation,
+                    "transform": desLocation
+                });
+            }
+        }
+    };
+    WayGridView.prototype.binddatas_pageMode = function (datas) {
+        if (datas.length == 0)
+            return;
+        try {
+            if (!this.bodyTemplateHtml) {
+                this.bodyTemplateHtml = "<div></div>";
+            }
+            this.itemContainer.width(this.itemContainer.width() + this.element.width());
+            var divContainer = $(this.bodyTemplateHtml);
+            divContainer.css({
+                "width": this.element.width() + "px",
+                "height": this.element.height() + "px",
+                "float": "left",
+            });
+            this.itemContainer.append(divContainer);
+            //bind items
+            for (var i = 0; i < datas.length; i++) {
+                this.originalItems.push(datas[i]);
+                var itemindex = this.items.length;
+                var item = this.createItem(itemindex);
+                divContainer.append(item);
+                this.items.push(item);
             }
         }
         catch (e) {
