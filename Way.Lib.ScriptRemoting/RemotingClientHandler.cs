@@ -293,6 +293,7 @@ namespace Way.Lib.ScriptRemoting
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
                 mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName, msgBag.FileSize , msgBag.Offset);
+                SendData(MessageType.UploadFileBegined,"ok");
             }
             catch (Exception ex)
             {
@@ -412,6 +413,7 @@ namespace Way.Lib.ScriptRemoting
         Notify = 2,
         SendSessionID = 3,
         InvokeError = 4,
+        UploadFileBegined = 5
     }
 
 }

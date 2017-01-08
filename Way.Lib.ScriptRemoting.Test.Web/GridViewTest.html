@@ -15,6 +15,9 @@
     </style>
 </head>
 <body style="overflow:hidden;">
+    <div>
+        filetest:<input type="file" id="file1" /><input type="button" value="upload" onclick="uploadfile()" />
+    </div>
     <input type="button" value="rebind" onclick="grid.databind()" />
     <div id="searchDiv">
         caption:<input type="text" _databind="value=@caption"/>TableID:<input type="text" _databind="value=@TableID" /><input type="button" value="search" onclick="goSearch()" />

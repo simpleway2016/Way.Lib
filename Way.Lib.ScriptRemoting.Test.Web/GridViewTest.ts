@@ -97,3 +97,21 @@ function normal(itemIndex) {
         alert(e.message);
     }
 }
+
+
+function uploadfile() {
+    var file1 = document.getElementById("file1");
+    var handler = testPage.uploadFile(file1, (ret, totalSize, uploaded, err) => {
+        if (err) {
+            alert("uploadfile err:" + err);
+        }
+        else {
+            if (uploaded == totalSize) {
+                document.title = "upload completed";
+            }
+            else {
+                document.title = ((uploaded * 100) / totalSize) + "%";
+            }
+        }
+    }, null);
+}

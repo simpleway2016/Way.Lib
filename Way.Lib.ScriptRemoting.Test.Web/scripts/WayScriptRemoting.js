@@ -12,6 +12,7 @@ var WayScriptRemotingMessageType;
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["Notify"] = 2] = "Notify";
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["SendSessionID"] = 3] = "SendSessionID";
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["InvokeError"] = 4] = "InvokeError";
+    WayScriptRemotingMessageType[WayScriptRemotingMessageType["UploadFileBegined"] = 5] = "UploadFileBegined";
 })(WayScriptRemotingMessageType || (WayScriptRemotingMessageType = {}));
 var WayCookie = (function () {
     function WayCookie() {
@@ -148,7 +149,7 @@ var WayScriptRemoting = (function (_super) {
     };
     WayScriptRemoting.createRemotingControllerAsync = function (remoteName, callback) {
         WayScriptRemoting.getServerAddress();
-        var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+        var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         ws.onopen = function () {
             ws.send("{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
@@ -222,6 +223,9 @@ var WayScriptRemoting = (function (_super) {
         var _this = this;
         try {
             var file;
+            if (typeof fileElement == "string") {
+                fileElement = document.getElementById(fileElement);
+            }
             if (fileElement.files) {
                 file = fileElement.files[0];
             }
@@ -235,17 +239,19 @@ var WayScriptRemoting = (function (_super) {
             if (!handler) {
                 handler = new WayScriptRemotingUploadHandler();
             }
-            var ws = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+            var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = function () {
                 ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
-                ws.binaryType = "arraybuffer";
-                _this.sendFile(ws, file, reader, size, handler.offset, 102400, callback, handler);
             };
             ws.onmessage = function (evt) {
                 var resultObj;
                 eval("resultObj=" + evt.data);
-                if (resultObj.type == WayScriptRemotingMessageType.Result) {
+                if (resultObj.type == WayScriptRemotingMessageType.UploadFileBegined) {
+                    ws.binaryType = "arraybuffer";
+                    _this.sendFile(ws, file, reader, size, handler.offset, 102400, callback, handler);
+                }
+                else if (resultObj.type == WayScriptRemotingMessageType.Result) {
                     if (errored)
                         return;
                     if (resultObj.result == "ok") {
@@ -358,7 +364,7 @@ var WayScriptRemoting = (function (_super) {
     };
     WayScriptRemoting.prototype.connect = function () {
         var _this = this;
-        this.socket = new WebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+        this.socket = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         this.socket.onopen = function () {
             try {
                 if (_this.onconnect) {
@@ -421,8 +427,11 @@ var WayVirtualWebSocket = (function () {
     function WayVirtualWebSocket(_url) {
         this.status = WayVirtualWebSocketStatus.none;
         this.binaryType = "string";
-        var protocol = window.location.href.substr(0, window.location.href.indexOf(":"));
-        this.url = _url.replace("ws://", protocol + "://");
+        var exp = /http[s]?\:\/\/[\w|\:]+[\/]?/;
+        var httpstr = exp.exec(window.location.href)[0];
+        var exp2 = /ws\:\/\/[\w|\:]+[\/]?/;
+        var wsstr = exp2.exec(_url)[0];
+        this.url = _url.replace(wsstr, httpstr);
         if (this.url.indexOf("?") > 0) {
             this.url += "&";
         }
@@ -577,12 +586,18 @@ var WayVirtualWebSocket = (function () {
             }
         };
         this.receiver.invoke(["mode", "receive", "id", this.guid, "binaryType", this.binaryType]);
+        setTimeout(function () { return _this.sendHeart(); }, 30000);
+    };
+    WayVirtualWebSocket.prototype.sendHeart = function () {
+        var _this = this;
+        if (this.status == WayVirtualWebSocketStatus.connected) {
+            var invoker = new WayScriptInvoker(this.url);
+            invoker.invoke(["mode", "heart", "id", this.guid]);
+            setTimeout(function () { return _this.sendHeart(); }, 30000);
+        }
     };
     return WayVirtualWebSocket;
 }());
-if (window.WebSocket) {
-    window.WebSocket = WayVirtualWebSocket;
-}
 var WayScriptInvoker = (function () {
     function WayScriptInvoker(_url) {
         this.async = true;
@@ -705,6 +720,15 @@ var WayHelper = (function () {
                 return true;
         }
         return false;
+    };
+    WayHelper.createWebSocket = function (url) {
+        //return <any>new WayVirtualWebSocket(url);
+        if (window.WebSocket) {
+            return new WebSocket(url);
+        }
+        else {
+            return new WayVirtualWebSocket(url);
+        }
     };
     WayHelper.addEventListener = function (element, eventName, listener, useCapture) {
         if (element.addEventListener) {
