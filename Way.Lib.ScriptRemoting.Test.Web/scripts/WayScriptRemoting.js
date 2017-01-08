@@ -426,6 +426,7 @@ var WayVirtualWebSocketStatus;
 var WayVirtualWebSocket = (function () {
     function WayVirtualWebSocket(_url) {
         this.status = WayVirtualWebSocketStatus.none;
+        this.sendQueue = [];
         this.binaryType = "string";
         var exp = /http[s]?\:\/\/[\w|\:]+[\/]?/;
         var httpstr = exp.exec(window.location.href)[0];
@@ -532,6 +533,10 @@ var WayVirtualWebSocket = (function () {
     };
     WayVirtualWebSocket.prototype.send = function (data) {
         var _this = this;
+        if (this.sendQueue.length > 0) {
+            this.sendQueue.push(data);
+            return;
+        }
         var invoker = new WayScriptInvoker(this.url);
         invoker.onCompleted = function (result, err) {
             if (err) {
@@ -540,6 +545,10 @@ var WayVirtualWebSocket = (function () {
                 if (_this._onerror) {
                     _this._onerror({ data: _this.errMsg });
                 }
+                _this.sendQueue = [];
+            }
+            else {
+                _this.sendQueue.pop();
             }
         };
         if (this.binaryType == "arraybuffer") {
@@ -722,13 +731,13 @@ var WayHelper = (function () {
         return false;
     };
     WayHelper.createWebSocket = function (url) {
-        //return <any>new WayVirtualWebSocket(url);
-        if (window.WebSocket) {
-            return new WebSocket(url);
-        }
-        else {
-            return new WayVirtualWebSocket(url);
-        }
+        return new WayVirtualWebSocket(url);
+        //if ((<any>window).WebSocket) {
+        //    return new WebSocket(url);
+        //}
+        //else {
+        //    return <any>new WayVirtualWebSocket(url);
+        //}
     };
     WayHelper.addEventListener = function (element, eventName, listener, useCapture) {
         if (element.addEventListener) {

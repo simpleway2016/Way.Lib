@@ -105,7 +105,7 @@ namespace Way.Lib.ScriptRemoting
                             try
                             {
                                 int count = 0;
-                                while (remotingHandler.Tag1 == null && count < 500)
+                                while (remotingHandler.Tag1 == null && count < 2000)
                                 {
                                     System.Threading.Thread.Sleep(10);
                                     count++;

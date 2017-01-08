@@ -448,6 +448,7 @@ class WayVirtualWebSocket {
     private _onmessage: (event: any) => void;
     private _onclose: (event: any) => void;
     private _onerror: (event: any) => void;
+    private sendQueue: any[] = [];
     binaryType: string = "string";
 
     get onopen(): (event: any) => void {
@@ -546,6 +547,10 @@ class WayVirtualWebSocket {
     }
 
     send(data): void {
+        if (this.sendQueue.length > 0) {
+            this.sendQueue.push(data);
+            return;
+        }
         var invoker = new WayScriptInvoker(this.url);
         invoker.onCompleted = (result, err) => {
             if (err) {
@@ -554,6 +559,10 @@ class WayVirtualWebSocket {
                 if (this._onerror) {
                     this._onerror({ data: this.errMsg });
                 }
+                this.sendQueue = [];
+            }
+            else {
+                this.sendQueue.pop();
             }
         }
         if (this.binaryType == "arraybuffer") {
@@ -760,13 +769,13 @@ class WayHelper {
     }
 
     static createWebSocket(url: string): WebSocket {
-        //return <any>new WayVirtualWebSocket(url);
-        if ((<any>window).WebSocket) {
-            return new WebSocket(url);
-        }
-        else {
-            return <any>new WayVirtualWebSocket(url);
-        }
+        return <any>new WayVirtualWebSocket(url);
+        //if ((<any>window).WebSocket) {
+        //    return new WebSocket(url);
+        //}
+        //else {
+        //    return <any>new WayVirtualWebSocket(url);
+        //}
     }
 
     static addEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
