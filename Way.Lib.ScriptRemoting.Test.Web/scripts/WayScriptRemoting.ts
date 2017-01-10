@@ -663,7 +663,7 @@ class WayScriptInvoker {
         for (var i = 0; i < nameAndValues.length; i += 2) {
             if (i > 0)
                 p += "&";
-            p += nameAndValues[i] + "=" + (<any>window).escape(nameAndValues[i + 1]);
+            p += nameAndValues[i] + "=" + (<any>window).encodeURI(nameAndValues[i + 1], "utf-8");
 
         }
         if (this.onBeforeInvoke)
@@ -1017,7 +1017,8 @@ class WayBindingElement extends WayBaseObject {
             for (var i = 0; i < this.configs.length; i++) {
                 var config = this.configs[i];
                 if (config.dataMember == name) {
-                    eval("config.element." + config.elementMember + "=" + JSON.stringify(value) + ";");
+                    var v = JSON.stringify(value);
+                    eval("if(config.element." + config.elementMember + "!=" + v + ") config.element." + config.elementMember + "=" + v + ";");
                 }
             }
         }
@@ -1826,14 +1827,11 @@ class WayGridView extends WayBaseObject implements IPageable {
                 "will-change": "auto"
             });
             if (isTouchToRefresh) {
-                this.search();
+                this.databind();
             }
         }, true);
     }
 
-    search(): void {
-        this.databind();
-    }
 
     private showLoading(): void {
         this.loading.show(this.element);
@@ -2570,6 +2568,7 @@ class WayDropDownList {
     private grid: WayGridView;
     private isBindedGrid: boolean = false;
     private windowObj: JQuery;
+    private maskLayer: JQuery;
     valueMember: string;
     textMember: string;
     selectedValue: string;
@@ -2577,6 +2576,9 @@ class WayDropDownList {
     constructor(elementid: string, controller: string, datasource: any) {
         this.windowObj = $(window);
         this.element = $("#" + elementid);
+        this.isMobile = "ontouchstart" in this.element[0];
+        //this.isMobile = true;
+
         var textele = this.element.find("*[_istext]");
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
@@ -2600,11 +2602,6 @@ class WayDropDownList {
             this.grid = new WayGridView(<any>this.itemContainer[0], controller, 10);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
-            this.grid.onAfterCreateItems = (total, hasMorePage) => {
-                if (!hasMorePage && this.grid.element[0].scrollHeight < this.itemContainer.height()) {
-                    this.itemContainer.height(Math.max(20 , this.grid.element[0].scrollHeight));
-                }
-            }
           
             if (!this.valueMember || this.valueMember == "") {
             }
@@ -2615,6 +2612,19 @@ class WayDropDownList {
             }
             else {
                 this.grid.dataMembers.push(this.textMember);
+                if (this.textElement[0].tagName == "INPUT") {
+                    this.textElement.attr("_databind", "value=@" + this.textMember);
+                    this.grid.searchModel = WayDataBindHelper.dataBind(this.textElement[0], {});
+                    this.grid.searchModel.onchange = () => {
+                        if (this.itemContainer.css("visibility") == "visible") {
+                            this.grid.databind();
+                            this.isBindedGrid = true;
+                        }
+                        else {
+                            this.isBindedGrid = false;
+                        }
+                    }
+                }
             }
         }
     }
@@ -2625,7 +2635,9 @@ class WayDropDownList {
 
             this.selectedValue = eval("item._data." + this.valueMember);
             if (this.textElement[0].tagName == "INPUT")
-                this.textElement.val(eval("item._data." + this.textMember));
+            {
+                this.textElement.val( eval("item._data." + this.textMember));
+            }
             else
                 this.textElement.html(eval("item._data." + this.textMember));
         });
@@ -2644,27 +2656,41 @@ class WayDropDownList {
         if (!this.isMobile) {
             var cssHeight = this.itemContainer.css("height");
             if (!cssHeight || cssHeight == "" || cssHeight == "0px") {
-                this.itemContainer.css("height","300px");
+                this.itemContainer.css("height", "300px");
             }
+        }
+        else {
+            this.itemContainer.css("position","fixed");
+            this.maskLayer = $("<div style='background-color:#000000;opacity:0.3;z-index:998;position:fixed;width:100%;height:100%;display:none;left:0;top:0;'></div>");
+            document.body.appendChild(this.maskLayer[0]);
+            this.itemContainer.css("height", "300px");
         }
 
         document.body.appendChild(this.itemContainer[0]);
 
         this.actionElement.click((e) => {
             e = e || <any>window.event;
-            var srcElement: HTMLElement = <any>e.target || e.srcElement;
-            while (srcElement.parentElement) {
-                if (srcElement == this.actionElement[0]) {
-                    if (e.stopPropagation)
-                        e.stopPropagation();
-                    else
-                        e.cancelBubble = true;
-                    break;
-                }
-                srcElement = srcElement.parentElement;
-            }
+            if (e.stopPropagation)
+                e.stopPropagation();
+            else
+                e.cancelBubble = true;
             this.showList();
         });
+
+        this.textElement.click((e) => {
+            e = e || <any>window.event;
+            if (e.stopPropagation)
+                e.stopPropagation();
+            else
+                e.cancelBubble = true;
+        });
+
+        if (this.textElement[0].tagName == "INPUT") {
+            this.textElement.keyup(() => {
+                this.grid.searchModel[this.textMember] = this.textElement.val();
+                
+            });
+        }
 
         $(document.documentElement).click(() => {
             this.hideList();
@@ -2672,17 +2698,20 @@ class WayDropDownList {
     }
     //显示下拉列表
     showList(): void {
+        if (this.maskLayer) {
+            this.maskLayer.show();
+        }
         if (!this.isMobile) {
             var offset = this.textElement.offset();
             var y = (offset.top + this.textElement.outerHeight());
-            
+
             this.itemContainer.css(
                 {
                     width: this.textElement.outerWidth() + "px",
                     left: offset.left + "px",
                     top: y + "px",
                 });
-           
+
 
             if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
                 y = offset.top - this.itemContainer.outerHeight();
@@ -2693,16 +2722,29 @@ class WayDropDownList {
             if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
                 this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
             }
-            this.itemContainer.css("visibility", "visible");
 
-            if (!this.isBindedGrid) {
-                this.grid.databind();
-                this.isBindedGrid = true;
-            }
+        }
+        else {
+            this.itemContainer.css(
+                {
+                    width: this.windowObj.innerWidth() * 0.9 + "px",
+                    height: this.windowObj.innerHeight() * 0.9 + "px",
+                    left: this.windowObj.innerWidth() * 0.05 + "px",
+                    top: this.windowObj.innerHeight() * 0.05 + "px",
+                });
+        }
+
+        this.itemContainer.css("visibility", "visible");
+
+        if (!this.isBindedGrid) {
+            this.grid.databind();
+            this.isBindedGrid = true;
         }
     }
     //隐藏显示下拉列表
     hideList(): void {
+        if (this.maskLayer)
+            this.maskLayer.hide();
         if (this.itemContainer.css("visibility") == "visible")
         {
             this.itemContainer.css("visibility","hidden");

@@ -59,7 +59,7 @@ window.onload = () => {
 }
 
 function goSearch() {
-    grid.search();
+    grid.databind();
 }
 
 function edit(itemIndex) {

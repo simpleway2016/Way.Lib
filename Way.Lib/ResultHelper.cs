@@ -10,6 +10,49 @@ namespace Way.Lib
 {
     public static class ResultHelper
     {
+        public static object GetQueryForOrderBy(object linqQuery, string stringOrder)
+        {
+            Type myType = typeof(System.Linq.Queryable);
+            Type dataType = linqQuery.GetType().GetGenericArguments()[0];
+            ParameterExpression param = System.Linq.Expressions.Expression.Parameter(dataType, "n");
+            var methods = myType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            bool isThenBy = false;
+            string[] orders = stringOrder.Split(',');
+            foreach (string order in orders)
+            {
+                if (order.Trim().Length == 0)
+                    continue;
+                bool desc = order.Trim().ToLower().Contains(" desc");
+                string methodName;
+                if (isThenBy == false)
+                {
+                    isThenBy = true;
+                    methodName = desc ? "OrderByDescending" : "OrderBy";
+                }
+                else
+                {
+                    methodName = desc ? "ThenByDescending" : "ThenBy";
+                }
+                string itemProperty = order.Trim().Split(' ')[0];
+                if (itemProperty.StartsWith("[") && itemProperty.EndsWith("]"))
+                    itemProperty = itemProperty.Substring(1, itemProperty.Length - 2);
+
+                System.Reflection.PropertyInfo pinfo;
+                System.Linq.Expressions.Expression left = GetPropertyExpression(param, dataType, itemProperty, out pinfo);
+                System.Linq.Expressions.Expression expression = System.Linq.Expressions.Expression.Lambda(left, param);
+
+
+                foreach (System.Reflection.MethodInfo method in methods)
+                {
+                    if (method.Name != methodName || method.IsGenericMethod == false)
+                        continue;
+                    System.Reflection.MethodInfo mmm = method.MakeGenericMethod(dataType, pinfo.PropertyType);
+                    linqQuery = mmm.Invoke(null, new object[] { linqQuery, expression });
+                    break;
+                }
+            }
+            return linqQuery;
+        }
         public static object InvokeTake(object resultObj, int takeSize)
         {
             Type objectType = resultObj.GetType();

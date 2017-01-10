@@ -51,7 +51,7 @@ window.onload = function () {
     grid.databind();
 };
 function goSearch() {
-    grid.search();
+    grid.databind();
 }
 function edit(itemIndex) {
     try {

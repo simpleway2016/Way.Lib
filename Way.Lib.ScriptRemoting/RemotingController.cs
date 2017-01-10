@@ -439,7 +439,7 @@ namespace Way.Lib.ScriptRemoting
                     dataItemType = dataItemType.GetGenericArguments()[0];
                 }
 
-                if (pagerInfo.PageIndex == 0)
+                if (pagerInfo.PageIndex == 0 || (result is IQueryable && !(result is IOrderedQueryable) ))
                 {
                     //获取主键名
                     if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
@@ -453,6 +453,11 @@ namespace Way.Lib.ScriptRemoting
                                 var list = new List<string>(fields);
                                 list.Add(pkid);
                                 fields = list.ToArray();
+                            }
+
+                            if (result is IQueryable && !(result is IOrderedQueryable))
+                            {
+                                result = ResultHelper.GetQueryForOrderBy(result, pkid);
                             }
                         }
                     }

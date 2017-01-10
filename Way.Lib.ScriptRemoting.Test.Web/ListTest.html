@@ -10,6 +10,7 @@
     <style>
         td {
         border-right:1px solid blue;
+        
         }
     </style>
 </head>
@@ -17,13 +18,15 @@
     <div id="list1" style="margin-top:500px;">
         <input type="text" _istext="true" /><input type="button" _isaction="true" />
         <script _for="itemContainer" type="text/html">
-            <div style="border:1px solid #ccc;"></div>
+            <div style="border:1px solid #ccc;background-color:#fff;"></div>
         </script>
         <script _for="item" _valueMember="id" _textMember="caption" type="text/html">
             <div style="padding:5px;border-bottom:1px solid #eee;">{@caption}</div>
         </script>
     </div>
-    <div style="height:3000px;"></div>
+    <div id="d1" style="height:30px;overflow-y:auto;">
+        
+    </div>
   <script lang="ja">
       var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
       

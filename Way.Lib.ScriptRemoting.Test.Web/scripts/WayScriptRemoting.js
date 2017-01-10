@@ -638,7 +638,7 @@ var WayScriptInvoker = (function () {
         for (var i = 0; i < nameAndValues.length; i += 2) {
             if (i > 0)
                 p += "&";
-            p += nameAndValues[i] + "=" + window.escape(nameAndValues[i + 1]);
+            p += nameAndValues[i] + "=" + window.encodeURI(nameAndValues[i + 1], "utf-8");
         }
         if (this.onBeforeInvoke)
             this.onBeforeInvoke();
@@ -954,7 +954,8 @@ var WayBindingElement = (function (_super) {
             for (var i = 0; i < this.configs.length; i++) {
                 var config = this.configs[i];
                 if (config.dataMember == name) {
-                    eval("config.element." + config.elementMember + "=" + JSON.stringify(value) + ";");
+                    var v = JSON.stringify(value);
+                    eval("if(config.element." + config.elementMember + "!=" + v + ") config.element." + config.elementMember + "=" + v + ";");
                 }
             }
         }
@@ -1645,12 +1646,9 @@ var WayGridView = (function (_super) {
                 "will-change": "auto"
             });
             if (isTouchToRefresh) {
-                _this.search();
+                _this.databind();
             }
         }, true);
-    };
-    WayGridView.prototype.search = function () {
-        this.databind();
     };
     WayGridView.prototype.showLoading = function () {
         this.loading.show(this.element);
@@ -2289,6 +2287,8 @@ var WayDropDownList = (function () {
         this.isBindedGrid = false;
         this.windowObj = $(window);
         this.element = $("#" + elementid);
+        this.isMobile = "ontouchstart" in this.element[0];
+        //this.isMobile = true;
         var textele = this.element.find("*[_istext]");
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
@@ -2307,11 +2307,6 @@ var WayDropDownList = (function () {
             this.grid = new WayGridView(this.itemContainer[0], controller, 10);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
-            this.grid.onAfterCreateItems = function (total, hasMorePage) {
-                if (!hasMorePage && _this.grid.element[0].scrollHeight < _this.itemContainer.height()) {
-                    _this.itemContainer.height(Math.max(20, _this.grid.element[0].scrollHeight));
-                }
-            };
             if (!this.valueMember || this.valueMember == "") {
             }
             else {
@@ -2321,6 +2316,19 @@ var WayDropDownList = (function () {
             }
             else {
                 this.grid.dataMembers.push(this.textMember);
+                if (this.textElement[0].tagName == "INPUT") {
+                    this.textElement.attr("_databind", "value=@" + this.textMember);
+                    this.grid.searchModel = WayDataBindHelper.dataBind(this.textElement[0], {});
+                    this.grid.searchModel.onchange = function () {
+                        if (_this.itemContainer.css("visibility") == "visible") {
+                            _this.grid.databind();
+                            _this.isBindedGrid = true;
+                        }
+                        else {
+                            _this.isBindedGrid = false;
+                        }
+                    };
+                }
             }
         }
     }
@@ -2329,8 +2337,9 @@ var WayDropDownList = (function () {
         item.click(function () {
             _this.hideList();
             _this.selectedValue = eval("item._data." + _this.valueMember);
-            if (_this.textElement[0].tagName == "INPUT")
+            if (_this.textElement[0].tagName == "INPUT") {
                 _this.textElement.val(eval("item._data." + _this.textMember));
+            }
             else
                 _this.textElement.html(eval("item._data." + _this.textMember));
         });
@@ -2350,28 +2359,42 @@ var WayDropDownList = (function () {
                 this.itemContainer.css("height", "300px");
             }
         }
+        else {
+            this.itemContainer.css("position", "fixed");
+            this.maskLayer = $("<div style='background-color:#000000;opacity:0.3;z-index:998;position:fixed;width:100%;height:100%;display:none;left:0;top:0;'></div>");
+            document.body.appendChild(this.maskLayer[0]);
+            this.itemContainer.css("height", "300px");
+        }
         document.body.appendChild(this.itemContainer[0]);
         this.actionElement.click(function (e) {
             e = e || window.event;
-            var srcElement = e.target || e.srcElement;
-            while (srcElement.parentElement) {
-                if (srcElement == _this.actionElement[0]) {
-                    if (e.stopPropagation)
-                        e.stopPropagation();
-                    else
-                        e.cancelBubble = true;
-                    break;
-                }
-                srcElement = srcElement.parentElement;
-            }
+            if (e.stopPropagation)
+                e.stopPropagation();
+            else
+                e.cancelBubble = true;
             _this.showList();
         });
+        this.textElement.click(function (e) {
+            e = e || window.event;
+            if (e.stopPropagation)
+                e.stopPropagation();
+            else
+                e.cancelBubble = true;
+        });
+        if (this.textElement[0].tagName == "INPUT") {
+            this.textElement.keyup(function () {
+                _this.grid.searchModel[_this.textMember] = _this.textElement.val();
+            });
+        }
         $(document.documentElement).click(function () {
             _this.hideList();
         });
     };
     //显示下拉列表
     WayDropDownList.prototype.showList = function () {
+        if (this.maskLayer) {
+            this.maskLayer.show();
+        }
         if (!this.isMobile) {
             var offset = this.textElement.offset();
             var y = (offset.top + this.textElement.outerHeight());
@@ -2389,15 +2412,25 @@ var WayDropDownList = (function () {
             if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
                 this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
             }
-            this.itemContainer.css("visibility", "visible");
-            if (!this.isBindedGrid) {
-                this.grid.databind();
-                this.isBindedGrid = true;
-            }
+        }
+        else {
+            this.itemContainer.css({
+                width: this.windowObj.innerWidth() * 0.9 + "px",
+                height: this.windowObj.innerHeight() * 0.9 + "px",
+                left: this.windowObj.innerWidth() * 0.05 + "px",
+                top: this.windowObj.innerHeight() * 0.05 + "px",
+            });
+        }
+        this.itemContainer.css("visibility", "visible");
+        if (!this.isBindedGrid) {
+            this.grid.databind();
+            this.isBindedGrid = true;
         }
     };
     //隐藏显示下拉列表
     WayDropDownList.prototype.hideList = function () {
+        if (this.maskLayer)
+            this.maskLayer.hide();
         if (this.itemContainer.css("visibility") == "visible") {
             this.itemContainer.css("visibility", "hidden");
         }
