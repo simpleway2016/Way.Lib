@@ -769,13 +769,12 @@ class WayHelper {
     }
 
     static createWebSocket(url: string): WebSocket {
-        return <any>new WayVirtualWebSocket(url);
-        //if ((<any>window).WebSocket) {
-        //    return new WebSocket(url);
-        //}
-        //else {
-        //    return <any>new WayVirtualWebSocket(url);
-        //}
+        if ((<any>window).WebSocket) {
+            return new WebSocket(url);
+        }
+        else {
+            return <any>new WayVirtualWebSocket(url);
+        }
     }
 
     static addEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
@@ -1620,6 +1619,8 @@ class WayGridView extends WayBaseObject implements IPageable {
     private transcationID: number = 1;
     private primaryKey: string;
     hasMorePage: boolean;
+    //设置，必须获取的字段(因为没有在模板中出现的字段，不会输出)
+    dataMembers: string[] = [];
 
     //是否支持下拉刷新
     //下拉刷新必须定义body模板
@@ -1664,8 +1665,11 @@ class WayGridView extends WayBaseObject implements IPageable {
     constructor(elementId: string, controller: string, _pagesize: number = 10) {
         super();
         try {
-            this.dbContext = new WayDBContext(controller, null)
-            this.element = $("#" + elementId);
+            this.dbContext = new WayDBContext(controller, null);
+            if (typeof elementId == "string")
+                this.element = $("#" + elementId);
+            else
+                this.element = $(<any>elementId);
             this.element.css(
                 {
                     "overflow-y": "auto",
@@ -1959,6 +1963,12 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
         if (this.primaryKey && this.primaryKey.length > 0) {
             result.push(this.primaryKey);
+        }
+        for (var i = 0; i < this.dataMembers.length; i++) {
+            var field = this.dataMembers[i];
+            if (!this.contains(result, field)) {
+                result.push(field);
+            }
         }
         return result;
     }
@@ -2547,6 +2557,150 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
         catch (e) {
             this.onErr("GridView.databind error:" + e.message);
+        }
+    }
+}
+
+class WayDropDownList {
+    textElement: JQuery;
+    actionElement: JQuery;
+    element: JQuery;
+    itemContainer: JQuery;
+    private isMobile: boolean = false;
+    private grid: WayGridView;
+    private isBindedGrid: boolean = false;
+    private windowObj: JQuery;
+    valueMember: string;
+    textMember: string;
+    selectedValue: string;
+
+    constructor(elementid: string, controller: string, datasource: any) {
+        this.windowObj = $(window);
+        this.element = $("#" + elementid);
+        var textele = this.element.find("*[_istext]");
+        if (textele.length > 0) {
+            this.textElement = $(textele[0]);
+        }
+
+        var actionEle = this.element.find("*[_isaction]");
+        if (actionEle.length > 0) {
+            this.actionElement = $(actionEle[0]);
+        }
+
+        this.itemContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+        this.itemContainer.hide();
+        document.body.appendChild(this.itemContainer[0]);
+
+        var itemtemplate = this.element.find("script[_for='item']")[0];
+        this.valueMember = itemtemplate.getAttribute("_valueMember");
+        this.textMember = itemtemplate.getAttribute("_textMember");
+
+        if (this.actionElement) {
+            this.init();
+            this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
+            this.grid = new WayGridView(<any>this.itemContainer[0], controller, 10);
+            this.grid.datasource = datasource;
+            this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+            this.grid.onAfterCreateItems = (total, hasMorePage) => {
+                if (!hasMorePage && this.grid.element[0].scrollHeight < this.itemContainer.height()) {
+                    this.itemContainer.height(Math.max(20 , this.grid.element[0].scrollHeight));
+                }
+            }
+          
+            if (!this.valueMember || this.valueMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.valueMember);
+            }
+            if (!this.textMember || this.textMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.textMember);
+            }
+        }
+    }
+
+    private _onGridItemCreated(item: JQuery): void {
+        item.click(() => {
+            this.hideList();
+
+            this.selectedValue = eval("item._data." + this.valueMember);
+            if (this.textElement[0].tagName == "INPUT")
+                this.textElement.val(eval("item._data." + this.textMember));
+            else
+                this.textElement.html(eval("item._data." + this.textMember));
+        });
+    }
+
+    private init(): void {
+        if (!this.isMobile) {
+            this.itemContainer.css(
+                {
+                    "position": "absolute",
+                    "z-index": 999,
+                    "overflow-x":"hidden",
+                    "overflow-y":"auto"
+                });
+            var cssHeight = this.itemContainer.css("height");
+            if (!cssHeight || cssHeight == "" || cssHeight == "0px") {
+                this.itemContainer.css("height","300px");
+            }
+        }
+        this.actionElement.click((e) => {
+            e = e || <any>window.event;
+            var srcElement: HTMLElement = <any>e.target || e.srcElement;
+            while (srcElement.parentElement) {
+                if (srcElement == this.actionElement[0]) {
+                    if (e.stopPropagation)
+                        e.stopPropagation();
+                    else
+                        e.cancelBubble = true;
+                    break;
+                }
+                srcElement = srcElement.parentElement;
+            }
+            this.showList();
+        });
+
+        $(document.documentElement).click(() => {
+            this.hideList();
+        });
+    }
+    //显示下拉列表
+    showList(): void {
+        if (!this.isMobile) {
+            var offset = this.textElement.offset();
+            var y = (offset.top + this.textElement.outerHeight());
+            
+            this.itemContainer.css(
+                {
+                    width: this.textElement.outerWidth() + "px",
+                    left: offset.left + "px",
+                    top: y + "px",
+                });
+            this.itemContainer.show();
+
+            if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
+                y = offset.top - this.itemContainer.outerHeight();
+                if (y >= 0) {
+                    this.itemContainer.css("top", y + "px");
+                }
+            }
+            if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
+                this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
+            }
+
+            if (!this.isBindedGrid) {
+                this.grid.databind();
+                this.isBindedGrid = true;
+            }
+        }
+    }
+    //隐藏显示下拉列表
+    hideList(): void {
+        if (!this.itemContainer.is(":hidden"))
+        {
+            this.itemContainer.hide();
         }
     }
 }

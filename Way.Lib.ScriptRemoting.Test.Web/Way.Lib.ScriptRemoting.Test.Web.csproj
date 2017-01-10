@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="ListTest.html" />
     <Content Include="GridViewTest.html" />
     <Content Include="scripts\jquery.js" />
     <Content Include="scripts\sonic.js" />

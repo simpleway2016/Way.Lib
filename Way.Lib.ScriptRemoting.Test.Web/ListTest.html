@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="scripts/jquery.js" type="text/javascript"></script>
+    <script src="scripts/sonic.js" type="text/javascript"></script>
+    <script src="scripts/wayscriptremoting.js" type="text/javascript"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <style>
+        td {
+        border-right:1px solid blue;
+        }
+    </style>
+</head>
+<body >
+    <div id="list1" style="margin-top:500px;">
+        <input type="text" _istext="true" /><input type="button" _isaction="true" />
+        <script _for="itemContainer" type="text/html">
+            <div style="border:1px solid #ccc;"></div>
+        </script>
+        <script _for="item" _valueMember="id" _textMember="caption" type="text/html">
+            <div style="padding:5px;border-bottom:1px solid #eee;">{@caption}</div>
+        </script>
+    </div>
+    <div style="height:3000px;"></div>
+  <script lang="ja">
+      var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
+      
+  </script>
+</body>
+</html>

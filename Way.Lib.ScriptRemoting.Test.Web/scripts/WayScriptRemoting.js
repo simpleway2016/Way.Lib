@@ -731,13 +731,12 @@ var WayHelper = (function () {
         return false;
     };
     WayHelper.createWebSocket = function (url) {
-        return new WayVirtualWebSocket(url);
-        //if ((<any>window).WebSocket) {
-        //    return new WebSocket(url);
-        //}
-        //else {
-        //    return <any>new WayVirtualWebSocket(url);
-        //}
+        if (window.WebSocket) {
+            return new WebSocket(url);
+        }
+        else {
+            return new WayVirtualWebSocket(url);
+        }
     };
     WayHelper.addEventListener = function (element, eventName, listener, useCapture) {
         if (element.addEventListener) {
@@ -1486,6 +1485,8 @@ var WayGridView = (function (_super) {
         this.loading = new WayProgressBar("#cccccc");
         // 标识当前绑定数据的事物id
         this.transcationID = 1;
+        //设置，必须获取的字段(因为没有在模板中出现的字段，不会输出)
+        this.dataMembers = [];
         //是否支持下拉刷新
         //下拉刷新必须定义body模板
         this.supportDropdownRefresh = false;
@@ -1497,7 +1498,10 @@ var WayGridView = (function (_super) {
         this.preLoadNumForPageMode = 1;
         try {
             this.dbContext = new WayDBContext(controller, null);
-            this.element = $("#" + elementId);
+            if (typeof elementId == "string")
+                this.element = $("#" + elementId);
+            else
+                this.element = $(elementId);
             this.element.css({
                 "overflow-y": "auto",
                 "-webkit-overflow-scrolling": "touch"
@@ -1766,6 +1770,12 @@ var WayGridView = (function (_super) {
         }
         if (this.primaryKey && this.primaryKey.length > 0) {
             result.push(this.primaryKey);
+        }
+        for (var i = 0; i < this.dataMembers.length; i++) {
+            var field = this.dataMembers[i];
+            if (!this.contains(result, field)) {
+                result.push(field);
+            }
         }
         return result;
     };
@@ -2272,4 +2282,126 @@ var WayGridView = (function (_super) {
     };
     return WayGridView;
 }(WayBaseObject));
+var WayDropDownList = (function () {
+    function WayDropDownList(elementid, controller, datasource) {
+        var _this = this;
+        this.isMobile = false;
+        this.isBindedGrid = false;
+        this.windowObj = $(window);
+        this.element = $("#" + elementid);
+        var textele = this.element.find("*[_istext]");
+        if (textele.length > 0) {
+            this.textElement = $(textele[0]);
+        }
+        var actionEle = this.element.find("*[_isaction]");
+        if (actionEle.length > 0) {
+            this.actionElement = $(actionEle[0]);
+        }
+        this.itemContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+        this.itemContainer.hide();
+        document.body.appendChild(this.itemContainer[0]);
+        var itemtemplate = this.element.find("script[_for='item']")[0];
+        this.valueMember = itemtemplate.getAttribute("_valueMember");
+        this.textMember = itemtemplate.getAttribute("_textMember");
+        if (this.actionElement) {
+            this.init();
+            this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
+            this.grid = new WayGridView(this.itemContainer[0], controller, 10);
+            this.grid.datasource = datasource;
+            this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
+            this.grid.onAfterCreateItems = function (total, hasMorePage) {
+                if (!hasMorePage && _this.grid.element[0].scrollHeight < _this.itemContainer.height()) {
+                    _this.itemContainer.height(Math.max(20, _this.grid.element[0].scrollHeight));
+                }
+            };
+            if (!this.valueMember || this.valueMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.valueMember);
+            }
+            if (!this.textMember || this.textMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.textMember);
+            }
+        }
+    }
+    WayDropDownList.prototype._onGridItemCreated = function (item) {
+        var _this = this;
+        item.click(function () {
+            _this.hideList();
+            _this.selectedValue = eval("item._data." + _this.valueMember);
+            if (_this.textElement[0].tagName == "INPUT")
+                _this.textElement.val(eval("item._data." + _this.textMember));
+            else
+                _this.textElement.html(eval("item._data." + _this.textMember));
+        });
+    };
+    WayDropDownList.prototype.init = function () {
+        var _this = this;
+        if (!this.isMobile) {
+            this.itemContainer.css({
+                "position": "absolute",
+                "z-index": 999,
+                "overflow-x": "hidden",
+                "overflow-y": "auto"
+            });
+            var cssHeight = this.itemContainer.css("height");
+            if (!cssHeight || cssHeight == "" || cssHeight == "0px") {
+                this.itemContainer.css("height", "300px");
+            }
+        }
+        this.actionElement.click(function (e) {
+            e = e || window.event;
+            var srcElement = e.target || e.srcElement;
+            while (srcElement.parentElement) {
+                if (srcElement == _this.actionElement[0]) {
+                    if (e.stopPropagation)
+                        e.stopPropagation();
+                    else
+                        e.cancelBubble = true;
+                    break;
+                }
+                srcElement = srcElement.parentElement;
+            }
+            _this.showList();
+        });
+        $(document.documentElement).click(function () {
+            _this.hideList();
+        });
+    };
+    //显示下拉列表
+    WayDropDownList.prototype.showList = function () {
+        if (!this.isMobile) {
+            var offset = this.textElement.offset();
+            var y = (offset.top + this.textElement.outerHeight());
+            this.itemContainer.css({
+                width: this.textElement.outerWidth() + "px",
+                left: offset.left + "px",
+                top: y + "px",
+            });
+            this.itemContainer.show();
+            if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
+                y = offset.top - this.itemContainer.outerHeight();
+                if (y >= 0) {
+                    this.itemContainer.css("top", y + "px");
+                }
+            }
+            if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
+                this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
+            }
+            if (!this.isBindedGrid) {
+                this.grid.databind();
+                this.isBindedGrid = true;
+            }
+        }
+    };
+    //隐藏显示下拉列表
+    WayDropDownList.prototype.hideList = function () {
+        if (!this.itemContainer.is(":hidden")) {
+            this.itemContainer.hide();
+        }
+    };
+    return WayDropDownList;
+}());
 //# sourceMappingURL=WayScriptRemoting.js.map
