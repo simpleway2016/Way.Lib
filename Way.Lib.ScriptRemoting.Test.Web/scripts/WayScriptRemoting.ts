@@ -2588,8 +2588,7 @@ class WayDropDownList {
         }
 
         this.itemContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
-        this.itemContainer.hide();
-        document.body.appendChild(this.itemContainer[0]);
+        
 
         var itemtemplate = this.element.find("script[_for='item']")[0];
         this.valueMember = itemtemplate.getAttribute("_valueMember");
@@ -2633,19 +2632,24 @@ class WayDropDownList {
     }
 
     private init(): void {
+        this.itemContainer.css(
+            {
+                "position": "absolute",
+                "z-index": 999,
+                "overflow-x": "hidden",
+                "overflow-y": "auto",
+                "visibility": "hidden"
+            });
+
         if (!this.isMobile) {
-            this.itemContainer.css(
-                {
-                    "position": "absolute",
-                    "z-index": 999,
-                    "overflow-x":"hidden",
-                    "overflow-y":"auto"
-                });
             var cssHeight = this.itemContainer.css("height");
             if (!cssHeight || cssHeight == "" || cssHeight == "0px") {
                 this.itemContainer.css("height","300px");
             }
         }
+
+        document.body.appendChild(this.itemContainer[0]);
+
         this.actionElement.click((e) => {
             e = e || <any>window.event;
             var srcElement: HTMLElement = <any>e.target || e.srcElement;
@@ -2678,7 +2682,7 @@ class WayDropDownList {
                     left: offset.left + "px",
                     top: y + "px",
                 });
-            this.itemContainer.show();
+           
 
             if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
                 y = offset.top - this.itemContainer.outerHeight();
@@ -2689,6 +2693,7 @@ class WayDropDownList {
             if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
                 this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
             }
+            this.itemContainer.css("visibility", "visible");
 
             if (!this.isBindedGrid) {
                 this.grid.databind();
@@ -2698,9 +2703,9 @@ class WayDropDownList {
     }
     //隐藏显示下拉列表
     hideList(): void {
-        if (!this.itemContainer.is(":hidden"))
+        if (this.itemContainer.css("visibility") == "visible")
         {
-            this.itemContainer.hide();
+            this.itemContainer.css("visibility","hidden");
         }
     }
 }

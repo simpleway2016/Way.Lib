@@ -2298,8 +2298,6 @@ var WayDropDownList = (function () {
             this.actionElement = $(actionEle[0]);
         }
         this.itemContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
-        this.itemContainer.hide();
-        document.body.appendChild(this.itemContainer[0]);
         var itemtemplate = this.element.find("script[_for='item']")[0];
         this.valueMember = itemtemplate.getAttribute("_valueMember");
         this.textMember = itemtemplate.getAttribute("_textMember");
@@ -2339,18 +2337,20 @@ var WayDropDownList = (function () {
     };
     WayDropDownList.prototype.init = function () {
         var _this = this;
+        this.itemContainer.css({
+            "position": "absolute",
+            "z-index": 999,
+            "overflow-x": "hidden",
+            "overflow-y": "auto",
+            "visibility": "hidden"
+        });
         if (!this.isMobile) {
-            this.itemContainer.css({
-                "position": "absolute",
-                "z-index": 999,
-                "overflow-x": "hidden",
-                "overflow-y": "auto"
-            });
             var cssHeight = this.itemContainer.css("height");
             if (!cssHeight || cssHeight == "" || cssHeight == "0px") {
                 this.itemContainer.css("height", "300px");
             }
         }
+        document.body.appendChild(this.itemContainer[0]);
         this.actionElement.click(function (e) {
             e = e || window.event;
             var srcElement = e.target || e.srcElement;
@@ -2380,7 +2380,6 @@ var WayDropDownList = (function () {
                 left: offset.left + "px",
                 top: y + "px",
             });
-            this.itemContainer.show();
             if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
                 y = offset.top - this.itemContainer.outerHeight();
                 if (y >= 0) {
@@ -2390,6 +2389,7 @@ var WayDropDownList = (function () {
             if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
                 this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
             }
+            this.itemContainer.css("visibility", "visible");
             if (!this.isBindedGrid) {
                 this.grid.databind();
                 this.isBindedGrid = true;
@@ -2398,8 +2398,8 @@ var WayDropDownList = (function () {
     };
     //隐藏显示下拉列表
     WayDropDownList.prototype.hideList = function () {
-        if (!this.itemContainer.is(":hidden")) {
-            this.itemContainer.hide();
+        if (this.itemContainer.css("visibility") == "visible") {
+            this.itemContainer.css("visibility", "hidden");
         }
     };
     return WayDropDownList;
