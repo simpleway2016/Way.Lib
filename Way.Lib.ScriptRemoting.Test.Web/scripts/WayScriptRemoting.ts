@@ -1715,14 +1715,19 @@ class WayGridView extends WayBaseObject implements IPageable {
     //item大小变化事件
     onItemSizeChanged: () => void;
 
-    constructor(elementId: string, controller: string, _pagesize: number = 10) {
+    constructor(elementId: string, _pagesize: number = 10) {
         super();
         try {
+            var controller = document.body.getAttribute("_controller");
+           
             this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
                 this.element = $("#" + elementId);
-            else
+            else if ((<any>elementId).tagName)
                 this.element = $(<any>elementId);
+            else
+                this.element = <any>elementId;
+
             this.element.css(
                 {
                     "overflow-y": "auto",
@@ -1732,6 +1737,8 @@ class WayGridView extends WayBaseObject implements IPageable {
             var isTouch = "ontouchstart" in this.element[0];
             if (!isTouch)
                 this.supportDropdownRefresh = false;
+
+            this.datasource = this.element.attr("_datasource");
 
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
@@ -2650,7 +2657,7 @@ class WayDropDownList {
     }
     onchange: any = null;
 
-    constructor(elementid: string, controller: string, datasource: any) {
+    constructor(elementid: string, datasource: any) {
         this.windowObj = $(window);
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
@@ -2683,7 +2690,7 @@ class WayDropDownList {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
-            this.grid = new WayGridView(<any>this.itemContainer[0], controller, 10);
+            this.grid = new WayGridView(<any>this.itemContainer[0], 10);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
           
@@ -2907,9 +2914,16 @@ class WayDropDownList {
     }
 }
 
-var _styles = $(WayHelper.downloadUrl("/styles.html"));
+var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(() => {
     var body = $(document.body);
+    var controllerName = body.attr("_controller");
+    if (!controllerName) {
+        throw "<Body>没有定义_controller";
+    }
+    else {
+        (<any>window)._controller = WayScriptRemoting.createRemotingController(controllerName);
+    }
     for (var i = 0; i < _styles.length; i++) {
         var element = _styles[i];
         if (element.tagName == "STYLE") {
@@ -2942,18 +2956,24 @@ $(document).ready(() => {
                     var nextlib = virtualEle.nextSibling;
                     virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
                 }
-                var control;
+                var control = null;
                 switch (controlType) {
                     case "WAYDROPDOWNLIST":
-                        control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_controller"), replaceEleObj.attr("_datasource"));
-                       
-                        var idstr = replaceEleObj.attr("id"); 
-                        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
-                            eval("window." + idstr + "=control;");
-                        }
+                        control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+                        break;
+                    case "WAYGRIDVIEW":
+                        replaceEleObj[0].innerHTML += virtualEle.innerHTML;
+                        control = new WayGridView(<any>replaceEleObj, parseInt( replaceEleObj.attr("_pagesize")));
                         break;
                     default:
                         break;
+                }
+
+                if (control) {
+                    var idstr = replaceEleObj.attr("id");
+                    if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+                        eval("window." + idstr + "=control;");
+                    }
                 }
             }
         }

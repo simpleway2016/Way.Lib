@@ -37,10 +37,11 @@ namespace Way.Lib.ScriptRemoting
         internal object Tag1;
         internal object Tag2;
         internal DateTime _heartTime;
-
-        public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP)
+        string _Referer;
+        public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP,string referer)
         {
-            mCloseStreamHandler = closeStreamHandler;
+            _Referer = referer;
+               mCloseStreamHandler = closeStreamHandler;
             mSendDataFunc = sendFunc;
             this.StreamType = RemotingStreamType.Text;
             mClientIP = clientIP;
@@ -167,7 +168,7 @@ namespace Way.Lib.ScriptRemoting
             }
         }
         
-        TypeDefine checkRemotingName(string remoteName)
+        static TypeDefine checkRemotingName(string remoteName)
         {
             
             TypeDefine pageDefine = null;
@@ -306,7 +307,8 @@ namespace Way.Lib.ScriptRemoting
         {
             try
             {
-                string remoteName = msgBag.ClassFullName;
+                string referer = System.Text.RegularExpressions.Regex.Replace(_Referer, @"http(s)?\:\/\/(\w|\.|\:)+", "");
+                string remoteName = (from m in RemotingController.ParsedHtmls where string.Equals(referer, m.Url, StringComparison.CurrentCultureIgnoreCase) select m.Controller).FirstOrDefault();
                 var pageDefine = checkRemotingName(remoteName);
 
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);

@@ -11,6 +11,8 @@ using System.Text;
 using System.Net.WebSockets;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using System.Text.RegularExpressions;
 
 namespace Way.Lib.ScriptRemoting.IISWebSocket
 {
@@ -22,7 +24,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
             return null;
         }
 
-        private async Task ProcessChat(System.Net.WebSockets.WebSocket socket, string clientip)
+        private async Task ProcessChat(System.Net.WebSockets.WebSocket socket, string clientip,string referer)
         {
             RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
             {
@@ -31,7 +33,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
             }, () =>
             {
                 socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None).Wait();
-            }, clientip);
+            }, clientip,referer);
             var bs = new byte[204800];
             while (true)
             {
@@ -81,7 +83,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 var task = context.WebSockets.AcceptWebSocketAsync();
                 task.Wait();
                 var websocket = task.Result;
-                return ProcessChat(websocket, clientip);
+                return ProcessChat(websocket, clientip,context.Request.Headers["Referer"]);
             }
             else
             {
@@ -107,7 +109,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                         {
                             waitObject.Set();
                             return 0;
-                        }, clientip
+                        }, clientip,context.Request.Headers["Referer"]
 
                       ).Handle();
                         waitObject.WaitOne();
@@ -135,17 +137,35 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                     string json = context.Request.Form["m"];
                     string content = null;
 
+                    var he = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
+                    var url = context.Request.Headers["Referer"].ToSafeString();
+                    url = Regex.Replace(url, @"http(s)?\:\/\/(\w|\.|:)+", "");
+                    string filepath = he.WebRootPath + url.Replace("/", "\\");
+                    RemotingController.CheckHtmlFile(filepath, url);
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
                         content = data;
 
-                    }, null, clientip);
+                    }, null, clientip,context.Request.Headers["Referer"]);
                     rs.OnReceived(json);
 
                     return context.Response.WriteAsync(content);
                 }
                 else
                 {
+
+                    //var feature = (Microsoft.AspNetCore.Http.Features.IHttpRequestFeature)context.Features[typeof(Microsoft.AspNetCore.Http.Features.IHttpRequestFeature)];
+
+                    //if (feature != null && feature.Path.ToLower().EndsWith(".html"))
+                    //{
+                    //    var he = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
+                    //    string filepath = he.WebRootPath + feature.Path.Replace("/", "\\");
+
+                    //    RemotingController.CheckHtmlFile(filepath, feature.Path);
+                    //}
+                    
+                    //var ae = context.RequestServices.GetService(typeof(IApplicationEnvironment)) as IApplicationEnvironment;
+
                     if (next == null)
                         return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
                     return next();

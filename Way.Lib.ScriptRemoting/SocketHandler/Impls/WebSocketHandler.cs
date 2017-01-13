@@ -64,7 +64,7 @@ namespace Way.Lib.ScriptRemoting
             } , ()=>
             {
                 mClient.Close();
-            },session.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
+            },session.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0],null);
         }
         public void Handle()
         {

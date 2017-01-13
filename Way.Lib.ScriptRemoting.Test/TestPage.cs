@@ -13,26 +13,7 @@ namespace Way.Lib.ScriptRemoting.Test
     public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
 
-        protected override DatasourceDefine OnGetDataSourcePath(string datasourceName)
-        {
-            if (datasourceName == "grid")
-            {
-                return new DatasourceDefine()
-                {
-                    TargetType = typeof(Way.Lib.ScriptRemoting.WinTest.MyDB),
-                    PropertyOrMethodName = "DBColumn"
-                };
-            }
-            else if (datasourceName == "DBTable")
-            {
-                return new DatasourceDefine()
-                {
-                    TargetType = typeof(Way.Lib.ScriptRemoting.WinTest.MyDB),
-                    PropertyOrMethodName = "DBTable"
-                };
-            }
-            return null;
-        }
+       
         protected override void OnBeforeSavingData(object dataitem)
         {
             EJ.DBColumn column = dataitem as EJ.DBColumn;

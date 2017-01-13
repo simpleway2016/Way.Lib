@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting
@@ -41,6 +42,13 @@ namespace Way.Lib.ScriptRemoting
     /// </summary>
     public class RemotingController
     {
+        internal class ParseHtmlInfo
+        {
+            public string Url;
+            public string Controller;
+            public List<string> Datasources = new List<string>();
+        }
+        internal static List<ParseHtmlInfo> ParsedHtmls = new List<ParseHtmlInfo>();
         internal string SocketID;
         public SessionState Session
         {
@@ -71,6 +79,68 @@ namespace Way.Lib.ScriptRemoting
                 return null;
         }
 
+        internal static void CheckHtmlFile(string filepath,string url)
+        {
+            for (int i = 0; i < ParsedHtmls.Count; i++)
+            {
+                var info = ParsedHtmls[i];
+                if (String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return;
+                }
+            }
+            Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
+            var stream = new System.IO.StreamReader(System.IO.File.OpenRead(filepath));
+            parser.Parse(stream);
+            stream.Dispose();
+            ParseHtmlInfo htmlinfo = new ScriptRemoting.RemotingController.ParseHtmlInfo();
+            htmlinfo.Url = url;
+            CheckHtmlFile(htmlinfo, parser.Nodes);
+            ParsedHtmls.Add(htmlinfo);
+        }
+        static void CheckHtmlFile(ParseHtmlInfo info,List<HtmlUtil.HtmlNode> nodes)
+        {
+            try
+            {
+                foreach (var node in nodes)
+                {
+
+                    if (node.Name == null)
+                    {
+                        if (node is HtmlUtil.HtmlTextBlock && ((HtmlUtil.HtmlTextBlock)node).Text.IsNullOrEmpty() == false)
+                        {
+                            var matches = Regex.Matches(((HtmlUtil.HtmlTextBlock)node).Text, @"\{\@(\w|\.)+\:(?<g1>(\w|\.)+)\:(\w|\.)+\}");
+                            foreach (Match m in matches)
+                            {
+                                string fullname = m.Groups["g1"].Value;
+                                fullname = fullname.Substring(0,fullname.LastIndexOf("."));
+                                info.Datasources.Add(fullname);
+                            }
+                        }
+                        continue;
+                    }
+                    if (info.Controller.IsNullOrEmpty() && String.Equals(node.Name, "body", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        info.Controller = (from m in node.Attributes where m.Name == "_controller" select m.Value).FirstOrDefault();
+                        if (info.Controller == null)
+                            info.Controller = "";
+                    }
+                    else
+                    {
+                        var _datasource = (from m in node.Attributes where m.Name == "_datasource" select m.Value).FirstOrDefault();
+                        if (_datasource != null)
+                        {
+                            info.Datasources.Add(_datasource);
+                        }
+                    }
+                    CheckHtmlFile(info, node.Nodes);
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+        }
         internal void onLoad()
         {
             this.OnLoad();
@@ -374,7 +444,50 @@ namespace Way.Lib.ScriptRemoting
         /// <returns></returns>
         protected virtual DatasourceDefine OnGetDataSourcePath(string datasourceName)
         {
-            return null;
+            string fullname = this.GetType().FullName;
+            var arrowDataSources = (from m in ParsedHtmls where m.Controller == fullname select m.Datasources).FirstOrDefault();
+            if (arrowDataSources.Contains(datasourceName) == false)
+                throw new Exception("此html没有在任何地方定义使用" + datasourceName);
+            int index = datasourceName.LastIndexOf(".");
+            fullname = datasourceName.Substring(0 , index);
+            string propertyName = datasourceName.Substring(index + 1);
+            return new DatasourceDefine()
+            {
+                TargetType = getTypeDefine(fullname),
+                PropertyOrMethodName = propertyName,
+            };
+        }
+
+        static Dictionary<string, Type> ExistTypes = new Dictionary<string, Type>();
+        static Type getTypeDefine(string remoteName)
+        {
+            Type pageDefine = null;
+            try
+            {
+                if (ExistTypes.ContainsKey(remoteName))
+                {
+                    pageDefine = ExistTypes[remoteName];
+                }
+                else
+                {
+                    Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
+
+                    for (int i = 0; i < assemblies.Length; i++)
+                    {
+                        var type = assemblies[i].GetType(remoteName);
+                        if (type != null)
+                        {
+                            pageDefine = type;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return ExistTypes[remoteName];
+            }
+            return pageDefine;
         }
 
         object GetDataSource(DatasourceDefine datasourceDefine, Dictionary<Type, object> activeObjs)
@@ -514,7 +627,7 @@ namespace Way.Lib.ScriptRemoting
 
                             ResultHelper.SetJsonDataValue(jData, fieldInfo[0] + ".value", fieldValue);
 
-                            string otherTarget = fieldInfo[1].Substring(0, fieldInfo[1].IndexOf("."));
+                            string otherTarget = fieldInfo[1].Substring(0, fieldInfo[1].LastIndexOf("."));
 
                             object query = GetDataSource(OnGetDataSourcePath(otherTarget), activeObjs);
 

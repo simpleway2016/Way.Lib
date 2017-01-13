@@ -10,34 +10,14 @@ using System.Threading.Tasks;
 namespace Way.Lib.ScriptRemoting.Test
 {
     [RemotingMethod]
-    public class TestPage : Way.Lib.ScriptRemoting.RemotingController, IUploadFileHandler
+    public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
 
-        protected override DatasourceDefine OnGetDataSourcePath(string datasourceName)
-        {
-            if (datasourceName == "grid")
-            {
-                return new DatasourceDefine()
-                {
-                    TargetType = typeof(Way.Lib.ScriptRemoting.WinTest.MyDB),
-                    PropertyOrMethodName = "DBColumn"
-                };
-            }
-            else if (datasourceName == "DBTable")
-            {
-                return new DatasourceDefine()
-                {
-                    TargetType = typeof(Way.Lib.ScriptRemoting.WinTest.MyDB),
-                    PropertyOrMethodName = "DBTable"
-                };
-            }
-            return null;
-        }
         protected override void OnBeforeSavingData(object dataitem)
         {
             EJ.DBColumn column = dataitem as EJ.DBColumn;
             column.TableID = 3;
-            SendGroupMessage("g1", Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
+           SendGroupMessage("g1" ,Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
         }
 
 
@@ -70,7 +50,7 @@ namespace Way.Lib.ScriptRemoting.Test
             List<object> arrs = new List<object>();
             for (int i = 0; i < 100; i++)
             {
-                arrs.Add(new { Index = i, color = (i % 2 == 0 ? "yellow" : "#cccccc"), name = "a" + i, child = new { name = "child" + i } });
+                arrs.Add(new { Index = i,color= (i%2 == 0 ?"yellow":"#cccccc"), name = "a" + i, child = new { name = "child" + i } });
             }
             return arrs.ToArray();
         }
@@ -81,7 +61,7 @@ namespace Way.Lib.ScriptRemoting.Test
             return count;
         }
 
-        public class Pager
+       public class Pager
         {
             public int index;
             public int size;
@@ -92,7 +72,7 @@ namespace Way.Lib.ScriptRemoting.Test
             public string name;
         }
         [RemotingMethod]
-        public DataItem[] getDatas(int p, Pager pager)
+        public DataItem[] getDatas(int p , Pager pager)
         {
             return new DataItem[] {
                 new ScriptRemoting.Test.TestPage.DataItem() {Index = 1,name="a1" },
@@ -107,7 +87,7 @@ namespace Way.Lib.ScriptRemoting.Test
         }
 
         FileStream fs;
-        public override IUploadFileHandler OnBeginUploadFile(string fileName, int fileSize, int offset)
+        public override IUploadFileHandler OnBeginUploadFile(string fileName, int fileSize,int offset)
         {
             if (File.Exists("d:\\aa\\" + fileName))
             {
@@ -120,11 +100,7 @@ namespace Way.Lib.ScriptRemoting.Test
             }
             return this;
         }
-        protected override void OnLoad()
-        {
-            base.OnLoad();
-        }
-
+     
         int l = 0;
         void IUploadFileHandler.OnGettingFileData(byte[] data)
         {

@@ -139,7 +139,7 @@ namespace Way.Lib.ScriptRemoting
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
                         outputHttpResponse(data);
-                    }, null, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
+                    }, null, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0], (string)this.Connection.mKeyValues["Referer"]);
                     rs.OnReceived(json);
 
                 }
@@ -170,7 +170,7 @@ namespace Way.Lib.ScriptRemoting
                       {
                           this.Connection.mClient.Close();
                           return 0;
-                      }, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]
+                      }, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0],(string)this.Connection.mKeyValues["Referer"]
 
                     ).Handle();
 
@@ -208,10 +208,15 @@ namespace Way.Lib.ScriptRemoting
                     if (filepath.StartsWith("/"))
                         filepath = filepath.Substring(1);
                     filepath = ScriptRemotingServer.Root + filepath.Replace("/", "\\");
-
-                    if (Path.GetExtension(filepath).ToLower() == ".aspx")
+                    string ext = Path.GetExtension(filepath).ToLower();
+                    if (ext == ".aspx")
                     {
                         outputAspx(filepath);
+                    }
+                    else if (ext == ".html")
+                    {
+                        RemotingController.CheckHtmlFile(filepath , (string)this.Connection.mKeyValues["GET"]);
+                        outputFile(filepath);
                     }
                     else
                     {

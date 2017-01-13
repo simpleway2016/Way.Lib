@@ -1,16 +1,13 @@
-var grid;
 var testPage;
 window.onload = function () {
-    testPage = WayScriptRemoting.createRemotingController("Way.Lib.ScriptRemoting.Test.TestPage");
+    testPage = window._controller;
     testPage.onmessage = function (e) {
         alert("group msg:" + e);
     };
     testPage.groupName = "g1";
-    grid = new WayGridView("grid", "Way.Lib.ScriptRemoting.Test.TestPage", 10);
     //grid.header = new WayTemplate( '<tr><td>H1</td><td>H2</td></tr>');
     //grid.footer = new WayTemplate('<tr><td>footer1</td><td>F2</td></tr>');
     //{$ItemIndex}代表当前Item的索引号
-    grid.datasource = "grid";
     grid.searchModel = WayDataBindHelper.dataBind("searchDiv", {});
     //grid.onItemSizeChanged = function () {
     //    //注意，headertable里面的td不要设置width，width要设置在item里的td

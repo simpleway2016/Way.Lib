@@ -32,7 +32,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
             } , ()=>
             {
                 socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None).Wait();
-            },context.UserHostAddress.Split(':')[0]);
+            },context.UserHostAddress.Split(':')[0],context.UrlReferrer.ToString());
             var bs = new byte[204800];
             while (true)
             {
@@ -97,7 +97,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 {
                     context.Response.Write(data);
                     
-                }, null, context.Request.UserHostAddress.Split(':')[0]);
+                }, null, context.Request.UserHostAddress.Split(':')[0],context.Request.UrlReferrer.ToString());
                 rs.OnReceived(json);
                 context.Response.End();
             }

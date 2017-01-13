@@ -31,7 +31,7 @@
       <DependentUpon>WayScriptRemoting.ts</DependentUpon>
     </Content>
     <Content Include="socketTest.html" />
-    <Content Include="Styles.html" />
+    <Content Include="templates\main.html" />
     <Content Include="test.html" />
   </ItemGroup>
   <ItemGroup>

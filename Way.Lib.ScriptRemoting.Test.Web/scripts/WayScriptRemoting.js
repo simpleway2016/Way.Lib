@@ -1527,7 +1527,7 @@ var WayDBContext = (function () {
 }());
 var WayGridView = (function (_super) {
     __extends(WayGridView, _super);
-    function WayGridView(elementId, controller, _pagesize) {
+    function WayGridView(elementId, _pagesize) {
         if (_pagesize === void 0) { _pagesize = 10; }
         _super.call(this);
         this.itemTemplates = [];
@@ -1551,11 +1551,14 @@ var WayGridView = (function (_super) {
         //pageMode模式下，预先加载多少页数据
         this.preLoadNumForPageMode = 1;
         try {
+            var controller = document.body.getAttribute("_controller");
             this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
                 this.element = $("#" + elementId);
-            else
+            else if (elementId.tagName)
                 this.element = $(elementId);
+            else
+                this.element = elementId;
             this.element.css({
                 "overflow-y": "auto",
                 "-webkit-overflow-scrolling": "touch"
@@ -1563,6 +1566,7 @@ var WayGridView = (function (_super) {
             var isTouch = "ontouchstart" in this.element[0];
             if (!isTouch)
                 this.supportDropdownRefresh = false;
+            this.datasource = this.element.attr("_datasource");
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[_for='body']");
@@ -2334,7 +2338,7 @@ var WayGridView = (function (_super) {
     return WayGridView;
 }(WayBaseObject));
 var WayDropDownList = (function () {
-    function WayDropDownList(elementid, controller, datasource) {
+    function WayDropDownList(elementid, datasource) {
         var _this = this;
         this.isMobile = false;
         this.isBindedGrid = false;
@@ -2365,7 +2369,7 @@ var WayDropDownList = (function () {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
-            this.grid = new WayGridView(this.itemContainer[0], controller, 10);
+            this.grid = new WayGridView(this.itemContainer[0], 10);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
@@ -2590,9 +2594,16 @@ var WayDropDownList = (function () {
     };
     return WayDropDownList;
 }());
-var _styles = $(WayHelper.downloadUrl("/styles.html"));
+var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(function () {
     var body = $(document.body);
+    var controllerName = body.attr("_controller");
+    if (!controllerName) {
+        throw "<Body>没有定义_controller";
+    }
+    else {
+        window._controller = WayScriptRemoting.createRemotingController(controllerName);
+    }
     for (var i = 0; i < _styles.length; i++) {
         var element = _styles[i];
         if (element.tagName == "STYLE") {
@@ -2623,17 +2634,23 @@ $(document).ready(function () {
                     var nextlib = virtualEle.nextSibling;
                     virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
                 }
-                var control;
+                var control = null;
                 switch (controlType) {
                     case "WAYDROPDOWNLIST":
-                        control = new WayDropDownList(replaceEleObj, replaceEleObj.attr("_controller"), replaceEleObj.attr("_datasource"));
-                        var idstr = replaceEleObj.attr("id");
-                        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
-                            eval("window." + idstr + "=control;");
-                        }
+                        control = new WayDropDownList(replaceEleObj, replaceEleObj.attr("_datasource"));
+                        break;
+                    case "WAYGRIDVIEW":
+                        replaceEleObj[0].innerHTML += virtualEle.innerHTML;
+                        control = new WayGridView(replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
                         break;
                     default:
                         break;
+                }
+                if (control) {
+                    var idstr = replaceEleObj.attr("id");
+                    if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+                        eval("window." + idstr + "=control;");
+                    }
                 }
             }
         }

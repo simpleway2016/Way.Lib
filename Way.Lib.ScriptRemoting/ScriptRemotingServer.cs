@@ -209,7 +209,6 @@ namespace Way.Lib.ScriptRemoting
             {
                 await route.HandleRequest(http, next);
             });
-
         }
 #endif
         /// <summary>
