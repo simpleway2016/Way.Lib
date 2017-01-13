@@ -744,6 +744,9 @@ var WayHelper = (function () {
             return new WayVirtualWebSocket(url);
         }
     };
+    WayHelper.writePage = function (url) {
+        document.write(WayHelper.downloadUrl(url));
+    };
     WayHelper.downloadUrl = function (url) {
         var invoker = new WayScriptInvoker(url);
         invoker.method = "GET";

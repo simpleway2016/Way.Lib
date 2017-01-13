@@ -215,7 +215,7 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else if (ext == ".html")
                     {
-                        RemotingController.CheckHtmlFile(filepath , (string)this.Connection.mKeyValues["GET"]);
+                        RemotingController.CheckHtmlFile(filepath , (string)this.Connection.mKeyValues["GET"] , ScriptRemotingServer.Root);
                         outputFile(filepath);
                     }
                     else

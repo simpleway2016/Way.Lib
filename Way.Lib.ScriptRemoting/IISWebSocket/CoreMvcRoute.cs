@@ -141,7 +141,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                     var url = context.Request.Headers["Referer"].ToSafeString();
                     url = Regex.Replace(url, @"http(s)?\:\/\/(\w|\.|:)+", "");
                     string filepath = he.WebRootPath + url.Replace("/", "\\");
-                    RemotingController.CheckHtmlFile(filepath, url);
+                    RemotingController.CheckHtmlFile(filepath, url, he.WebRootPath);
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
                         content = data;

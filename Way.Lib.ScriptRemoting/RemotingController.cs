@@ -79,8 +79,11 @@ namespace Way.Lib.ScriptRemoting
                 return null;
         }
 
-        internal static void CheckHtmlFile(string filepath,string url)
+        internal static void CheckHtmlFile(string filepath,string url, string webroot)
         {
+            if (webroot.EndsWith("\\"))
+                webroot = webroot.Substring(0, webroot.Length - 1);
+
             for (int i = 0; i < ParsedHtmls.Count; i++)
             {
                 var info = ParsedHtmls[i];
@@ -95,10 +98,10 @@ namespace Way.Lib.ScriptRemoting
             stream.Dispose();
             ParseHtmlInfo htmlinfo = new ScriptRemoting.RemotingController.ParseHtmlInfo();
             htmlinfo.Url = url;
-            CheckHtmlFile(htmlinfo, parser.Nodes);
+            CheckHtmlFile(htmlinfo, parser.Nodes, filepath, webroot);
             ParsedHtmls.Add(htmlinfo);
         }
-        static void CheckHtmlFile(ParseHtmlInfo info,List<HtmlUtil.HtmlNode> nodes)
+        static void CheckHtmlFile(ParseHtmlInfo info,List<HtmlUtil.HtmlNode> nodes, string filepath,string webroot)
         {
             try
             {
@@ -109,17 +112,48 @@ namespace Way.Lib.ScriptRemoting
                     {
                         if (node is HtmlUtil.HtmlTextBlock && ((HtmlUtil.HtmlTextBlock)node).Text.IsNullOrEmpty() == false)
                         {
-                            var matches = Regex.Matches(((HtmlUtil.HtmlTextBlock)node).Text, @"\{\@(\w|\.)+\:(?<g1>(\w|\.)+)\:(\w|\.)+\}");
-                            foreach (Match m in matches)
+                            if (string.Equals(node.Parent.Name, "script", StringComparison.CurrentCultureIgnoreCase))
                             {
-                                string fullname = m.Groups["g1"].Value;
-                                fullname = fullname.Substring(0,fullname.LastIndexOf("."));
-                                info.Datasources.Add(fullname);
+                                //继续解析外嵌的html
+                                var matches = Regex.Matches(((HtmlUtil.HtmlTextBlock)node).Text, @"WayHelper.writePage\((?<g1>(\w|\.|\/|\:| |\""|\')+)\)");
+                                foreach (Match m in matches)
+                                {
+                                    string url = m.Groups["g1"].Value.Trim();
+                                    url = url.Substring(1, url.Length - 2);
+                                    string htmlpath;
+                                    if (url.StartsWith("/"))
+                                    {
+                                        htmlpath = webroot + url.Replace("/", "\\");
+                                    }
+                                    else
+                                    {
+                                        htmlpath = System.IO.Path.GetDirectoryName(filepath) + "\\" + url.Replace("/", "\\");
+                                    }
+                                    if(System.IO.File.Exists(htmlpath))
+                                    {
+                                        Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
+                                        var stream = new System.IO.StreamReader(System.IO.File.OpenRead(htmlpath));
+                                        parser.Parse(stream);
+                                        stream.Dispose();
+                                        CheckHtmlFile(info, parser.Nodes, htmlpath, webroot);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var matches = Regex.Matches(((HtmlUtil.HtmlTextBlock)node).Text, @"\{\@(\w|\.)+\:(?<g1>(\w|\.)+)\:(\w|\.)+\}");
+                                foreach (Match m in matches)
+                                {
+                                    string fullname = m.Groups["g1"].Value;
+                                    fullname = fullname.Substring(0, fullname.LastIndexOf("."));
+                                    info.Datasources.Add(fullname);
+                                }
                             }
                         }
                         continue;
                     }
-                    if (info.Controller.IsNullOrEmpty() && String.Equals(node.Name, "body", StringComparison.CurrentCultureIgnoreCase))
+
+                    else if (info.Controller.IsNullOrEmpty() && String.Equals(node.Name, "body", StringComparison.CurrentCultureIgnoreCase))
                     {
                         info.Controller = (from m in node.Attributes where m.Name == "_controller" select m.Value).FirstOrDefault();
                         if (info.Controller == null)
@@ -133,7 +167,7 @@ namespace Way.Lib.ScriptRemoting
                             info.Datasources.Add(_datasource);
                         }
                     }
-                    CheckHtmlFile(info, node.Nodes);
+                    CheckHtmlFile(info, node.Nodes,filepath, webroot);
                 }
             }
             catch(Exception ex)

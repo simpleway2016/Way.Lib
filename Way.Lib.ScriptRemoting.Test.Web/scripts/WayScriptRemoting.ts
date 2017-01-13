@@ -782,6 +782,10 @@ class WayHelper {
         }
     }
 
+    static writePage(url: string): void {
+        document.write(WayHelper.downloadUrl(url));
+    }
+
     static downloadUrl(url: string): string {
         var invoker = new WayScriptInvoker(url);
         invoker.method = "GET";
