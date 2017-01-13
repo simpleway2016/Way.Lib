@@ -25,9 +25,9 @@
       WayHelper.writePage("/aa.html");
 
       window.onload = function () {
-          var test = {};
-          test = WayDataBindHelper.dataBind(list1, test);
-          test.myvalue = 15;
+
+          var test = WayDataBindHelper.dataBind(list1, { myvalue :15});
+         
       }
   </script>
 </body>

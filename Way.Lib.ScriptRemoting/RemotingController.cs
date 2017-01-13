@@ -47,6 +47,7 @@ namespace Way.Lib.ScriptRemoting
             public string Url;
             public string Controller;
             public List<string> Datasources = new List<string>();
+            public List<string> AllowEditDatasources = new List<string>();
         }
         internal static List<ParseHtmlInfo> ParsedHtmls = new List<ParseHtmlInfo>();
         internal string SocketID;
@@ -165,6 +166,10 @@ namespace Way.Lib.ScriptRemoting
                         if (_datasource != null)
                         {
                             info.Datasources.Add(_datasource);
+                            if (node.Attributes.Any(m => m.Name == "_allowedit" && m.Value == "true"))
+                            {
+                                info.AllowEditDatasources.Add(_datasource);
+                            }
                         }
                     }
                     CheckHtmlFile(info, node.Nodes,filepath, webroot);
@@ -475,13 +480,25 @@ namespace Way.Lib.ScriptRemoting
         /// 根据数据源名称，返回数据源路径
         /// </summary>
         /// <param name="datasourceName">数据源名称</param>
+        /// <param name="isForEditing">此数据源是否要被编辑</param>
         /// <returns></returns>
-        protected virtual DatasourceDefine OnGetDataSourcePath(string datasourceName)
+        protected virtual DatasourceDefine OnGetDataSourcePath(string datasourceName,bool isForEditing)
         {
             string fullname = this.GetType().FullName;
-            var arrowDataSources = (from m in ParsedHtmls where m.Controller == fullname select m.Datasources).FirstOrDefault();
-            if (arrowDataSources.Contains(datasourceName) == false)
-                throw new Exception("此html没有在任何地方定义使用" + datasourceName);
+            List<string> arrowDataSources;
+            if (isForEditing)
+            {
+                arrowDataSources = (from m in ParsedHtmls where m.Controller == fullname select m.AllowEditDatasources).FirstOrDefault();
+                if (arrowDataSources.Contains(datasourceName) == false)
+                    throw new Exception("无权编辑" + datasourceName);
+            }
+            else
+            {
+                arrowDataSources = (from m in ParsedHtmls where m.Controller == fullname select m.Datasources).FirstOrDefault();
+                if (arrowDataSources.Contains(datasourceName) == false)
+                    throw new Exception("此html没有在任何地方定义使用" + datasourceName);
+            }
+           
             int index = datasourceName.LastIndexOf(".");
             fullname = datasourceName.Substring(0 , index);
             string propertyName = datasourceName.Substring(index + 1);
@@ -578,7 +595,7 @@ namespace Way.Lib.ScriptRemoting
             {
                 fields = (from m in fields where changeNewNames.Contains(m) == false select m).ToArray();
             }
-            var datasourceDefine = this.OnGetDataSourcePath(target);
+            var datasourceDefine = this.OnGetDataSourcePath(target,false);
          
             string pkid = null;//主键值
 
@@ -663,7 +680,7 @@ namespace Way.Lib.ScriptRemoting
 
                             string otherTarget = fieldInfo[1].Substring(0, fieldInfo[1].LastIndexOf("."));
 
-                            object query = GetDataSource(OnGetDataSourcePath(otherTarget), activeObjs);
+                            object query = GetDataSource(OnGetDataSourcePath(otherTarget,false), activeObjs);
 
                             string compareProName = fieldInfo[1].Substring(fieldInfo[1].LastIndexOf(".") + 1);
 
@@ -748,7 +765,7 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public int Count(string target,string searchJsonStr)
         {
-            var datasourceDefine = this.OnGetDataSourcePath(target);
+            var datasourceDefine = this.OnGetDataSourcePath(target,false);
             Dictionary<Type, object> dbcontexts = new Dictionary<Type, object>();
             object result = GetDataSource(datasourceDefine, dbcontexts);
             try
@@ -797,7 +814,7 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object Sum(string target, string[] fields, string searchJsonStr)
         {
-            var datasourceDefine = OnGetDataSourcePath(target);
+            var datasourceDefine = OnGetDataSourcePath(target,false);
             var dbcontexts = new Dictionary<Type, object>();
             object result = GetDataSource(datasourceDefine, dbcontexts);
             try
@@ -860,7 +877,7 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object SaveData(string target,string dataJson)
         {
-            var datasourceDefine = OnGetDataSourcePath(target);
+            var datasourceDefine = OnGetDataSourcePath(target,true);
            
             var dbContext = Activator.CreateInstance(datasourceDefine.TargetType) as EntityDB.DBContext;
             if (dbContext == null)

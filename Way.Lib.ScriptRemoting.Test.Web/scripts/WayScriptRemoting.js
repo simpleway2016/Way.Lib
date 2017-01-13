@@ -1154,6 +1154,8 @@ var WayDataBindHelper = (function () {
         else if (element.getHtmlElement && typeof element.getHtmlElement == "function") {
             element = element.getHtmlElement();
         }
+        if (!data)
+            data = {};
         var bindingInfo = new WayBindingElement(element, null, data, expressionExp, dataMemberExp);
         var onchangeMembers = bindingInfo.getDataMembers();
         var model = WayDataBindHelper.cloneObjectForBind(data, tag, onchangeMembers, WayDataBindHelper.onchange);
@@ -1553,6 +1555,7 @@ var WayGridView = (function (_super) {
         this.pageMode = false;
         //pageMode模式下，预先加载多少页数据
         this.preLoadNumForPageMode = 1;
+        this.allowEdit = false;
         try {
             var controller = document.body.getAttribute("_controller");
             this.dbContext = new WayDBContext(controller, null);
@@ -1562,6 +1565,7 @@ var WayGridView = (function (_super) {
                 this.element = $(elementId);
             else
                 this.element = elementId;
+            this.allowEdit = this.element.attr("_allowedit") == "true";
             this.element.css({
                 "overflow-y": "auto",
                 "-webkit-overflow-scrolling": "touch"
@@ -1762,6 +1766,10 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.save = function (itemIndex, callback) {
         var _this = this;
+        if (this.allowEdit == false) {
+            callback(null, "此WayGridView未设置为可编辑,请设置_allowedit=\"true\"");
+            return;
+        }
         var item = this.items[itemIndex];
         var model = item._data;
         var data = this.originalItems[itemIndex];

@@ -1234,6 +1234,9 @@ class WayDataBindHelper {
             element = element.getHtmlElement();
         }
 
+        if (!data)
+            data = {};
+
         var bindingInfo = new WayBindingElement(element, null, data, expressionExp, dataMemberExp);
         var onchangeMembers = bindingInfo.getDataMembers();
 
@@ -1698,6 +1701,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     footer: WayTemplate;
     //搜索条件model
     searchModel: any;
+    allowEdit: boolean = false;
     //数据源
     _datasource: any;
     get datasource(): any {
@@ -1731,7 +1735,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.element = $(<any>elementId);
             else
                 this.element = <any>elementId;
-
+            this.allowEdit = this.element.attr("_allowedit") == "true";
             this.element.css(
                 {
                     "overflow-y": "auto",
@@ -1950,6 +1954,11 @@ class WayGridView extends WayBaseObject implements IPageable {
     }
 
     save(itemIndex: number, callback: (idvalue: any, err: any) => void): void {
+        if (this.allowEdit == false) {
+            callback(null, "此WayGridView未设置为可编辑,请设置_allowedit=\"true\"");
+            return;
+        }
+
         var item = this.items[itemIndex];
         var model = (<any>item)._data;
         var data = this.originalItems[itemIndex];
