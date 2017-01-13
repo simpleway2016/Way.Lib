@@ -418,6 +418,19 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
         {
+            List<string> changeNewNames = new List<string>(fields.Length);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i].Contains("->"))
+                {
+                    string newName = fields[i].Substring(fields[i].IndexOf("->") + 2);
+                    changeNewNames.Add(newName);
+                }
+            }
+            if (changeNewNames.Count > 0)
+            {
+                fields = (from m in fields where changeNewNames.Contains(m) == false select m).ToArray();
+            }
             var datasourceDefine = this.OnGetDataSourcePath(target);
          
             string pkid = null;//主键值
@@ -479,8 +492,14 @@ namespace Way.Lib.ScriptRemoting
                 foreach (var dataitem in arrResult)
                 {
                     Dictionary<string, object> jData = new Dictionary<string, object>();
-                    foreach (string field in fields)
+                    foreach (string _field in fields)
                     {
+                        string field = _field;
+                        int flag1 = field.IndexOf("->");
+                        if (flag1>0)
+                        {
+                            field = field.Substring(0 , flag1);
+                        }
                         if (field.Contains(":"))
                         {
                             string[] fieldInfo = field.Split(':');
@@ -536,6 +555,20 @@ namespace Way.Lib.ScriptRemoting
                         }
                     }
                     finalResult.Add(jData);
+                }
+
+                foreach (string _field in fields)
+                {
+                    int flag1 = _field.IndexOf("->");
+                    if (flag1 > 0)
+                    {
+                        string originalName = _field.Substring(0, flag1).Split(':')[0];
+                        string changeName = _field.Substring(flag1 + 2);
+                        foreach (Dictionary<string, object> dataitem in finalResult)
+                        {
+                            ResultHelper.ChangePropertyName(dataitem, originalName, changeName);
+                        }
+                    }
                 }
 
                 var pkvalueDic = new Dictionary<string, object>();

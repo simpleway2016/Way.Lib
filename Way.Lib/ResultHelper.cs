@@ -309,6 +309,10 @@ namespace Way.Lib
                 {
                     newFields[i] = fields[i].Substring(0, fields[i].IndexOf(":"));
                 }
+                else if (fields[i].Contains("->"))
+                {
+                    newFields[i] = fields[i].Substring(0, fields[i].IndexOf("->"));
+                }
                 else
                 {
                     newFields[i] = fields[i];
@@ -466,6 +470,16 @@ namespace Way.Lib
             {
                 jsonData[propertyName] = value;
             }
+        }
+
+        public static void ChangePropertyName(Dictionary<string, object> jsonData, string originalName, string newName)
+        {
+            var value = jsonData[originalName];
+            jsonData.Remove(originalName);
+            if (jsonData.ContainsKey(newName))
+                jsonData[newName] = value;
+            else
+                jsonData.Add(newName, value);
         }
         public static void SetJsonDataValue(Dictionary<string,object> jsonData , string propertyName,object value)
         {

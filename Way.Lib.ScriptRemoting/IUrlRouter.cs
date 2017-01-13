@@ -15,7 +15,8 @@ namespace Way.Lib.ScriptRemoting
         /// 
         /// </summary>
         /// <param name="originalUrl">原始url</param>
+        /// <param name="fromUrl">从哪个url访问的</param>
         /// <returns>如果返回null，表示不改变路由</returns>
-        string GetUrl(string originalUrl);
+        string GetUrl(string originalUrl,string fromUrl);
     }
 }

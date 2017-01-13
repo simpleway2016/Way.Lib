@@ -194,7 +194,7 @@ namespace Way.Lib.ScriptRemoting
                     
                     foreach( var router in ScriptRemotingServer.Routers )
                     {
-                        var url = router.GetUrl(filepath);
+                        var url = router.GetUrl(filepath,(string)this.Connection.mKeyValues["Referer"]);
                         if(url != null)
                         {
                             filepath = url;

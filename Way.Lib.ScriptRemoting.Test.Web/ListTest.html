@@ -15,21 +15,20 @@
     </style>
 </head>
 <body>
-    <div id="list1" style="margin-top:500px;">
-        <input type="text" _istext="true" /><input type="button" _isaction="true" />
-        <script _for="itemContainer" type="text/html">
-            <div style="border:1px solid #ccc;background-color:#fff;"></div>
-        </script>
-        <script _for="item" _valueMember="id" _textMember="caption" type="text/html">
-            <div style="padding:5px;border-bottom:1px solid #eee;">{@caption}</div>
-        </script>
-    </div>
+    <WayDropDownList id="list1" _databind="value=@myvalue" _valueMember="id" _textMember="caption" _controller="Way.Lib.ScriptRemoting.Test.TestPage" _datasource="grid" style="margin-top:500px;">
+    </WayDropDownList>
     <div id="d1" style="height:30px;overflow-y:auto;">
         
     </div>
   <script lang="ja">
-      var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
-      
+      //var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
+     
+
+      window.onload = function () {
+          var test = {};
+          test = WayDataBindHelper.dataBind(list1, test);
+          test.myvalue = 15;
+      }
   </script>
 </body>
 </html>
