@@ -770,6 +770,23 @@ var WayHelper = (function () {
         invoker.invoke([]);
         return result;
     };
+    WayHelper.findBindingElements = function (element) {
+        var result = [];
+        WayHelper.findInnerBindingElements(result, element);
+        return result;
+    };
+    WayHelper.findInnerBindingElements = function (result, element) {
+        var attr = element.getAttribute("_databind");
+        if (attr && attr.length > 0) {
+            result.push(element);
+        }
+        if (element.tagName.indexOf("Way") == 0 || element._WayControl) {
+            return;
+        }
+        for (var i = 0; i < element.children.length; i++) {
+            WayHelper.findInnerBindingElements(result, element.children[i]);
+        }
+    };
     WayHelper.addEventListener = function (element, eventName, listener, useCapture) {
         if (element.addEventListener) {
             element.addEventListener(eventName, listener, useCapture);
@@ -886,17 +903,10 @@ var WayBindingElement = (function (_super) {
         this.element = _element;
         this.model = _model;
         this.dataSource = _dataSource;
-        this.container = $(_element);
-        var elements = this.container.find("*[_databind]");
-        if (this.container[0].getAttribute("_databind")) {
-            this.initEle(this.container[0], _dataSource, expressionExp, dataMemberExp);
-        }
-        if (!_element._WayControl) {
-            //如果element不是对应于WayControl，那么，继续绑定它里面的节点
-            for (var i = 0; i < elements.length; i++) {
-                var ctrlEle = elements[i];
-                this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
-            }
+        var elements = WayHelper.findBindingElements(_element);
+        for (var i = 0; i < elements.length; i++) {
+            var ctrlEle = elements[i];
+            this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
         }
     }
     WayBindingElement.prototype.initEle = function (ctrlEle, _dataSource, expressionExp, dataMemberExp) {

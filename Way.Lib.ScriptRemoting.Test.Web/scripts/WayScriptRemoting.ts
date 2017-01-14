@@ -810,6 +810,26 @@ class WayHelper {
         return result;
     }
 
+    static findBindingElements(element: HTMLElement): any[] {
+        var result = [];
+        WayHelper.findInnerBindingElements(result, element);
+        return result;
+    }
+
+    static findInnerBindingElements(result: any[], element: HTMLElement) {
+        var attr = element.getAttribute("_databind");
+        if (attr && attr.length > 0) {
+            result.push(element);
+        }
+
+        if (element.tagName.indexOf("Way") == 0 || (<any>element)._WayControl) {
+            return;
+        }
+        for (var i = 0; i < element.children.length; i++) {
+            WayHelper.findInnerBindingElements(result, <any>element.children[i]);
+        }
+    }
+
     static addEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
         if (element.addEventListener) {
             element.addEventListener(eventName, listener, useCapture);
@@ -925,7 +945,6 @@ class WayBindingElement extends WayBaseObject {
     element: HTMLElement;
     model: any;
     dataSource: any;
-    container: JQuery;
     configs: WayBindMemberConfig[] = [];
 
 
@@ -934,19 +953,11 @@ class WayBindingElement extends WayBaseObject {
         this.element = _element;
         this.model = _model;
         this.dataSource = _dataSource;
-
-        this.container = $(_element);
-        var elements = this.container.find("*[_databind]");
-        if (this.container[0].getAttribute("_databind")) {
-            this.initEle(this.container[0], _dataSource, expressionExp, dataMemberExp);
-        }
-
-        if (!(<any>_element)._WayControl) {
-            //如果element不是对应于WayControl，那么，继续绑定它里面的节点
-            for (var i = 0; i < elements.length; i++) {
-                var ctrlEle = elements[i];
-                this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
-            }
+        
+        var elements = WayHelper.findBindingElements(_element);
+        for (var i = 0; i < elements.length; i++) {
+            var ctrlEle = elements[i];
+            this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
         }
     }
 
