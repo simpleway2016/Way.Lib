@@ -21,11 +21,17 @@
     </WayDropDownList>
    
     <div id="d1" style="height:30px;overflow-y:auto;">
-        
+        wfea<span>22</span>pp
     </div>
   <script lang="ja">
       //var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
       WayHelper.writePage("/aa.html");
+
+      var d1 = document.getElementById("d1");
+      var value = "";
+      for (var p in d1.childNodes[0])
+          value += p + ":" + d1.childNodes[0][p] + "\r\n";
+      //d1.setAttribute("style","width:20px;height:20px;background-color:red;")
 
       window.onload = function () {
 

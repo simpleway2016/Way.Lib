@@ -2347,6 +2347,92 @@ class WayGridView extends WayBaseObject implements IPageable {
         });
     }
 
+    private replaceFromString(str: string, itemIndex, statusmodel, data): string{
+        var expression = /\{[ ]?\$(\w+)[ ]?\}/g;
+        var result = str;
+        while (true) {
+            var r = expression.exec(str);
+            if (!r)
+                break;
+            var proname = r[1];
+            if (proname == "ItemIndex") {
+                result = result.replace(r[0], itemIndex);
+            }
+            else {
+                if (eval("typeof statusmodel." + proname + "=='undefined'") == false) {
+                    result = result.replace(r[0], eval("statusmodel." + proname));
+                }
+                else {
+                    result = result.replace(r[0], "null");
+                }
+            }
+        }
+
+        var match = result.match(this.fieldExp);
+        if (match) {
+            for (var j = 0; j < match.length; j++) {
+                var str = match[j].toString();
+                var field = str.substr(2, str.length - 3);
+                if (field.indexOf(":") > 0) {
+                    field = field.substr(0, field.indexOf(":"));
+                    result = result.replace(str, eval("data." + field + ".text"));
+                }
+                else {
+                    var value = eval("data." + field);
+                    if (value == null || typeof value == "undefined")
+                        value = "";
+
+                    if (typeof value == "object") {
+
+                        if (typeof value.caption != "undefined") {
+                            result = result.replace(str, value.caption);
+                        }
+                        else if (typeof value.value != "undefined") {
+                            result = result.replace(str, value.value);
+                        }
+                        else {
+                            result = result.replace(str, "");
+                        }
+                    }
+                    else {
+                        result = result.replace(str, value);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private replaceVariable(container: HTMLElement, itemIndex, statusmodel, data): void {
+        for (var i = 0; i < container.attributes.length; i++) {
+            var attName = container.attributes[i].name;
+            var attValue = container.getAttribute(attName);
+            var formatvalue = this.replaceFromString(attValue, itemIndex, statusmodel, data);
+            if (attValue != formatvalue) {
+                container.setAttribute(attName, formatvalue);
+            }
+        }
+
+        if (container.tagName.indexOf("Way") != 0) {
+            //如果不是WayControl，继续检查内容和子节点
+            for (var i = 0; i < container.childNodes.length; i++) {
+                var node = container.childNodes[i];
+                if (node.nodeType == 3) {
+                    //text
+                    var attValue: string = (<any>node).data;
+                    var formatvalue = this.replaceFromString(attValue, itemIndex, statusmodel, data);
+                    if (attValue != formatvalue) {
+                        (<any>node).data = formatvalue;
+                    }
+                }
+                else if (node.nodeType == 1) {
+                    //htmlelement
+                    this.replaceVariable(<any>node, itemIndex, statusmodel, data);
+                }
+            }
+        }
+    }
+
     private createItem(itemIndex: any, mode: string = ""): JQuery {
         //把数据克隆一份
         var currentItemStatus;
@@ -2357,61 +2443,13 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         var data = WayHelper.clone(this.originalItems[itemIndex]);
         var template = this.findItemTemplate(data, mode);
-        var expression = /\{[ ]?\$(\w+)[ ]?\}/g;
+       
         var itemContent = template.content;
-        while (true) {
-            var r = expression.exec(template.content);
-            if (!r)
-                break;
-            var proname = r[1];
-            if (proname == "ItemIndex") {
-                itemContent = itemContent.replace(r[0], itemIndex);
-            }
-            else {
-                if (eval("typeof statusmodel." + proname + "=='undefined'") == false) {
-                    itemContent = itemContent.replace(r[0], eval("statusmodel." + proname));
-                }
-                else {
-                    itemContent = itemContent.replace(r[0], "null");
-                }
-            }
-        }
-
-
-        var match = itemContent.match(this.fieldExp);
-        if (match) {
-            for (var j = 0; j < match.length; j++) {
-                var str = match[j].toString();
-                var field = str.substr(2, str.length - 3);
-                if (field.indexOf(":") > 0) {
-                    field = field.substr(0, field.indexOf(":"));
-                    itemContent = itemContent.replace(str, eval("data." + field + ".text"));
-                }
-                else {
-                    var value = eval("data." + field);
-                    if (value == null || typeof value == "undefined")
-                        value = "";
-
-                    if (typeof value == "object") {
-
-                        if (typeof value.caption != "undefined") {
-                            itemContent = itemContent.replace(str, value.caption);
-                        }
-                        else if (typeof value.value != "undefined") {
-                            itemContent = itemContent.replace(str, value.value);
-                        }
-                        else {
-                            itemContent = itemContent.replace(str, "");
-                        }
-                    }
-                    else {
-                        itemContent = itemContent.replace(str, value);
-                    }
-                }
-            }
-        }
 
         var item = $(itemContent);
+        this.replaceVariable(item[0], itemIndex, statusmodel , data);
+        
+        
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
         //创建status
 
