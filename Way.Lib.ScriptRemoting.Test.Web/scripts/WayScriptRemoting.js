@@ -797,6 +797,12 @@ var WayHelper = (function () {
         if (attr && attr.length > 0) {
             result.push(element);
         }
+        else {
+            attr = element.getAttribute("_expression");
+            if (attr && attr.length > 0) {
+                result.push(element);
+            }
+        }
         if (element.tagName.indexOf("Way") == 0 || element._WayControl) {
             return;
         }
@@ -917,6 +923,7 @@ var WayBindingElement = (function (_super) {
     function WayBindingElement(_element, _model, _dataSource, expressionExp, dataMemberExp) {
         _super.call(this);
         this.configs = [];
+        this.expressionConfigs = [];
         this.element = _element;
         this.model = _model;
         this.dataSource = _dataSource;
@@ -929,6 +936,7 @@ var WayBindingElement = (function (_super) {
     WayBindingElement.prototype.initEle = function (ctrlEle, _dataSource, expressionExp, dataMemberExp) {
         var _this = this;
         var _databind = ctrlEle.getAttribute("_databind");
+        var _expressionString = ctrlEle.getAttribute("_expression");
         var isWayControl = false;
         if (ctrlEle._WayControl) {
             ctrlEle = ctrlEle._WayControl;
@@ -996,6 +1004,37 @@ var WayBindingElement = (function (_super) {
                 }
             }
         }
+        if (_expressionString) {
+            var allexpressions = _expressionString.split(';');
+            for (var i = 0; i < allexpressions.length; i++) {
+                var matchs = allexpressions[i].match(dataMemberExp);
+                if (matchs) {
+                    for (var j = 0; j < matchs.length; j++) {
+                        var match = matchs[j];
+                        var dataMember = match.substr(1);
+                        var config = new WayBindMemberConfig(null, dataMember, ctrlEle);
+                        config.expressionString = allexpressions[i];
+                        config.dataMemberExp = dataMemberExp;
+                        this.expressionConfigs.push(config);
+                        this.doExpression(config);
+                    }
+                }
+            }
+        }
+    };
+    WayBindingElement.prototype.doExpression = function (config) {
+        var model = this.dataSource;
+        var element = config.element;
+        var exp = WayHelper.replace(config.expressionString, "{0}.", "element.");
+        var matchs = exp.match(config.dataMemberExp);
+        if (matchs) {
+            for (var j = 0; j < matchs.length; j++) {
+                var match = matchs[j];
+                var dataMember = match.substr(1);
+                exp = exp.replace(match, "model." + dataMember);
+            }
+        }
+        eval(exp);
     };
     WayBindingElement.prototype.initEleValues = function (model) {
         this.model = model;
@@ -1033,6 +1072,12 @@ var WayBindingElement = (function (_super) {
                         if (!config.element.element)
                             WayHelper.fireEvent(config.element, 'change');
                     }
+                }
+            }
+            for (var i = 0; i < this.expressionConfigs.length; i++) {
+                var config = this.expressionConfigs[i];
+                if (config.dataMember == name) {
+                    this.doExpression(config);
                 }
             }
         }

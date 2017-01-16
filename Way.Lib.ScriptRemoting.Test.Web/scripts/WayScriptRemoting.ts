@@ -839,7 +839,12 @@ class WayHelper {
         if (attr && attr.length > 0) {
             result.push(element);
         }
-
+        else {
+            attr = element.getAttribute("_expression");
+            if (attr && attr.length > 0) {
+                result.push(element);
+            }
+        }
         if (element.tagName.indexOf("Way") == 0 || (<any>element)._WayControl) {
             return;
         }
@@ -952,6 +957,8 @@ class WayBindMemberConfig {
     elementMember: string;
     dataMember: string;
     element: HTMLElement;
+    expressionString: string;
+    dataMemberExp: any;
     constructor(_elementMember: string, _dataMember: string, _element: HTMLElement) {
         this.elementMember = _elementMember;
         this.dataMember = _dataMember;
@@ -964,7 +971,7 @@ class WayBindingElement extends WayBaseObject {
     model: any;
     dataSource: any;
     configs: WayBindMemberConfig[] = [];
-
+    expressionConfigs: WayBindMemberConfig[] = [];
 
     constructor(_element: HTMLElement, _model: any, _dataSource: any, expressionExp: RegExp, dataMemberExp: RegExp) {
         super();
@@ -981,6 +988,7 @@ class WayBindingElement extends WayBaseObject {
 
     private initEle(ctrlEle: HTMLElement, _dataSource: any, expressionExp: RegExp, dataMemberExp: RegExp) {
         var _databind = ctrlEle.getAttribute("_databind");
+        var _expressionString = ctrlEle.getAttribute("_expression"); 
         var isWayControl = false;
         if ((<any>ctrlEle)._WayControl) {
             ctrlEle = (<any>ctrlEle)._WayControl;
@@ -1056,8 +1064,46 @@ class WayBindingElement extends WayBaseObject {
                 }
             }
         }
+
+       
+        if (_expressionString) {
+            var allexpressions = _expressionString.split(';');
+            for (var i = 0; i < allexpressions.length; i++) {
+                var matchs = allexpressions[i].match(dataMemberExp);
+                if (matchs) {
+                    for (var j = 0; j < matchs.length; j++) {
+                        var match = matchs[j];
+                        var dataMember = match.substr(1);
+
+                        var config = new WayBindMemberConfig(null, dataMember, ctrlEle);
+                        config.expressionString = allexpressions[i];
+                        config.dataMemberExp = dataMemberExp;
+                        this.expressionConfigs.push(config);
+
+                        this.doExpression(config);
+                    }
+                }
+            }
+            
+        }
     }
 
+    doExpression(config: WayBindMemberConfig) {
+        var model = this.dataSource;
+        var element = config.element;
+        var exp = WayHelper.replace(config.expressionString, "{0}.", "element.");
+
+        var matchs = exp.match(config.dataMemberExp);
+        if (matchs) {
+            for (var j = 0; j < matchs.length; j++) {
+                var match = matchs[j];
+                var dataMember = match.substr(1);
+                exp = exp.replace(match, "model." + dataMember);
+            }
+        }
+
+        eval(exp);
+    }
 
     initEleValues(model): void{
         this.model = model;
@@ -1101,6 +1147,13 @@ class WayBindingElement extends WayBaseObject {
                         if (!(<any>config.element).element)//如果不是WayControl
                             WayHelper.fireEvent(config.element, 'change');
                     }
+                }
+            }
+
+            for (var i = 0; i < this.expressionConfigs.length; i++) {
+                var config = this.expressionConfigs[i];
+                if (config.dataMember == name) {
+                    this.doExpression(config);
                 }
             }
         }
