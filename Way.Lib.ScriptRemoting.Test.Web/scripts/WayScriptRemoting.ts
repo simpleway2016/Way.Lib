@@ -1055,7 +1055,9 @@ class WayBindingElement extends WayBaseObject {
                 return;//绑定已经移除了
 
             var model = this.model;
-            eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify((<any>fromWhichConfig.element)[fromWhichConfig.elementMember]) + ";");
+            var value = (<any>fromWhichConfig.element)[fromWhichConfig.elementMember];
+
+            eval("model." + fromWhichConfig.dataMember + "=value;");
         }
         catch (e) {
             throw "WayBindingElement onvalueChanged error:" + e.message;
@@ -1076,9 +1078,8 @@ class WayBindingElement extends WayBaseObject {
             for (var i = 0; i < this.configs.length; i++) {
                 var config = this.configs[i];
                 if (config.dataMember == name) {
-                    var v = JSON.stringify(value);
-                    if (eval("config.element." + config.elementMember + "!=" + v)) {
-                        eval("config.element." + config.elementMember + "=" + v);
+                    if (eval("config.element." + config.elementMember + "!=value")) {
+                        eval("config.element." + config.elementMember + "=value");
                         if (!(<any>config.element).element)//如果不是WayControl
                             WayHelper.fireEvent(config.element, 'change');
                     }
@@ -1218,6 +1219,7 @@ class WayDataBindHelper {
                 model.onchange[i](model, itemIndex, name, value);
             }
         }
+
         if (toCheckedEles) {
             for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
                 var binding = WayDataBindHelper.bindings[i];
@@ -1755,7 +1757,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     //footer模板
     footer: WayTemplate;
     //搜索条件model
-    searchModel: any;
+    searchModel: any = {};
     allowEdit: boolean = false;
     //数据源
     _datasource: any;
@@ -3064,6 +3066,294 @@ class WayDropDownList {
     }
 }
 
+
+class WayCheckboxList {
+    memberInChange: [ "value"];
+    element: JQuery;
+    private isMobile: boolean = false;
+    private grid: WayGridView;
+    private windowObj: JQuery;
+
+    valueMember: string;
+    textMember: string;
+    private _value: any[] = [];
+
+    get value(): any[] {
+        return this._value;
+    }
+    set value(v: any[]) {
+        if (!v)
+            v = [];
+        if (v != this._value) {
+            this._value = v;
+            this.checkGridItem();
+            this.fireEvent("change");
+        }
+    }
+
+
+    onchange: any = null;
+
+
+
+    constructor(elementid: string, datasource: any) {
+        this.windowObj = $(window);
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        (<any>this.element[0])._WayControl = this;
+        this.isMobile = "ontouchstart" in this.element[0];
+        
+        var itemtemplate = this.element.find("script[_for='item']")[0];
+        this.valueMember = this.element[0].getAttribute("_valueMember");
+        this.textMember = this.element[0].getAttribute("_textMember");
+
+        if (true) {
+            this.grid = new WayGridView(<any>this.element[0], 10);
+            this.grid.datasource = datasource;
+            this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+
+            if (!this.valueMember || this.valueMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.valueMember + "->value");
+            }
+            if (!this.textMember || this.textMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.textMember + "->text");
+               
+            }
+            this.grid.onAfterCreateItems = () => {
+                this.checkGridItem();
+            }
+            this.grid.databind();
+        }
+    }
+
+    private checkGridItem() {
+        for (var j = 0; j < this.grid.items.length; j++) {
+            var status = (<any>this.grid.items[j])._status;
+            var data = (<any>this.grid.items[j])._data;
+
+            status.Selected = WayHelper.contains(this._value, data.value);
+
+        }
+    }
+
+    addEventListener(eventName: string, func: any) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+
+            this.onchange.push(func);
+        }
+    }
+
+    fireEvent(eventName: string) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    }
+
+    private rasieModelChange() {
+        
+        for (var k = 0; k < WayDataBindHelper.bindings.length;k ++) {
+            var binding = WayDataBindHelper.bindings[k];
+            if (<any>binding.element === this.element[0]) {
+                for (var m = 0; m < binding.configs.length; m++) {
+                    var config = binding.configs[m];
+                    if (config.elementMember == "value") {
+                        if (typeof binding.model.onchange == "function") {
+                            binding.model.onchange(binding.model, null, config.dataMember, this._value);
+                        }
+                        else if (binding.model.onchange && typeof binding.model.onchange.length != "undefined") {
+                            for (var i = 0; i < binding.model.onchange.length; i++) {
+                                binding.model.onchange[i](binding.model, null, config.dataMember, this._value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private _onGridItemCreated(item: JQuery): void {
+        item.click(() => {
+            (<any>item)._status.Selected = !(<any>item)._status.Selected;
+            if ((<any>item)._status.Selected)
+            {
+                this._value.push((<any>item)._data.value);
+                this.fireEvent("change");
+                //这里只是数值发生变化，如果有model和自己绑定，触发一下model的onchange事件
+                this.rasieModelChange();
+            }
+            else {
+                for (var i = 0; i < this._value.length; i++) {
+                    if (this._value[i] == (<any>item)._data.value) {
+                        this._value.splice(i, 1);
+                        this.fireEvent("change");
+                        this.rasieModelChange();
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+}
+
+class WayRadioList {
+    memberInChange: ["value"];
+    element: JQuery;
+    private isMobile: boolean = false;
+    private grid: WayGridView;
+    private windowObj: JQuery;
+
+    valueMember: string;
+    textMember: string;
+    private _value: string;
+
+    get value(): string {
+        return this._value;
+    }
+    set value(v: string) {
+        if (v != this._value) {
+            this._value = v;
+            this.checkGridItem();
+            this.fireEvent("change");
+        }
+    }
+
+
+    onchange: any = null;
+
+
+
+    constructor(elementid: string, datasource: any) {
+        this.windowObj = $(window);
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        (<any>this.element[0])._WayControl = this;
+        this.isMobile = "ontouchstart" in this.element[0];
+
+        var itemtemplate = this.element.find("script[_for='item']")[0];
+        this.valueMember = this.element[0].getAttribute("_valueMember");
+        this.textMember = this.element[0].getAttribute("_textMember");
+
+        if (true) {
+            this.grid = new WayGridView(<any>this.element[0], 10);
+            this.grid.datasource = datasource;
+            this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+
+            if (!this.valueMember || this.valueMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.valueMember + "->value");
+            }
+            if (!this.textMember || this.textMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.textMember + "->text");
+
+            }
+            this.grid.onAfterCreateItems = () => {
+                this.checkGridItem();
+            }
+            this.grid.databind();
+        }
+    }
+
+    private checkGridItem() {
+        for (var j = 0; j < this.grid.items.length; j++) {
+            var status = (<any>this.grid.items[j])._status;
+            var data = (<any>this.grid.items[j])._data;
+
+            status.Selected = this._value == data.value;
+
+        }
+    }
+
+    addEventListener(eventName: string, func: any) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+
+            this.onchange.push(func);
+        }
+    }
+
+    fireEvent(eventName: string) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    }
+
+    private rasieModelChange() {
+
+        for (var k = 0; k < WayDataBindHelper.bindings.length; k++) {
+            var binding = WayDataBindHelper.bindings[k];
+            if (<any>binding.element === this.element[0]) {
+                for (var m = 0; m < binding.configs.length; m++) {
+                    var config = binding.configs[m];
+                    if (config.elementMember == "value") {
+                        if (typeof binding.model.onchange == "function") {
+                            binding.model.onchange(binding.model, null, config.dataMember, this._value);
+                        }
+                        else if (binding.model.onchange && typeof binding.model.onchange.length != "undefined") {
+                            for (var i = 0; i < binding.model.onchange.length; i++) {
+                                binding.model.onchange[i](binding.model, null, config.dataMember, this._value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private _onGridItemCreated(item: JQuery): void {
+        item.click(() => {
+            this.value = (<any>item)._data.value;
+        });
+    }
+
+}
+
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(() => {
     var body = $(document.body);
@@ -3110,6 +3400,12 @@ $(document).ready(() => {
                 switch (controlType) {
                     case "WAYDROPDOWNLIST":
                         control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+                        break;
+                    case "WAYCHECKBOXLIST":
+                        control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+                        break;
+                    case "WAYRADIOLIST":
+                        control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
                         break;
                     case "WAYGRIDVIEW":
                         replaceEleObj[0].innerHTML += virtualEle.innerHTML;

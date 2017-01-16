@@ -14,3 +14,19 @@
     <div _pagesize="20">
     </div>
 </WayGridView>
+
+<WayCheckboxList>
+    <div>
+        <script _for="item" type="text/html">
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;"><input type="checkbox" _databind="checked=$Selected">{@text}</div>
+        </script>
+    </div>
+</WayCheckboxList>
+
+<WayRadioList>
+    <div>
+        <script _for="item" type="text/html">
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;"><input type="radio" _databind="checked=$Selected">{@text}</div>
+        </script>
+    </div>
+</WayRadioList>

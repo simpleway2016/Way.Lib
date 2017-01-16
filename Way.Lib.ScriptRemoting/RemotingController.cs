@@ -648,8 +648,11 @@ namespace Way.Lib.ScriptRemoting
                 {
                     result = ResultHelper.InvokeSelect(result, fields);
                 }
-                result = ResultHelper.InvokeSkip(result, pagerInfo.PageIndex * pagerInfo.PageSize);
-                result = ResultHelper.InvokeTake(result, pagerInfo.PageSize);
+                if (pagerInfo.PageSize > 0)
+                {
+                    result = ResultHelper.InvokeSkip(result, pagerInfo.PageIndex * pagerInfo.PageSize);
+                    result = ResultHelper.InvokeTake(result, pagerInfo.PageSize);
+                }
                 arrResult = (object[])ResultHelper.InvokeToArray(result);
 
                 List<Dictionary<string, object>> finalResult = new List<Dictionary<string, object>>();

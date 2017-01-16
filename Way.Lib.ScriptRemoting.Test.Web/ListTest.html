@@ -16,7 +16,10 @@
 </head>
 <body _controller="Way.Lib.ScriptRemoting.Test.TestPage">
     <input type="text" id="txt555" _databind="value=@mytext">
-
+    <WayCheckboxList id="chkList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
+    </WayCheckboxList>
+    <WayRadioList id="rdList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;margin-top:10px;">
+    </WayRadioList>
     <WayDropDownList id="list1" _databind="value=@myvalue,text=@mytext" _valueMember="id" _textMember="caption" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
     </WayDropDownList>
    
@@ -38,10 +41,19 @@
           var test = WayDataBindHelper.dataBind(list1, { myvalue:16 });
 
           var test2 = WayDataBindHelper.dataBind(document.getElementById("txt555"), test);
-         // test.myvalue = 15;
-          //test.onchange = function (model, tag, name, value) {
-          //    alert(name + ":" + value);
-          //}
+
+          var chkObj = WayDataBindHelper.dataBind(chkList1, { dbids: [10] });
+
+          chkObj.onchange = function (model,tag,name,value) {
+              alert(chkObj.dbids);
+          };
+
+          var chkObj2 = WayDataBindHelper.dataBind(rdList1, { dbids :10});
+
+          chkObj2.onchange = function (model, tag, name, value) {
+              alert(chkObj2.dbids);
+          };
+
       }
   </script>
 </body>
