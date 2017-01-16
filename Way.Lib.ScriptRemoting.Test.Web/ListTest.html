@@ -29,10 +29,10 @@
 
       window.onload = function () {
 
-          var test = WayDataBindHelper.dataBind(list1, {  });
+          var test = WayDataBindHelper.dataBind(list1, { myvalue:16 });
 
           var test2 = WayDataBindHelper.dataBind(document.getElementById("txt555"), test);
-          test.myvalue = 15;
+         // test.myvalue = 15;
           //test.onchange = function (model, tag, name, value) {
           //    alert(name + ":" + value);
           //}

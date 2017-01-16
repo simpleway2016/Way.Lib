@@ -1079,7 +1079,7 @@ class WayBindingElement extends WayBaseObject {
                     var v = JSON.stringify(value);
                     if (eval("config.element." + config.elementMember + "!=" + v)) {
                         eval("config.element." + config.elementMember + "=" + v);
-                        if (!(<any>config.element).getHtmlElement)//如果不是WayControl
+                        if (!(<any>config.element).element)//如果不是WayControl
                             WayHelper.fireEvent(config.element, 'change');
                     }
                 }
@@ -1281,8 +1281,9 @@ class WayDataBindHelper {
         if (typeof element == "string") {
             element = document.getElementById(<any>element);
         }
-        else if (element.getHtmlElement && typeof element.getHtmlElement == "function") {
-            element = element.getHtmlElement();
+        else if (element.element && element.element.length) {
+            //is jquery
+            element = element.element[0];
         }
         var model = null;
         if (!data)
@@ -2832,10 +2833,7 @@ class WayDropDownList {
         }
     }
 
-    getHtmlElement(): HTMLElement {
-        return this.element[0];
-    }
-
+  
     getTextByValue(value: string): string {
         for (var i = 0; i < this.grid.items.length; i++) {
             var data = (<any>this.grid.items[i])._data;

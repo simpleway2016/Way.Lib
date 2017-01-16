@@ -1013,7 +1013,7 @@ var WayBindingElement = (function (_super) {
                     var v = JSON.stringify(value);
                     if (eval("config.element." + config.elementMember + "!=" + v)) {
                         eval("config.element." + config.elementMember + "=" + v);
-                        if (!config.element.getHtmlElement)
+                        if (!config.element.element)
                             WayHelper.fireEvent(config.element, 'change');
                     }
                 }
@@ -1200,8 +1200,9 @@ var WayDataBindHelper = (function () {
         if (typeof element == "string") {
             element = document.getElementById(element);
         }
-        else if (element.getHtmlElement && typeof element.getHtmlElement == "function") {
-            element = element.getHtmlElement();
+        else if (element.element && element.element.length) {
+            //is jquery
+            element = element.element[0];
         }
         var model = null;
         if (!data)
@@ -2525,9 +2526,6 @@ var WayDropDownList = (function () {
                 }
             }
         }
-    };
-    WayDropDownList.prototype.getHtmlElement = function () {
-        return this.element[0];
     };
     WayDropDownList.prototype.getTextByValue = function (value) {
         for (var i = 0; i < this.grid.items.length; i++) {
