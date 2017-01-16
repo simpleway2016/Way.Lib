@@ -1,6 +1,6 @@
 ﻿
-window.onerror = (msg) => {
-    alert(msg);
+window.onerror = (errorMessage, scriptURI, lineNumber) => {
+    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
 
 enum WayScriptRemotingMessageType {
@@ -1128,7 +1128,8 @@ class WayDataBindHelper {
                     onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 else {
-                    onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
+                    //onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
+                    onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 str += "get " + pro + "(){return item." + parent + pro + ";},"
                 str += "set " + pro + "(v){if(item." + parent + pro + "!=v){item." + parent + pro + "=v;" + onchangeStr + "}}";
@@ -1158,12 +1159,47 @@ class WayDataBindHelper {
         }
     }
 
-    static cloneObjectForBind(obj: any, _itemIndex: any, onchangeMembers: string[], _onchange: any): any {
-        if (obj.getSource && typeof obj.getSource == "function") {
-            obj = obj.getSource();
+    static addPropertyToObject(model,obj,source, _itemIndex,  propertyName, fullMemberName, _onchange): void {
+        var member = propertyName.split('.')[0];
+        var prototype = Object.getPrototypeOf(obj);
+        if (eval("typeof obj." + member +" == \"undefined\"")) {
+            if (member == propertyName) {//不是obj.name的模式
+                //alert("add member:" + member + "  " + fullMemberName);
+                Object.defineProperty(prototype, member, {
+                    get: function () {
+                        return eval("source." + fullMemberName);
+                    },
+                    set: function (value) {
+                        if (eval("source." + fullMemberName + "!=value")) {
+                            eval("source." + fullMemberName + "=value");
+                            _onchange(true, model, _itemIndex, source, fullMemberName, value);
+                        }
+                    },
+                    enumerable: false,//这里如果是true,jquery竟然会报错
+                    configurable: true
+                });
+                return;
+            }
+            else {
+                obj[member] = {};
+            }
         }
 
+        if (member != propertyName) {
+            propertyName = propertyName.substr(member.length + 1);
+            WayDataBindHelper.addPropertyToObject(model, obj[member], source, _itemIndex, propertyName, fullMemberName, _onchange);
+        }
+    }
 
+    static cloneObjectForBind(obj: any, _itemIndex: any, onchangeMembers: string[], _onchange: any): any {
+        if (obj.getSource && typeof obj.getSource == "function") {
+           //需要增加没有的属性
+            var prototype = Object.getPrototypeOf(obj);
+            for (var i = 0; i < onchangeMembers.length; i++) {
+                WayDataBindHelper.addPropertyToObject(obj, obj, obj.getSource(), _itemIndex, onchangeMembers[i], onchangeMembers[i], _onchange);
+            }
+            return obj;
+        }
 
         var str = WayDataBindHelper.getObjectStr(obj, onchangeMembers, null);
         str = "result=(function(item,itemIndex,onProChange){ return " + str + ";})(obj,_itemIndex,_onchange);"
@@ -1177,12 +1213,16 @@ class WayDataBindHelper {
         if (typeof model.onchange == "function") {
             model.onchange(model, itemIndex, name, value);
         }
+        else if (model.onchange && typeof model.onchange.length != "undefined") {
+            for (var i = 0; i < model.onchange.length; i++) {
+                model.onchange[i](model, itemIndex, name, value);
+            }
+        }
         if (toCheckedEles) {
             for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
                 var binding = WayDataBindHelper.bindings[i];
                 if (binding && binding.model == model) {
                     binding.onchange(itemIndex, name, value);
-                    break;
                 }
             }
         }
@@ -1244,15 +1284,18 @@ class WayDataBindHelper {
         else if (element.getHtmlElement && typeof element.getHtmlElement == "function") {
             element = element.getHtmlElement();
         }
-
+        var model = null;
         if (!data)
             data = {};
+        else if (data.getSource && typeof data.getSource == "function") {
+            model = data;
+            data = model.getSource();
+        }
 
         var bindingInfo = new WayBindingElement(element, null, data, expressionExp, dataMemberExp);
         var onchangeMembers = bindingInfo.getDataMembers();
 
-        var model = WayDataBindHelper.cloneObjectForBind(data, tag, onchangeMembers, WayDataBindHelper.onchange);
-
+        model = WayDataBindHelper.cloneObjectForBind(model ? model : data, tag, onchangeMembers, WayDataBindHelper.onchange);
         var finded = false;
         bindingInfo.model = model;
 
@@ -2884,9 +2927,10 @@ class WayDropDownList {
     }
     //显示下拉列表
     showList(): void {
+        
         if (this.maskLayer) {
             this.maskLayer.show();
-        }
+        } 
         if (!this.isMobile) {
             var offset = this.textElement.offset();
             var y = (offset.top + this.textElement.outerHeight());
@@ -2898,13 +2942,13 @@ class WayDropDownList {
                     top: y + "px",
                 });
 
-
             if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
                 y = offset.top - this.itemContainer.outerHeight();
                 if (y >= 0) {
                     this.itemContainer.css("top", y + "px");
                 }
             }
+
             if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
                 this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
             }
@@ -2919,9 +2963,9 @@ class WayDropDownList {
                     top: this.windowObj.innerHeight() * 0.05 + "px",
                 });
         }
-
+        
         this.itemContainer.css("visibility", "visible");
-
+        
         if (!this.isBindedGrid) {
             this.grid.databind();
             this.isBindedGrid = true;

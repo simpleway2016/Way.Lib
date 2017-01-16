@@ -15,8 +15,11 @@
     </style>
 </head>
 <body _controller="Way.Lib.ScriptRemoting.Test.TestPage">
+    <input type="text" id="txt555" _databind="value=@myvalue">
+
     <WayDropDownList id="list1" _databind="value=@myvalue" _valueMember="id" _textMember="caption" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
     </WayDropDownList>
+   
     <div id="d1" style="height:30px;overflow-y:auto;">
         
     </div>
@@ -26,8 +29,13 @@
 
       window.onload = function () {
 
-          var test = WayDataBindHelper.dataBind(list1, { myvalue :15});
-         
+          var test = WayDataBindHelper.dataBind(list1, { myvalue: 15 });
+
+          var test2 = WayDataBindHelper.dataBind(document.getElementById("txt555"), test);
+
+          //test.onchange = function (model, tag, name, value) {
+          //    alert(name + ":" + value);
+          //}
       }
   </script>
 </body>

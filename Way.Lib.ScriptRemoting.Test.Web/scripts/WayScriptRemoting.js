@@ -3,8 +3,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-window.onerror = function (msg) {
-    alert(msg);
+window.onerror = function (errorMessage, scriptURI, lineNumber) {
+    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
 var WayScriptRemotingMessageType;
 (function (WayScriptRemotingMessageType) {
@@ -1061,7 +1061,8 @@ var WayDataBindHelper = (function () {
                     onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 else {
-                    onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
+                    //onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
+                    onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 str += "get " + pro + "(){return item." + parent + pro + ";},";
                 str += "set " + pro + "(v){if(item." + parent + pro + "!=v){item." + parent + pro + "=v;" + onchangeStr + "}}";
@@ -1086,9 +1087,44 @@ var WayDataBindHelper = (function () {
             }
         }
     };
+    WayDataBindHelper.addPropertyToObject = function (model, obj, source, _itemIndex, propertyName, fullMemberName, _onchange) {
+        var member = propertyName.split('.')[0];
+        var prototype = Object.getPrototypeOf(obj);
+        if (eval("typeof obj." + member + " == \"undefined\"")) {
+            if (member == propertyName) {
+                //alert("add member:" + member + "  " + fullMemberName);
+                Object.defineProperty(prototype, member, {
+                    get: function () {
+                        return eval("source." + fullMemberName);
+                    },
+                    set: function (value) {
+                        if (eval("source." + fullMemberName + "!=value")) {
+                            eval("source." + fullMemberName + "=value");
+                            _onchange(true, model, _itemIndex, source, fullMemberName, value);
+                        }
+                    },
+                    enumerable: false,
+                    configurable: true
+                });
+                return;
+            }
+            else {
+                obj[member] = {};
+            }
+        }
+        if (member != propertyName) {
+            propertyName = propertyName.substr(member.length + 1);
+            WayDataBindHelper.addPropertyToObject(model, obj[member], source, _itemIndex, propertyName, fullMemberName, _onchange);
+        }
+    };
     WayDataBindHelper.cloneObjectForBind = function (obj, _itemIndex, onchangeMembers, _onchange) {
         if (obj.getSource && typeof obj.getSource == "function") {
-            obj = obj.getSource();
+            //需要增加没有的属性
+            var prototype = Object.getPrototypeOf(obj);
+            for (var i = 0; i < onchangeMembers.length; i++) {
+                WayDataBindHelper.addPropertyToObject(obj, obj, obj.getSource(), _itemIndex, onchangeMembers[i], onchangeMembers[i], _onchange);
+            }
+            return obj;
         }
         var str = WayDataBindHelper.getObjectStr(obj, onchangeMembers, null);
         str = "result=(function(item,itemIndex,onProChange){ return " + str + ";})(obj,_itemIndex,_onchange);";
@@ -1101,12 +1137,16 @@ var WayDataBindHelper = (function () {
         if (typeof model.onchange == "function") {
             model.onchange(model, itemIndex, name, value);
         }
+        else if (model.onchange && typeof model.onchange.length != "undefined") {
+            for (var i = 0; i < model.onchange.length; i++) {
+                model.onchange[i](model, itemIndex, name, value);
+            }
+        }
         if (toCheckedEles) {
             for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
                 var binding = WayDataBindHelper.bindings[i];
                 if (binding && binding.model == model) {
                     binding.onchange(itemIndex, name, value);
-                    break;
                 }
             }
         }
@@ -1164,11 +1204,16 @@ var WayDataBindHelper = (function () {
         else if (element.getHtmlElement && typeof element.getHtmlElement == "function") {
             element = element.getHtmlElement();
         }
+        var model = null;
         if (!data)
             data = {};
+        else if (data.getSource && typeof data.getSource == "function") {
+            model = data;
+            data = model.getSource();
+        }
         var bindingInfo = new WayBindingElement(element, null, data, expressionExp, dataMemberExp);
         var onchangeMembers = bindingInfo.getDataMembers();
-        var model = WayDataBindHelper.cloneObjectForBind(data, tag, onchangeMembers, WayDataBindHelper.onchange);
+        model = WayDataBindHelper.cloneObjectForBind(model ? model : data, tag, onchangeMembers, WayDataBindHelper.onchange);
         var finded = false;
         bindingInfo.model = model;
         for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
