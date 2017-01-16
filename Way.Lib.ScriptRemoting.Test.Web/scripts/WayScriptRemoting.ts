@@ -1119,7 +1119,7 @@ class WayDataBindHelper {
                 }
                 str += ",";
 
-                if (pvalue != null && typeof pvalue == "object") {
+                if (pvalue != null && typeof pvalue == "object" && !(pvalue instanceof Array)) {
                     str += pro + ":" + WayDataBindHelper.getObjectStr(pvalue, onchangeMembers, parent + pro + ".");
                     continue;
                 }
