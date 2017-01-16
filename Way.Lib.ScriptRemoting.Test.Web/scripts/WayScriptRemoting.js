@@ -961,18 +961,17 @@ var WayBindingElement = (function (_super) {
                         this.configs.push(config);
                         ctrlEle._data = this.model;
                         if (_dataSource) {
-                            eval("ctrlEle." + eleMember + "=_dataSource." + dataMember + ";");
-                            if (eleMember == "value" || eleMember == "checked") {
-                                if (!isWayControl) {
-                                    if (ctrlEle.addEventListener) {
-                                        ctrlEle.addEventListener("change", function () { _this.onvalueChanged(config); });
-                                    }
-                                    else {
-                                        ctrlEle.attachEvent("onchange", function () { _this.onvalueChanged(config); });
-                                    }
+                            var addevent = false;
+                            if (ctrlEle.memberInChange && WayHelper.contains(ctrlEle.memberInChange, eleMember))
+                                addevent = true;
+                            else if (eleMember == "value" || eleMember == "checked")
+                                addevent = true;
+                            if (addevent) {
+                                if (ctrlEle.addEventListener) {
+                                    ctrlEle.addEventListener("change", function () { _this.onvalueChanged(config); });
                                 }
-                                else if ("onchange" in ctrlEle) {
-                                    ctrlEle.onchange = function () { _this.onvalueChanged(config); };
+                                else {
+                                    ctrlEle.attachEvent("onchange", function () { _this.onvalueChanged(config); });
                                 }
                             }
                         }
@@ -981,18 +980,18 @@ var WayBindingElement = (function (_super) {
             }
         }
     };
+    WayBindingElement.prototype.initEleValues = function (model) {
+        this.model = model;
+        for (var i = 0; i < this.configs.length; i++) {
+            eval("this.configs[i].element." + this.configs[i].elementMember + "=model." + this.configs[i].dataMember + ";");
+        }
+    };
     WayBindingElement.prototype.onvalueChanged = function (fromWhichConfig) {
         try {
-            if (this.configs.length == 0)
+            if (this.configs.length == 0 || !this.model)
                 return; //绑定已经移除了
-            if (fromWhichConfig.elementMember == "value") {
-                var model = this.model;
-                eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify(fromWhichConfig.element.value) + ";");
-            }
-            else if (fromWhichConfig.elementMember == "checked") {
-                var model = this.model;
-                eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify(fromWhichConfig.element.checked) + ";");
-            }
+            var model = this.model;
+            eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify(fromWhichConfig.element[fromWhichConfig.elementMember]) + ";");
         }
         catch (e) {
             throw "WayBindingElement onvalueChanged error:" + e.message;
@@ -1089,11 +1088,11 @@ var WayDataBindHelper = (function () {
     };
     WayDataBindHelper.addPropertyToObject = function (model, obj, source, _itemIndex, propertyName, fullMemberName, _onchange) {
         var member = propertyName.split('.')[0];
-        var prototype = Object.getPrototypeOf(obj);
+        //var prototype = Object.getPrototypeOf(obj);
         if (eval("typeof obj." + member + " == \"undefined\"")) {
             if (member == propertyName) {
-                //alert("add member:" + member + "  " + fullMemberName);
-                Object.defineProperty(prototype, member, {
+                //直接defineProperty (obj) 即可，不要defineProperty (prototype)，用prototype，jquery会报错（其原因不解）
+                Object.defineProperty(obj, member, {
                     get: function () {
                         return eval("source." + fullMemberName);
                     },
@@ -1103,7 +1102,7 @@ var WayDataBindHelper = (function () {
                             _onchange(true, model, _itemIndex, source, fullMemberName, value);
                         }
                     },
-                    enumerable: false,
+                    enumerable: true,
                     configurable: true
                 });
                 return;
@@ -1215,7 +1214,7 @@ var WayDataBindHelper = (function () {
         var onchangeMembers = bindingInfo.getDataMembers();
         model = WayDataBindHelper.cloneObjectForBind(model ? model : data, tag, onchangeMembers, WayDataBindHelper.onchange);
         var finded = false;
-        bindingInfo.model = model;
+        bindingInfo.initEleValues(model);
         for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
             if (WayDataBindHelper.bindings[i] == null) {
                 finded = true;
@@ -2408,7 +2407,6 @@ var WayDropDownList = (function () {
         var _this = this;
         this.isMobile = false;
         this.isBindedGrid = false;
-        this._changeValueByClick = false;
         this.onchange = null;
         this.windowObj = $(window);
         if (typeof elementid == "string")
@@ -2475,19 +2473,28 @@ var WayDropDownList = (function () {
         set: function (v) {
             if (v != this._value) {
                 this._value = v;
-                if (this._changeValueByClick == false) {
-                    //set text
-                    var text = this.getTextByValue(v);
-                    if (text) {
-                        this.setText(text);
-                    }
-                    else {
-                        this.setText("");
-                    }
+                this._text = this.getTextByValue(v);
+                if (this._text) {
+                    this.setText(this._text);
                 }
                 else {
-                    this._changeValueByClick = false;
+                    this._text = "";
+                    this.setText("");
                 }
+                this.fireEvent("change");
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayDropDownList.prototype, "text", {
+        get: function () {
+            return this._text;
+        },
+        set: function (v) {
+            if (v != this._text) {
+                this._text = v;
+                this._value = this.getValueByText(v);
                 this.fireEvent("change");
             }
         },
@@ -2546,21 +2553,46 @@ var WayDropDownList = (function () {
         }
         return null;
     };
+    WayDropDownList.prototype.getValueByText = function (text) {
+        for (var i = 0; i < this.grid.items.length; i++) {
+            var data = this.grid.items[i]._data;
+            if (data.text == text) {
+                return data.value;
+            }
+        }
+        //find in server
+        var model;
+        var result;
+        eval("model={" + this.textMember + ":" + JSON.stringify("equal:" + text) + "}");
+        this.grid.dbContext.getDataItem([this.valueMember, this.textMember], model, function (data, err) {
+            if (err) {
+                throw err;
+            }
+            else if (data) {
+                result = data;
+            }
+        }, false);
+        if (result) {
+            return result[this.valueMember];
+        }
+        return null;
+    };
     WayDropDownList.prototype._onGridItemCreated = function (item) {
         var _this = this;
         item.click(function () {
             _this.hideList();
-            _this._changeValueByClick = true;
             _this.value = item._data.value;
-            _this.setText(item._data.text);
         });
     };
     WayDropDownList.prototype.setText = function (text) {
         if (this.textElement[0].tagName == "INPUT") {
-            this.textElement.val(text);
+            if (this.textElement.val() != text)
+                this.textElement.val(text);
         }
-        else
-            this.textElement.html(text);
+        else {
+            if (this.textElement.html() != text)
+                this.textElement.html(text);
+        }
     };
     WayDropDownList.prototype.init = function () {
         var _this = this;
@@ -2600,13 +2632,22 @@ var WayDropDownList = (function () {
                 e.cancelBubble = true;
         });
         if (this.textElement[0].tagName == "INPUT") {
-            this.textElement.keyup(function () {
+            if (this.isMobile) {
+            }
+            else {
+                this.textElement.keyup(function () {
+                    //触发onchange事件，如果list已经visible,事件里会触发grid.databind()
+                    _this.grid.searchModel.text = _this.textElement.val();
+                    if (_this.itemContainer.css("visibility") != "visible") {
+                        //如果没有显示，则主动显示
+                        _this.showList();
+                    }
+                });
+            }
+            this.textElement.change(function () {
                 //触发onchange事件，如果list已经visible,事件里会触发grid.databind()
                 _this.grid.searchModel.text = _this.textElement.val();
-                if (_this.itemContainer.css("visibility") != "visible") {
-                    //如果没有显示，则主动显示
-                    _this.showList();
-                }
+                _this.text = _this.grid.searchModel.text;
             });
         }
         $(document.documentElement).click(function () {
