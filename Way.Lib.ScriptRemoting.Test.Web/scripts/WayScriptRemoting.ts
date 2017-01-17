@@ -31,7 +31,7 @@ enum WayScriptRemotingMessageType {
 
 class WayCookie {
     static setCookie(name: string, value: string): void {
-        document.cookie = name + "=" + (<any>window).escape(value);
+        document.cookie = name + "=" + (<any>window).encodeURIComponent(value, "utf-8");
 
     }
 
@@ -45,7 +45,7 @@ class WayCookie {
                     if (cookieVal[0].trim() == name) {
                         var v = cookieVal[1].trim();
                         if (v != "") {
-                            return (<any>window).unescape(v); //返回需要提取的cookie值
+                            return (<any>window).decodeURIComponent(v, "utf-8"); //返回需要提取的cookie值
                         }
                     }
                 }
@@ -683,7 +683,7 @@ class WayScriptInvoker {
             for (var i = 0; i < nameAndValues.length; i += 2) {
                 if (i > 0)
                     p += "&";
-                p += nameAndValues[i] + "=" + (<any>window).encodeURI(nameAndValues[i + 1], "utf-8");
+                p += nameAndValues[i] + "=" + (<any>window).encodeURIComponent(nameAndValues[i + 1], "utf-8");
 
             }
         }
@@ -1873,6 +1873,9 @@ class WayGridView extends WayBaseObject implements IPageable {
     constructor(elementId: string, _pagesize: number = 10) {
         super();
         try {
+            if (isNaN(_pagesize))
+                _pagesize = 10;
+
             var controller = document.body.getAttribute("_controller");
            
             this.dbContext = new WayDBContext(controller, null);
@@ -2263,7 +2266,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     private bindDataToGrid(pageData: any): void {
         this.binddatas(pageData);
         this.pageinfo.PageIndex++;
-        this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+        this.hasMorePage = this.pageinfo.PageSize > 0 && pageData.length >= this.pageinfo.PageSize;
 
         if (this.onAfterCreateItems) {
             try {
@@ -2903,7 +2906,7 @@ class WayDropDownList {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
-            this.grid = new WayGridView(<any>this.itemContainer[0], 10);
+            this.grid = new WayGridView(<any>this.itemContainer[0], 20);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
             
@@ -3230,7 +3233,7 @@ class WayCheckboxList {
         this.textMember = this.element[0].getAttribute("_textMember");
 
         if (true) {
-            this.grid = new WayGridView(<any>this.element[0], 10);
+            this.grid = new WayGridView(<any>this.element[0], 0);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
 
@@ -3381,7 +3384,7 @@ class WayRadioList {
         this.textMember = this.element[0].getAttribute("_textMember");
 
         if (true) {
-            this.grid = new WayGridView(<any>this.element[0], 10);
+            this.grid = new WayGridView(<any>this.element[0], 0);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
 
@@ -3682,6 +3685,7 @@ $(document).ready(() => {
             }
         }
     }
+    
 });
 
 

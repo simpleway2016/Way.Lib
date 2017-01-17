@@ -194,26 +194,14 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else
                 {
+                  
                     string filepath = this.Connection.mKeyValues["GET"].ToSafeString();
                     //WayScriptRemoting
-                    string cookie = null;
-                    SessionState session = null;
-                  
+                                    
                     foreach ( var router in ScriptRemotingServer.Routers )
                     {
-                        if (cookie == null)
-                        {
-                            cookie = (string)this.Connection.mKeyValues["Cookie"];
-                            if (cookie != null)
-                            {
-                                var match = System.Text.RegularExpressions.Regex.Match(cookie, @"WayScriptRemoting\=(?<g>(\w|\-)+)");
-                                if (match != null)
-                                {
-                                    session = SessionState.GetSession(match.Groups["g"].Value, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
-                                }
-                            }
-                        }
-                        var url = router.GetUrl(filepath,(string)this.Connection.mKeyValues["Referer"] , session , this.Connection.mKeyValues);
+                        
+                        var url = router.GetUrl(filepath,(string)this.Connection.mKeyValues["Referer"] , new HttpConnectInformation( this.Connection.mKeyValues, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]));
                         if(url != null)
                         {
                             filepath = url;

@@ -35,7 +35,7 @@ var WayCookie = (function () {
     function WayCookie() {
     }
     WayCookie.setCookie = function (name, value) {
-        document.cookie = name + "=" + window.escape(value);
+        document.cookie = name + "=" + window.encodeURIComponent(value, "utf-8");
     };
     WayCookie.getCookie = function (name) {
         try {
@@ -47,7 +47,7 @@ var WayCookie = (function () {
                     if (cookieVal[0].trim() == name) {
                         var v = cookieVal[1].trim();
                         if (v != "") {
-                            return window.unescape(v); //返回需要提取的cookie值
+                            return window.decodeURIComponent(v, "utf-8"); //返回需要提取的cookie值
                         }
                     }
                 }
@@ -658,7 +658,7 @@ var WayScriptInvoker = (function () {
             for (var i = 0; i < nameAndValues.length; i += 2) {
                 if (i > 0)
                     p += "&";
-                p += nameAndValues[i] + "=" + window.encodeURI(nameAndValues[i + 1], "utf-8");
+                p += nameAndValues[i] + "=" + window.encodeURIComponent(nameAndValues[i + 1], "utf-8");
             }
         }
         if (this.onBeforeInvoke)
@@ -1691,6 +1691,8 @@ var WayGridView = (function (_super) {
         this.searchModel = {};
         this.allowEdit = false;
         try {
+            if (isNaN(_pagesize))
+                _pagesize = 10;
             var controller = document.body.getAttribute("_controller");
             this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
@@ -2043,7 +2045,7 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.bindDataToGrid = function (pageData) {
         this.binddatas(pageData);
         this.pageinfo.PageIndex++;
-        this.hasMorePage = pageData.length >= this.pageinfo.PageSize;
+        this.hasMorePage = this.pageinfo.PageSize > 0 && pageData.length >= this.pageinfo.PageSize;
         if (this.onAfterCreateItems) {
             try {
                 this.onAfterCreateItems(this.items.length, this.hasMorePage);
@@ -2553,7 +2555,7 @@ var WayDropDownList = (function () {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
-            this.grid = new WayGridView(this.itemContainer[0], 10);
+            this.grid = new WayGridView(this.itemContainer[0], 20);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
@@ -2859,7 +2861,7 @@ var WayCheckboxList = (function () {
         this.valueMember = this.element[0].getAttribute("_valueMember");
         this.textMember = this.element[0].getAttribute("_textMember");
         if (true) {
-            this.grid = new WayGridView(this.element[0], 10);
+            this.grid = new WayGridView(this.element[0], 0);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
@@ -2988,7 +2990,7 @@ var WayRadioList = (function () {
         this.valueMember = this.element[0].getAttribute("_valueMember");
         this.textMember = this.element[0].getAttribute("_textMember");
         if (true) {
-            this.grid = new WayGridView(this.element[0], 10);
+            this.grid = new WayGridView(this.element[0], 0);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
