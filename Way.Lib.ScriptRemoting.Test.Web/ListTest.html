@@ -15,6 +15,7 @@
     </style>
 </head>
 <body _controller="Way.Lib.ScriptRemoting.Test.TestPage">
+    <div id="titleDiv"></div>
     <input type="text" id="txt555" _databind="value=@mytext">
     <WayCheckboxList id="chkList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
     </WayCheckboxList>
@@ -45,13 +46,13 @@
           var chkObj = WayDataBindHelper.dataBind(chkList1, { dbids: [10] });
 
           chkObj.onchange = function (model,tag,name,value) {
-              alert(chkObj.dbids);
+              titleDiv.innerHTML = "chkObj.onchange:" + (chkObj.dbids);
           };
 
           var chkObj2 = WayDataBindHelper.dataBind(rdList1, { dbids :10});
 
           chkObj2.onchange = function (model, tag, name, value) {
-              alert(chkObj2.dbids);
+              titleDiv.innerHTML = "chkObj2.onchange:" + (chkObj2.dbids);
           };
 
       }

@@ -1067,38 +1067,47 @@ class WayBindingElement extends WayBaseObject {
 
        
         if (_expressionString) {
-            var allexpressions = _expressionString.split(';');
-            for (var i = 0; i < allexpressions.length; i++) {
-                var matchs = allexpressions[i].match(dataMemberExp);
-                if (matchs) {
-                    for (var j = 0; j < matchs.length; j++) {
-                        var match = matchs[j];
-                        var dataMember = match.substr(1);
-
-                        var config = new WayBindMemberConfig(null, dataMember, ctrlEle);
-                        config.expressionString = allexpressions[i];
-                        config.dataMemberExp = dataMemberExp;
-                        this.expressionConfigs.push(config);
-
-                        this.doExpression(config);
-                    }
+            var matchs = _expressionString.match(dataMemberExp);
+            if (matchs) {
+                var datamembers = [];
+                for (var j = 0; j < matchs.length; j++) {
+                    var match = matchs[j];
+                    datamembers.push(match.substr(1));
                 }
+
+                if (!(<any>ctrlEle).expressionDatas) {
+                    (<any>ctrlEle).expressionDatas = [];
+                }
+
+                (<any>ctrlEle).expressionDatas.push({ exp: dataMemberExp, data: _dataSource });
+                var config = new WayBindMemberConfig(null, <any>datamembers, ctrlEle);
+                config.expressionString = _expressionString;
+                config.dataMemberExp = dataMemberExp;
+                this.expressionConfigs.push(config);
+
             }
-            
         }
     }
+    
 
-    doExpression(config: WayBindMemberConfig) {
-        var model = this.dataSource;
-        var element = config.element;
-        var exp = WayHelper.replace(config.expressionString, "{0}.", "element.");
+    doExpression(__config: WayBindMemberConfig) {
+        var ___element = __config.element;
+        var exp = __config.expressionString;
+        var matches = exp.match(/[\W]?(this\.)/g);
+        for (var i = 0; i < matches.length; i++) {
+            var r = matches[i].replace("this.", "___element.");
+            exp = exp.replace(matches[i], r);
+        }
 
-        var matchs = exp.match(config.dataMemberExp);
-        if (matchs) {
-            for (var j = 0; j < matchs.length; j++) {
-                var match = matchs[j];
-                var dataMember = match.substr(1);
-                exp = exp.replace(match, "model." + dataMember);
+        for (var i = 0; i < (<any>__config.element).expressionDatas.length; i++) {
+            var expItem = (<any>__config.element).expressionDatas[i];
+            var matchs = exp.match(expItem.exp);
+            if (matchs) {
+                for (var j = 0; j < matchs.length; j++) {
+                    var match = matchs[j];
+                    var dataMember = match.substr(1);
+                    exp = exp.replace(match, "__config.element.expressionDatas["+i+"].data." + dataMember);
+                }
             }
         }
 
@@ -1152,7 +1161,7 @@ class WayBindingElement extends WayBaseObject {
 
             for (var i = 0; i < this.expressionConfigs.length; i++) {
                 var config = this.expressionConfigs[i];
-                if (config.dataMember == name) {
+                if (WayHelper.contains(config.dataMember , name) ) {
                     this.doExpression(config);
                 }
             }
@@ -1350,7 +1359,8 @@ class WayDataBindHelper {
 
     static dataBind(element: any, data: any, tag: any = null,
         expressionExp: RegExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g,
-        dataMemberExp: RegExp = /\@(\w|\.)+/g): any {
+        dataMemberExp: RegExp = /\@(\w|\.)+/g,
+    doexpression:boolean = false): any {
         if (typeof element == "string") {
             element = document.getElementById(<any>element);
         }
@@ -1384,6 +1394,12 @@ class WayDataBindHelper {
             WayDataBindHelper.bindings.push(bindingInfo);
         }
 
+        if (doexpression) {
+            //_expression有可能包含$name @name两种变量，所以是否绑定后，马上执行一次doExpression，应该由调用者决定，因为只有所有涉及的model都绑定后，才可以执行
+            for (var i = 0; i < bindingInfo.expressionConfigs.length; i++) {
+                bindingInfo.doExpression(bindingInfo.expressionConfigs[i]);
+            }
+        }
         return model;
     }
 }
@@ -2530,7 +2546,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
 
-        (<any>item)._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g);
+        (<any>item)._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g,true);
         if (typeof myChangeFunc == "function") {
             (<any>item)._status.onchange = myChangeFunc;
         }

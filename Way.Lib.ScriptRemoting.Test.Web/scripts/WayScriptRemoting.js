@@ -1005,33 +1005,41 @@ var WayBindingElement = (function (_super) {
             }
         }
         if (_expressionString) {
-            var allexpressions = _expressionString.split(';');
-            for (var i = 0; i < allexpressions.length; i++) {
-                var matchs = allexpressions[i].match(dataMemberExp);
-                if (matchs) {
-                    for (var j = 0; j < matchs.length; j++) {
-                        var match = matchs[j];
-                        var dataMember = match.substr(1);
-                        var config = new WayBindMemberConfig(null, dataMember, ctrlEle);
-                        config.expressionString = allexpressions[i];
-                        config.dataMemberExp = dataMemberExp;
-                        this.expressionConfigs.push(config);
-                        this.doExpression(config);
-                    }
+            var matchs = _expressionString.match(dataMemberExp);
+            if (matchs) {
+                var datamembers = [];
+                for (var j = 0; j < matchs.length; j++) {
+                    var match = matchs[j];
+                    datamembers.push(match.substr(1));
                 }
+                if (!ctrlEle.expressionDatas) {
+                    ctrlEle.expressionDatas = [];
+                }
+                ctrlEle.expressionDatas.push({ exp: dataMemberExp, data: _dataSource });
+                var config = new WayBindMemberConfig(null, datamembers, ctrlEle);
+                config.expressionString = _expressionString;
+                config.dataMemberExp = dataMemberExp;
+                this.expressionConfigs.push(config);
             }
         }
     };
-    WayBindingElement.prototype.doExpression = function (config) {
-        var model = this.dataSource;
-        var element = config.element;
-        var exp = WayHelper.replace(config.expressionString, "{0}.", "element.");
-        var matchs = exp.match(config.dataMemberExp);
-        if (matchs) {
-            for (var j = 0; j < matchs.length; j++) {
-                var match = matchs[j];
-                var dataMember = match.substr(1);
-                exp = exp.replace(match, "model." + dataMember);
+    WayBindingElement.prototype.doExpression = function (__config) {
+        var ___element = __config.element;
+        var exp = __config.expressionString;
+        var matches = exp.match(/[\W]?(this\.)/g);
+        for (var i = 0; i < matches.length; i++) {
+            var r = matches[i].replace("this.", "___element.");
+            exp = exp.replace(matches[i], r);
+        }
+        for (var i = 0; i < __config.element.expressionDatas.length; i++) {
+            var expItem = __config.element.expressionDatas[i];
+            var matchs = exp.match(expItem.exp);
+            if (matchs) {
+                for (var j = 0; j < matchs.length; j++) {
+                    var match = matchs[j];
+                    var dataMember = match.substr(1);
+                    exp = exp.replace(match, "__config.element.expressionDatas[" + i + "].data." + dataMember);
+                }
             }
         }
         eval(exp);
@@ -1076,7 +1084,7 @@ var WayBindingElement = (function (_super) {
             }
             for (var i = 0; i < this.expressionConfigs.length; i++) {
                 var config = this.expressionConfigs[i];
-                if (config.dataMember == name) {
+                if (WayHelper.contains(config.dataMember, name)) {
                     this.doExpression(config);
                 }
             }
@@ -1255,10 +1263,11 @@ var WayDataBindHelper = (function () {
         }
         return html;
     };
-    WayDataBindHelper.dataBind = function (element, data, tag, expressionExp, dataMemberExp) {
+    WayDataBindHelper.dataBind = function (element, data, tag, expressionExp, dataMemberExp, doexpression) {
         if (tag === void 0) { tag = null; }
         if (expressionExp === void 0) { expressionExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g; }
         if (dataMemberExp === void 0) { dataMemberExp = /\@(\w|\.)+/g; }
+        if (doexpression === void 0) { doexpression = false; }
         if (typeof element == "string") {
             element = document.getElementById(element);
         }
@@ -1287,6 +1296,12 @@ var WayDataBindHelper = (function () {
         }
         if (!finded) {
             WayDataBindHelper.bindings.push(bindingInfo);
+        }
+        if (doexpression) {
+            //_expression有可能包含$name @name两种变量，所以是否绑定后，马上执行一次doExpression，应该由调用者决定，因为只有所有涉及的model都绑定后，才可以执行
+            for (var i = 0; i < bindingInfo.expressionConfigs.length; i++) {
+                bindingInfo.doExpression(bindingInfo.expressionConfigs[i]);
+            }
         }
         return model;
     };
@@ -2275,7 +2290,7 @@ var WayGridView = (function (_super) {
         //创建status
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
-        item._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g);
+        item._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g, true);
         if (typeof myChangeFunc == "function") {
             item._status.onchange = myChangeFunc;
         }
