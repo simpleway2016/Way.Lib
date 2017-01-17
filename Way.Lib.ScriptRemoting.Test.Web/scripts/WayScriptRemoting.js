@@ -650,6 +650,13 @@ var WayScriptInvoker = (function () {
     };
     WayScriptInvoker.prototype.invoke = function (nameAndValues) {
         var _this = this;
+        /*
+        escape不编码字符有69个：*，+，-，.，/，@，_，0-9，a-z，A-Z
+
+encodeURI不编码字符有82个：!，#，$，&，'，(，)，*，+，,，-，.，/，:，;，=，?，@，_，~，0-9，a-z，A-Z
+
+encodeURIComponent不编码字符有71个：!， '，(，)，*，-，.，_，~，0-9，a-z，A-Z
+        */
         if (!this.xmlHttp) {
             this.xmlHttp = this.createXMLHttp();
         }

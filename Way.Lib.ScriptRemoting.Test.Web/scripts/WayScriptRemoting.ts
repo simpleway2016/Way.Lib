@@ -675,6 +675,13 @@ class WayScriptInvoker {
 
     }
     invoke(nameAndValues: string[]): void {
+        /*
+        escape不编码字符有69个：*，+，-，.，/，@，_，0-9，a-z，A-Z
+
+encodeURI不编码字符有82个：!，#，$，&，'，(，)，*，+，,，-，.，/，:，;，=，?，@，_，~，0-9，a-z，A-Z
+
+encodeURIComponent不编码字符有71个：!， '，(，)，*，-，.，_，~，0-9，a-z，A-Z
+        */
         if (!this.xmlHttp) {
             this.xmlHttp = this.createXMLHttp();
         }
