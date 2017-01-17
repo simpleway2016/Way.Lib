@@ -852,7 +852,7 @@ class WayHelper {
                 result.push(element);
             }
         }
-        if (element.tagName.indexOf("Way") == 0 || (<any>element)._WayControl) {
+        if (element.tagName.indexOf("Way") == 0 || (<any>element).WayControl) {
             return;
         }
         for (var i = 0; i < element.children.length; i++) {
@@ -997,8 +997,8 @@ class WayBindingElement extends WayBaseObject {
         var databind = ctrlEle.getAttribute("databind");
         var _expressionString = ctrlEle.getAttribute("expression"); 
         var isWayControl = false;
-        if ((<any>ctrlEle)._WayControl) {
-            ctrlEle = (<any>ctrlEle)._WayControl;
+        if ((<any>ctrlEle).WayControl) {
+            ctrlEle = (<any>ctrlEle).WayControl;
             isWayControl = true;
         }
         if (databind) {
@@ -1049,7 +1049,7 @@ class WayBindingElement extends WayBaseObject {
                         }
                         var config = new WayBindMemberConfig(eleMember, dataMember, ctrlEle);
                         this.configs.push(config);
-                        (<any>ctrlEle)._data = this.model;
+                        (<any>ctrlEle).data = this.model;
 
                         if (_dataSource) {
                             var addevent = false;
@@ -2117,7 +2117,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
 
         var item = this.items[itemIndex];
-        var model = (<any>item)._data;
+        var model = (<any>item).data;
         var data = this.originalItems[itemIndex];
         var changedData = WayHelper.getDataForDiffent(data, model);
 
@@ -2428,7 +2428,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     //那么updateItemData方法就是同步本地GridView，否则调用changeMode，item显示的值还是原来的值
     acceptItemChanged(itemIndex: number) {
         var item = this.items[itemIndex];
-        var mydata = (<any>item)._data.getSource();
+        var mydata = (<any>item).data.getSource();
         this.originalItems[itemIndex] = WayHelper.clone(mydata);
     }
 
@@ -2436,7 +2436,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     rebindItemFromServer(itemIndex: number, mode: string, callback: (data: any, err: any) => void = null) {
         var searchmodel = {};
         var item = this.items[itemIndex];
-        searchmodel[this.primaryKey] = (<any>item)._data[this.primaryKey];
+        searchmodel[this.primaryKey] = (<any>item).data[this.primaryKey];
         this.dbContext.getDataItem(this.getBindFields(), searchmodel, (data: any, err: any) => {
             if (!err) {
                 this.originalItems[itemIndex] = data;
@@ -2515,7 +2515,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             }
         }
 
-        if (container.tagName.indexOf("Way") != 0) {
+        if (container.tagName.indexOf("Way") != 0 && !(<any>container).WayControl) {
             //如果不是WayControl，继续检查内容和子节点
             for (var i = 0; i < container.childNodes.length; i++) {
                 var node = container.childNodes[i];
@@ -2539,7 +2539,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         //把数据克隆一份
         var currentItemStatus;
         if (itemIndex < this.items.length) {
-            currentItemStatus = (<any>this.items[itemIndex])._status;
+            currentItemStatus = (<any>this.items[itemIndex]).status;
         }
         var statusmodel = currentItemStatus ? currentItemStatus : this.itemStatusModel;
 
@@ -2562,9 +2562,9 @@ class WayGridView extends WayBaseObject implements IPageable {
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
 
-        (<any>item)._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g,true);
+        (<any>item).status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g,true);
         if (typeof myChangeFunc == "function") {
-            (<any>item)._status.onchange = myChangeFunc;
+            (<any>item).status.onchange = myChangeFunc;
         }
 
         //建立验证
@@ -2593,7 +2593,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             }
         }
         ////////////
-        (<any>item)._data = model;
+        (<any>item).data = model;
         (<any>item)._mode = mode;
 
         if (this.onCreateItem) {
@@ -2889,7 +2889,7 @@ class WayDropDownList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0])._WayControl = this;
+        (<any>this.element[0]).WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
 
@@ -2980,7 +2980,7 @@ class WayDropDownList {
   
     getTextByValue(value: string): string {
         for (var i = 0; i < this.grid.items.length; i++) {
-            var data = (<any>this.grid.items[i])._data;
+            var data = (<any>this.grid.items[i]).data;
             if (data.value == value) {
                 return data.text;
             }
@@ -3004,7 +3004,7 @@ class WayDropDownList {
     }
     getValueByText(text: string): string {
         for (var i = 0; i < this.grid.items.length; i++) {
-            var data = (<any>this.grid.items[i])._data;
+            var data = (<any>this.grid.items[i]).data;
             if (data.text == text) {
                 return data.value;
             }
@@ -3027,16 +3027,16 @@ class WayDropDownList {
         return null;
     }
     private _onGridItemCreated(item: JQuery): void {
-        (<any>item)._status.Selected = (<any>item)._data.value == this.value;
+        (<any>item).status.Selected = (<any>item).data.value == this.value;
         item.click(() => {
             this.hideList();
-            (<any>item)._status.Selected = true;
+            (<any>item).status.Selected = true;
             for (var i = 0; i < this.grid.items.length; i++) {
                 if (this.grid.items[i] != item) {
-                    (<any>this.grid.items[i])._status.Selected = false;
+                    (<any>this.grid.items[i]).status.Selected = false;
                 }
             }
-            this.value = (<any>item)._data.value;
+            this.value = (<any>item).data.value;
         });
     }
 
@@ -3174,7 +3174,7 @@ class WayDropDownList {
     private setSelectedItemScrollIntoView() {
         if (this.value ) {
             for (var i = 0; i < this.grid.items.length; i++) {
-                if ((<any>this.grid.items[i])._status.Selected) {
+                if ((<any>this.grid.items[i]).status.Selected) {
                     this.grid.items[i][0].scrollIntoView(false);
                     break;
                 }
@@ -3232,7 +3232,7 @@ class WayCheckboxList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0])._WayControl = this;
+        (<any>this.element[0]).WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         
         var itemtemplate = this.element.find("script[_for='item']")[0];
@@ -3264,8 +3264,8 @@ class WayCheckboxList {
 
     private checkGridItem() {
         for (var j = 0; j < this.grid.items.length; j++) {
-            var status = (<any>this.grid.items[j])._status;
-            var data = (<any>this.grid.items[j])._data;
+            var status = (<any>this.grid.items[j]).status;
+            var data = (<any>this.grid.items[j]).data;
 
             status.Selected = WayHelper.contains(this._value, data.value);
 
@@ -3324,17 +3324,17 @@ class WayCheckboxList {
 
     private _onGridItemCreated(item: JQuery): void {
         item.click(() => {
-            (<any>item)._status.Selected = !(<any>item)._status.Selected;
-            if ((<any>item)._status.Selected)
+            (<any>item).status.Selected = !(<any>item).status.Selected;
+            if ((<any>item).status.Selected)
             {
-                this._value.push((<any>item)._data.value);
+                this._value.push((<any>item).data.value);
                 this.fireEvent("change");
                 //这里只是数值发生变化，如果有model和自己绑定，触发一下model的onchange事件
                 this.rasieModelChange();
             }
             else {
                 for (var i = 0; i < this._value.length; i++) {
-                    if (this._value[i] == (<any>item)._data.value) {
+                    if (this._value[i] == (<any>item).data.value) {
                         this._value.splice(i, 1);
                         this.fireEvent("change");
                         this.rasieModelChange();
@@ -3383,7 +3383,7 @@ class WayRadioList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0])._WayControl = this;
+        (<any>this.element[0]).WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
 
         var itemtemplate = this.element.find("script[_for='item']")[0];
@@ -3415,8 +3415,8 @@ class WayRadioList {
 
     private checkGridItem() {
         for (var j = 0; j < this.grid.items.length; j++) {
-            var status = (<any>this.grid.items[j])._status;
-            var data = (<any>this.grid.items[j])._data;
+            var status = (<any>this.grid.items[j]).status;
+            var data = (<any>this.grid.items[j]).data;
 
             status.Selected = this._value == data.value;
 
@@ -3475,7 +3475,7 @@ class WayRadioList {
 
     private _onGridItemCreated(item: JQuery): void {
         item.click(() => {
-            this.value = (<any>item)._data.value;
+            this.value = (<any>item).data.value;
         });
     }
 
@@ -3525,7 +3525,7 @@ class WayButton {
         this.element.attr("expression", expression);
 
 
-        (<any>this.element[0])._WayControl = this;
+        (<any>this.element[0]).WayControl = this;
         this.onclickString = this.element.attr("onclick");
         this.element.attr("onclick", null);
 
@@ -3662,7 +3662,7 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
 
     if (control) {
         var idstr = replaceEleObj.attr("id");
-        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + ".WayControl")) {
             eval("window." + idstr + "=control;");
         }
     }

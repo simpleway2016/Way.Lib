@@ -810,7 +810,7 @@ var WayHelper = (function () {
                 result.push(element);
             }
         }
-        if (element.tagName.indexOf("Way") == 0 || element._WayControl) {
+        if (element.tagName.indexOf("Way") == 0 || element.WayControl) {
             return;
         }
         for (var i = 0; i < element.children.length; i++) {
@@ -945,8 +945,8 @@ var WayBindingElement = (function (_super) {
         var databind = ctrlEle.getAttribute("databind");
         var _expressionString = ctrlEle.getAttribute("expression");
         var isWayControl = false;
-        if (ctrlEle._WayControl) {
-            ctrlEle = ctrlEle._WayControl;
+        if (ctrlEle.WayControl) {
+            ctrlEle = ctrlEle.WayControl;
             isWayControl = true;
         }
         if (databind) {
@@ -991,7 +991,7 @@ var WayBindingElement = (function (_super) {
                         }
                         var config = new WayBindMemberConfig(eleMember, dataMember, ctrlEle);
                         this.configs.push(config);
-                        ctrlEle._data = this.model;
+                        ctrlEle.data = this.model;
                         if (_dataSource) {
                             var addevent = false;
                             if (ctrlEle.memberInChange && WayHelper.contains(ctrlEle.memberInChange, eleMember))
@@ -1917,7 +1917,7 @@ var WayGridView = (function (_super) {
             return;
         }
         var item = this.items[itemIndex];
-        var model = item._data;
+        var model = item.data;
         var data = this.originalItems[itemIndex];
         var changedData = WayHelper.getDataForDiffent(data, model);
         if (changedData) {
@@ -2184,7 +2184,7 @@ var WayGridView = (function (_super) {
     //那么updateItemData方法就是同步本地GridView，否则调用changeMode，item显示的值还是原来的值
     WayGridView.prototype.acceptItemChanged = function (itemIndex) {
         var item = this.items[itemIndex];
-        var mydata = item._data.getSource();
+        var mydata = item.data.getSource();
         this.originalItems[itemIndex] = WayHelper.clone(mydata);
     };
     //从服务器更新指定item的数据，并重新绑定
@@ -2193,7 +2193,7 @@ var WayGridView = (function (_super) {
         if (callback === void 0) { callback = null; }
         var searchmodel = {};
         var item = this.items[itemIndex];
-        searchmodel[this.primaryKey] = item._data[this.primaryKey];
+        searchmodel[this.primaryKey] = item.data[this.primaryKey];
         this.dbContext.getDataItem(this.getBindFields(), searchmodel, function (data, err) {
             if (!err) {
                 _this.originalItems[itemIndex] = data;
@@ -2266,7 +2266,7 @@ var WayGridView = (function (_super) {
                 container.setAttribute(attName, formatvalue);
             }
         }
-        if (container.tagName.indexOf("Way") != 0) {
+        if (container.tagName.indexOf("Way") != 0 && !container.WayControl) {
             //如果不是WayControl，继续检查内容和子节点
             for (var i = 0; i < container.childNodes.length; i++) {
                 var node = container.childNodes[i];
@@ -2290,7 +2290,7 @@ var WayGridView = (function (_super) {
         //把数据克隆一份
         var currentItemStatus;
         if (itemIndex < this.items.length) {
-            currentItemStatus = this.items[itemIndex]._status;
+            currentItemStatus = this.items[itemIndex].status;
         }
         var statusmodel = currentItemStatus ? currentItemStatus : this.itemStatusModel;
         var data = WayHelper.clone(this.originalItems[itemIndex]);
@@ -2306,9 +2306,9 @@ var WayGridView = (function (_super) {
         //创建status
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
-        item._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g, true);
+        item.status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g, true);
         if (typeof myChangeFunc == "function") {
-            item._status.onchange = myChangeFunc;
+            item.status.onchange = myChangeFunc;
         }
         //建立验证
         if (true) {
@@ -2334,7 +2334,7 @@ var WayGridView = (function (_super) {
             }
         }
         ////////////
-        item._data = model;
+        item.data = model;
         item._mode = mode;
         if (this.onCreateItem) {
             this.onCreateItem(item, mode);
@@ -2544,7 +2544,7 @@ var WayDropDownList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0]._WayControl = this;
+        this.element[0].WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
         var textele = this.element.find("*[_istext]");
@@ -2657,7 +2657,7 @@ var WayDropDownList = (function () {
     };
     WayDropDownList.prototype.getTextByValue = function (value) {
         for (var i = 0; i < this.grid.items.length; i++) {
-            var data = this.grid.items[i]._data;
+            var data = this.grid.items[i].data;
             if (data.value == value) {
                 return data.text;
             }
@@ -2681,7 +2681,7 @@ var WayDropDownList = (function () {
     };
     WayDropDownList.prototype.getValueByText = function (text) {
         for (var i = 0; i < this.grid.items.length; i++) {
-            var data = this.grid.items[i]._data;
+            var data = this.grid.items[i].data;
             if (data.text == text) {
                 return data.value;
             }
@@ -2705,16 +2705,16 @@ var WayDropDownList = (function () {
     };
     WayDropDownList.prototype._onGridItemCreated = function (item) {
         var _this = this;
-        item._status.Selected = item._data.value == this.value;
+        item.status.Selected = item.data.value == this.value;
         item.click(function () {
             _this.hideList();
-            item._status.Selected = true;
+            item.status.Selected = true;
             for (var i = 0; i < _this.grid.items.length; i++) {
                 if (_this.grid.items[i] != item) {
-                    _this.grid.items[i]._status.Selected = false;
+                    _this.grid.items[i].status.Selected = false;
                 }
             }
-            _this.value = item._data.value;
+            _this.value = item.data.value;
         });
     };
     WayDropDownList.prototype.setText = function (text) {
@@ -2832,7 +2832,7 @@ var WayDropDownList = (function () {
     WayDropDownList.prototype.setSelectedItemScrollIntoView = function () {
         if (this.value) {
             for (var i = 0; i < this.grid.items.length; i++) {
-                if (this.grid.items[i]._status.Selected) {
+                if (this.grid.items[i].status.Selected) {
                     this.grid.items[i][0].scrollIntoView(false);
                     break;
                 }
@@ -2862,7 +2862,7 @@ var WayCheckboxList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0]._WayControl = this;
+        this.element[0].WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         var itemtemplate = this.element.find("script[_for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
@@ -2905,8 +2905,8 @@ var WayCheckboxList = (function () {
     });
     WayCheckboxList.prototype.checkGridItem = function () {
         for (var j = 0; j < this.grid.items.length; j++) {
-            var status = this.grid.items[j]._status;
-            var data = this.grid.items[j]._data;
+            var status = this.grid.items[j].status;
+            var data = this.grid.items[j].data;
             status.Selected = WayHelper.contains(this._value, data.value);
         }
     };
@@ -2958,16 +2958,16 @@ var WayCheckboxList = (function () {
     WayCheckboxList.prototype._onGridItemCreated = function (item) {
         var _this = this;
         item.click(function () {
-            item._status.Selected = !item._status.Selected;
-            if (item._status.Selected) {
-                _this._value.push(item._data.value);
+            item.status.Selected = !item.status.Selected;
+            if (item.status.Selected) {
+                _this._value.push(item.data.value);
                 _this.fireEvent("change");
                 //这里只是数值发生变化，如果有model和自己绑定，触发一下model的onchange事件
                 _this.rasieModelChange();
             }
             else {
                 for (var i = 0; i < _this._value.length; i++) {
-                    if (_this._value[i] == item._data.value) {
+                    if (_this._value[i] == item.data.value) {
                         _this._value.splice(i, 1);
                         _this.fireEvent("change");
                         _this.rasieModelChange();
@@ -2991,7 +2991,7 @@ var WayRadioList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0]._WayControl = this;
+        this.element[0].WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         var itemtemplate = this.element.find("script[_for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
@@ -3032,8 +3032,8 @@ var WayRadioList = (function () {
     });
     WayRadioList.prototype.checkGridItem = function () {
         for (var j = 0; j < this.grid.items.length; j++) {
-            var status = this.grid.items[j]._status;
-            var data = this.grid.items[j]._data;
+            var status = this.grid.items[j].status;
+            var data = this.grid.items[j].data;
             status.Selected = this._value == data.value;
         }
     };
@@ -3085,7 +3085,7 @@ var WayRadioList = (function () {
     WayRadioList.prototype._onGridItemCreated = function (item) {
         var _this = this;
         item.click(function () {
-            _this.value = item._data.value;
+            _this.value = item.data.value;
         });
     };
     return WayRadioList;
@@ -3110,7 +3110,7 @@ var WayButton = (function () {
         this.internalModel = WayDataBindHelper.dataBind(this.element[0], { text: this.element.attr("text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g, true);
         this.element.attr("databind", databind);
         this.element.attr("expression", expression);
-        this.element[0]._WayControl = this;
+        this.element[0].WayControl = this;
         this.onclickString = this.element.attr("onclick");
         this.element.attr("onclick", null);
         if (this.onclickString && this.onclickString.length > 0) {
@@ -3244,7 +3244,7 @@ var initWayControl = function (virtualEle, element) {
     }
     if (control) {
         var idstr = replaceEleObj.attr("id");
-        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + ".WayControl")) {
             eval("window." + idstr + "=control;");
         }
     }
