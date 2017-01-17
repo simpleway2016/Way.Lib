@@ -15,19 +15,47 @@
     </style>
 </head>
 <body _controller="Way.Lib.ScriptRemoting.Test.TestPage">
-    <WayDropDownList id="list1" _databind="value=@myvalue" _valueMember="id" _textMember="caption" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
+    <div id="titleDiv"></div>
+    <WayButton _text="button1" onclick="this.text='hjewef';"></WayButton>
+    <input type="text" id="txt555" _databind="value=@mytext">
+    <WayCheckboxList id="chkList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
+    </WayCheckboxList>
+    <WayRadioList id="rdList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;margin-top:10px;">
+    </WayRadioList>
+    <WayDropDownList id="list1" _databind="value=@myvalue,text=@mytext" _valueMember="id" _textMember="caption" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
     </WayDropDownList>
+   
     <div id="d1" style="height:30px;overflow-y:auto;">
-        
+        wfea<span>22</span>pp
     </div>
   <script lang="ja">
       //var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
-     
+      WayHelper.writePage("/aa.html");
+
+      var d1 = document.getElementById("d1");
+      var value = "";
+      for (var p in d1.childNodes[0])
+          value += p + ":" + d1.childNodes[0][p] + "\r\n";
+      //d1.setAttribute("style","width:20px;height:20px;background-color:red;")
 
       window.onload = function () {
-          var test = {};
-          test = WayDataBindHelper.dataBind(list1, test);
-          test.myvalue = 15;
+
+          var test = WayDataBindHelper.dataBind(list1, { myvalue:16 });
+
+          var test2 = WayDataBindHelper.dataBind(document.getElementById("txt555"), test);
+
+          var chkObj = WayDataBindHelper.dataBind(chkList1, { dbids: [10] });
+
+          chkObj.onchange = function (model,tag,name,value) {
+              titleDiv.innerHTML = "chkObj.onchange:" + (chkObj.dbids);
+          };
+
+          var chkObj2 = WayDataBindHelper.dataBind(rdList1, { dbids :10});
+
+          chkObj2.onchange = function (model, tag, name, value) {
+              titleDiv.innerHTML = "chkObj2.onchange:" + (chkObj2.dbids);
+          };
+
       }
   </script>
 </body>

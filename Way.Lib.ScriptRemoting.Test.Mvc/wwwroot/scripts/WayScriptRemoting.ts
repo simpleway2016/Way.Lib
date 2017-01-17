@@ -1,6 +1,24 @@
 ﻿
-window.onerror = (msg) => {
-    alert(msg);
+window.onerror = (errorMessage, scriptURI, lineNumber) => {
+    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
+}
+
+if (true) {
+    try {
+        var obj = {};
+        Object.defineProperty(obj, "test", {
+            get: function () {
+                return null;
+            },
+            set: function (value) {
+            },
+            enumerable: true,
+            configurable: true
+        });
+    }
+    catch (e) {
+        throw "浏览器不支持defineProperty";
+    }
 }
 
 enum WayScriptRemotingMessageType {
@@ -782,6 +800,10 @@ class WayHelper {
         }
     }
 
+    static writePage(url: string): void {
+        document.write(WayHelper.downloadUrl(url));
+    }
+
     static downloadUrl(url: string): string {
         var invoker = new WayScriptInvoker(url);
         invoker.method = "GET";
@@ -804,6 +826,31 @@ class WayHelper {
         }
         invoker.invoke([]);
         return result;
+    }
+
+    static findBindingElements(element: HTMLElement): any[] {
+        var result = [];
+        WayHelper.findInnerBindingElements(result, element);
+        return result;
+    }
+
+    static findInnerBindingElements(result: any[], element: HTMLElement) {
+        var attr = element.getAttribute("_databind");
+        if (attr && attr.length > 0) {
+            result.push(element);
+        }
+        else {
+            attr = element.getAttribute("_expression");
+            if (attr && attr.length > 0) {
+                result.push(element);
+            }
+        }
+        if (element.tagName.indexOf("Way") == 0 || (<any>element)._WayControl) {
+            return;
+        }
+        for (var i = 0; i < element.children.length; i++) {
+            WayHelper.findInnerBindingElements(result, <any>element.children[i]);
+        }
     }
 
     static addEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
@@ -910,6 +957,8 @@ class WayBindMemberConfig {
     elementMember: string;
     dataMember: string;
     element: HTMLElement;
+    expressionString: string;
+    dataMemberExp: any;
     constructor(_elementMember: string, _dataMember: string, _element: HTMLElement) {
         this.elementMember = _elementMember;
         this.dataMember = _dataMember;
@@ -921,33 +970,25 @@ class WayBindingElement extends WayBaseObject {
     element: HTMLElement;
     model: any;
     dataSource: any;
-    container: JQuery;
     configs: WayBindMemberConfig[] = [];
-
+    expressionConfigs: WayBindMemberConfig[] = [];
 
     constructor(_element: HTMLElement, _model: any, _dataSource: any, expressionExp: RegExp, dataMemberExp: RegExp) {
         super();
         this.element = _element;
         this.model = _model;
         this.dataSource = _dataSource;
-
-        this.container = $(_element);
-        var elements = this.container.find("*[_databind]");
-        if (this.container[0].getAttribute("_databind")) {
-            this.initEle(this.container[0], _dataSource, expressionExp, dataMemberExp);
-        }
-
-        if (!(<any>_element)._WayControl) {
-            //如果element不是对应于WayControl，那么，继续绑定它里面的节点
-            for (var i = 0; i < elements.length; i++) {
-                var ctrlEle = elements[i];
-                this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
-            }
+        
+        var elements = WayHelper.findBindingElements(_element);
+        for (var i = 0; i < elements.length; i++) {
+            var ctrlEle = elements[i];
+            this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
         }
     }
 
     private initEle(ctrlEle: HTMLElement, _dataSource: any, expressionExp: RegExp, dataMemberExp: RegExp) {
         var _databind = ctrlEle.getAttribute("_databind");
+        var _expressionString = ctrlEle.getAttribute("_expression"); 
         var isWayControl = false;
         if ((<any>ctrlEle)._WayControl) {
             ctrlEle = (<any>ctrlEle)._WayControl;
@@ -1004,19 +1045,18 @@ class WayBindingElement extends WayBaseObject {
                         (<any>ctrlEle)._data = this.model;
 
                         if (_dataSource) {
-                            eval("ctrlEle." + eleMember + "=_dataSource." + dataMember + ";");
+                            var addevent = false;
+                            if ((<any>ctrlEle).memberInChange && WayHelper.contains((<any>ctrlEle).memberInChange, eleMember))
+                                addevent = true;
+                            else if ( eleMember == "value" || eleMember == "checked")
+                                addevent = true;
 
-                            if (eleMember == "value" || eleMember == "checked") {
-                                if (!isWayControl) {
-                                    if (ctrlEle.addEventListener) {
-                                        ctrlEle.addEventListener("change", () => { this.onvalueChanged(config); });
-                                    }
-                                    else {
-                                        (<any>ctrlEle).attachEvent("onchange", () => { this.onvalueChanged(config); });
-                                    }
+                            if (addevent) {
+                                if (ctrlEle.addEventListener) {
+                                    ctrlEle.addEventListener("change", () => { this.onvalueChanged(config); });
                                 }
-                                else if ("onchange" in ctrlEle) {
-                                    ctrlEle.onchange = () => { this.onvalueChanged(config); }
+                                else {
+                                    (<any>ctrlEle).attachEvent("onchange", () => { this.onvalueChanged(config); });
                                 }
                             }
                         }
@@ -1024,23 +1064,73 @@ class WayBindingElement extends WayBaseObject {
                 }
             }
         }
+
+       
+        if (_expressionString) {
+            var matchs = _expressionString.match(dataMemberExp);
+            if (matchs) {
+                var datamembers = [];
+                for (var j = 0; j < matchs.length; j++) {
+                    var match = matchs[j];
+                    datamembers.push(match.substr(1));
+                }
+
+                if (!(<any>ctrlEle).expressionDatas) {
+                    (<any>ctrlEle).expressionDatas = [];
+                }
+
+                (<any>ctrlEle).expressionDatas.push({ exp: dataMemberExp, data: _dataSource });
+                var config = new WayBindMemberConfig(null, <any>datamembers, ctrlEle);
+                config.expressionString = _expressionString;
+                config.dataMemberExp = dataMemberExp;
+                this.expressionConfigs.push(config);
+
+            }
+        }
+    }
+    
+
+    doExpression(__config: WayBindMemberConfig) {
+        var ___element = __config.element;
+        var exp = __config.expressionString;
+        var matches = exp.match(/[\W]?(this\.)/g);
+        for (var i = 0; i < matches.length; i++) {
+            var r = matches[i].replace("this.", "___element.");
+            exp = exp.replace(matches[i], r);
+        }
+
+        for (var i = 0; i < (<any>__config.element).expressionDatas.length; i++) {
+            var expItem = (<any>__config.element).expressionDatas[i];
+            var matchs = exp.match(expItem.exp);
+            if (matchs) {
+                for (var j = 0; j < matchs.length; j++) {
+                    var match = matchs[j];
+                    var dataMember = match.substr(1);
+                    exp = exp.replace(match, "__config.element.expressionDatas["+i+"].data." + dataMember);
+                }
+            }
+        }
+
+        eval(exp);
     }
 
+    initEleValues(model): void{
+        this.model = model;
+        for (var i = 0; i < this.configs.length; i++) {
+
+            eval("this.configs[i].element." + this.configs[i].elementMember + "=model." + this.configs[i].dataMember + ";");
+        }
+    }
 
     private onvalueChanged(fromWhichConfig: WayBindMemberConfig): void {
-
         try {
-            if (this.configs.length == 0)
+            if (this.configs.length == 0 || !this.model)
                 return;//绑定已经移除了
 
-            if (fromWhichConfig.elementMember == "value") {
-                var model = this.model;
-                eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify((<any>fromWhichConfig.element).value) + ";");
-            }
-            else if (fromWhichConfig.elementMember == "checked") {
-                var model = this.model;
-                eval("model." + fromWhichConfig.dataMember + "=" + JSON.stringify((<any>fromWhichConfig.element).checked) + ";");
-            }
+            var model = this.model;
+            var value = (<any>fromWhichConfig.element)[fromWhichConfig.elementMember];
+
+            eval("model." + fromWhichConfig.dataMember + "=value;");
         }
         catch (e) {
             throw "WayBindingElement onvalueChanged error:" + e.message;
@@ -1061,12 +1151,18 @@ class WayBindingElement extends WayBaseObject {
             for (var i = 0; i < this.configs.length; i++) {
                 var config = this.configs[i];
                 if (config.dataMember == name) {
-                    var v = JSON.stringify(value);
-                    if (eval("config.element." + config.elementMember + "!=" + v)) {
-                        eval("config.element." + config.elementMember + "=" + v);
-                        if (!(<any>config.element).getHtmlElement)//如果不是WayControl
+                    if (eval("config.element." + config.elementMember + "!=value")) {
+                        eval("config.element." + config.elementMember + "=value");
+                        if (!(<any>config.element).element)//如果不是WayControl
                             WayHelper.fireEvent(config.element, 'change');
                     }
+                }
+            }
+
+            for (var i = 0; i < this.expressionConfigs.length; i++) {
+                var config = this.expressionConfigs[i];
+                if (WayHelper.contains(config.dataMember , name) ) {
+                    this.doExpression(config);
                 }
             }
         }
@@ -1104,7 +1200,7 @@ class WayDataBindHelper {
                 }
                 str += ",";
 
-                if (pvalue != null && typeof pvalue == "object") {
+                if (pvalue != null && typeof pvalue == "object" && !(pvalue instanceof Array)) {
                     str += pro + ":" + WayDataBindHelper.getObjectStr(pvalue, onchangeMembers, parent + pro + ".");
                     continue;
                 }
@@ -1113,7 +1209,8 @@ class WayDataBindHelper {
                     onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 else {
-                    onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
+                    //onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
+                    onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
                 }
                 str += "get " + pro + "(){return item." + parent + pro + ";},"
                 str += "set " + pro + "(v){if(item." + parent + pro + "!=v){item." + parent + pro + "=v;" + onchangeStr + "}}";
@@ -1143,12 +1240,47 @@ class WayDataBindHelper {
         }
     }
 
-    static cloneObjectForBind(obj: any, _itemIndex: any, onchangeMembers: string[], _onchange: any): any {
-        if (obj.getSource && typeof obj.getSource == "function") {
-            obj = obj.getSource();
+    static addPropertyToObject(model,obj,source, _itemIndex,  propertyName, fullMemberName, _onchange): void {
+        var member = propertyName.split('.')[0];
+        //var prototype = Object.getPrototypeOf(obj);
+        if (eval("typeof obj." + member +" == \"undefined\"")) {
+            if (member == propertyName) {//不是obj.name的模式
+                //直接defineProperty (obj) 即可，不要defineProperty (prototype)，用prototype，jquery会报错（其原因不解）
+                Object.defineProperty(obj, member, {
+                    get: function () {
+                        return eval("source." + fullMemberName);
+                    },
+                    set: function (value) {
+                        if (eval("source." + fullMemberName + "!=value")) {
+                            eval("source." + fullMemberName + "=value");
+                            _onchange(true, model, _itemIndex, source, fullMemberName, value);
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                return;
+            }
+            else {
+                obj[member] = {};
+            }
         }
 
+        if (member != propertyName) {
+            propertyName = propertyName.substr(member.length + 1);
+            WayDataBindHelper.addPropertyToObject(model, obj[member], source, _itemIndex, propertyName, fullMemberName, _onchange);
+        }
+    }
 
+    static cloneObjectForBind(obj: any, _itemIndex: any, onchangeMembers: string[], _onchange: any): any {
+        if (obj.getSource && typeof obj.getSource == "function") {
+           //需要增加没有的属性
+            var prototype = Object.getPrototypeOf(obj);
+            for (var i = 0; i < onchangeMembers.length; i++) {
+                WayDataBindHelper.addPropertyToObject(obj, obj, obj.getSource(), _itemIndex, onchangeMembers[i], onchangeMembers[i], _onchange);
+            }
+            return obj;
+        }
 
         var str = WayDataBindHelper.getObjectStr(obj, onchangeMembers, null);
         str = "result=(function(item,itemIndex,onProChange){ return " + str + ";})(obj,_itemIndex,_onchange);"
@@ -1162,12 +1294,17 @@ class WayDataBindHelper {
         if (typeof model.onchange == "function") {
             model.onchange(model, itemIndex, name, value);
         }
+        else if (model.onchange && typeof model.onchange.length != "undefined") {
+            for (var i = 0; i < model.onchange.length; i++) {
+                model.onchange[i](model, itemIndex, name, value);
+            }
+        }
+
         if (toCheckedEles) {
             for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
                 var binding = WayDataBindHelper.bindings[i];
                 if (binding && binding.model == model) {
                     binding.onchange(itemIndex, name, value);
-                    break;
                 }
             }
         }
@@ -1222,21 +1359,29 @@ class WayDataBindHelper {
 
     static dataBind(element: any, data: any, tag: any = null,
         expressionExp: RegExp = /(\w|\.)+( )?\=( )?\@(\w|\.)+/g,
-        dataMemberExp: RegExp = /\@(\w|\.)+/g): any {
+        dataMemberExp: RegExp = /\@(\w|\.)+/g,
+    doexpression:boolean = false): any {
         if (typeof element == "string") {
             element = document.getElementById(<any>element);
         }
-        else if (element.getHtmlElement && typeof element.getHtmlElement == "function") {
-            element = element.getHtmlElement();
+        else if (element.element && element.element.length) {
+            //is jquery
+            element = element.element[0];
+        }
+        var model = null;
+        if (!data)
+            data = {};
+        else if (data.getSource && typeof data.getSource == "function") {
+            model = data;
+            data = model.getSource();
         }
 
         var bindingInfo = new WayBindingElement(element, null, data, expressionExp, dataMemberExp);
         var onchangeMembers = bindingInfo.getDataMembers();
-
-        var model = WayDataBindHelper.cloneObjectForBind(data, tag, onchangeMembers, WayDataBindHelper.onchange);
-
+ 
+        model = WayDataBindHelper.cloneObjectForBind(model ? model : data, tag, onchangeMembers, WayDataBindHelper.onchange);
         var finded = false;
-        bindingInfo.model = model;
+        bindingInfo.initEleValues(model);
 
         for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
             if (WayDataBindHelper.bindings[i] == null) {
@@ -1249,6 +1394,12 @@ class WayDataBindHelper {
             WayDataBindHelper.bindings.push(bindingInfo);
         }
 
+        if (doexpression) {
+            //_expression有可能包含$name @name两种变量，所以是否绑定后，马上执行一次doExpression，应该由调用者决定，因为只有所有涉及的model都绑定后，才可以执行
+            for (var i = 0; i < bindingInfo.expressionConfigs.length; i++) {
+                bindingInfo.doExpression(bindingInfo.expressionConfigs[i]);
+            }
+        }
         return model;
     }
 }
@@ -1693,13 +1844,17 @@ class WayGridView extends WayBaseObject implements IPageable {
     //footer模板
     footer: WayTemplate;
     //搜索条件model
-    searchModel: any;
+    searchModel: any = {};
+    allowEdit: boolean = false;
     //数据源
     _datasource: any;
     get datasource(): any {
         return this._datasource;
     }
     set datasource(_v: any) {
+        if (typeof _v == "string" && _v.indexOf("[") == 0) {
+            _v = JSON.parse(_v);
+        }
         this._datasource = _v;
         this.dbContext.datasource = _v;
     }
@@ -1727,7 +1882,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.element = $(<any>elementId);
             else
                 this.element = <any>elementId;
-
+            this.allowEdit = this.element.attr("_allowedit") == "true";
             this.element.css(
                 {
                     "overflow-y": "auto",
@@ -1946,6 +2101,11 @@ class WayGridView extends WayBaseObject implements IPageable {
     }
 
     save(itemIndex: number, callback: (idvalue: any, err: any) => void): void {
+        if (this.allowEdit == false) {
+            callback(null, "此WayGridView未设置为可编辑,请设置_allowedit=\"true\"");
+            return;
+        }
+
         var item = this.items[itemIndex];
         var model = (<any>item)._data;
         var data = this.originalItems[itemIndex];
@@ -2279,6 +2439,92 @@ class WayGridView extends WayBaseObject implements IPageable {
         });
     }
 
+    private replaceFromString(str: string, itemIndex, statusmodel, data): string{
+        var expression = /\{[ ]?\$(\w+)[ ]?\}/g;
+        var result = str;
+        while (true) {
+            var r = expression.exec(str);
+            if (!r)
+                break;
+            var proname = r[1];
+            if (proname == "ItemIndex") {
+                result = result.replace(r[0], itemIndex);
+            }
+            else {
+                if (eval("typeof statusmodel." + proname + "=='undefined'") == false) {
+                    result = result.replace(r[0], eval("statusmodel." + proname));
+                }
+                else {
+                    result = result.replace(r[0], "null");
+                }
+            }
+        }
+
+        var match = result.match(this.fieldExp);
+        if (match) {
+            for (var j = 0; j < match.length; j++) {
+                var str = match[j].toString();
+                var field = str.substr(2, str.length - 3);
+                if (field.indexOf(":") > 0) {
+                    field = field.substr(0, field.indexOf(":"));
+                    result = result.replace(str, eval("data." + field + ".text"));
+                }
+                else {
+                    var value = eval("data." + field);
+                    if (value == null || typeof value == "undefined")
+                        value = "";
+
+                    if (typeof value == "object") {
+
+                        if (typeof value.caption != "undefined") {
+                            result = result.replace(str, value.caption);
+                        }
+                        else if (typeof value.value != "undefined") {
+                            result = result.replace(str, value.value);
+                        }
+                        else {
+                            result = result.replace(str, "");
+                        }
+                    }
+                    else {
+                        result = result.replace(str, value);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private replaceVariable(container: HTMLElement, itemIndex, statusmodel, data): void {
+        for (var i = 0; i < container.attributes.length; i++) {
+            var attName = container.attributes[i].name;
+            var attValue = container.getAttribute(attName);
+            var formatvalue = this.replaceFromString(attValue, itemIndex, statusmodel, data);
+            if (attValue != formatvalue) {
+                container.setAttribute(attName, formatvalue);
+            }
+        }
+
+        if (container.tagName.indexOf("Way") != 0) {
+            //如果不是WayControl，继续检查内容和子节点
+            for (var i = 0; i < container.childNodes.length; i++) {
+                var node = container.childNodes[i];
+                if (node.nodeType == 3) {
+                    //text
+                    var attValue: string = (<any>node).data;
+                    var formatvalue = this.replaceFromString(attValue, itemIndex, statusmodel, data);
+                    if (attValue != formatvalue) {
+                        (<any>node).data = formatvalue;
+                    }
+                }
+                else if (node.nodeType == 1) {
+                    //htmlelement
+                    this.replaceVariable(<any>node, itemIndex, statusmodel, data);
+                }
+            }
+        }
+    }
+
     private createItem(itemIndex: any, mode: string = ""): JQuery {
         //把数据克隆一份
         var currentItemStatus;
@@ -2289,61 +2535,16 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         var data = WayHelper.clone(this.originalItems[itemIndex]);
         var template = this.findItemTemplate(data, mode);
-        var expression = /\{[ ]?\$(\w+)[ ]?\}/g;
+       
         var itemContent = template.content;
-        while (true) {
-            var r = expression.exec(template.content);
-            if (!r)
-                break;
-            var proname = r[1];
-            if (proname == "ItemIndex") {
-                itemContent = itemContent.replace(r[0], itemIndex);
-            }
-            else {
-                if (eval("typeof statusmodel." + proname + "=='undefined'") == false) {
-                    itemContent = itemContent.replace(r[0], eval("statusmodel." + proname));
-                }
-                else {
-                    itemContent = itemContent.replace(r[0], "null");
-                }
-            }
-        }
-
-
-        var match = itemContent.match(this.fieldExp);
-        if (match) {
-            for (var j = 0; j < match.length; j++) {
-                var str = match[j].toString();
-                var field = str.substr(2, str.length - 3);
-                if (field.indexOf(":") > 0) {
-                    field = field.substr(0, field.indexOf(":"));
-                    itemContent = itemContent.replace(str, eval("data." + field + ".text"));
-                }
-                else {
-                    var value = eval("data." + field);
-                    if (value == null || typeof value == "undefined")
-                        value = "";
-
-                    if (typeof value == "object") {
-
-                        if (typeof value.caption != "undefined") {
-                            itemContent = itemContent.replace(str, value.caption);
-                        }
-                        else if (typeof value.value != "undefined") {
-                            itemContent = itemContent.replace(str, value.value);
-                        }
-                        else {
-                            itemContent = itemContent.replace(str, "");
-                        }
-                    }
-                    else {
-                        itemContent = itemContent.replace(str, value);
-                    }
-                }
-            }
-        }
 
         var item = $(itemContent);
+        this.replaceVariable(item[0], itemIndex, statusmodel, data);
+        //把WayControl初始化
+        for (var i = 0; i < item[0].children.length; i++) {
+            checkToInitWayControl(<HTMLElement>item[0].children[i]);
+        }
+        
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
         //创建status
 
@@ -2351,7 +2552,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         var myChangeFunc = statusmodel.onchange;
         var statusData = WayHelper.clone(statusmodel);
 
-        (<any>item)._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g);
+        (<any>item)._status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g,true);
         if (typeof myChangeFunc == "function") {
             (<any>item)._status.onchange = myChangeFunc;
         }
@@ -2620,6 +2821,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 }
 
 class WayDropDownList {
+    memberInChange: ["text","value"];
     textElement: JQuery;
     actionElement: JQuery;
     element: JQuery;
@@ -2632,29 +2834,40 @@ class WayDropDownList {
     valueMember: string;
     textMember: string;
     private _value: string;
-    private _changeValueByClick: boolean = false;
+
     get value(): string {
         return this._value;
     }
     set value(v: string) {
         if (v != this._value) {
             this._value = v;
-            if (this._changeValueByClick == false) {
-                //set text
-                var text = this.getTextByValue(v);
-                if (text) {
-                    this.setText(text);
-                }
-                else {
-                    this.setText("");
-                }
+            this._text = this.getTextByValue(v);
+
+            if (this._text) {
+                this.setText(this._text);
             }
             else {
-                this._changeValueByClick = false;
+                this._text = "";
+                this.setText("");
             }
+
             this.fireEvent("change");
         }
     }
+
+    private _text: string;
+    get text(): string {
+        return this._text;
+    }
+    set text(v: string) {
+        if (v != this._text) {
+            this._text = v;
+            this._value = this.getValueByText(v);
+
+            this.fireEvent("change");
+        }
+    }
+
     onchange: any = null;
 
     constructor(elementid: string, datasource: any) {
@@ -2693,6 +2906,7 @@ class WayDropDownList {
             this.grid = new WayGridView(<any>this.itemContainer[0], 10);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+            
           
             if (!this.valueMember || this.valueMember == "") {
             }
@@ -2753,10 +2967,7 @@ class WayDropDownList {
         }
     }
 
-    getHtmlElement(): HTMLElement {
-        return this.element[0];
-    }
-
+  
     getTextByValue(value: string): string {
         for (var i = 0; i < this.grid.items.length; i++) {
             var data = (<any>this.grid.items[i])._data;
@@ -2781,24 +2992,53 @@ class WayDropDownList {
         }
         return null;
     }
-
+    getValueByText(text: string): string {
+        for (var i = 0; i < this.grid.items.length; i++) {
+            var data = (<any>this.grid.items[i])._data;
+            if (data.text == text) {
+                return data.value;
+            }
+        }
+        //find in server
+        var model;
+        var result;
+        eval("model={" + this.textMember + ":" + JSON.stringify("equal:"+text) + "}");
+        this.grid.dbContext.getDataItem([this.valueMember, this.textMember], model, (data, err) => {
+            if (err) {
+                throw err;
+            }
+            else if (data) {
+                result = data;
+            }
+        }, false);
+        if (result) {
+            return result[this.valueMember];
+        }
+        return null;
+    }
     private _onGridItemCreated(item: JQuery): void {
+        (<any>item)._status.Selected = (<any>item)._data.value == this.value;
         item.click(() => {
             this.hideList();
-
-            this._changeValueByClick = true;
+            (<any>item)._status.Selected = true;
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if (this.grid.items[i] != item) {
+                    (<any>this.grid.items[i])._status.Selected = false;
+                }
+            }
             this.value = (<any>item)._data.value;
-
-            this.setText((<any>item)._data.text);
         });
     }
 
     private setText(text: string): void {
         if (this.textElement[0].tagName == "INPUT") {
-            this.textElement.val(text);
+            if (this.textElement.val() != text)
+                this.textElement.val(text);
         }
-        else
-            this.textElement.html(text);
+        else {
+            if (this.textElement.html() != text)
+                this.textElement.html(text);
+        }
     }
 
     private init(): void {
@@ -2844,13 +3084,24 @@ class WayDropDownList {
         });
 
         if (this.textElement[0].tagName == "INPUT") {
-            this.textElement.keyup(() => {
+            if (this.isMobile) {
+
+            }
+            else {
+                this.textElement.keyup(() => {
+                     //触发onchange事件，如果list已经visible,事件里会触发grid.databind()
+                    this.grid.searchModel.text = this.textElement.val();
+                    if (this.itemContainer.css("visibility") != "visible") {
+                        //如果没有显示，则主动显示
+                        this.showList();
+                    }
+                });
+            }
+
+            this.textElement.change(() => {
                 //触发onchange事件，如果list已经visible,事件里会触发grid.databind()
                 this.grid.searchModel.text = this.textElement.val();
-                if (this.itemContainer.css("visibility") != "visible") {
-                    //如果没有显示，则主动显示
-                    this.showList();
-                }
+                this.text = this.grid.searchModel.text;
             });
         }
 
@@ -2860,9 +3111,10 @@ class WayDropDownList {
     }
     //显示下拉列表
     showList(): void {
+        
         if (this.maskLayer) {
             this.maskLayer.show();
-        }
+        } 
         if (!this.isMobile) {
             var offset = this.textElement.offset();
             var y = (offset.top + this.textElement.outerHeight());
@@ -2874,13 +3126,13 @@ class WayDropDownList {
                     top: y + "px",
                 });
 
-
             if (y + this.itemContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
                 y = offset.top - this.itemContainer.outerHeight();
                 if (y >= 0) {
                     this.itemContainer.css("top", y + "px");
                 }
             }
+
             if (offset.left + this.itemContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
                 this.itemContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.itemContainer.outerWidth()) + "px");
             }
@@ -2896,13 +3148,30 @@ class WayDropDownList {
                 });
         }
 
-        this.itemContainer.css("visibility", "visible");
-
+        if (this.itemContainer.css("visibility") != "visible") {
+            this.itemContainer.css("visibility", "visible");
+            if (this.isBindedGrid) {
+                this.setSelectedItemScrollIntoView();
+            }
+        }
+        
         if (!this.isBindedGrid) {
             this.grid.databind();
             this.isBindedGrid = true;
         }
     }
+
+    private setSelectedItemScrollIntoView() {
+        if (this.value ) {
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if ((<any>this.grid.items[i])._status.Selected) {
+                    this.grid.items[i][0].scrollIntoView(false);
+                    break;
+                }
+            }
+        }
+    }
+
     //隐藏显示下拉列表
     hideList(): void {
         if (this.maskLayer)
@@ -2913,6 +3182,481 @@ class WayDropDownList {
         }
     }
 }
+
+
+class WayCheckboxList {
+    memberInChange: [ "value"];
+    element: JQuery;
+    private isMobile: boolean = false;
+    private grid: WayGridView;
+    private windowObj: JQuery;
+
+    valueMember: string;
+    textMember: string;
+    private _value: any[] = [];
+
+    get value(): any[] {
+        return this._value;
+    }
+    set value(v: any[]) {
+        if (!v)
+            v = [];
+        if (v != this._value) {
+            this._value = v;
+            this.checkGridItem();
+            this.fireEvent("change");
+        }
+    }
+
+
+    onchange: any = null;
+
+
+
+    constructor(elementid: string, datasource: any) {
+        this.windowObj = $(window);
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        (<any>this.element[0])._WayControl = this;
+        this.isMobile = "ontouchstart" in this.element[0];
+        
+        var itemtemplate = this.element.find("script[_for='item']")[0];
+        this.valueMember = this.element[0].getAttribute("_valueMember");
+        this.textMember = this.element[0].getAttribute("_textMember");
+
+        if (true) {
+            this.grid = new WayGridView(<any>this.element[0], 10);
+            this.grid.datasource = datasource;
+            this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+
+            if (!this.valueMember || this.valueMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.valueMember + "->value");
+            }
+            if (!this.textMember || this.textMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.textMember + "->text");
+               
+            }
+            this.grid.onAfterCreateItems = () => {
+                this.checkGridItem();
+            }
+            this.grid.databind();
+        }
+    }
+
+    private checkGridItem() {
+        for (var j = 0; j < this.grid.items.length; j++) {
+            var status = (<any>this.grid.items[j])._status;
+            var data = (<any>this.grid.items[j])._data;
+
+            status.Selected = WayHelper.contains(this._value, data.value);
+
+        }
+    }
+
+    addEventListener(eventName: string, func: any) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+
+            this.onchange.push(func);
+        }
+    }
+
+    fireEvent(eventName: string) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    }
+
+    private rasieModelChange() {
+        
+        for (var k = 0; k < WayDataBindHelper.bindings.length;k ++) {
+            var binding = WayDataBindHelper.bindings[k];
+            if (<any>binding.element === this.element[0]) {
+                for (var m = 0; m < binding.configs.length; m++) {
+                    var config = binding.configs[m];
+                    if (config.elementMember == "value") {
+                        if (typeof binding.model.onchange == "function") {
+                            binding.model.onchange(binding.model, null, config.dataMember, this._value);
+                        }
+                        else if (binding.model.onchange && typeof binding.model.onchange.length != "undefined") {
+                            for (var i = 0; i < binding.model.onchange.length; i++) {
+                                binding.model.onchange[i](binding.model, null, config.dataMember, this._value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private _onGridItemCreated(item: JQuery): void {
+        item.click(() => {
+            (<any>item)._status.Selected = !(<any>item)._status.Selected;
+            if ((<any>item)._status.Selected)
+            {
+                this._value.push((<any>item)._data.value);
+                this.fireEvent("change");
+                //这里只是数值发生变化，如果有model和自己绑定，触发一下model的onchange事件
+                this.rasieModelChange();
+            }
+            else {
+                for (var i = 0; i < this._value.length; i++) {
+                    if (this._value[i] == (<any>item)._data.value) {
+                        this._value.splice(i, 1);
+                        this.fireEvent("change");
+                        this.rasieModelChange();
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+}
+
+class WayRadioList {
+    memberInChange: ["value"];
+    element: JQuery;
+    private isMobile: boolean = false;
+    private grid: WayGridView;
+    private windowObj: JQuery;
+
+    valueMember: string;
+    textMember: string;
+    private _value: string;
+
+    get value(): string {
+        return this._value;
+    }
+    set value(v: string) {
+        if (v != this._value) {
+            this._value = v;
+            this.checkGridItem();
+            this.fireEvent("change");
+        }
+    }
+
+
+    onchange: any = null;
+
+
+
+    constructor(elementid: string, datasource: any) {
+        this.windowObj = $(window);
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        (<any>this.element[0])._WayControl = this;
+        this.isMobile = "ontouchstart" in this.element[0];
+
+        var itemtemplate = this.element.find("script[_for='item']")[0];
+        this.valueMember = this.element[0].getAttribute("_valueMember");
+        this.textMember = this.element[0].getAttribute("_textMember");
+
+        if (true) {
+            this.grid = new WayGridView(<any>this.element[0], 10);
+            this.grid.datasource = datasource;
+            this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+
+            if (!this.valueMember || this.valueMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.valueMember + "->value");
+            }
+            if (!this.textMember || this.textMember == "") {
+            }
+            else {
+                this.grid.dataMembers.push(this.textMember + "->text");
+
+            }
+            this.grid.onAfterCreateItems = () => {
+                this.checkGridItem();
+            }
+            this.grid.databind();
+        }
+    }
+
+    private checkGridItem() {
+        for (var j = 0; j < this.grid.items.length; j++) {
+            var status = (<any>this.grid.items[j])._status;
+            var data = (<any>this.grid.items[j])._data;
+
+            status.Selected = this._value == data.value;
+
+        }
+    }
+
+    addEventListener(eventName: string, func: any) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+
+            this.onchange.push(func);
+        }
+    }
+
+    fireEvent(eventName: string) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    }
+
+    private rasieModelChange() {
+
+        for (var k = 0; k < WayDataBindHelper.bindings.length; k++) {
+            var binding = WayDataBindHelper.bindings[k];
+            if (<any>binding.element === this.element[0]) {
+                for (var m = 0; m < binding.configs.length; m++) {
+                    var config = binding.configs[m];
+                    if (config.elementMember == "value") {
+                        if (typeof binding.model.onchange == "function") {
+                            binding.model.onchange(binding.model, null, config.dataMember, this._value);
+                        }
+                        else if (binding.model.onchange && typeof binding.model.onchange.length != "undefined") {
+                            for (var i = 0; i < binding.model.onchange.length; i++) {
+                                binding.model.onchange[i](binding.model, null, config.dataMember, this._value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private _onGridItemCreated(item: JQuery): void {
+        item.click(() => {
+            this.value = (<any>item)._data.value;
+        });
+    }
+
+}
+
+
+class WayButton {
+    memberInChange: ["text"];
+    element: JQuery;
+
+    private onclickString: string;
+    private internalModel: any = {text:null};
+    get text(): string {
+        return this.internalModel.text;
+    }
+    set text(v: string) {
+        if (v != this.internalModel.text) {
+            this.internalModel.text = v;
+            this.fireEvent("change");
+        }
+    }
+
+
+    onchange: any = null;
+
+
+
+    constructor(elementid: string) {
+
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        var _databind_internal = this.element.attr("_databind_internal");
+        var _databind = this.element.attr("_databind");
+        var _expression_internal = this.element.attr("_expression_internal");
+        var _expression = this.element.attr("_expression");
+
+        this.element.attr("_databind", _databind_internal);
+        this.element.attr("_expression", _expression_internal);
+
+        this.internalModel = WayDataBindHelper.dataBind(<any>this.element[0], { text: this.element.attr("_text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g , true);
+        this.element.attr("_databind", _databind);
+        this.element.attr("_expression", _expression);
+
+
+        (<any>this.element[0])._WayControl = this;
+        this.onclickString = this.element.attr("onclick");
+        this.element.attr("onclick", null);
+
+        if (this.onclickString && this.onclickString.length > 0) {
+
+            var matches = this.onclickString.match(/[\W]?(this\.)/g);
+            for (var i = 0; i < matches.length; i++) {
+                var r = matches[i].replace("this.", "___element.");
+                this.onclickString = this.onclickString.replace(matches[i], r);
+            }
+
+            this.element.click(() => {
+                var ___element = this;
+                eval(this.onclickString);
+            });
+            
+        }
+    }
+
+    addEventListener(eventName: string, func: any) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+
+            this.onchange.push(func);
+        }
+    }
+
+    fireEvent(eventName: string) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    }
+
+}
+
+var checkToInitWayControl = (parentElement: HTMLElement) => {
+    if (parentElement.tagName == "SCRIPT" || parentElement.tagName == "STYLE")
+        return;
+
+    if (parentElement.tagName.indexOf("Way")) {
+        initWayControl(parentElement, null);
+    }
+
+    for (var i = 0; i < parentElement.children.length; i++) {
+        var ele = parentElement.children[i];
+        if (ele.tagName.indexOf("Way")) {
+            initWayControl(<HTMLElement>ele, null);
+        }
+        else {
+            checkToInitWayControl(<HTMLElement>ele);
+        }
+    }
+}
+
+var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
+    if (element == null) {
+        for (var i = 0; i < _styles.length; i++) {
+            var _styEle = _styles[i];
+            if (_styEle.tagName == virtualEle.tagName) {
+                element = _styEle;
+                break;
+            }
+        }
+    }
+    if (!element)
+        return;
+
+    var controlType = element.tagName;
+    var replaceEleObj = $(element.innerHTML);
+    checkToInitWayControl(replaceEleObj[0]);
+
+    var style1 = virtualEle.getAttribute("style");
+    var style2 = replaceEleObj.attr("style");
+    if (style1) {
+        if (!style2)
+            style2 = "";
+        replaceEleObj.attr("style", style2 + ";" + style1);
+        virtualEle.removeAttribute("style");
+    }
+
+    if (replaceEleObj.attr("_databind")) {
+        replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
+    }
+    if (replaceEleObj.attr("_expression")) {
+        replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
+    }
+    for (var k = 0; k < virtualEle.attributes.length; k++) {
+        replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value)
+    }
+
+    if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
+        virtualEle.parentElement.removeChild(virtualEle);
+        virtualEle.parentElement.appendChild(replaceEleObj[0]);
+    }
+    else {
+        var nextlib = virtualEle.nextSibling;
+        virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
+    }
+    var control = null;
+    switch (controlType) {
+        case "WAYDROPDOWNLIST":
+            control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYCHECKBOXLIST":
+            control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYRADIOLIST":
+            control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYBUTTON":
+            control = new WayButton(<any>replaceEleObj);
+            break;
+        case "WAYGRIDVIEW":
+            replaceEleObj[0].innerHTML += virtualEle.innerHTML;
+            control = new WayGridView(<any>replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
+            break;
+        default:
+            break;
+    }
+
+    if (control) {
+        var idstr = replaceEleObj.attr("id");
+        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+            eval("window." + idstr + "=control;");
+        }
+    }
+};
 
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(() => {
@@ -2934,48 +3678,10 @@ $(document).ready(() => {
             var controlEles = body.find(controlType);
             for (var j = 0; j < controlEles.length; j++) {
                 var virtualEle = controlEles[j];
-                var replaceEleObj = $(element.innerHTML);
-                var style1 = virtualEle.getAttribute("style");
-                var style2 = replaceEleObj.attr("style");
-                if (style1) {
-                    if (!style2)
-                        style2 = "";
-                    replaceEleObj.attr("style" , style2 + ";" + style1);
-                    virtualEle.removeAttribute("style");
-                }
-
-                for (var k = 0; k < virtualEle.attributes.length; k++) {
-                    replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value)
-                }
-
-                if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
-                    virtualEle.parentElement.removeChild(virtualEle);
-                    virtualEle.parentElement.appendChild(replaceEleObj[0]);
-                }
-                else {
-                    var nextlib = virtualEle.nextSibling;
-                    virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
-                }
-                var control = null;
-                switch (controlType) {
-                    case "WAYDROPDOWNLIST":
-                        control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYGRIDVIEW":
-                        replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-                        control = new WayGridView(<any>replaceEleObj, parseInt( replaceEleObj.attr("_pagesize")));
-                        break;
-                    default:
-                        break;
-                }
-
-                if (control) {
-                    var idstr = replaceEleObj.attr("id");
-                    if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
-                        eval("window." + idstr + "=control;");
-                    }
-                }
+                initWayControl(virtualEle, element);
             }
         }
     }
 });
+
+

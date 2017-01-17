@@ -5,7 +5,7 @@
             <div style="border:1px solid #ccc;background-color:#fff;"></div>
         </script>
         <script _for="item" type="text/html">
-            <div style="padding:5px;border-bottom:1px solid #eee;cursor:default;">{@text}</div>
+            <div style="padding:5px;border-bottom:1px solid #eee;cursor:default;" _expression="this.style.backgroundColor=$Selected?'green':'';this.style.color=$Selected?'white':'';">{@text}</div>
         </script>
     </div>
 </WayDropDownList>
@@ -14,3 +14,23 @@
     <div _pagesize="20">
     </div>
 </WayGridView>
+
+<WayCheckboxList>
+    <div>
+        <script _for="item" type="text/html">
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;"><input type="checkbox" _databind="checked=$Selected">{@text}</div>
+        </script>
+    </div>
+</WayCheckboxList>
+
+<WayRadioList>
+    <div>
+        <script _for="item" type="text/html">
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;" _expression="this.style.backgroundColor=($Selected&&@text)?'green':'';"><input type="radio" _databind="checked=$Selected">{@text}</div>
+        </script>
+    </div>
+</WayRadioList>
+
+<WayButton>
+    <input type="button" _expression="this.value=@text">
+</WayButton>

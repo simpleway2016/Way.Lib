@@ -23,7 +23,7 @@
         caption:<input type="text" _databind="value=@caption"/>TableID:<input type="text" _databind="value=@TableID" /><input type="button" value="search" onclick="goSearch()" />
     </div>
     <div id="div1" style="background-color:#aaaaaa;"></div>
-    <WayGridView id="grid" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="width:100%;height:280px;-webkit-overflow-scrolling:touch;overflow-y:auto;overflow-x:hidden;">
+    <WayGridView id="grid" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" _allowedit="true" style="width:100%;height:280px;">
         <script _for="body" type="text/html">
             <table style="width:100%;border-collapse:collapse;"></table>
         </script>
