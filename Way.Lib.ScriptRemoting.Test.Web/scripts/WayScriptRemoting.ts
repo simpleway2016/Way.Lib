@@ -172,7 +172,7 @@ class WayScriptRemoting extends WayBaseObject {
 
         var page = <WayScriptRemoting>new func(remoteName);
         WayScriptRemoting.ExistControllers.push(page);
-        WayCookie.setCookie("WayScriptRemoting", result.SessionID)
+        WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
     }
 
