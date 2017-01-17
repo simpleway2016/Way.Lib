@@ -109,7 +109,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                         {
                             waitObject.Set();
                             return 0;
-                        }, clientip,context.Request.Headers["Referer"]
+                        }, clientip, context.Request.Headers["Referer"]
 
                       ).Handle();
                         waitObject.WaitOne();
@@ -132,21 +132,20 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                         return context.Response.WriteAsync(content);
                     }
                 }
+                else if (context.Request.Path.Value.EndsWith("/SERVERID"))
+                {
+                    return context.Response.WriteAsync(ScriptRemotingServer.SERVERID);
+                }
                 else if (context.Request.Path.Value.ToLower().StartsWith("/wayscriptremoting_invoke"))
                 {
                     string json = context.Request.Form["m"];
                     string content = null;
-
-                    var he = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
-                    var url = context.Request.Headers["Referer"].ToSafeString();
-                    url = Regex.Replace(url, @"http(s)?\:\/\/(\w|\.|:)+", "");
-                    string filepath = he.WebRootPath + url.Replace("/", "\\");
-                    RemotingController.CheckHtmlFile(filepath, url, he.WebRootPath);
+                    
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
                         content = data;
 
-                    }, null, clientip,context.Request.Headers["Referer"]);
+                    }, null, clientip, context.Request.Headers["Referer"]);
                     rs.OnReceived(json);
 
                     return context.Response.WriteAsync(content);
@@ -163,7 +162,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
 
                     //    RemotingController.CheckHtmlFile(filepath, feature.Path);
                     //}
-                    
+
                     //var ae = context.RequestServices.GetService(typeof(IApplicationEnvironment)) as IApplicationEnvironment;
 
                     if (next == null)

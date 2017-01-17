@@ -84,7 +84,7 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else if (msgBag.MethodName.IsNullOrEmpty() == false)
                 {
-                   
+                    RemotingController.CheckHtmlFile(this._Referer);
                     handleMethodInvoke(msgBag);
                 }
                 else if (msgBag.GroupName.IsNullOrEmpty() == false)
@@ -307,8 +307,7 @@ namespace Way.Lib.ScriptRemoting
         {
             try
             {
-                string referer = System.Text.RegularExpressions.Regex.Replace(_Referer, @"http(s)?\:\/\/(\w|\.|\:)+", "");
-                string remoteName = (from m in RemotingController.ParsedHtmls where string.Equals(referer, m.Url, StringComparison.CurrentCultureIgnoreCase) select m.Controller).FirstOrDefault();
+                string remoteName = (from m in RemotingController.ParsedHtmls where string.Equals(this._Referer, m.Url, StringComparison.CurrentCultureIgnoreCase) select m.Controller).FirstOrDefault();
                 var pageDefine = checkRemotingName(remoteName);
 
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);

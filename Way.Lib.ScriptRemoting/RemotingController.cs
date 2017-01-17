@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -49,6 +50,7 @@ namespace Way.Lib.ScriptRemoting
             public List<string> Datasources = new List<string>();
             public List<string> AllowEditDatasources = new List<string>();
         }
+        static List<string> SafeDomains = new List<string>();
         internal static List<ParseHtmlInfo> ParsedHtmls = new List<ParseHtmlInfo>();
         internal string SocketID;
         public SessionState Session
@@ -80,10 +82,10 @@ namespace Way.Lib.ScriptRemoting
                 return null;
         }
 
-        internal static void CheckHtmlFile(string filepath,string url, string webroot)
+        internal static void CheckHtmlFile(string url)
         {
-            if (webroot.EndsWith("\\"))
-                webroot = webroot.Substring(0, webroot.Length - 1);
+            //if (webroot.EndsWith("\\"))
+            //    webroot = webroot.Substring(0, webroot.Length - 1);
 
             for (int i = 0; i < ParsedHtmls.Count; i++)
             {
@@ -93,16 +95,52 @@ namespace Way.Lib.ScriptRemoting
                     return;
                 }
             }
-            Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
-            var stream = new System.IO.StreamReader(System.IO.File.OpenRead(filepath));
-            parser.Parse(stream);
-            stream.Dispose();
-            ParseHtmlInfo htmlinfo = new ScriptRemoting.RemotingController.ParseHtmlInfo();
-            htmlinfo.Url = url;
-            CheckHtmlFile(htmlinfo, parser.Nodes, filepath, webroot);
-            ParsedHtmls.Add(htmlinfo);
+            lock (ParsedHtmls)
+            {
+                //再检查一遍
+                for (int i = 0; i < ParsedHtmls.Count; i++)
+                {
+                    var info = ParsedHtmls[i];
+                    if (String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        return;
+                    }
+                }
+
+                var match = Regex.Match(url, @"(?<h>http(s)?\:\/\/)(?<g>(\w|\:|\.)+)\/");
+                string domain = match.Groups["g"].Value;
+
+                HttpClient client = new HttpClient();
+                if (SafeDomains.Contains(domain) == false)
+                {
+                    //这里要确定一下域名是属于本机的，防止别人利用这里放假域名骗取数据
+                    var task = client.GetStringAsync(match.Groups["h"].Value + domain + "/SERVERID");
+                    task.Wait();
+                    if (task.Result != ScriptRemotingServer.SERVERID)
+                        throw new Exception("not allow domain");
+
+                    SafeDomains.Add(domain);
+                }
+                if (true)
+                {
+                    var task = client.GetStreamAsync(url);
+                    task.Wait();
+
+                    Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
+                    var stream = new System.IO.StreamReader(task.Result);
+                    parser.Parse(stream);
+                    stream.Dispose();
+                    ParseHtmlInfo htmlinfo = new ScriptRemoting.RemotingController.ParseHtmlInfo();
+                    htmlinfo.Url = url;
+                    CheckHtmlFile(htmlinfo, parser.Nodes,
+                        match.Groups["h"].Value + domain + "/",
+                        url.Substring(0, url.LastIndexOf("/") + 1));
+                    ParsedHtmls.Add(htmlinfo);
+                }
+            }
+
         }
-        static void CheckHtmlFile(ParseHtmlInfo info,List<HtmlUtil.HtmlNode> nodes, string filepath,string webroot)
+        static void CheckHtmlFile(ParseHtmlInfo info,List<HtmlUtil.HtmlNode> nodes,string webroot, string weburl)
         {
             try
             {
@@ -121,22 +159,28 @@ namespace Way.Lib.ScriptRemoting
                                 {
                                     string url = m.Groups["g1"].Value.Trim();
                                     url = url.Substring(1, url.Length - 2);
-                                    string htmlpath;
                                     if (url.StartsWith("/"))
                                     {
-                                        htmlpath = webroot + url.Replace("/", "\\");
+                                        url = webroot + url.Substring(1);
                                     }
                                     else
                                     {
-                                        htmlpath = System.IO.Path.GetDirectoryName(filepath) + "\\" + url.Replace("/", "\\");
+                                        url = weburl + url;
                                     }
-                                    if(System.IO.File.Exists(htmlpath))
+
+                                    try
                                     {
+                                        HttpClient client = new HttpClient();
+                                        var task = client.GetStreamAsync(url);
+                                        task.Wait();
                                         Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
-                                        var stream = new System.IO.StreamReader(System.IO.File.OpenRead(htmlpath));
+                                        var stream = new System.IO.StreamReader(task.Result);
                                         parser.Parse(stream);
                                         stream.Dispose();
-                                        CheckHtmlFile(info, parser.Nodes, htmlpath, webroot);
+                                        CheckHtmlFile(info, parser.Nodes, webroot, weburl);
+                                    }
+                                    catch
+                                    {
                                     }
                                 }
                             }
@@ -147,7 +191,8 @@ namespace Way.Lib.ScriptRemoting
                                 {
                                     string fullname = m.Groups["g1"].Value;
                                     fullname = fullname.Substring(0, fullname.LastIndexOf("."));
-                                    info.Datasources.Add(fullname);
+                                    if(info.Datasources.Contains(fullname) == false)
+                                        info.Datasources.Add(fullname);
                                 }
                             }
                         }
@@ -168,11 +213,12 @@ namespace Way.Lib.ScriptRemoting
                             info.Datasources.Add(_datasource);
                             if (node.Attributes.Any(m => m.Name == "_allowedit" && m.Value == "true"))
                             {
-                                info.AllowEditDatasources.Add(_datasource);
+                                if (info.AllowEditDatasources.Contains(_datasource) == false)
+                                    info.AllowEditDatasources.Add(_datasource);
                             }
                         }
                     }
-                    CheckHtmlFile(info, node.Nodes,filepath, webroot);
+                    CheckHtmlFile(info, node.Nodes, webroot,weburl);
                 }
             }
             catch(Exception ex)

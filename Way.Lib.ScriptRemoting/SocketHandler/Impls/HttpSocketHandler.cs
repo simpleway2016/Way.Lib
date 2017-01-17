@@ -118,7 +118,11 @@ namespace Way.Lib.ScriptRemoting
             try
             {
                 //访问ts脚本
-                if (this.Connection.mKeyValues["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
+                if (this.Connection.mKeyValues["GET"].ToSafeString().EndsWith("/SERVERID"))
+                {
+                    outputHttpResponse(ScriptRemotingServer.SERVERID);
+                }
+                else if (this.Connection.mKeyValues["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
                 {
                     //m_client.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + System.Web.HttpWorkerRequest.GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
                     var since = this.Connection.mKeyValues["If-Modified-Since"].ToSafeString();
@@ -215,7 +219,6 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else if (ext == ".html")
                     {
-                        RemotingController.CheckHtmlFile(filepath , (string)this.Connection.mKeyValues["GET"] , ScriptRemotingServer.Root);
                         outputFile(filepath);
                     }
                     else

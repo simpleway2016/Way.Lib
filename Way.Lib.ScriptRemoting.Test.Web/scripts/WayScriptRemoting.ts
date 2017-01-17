@@ -1852,6 +1852,9 @@ class WayGridView extends WayBaseObject implements IPageable {
         return this._datasource;
     }
     set datasource(_v: any) {
+        if (typeof _v == "string" && _v.indexOf("[") == 0) {
+            _v = JSON.parse(_v);
+        }
         this._datasource = _v;
         this.dbContext.datasource = _v;
     }
@@ -3441,6 +3444,101 @@ class WayRadioList {
 
 }
 
+
+class WayButton {
+    memberInChange: ["text"];
+    element: JQuery;
+
+    private onclickString: string;
+    private internalModel: any = {text:null};
+    get text(): string {
+        return this.internalModel.text;
+    }
+    set text(v: string) {
+        if (v != this.internalModel.text) {
+            this.internalModel.text = v;
+            this.fireEvent("change");
+        }
+    }
+
+
+    onchange: any = null;
+
+
+
+    constructor(elementid: string) {
+
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        var _databind_internal = this.element.attr("_databind_internal");
+        var _databind = this.element.attr("_databind");
+        var _expression_internal = this.element.attr("_expression_internal");
+        var _expression = this.element.attr("_expression");
+
+        this.element.attr("_databind", _databind_internal);
+        this.element.attr("_expression", _expression_internal);
+
+        this.internalModel = WayDataBindHelper.dataBind(<any>this.element[0], { text: this.element.attr("_text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g , true);
+        this.element.attr("_databind", _databind);
+        this.element.attr("_expression", _expression);
+
+
+        (<any>this.element[0])._WayControl = this;
+        this.onclickString = this.element.attr("onclick");
+        this.element.attr("onclick", null);
+
+        if (this.onclickString && this.onclickString.length > 0) {
+
+            var matches = this.onclickString.match(/[\W]?(this\.)/g);
+            for (var i = 0; i < matches.length; i++) {
+                var r = matches[i].replace("this.", "___element.");
+                this.onclickString = this.onclickString.replace(matches[i], r);
+            }
+
+            this.element.click(() => {
+                var ___element = this;
+                eval(this.onclickString);
+            });
+            
+        }
+    }
+
+    addEventListener(eventName: string, func: any) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+
+            this.onchange.push(func);
+        }
+    }
+
+    fireEvent(eventName: string) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    }
+
+}
+
+
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(() => {
     var body = $(document.body);
@@ -3471,6 +3569,12 @@ $(document).ready(() => {
                     virtualEle.removeAttribute("style");
                 }
 
+                if (replaceEleObj.attr("_databind")) {
+                    replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
+                }
+                if (replaceEleObj.attr("_expression")) {
+                    replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
+                }
                 for (var k = 0; k < virtualEle.attributes.length; k++) {
                     replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value)
                 }
@@ -3493,6 +3597,9 @@ $(document).ready(() => {
                         break;
                     case "WAYRADIOLIST":
                         control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+                        break;
+                    case "WAYBUTTON":
+                        control = new WayButton(<any>replaceEleObj);
                         break;
                     case "WAYGRIDVIEW":
                         replaceEleObj[0].innerHTML += virtualEle.innerHTML;
