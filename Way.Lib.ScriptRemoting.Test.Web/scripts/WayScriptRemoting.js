@@ -2289,6 +2289,10 @@ var WayGridView = (function (_super) {
         var itemContent = template.content;
         var item = $(itemContent);
         this.replaceVariable(item[0], itemIndex, statusmodel, data);
+        //把WayControl初始化
+        for (var i = 0; i < item[0].children.length; i++) {
+            checkToInitWayControl(item[0].children[i]);
+        }
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
         //创建status
         var myChangeFunc = statusmodel.onchange;
@@ -2692,8 +2696,15 @@ var WayDropDownList = (function () {
     };
     WayDropDownList.prototype._onGridItemCreated = function (item) {
         var _this = this;
+        item._status.Selected = item._data.value == this.value;
         item.click(function () {
             _this.hideList();
+            item._status.Selected = true;
+            for (var i = 0; i < _this.grid.items.length; i++) {
+                if (_this.grid.items[i] != item) {
+                    _this.grid.items[i]._status.Selected = false;
+                }
+            }
             _this.value = item._data.value;
         });
     };
@@ -2798,10 +2809,25 @@ var WayDropDownList = (function () {
                 top: this.windowObj.innerHeight() * 0.05 + "px",
             });
         }
-        this.itemContainer.css("visibility", "visible");
+        if (this.itemContainer.css("visibility") != "visible") {
+            this.itemContainer.css("visibility", "visible");
+            if (this.isBindedGrid) {
+                this.setSelectedItemScrollIntoView();
+            }
+        }
         if (!this.isBindedGrid) {
             this.grid.databind();
             this.isBindedGrid = true;
+        }
+    };
+    WayDropDownList.prototype.setSelectedItemScrollIntoView = function () {
+        if (this.value) {
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if (this.grid.items[i]._status.Selected) {
+                    this.grid.items[i][0].scrollIntoView(false);
+                    break;
+                }
+            }
         }
     };
     //隐藏显示下拉列表
@@ -3130,6 +3156,90 @@ var WayButton = (function () {
     };
     return WayButton;
 }());
+var checkToInitWayControl = function (parentElement) {
+    if (parentElement.tagName == "SCRIPT" || parentElement.tagName == "STYLE")
+        return;
+    if (parentElement.tagName.indexOf("Way")) {
+        initWayControl(parentElement, null);
+    }
+    for (var i = 0; i < parentElement.children.length; i++) {
+        var ele = parentElement.children[i];
+        if (ele.tagName.indexOf("Way")) {
+            initWayControl(ele, null);
+        }
+        else {
+            checkToInitWayControl(ele);
+        }
+    }
+};
+var initWayControl = function (virtualEle, element) {
+    if (element == null) {
+        for (var i = 0; i < _styles.length; i++) {
+            var _styEle = _styles[i];
+            if (_styEle.tagName == virtualEle.tagName) {
+                element = _styEle;
+                break;
+            }
+        }
+    }
+    if (!element)
+        return;
+    var controlType = element.tagName;
+    var replaceEleObj = $(element.innerHTML);
+    checkToInitWayControl(replaceEleObj[0]);
+    var style1 = virtualEle.getAttribute("style");
+    var style2 = replaceEleObj.attr("style");
+    if (style1) {
+        if (!style2)
+            style2 = "";
+        replaceEleObj.attr("style", style2 + ";" + style1);
+        virtualEle.removeAttribute("style");
+    }
+    if (replaceEleObj.attr("_databind")) {
+        replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
+    }
+    if (replaceEleObj.attr("_expression")) {
+        replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
+    }
+    for (var k = 0; k < virtualEle.attributes.length; k++) {
+        replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value);
+    }
+    if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
+        virtualEle.parentElement.removeChild(virtualEle);
+        virtualEle.parentElement.appendChild(replaceEleObj[0]);
+    }
+    else {
+        var nextlib = virtualEle.nextSibling;
+        virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
+    }
+    var control = null;
+    switch (controlType) {
+        case "WAYDROPDOWNLIST":
+            control = new WayDropDownList(replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYCHECKBOXLIST":
+            control = new WayCheckboxList(replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYRADIOLIST":
+            control = new WayRadioList(replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYBUTTON":
+            control = new WayButton(replaceEleObj);
+            break;
+        case "WAYGRIDVIEW":
+            replaceEleObj[0].innerHTML += virtualEle.innerHTML;
+            control = new WayGridView(replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
+            break;
+        default:
+            break;
+    }
+    if (control) {
+        var idstr = replaceEleObj.attr("id");
+        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+            eval("window." + idstr + "=control;");
+        }
+    }
+};
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(function () {
     var body = $(document.body);
@@ -3150,59 +3260,7 @@ $(document).ready(function () {
             var controlEles = body.find(controlType);
             for (var j = 0; j < controlEles.length; j++) {
                 var virtualEle = controlEles[j];
-                var replaceEleObj = $(element.innerHTML);
-                var style1 = virtualEle.getAttribute("style");
-                var style2 = replaceEleObj.attr("style");
-                if (style1) {
-                    if (!style2)
-                        style2 = "";
-                    replaceEleObj.attr("style", style2 + ";" + style1);
-                    virtualEle.removeAttribute("style");
-                }
-                if (replaceEleObj.attr("_databind")) {
-                    replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
-                }
-                if (replaceEleObj.attr("_expression")) {
-                    replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
-                }
-                for (var k = 0; k < virtualEle.attributes.length; k++) {
-                    replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value);
-                }
-                if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
-                    virtualEle.parentElement.removeChild(virtualEle);
-                    virtualEle.parentElement.appendChild(replaceEleObj[0]);
-                }
-                else {
-                    var nextlib = virtualEle.nextSibling;
-                    virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
-                }
-                var control = null;
-                switch (controlType) {
-                    case "WAYDROPDOWNLIST":
-                        control = new WayDropDownList(replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYCHECKBOXLIST":
-                        control = new WayCheckboxList(replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYRADIOLIST":
-                        control = new WayRadioList(replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYBUTTON":
-                        control = new WayButton(replaceEleObj);
-                        break;
-                    case "WAYGRIDVIEW":
-                        replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-                        control = new WayGridView(replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
-                        break;
-                    default:
-                        break;
-                }
-                if (control) {
-                    var idstr = replaceEleObj.attr("id");
-                    if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
-                        eval("window." + idstr + "=control;");
-                    }
-                }
+                initWayControl(virtualEle, element);
             }
         }
     }

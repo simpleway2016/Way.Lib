@@ -2539,8 +2539,11 @@ class WayGridView extends WayBaseObject implements IPageable {
         var itemContent = template.content;
 
         var item = $(itemContent);
-        this.replaceVariable(item[0], itemIndex, statusmodel , data);
-        
+        this.replaceVariable(item[0], itemIndex, statusmodel, data);
+        //把WayControl初始化
+        for (var i = 0; i < item[0].children.length; i++) {
+            checkToInitWayControl(<HTMLElement>item[0].children[i]);
+        }
         
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
         //创建status
@@ -2903,6 +2906,7 @@ class WayDropDownList {
             this.grid = new WayGridView(<any>this.itemContainer[0], 10);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
+            
           
             if (!this.valueMember || this.valueMember == "") {
             }
@@ -3013,9 +3017,15 @@ class WayDropDownList {
         return null;
     }
     private _onGridItemCreated(item: JQuery): void {
+        (<any>item)._status.Selected = (<any>item)._data.value == this.value;
         item.click(() => {
             this.hideList();
-            
+            (<any>item)._status.Selected = true;
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if (this.grid.items[i] != item) {
+                    (<any>this.grid.items[i])._status.Selected = false;
+                }
+            }
             this.value = (<any>item)._data.value;
         });
     }
@@ -3137,14 +3147,31 @@ class WayDropDownList {
                     top: this.windowObj.innerHeight() * 0.05 + "px",
                 });
         }
-        
-        this.itemContainer.css("visibility", "visible");
+
+        if (this.itemContainer.css("visibility") != "visible") {
+            this.itemContainer.css("visibility", "visible");
+            if (this.isBindedGrid) {
+                this.setSelectedItemScrollIntoView();
+            }
+        }
         
         if (!this.isBindedGrid) {
             this.grid.databind();
             this.isBindedGrid = true;
         }
     }
+
+    private setSelectedItemScrollIntoView() {
+        if (this.value ) {
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if ((<any>this.grid.items[i])._status.Selected) {
+                    this.grid.items[i][0].scrollIntoView(false);
+                    break;
+                }
+            }
+        }
+    }
+
     //隐藏显示下拉列表
     hideList(): void {
         if (this.maskLayer)
@@ -3538,6 +3565,98 @@ class WayButton {
 
 }
 
+var checkToInitWayControl = (parentElement: HTMLElement) => {
+    if (parentElement.tagName == "SCRIPT" || parentElement.tagName == "STYLE")
+        return;
+
+    if (parentElement.tagName.indexOf("Way")) {
+        initWayControl(parentElement, null);
+    }
+
+    for (var i = 0; i < parentElement.children.length; i++) {
+        var ele = parentElement.children[i];
+        if (ele.tagName.indexOf("Way")) {
+            initWayControl(<HTMLElement>ele, null);
+        }
+        else {
+            checkToInitWayControl(<HTMLElement>ele);
+        }
+    }
+}
+
+var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
+    if (element == null) {
+        for (var i = 0; i < _styles.length; i++) {
+            var _styEle = _styles[i];
+            if (_styEle.tagName == virtualEle.tagName) {
+                element = _styEle;
+                break;
+            }
+        }
+    }
+    if (!element)
+        return;
+
+    var controlType = element.tagName;
+    var replaceEleObj = $(element.innerHTML);
+    checkToInitWayControl(replaceEleObj[0]);
+
+    var style1 = virtualEle.getAttribute("style");
+    var style2 = replaceEleObj.attr("style");
+    if (style1) {
+        if (!style2)
+            style2 = "";
+        replaceEleObj.attr("style", style2 + ";" + style1);
+        virtualEle.removeAttribute("style");
+    }
+
+    if (replaceEleObj.attr("_databind")) {
+        replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
+    }
+    if (replaceEleObj.attr("_expression")) {
+        replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
+    }
+    for (var k = 0; k < virtualEle.attributes.length; k++) {
+        replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value)
+    }
+
+    if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
+        virtualEle.parentElement.removeChild(virtualEle);
+        virtualEle.parentElement.appendChild(replaceEleObj[0]);
+    }
+    else {
+        var nextlib = virtualEle.nextSibling;
+        virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
+    }
+    var control = null;
+    switch (controlType) {
+        case "WAYDROPDOWNLIST":
+            control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYCHECKBOXLIST":
+            control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYRADIOLIST":
+            control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            break;
+        case "WAYBUTTON":
+            control = new WayButton(<any>replaceEleObj);
+            break;
+        case "WAYGRIDVIEW":
+            replaceEleObj[0].innerHTML += virtualEle.innerHTML;
+            control = new WayGridView(<any>replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
+            break;
+        default:
+            break;
+    }
+
+    if (control) {
+        var idstr = replaceEleObj.attr("id");
+        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
+            eval("window." + idstr + "=control;");
+        }
+    }
+};
 
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(() => {
@@ -3559,63 +3678,10 @@ $(document).ready(() => {
             var controlEles = body.find(controlType);
             for (var j = 0; j < controlEles.length; j++) {
                 var virtualEle = controlEles[j];
-                var replaceEleObj = $(element.innerHTML);
-                var style1 = virtualEle.getAttribute("style");
-                var style2 = replaceEleObj.attr("style");
-                if (style1) {
-                    if (!style2)
-                        style2 = "";
-                    replaceEleObj.attr("style" , style2 + ";" + style1);
-                    virtualEle.removeAttribute("style");
-                }
-
-                if (replaceEleObj.attr("_databind")) {
-                    replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
-                }
-                if (replaceEleObj.attr("_expression")) {
-                    replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
-                }
-                for (var k = 0; k < virtualEle.attributes.length; k++) {
-                    replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value)
-                }
-
-                if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
-                    virtualEle.parentElement.removeChild(virtualEle);
-                    virtualEle.parentElement.appendChild(replaceEleObj[0]);
-                }
-                else {
-                    var nextlib = virtualEle.nextSibling;
-                    virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
-                }
-                var control = null;
-                switch (controlType) {
-                    case "WAYDROPDOWNLIST":
-                        control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYCHECKBOXLIST":
-                        control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYRADIOLIST":
-                        control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
-                        break;
-                    case "WAYBUTTON":
-                        control = new WayButton(<any>replaceEleObj);
-                        break;
-                    case "WAYGRIDVIEW":
-                        replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-                        control = new WayGridView(<any>replaceEleObj, parseInt( replaceEleObj.attr("_pagesize")));
-                        break;
-                    default:
-                        break;
-                }
-
-                if (control) {
-                    var idstr = replaceEleObj.attr("id");
-                    if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + "._WayControl")) {
-                        eval("window." + idstr + "=control;");
-                    }
-                }
+                initWayControl(virtualEle, element);
             }
         }
     }
 });
+
+
