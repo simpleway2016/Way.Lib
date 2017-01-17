@@ -842,12 +842,12 @@ class WayHelper {
     }
 
     static findInnerBindingElements(result: any[], element: HTMLElement) {
-        var attr = element.getAttribute("_databind");
+        var attr = element.getAttribute("databind");
         if (attr && attr.length > 0) {
             result.push(element);
         }
         else {
-            attr = element.getAttribute("_expression");
+            attr = element.getAttribute("expression");
             if (attr && attr.length > 0) {
                 result.push(element);
             }
@@ -994,15 +994,15 @@ class WayBindingElement extends WayBaseObject {
     }
 
     private initEle(ctrlEle: HTMLElement, _dataSource: any, expressionExp: RegExp, dataMemberExp: RegExp) {
-        var _databind = ctrlEle.getAttribute("_databind");
-        var _expressionString = ctrlEle.getAttribute("_expression"); 
+        var databind = ctrlEle.getAttribute("databind");
+        var _expressionString = ctrlEle.getAttribute("expression"); 
         var isWayControl = false;
         if ((<any>ctrlEle)._WayControl) {
             ctrlEle = (<any>ctrlEle)._WayControl;
             isWayControl = true;
         }
-        if (_databind) {
-            var matchs = _databind.match(expressionExp);
+        if (databind) {
+            var matchs = databind.match(expressionExp);
             if (matchs) {
                 for (var j = 0; j < matchs.length; j++) {
                     var match = matchs[j];
@@ -1402,7 +1402,7 @@ class WayDataBindHelper {
         }
 
         if (doexpression) {
-            //_expression有可能包含$name @name两种变量，所以是否绑定后，马上执行一次doExpression，应该由调用者决定，因为只有所有涉及的model都绑定后，才可以执行
+            //expression有可能包含$name @name两种变量，所以是否绑定后，马上执行一次doExpression，应该由调用者决定，因为只有所有涉及的model都绑定后，才可以执行
             for (var i = 0; i < bindingInfo.expressionConfigs.length; i++) {
                 bindingInfo.doExpression(bindingInfo.expressionConfigs[i]);
             }
@@ -1883,7 +1883,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (isNaN(_pagesize))
                 _pagesize = 10;
 
-            var controller = document.body.getAttribute("_controller");
+            var controller = document.body.getAttribute("controller");
            
             this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
@@ -1892,7 +1892,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.element = $(<any>elementId);
             else
                 this.element = <any>elementId;
-            this.allowEdit = this.element.attr("_allowedit") == "true";
+            this.allowEdit = this.element.attr("allowedit") == "true";
             this.element.css(
                 {
                     "overflow-y": "auto",
@@ -1903,7 +1903,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (!isTouch)
                 this.supportDropdownRefresh = false;
 
-            this.datasource = this.element.attr("_datasource");
+            this.datasource = this.element.attr("datasource");
 
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
@@ -2112,7 +2112,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
     save(itemIndex: number, callback: (idvalue: any, err: any) => void): void {
         if (this.allowEdit == false) {
-            callback(null, "此WayGridView未设置为可编辑,请设置_allowedit=\"true\"");
+            callback(null, "此WayGridView未设置为可编辑,请设置allowedit=\"true\"");
             return;
         }
 
@@ -2569,7 +2569,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         //建立验证
         if (true) {
-            var bindItemElements = item.find("*[_databind]");
+            var bindItemElements = item.find("*[databind]");
 
             var validators: WayValidator[] = [];
 
@@ -2907,8 +2907,8 @@ class WayDropDownList {
         
 
         var itemtemplate = this.element.find("script[_for='item']")[0];
-        this.valueMember = this.element[0].getAttribute("_valueMember");
-        this.textMember = this.element[0].getAttribute("_textMember");
+        this.valueMember = this.element[0].getAttribute("valueMember");
+        this.textMember = this.element[0].getAttribute("textMember");
 
         if (this.actionElement) {
             this.init();
@@ -2928,7 +2928,7 @@ class WayDropDownList {
             else {
                 this.grid.dataMembers.push(this.textMember + "->text");
                 if (this.textElement[0].tagName == "INPUT") {
-                    this.textElement.attr("_databind", "value=@text");
+                    this.textElement.attr("databind", "value=@text");
                     this.grid.searchModel = WayDataBindHelper.dataBind(this.textElement[0], {});
                     this.grid.searchModel.submitObject = () => {
                         var result;
@@ -3236,8 +3236,8 @@ class WayCheckboxList {
         this.isMobile = "ontouchstart" in this.element[0];
         
         var itemtemplate = this.element.find("script[_for='item']")[0];
-        this.valueMember = this.element[0].getAttribute("_valueMember");
-        this.textMember = this.element[0].getAttribute("_textMember");
+        this.valueMember = this.element[0].getAttribute("valueMember");
+        this.textMember = this.element[0].getAttribute("textMember");
 
         if (true) {
             this.grid = new WayGridView(<any>this.element[0], 0);
@@ -3387,8 +3387,8 @@ class WayRadioList {
         this.isMobile = "ontouchstart" in this.element[0];
 
         var itemtemplate = this.element.find("script[_for='item']")[0];
-        this.valueMember = this.element[0].getAttribute("_valueMember");
-        this.textMember = this.element[0].getAttribute("_textMember");
+        this.valueMember = this.element[0].getAttribute("valueMember");
+        this.textMember = this.element[0].getAttribute("textMember");
 
         if (true) {
             this.grid = new WayGridView(<any>this.element[0], 0);
@@ -3513,16 +3513,16 @@ class WayButton {
             this.element = <any>elementid;
 
         var _databind_internal = this.element.attr("_databind_internal");
-        var _databind = this.element.attr("_databind");
+        var databind = this.element.attr("databind");
         var _expression_internal = this.element.attr("_expression_internal");
-        var _expression = this.element.attr("_expression");
+        var expression = this.element.attr("expression");
 
-        this.element.attr("_databind", _databind_internal);
-        this.element.attr("_expression", _expression_internal);
+        this.element.attr("databind", _databind_internal);
+        this.element.attr("expression", _expression_internal);
 
-        this.internalModel = WayDataBindHelper.dataBind(<any>this.element[0], { text: this.element.attr("_text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g , true);
-        this.element.attr("_databind", _databind);
-        this.element.attr("_expression", _expression);
+        this.internalModel = WayDataBindHelper.dataBind(<any>this.element[0], { text: this.element.attr("text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g , true);
+        this.element.attr("databind", databind);
+        this.element.attr("expression", expression);
 
 
         (<any>this.element[0])._WayControl = this;
@@ -3620,11 +3620,11 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
         virtualEle.removeAttribute("style");
     }
 
-    if (replaceEleObj.attr("_databind")) {
-        replaceEleObj.attr("_databind_internal", replaceEleObj.attr("_databind"));
+    if (replaceEleObj.attr("databind")) {
+        replaceEleObj.attr("_databind_internal", replaceEleObj.attr("databind"));
     }
-    if (replaceEleObj.attr("_expression")) {
-        replaceEleObj.attr("_expression_internal", replaceEleObj.attr("_expression"));
+    if (replaceEleObj.attr("expression")) {
+        replaceEleObj.attr("_expression_internal", replaceEleObj.attr("expression"));
     }
     for (var k = 0; k < virtualEle.attributes.length; k++) {
         replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value)
@@ -3641,13 +3641,13 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
     var control = null;
     switch (controlType) {
         case "WAYDROPDOWNLIST":
-            control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("datasource"));
             break;
         case "WAYCHECKBOXLIST":
-            control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("datasource"));
             break;
         case "WAYRADIOLIST":
-            control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("_datasource"));
+            control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("datasource"));
             break;
         case "WAYBUTTON":
             control = new WayButton(<any>replaceEleObj);
@@ -3671,12 +3671,12 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
 $(document).ready(() => {
     var body = $(document.body);
-    var controllerName = body.attr("_controller");
+    var controllerName = body.attr("controller");
     if (!controllerName) {
-        throw "<Body>没有定义_controller";
+        throw "<Body>没有定义controller";
     }
     else {
-        (<any>window)._controller = WayScriptRemoting.createRemotingController(controllerName);
+        (<any>window).controller = WayScriptRemoting.createRemotingController(controllerName);
     }
     for (var i = 0; i < _styles.length; i++) {
         var element = _styles[i];

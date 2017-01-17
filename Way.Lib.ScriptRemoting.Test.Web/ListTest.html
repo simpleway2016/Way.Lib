@@ -14,15 +14,15 @@
         }
     </style>
 </head>
-<body _controller="Way.Lib.ScriptRemoting.Test.TestPage">
+<body controller="Way.Lib.ScriptRemoting.Test.TestPage">
     <div id="titleDiv"></div>
-    <WayButton _text="button1" onclick="this.text='hjewef';"></WayButton>
-    <input type="text" id="txt555" _databind="value=@mytext">
-    <WayCheckboxList id="chkList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
+    <WayButton text="button1" onclick="this.text='hjewef';"></WayButton>
+    <input type="text" id="txt555" databind="value=@mytext">
+    <WayCheckboxList id="chkList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
     </WayCheckboxList>
-    <WayRadioList id="rdList1" _databind="value=@dbids" _valueMember="id" _textMember="Name" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;margin-top:10px;">
+    <WayRadioList id="rdList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;margin-top:10px;">
     </WayRadioList>
-    <WayDropDownList id="list1" _databind="value=@myvalue,text=@mytext" _valueMember="id" _textMember="caption" _datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
+    <WayDropDownList id="list1" databind="value=@myvalue,text=@mytext" valueMember="id" textMember="caption" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
     </WayDropDownList>
    
     <div id="d1" style="height:30px;overflow-y:auto;">

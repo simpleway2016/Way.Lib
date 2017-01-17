@@ -2,7 +2,7 @@
 var testPage: WayScriptRemoting;
 
 window.onload = () => {
-    testPage = (<any>window)._controller;
+    testPage = (<any>window).controller;
     testPage.onmessage = (e) => {
         alert("group msg:" + e);
     }

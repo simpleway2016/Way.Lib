@@ -201,17 +201,17 @@ namespace Way.Lib.ScriptRemoting
 
                     else if (info.Controller.IsNullOrEmpty() && String.Equals(node.Name, "body", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        info.Controller = (from m in node.Attributes where m.Name == "_controller" select m.Value).FirstOrDefault();
+                        info.Controller = (from m in node.Attributes where m.Name == "controller" select m.Value).FirstOrDefault();
                         if (info.Controller == null)
                             info.Controller = "";
                     }
                     else
                     {
-                        var _datasource = (from m in node.Attributes where m.Name == "_datasource" select m.Value).FirstOrDefault();
+                        var _datasource = (from m in node.Attributes where m.Name == "datasource" select m.Value).FirstOrDefault();
                         if (_datasource != null)
                         {
                             info.Datasources.Add(_datasource);
-                            if (node.Attributes.Any(m => m.Name == "_allowedit" && m.Value == "true"))
+                            if (node.Attributes.Any(m => m.Name == "allowedit" && m.Value == "true"))
                             {
                                 if (info.AllowEditDatasources.Contains(_datasource) == false)
                                     info.AllowEditDatasources.Add(_datasource);
@@ -531,17 +531,16 @@ namespace Way.Lib.ScriptRemoting
         protected virtual DatasourceDefine OnGetDataSourcePath(string datasourceName,bool isForEditing)
         {
             string fullname = this.GetType().FullName;
-            List<string> arrowDataSources;
+
             if (isForEditing)
             {
-                arrowDataSources = (from m in ParsedHtmls where m.Controller == fullname select m.AllowEditDatasources).FirstOrDefault();
-                if (arrowDataSources.Contains(datasourceName) == false)
+               
+                if (ParsedHtmls.Any(m=> m.Controller == fullname && m.AllowEditDatasources.Contains(datasourceName)) == false)
                     throw new Exception("无权编辑" + datasourceName);
             }
             else
             {
-                arrowDataSources = (from m in ParsedHtmls where m.Controller == fullname select m.Datasources).FirstOrDefault();
-                if (arrowDataSources.Contains(datasourceName) == false)
+                if (ParsedHtmls.Any(m => m.Controller == fullname && m.Datasources.Contains(datasourceName)) == false)
                     throw new Exception("此html没有在任何地方定义使用" + datasourceName);
             }
            

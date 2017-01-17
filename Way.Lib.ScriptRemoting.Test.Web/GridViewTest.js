@@ -1,6 +1,6 @@
 var testPage;
 window.onload = function () {
-    testPage = window._controller;
+    testPage = window.controller;
     testPage.onmessage = function (e) {
         alert("group msg:" + e);
     };
