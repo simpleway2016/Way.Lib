@@ -42,7 +42,7 @@ namespace Way.Lib.ScriptRemoting
                 byte[] fileData;
                 
 
-                ScriptFilePath = root + "_WayScriptRemoting\\tsc\\WayScriptRemoting.js";
+                ScriptFilePath = root + "_WayScriptRemoting/tsc/WayScriptRemoting.js";
 
                 //合并入jquery.js
                 string[] jsFiles = new string[] { "BigInt.js", "RSA.js", "Barrett.js","jquery.js", "sonic.js" };
@@ -120,9 +120,10 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
         public static void Start(int port,string webRootPath,int gcCollectInterval)
         {
+            webRootPath = webRootPath.Replace("\\", "/");
             if (socketServer == null)
             {
-                Root = webRootPath.EndsWith("\\") ? webRootPath : webRootPath + "\\";
+                Root = webRootPath.EndsWith("/") ? webRootPath : webRootPath + "/";
                 makeTscFiles(Root);
 
                 socketServer = new ScriptRemoting.SocketServer(port);
@@ -203,7 +204,7 @@ namespace Way.Lib.ScriptRemoting
             var route = new IISWebSocket.CoreMvcRoute();
 
             var environment = (IHostingEnvironment)app.ApplicationServices.GetService(typeof(IHostingEnvironment));
-            makeTscFiles(environment.WebRootPath + "\\");
+            makeTscFiles(environment.WebRootPath + "/");
             //    string filepath = he.WebRootPath + feature.Path.Replace("/", "\\");
 
             //var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();

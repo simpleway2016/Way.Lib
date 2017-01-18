@@ -28,8 +28,8 @@ namespace Way.Lib
         public static string GetAppDirectory()
         {
             string directory = AppContext.BaseDirectory;
-            if(directory.EndsWith("\\") == false)
-             directory += "\\";
+            if(directory.EndsWith("/") == false)
+             directory += "/";
             return directory;
         }
     }

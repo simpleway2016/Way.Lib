@@ -158,7 +158,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                     //if (feature != null && feature.Path.ToLower().EndsWith(".html"))
                     //{
                     //    var he = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
-                    //    string filepath = he.WebRootPath + feature.Path.Replace("/", "\\");
+                    //    string filepath = he.WebRootPath + feature.Path;
 
                     //    RemotingController.CheckHtmlFile(filepath, feature.Path);
                     //}

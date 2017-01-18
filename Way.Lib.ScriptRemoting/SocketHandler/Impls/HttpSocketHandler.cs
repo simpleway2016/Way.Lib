@@ -214,7 +214,7 @@ namespace Way.Lib.ScriptRemoting
                     }
                     if (filepath.StartsWith("/"))
                         filepath = filepath.Substring(1);
-                    filepath = ScriptRemotingServer.Root + filepath.Replace("/", "\\");
+                    filepath = ScriptRemotingServer.Root + filepath;
                     string ext = Path.GetExtension(filepath).ToLower();
                     if (ext == ".aspx")
                     {
@@ -286,7 +286,7 @@ namespace Way.Lib.ScriptRemoting
         //        var typescriptCompiler = new ProcessStartInfo
         //        {
         //            WindowStyle = ProcessWindowStyle.Hidden,
-        //            FileName = ScriptRemotingServer.Root + "_WayScriptRemoting\\tsc\\tsc.exe",
+        //            FileName = ScriptRemotingServer.Root + "_WayScriptRemoting/tsc/tsc.exe",
         //            Arguments = string.Format("\"{0}\"", tspath)
         //        };
 

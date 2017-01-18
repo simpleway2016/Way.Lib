@@ -88,11 +88,11 @@ namespace Way.Lib
         string getNewFileName()
         {
             int index = 0;
-            string filepath = string.Format("{0}\\{1}_{2} {3}.txt", SavePath, this.Name, index, DateTime.Now.ToString("yyyyMMdd"));
+            string filepath = string.Format("{0}/{1}_{2} {3}.txt", SavePath, this.Name, index, DateTime.Now.ToString("yyyyMMdd"));
             while (File.Exists(filepath))
             {
                 index++;
-                filepath = string.Format("{0}\\{1}_{2} {3}.txt", SavePath, this.Name, index, DateTime.Now.ToString("yyyyMMdd"));
+                filepath = string.Format("{0}/{1}_{2} {3}.txt", SavePath, this.Name, index, DateTime.Now.ToString("yyyyMMdd"));
             }
             return filepath;
         }
@@ -193,7 +193,7 @@ namespace Way.Lib
                 }
                 if (_SavePath == null)
                 {
-                    _SavePath = PlatformHelper.GetAppDirectory() + "\\CLog";
+                    _SavePath = PlatformHelper.GetAppDirectory() + "/CLog";
                     if (_mSavePath == null)
                     {
                         _mSavePath = _SavePath;

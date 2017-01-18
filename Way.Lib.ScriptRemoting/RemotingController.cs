@@ -84,8 +84,7 @@ namespace Way.Lib.ScriptRemoting
 
         internal static void CheckHtmlFile(string url)
         {
-            //if (webroot.EndsWith("\\"))
-            //    webroot = webroot.Substring(0, webroot.Length - 1);
+       
 
             for (int i = 0; i < ParsedHtmls.Count; i++)
             {

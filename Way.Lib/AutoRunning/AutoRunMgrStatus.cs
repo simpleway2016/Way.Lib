@@ -26,7 +26,7 @@ namespace Way.Lib.AutoRunning
             //可能多个站点使用同一个iis应用池，那就是同一个进程，所以共享内存的名称以目录作为区分
             string memoryName = PlatformHelper.GetAppDirectory();
             memoryName = memoryName.Replace(":","").Replace("\\", "_").ToLower();
-            mFile = MemoryMappedFile.CreateOrOpen("Global\\" + memoryName, 10, MemoryMappedFileAccess.ReadWrite);
+            mFile = MemoryMappedFile.CreateOrOpen("Global/" + memoryName, 10, MemoryMappedFileAccess.ReadWrite);
             mAccessor = mFile.CreateViewAccessor(0, 100);
             this.CurrentGuid = Guid.NewGuid().ToString();
         }
