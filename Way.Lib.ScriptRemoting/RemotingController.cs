@@ -333,9 +333,17 @@ namespace Way.Lib.ScriptRemoting
                 List<Expression> doneExpressions = new List<Expression>();
                 if (ptype == typeof(string))
                 {
-                    doneExpressions.Add(Expression.Call(paramExpression,
-                        typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
-                        Expression.Constant(searchKeyPair.Value)));
+                    if (searchKeyPair.Value.ToSafeString().StartsWith("equal:"))
+                    {
+                        Expression right = Expression.Constant(searchKeyPair.Value.ToString().Substring(6));
+                        doneExpressions.Add(Expression.Equal(paramExpression, right));
+                    }
+                    else
+                    {
+                        doneExpressions.Add(Expression.Call(paramExpression,
+                            typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
+                            Expression.Constant(searchKeyPair.Value)));
+                    }
                 }
                 else if (ptype == typeof(int) || ptype == typeof(double) || ptype == typeof(decimal) || ptype == typeof(float) || ptype == typeof(short) || ptype == typeof(long))
                 {
