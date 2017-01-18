@@ -11,5 +11,18 @@ namespace Way.Lib.ScriptRemoting
     /// </summary>
     public class RemotingMethodAttribute : Attribute
     {
+        /// <summary>
+        /// 传输的参数是否使用RSA加密
+        /// </summary>
+        public bool SubmitByRSA
+        {
+            get;
+            set;
+        }
+    
+        public RemotingMethodAttribute()
+        {
+        }
+     
     }
 }

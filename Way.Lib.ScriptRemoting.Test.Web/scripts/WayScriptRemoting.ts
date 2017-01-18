@@ -1,4 +1,6 @@
-﻿
+﻿declare var setMaxDigits: (n: number) => void;
+declare class RSAKeyPair { constructor(e: string,n:string, m: string); };
+declare var encryptedString: (key: RSAKeyPair, value: string) => string;
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -27,6 +29,7 @@ enum WayScriptRemotingMessageType {
     SendSessionID = 3,
     InvokeError = 4,
     UploadFileBegined = 5,
+    RSADecrptError = 6,
 }
 
 class WayCookie {
@@ -65,11 +68,15 @@ class WayScriptRemotingUploadHandler {
     abort: boolean = false;
     offset: number = 0;
 }
-
+class RSAInfo {
+    Exponent: string;
+    Modulus: string;
+}
 class WayScriptRemoting extends WayBaseObject {
     static onBeforeInvoke: (name: string, parameters: any[]) => any;
     static onInvokeFinish: (name: string, parameters: any[]) => any;
 
+    rsa: RSAInfo;
     classFullName: string;
     private _groupName: string;
     get groupName(): string {
@@ -171,6 +178,8 @@ class WayScriptRemoting extends WayBaseObject {
         eval("func = " + result.text);
 
         var page = <WayScriptRemoting>new func(remoteName);
+        page.rsa = result.rsa;
+
         WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
@@ -197,6 +206,7 @@ class WayScriptRemoting extends WayBaseObject {
                     eval("func = " + result.text);
 
                     var page = <WayScriptRemoting>new func(remoteName);
+                    page.rsa = result.rsa;
                     WayCookie.setCookie("WayScriptRemoting", result.SessionID)
                     callback(page, null);
                 }
@@ -351,7 +361,27 @@ class WayScriptRemoting extends WayBaseObject {
         }
     }
 
-    pageInvoke(name: string, parameters: any[], callback: any, async: boolean=true) {
+    private encrypt(value: string): string {
+        setMaxDigits(129);
+        value = (<any>window).encodeURIComponent(value, "utf-8");
+
+        var key = new RSAKeyPair(this.rsa.Exponent, "", this.rsa.Modulus);
+        if (value.length <= 58) {
+            return encryptedString(key, value);
+        }
+        else {
+            var result = "";
+            var total = value.length;
+            for (var i = 0; i < value.length; i += 58) {
+                var text = value.substr(i, Math.min(58, total));
+                total -= text.length;
+                result += encryptedString(key, text);
+            }
+            return result;
+        }
+    }
+
+    pageInvoke(name: string, parameters: any[], callback: any, async: boolean = true, useRsa: boolean=false) {
         try {
             if (WayScriptRemoting.onBeforeInvoke) {
                 WayScriptRemoting.onBeforeInvoke(name, parameters);
@@ -362,7 +392,8 @@ class WayScriptRemoting extends WayBaseObject {
                 parameters.forEach((p) => {
                     if (paramerStr.length > 0)
                         paramerStr += ",";
-                    var itemstr = JSON.stringify(p);
+
+                    var itemstr = JSON.stringify(useRsa && p && typeof p == "string" ? this.encrypt(p) : p);
                     paramerStr += JSON.stringify(itemstr);
                 });
             }
@@ -385,6 +416,10 @@ class WayScriptRemoting extends WayBaseObject {
                     }
                     else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
                         callback(null, resultObj.result);
+                    }
+                    else if (resultObj.type == WayScriptRemotingMessageType.RSADecrptError) {
+                        this.rsa = resultObj.result;
+                        this.pageInvoke(name,parameters, callback, async, useRsa);
                     }
                 }
             };

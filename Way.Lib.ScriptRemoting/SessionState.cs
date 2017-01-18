@@ -42,6 +42,20 @@ namespace Way.Lib.ScriptRemoting
             get;
             private set;
         }
+
+        public new object this[string key]
+        {
+            get
+            {
+                if (base.ContainsKey(key))
+                    return base[key];
+                return null;
+            }
+            set
+            {
+                base[key] = value;
+            }
+        }
         internal SessionState(string sessionid,string ip)
         {
             this.ClientIP = ip;

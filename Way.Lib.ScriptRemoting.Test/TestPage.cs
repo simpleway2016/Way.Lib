@@ -87,6 +87,12 @@ namespace Way.Lib.ScriptRemoting.Test
             return DateTime.Now.ToString();
         }
 
+        [RemotingMethod( SubmitByRSA = true)]
+        public string TestRSA(string content,int number)
+        {
+            return content;
+        }
+
         FileStream fs;
         public override IUploadFileHandler OnBeginUploadFile(string fileName, int fileSize,int offset)
         {

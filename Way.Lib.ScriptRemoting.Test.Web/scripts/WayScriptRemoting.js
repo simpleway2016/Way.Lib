@@ -3,6 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+;
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
@@ -30,6 +31,7 @@ var WayScriptRemotingMessageType;
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["SendSessionID"] = 3] = "SendSessionID";
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["InvokeError"] = 4] = "InvokeError";
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["UploadFileBegined"] = 5] = "UploadFileBegined";
+    WayScriptRemotingMessageType[WayScriptRemotingMessageType["RSADecrptError"] = 6] = "RSADecrptError";
 })(WayScriptRemotingMessageType || (WayScriptRemotingMessageType = {}));
 var WayCookie = (function () {
     function WayCookie() {
@@ -70,6 +72,11 @@ var WayScriptRemotingUploadHandler = (function () {
         this.offset = 0;
     }
     return WayScriptRemotingUploadHandler;
+}());
+var RSAInfo = (function () {
+    function RSAInfo() {
+    }
+    return RSAInfo;
 }());
 var WayScriptRemoting = (function (_super) {
     __extends(WayScriptRemoting, _super);
@@ -160,6 +167,7 @@ var WayScriptRemoting = (function (_super) {
         var func;
         eval("func = " + result.text);
         var page = new func(remoteName);
+        page.rsa = result.rsa;
         WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
@@ -183,6 +191,7 @@ var WayScriptRemoting = (function (_super) {
                     var func;
                     eval("func = " + result.text);
                     var page = new func(remoteName);
+                    page.rsa = result.rsa;
                     WayCookie.setCookie("WayScriptRemoting", result.SessionID);
                     callback(page, null);
                 }
@@ -340,8 +349,28 @@ var WayScriptRemoting = (function (_super) {
             }
         }
     };
-    WayScriptRemoting.prototype.pageInvoke = function (name, parameters, callback, async) {
+    WayScriptRemoting.prototype.encrypt = function (value) {
+        setMaxDigits(129);
+        value = window.encodeURIComponent(value, "utf-8");
+        var key = new RSAKeyPair(this.rsa.Exponent, "", this.rsa.Modulus);
+        if (value.length <= 58) {
+            return encryptedString(key, value);
+        }
+        else {
+            var result = "";
+            var total = value.length;
+            for (var i = 0; i < value.length; i += 58) {
+                var text = value.substr(i, Math.min(58, total));
+                total -= text.length;
+                result += encryptedString(key, text);
+            }
+            return result;
+        }
+    };
+    WayScriptRemoting.prototype.pageInvoke = function (name, parameters, callback, async, useRsa) {
+        var _this = this;
         if (async === void 0) { async = true; }
+        if (useRsa === void 0) { useRsa = false; }
         try {
             if (WayScriptRemoting.onBeforeInvoke) {
                 WayScriptRemoting.onBeforeInvoke(name, parameters);
@@ -351,7 +380,7 @@ var WayScriptRemoting = (function (_super) {
                 parameters.forEach(function (p) {
                     if (paramerStr.length > 0)
                         paramerStr += ",";
-                    var itemstr = JSON.stringify(p);
+                    var itemstr = JSON.stringify(useRsa && p && typeof p == "string" ? _this.encrypt(p) : p);
                     paramerStr += JSON.stringify(itemstr);
                 });
             }
@@ -372,6 +401,10 @@ var WayScriptRemoting = (function (_super) {
                     }
                     else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
                         callback(null, resultObj.result);
+                    }
+                    else if (resultObj.type == WayScriptRemotingMessageType.RSADecrptError) {
+                        _this.rsa = resultObj.result;
+                        _this.pageInvoke(name, parameters, callback, async, useRsa);
                     }
                 }
             };

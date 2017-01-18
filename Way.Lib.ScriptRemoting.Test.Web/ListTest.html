@@ -1,6 +1,10 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <script src="scripts/BigInt.js" type="text/javascript"></script>
+    <script src="scripts/RSA.js" type="text/javascript"></script>
+    <script src="scripts/Barrett.js" type="text/javascript"></script>
+
     <script src="scripts/jquery.js" type="text/javascript"></script>
     <script src="scripts/sonic.js" type="text/javascript"></script>
     <script src="scripts/wayscriptremoting.js" type="text/javascript"></script>
@@ -16,7 +20,7 @@
 </head>
 <body controller="Way.Lib.ScriptRemoting.Test.TestPage">
     <div id="titleDiv"></div>
-    <WayButton text="button1" onclick="this.text='hjewef';"></WayButton>
+    <WayButton text="button1" onclick="this.text = 'hjewef'; rsatest();"></WayButton>
     <input type="text" id="txt555" databind="value=@mytext">
     <WayCheckboxList id="chkList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
     </WayCheckboxList>
@@ -56,6 +60,17 @@
               titleDiv.innerHTML = "chkObj2.onchange:" + (chkObj2.dbids);
           };
 
+         
+      }
+
+      function rsatest() {
+          var c = "ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%uu";
+          window.controller.TestRSA(c , 8899, function (ret, err) {
+              if (err)
+                  alert(err);
+              else
+                  alert(ret);
+          });
       }
   </script>
 </body>

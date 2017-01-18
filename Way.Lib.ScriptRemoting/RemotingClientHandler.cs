@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -223,6 +224,7 @@ namespace Way.Lib.ScriptRemoting
         {
             try
             {
+                bool outputRSAKey = false;
                 string remoteName = msgBag.ClassFullName;
                 TypeDefine pageDefine = checkRemotingName(remoteName);
 
@@ -236,6 +238,7 @@ namespace Way.Lib.ScriptRemoting
 ");
                 foreach (MethodInfo method in pageDefine.Methods)
                 {
+                   
                     methodOutput.Append($"func.prototype." + method.Name + " = function (");
                     var parameters = method.GetParameters();
 
@@ -254,7 +257,16 @@ namespace Way.Lib.ScriptRemoting
                             methodOutput.Append(',');
                         }
                     }
-                    methodOutput.AppendLine("] , callback );");
+                    RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)method.GetCustomAttribute(typeof(RemotingMethodAttribute));
+                    if (methodAttr.SubmitByRSA)
+                    {
+                        outputRSAKey = true;
+                        methodOutput.AppendLine("] , callback,true,true );");
+                    }
+                    else
+                    {
+                        methodOutput.AppendLine("] , callback );");
+                    }
                     methodOutput.AppendLine("};");
                 }
 
@@ -265,11 +277,15 @@ namespace Way.Lib.ScriptRemoting
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
-
+                if (outputRSAKey)
+                {
+                    CreateRSAKey(this.Session);
+                }
                 mSendDataFunc(Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
                     text = methodOutput.ToString(),
-                    SessionID = this.Session.SessionID
+                    SessionID = this.Session.SessionID,
+                    rsa = outputRSAKey ? new { Exponent=this.Session["$$_rsa_PublicKeyExponent"], Modulus= this.Session["$$_rsa_PublicKeyModulus"] } : null,
                 }));
             }
             catch (Exception ex)
@@ -279,6 +295,79 @@ namespace Way.Lib.ScriptRemoting
                     err = ex.Message,
                 }));
             }
+        }
+        static byte[] HexStringToBytes(string hex,int index,int len)
+        {
+            if (len == 0)
+            {
+                return new byte[0];
+            }
+
+
+
+            byte[] result = new byte[len / 2];
+            int myindex = 0;
+            int endindex = index + len;
+            for (int i = index; i < endindex; i+=2)
+            {
+                result[myindex] = byte.Parse(hex.Substring(i, 2), System.Globalization.NumberStyles.AllowHexSpecifier);
+                myindex++;
+            }
+
+            return result;
+        }
+        private static string BytesToHexString(byte[] input)
+        {
+            StringBuilder hexString = new StringBuilder(64);
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                hexString.Append(String.Format("{0:X2}", input[i]));
+            }
+            return hexString.ToString();
+        }
+        internal static void CreateRSAKey(SessionState session)
+        {
+            if (session["$$_RSACryptoServiceProvider"] == null)
+            {
+
+                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+                
+                //把公钥适当转换，准备发往客户端
+                RSAParameters parameter = rsa.ExportParameters(true);
+                string publicKeyExponent = BytesToHexString(parameter.Exponent);
+                string publicKeyModulus = BytesToHexString(parameter.Modulus);
+                session["$$_RSACryptoServiceProvider"] = rsa;
+                session["$$_rsa_PublicKeyExponent"] = publicKeyExponent;
+                session["$$_rsa_PublicKeyModulus"] = publicKeyModulus;
+            }
+        }
+
+        internal static string DecrptRSA(SessionState session,string content)
+        {
+            System.Text.ASCIIEncoding enc = new ASCIIEncoding();
+            RSACryptoServiceProvider rsa = session["$$_RSACryptoServiceProvider"] as RSACryptoServiceProvider;
+            if (rsa == null )
+            {
+                throw new RSADecrptException();
+            }
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < content.Length; i += 256)
+            {
+                byte[] bs = null;
+                try
+                {
+                    bs = rsa.Decrypt(HexStringToBytes(content, i, 256), false);
+                }
+                catch
+                {
+                    throw new RSADecrptException();
+                }
+                string str = enc.GetString(bs);
+                result.Append(str);
+            }
+
+            return System.Net.WebUtility.UrlDecode( result.ToString()) ;
         }
 
         void handleUploadFile(MessageBag msgBag)
@@ -314,8 +403,9 @@ namespace Way.Lib.ScriptRemoting
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
 
-                 
-                MethodInfo methodinfo = pageDefine.Methods.Single(m=>m.Name == msgBag.MethodName);
+
+                MethodInfo methodinfo = pageDefine.Methods.Single(m => m.Name == msgBag.MethodName);
+                RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                 var pInfos = methodinfo.GetParameters();
                 if (pInfos.Length != msgBag.Parameters.Length)
                     throw new Exception($"{msgBag.MethodName}参数个数不相符");
@@ -330,11 +420,23 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else
                     {
-                        parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
+                        if (methodAttr.SubmitByRSA && msgBag.Parameters[i] != null && msgBag.Parameters[i].Length >= 258)
+                        {
+                            parameters[i] = Convert.ChangeType(DecrptRSA(this.Session, msgBag.Parameters[i].Substring(1, msgBag.Parameters[i].Length - 2)), pType);
+                        }
+                        else
+                        {
+                            parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
+                        }
                     }
                 }
                 var result = methodinfo.Invoke(currentPage, parameters);
                 SendData(MessageType.Result, result);
+            }
+            catch (RSADecrptException)
+            {
+                CreateRSAKey(this.Session);
+                SendData(MessageType.RSADecrptError, new { Exponent = this.Session["$$_rsa_PublicKeyExponent"], Modulus = this.Session["$$_rsa_PublicKeyModulus"] });
             }
             catch (Exception ex)
             {
@@ -414,7 +516,8 @@ namespace Way.Lib.ScriptRemoting
         Notify = 2,
         SendSessionID = 3,
         InvokeError = 4,
-        UploadFileBegined = 5
+        UploadFileBegined = 5,
+        RSADecrptError = 6
     }
 
 }
