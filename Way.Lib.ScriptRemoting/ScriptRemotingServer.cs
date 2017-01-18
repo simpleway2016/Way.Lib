@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.AspNetCore.Hosting;
 
 #if NET46
 #else
@@ -44,7 +45,7 @@ namespace Way.Lib.ScriptRemoting
                 ScriptFilePath = root + "_WayScriptRemoting\\tsc\\WayScriptRemoting.js";
 
                 //合并入jquery.js
-                string[] jsFiles = new string[] { "jquery.js", "sonic.js" };
+                string[] jsFiles = new string[] { "BigInt.js", "RSA.js", "Barrett.js","jquery.js", "sonic.js" };
                 FileStream fs = File.Create(ScriptFilePath + ".tmp");
                 foreach (string jsfile in jsFiles)
                 {
@@ -200,6 +201,11 @@ namespace Way.Lib.ScriptRemoting
                 new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
             }
             var route = new IISWebSocket.CoreMvcRoute();
+
+            var environment = (IHostingEnvironment)app.ApplicationServices.GetService(typeof(IHostingEnvironment));
+            makeTscFiles(environment.WebRootPath + "\\");
+            //    string filepath = he.WebRootPath + feature.Path.Replace("/", "\\");
+
             //var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
             //routes.Routes.Add(new Route(route, "wayscriptremoting_invoke", resolver));
             //routes.Routes.Add(new Route(route, "wayscriptremoting", resolver));
