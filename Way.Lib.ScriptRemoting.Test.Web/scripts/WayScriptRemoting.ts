@@ -366,14 +366,14 @@ class WayScriptRemoting extends WayBaseObject {
         value = (<any>window).encodeURIComponent(value, "utf-8");
 
         var key = new RSAKeyPair(this.rsa.Exponent, "", this.rsa.Modulus);
-        if (value.length <= 58) {
+        if (value.length <= 110) {
             return encryptedString(key, value);
         }
         else {
             var result = "";
             var total = value.length;
-            for (var i = 0; i < value.length; i += 58) {
-                var text = value.substr(i, Math.min(58, total));
+            for (var i = 0; i < value.length; i += 110) {
+                var text = value.substr(i, Math.min(110, total));
                 total -= text.length;
                 result += encryptedString(key, text);
             }
