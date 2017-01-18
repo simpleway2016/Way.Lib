@@ -200,7 +200,7 @@ namespace Way.Lib.ScriptRemoting
                     throw new Exception(remoteName + "不是RemotingPage的子类");
                 }
 
-                MethodInfo[] methods = pageDefine.ControllerType.GetMethods();
+                MethodInfo[] methods = pageDefine.ControllerType.GetMethods( BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                 foreach (MethodInfo m in methods)
                 {
                     if (m.GetCustomAttribute<RemotingMethodAttribute>() != null)
@@ -382,7 +382,7 @@ namespace Way.Lib.ScriptRemoting
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
-                mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName, msgBag.FileSize , msgBag.Offset);
+                mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName,msgBag.State, msgBag.FileSize , msgBag.Offset);
                 SendData(MessageType.UploadFileBegined,"ok");
             }
             catch (Exception ex)
@@ -505,6 +505,7 @@ namespace Way.Lib.ScriptRemoting
         public string Action;
         public string MethodName;
         public string FileName;
+        public string State;
         public int FileSize;
         public int Offset;
         public string[] Parameters;

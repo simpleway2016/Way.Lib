@@ -99,7 +99,7 @@ function normal(itemIndex) {
 
 function uploadfile() {
     var file1 = document.getElementById("file1");
-    var handler = testPage.uploadFile(file1, (ret, totalSize, uploaded, err) => {
+    var handler = testPage.uploadFile(file1, "my state", (ret, totalSize, uploaded, err) => {
         if (err) {
             alert("uploadfile err:" + err);
         }

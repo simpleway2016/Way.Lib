@@ -220,6 +220,111 @@ class WayScriptRemoting extends WayBaseObject {
         };
     }
 
+    private _uploadFileWithHTTP(fileElement: any, state: any, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler {
+        try {
+
+            var file: File;
+            if (typeof fileElement == "string") {
+                fileElement = document.getElementById(fileElement);
+            }
+            if (fileElement.files) {
+                file = fileElement.files[0];
+            }
+            else {
+                file = fileElement;
+            }
+            var reader = new FileReader();
+            var size = file.size;
+            var errored = false;
+            var finished = false;
+
+            if (!handler) {
+                handler = new WayScriptRemotingUploadHandler();
+            }
+
+            this.pageInvoke("UploadFileWithHTTP", [file.name, state, size, handler.offset], (ret, err) => {
+                if (err) {
+                    if (callback) {
+                        callback(null, 0, 0, err);
+                    }
+                }
+                else {
+
+                    this.sendFileWithHttp(ret, state,file, reader, size, handler.offset, 10240, callback, handler);
+                }
+            });
+            return handler;
+        }
+        catch (e) {
+            if (callback) {
+                try { callback(null, null, null, e.message); } catch (e) { }
+            }
+        }
+    }
+    private arrayBufferToString(data) {
+        var array = new Uint8Array(data);
+        var str = "";
+        for (var i = 0, len = array.length; i < len; ++i) {
+            str += "%" + array[i].toString(16);
+        }
+
+        return str;
+    }
+    private sendFileWithHttp(tranid: string, state: any,file: File, reader: FileReader, size: number,
+        start: number, len: number, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler) {
+
+        if (start + len > size) {
+            len = size - start;
+        }
+
+        var blob = file.slice(start, start + len);
+        reader.onload = () => {
+            var filedata: ArrayBuffer = reader.result;
+            
+            if (filedata.byteLength > 0) {
+                start += filedata.byteLength;
+                if ( handler.abort) {
+                   
+                }
+                else {
+                    try {
+                        filedata = <any>this.arrayBufferToString(filedata);
+                        this.pageInvoke("GettingFileDataWithHttp", [tranid, filedata], (ret, err) => {
+                            if (err) {
+                                if (err.indexOf("tranid not exist") >= 0) {
+                                    this._uploadFileWithHTTP(file, state, callback, handler);
+                                }
+                                else {
+                                    setTimeout(() => { this.sendFileWithHttp(tranid, state, file, reader, size, start, len, callback, handler); } , 1000);
+                                   
+                                }
+                            }
+                            else {
+                                handler.offset = ret.offset;
+                                if (callback) {
+                                    callback(ret.size == ret.offset ? "ok":"", ret.size, ret.offset, null);
+                                }
+                                if (ret.offset < ret.size) {
+                                    this.sendFileWithHttp(tranid, state, file, reader, size, ret.offset, len, callback, handler);
+                                }
+                            }
+                        });
+
+                        
+                    }
+                    catch (e) {
+                    }
+                }
+            }
+        };
+        reader.onerror = () => {
+            if (callback) {
+                try { callback("", null, null, "读取文件发生错误"); } catch (e) { }
+            }
+        }
+        reader.readAsArrayBuffer(blob);
+    }
+
     private sendFile(ws: WebSocket, file: File, reader: FileReader, size: number,
         start: number, len: number, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler) {
 
@@ -262,7 +367,10 @@ class WayScriptRemoting extends WayBaseObject {
         reader.readAsArrayBuffer(blob);
     }
 
-    uploadFile(fileElement: any, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler {
+    uploadFile(fileElement: any, state: any, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler {
+        if (!(<any>window).WebSocket) {
+            return this._uploadFileWithHTTP(fileElement , state , callback, null);
+        }
         try {
 
             var file: File;
@@ -286,7 +394,7 @@ class WayScriptRemoting extends WayBaseObject {
             var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = () => {
-                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "',State:" + JSON.stringify(state)+ ",'FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
             };
             ws.onmessage = (evt) => {
                 var resultObj;
@@ -330,7 +438,7 @@ class WayScriptRemoting extends WayBaseObject {
                 ws.onerror = null;
                 if (!finished) {
                     if (handler.abort == false) {
-                        this.uploadFile(file, callback, handler);
+                        this.uploadFile(file, state, callback, handler);
                     }
                 }
             }
@@ -345,7 +453,7 @@ class WayScriptRemoting extends WayBaseObject {
                     if (!finished) {
                         //续传
                         if (handler.abort == false) {
-                            this.uploadFile(file, callback, handler);
+                            this.uploadFile(file, state, callback, handler);
                         }
 
                     }

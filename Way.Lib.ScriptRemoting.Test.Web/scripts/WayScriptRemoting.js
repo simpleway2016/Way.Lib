@@ -204,6 +204,105 @@ var WayScriptRemoting = (function (_super) {
             callback(null, "无法连接服务器");
         };
     };
+    WayScriptRemoting.prototype._uploadFileWithHTTP = function (fileElement, state, callback, handler) {
+        var _this = this;
+        try {
+            var file;
+            if (typeof fileElement == "string") {
+                fileElement = document.getElementById(fileElement);
+            }
+            if (fileElement.files) {
+                file = fileElement.files[0];
+            }
+            else {
+                file = fileElement;
+            }
+            var reader = new FileReader();
+            var size = file.size;
+            var errored = false;
+            var finished = false;
+            if (!handler) {
+                handler = new WayScriptRemotingUploadHandler();
+            }
+            this.pageInvoke("UploadFileWithHTTP", [file.name, state, size, handler.offset], function (ret, err) {
+                if (err) {
+                    if (callback) {
+                        callback(null, 0, 0, err);
+                    }
+                }
+                else {
+                    _this.sendFileWithHttp(ret, state, file, reader, size, handler.offset, 10240, callback, handler);
+                }
+            });
+            return handler;
+        }
+        catch (e) {
+            if (callback) {
+                try {
+                    callback(null, null, null, e.message);
+                }
+                catch (e) { }
+            }
+        }
+    };
+    WayScriptRemoting.prototype.arrayBufferToString = function (data) {
+        var array = new Uint8Array(data);
+        var str = "";
+        for (var i = 0, len = array.length; i < len; ++i) {
+            str += "%" + array[i].toString(16);
+        }
+        return str;
+    };
+    WayScriptRemoting.prototype.sendFileWithHttp = function (tranid, state, file, reader, size, start, len, callback, handler) {
+        var _this = this;
+        if (start + len > size) {
+            len = size - start;
+        }
+        var blob = file.slice(start, start + len);
+        reader.onload = function () {
+            var filedata = reader.result;
+            if (filedata.byteLength > 0) {
+                start += filedata.byteLength;
+                if (handler.abort) {
+                }
+                else {
+                    try {
+                        filedata = _this.arrayBufferToString(filedata);
+                        _this.pageInvoke("GettingFileDataWithHttp", [tranid, filedata], function (ret, err) {
+                            if (err) {
+                                if (err.indexOf("tranid not exist") >= 0) {
+                                    _this._uploadFileWithHTTP(file, state, callback, handler);
+                                }
+                                else {
+                                    setTimeout(function () { _this.sendFileWithHttp(tranid, state, file, reader, size, start, len, callback, handler); }, 1000);
+                                }
+                            }
+                            else {
+                                handler.offset = ret.offset;
+                                if (callback) {
+                                    callback(ret.size == ret.offset ? "ok" : "", ret.size, ret.offset, null);
+                                }
+                                if (ret.offset < ret.size) {
+                                    _this.sendFileWithHttp(tranid, state, file, reader, size, ret.offset, len, callback, handler);
+                                }
+                            }
+                        });
+                    }
+                    catch (e) {
+                    }
+                }
+            }
+        };
+        reader.onerror = function () {
+            if (callback) {
+                try {
+                    callback("", null, null, "读取文件发生错误");
+                }
+                catch (e) { }
+            }
+        };
+        reader.readAsArrayBuffer(blob);
+    };
     WayScriptRemoting.prototype.sendFile = function (ws, file, reader, size, start, len, callback, handler) {
         var _this = this;
         if (ws.binaryType != "arraybuffer")
@@ -245,8 +344,11 @@ var WayScriptRemoting = (function (_super) {
         };
         reader.readAsArrayBuffer(blob);
     };
-    WayScriptRemoting.prototype.uploadFile = function (fileElement, callback, handler) {
+    WayScriptRemoting.prototype.uploadFile = function (fileElement, state, callback, handler) {
         var _this = this;
+        if (!window.WebSocket) {
+            return this._uploadFileWithHTTP(fileElement, state, callback, null);
+        }
         try {
             var file;
             if (typeof fileElement == "string") {
@@ -268,7 +370,7 @@ var WayScriptRemoting = (function (_super) {
             var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = function () {
-                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "','FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+                ws.send("{'Action':'UploadFile','FileName':'" + file.name + "',State:" + JSON.stringify(state) + ",'FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + _this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
             };
             ws.onmessage = function (evt) {
                 var resultObj;
@@ -315,7 +417,7 @@ var WayScriptRemoting = (function (_super) {
                 ws.onerror = null;
                 if (!finished) {
                     if (handler.abort == false) {
-                        _this.uploadFile(file, callback, handler);
+                        _this.uploadFile(file, state, callback, handler);
                     }
                 }
             };
@@ -333,7 +435,7 @@ var WayScriptRemoting = (function (_super) {
                     if (!finished) {
                         //续传
                         if (handler.abort == false) {
-                            _this.uploadFile(file, callback, handler);
+                            _this.uploadFile(file, state, callback, handler);
                         }
                     }
                 }
@@ -353,14 +455,14 @@ var WayScriptRemoting = (function (_super) {
         setMaxDigits(129);
         value = window.encodeURIComponent(value, "utf-8");
         var key = new RSAKeyPair(this.rsa.Exponent, "", this.rsa.Modulus);
-        if (value.length <= 58) {
+        if (value.length <= 110) {
             return encryptedString(key, value);
         }
         else {
             var result = "";
             var total = value.length;
-            for (var i = 0; i < value.length; i += 58) {
-                var text = value.substr(i, Math.min(58, total));
+            for (var i = 0; i < value.length; i += 110) {
+                var text = value.substr(i, Math.min(110, total));
                 total -= text.length;
                 result += encryptedString(key, text);
             }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -967,14 +969,92 @@ namespace Way.Lib.ScriptRemoting
         /// 文件开始传输
         /// </summary>
         /// <param name="fileName"></param>
+        /// <param name="state">客户端设置的附加信息</param>
         /// <param name="fileSize"></param>
         /// <param name="offset">文件偏移</param>
         /// <returns>返回一个IUploadFileHandler对象，处理上传的文件数据</returns>
-        public virtual IUploadFileHandler OnBeginUploadFile(string fileName, int fileSize,int offset)
+        public virtual IUploadFileHandler OnBeginUploadFile(string fileName,string state, int fileSize,int offset)
         {
             return null;
         }
 
+        internal static ConcurrentDictionary<string, object> HttpUploadHandlers = new ConcurrentDictionary<string, object>();
+        [RemotingMethod]
+        internal string UploadFileWithHTTP(string fileName, string state, int fileSize, int offset)
+        {
+            try
+            {
+                while (true)
+                {
+                    bool _hasDel = false;
+                    foreach (var kv in HttpUploadHandlers)
+                    {
+                        var obj = (object[])kv.Value;
+                        var time = (DateTime)obj[0];
+                        if ((DateTime.Now - time).TotalMinutes > 20)
+                        {
+                            var h = (IUploadFileHandler)obj[3];
+                            h.OnUploadFileError();
+                            object delobj;
+                            HttpUploadHandlers.TryRemove(kv.Key,out delobj);
+                            _hasDel = true;
+                            break;
+                        }
+                    }
+                    if (!_hasDel)
+                        break;
+                }
+            }
+            catch
+            {
+            }
+
+            var handler = this.OnBeginUploadFile(fileName, state, fileSize, offset);
+            string tranid = Guid.NewGuid().ToString();
+            HttpUploadHandlers[tranid] = new object[] { DateTime.Now, offset, fileSize, handler };
+            return tranid;
+        }
+        [RemotingMethod]
+        internal object GettingFileDataWithHttp(string tranid,string data )
+        {
+            if (HttpUploadHandlers.ContainsKey(tranid) == false)
+                throw new Exception("tranid not exist");
+            try
+            {
+                var obj = (object[])HttpUploadHandlers[tranid];
+
+                int uploaded = (int)obj[1];
+                int filesize = (int)obj[2];
+                var handler = (IUploadFileHandler)obj[3];
+
+                string[] strArr = data.Split('%');
+                byte[] bs = new byte[strArr.Length - 1];
+                for (int i = 1; i < strArr.Length; i++)
+                {
+                    bs[i - 1] = (byte)Convert.ToInt32(strArr[i], 16);
+                }
+
+                uploaded += bs.Length;
+                handler.OnGettingFileData(bs);
+                obj[1] = uploaded;
+                obj[0] = DateTime.Now;
+                if (uploaded == filesize)
+                {
+                    handler.OnUploadFileCompleted();
+                    object delobj;
+                    HttpUploadHandlers.TryRemove(tranid, out delobj);
+                }
+
+                return new { size = filesize, offset = uploaded };
+            }
+            catch (Exception ex)
+            {
+                object delobj;
+                HttpUploadHandlers.TryRemove(tranid, out delobj);
+                throw ex;
+            }
+
+        }
         /// <summary>
         /// 把消息发送到客户端，客户端对象的.onmessage会接收到
         /// </summary>

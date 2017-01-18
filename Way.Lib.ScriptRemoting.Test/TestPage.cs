@@ -94,7 +94,7 @@ namespace Way.Lib.ScriptRemoting.Test
         }
 
         FileStream fs;
-        public override IUploadFileHandler OnBeginUploadFile(string fileName, int fileSize,int offset)
+        public override IUploadFileHandler OnBeginUploadFile(string fileName,string state, int fileSize,int offset)
         {
             if (File.Exists("d:\\aa\\" + fileName))
             {
