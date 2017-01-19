@@ -1129,8 +1129,10 @@ var WayBindingElement = (function (_super) {
                         ctrlEle.data = this.model;
                         if (_dataSource) {
                             var addevent = false;
-                            if (ctrlEle.memberInChange && WayHelper.contains(ctrlEle.memberInChange, eleMember))
-                                addevent = true;
+                            if (isWayControl) {
+                                if (ctrlEle.memberInChange && WayHelper.contains(ctrlEle.memberInChange, eleMember))
+                                    addevent = true;
+                            }
                             else if (eleMember == "value" || eleMember == "checked")
                                 addevent = true;
                             if (addevent) {
@@ -1809,6 +1811,7 @@ var WayGridView = (function (_super) {
     function WayGridView(elementId, _pagesize) {
         if (_pagesize === void 0) { _pagesize = 10; }
         _super.call(this);
+        this.memberInChange = [];
         this.itemTemplates = [];
         this.items = [];
         //原始itemdata
@@ -1843,6 +1846,7 @@ var WayGridView = (function (_super) {
                 this.element = $(elementId);
             else
                 this.element = elementId;
+            this.element[0].WayControl = this;
             this.allowEdit = this.element.attr("allowedit") == "true";
             this.element.css({
                 "overflow-y": "auto",
@@ -3233,7 +3237,9 @@ var WayRelateListDatasource = (function () {
 }());
 var WayRelateList = (function () {
     function WayRelateList(elementid, virtualEle) {
+        this.onchange = null;
         this.configs = [];
+        this._value = [];
         this.windowObj = $(window);
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
@@ -3243,6 +3249,7 @@ var WayRelateList = (function () {
             this.element = elementid;
         this.element[0].WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
+        //this.isMobile = true;
         this.textElement = $(this.element.find("*[_istext='true']")[0]);
         for (var i = 0; i < virtualEle.children.length; i++) {
             var configEle = virtualEle.children[i];
@@ -3258,24 +3265,113 @@ var WayRelateList = (function () {
         }
         this.init();
     }
+    Object.defineProperty(WayRelateList.prototype, "text", {
+        get: function () {
+            return this._text;
+        },
+        set: function (v) {
+            if (v != this._text) {
+                this._text = v;
+                if (this.textElement[0].tagName == "INPUT") {
+                    this.textElement.val(v);
+                }
+                else {
+                    this.textElement.html(v);
+                }
+                this.fireEvent("change");
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WayRelateList.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (v) {
+            if (v != this._value) {
+                this._value = v;
+                var text = "";
+                for (var i = 0; i < v.length; i++) {
+                    var config = i < this.configs.length ? this.configs[i] : this.configs[this.configs.length - 1];
+                    var grid;
+                    if (this.listContainer[0].children.length > i) {
+                        grid = this.listContainer[0].children[i].WayControl;
+                    }
+                    if (text.length > 0)
+                        text += "/";
+                    text += this.getTextByValue(config, grid, v[i]);
+                }
+                this.text = text;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    WayRelateList.prototype.addEventListener = function (eventName, func) {
+        if (eventName == "change") {
+            if (!this.onchange) {
+                this.onchange = [];
+            }
+            else if (typeof this.onchange == "function") {
+                var arr = [];
+                arr.push(this.onchange);
+                this.onchange = arr;
+            }
+            this.onchange.push(func);
+        }
+    };
+    WayRelateList.prototype.fireEvent = function (eventName) {
+        if (eventName == "change") {
+            if (this.onchange && typeof this.onchange == "function") {
+                this.onchange();
+            }
+            else if (this.onchange) {
+                for (var i = 0; i < this.onchange.length; i++) {
+                    this.onchange[i]();
+                }
+            }
+        }
+    };
     WayRelateList.prototype.init = function () {
         var _this = this;
         this.listContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
         this.listContainer.css({
             display: "flex",
             "flex-direction": "row",
-            "visibility": "hidden",
-            height: "300px",
-            "z-index": 999,
-            position: "absolute",
         });
-        document.body.appendChild(this.listContainer[0]);
+        if (this.isMobile) {
+            var scrollConainer = $(document.createElement("DIV"));
+            scrollConainer.css({
+                "overflow-x": "auto",
+                "overflow-y": "hidden",
+                width: this.windowObj.innerWidth() * 0.9 + "px",
+                height: this.windowObj.innerHeight() * 0.9 + "px",
+                "margin-left": this.windowObj.innerWidth() * 0.05 + "px",
+                "margin-top": this.windowObj.innerHeight() * 0.05 + "px",
+            });
+            this.maskLayer = $("<div style='background-color:#000000;z-index:998;position:fixed;width:100%;height:100%;visibility:hidden;left:0;top:0;'></div>");
+            document.body.appendChild(this.maskLayer[0]);
+            this.listContainer.css("height", "100%");
+            this.maskLayer[0].appendChild(scrollConainer[0]);
+            scrollConainer[0].appendChild(this.listContainer[0]);
+        }
+        else {
+            this.listContainer.css({
+                "visibility": "hidden",
+                height: "300px",
+                "z-index": 999,
+                position: "absolute",
+            });
+            document.body.appendChild(this.listContainer[0]);
+        }
         this.element.click(function () {
             _this.showList();
         });
     };
     WayRelateList.prototype.showList = function () {
-        if (this.listContainer.css("visibility") == "hidden") {
+        var container = this.maskLayer ? this.maskLayer : this.listContainer;
+        if (container.css("visibility") == "hidden") {
             if (!this.isMobile) {
                 var offset = this.element.offset();
                 var y = (offset.top + this.element.outerHeight());
@@ -3294,29 +3390,68 @@ var WayRelateList = (function () {
                 }
             }
             else {
+                this.maskLayer.show();
                 this.listContainer.css({
-                    width: this.windowObj.innerWidth() * 0.9 + "px",
                     height: this.windowObj.innerHeight() * 0.9 + "px",
                     left: this.windowObj.innerWidth() * 0.05 + "px",
                     top: this.windowObj.innerHeight() * 0.05 + "px",
                 });
             }
-            this.listContainer.css("visibility", "visible");
+            container.css("visibility", "visible");
             this.loadList();
         }
     };
+    WayRelateList.prototype.hideList = function () {
+        var container = this.maskLayer ? this.maskLayer : this.listContainer;
+        if (container.css("visibility") != "hidden") {
+            container.css("visibility", "hidden");
+        }
+    };
     WayRelateList.prototype.checkWidth = function () {
-        if (this.listContainer.outerWidth() < this.textElement.width()) {
+        var minWidth = this.textElement.width();
+        if (this.isMobile)
+            minWidth = this.windowObj.innerWidth() * 0.9;
+        if (this.listContainer[0].scrollWidth < minWidth) {
             for (var i = 0; i < this.listContainer[0].children.length; i++) {
                 this.listContainer[0].children[i].style.flex = "1";
             }
-            this.listContainer.width(this.textElement.width());
+            this.listContainer.css("overflow-x", "");
+            this.listContainer.width(minWidth);
+        }
+        else if (this.isMobile) {
         }
     };
     WayRelateList.prototype.loadList = function () {
         if (this.listContainer[0].children.length == 0) {
             var config = this.configs[0];
             this.loadConfigList(config, 0, {});
+        }
+        else {
+            var searchModel = {};
+            for (var i = 0; i < this._value.length; i++) {
+                if (i < this.listContainer[0].children.length) {
+                    var grid = this.listContainer[0].children[i].WayControl;
+                    for (var j = 0; j < grid.items.length; j++) {
+                        var item = grid.items[j];
+                        if (item.data.value == this._value[i]) {
+                            if (!item.status.Selected) {
+                                item.status.Selected = true;
+                                while (this.listContainer[0].children.length > i + 1) {
+                                    this.listContainer[0].removeChild(this.listContainer[0].children[this.listContainer[0].children.length - 1]);
+                                }
+                            }
+                        }
+                        else {
+                            item.status.Selected = false;
+                        }
+                    }
+                }
+                else {
+                    var config = i < this.configs.length ? this.configs[i] : this.configs[this.configs.length - 1];
+                    eval("searchModel={" + config.relateMember + ":" + JSON.stringify(this._value[i - 1]) + "}");
+                    this.loadConfigList(config, i, searchModel);
+                }
+            }
         }
     };
     WayRelateList.prototype.loadConfigList = function (config, configIndex, searchModel) {
@@ -3330,10 +3465,19 @@ var WayRelateList = (function () {
         this.listContainer.css("width", ""); //set width auto
         var div = $(document.createElement("DIV"));
         div.attr("datasource", config.datasource);
-        div.css({ "height": "100%" });
+        div.css({
+            "height": "100%",
+            "overflow-x": "hidden",
+            "min-width": "100px"
+        });
+        if (configIndex > 0) {
+            div.css({
+                "border-left": "1px solid #ccc",
+            });
+        }
         div.html("<script _for='item' type='text/ html'>" + this.element.find("script[_for='item']")[0].innerHTML + "</script>");
         this.listContainer.append(div);
-        var grid = new WayGridView(div, 20);
+        var grid = new WayGridView(div, 0);
         grid.searchModel = searchModel;
         if (config.textMember) {
             grid.dataMembers.push(config.textMember + "->text");
@@ -3346,6 +3490,20 @@ var WayRelateList = (function () {
             _this.checkWidth();
         };
         grid.onCreateItem = function (item) {
+            item.status.Selected = item.data.value == _this._value[configIndex];
+            if (item.status.Selected) {
+                item[0].scrollIntoView(false);
+                var nextConfig;
+                if (config.loop)
+                    nextConfig = config;
+                else if (configIndex < _this.configs.length - 1)
+                    nextConfig = _this.configs[configIndex + 1];
+                if (nextConfig) {
+                    var term;
+                    eval("term={" + nextConfig.relateMember + ":" + JSON.stringify(item.data.value) + "}");
+                    _this.loadConfigList(nextConfig, configIndex + 1, term);
+                }
+            }
             item.click(function () {
                 if (!item.status.Selected) {
                     for (var i = 0; i < grid.items.length; i++) {
@@ -3358,13 +3516,69 @@ var WayRelateList = (function () {
                         nextConfig = _this.configs[configIndex + 1];
                     if (nextConfig) {
                         var term;
-                        eval("term={" + nextConfig.relateMember + ":" + item.data.value + "}");
+                        eval("term={" + nextConfig.relateMember + ":" + JSON.stringify(item.data.value) + "}");
                         _this.loadConfigList(nextConfig, configIndex + 1, term);
                     }
+                    else {
+                        _this.hideList();
+                    }
+                    _this.showCurrentText();
+                }
+                else {
+                    _this.hideList();
                 }
             });
         };
         grid.databind();
+    };
+    WayRelateList.prototype.getTextByValue = function (config, grid, value) {
+        var dbcontext;
+        if (grid) {
+            for (var i = 0; i < grid.items.length; i++) {
+                var data = grid.items[i].data;
+                if (data.value == value) {
+                    return data.text;
+                }
+            }
+            dbcontext = grid.dbContext;
+        }
+        else {
+            var controller = document.body.getAttribute("controller");
+            dbcontext = new WayDBContext(controller, config.datasource);
+        }
+        //find in server
+        var model;
+        var result;
+        eval("model={" + config.valueMember + ":" + JSON.stringify(value) + "}");
+        dbcontext.getDataItem([config.valueMember, config.textMember], model, function (data, err) {
+            if (err) {
+                throw err;
+            }
+            else if (data) {
+                result = data;
+            }
+        }, false);
+        if (result) {
+            return result[config.textMember];
+        }
+        return null;
+    };
+    WayRelateList.prototype.showCurrentText = function () {
+        var text = "";
+        while (this._value.length > 0)
+            this._value.pop();
+        for (var i = 0; i < this.listContainer[0].children.length; i++) {
+            var grid = this.listContainer[0].children[i].WayControl;
+            for (var j = 0; j < grid.items.length; j++) {
+                if (grid.items[j].status.Selected) {
+                    if (text.length > 0)
+                        text += "/";
+                    text += grid.items[j].data.text;
+                    this._value.push(grid.items[j].data.value);
+                }
+            }
+        }
+        this.text = text;
     };
     return WayRelateList;
 }());
