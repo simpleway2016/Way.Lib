@@ -28,7 +28,11 @@
     </WayRadioList>
     <WayDropDownList id="list1" databind="value=@myvalue,text=@mytext" valueMember="id" textMember="caption" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:500px;">
     </WayDropDownList>
-   
+   <WayRelateList id="relList">
+       <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Project" textMember="Name" valueMember="id"></config>
+       <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" relateMember="ProjectID" textMember="Name" valueMember="id"></config>
+       <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBTable" relateMember="DatabaseID" textMember="Name" valueMember="id"></config>
+   </WayRelateList>
     <div id="d1" style="height:30px;overflow-y:auto;">
         wfea<span>22</span>pp
     </div>

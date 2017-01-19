@@ -27,6 +27,18 @@
     </div>
 </WayDropDownList>
 
+<WayRelateList>
+    <div>
+        <input type="text" _istext="true" />
+        <script _for="itemContainer" type="text/html">
+            <div style="border:1px solid #ccc;background-color:#fff;"></div>
+        </script>
+        <script _for="item" type="text/html">
+            <div style="padding:5px;border-bottom:1px solid #eee;cursor:default;word-break:keep-all;white-space:nowrap;" expression="this.style.backgroundColor=$Selected?'green':'';this.style.color=$Selected?'white':'';">{@text}</div>
+        </script>
+    </div>
+</WayRelateList>
+
 <WayGridView>
     <div _pagesize="20">
     </div>
@@ -49,5 +61,5 @@
 </WayRadioList>
 
 <WayButton>
-    <input type="button" class="btn" expression="this.value=@text">
+    <input type="button" expression="this.value=@text">
 </WayButton>

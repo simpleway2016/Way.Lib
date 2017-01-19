@@ -3624,6 +3624,172 @@ class WayRadioList {
 
 }
 
+class WayRelateListDatasource {
+    datasource: string;
+    relateMember: string;
+    textMember: string;
+    valueMember: string;
+    loop: boolean = false;
+}
+class WayRelateList {
+    memberInChange: ["value"];
+    element: JQuery;
+    textElement: JQuery;
+    private isMobile: boolean;
+    private windowObj: JQuery;
+    private configs: WayRelateListDatasource[] = [];
+    private listContainer: JQuery;
+
+    constructor(elementid: string, virtualEle: HTMLElement) {
+        this.windowObj = $(window);
+        if (typeof elementid == "string")
+            this.element = $("#" + elementid);
+        else if ((<any>elementid).tagName)
+            this.element = $(elementid);
+        else
+            this.element = <any>elementid;
+
+        (<any>this.element[0]).WayControl = this;
+        this.isMobile = "ontouchstart" in this.element[0];
+        this.textElement = $(this.element.find("*[_istext='true']")[0]);
+
+        for (var i = 0; i < virtualEle.children.length; i++) {
+            var configEle = virtualEle.children[i];
+            if (configEle.tagName == "CONFIG") {
+                var config = new WayRelateListDatasource();
+                config.datasource = configEle.getAttribute("datasource");
+                config.relateMember = configEle.getAttribute("relateMember");
+                config.textMember = configEle.getAttribute("textMember");
+                config.valueMember = configEle.getAttribute("valueMember");
+                config.loop = configEle.getAttribute("loop") == "true";
+                this.configs.push(config);
+            }
+        }
+        this.init();
+    }
+
+    private init() {
+       
+        this.listContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+        this.listContainer.css(
+            {
+                display: "flex",
+                "flex-direction": "row",
+                "visibility": "hidden",
+                height: "300px",
+                "z-index":999,
+                position: "absolute",
+            });
+        document.body.appendChild(this.listContainer[0]);
+        this.element.click(() => {
+            this.showList();
+        });
+    }
+
+    showList() {
+        if (this.listContainer.css("visibility") == "hidden") {
+            if (!this.isMobile) {
+                var offset = this.element.offset();
+                var y = (offset.top + this.element.outerHeight());
+
+                this.listContainer.css(
+                    {
+                        left: offset.left + "px",
+                        top: y + "px",
+                    });
+
+                if (y + this.listContainer.outerHeight() > document.body.scrollTop + this.windowObj.innerHeight()) {
+                    y = offset.top - this.listContainer.outerHeight();
+                    if (y >= 0) {
+                        this.listContainer.css("top", y + "px");
+                    }
+                }
+
+                if (offset.left + this.listContainer.outerWidth() > document.body.scrollLeft + this.windowObj.innerWidth()) {
+                    this.listContainer.css("left", (document.body.scrollLeft + this.windowObj.innerWidth() - this.listContainer.outerWidth()) + "px");
+                }
+
+            }
+            else {
+                this.listContainer.css(
+                    {
+                        width: this.windowObj.innerWidth() * 0.9 + "px",
+                        height: this.windowObj.innerHeight() * 0.9 + "px",
+                        left: this.windowObj.innerWidth() * 0.05 + "px",
+                        top: this.windowObj.innerHeight() * 0.05 + "px",
+                    });
+            }
+            this.listContainer.css("visibility", "visible");
+            this.loadList();
+        }
+    }
+
+    private checkWidth() {
+        if (this.listContainer.outerWidth() < this.textElement.width()) {
+            for (var i = 0; i < this.listContainer[0].children.length; i++) {
+                (<any>this.listContainer[0].children[i]).style.flex = "1";
+            }
+            this.listContainer.width(this.textElement.width());
+        }
+
+    }
+
+    private loadList() {
+        if (this.listContainer[0].children.length == 0) {
+            var config = this.configs[0];
+            this.loadConfigList(config, 0, {});
+        }
+    }
+
+    private loadConfigList(config: WayRelateListDatasource, configIndex: number,searchModel) {
+        while (this.listContainer[0].children.length > configIndex) {
+            this.listContainer[0].removeChild(this.listContainer[0].children[this.listContainer[0].children.length - 1]);
+        }
+        for (var i = 0; i < this.listContainer[0].children.length; i++) {
+            (<any>this.listContainer[0].children[i]).style.flex = "";
+        }
+        this.listContainer.css("width" , "");//set width auto
+        var div = $(document.createElement("DIV"));
+        div.attr("datasource", config.datasource);
+        div.css({ "height": "100%" });
+        div.html("<script _for='item' type='text/ html'>" + this.element.find("script[_for='item']")[0].innerHTML + "</script>");
+        this.listContainer.append(div);
+        var grid = new WayGridView(<any>div, 20);
+        grid.searchModel = searchModel;
+        if (config.textMember) {
+            grid.dataMembers.push(config.textMember + "->text");
+        }
+        if (config.valueMember) {
+            grid.dataMembers.push(config.valueMember + "->value");
+        }
+        grid.onAfterCreateItems = (total, hasmore) => {
+            //看是否要缩小container宽度
+            this.checkWidth();
+        };
+        grid.onCreateItem = (item: JQuery) => {
+            item.click(() => {
+                if (!(<any>item).status.Selected) {
+                    for (var i = 0; i < grid.items.length; i++) {
+                        (<any>grid.items[i]).status.Selected = (grid.items[i] === item);
+                    }
+
+                    var nextConfig: WayRelateListDatasource;
+                    if (config.loop)
+                        nextConfig = config;
+                    else if (configIndex < this.configs.length - 1)
+                        nextConfig = this.configs[configIndex + 1];
+                    if (nextConfig) {
+                        var term;
+                        eval("term={" + nextConfig.relateMember + ":" + (<any>item).data.value + "}");
+                        this.loadConfigList(nextConfig, configIndex + 1, term);
+                    }
+                }
+                
+            });
+        };
+        grid.databind();
+    }
+}
 
 class WayButton {
     memberInChange: ["text"];
@@ -3794,6 +3960,9 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
             break;
         case "WAYBUTTON":
             control = new WayButton(<any>replaceEleObj);
+            break;
+        case "WAYRELATELIST":
+            control = new WayRelateList(<any>replaceEleObj, virtualEle);
             break;
         case "WAYGRIDVIEW":
             replaceEleObj[0].innerHTML += virtualEle.innerHTML;
