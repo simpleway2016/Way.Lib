@@ -27,10 +27,10 @@
     </div>
     <div id="div1" style="background-color:#aaaaaa;"></div>
     <WayGridView id="grid" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" allowedit="true" style="width:100%;height:280px;">
-        <script _for="body" type="text/html">
+        <script for="body" type="text/html">
             <table style="width:100%;border-collapse:collapse;"></table>
         </script>
-        <script _for="header" type="text/html">
+        <script for="header" type="text/html">
             <tr>
                 <td style="background-color:#aaaaaa;">Name</td>
                 <td>caption</td>
@@ -40,7 +40,7 @@
             </tr>
         </script>
 
-        <script _for="footer" type="text/html">
+        <script for="footer" type="text/html">
             <tr>
                 <td style="background-color:#aaaaaa;">footer1</td>
                 <td >footer2</td>
@@ -49,7 +49,7 @@
             </tr>
         </script>
 
-        <script _for="item" type="text/html">
+        <script for="item" type="text/html">
             <tr >
                 <td style="background-color:#aaaaaa;" databind="style.backgroundColor=$Color">
                    <input type="checkbox" databind="checked=$Selected;"><span onclick="alert(grid.items[{ $ItemIndex }]._status.Selected); ">{$ItemIndex}.{@Name}
@@ -64,7 +64,7 @@
             </tr>
         </script>
 
-        <script _for="item" _match="@Name=='id'" type="text/html">
+        <script for="item" match="@Name=='id'" type="text/html">
             <tr style="color:blue;">
                 <td style="background-color:#aaaaaa;">
                     {$ItemIndex}.{@Name}
@@ -76,7 +76,7 @@
             </tr>
         </script>
 
-        <script _for="item" _mode="edit" type="text/html">
+        <script for="item" mode="edit" type="text/html">
             <tr>
                 <td style="background-color:#aaaaaa;">
                     <input type="text" databind="value=@Name" />

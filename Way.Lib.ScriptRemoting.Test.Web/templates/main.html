@@ -17,11 +17,11 @@
 
 <WayDropDownList>
     <div>
-        <input type="text" _istext="true" /><input type="button" _isaction="true" />
-        <script _for="itemContainer" type="text/html">
+        <input type="text" istext="true" /><input type="button" isaction="true" />
+        <script for="itemContainer" type="text/html">
             <div style="border:1px solid #ccc;background-color:#fff;"></div>
         </script>
-        <script _for="item" type="text/html">
+        <script for="item" type="text/html">
             <div style="padding:5px;border-bottom:1px solid #eee;cursor:default;" expression="this.style.backgroundColor=$Selected?'green':'';this.style.color=$Selected?'white':'';">{@text}</div>
         </script>
     </div>
@@ -29,11 +29,11 @@
 
 <WayRelateList>
     <div>
-        <input type="text" _istext="true"/>
-        <script _for="itemContainer" type="text/html">
+        <input type="text" istext="true"/>
+        <script for="itemContainer" type="text/html">
             <div style="border:1px solid #ccc;background-color:#fff;"></div>
         </script>
-        <script _for="item" type="text/html">
+        <script for="item" type="text/html">
             <div style="padding:5px;padding-right:30px;border-bottom:1px solid #eee;cursor:default;word-break:keep-all;white-space:nowrap;" expression="this.style.backgroundColor=$Selected?'green':'';this.style.color=$Selected?'white':'';">{@text}</div>
         </script>
     </div>
@@ -46,7 +46,7 @@
 
 <WayCheckboxList>
     <div>
-        <script _for="item" type="text/html">
+        <script for="item" type="text/html">
             <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;"><input type="checkbox" databind="checked=$Selected">{@text}</div>
         </script>
     </div>
@@ -54,7 +54,7 @@
 
 <WayRadioList>
     <div>
-        <script _for="item" type="text/html">
+        <script for="item" type="text/html">
             <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;" expression="this.style.backgroundColor=($Selected&&@text)?'green':'';"><input type="radio" databind="checked=$Selected">{@text}</div>
         </script>
     </div>

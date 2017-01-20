@@ -922,10 +922,10 @@ class WayTemplate {
     match: string;
     //匹配当前行的当前状态模式
     mode: string;
-    constructor(_content: string, _match: string = null, _mode: string = "") {
+    constructor(_content: string, _match: string = null, mode: string = "") {
         this.content = _content;
         this.match = _match;
-        this.mode = _mode ? _mode : "";
+        this.mode = mode ? mode : "";
     }
 }
 
@@ -2057,7 +2057,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
-            var bodyTemplate = this.element.find("script[_for='body']");
+            var bodyTemplate = this.element.find("script[for='body']");
             var templates = this.element.find("script");
 
             this.itemContainer = this.element;
@@ -2081,16 +2081,16 @@ class WayGridView extends WayBaseObject implements IPageable {
                 var templateItem = templates[i];
                 templateItem.parentElement.removeChild(templateItem);
 
-                var _for = templateItem.getAttribute("_for");
-                if (_for == "header") {
+                var _forWhat = templateItem.getAttribute("for");
+                if (_forWhat == "header") {
                     this.header = new WayTemplate(this.getTemplateOuterHtml(templateItem));
                 }
-                else if (_for == "footer") {
+                else if (_forWhat == "footer") {
                     this.footer = new WayTemplate(this.getTemplateOuterHtml(templateItem));
                 }
-                else if (_for == "item") {
-                    var mode = templateItem.getAttribute("_mode");
-                    var match = templateItem.getAttribute("_match");
+                else if (_forWhat == "item") {
+                    var mode = templateItem.getAttribute("mode");
+                    var match = templateItem.getAttribute("match");
                     var temp = new WayTemplate(this.getTemplateOuterHtml(templateItem), match, mode);
                     this.addItemTemplate(temp);
                 }
@@ -2218,9 +2218,9 @@ class WayGridView extends WayBaseObject implements IPageable {
         return element.innerHTML;
         //var ctrl: JQuery = $(element);
         //ctrl.css("display", "");
-        //ctrl.removeAttr("_for");
-        //ctrl.removeAttr("_match");
-        //ctrl.removeAttr("_mode");
+        //ctrl.removeAttr("for");
+        //ctrl.removeAttr("match");
+        //ctrl.removeAttr("mode");
         //var html = "<" + ctrl[0].tagName + " ";
         //for (var i = 0; i < ctrl[0].attributes.length; i++) {
         //    html += ctrl[0].attributes[i].name + "=" + JSON.stringify(ctrl[0].attributes[i].value) + " ";
@@ -2591,7 +2591,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (!err) {
                 this.originalItems[itemIndex] = data;
                 if (typeof mode == "undefined")
-                    mode = (<any>item)._mode;
+                    mode = (<any>item).mode;
                 this.changeMode(itemIndex, mode);
             }
             if (callback)
@@ -2744,7 +2744,7 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
         ////////////
         (<any>item).data = model;
-        (<any>item)._mode = mode;
+        (<any>item).mode = mode;
 
         if (this.onCreateItem) {
             this.onCreateItem(item, mode);
@@ -3043,26 +3043,26 @@ class WayDropDownList {
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
 
-        var textele = this.element.find("*[_istext]");
+        var textele = this.element.find("*[istext]");
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
         }
 
-        var actionEle = this.element.find("*[_isaction]");
+        var actionEle = this.element.find("*[isaction]");
         if (actionEle.length > 0) {
             this.actionElement = $(actionEle[0]);
         }
 
-        this.itemContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+        this.itemContainer = $(this.element.find("script[for='itemContainer']")[0].innerHTML);
         
 
-        var itemtemplate = this.element.find("script[_for='item']")[0];
+        var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
 
         if (this.actionElement) {
             this.init();
-            this.itemContainer[0].appendChild(this.element.find("script[_for='item']")[0]);
+            this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
             this.grid = new WayGridView(<any>this.itemContainer[0], 20);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
@@ -3385,7 +3385,7 @@ class WayCheckboxList {
         (<any>this.element[0]).WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         
-        var itemtemplate = this.element.find("script[_for='item']")[0];
+        var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
 
@@ -3536,7 +3536,7 @@ class WayRadioList {
         (<any>this.element[0]).WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
 
-        var itemtemplate = this.element.find("script[_for='item']")[0];
+        var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
 
@@ -3726,7 +3726,7 @@ class WayRelateList {
         (<any>this.element[0]).WayControl = this;
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
-        this.textElement = $(this.element.find("*[_istext='true']")[0]);
+        this.textElement = $(this.element.find("*[istext='true']")[0]);
 
         for (var i = 0; i < virtualEle.children.length; i++) {
             var configEle = virtualEle.children[i];
@@ -3749,7 +3749,7 @@ class WayRelateList {
         
 
         if (this.isMobile) {
-            var scrollConainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+            var scrollConainer = $(this.element.find("script[for='itemContainer']")[0].innerHTML);
 
             this.listContainer = $(document.createElement("DIV"));
             this.listContainer.css(
@@ -3781,7 +3781,7 @@ class WayRelateList {
             scrollConainer[0].appendChild(this.listContainer[0]);
         }
         else {
-            this.listContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+            this.listContainer = $(this.element.find("script[for='itemContainer']")[0].innerHTML);
             this.listContainer.css(
                 {
                     "visibility": "hidden",
@@ -3932,7 +3932,7 @@ class WayRelateList {
                 "border-left": "1px solid #ccc",
             });
         }
-        div.html("<script _for='item' type='text/ html'>" + this.element.find("script[_for='item']")[0].innerHTML + "</script>");
+        div.html("<script for='item' type='text/ html'>" + this.element.find("script[for='item']")[0].innerHTML + "</script>");
         this.listContainer.append(div);
         var grid = new WayGridView(<any>div, 0);
         grid.searchModel = searchModel;
