@@ -75,6 +75,7 @@
     <Content Include="scripts\WayScriptRemoting.js.map">
       <DependentUpon>WayScriptRemoting.js</DependentUpon>
     </Content>
+    <Content Include="hosts" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
