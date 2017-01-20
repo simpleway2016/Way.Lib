@@ -3745,44 +3745,64 @@ class WayRelateList {
 
     private init() {
        
-        this.listContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
-        this.listContainer.css(
-            {
-                display: "flex",
-                "flex-direction": "row",
-               
-            });
+      
         
 
         if (this.isMobile) {
-            var scrollConainer = $(document.createElement("DIV"));
+            var scrollConainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
+
+            this.listContainer = $(document.createElement("DIV"));
+            this.listContainer.css(
+                {
+                    height: "100%",
+                });
+
             scrollConainer.css(
                 {
+                    "-webkit-overflow-scrolling":"touch",
                     "overflow-x": "auto",
-                    "overflow-y":"hidden",
+                    "overflow-y": "hidden",
                     width: this.windowObj.innerWidth() * 0.9 + "px",
                     height: this.windowObj.innerHeight() * 0.9 + "px",
                     "margin-left": this.windowObj.innerWidth() * 0.05 + "px",
                     "margin-top": this.windowObj.innerHeight() * 0.05 + "px",
                 });
              
-            this.maskLayer = $("<div style='background-color:#000000;z-index:998;position:fixed;width:100%;height:100%;visibility:hidden;left:0;top:0;'></div>");
+            this.maskLayer = $("<div style='background-color:rgba(0, 0, 0,0.3);z-index:998;position:fixed;width:100%;height:100%;visibility:hidden;left:0;top:0;'></div>");
+            this.maskLayer.click((e:any) => {
+                e = e || window.event;
+                var srcElement = e.target || e.srcElement;
+                if (srcElement == this.maskLayer[0]) {
+                    this.hideList();
+                }
+            });
             document.body.appendChild(this.maskLayer[0]);
-            this.listContainer.css("height", "100%");
-
             this.maskLayer[0].appendChild(scrollConainer[0]);
             scrollConainer[0].appendChild(this.listContainer[0]);
         }
         else {
+            this.listContainer = $(this.element.find("script[_for='itemContainer']")[0].innerHTML);
             this.listContainer.css(
                 {
                     "visibility": "hidden",
                     height: "300px",
                     "z-index": 999,
                     position: "absolute",
+
                 });
 
             document.body.appendChild(this.listContainer[0]);
+            $(document.documentElement).click((e) => {
+                e = e || <any>window.event;
+                var srcEle: HTMLElement = <any>(e.target || e.srcElement);
+                while (srcEle && srcEle.tagName != "BODY") {
+                    if (srcEle == this.listContainer[0] || srcEle == this.element[0]) {
+                        return;
+                    }
+                    srcEle = srcEle.parentElement;
+                }
+                this.hideList();
+            });
         }
 
         this.element.click(() => {
@@ -3817,12 +3837,6 @@ class WayRelateList {
             }
             else {
                 this.maskLayer.show();
-                this.listContainer.css(
-                    {
-                        height: this.windowObj.innerHeight() * 0.9 + "px",
-                        left: this.windowObj.innerWidth() * 0.05 + "px",
-                        top: this.windowObj.innerHeight() * 0.05 + "px",
-                    });
             }
             container.css("visibility", "visible");
             this.loadList();
@@ -3835,19 +3849,26 @@ class WayRelateList {
         }
     }
     private checkWidth() {
+        
         var minWidth = this.textElement.width();
         if (this.isMobile)
             minWidth = this.windowObj.innerWidth() * 0.9;
 
-        if (this.listContainer[0].scrollWidth < minWidth) {
-            for (var i = 0; i < this.listContainer[0].children.length; i++) {
-                (<any>this.listContainer[0].children[i]).style.flex = "1";
-            }
-            this.listContainer.css("overflow-x", "");
-            this.listContainer.width(minWidth);
+        var contentWidth = 0;
+        for (var i = 0; i < this.listContainer[0].children.length; i++) {
+            var ele = $(this.listContainer[0].children[i]);
+            contentWidth += ele.outerWidth();
+        }
+
+        if (contentWidth < minWidth) {
+            this.listContainer.css("width" ,"");
+            var lastObj = this.listContainer.children().last();
+            lastObj.width(lastObj.width() + minWidth - contentWidth);
+           
         }
         else if (this.isMobile) {
-           
+            this.listContainer.width(contentWidth);
+            this.listContainer[0].parentElement.scrollLeft = 100000;
         }
 
     }
@@ -3873,6 +3894,7 @@ class WayRelateList {
                                     this.listContainer[0].removeChild(this.listContainer[0].children[this.listContainer[0].children.length - 1]);
                                 }
                             }
+                            (<HTMLElement>item[0]).scrollIntoView();
                         }
                         else {
                             item.status.Selected = false;
@@ -3887,22 +3909,23 @@ class WayRelateList {
                 }
             }
         }
+
     }
 
     private loadConfigList(config: WayRelateListDatasource, configIndex: number,searchModel) {
         while (this.listContainer[0].children.length > configIndex) {
             this.listContainer[0].removeChild(this.listContainer[0].children[this.listContainer[0].children.length - 1]);
         }
-        for (var i = 0; i < this.listContainer[0].children.length; i++) {
-            (<any>this.listContainer[0].children[i]).style.flex = "";
-        }
-        this.listContainer.css("width" , "");//set width auto
+
+        this.listContainer.children().last().css("width", "");//set width auto
         var div = $(document.createElement("DIV"));
         div.attr("datasource", config.datasource);
         div.css({
             "height": "100%",
             "overflow-x": "hidden",
-            "min-width": "100px"
+            "overflow-y": "auto",
+            "min-width": "100px",
+            "float": "left",
         });
         if (configIndex > 0) {
             div.css({
