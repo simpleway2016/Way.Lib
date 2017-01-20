@@ -2957,6 +2957,7 @@ var WayDropDownList = (function () {
         }
         else {
             this.itemContainer.css({
+                "position": "fixed",
                 width: this.windowObj.innerWidth() * 0.9 + "px",
                 height: this.windowObj.innerHeight() * 0.9 + "px",
                 left: this.windowObj.innerWidth() * 0.05 + "px",
