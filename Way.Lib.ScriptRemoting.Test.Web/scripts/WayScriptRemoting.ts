@@ -1204,6 +1204,7 @@ class WayBindingElement extends WayBaseObject {
                             else if ( eleMember == "value" || eleMember == "checked")
                                 addevent = true;
 
+                            //eval("ctrlEle." + eleMember + "=_dataSource." + dataMember);
                             if (addevent) {
                                 if (ctrlEle.addEventListener) {
                                     ctrlEle.addEventListener("change", () => { this.onvalueChanged(config); });
@@ -1270,7 +1271,6 @@ class WayBindingElement extends WayBaseObject {
     initEleValues(model): void{
         this.model = model;
         for (var i = 0; i < this.configs.length; i++) {
-
             eval("this.configs[i].element." + this.configs[i].elementMember + "=model." + this.configs[i].dataMember + ";");
         }
     }
@@ -1517,9 +1517,9 @@ class WayDataBindHelper {
         if (typeof element == "string") {
             element = document.getElementById(<any>element);
         }
-        else if (element.element && element.element.length) {
-            //is jquery
-            element = element.element[0];
+        else if (element.element && element.element instanceof jQuery) {
+            //is waycontrol
+            element = element.element[0]; 
         }
         var model = null;
         if (!data)
@@ -2040,7 +2040,9 @@ class WayGridView extends WayBaseObject implements IPageable {
             else
                 this.element = <any>elementId;
 
-            (<any>this.element[0]).WayControl = this;
+            if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
+                (<any>this.element[0]).WayControl = this;
+            }
 
             this.allowEdit = this.element.attr("allowedit") == "true";
             this.element.css(
@@ -2981,7 +2983,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 }
 
 class WayDropDownList {
-    memberInChange: ["text","value"];
+    memberInChange: any[]= ["text","value"];
     textElement: JQuery;
     actionElement: JQuery;
     element: JQuery;
@@ -3039,7 +3041,9 @@ class WayDropDownList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0]).WayControl = this;
+        if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
+            (<any>this.element[0]).WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
 
@@ -3345,7 +3349,7 @@ class WayDropDownList {
 
 
 class WayCheckboxList {
-    memberInChange: [ "value"];
+    memberInChange: any[] = ["value"];
     element: JQuery;
     private isMobile: boolean = false;
     private grid: WayGridView;
@@ -3382,7 +3386,9 @@ class WayCheckboxList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0]).WayControl = this;
+        if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
+            (<any>this.element[0]).WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         
         var itemtemplate = this.element.find("script[for='item']")[0];
@@ -3498,7 +3504,7 @@ class WayCheckboxList {
 }
 
 class WayRadioList {
-    memberInChange: ["value"];
+    memberInChange: any[] = ["value"];
     element: JQuery;
     private isMobile: boolean = false;
     private grid: WayGridView;
@@ -3533,7 +3539,9 @@ class WayRadioList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0]).WayControl = this;
+        if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
+            (<any>this.element[0]).WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
 
         var itemtemplate = this.element.find("script[for='item']")[0];
@@ -3639,7 +3647,7 @@ class WayRelateListDatasource {
     loop: boolean = false;
 }
 class WayRelateList {
-    memberInChange: ["value"];
+    memberInChange: any[] = ["value"];
     element: JQuery;
     textElement: JQuery;
     onchange: any = null;
@@ -3723,7 +3731,9 @@ class WayRelateList {
         else
             this.element = <any>elementid;
 
-        (<any>this.element[0]).WayControl = this;
+        if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
+            (<any>this.element[0]).WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
         this.textElement = $(this.element.find("*[istext='true']")[0]);
@@ -4051,7 +4061,7 @@ class WayRelateList {
 }
 
 class WayButton {
-    memberInChange: ["text"];
+    memberInChange: any[] = ["text"];
     element: JQuery;
 
     private onclickString: string;
@@ -4093,7 +4103,9 @@ class WayButton {
         this.element.attr("expression", expression);
 
 
-        (<any>this.element[0]).WayControl = this;
+        if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
+            (<any>this.element[0]).WayControl = this;
+        }
         this.onclickString = this.element.attr("onclick");
         this.element.attr("onclick", null);
 

@@ -1135,6 +1135,7 @@ var WayBindingElement = (function (_super) {
                             }
                             else if (eleMember == "value" || eleMember == "checked")
                                 addevent = true;
+                            //eval("ctrlEle." + eleMember + "=_dataSource." + dataMember);
                             if (addevent) {
                                 if (ctrlEle.addEventListener) {
                                     ctrlEle.addEventListener("change", function () { _this.onvalueChanged(config); });
@@ -1415,8 +1416,8 @@ var WayDataBindHelper = (function () {
         if (typeof element == "string") {
             element = document.getElementById(element);
         }
-        else if (element.element && element.element.length) {
-            //is jquery
+        else if (element.element && element.element instanceof jQuery) {
+            //is waycontrol
             element = element.element[0];
         }
         var model = null;
@@ -1846,7 +1847,9 @@ var WayGridView = (function (_super) {
                 this.element = $(elementId);
             else
                 this.element = elementId;
-            this.element[0].WayControl = this;
+            if (!this.element[0].WayControl) {
+                this.element[0].WayControl = this;
+            }
             this.allowEdit = this.element.attr("allowedit") == "true";
             this.element.css({
                 "overflow-y": "auto",
@@ -2673,6 +2676,7 @@ var WayGridView = (function (_super) {
 var WayDropDownList = (function () {
     function WayDropDownList(elementid, datasource) {
         var _this = this;
+        this.memberInChange = ["text", "value"];
         this.isMobile = false;
         this.isBindedGrid = false;
         this.onchange = null;
@@ -2683,7 +2687,9 @@ var WayDropDownList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0].WayControl = this;
+        if (!this.element[0].WayControl) {
+            this.element[0].WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
         var textele = this.element.find("*[istext]");
@@ -2991,6 +2997,7 @@ var WayDropDownList = (function () {
 var WayCheckboxList = (function () {
     function WayCheckboxList(elementid, datasource) {
         var _this = this;
+        this.memberInChange = ["value"];
         this.isMobile = false;
         this._value = [];
         this.onchange = null;
@@ -3001,7 +3008,9 @@ var WayCheckboxList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0].WayControl = this;
+        if (!this.element[0].WayControl) {
+            this.element[0].WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
@@ -3121,6 +3130,7 @@ var WayCheckboxList = (function () {
 var WayRadioList = (function () {
     function WayRadioList(elementid, datasource) {
         var _this = this;
+        this.memberInChange = ["value"];
         this.isMobile = false;
         this.onchange = null;
         this.windowObj = $(window);
@@ -3130,7 +3140,9 @@ var WayRadioList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0].WayControl = this;
+        if (!this.element[0].WayControl) {
+            this.element[0].WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
@@ -3237,6 +3249,7 @@ var WayRelateListDatasource = (function () {
 }());
 var WayRelateList = (function () {
     function WayRelateList(elementid, virtualEle) {
+        this.memberInChange = ["value"];
         this.onchange = null;
         this.configs = [];
         this._value = [];
@@ -3247,7 +3260,9 @@ var WayRelateList = (function () {
             this.element = $(elementid);
         else
             this.element = elementid;
-        this.element[0].WayControl = this;
+        if (!this.element[0].WayControl) {
+            this.element[0].WayControl = this;
+        }
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
         this.textElement = $(this.element.find("*[istext='true']")[0]);
@@ -3603,6 +3618,7 @@ var WayRelateList = (function () {
 var WayButton = (function () {
     function WayButton(elementid) {
         var _this = this;
+        this.memberInChange = ["text"];
         this.internalModel = { text: null };
         this.onchange = null;
         if (typeof elementid == "string")
@@ -3620,7 +3636,9 @@ var WayButton = (function () {
         this.internalModel = WayDataBindHelper.dataBind(this.element[0], { text: this.element.attr("text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g, true);
         this.element.attr("databind", databind);
         this.element.attr("expression", expression);
-        this.element[0].WayControl = this;
+        if (!this.element[0].WayControl) {
+            this.element[0].WayControl = this;
+        }
         this.onclickString = this.element.attr("onclick");
         this.element.attr("onclick", null);
         if (this.onclickString && this.onclickString.length > 0) {
