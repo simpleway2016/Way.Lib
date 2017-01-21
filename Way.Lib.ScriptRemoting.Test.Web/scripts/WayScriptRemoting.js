@@ -2680,7 +2680,7 @@ var WayDropDownList = (function () {
         this.isMobile = false;
         this.isBindedGrid = false;
         this.onchange = null;
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if (elementid.tagName)
@@ -3002,7 +3002,7 @@ var WayCheckboxList = (function () {
         this.isMobile = false;
         this._value = [];
         this.onchange = null;
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if (elementid.tagName)
@@ -3134,7 +3134,7 @@ var WayRadioList = (function () {
         this.memberInChange = ["value"];
         this.isMobile = false;
         this.onchange = null;
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if (elementid.tagName)
@@ -3254,7 +3254,7 @@ var WayRelateList = (function () {
         this.onchange = null;
         this.configs = [];
         this._value = [];
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if (elementid.tagName)
@@ -3453,6 +3453,9 @@ var WayRelateList = (function () {
         else if (this.isMobile) {
             this.listContainer.width(contentWidth);
             this.listContainer[0].parentElement.scrollLeft = 100000;
+        }
+        else {
+            this.listContainer.width(contentWidth);
         }
     };
     WayRelateList.prototype.loadList = function () {
@@ -3711,7 +3714,23 @@ var checkToInitWayControl = function (parentElement) {
     }
 };
 var initWayControl = function (virtualEle, element) {
-    if (element == null) {
+    //自定义模板<WayButton template='btnTemplate'>
+    var mytemplate = virtualEle.getAttribute("template");
+    if (mytemplate && mytemplate.length > 0) {
+        var templates = $(document.body).find("script[id='" + mytemplate + "']");
+        if (templates && templates.length > 0) {
+            element = templates[0];
+        }
+    }
+    //内置模板<WayButton><script for="template"></script></WayButton>
+    for (var i = 0; i < virtualEle.children.length; i++) {
+        if (virtualEle.children[i].tagName == "SCRIPT" && virtualEle.children[i].getAttribute("for") == "template") {
+            element = virtualEle.children[i];
+            virtualEle.removeChild(element);
+            break;
+        }
+    }
+    if (!element) {
         for (var i = 0; i < _styles.length; i++) {
             var _styEle = _styles[i];
             if (_styEle.tagName == virtualEle.tagName) {
@@ -3722,7 +3741,7 @@ var initWayControl = function (virtualEle, element) {
     }
     if (!element)
         return;
-    var controlType = element.tagName;
+    var controlType = virtualEle.tagName;
     var replaceEleObj = $(element.innerHTML);
     checkToInitWayControl(replaceEleObj[0]);
     var style1 = virtualEle.getAttribute("style");
@@ -3782,6 +3801,8 @@ var initWayControl = function (virtualEle, element) {
     }
 };
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
+var _bodyObj = $(document.body);
+var _windowObj = $(window);
 $(document).ready(function () {
     var body = $(document.body);
     var controllerName = body.attr("controller");

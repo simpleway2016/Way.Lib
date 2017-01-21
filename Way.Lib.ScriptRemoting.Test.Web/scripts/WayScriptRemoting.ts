@@ -3033,7 +3033,7 @@ class WayDropDownList {
     onchange: any = null;
 
     constructor(elementid: string, datasource: any) {
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if ((<any>elementid).tagName)
@@ -3379,7 +3379,7 @@ class WayCheckboxList {
 
 
     constructor(elementid: string, datasource: any) {
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if ((<any>elementid).tagName)
@@ -3532,7 +3532,7 @@ class WayRadioList {
 
 
     constructor(elementid: string, datasource: any) {
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if ((<any>elementid).tagName)
@@ -3724,7 +3724,7 @@ class WayRelateList {
     }
 
     constructor(elementid: string, virtualEle: HTMLElement) {
-        this.windowObj = $(window);
+        this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if ((<any>elementid).tagName)
@@ -3872,16 +3872,18 @@ class WayRelateList {
         }
 
         if (contentWidth < minWidth) {
-            this.listContainer.css("width" ,"");
+            this.listContainer.css("width", "");
             var lastObj = this.listContainer.children().last();
             lastObj.width(lastObj.width() + minWidth - contentWidth);
-           
+
         }
         else if (this.isMobile) {
             this.listContainer.width(contentWidth);
             this.listContainer[0].parentElement.scrollLeft = 100000;
         }
-
+        else {
+            this.listContainer.width(contentWidth);
+        }
     }
 
     private loadList() {
@@ -4083,7 +4085,6 @@ class WayButton {
 
 
     constructor(elementid: string) {
-
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if ((<any>elementid).tagName)
@@ -4176,7 +4177,24 @@ var checkToInitWayControl = (parentElement: HTMLElement) => {
 }
 
 var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
-    if (element == null) {
+    //自定义模板<WayButton template='btnTemplate'>
+    var mytemplate = virtualEle.getAttribute("template");
+    if (mytemplate && mytemplate.length > 0) {
+        var templates = $(document.body).find("script[id='" + mytemplate + "']");
+        if (templates && templates.length > 0) {
+            element = templates[0];
+        }
+    }
+    //内置模板<WayButton><script for="template"></script></WayButton>
+    for (var i = 0 ; i < virtualEle.children.length ; i++)
+    {
+        if (virtualEle.children[i].tagName == "SCRIPT" && virtualEle.children[i].getAttribute("for") == "template") {
+            element = <any>virtualEle.children[i];
+            virtualEle.removeChild(element);
+            break;
+        }
+    }
+    if (!element) {
         for (var i = 0; i < _styles.length; i++) {
             var _styEle = _styles[i];
             if (_styEle.tagName == virtualEle.tagName) {
@@ -4188,7 +4206,7 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
     if (!element)
         return;
 
-    var controlType = element.tagName;
+    var controlType = virtualEle.tagName;
     var replaceEleObj = $(element.innerHTML);
     checkToInitWayControl(replaceEleObj[0]);
 
@@ -4253,6 +4271,8 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
 };
 
 var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
+var _bodyObj: JQuery = $(document.body);
+var _windowObj: JQuery = $(window);
 $(document).ready(() => {
     var body = $(document.body);
     var controllerName = body.attr("controller");
