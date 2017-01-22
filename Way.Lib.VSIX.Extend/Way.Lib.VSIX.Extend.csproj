@@ -54,6 +54,7 @@
     <Compile Include="AppCodeBuilder\Impls\WayGridView\Control.xaml.cs">
       <DependentUpon>Control.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AppCodeBuilder\Impls\WayGridView\DBSelector.cs" />
     <Compile Include="AppCodeBuilder\Impls\WayGridView\WayGridViewBuilder.cs" />
     <Compile Include="AppCodeBuilder\SampleCode.cs" />
     <Compile Include="AppCodeBuilder\SampleColumn.cs" />

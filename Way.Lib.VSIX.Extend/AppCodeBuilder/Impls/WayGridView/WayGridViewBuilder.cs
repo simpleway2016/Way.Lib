@@ -42,8 +42,14 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
         {
             get
             {
-                return "WayGridView";
+                return "grid1";
             }
+        }
+        [System.ComponentModel.Description("数据源"), System.ComponentModel.Editor(typeof(Grid) , typeof(System.Drawing.Design.UITypeEditor))]
+        public string DataSource
+        {
+            get;
+            set;
         }
 
         public UserControl ViewControl

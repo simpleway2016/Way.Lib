@@ -12,6 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Way.EntityDB</description>
     <dependencies>
+      <dependency id="Way.Lib" version="1.0.0.1-*"></dependency>
     </dependencies>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright 2016</copyright>
