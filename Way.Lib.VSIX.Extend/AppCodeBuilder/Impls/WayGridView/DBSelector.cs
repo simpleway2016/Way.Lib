@@ -73,7 +73,14 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
                 list.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
                 var typeDiscoverer = BuilderForm.GetService<Services.ITypeDiscoverer>();
-                //var dbtypes = typeDiscoverer.GetTypes(typeof(Way.));
+                var dbtypes = typeDiscoverer.GetTypes(typeof(Way.EntityDB.DBContext));
+                if (dbtypes != null)
+                {
+                    dbtypes = dbtypes.Where(m=>m.GetConstructor(null)!=null).ToArray();
+                    list.DisplayMember = "Name";
+                    list.ValueMember = "FullName";
+                    list.DataSource = dbtypes;
+                }
 
                 list.SelectedValue = value;
 
