@@ -51,16 +51,31 @@
       <DependentUpon>BuilderWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppCodeBuilder\IAppCodeBuilder.cs" />
+    <Compile Include="AppCodeBuilder\Impls\WayGridView\Control.xaml.cs">
+      <DependentUpon>Control.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AppCodeBuilder\Impls\WayGridView\WayGridViewBuilder.cs" />
     <Compile Include="AppCodeBuilder\SampleCode.cs" />
     <Compile Include="AppCodeBuilder\SampleColumn.cs" />
+    <Compile Include="BuilderForm.xaml.cs">
+      <DependentUpon>BuilderForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ITypeDiscoverer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="AppCodeBuilder\BuilderWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="AppCodeBuilder\Impls\WayGridView\Control.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BuilderForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

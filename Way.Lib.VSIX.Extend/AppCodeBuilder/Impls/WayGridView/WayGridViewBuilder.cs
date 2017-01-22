@@ -5,15 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
     public class WayGridViewBuilder : IAppCodeBuilder
     {
+        Impls.WayGridView.Control _control;
         public WayGridViewBuilder()
         {
             this.ControlId = "grid1";
             this.PageSize = 10;
+            _control = new Impls.WayGridView.Control();
+            _control.Width = 400;
         }
 
         public string ControlId
@@ -41,7 +45,15 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
                 return "WayGridView";
             }
         }
-      
+
+        public UserControl ViewControl
+        {
+            get
+            {
+                return _control;
+            }
+        }
+
         public List<SampleCode> Build(SampleColumn[] columns)
         {
             columns = columns.Where(m => m.IsChecked).ToArray();
