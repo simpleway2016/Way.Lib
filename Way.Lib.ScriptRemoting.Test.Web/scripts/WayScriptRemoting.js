@@ -895,6 +895,15 @@ var WayHelper = (function () {
         }
         return false;
     };
+    WayHelper.getPropertyName = function (obj, index) {
+        var i = 0;
+        for (var p in obj) {
+            if (i == index)
+                return p;
+            i++;
+        }
+        return null;
+    };
     WayHelper.createWebSocket = function (url) {
         if (window.WebSocket) {
             return new WebSocket(url);
@@ -2711,12 +2720,42 @@ var WayDropDownList = (function () {
         this.textMember = this.element[0].getAttribute("textMember");
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
-                this.valueMember = "value";
+                if ("value" in datasource[0])
+                    this.valueMember = "value";
+                else {
+                    this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
+                    if (!this.valueMember)
+                        this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (this.valueMember) {
+                        for (var i = 0; i < datasource.length; i++) {
+                            eval("datasource[i].value=datasource[i]." + this.valueMember);
+                        }
+                    }
+                }
+            }
+        }
+        else if (datasource && datasource instanceof Array && datasource.length > 0 && !("value" in datasource[0])) {
+            for (var i = 0; i < datasource.length; i++) {
+                eval("datasource[i].value=datasource[i]." + this.valueMember);
             }
         }
         if (!this.textMember || this.textMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
-                this.textMember = "text";
+                if ("text" in datasource[0])
+                    this.textMember = "text";
+                else {
+                    this.textMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (this.textMember) {
+                        for (var i = 0; i < datasource.length; i++) {
+                            eval("datasource[i].text=datasource[i]." + this.textMember);
+                        }
+                    }
+                }
+            }
+        }
+        else if (datasource && datasource instanceof Array && datasource.length > 0 && !("text" in datasource[0])) {
+            for (var i = 0; i < datasource.length; i++) {
+                eval("datasource[i].text=datasource[i]." + this.textMember);
             }
         }
         if (this.actionElement) {
@@ -3063,12 +3102,42 @@ var WayCheckboxList = (function () {
         this.textMember = this.element[0].getAttribute("textMember");
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
-                this.valueMember = "value";
+                if ("value" in datasource[0])
+                    this.valueMember = "value";
+                else {
+                    this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
+                    if (!this.valueMember)
+                        this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (this.valueMember) {
+                        for (var i = 0; i < datasource.length; i++) {
+                            eval("datasource[i].value=datasource[i]." + this.valueMember);
+                        }
+                    }
+                }
+            }
+        }
+        else if (datasource && datasource instanceof Array && datasource.length > 0 && !("value" in datasource[0])) {
+            for (var i = 0; i < datasource.length; i++) {
+                eval("datasource[i].value=datasource[i]." + this.valueMember);
             }
         }
         if (!this.textMember || this.textMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
-                this.textMember = "text";
+                if ("text" in datasource[0])
+                    this.textMember = "text";
+                else {
+                    this.textMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (this.textMember) {
+                        for (var i = 0; i < datasource.length; i++) {
+                            eval("datasource[i].text=datasource[i]." + this.textMember);
+                        }
+                    }
+                }
+            }
+        }
+        else if (datasource && datasource instanceof Array && datasource.length > 0 && !("text" in datasource[0])) {
+            for (var i = 0; i < datasource.length; i++) {
+                eval("datasource[i].text=datasource[i]." + this.textMember);
             }
         }
         if (true) {
@@ -3205,12 +3274,42 @@ var WayRadioList = (function () {
         this.textMember = this.element[0].getAttribute("textMember");
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
-                this.valueMember = "value";
+                if ("value" in datasource[0])
+                    this.valueMember = "value";
+                else {
+                    this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
+                    if (!this.valueMember)
+                        this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (this.valueMember) {
+                        for (var i = 0; i < datasource.length; i++) {
+                            eval("datasource[i].value=datasource[i]." + this.valueMember);
+                        }
+                    }
+                }
+            }
+        }
+        else if (datasource && datasource instanceof Array && datasource.length > 0 && !("value" in datasource[0])) {
+            for (var i = 0; i < datasource.length; i++) {
+                eval("datasource[i].value=datasource[i]." + this.valueMember);
             }
         }
         if (!this.textMember || this.textMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
-                this.textMember = "text";
+                if ("text" in datasource[0])
+                    this.textMember = "text";
+                else {
+                    this.textMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (this.textMember) {
+                        for (var i = 0; i < datasource.length; i++) {
+                            eval("datasource[i].text=datasource[i]." + this.textMember);
+                        }
+                    }
+                }
+            }
+        }
+        else if (datasource && datasource instanceof Array && datasource.length > 0 && !("text" in datasource[0])) {
+            for (var i = 0; i < datasource.length; i++) {
+                eval("datasource[i].text=datasource[i]." + this.textMember);
             }
         }
         if (true) {
