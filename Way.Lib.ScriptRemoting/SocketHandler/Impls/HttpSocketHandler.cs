@@ -8,10 +8,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text.RegularExpressions;
+
 namespace Way.Lib.ScriptRemoting
 {
     class HttpSocketHandler : ISocketHandler
     {
+        HttpConnectInformation _currentHttpConnectInformation;
         static string[][] s_HTTPStatusDescriptions;
         static HttpSocketHandler()
         {
@@ -195,23 +198,10 @@ namespace Way.Lib.ScriptRemoting
                 else
                 {
                   
-                    string filepath = this.Connection.mKeyValues["GET"].ToSafeString();
-                    //WayScriptRemoting
-                                    
-                    foreach ( var router in ScriptRemotingServer.Routers )
-                    {
-                        
-                        var url = router.GetUrl(filepath,(string)this.Connection.mKeyValues["Referer"] , new HttpConnectInformation( this.Connection.mKeyValues, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]));
-                        if(url != null)
-                        {
-                            filepath = url;
-                            break;
-                        }
-                    }
-                    if (filepath == "/")
-                    {
-                        filepath = "index.html";
-                    }
+                    string url = this.Connection.mKeyValues["GET"].ToSafeString();
+                    url = getUrl(url);
+
+                    string filepath = url;
                     if (filepath.StartsWith("/"))
                         filepath = filepath.Substring(1);
                     filepath = ScriptRemotingServer.Root + filepath;
@@ -222,28 +212,12 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else if (ext == ".html")
                     {
-                        outputFile(filepath);
+                        outputFile(url , filepath);
                     }
                     else
                     {
-                        outputFile(filepath);
+                        outputFile(url, filepath);
                     }
-                    //if ( Path.GetExtension(filepath).ToLower()==".js" )
-                    //{
-                    //    string tspath = filepath.Substring(0, filepath.LastIndexOf(".")) + ".ts";
-                    //    if (File.Exists(tspath))
-                    //    {
-                    //        outputTS(tspath, filepath);
-                    //    }
-                    //    else
-                    //    {
-                    //        outputFile(filepath);
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    outputFile(filepath);
-                    //}
                 }
             }
             catch
@@ -264,6 +238,30 @@ namespace Way.Lib.ScriptRemoting
                 }
             }
             this.Connection.mClient.Close();
+        }
+
+        string getUrl(string visitingUrl)
+        {
+            
+            if (ScriptRemotingServer.Routers.Count > 0 && _currentHttpConnectInformation == null)
+            {
+                _currentHttpConnectInformation = new HttpConnectInformation(this.Connection.mKeyValues, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
+            }
+            foreach (var router in ScriptRemotingServer.Routers)
+            {
+
+                var url = router.GetUrl(visitingUrl, (string)this.Connection.mKeyValues["Referer"], _currentHttpConnectInformation);
+                if (url != null)
+                {
+                    visitingUrl = url;
+                    break;
+                }
+            }
+            if (visitingUrl == "/")
+            {
+                visitingUrl = "/index.html";
+            }
+            return visitingUrl;
         }
 
         void outputAspx(string filepath)
@@ -297,7 +295,7 @@ namespace Way.Lib.ScriptRemoting
         //    outputFile(jspath);
         //}
 
-        void outputFile(string filePath)
+        void outputFile(string url, string filePath)
         {
             if (File.Exists(filePath) == false)
             {
@@ -312,17 +310,74 @@ namespace Way.Lib.ScriptRemoting
             }
             else
             {
-                outputFile(filePath, lastWriteTime);
+                outputFile(url , filePath, lastWriteTime);
             }
         }
-         void outputFile(string filePath , string lastModifyTime)
+
+        string outputWiteMaster(string url, string filePath)
         {
+            string content = System.Text.Encoding.UTF8.GetString( File.ReadAllBytes(filePath));
+            if (content.StartsWith("<Master "))
+            {
+                Match match = Regex.Match(content, @"<Master( )+src\=(\'|\"")(?<f>(\w|\.)+)(\'|\"")");
+                if (match != null)
+                {
+                    var masterUrl = match.Groups["f"].Value;
+                    if (masterUrl.StartsWith("/") == false)
+                    {
+                        if (url.EndsWith("/") == false)
+                        {
+                            if(url.Contains("/"))
+                                url = url.Substring(0, url.LastIndexOf("/"));
+                            url += "/";
+                        }
+                        masterUrl = url + masterUrl;
+                    }
+                    masterUrl = getUrl(masterUrl);
+                    string filepath = masterUrl;
+                    if (filepath.StartsWith("/"))
+                        filepath = filepath.Substring(1);
+                    filepath = ScriptRemotingServer.Root + filepath;
+                    string masterContent = outputWiteMaster(masterUrl, filepath);
+
+                    Dictionary<string, string> variables = new Dictionary<string, string>();
+                    MatchCollection matches = Regex.Matches(content, @"<Variable( )+name\=(\'|\"")(?<n>[.\n]+)(\'|\"")\>");
+                    foreach( Match m in matches )
+                    {
+                        variables.Add(m.Groups["n"].Value , m.Groups["c"].Value);
+                    }
+                }
+            }
+            return content;
+        }
+
+         void outputFile(string url , string filePath , string lastModifyTime)
+        {
+            string headers;
+            byte[] bs;
             var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read);
+            if (filePath.EndsWith(".html" , StringComparison.CurrentCultureIgnoreCase))
+            {
+                bs = new byte[20];
+                fs.Read(bs , 0 , bs.Length);
+                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<Master "))
+                {
+                    //母版模式
+                    fs.Dispose();
+                    var content = outputWiteMaster(url,filePath);
+                    bs = System.Text.Encoding.UTF8.GetBytes(content);
+                    headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), bs.Length, false, -1, 0, lastModifyTime, null, true);
+                    this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
+                    this.Connection.mClient.Socket.Send(bs, bs.Length, System.Net.Sockets.SocketFlags.None);
+                    return;
+                }
+            }
+            
            
-            string headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), fs.Length, false, -1, 0, lastModifyTime, null, true);
+            headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), fs.Length, false, -1, 0, lastModifyTime, null, true);
             this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
 
-            byte[] bs = new byte[4096];
+            bs = new byte[4096];
             while (true)
             {
                 int count = fs.Read(bs, 0, bs.Length);

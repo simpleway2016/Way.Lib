@@ -26,6 +26,7 @@
     <Content Include="Global.asax" />
     <Content Include="ListTest.html" />
     <Content Include="GridViewTest.html" />
+    <Content Include="master.html" />
     <Content Include="scripts\Barrett.js" />
     <Content Include="scripts\BigInt.js" />
     <Content Include="scripts\jquery.js" />

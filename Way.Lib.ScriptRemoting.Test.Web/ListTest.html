@@ -1,89 +1,69 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <script src="scripts/BigInt.js" type="text/javascript"></script>
-    <script src="scripts/RSA.js" type="text/javascript"></script>
-    <script src="scripts/Barrett.js" type="text/javascript"></script>
-
-    <script src="scripts/jquery.js" type="text/javascript"></script>
-    <script src="scripts/sonic.js" type="text/javascript"></script>
-    <script src="scripts/wayscriptremoting.js" type="text/javascript"></script>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
-    <title></title>
-	<meta charset="utf-8" />
-    <style>
-        td {
-        border-right:1px solid blue;
-        
-        }
-    </style>
-</head>
-<body controller="Way.Lib.ScriptRemoting.Test.TestPage">
+﻿<Master src="master.html"></Master>
+<Variable name="Controller">Way.Lib.ScriptRemoting.Test.TestPage</Variable>
+<Variable name="Content">
     <WayDropDownList id="chkList2" selectonly="true" datasource="[{text:'a',id:0},{text:'b',id:1}]" style="width:200px;background-color:#dddcdc;">
     </WayDropDownList>
-
+     
     <input id="aa" />
     <div id="titleDiv"></div>
     <WayButton text="button1" onclick="this.text = 'hjewef'; rsatest();"></WayButton>
     <input type="text" id="txt555" databind="value=@mytext">
     <WayCheckboxList id="chkList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
     </WayCheckboxList>
-   
+
 
     <WayRadioList id="rdList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;margin-top:10px;">
     </WayRadioList>
     <WayDropDownList id="list1" databind="value=@myvalue,text=@mytext" valueMember="id" textMember="caption" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:100px;">
     </WayDropDownList>
-   <WayRelateList id="relList">
-       <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Project" textMember="Name" valueMember="id"></config>
-       <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" relateMember="ProjectID" textMember="Name" valueMember="id"></config>
-       <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBTable" relateMember="DatabaseID" textMember="Name" valueMember="id"></config>
-   </WayRelateList>
+    <WayRelateList id="relList">
+        <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Project" textMember="Name" valueMember="id"></config>
+        <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" relateMember="ProjectID" textMember="Name" valueMember="id"></config>
+        <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBTable" relateMember="DatabaseID" textMember="Name" valueMember="id"></config>
+    </WayRelateList>
     <button onclick="relList.value=[1,2,8]">relList test</button>
     <div id="d1" style="height:30px;overflow-y:auto;">
         wfea<span>22</span>pp
     </div>
-  <script lang="ja">
-      //var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
-      WayHelper.writePage("/aa.html");
+    <script lang="ja">
+            //var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
+            WayHelper.writePage("/aa.html");
 
-      var d1 = document.getElementById("d1");
-      var value = "";
-      for (var p in d1.childNodes[0])
-          value += p + ":" + d1.childNodes[0][p] + "\r\n";
-      //d1.setAttribute("style","width:20px;height:20px;background-color:red;")
+            var d1 = document.getElementById("d1");
+            var value = "";
+            for (var p in d1.childNodes[0])
+                value += p + ":" + d1.childNodes[0][p] + "\r\n";
+            //d1.setAttribute("style","width:20px;height:20px;background-color:red;")
 
-      window.onload = function () {
+            window.onload = function () {
 
-          var test = WayDataBindHelper.dataBind(list1, { myvalue:16 });
+                var test = WayDataBindHelper.dataBind(list1, { myvalue: 16 });
 
-          var test2 = WayDataBindHelper.dataBind(document.getElementById("txt555"), test);
+                var test2 = WayDataBindHelper.dataBind(document.getElementById("txt555"), test);
 
-          var chkObj = WayDataBindHelper.dataBind(chkList1, { dbids: [10] });
+                var chkObj = WayDataBindHelper.dataBind(chkList1, { dbids: [10] });
 
-          chkObj.onchange = function (model,tag,name,value) {
-              titleDiv.innerHTML = "chkObj.onchange:" + (chkObj.dbids);
-          };
+                chkObj.onchange = function (model, tag, name, value) {
+                    titleDiv.innerHTML = "chkObj.onchange:" + (chkObj.dbids);
+                };
 
-          var chkObj2 = WayDataBindHelper.dataBind(rdList1, { dbids :10});
+                var chkObj2 = WayDataBindHelper.dataBind(rdList1, { dbids: 10 });
 
-          chkObj2.onchange = function (model, tag, name, value) {
-              titleDiv.innerHTML = "chkObj2.onchange:" + (chkObj2.dbids);
-          };
+                chkObj2.onchange = function (model, tag, name, value) {
+                    titleDiv.innerHTML = "chkObj2.onchange:" + (chkObj2.dbids);
+                };
 
-         
-      }
 
-      function rsatest() {
-          var c = "ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%uu";
-          window.controller.TestRSA(c , 8899, function (ret, err) {
-              if (err)
-                  alert(err);
-              else
-                  alert(ret);
-          });
-      }
-  </script>
-</body>
-</html>
+            }
+
+            function rsatest() {
+                var c = "ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%ab我们;fewifo%%uu";
+                window.controller.TestRSA(c, 8899, function (ret, err) {
+                    if (err)
+                        alert(err);
+                    else
+                        alert(ret);
+                });
+            }
+    </script>
+</Variable>
