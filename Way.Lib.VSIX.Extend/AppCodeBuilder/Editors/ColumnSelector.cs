@@ -11,7 +11,7 @@ using Way.Lib.VSIX.Extend.AppCodeBuilder.Editors;
 
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
-    internal class TableSelector : System.Drawing.Design.UITypeEditor
+    internal class ColumnSelector : System.Drawing.Design.UITypeEditor
     {
         private IWindowsFormsEditorService wSrv;
         private ListBox list;
@@ -31,7 +31,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             this.provider = provider;
             this.context = context;
 
-            ShowDrowDown( value == null ? null : (PropertyInfo)((ValueDescription)value).Value  );
+            ShowDrowDown( (string)value    );
 
             return value;
         }
@@ -51,17 +51,14 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             this.wSrv.CloseDropDown();
             try
             {
-                this.context.PropertyDescriptor.SetValue(this.context.Instance,new ValueDescription(list.SelectedItem, ()=>
-                {
-                    return ((System.Reflection.PropertyInfo)list.SelectedItem).Name;
-                }));
+                this.context.PropertyDescriptor.SetValue(this.context.Instance, list.SelectedItem);
             }
             catch (Exception ex)
             { MessageBox.Show(ex.Message); }
         }
 
         #region ShowDrowDown
-        private void ShowDrowDown(PropertyInfo value)
+        private void ShowDrowDown(string value)
         {
             try
             {
@@ -71,7 +68,8 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
                 IDataControl dataControl = this.context.Instance as IDataControl;
                 if (dataControl.DBContext == null)
                     throw new Exception("Please select DBContext first!");
-
+                if (dataControl.Table == null)
+                    throw new Exception("Please select Table first!");
                 if (list == null)
                 {
                     list = new ListBox();
@@ -83,12 +81,30 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 
                 list.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
-                var properties = ((Type)dataControl.DBContext.Value).GetProperties( BindingFlags.Public | BindingFlags.Instance).OrderBy(m=>m.Name).Where(m=>m.PropertyType.IsGenericType || m.PropertyType.IsArray || m.PropertyType.HasElementType).ToArray();
+                var type = ((PropertyInfo)dataControl.Table.Value).PropertyType;
+                Type dataType;
+                if (type.IsGenericType)
+                {
+                    dataType = type.GenericTypeArguments[0];
+                }
+                else if (type.IsArray)
+                {
+                    dataType = type.GetElementType();
+                }
+                else if (type.HasElementType)
+                {
+                    dataType = type.GetElementType();
+                }
+                else
+                {
+                    return;
+                }
 
-                list.DisplayMember = "Name";
+                var properties = dataType.GetProperties( BindingFlags.Public | BindingFlags.Instance).Where(m=>m.GetCustomAttribute<Way.EntityDB.WayLinqColumnAttribute>() != null).Select(m=>m.Name).ToArray();
+
                 list.DataSource = properties;
 
-                _tosetValue = ( value == null ? null : properties.FirstOrDefault(m => m.Name == value.Name));
+                _tosetValue = value;
                 //if (value != null)
                 //    list.SelectedItem = properties.FirstOrDefault(m => m.Name == value.Name);
                 wSrv.DropDownControl(list);
@@ -100,7 +116,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             }
 
         }
-        object _tosetValue;
+        string _tosetValue;
         private void List_GotFocus(object sender, EventArgs e)
         {
             list.SelectedItem = _tosetValue;

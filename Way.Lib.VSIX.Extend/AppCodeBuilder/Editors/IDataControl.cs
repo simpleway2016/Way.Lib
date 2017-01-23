@@ -8,6 +8,11 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Editors
 {
     interface IDataControl
     {
-        Type GetDBContextType();
+        ValueDescription DBContext
+        {
+            get;
+            set;
+        }
+        ValueDescription Table { get; set; }
     }
 }

@@ -76,11 +76,6 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             }
         }
 
-        public Type GetDBContextType()
-        {
-            if (this.DBContext == null)
-                return null;
-            return (Type)this.DBContext.Value;
-        }
+       
     }
 }

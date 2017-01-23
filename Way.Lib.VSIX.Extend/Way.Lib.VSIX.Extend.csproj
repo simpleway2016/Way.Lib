@@ -230,7 +230,12 @@
       <DependentUpon>BuilderWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppCodeBuilder\Editors\IDataControl.cs" />
+    <Compile Include="AppCodeBuilder\Editors\ColumnSelector.cs" />
     <Compile Include="AppCodeBuilder\IAppCodeBuilder.cs" />
+    <Compile Include="AppCodeBuilder\Impls\WayDropDownList\Control.xaml.cs">
+      <DependentUpon>Control.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AppCodeBuilder\Impls\WayDropDownList\WayDropDownListBuilder.cs" />
     <Compile Include="AppCodeBuilder\Impls\WayGridView\Control.xaml.cs">
       <DependentUpon>Control.xaml</DependentUpon>
     </Compile>
@@ -256,6 +261,10 @@
     <Page Include="AppCodeBuilder\BuilderWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="AppCodeBuilder\Impls\WayDropDownList\Control.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AppCodeBuilder\Impls\WayGridView\Control.xaml">
       <SubType>Designer</SubType>
