@@ -54,11 +54,12 @@
         </ListView>
         <GridSplitter Width="5"></GridSplitter>
         <DockPanel Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Button Content="生成代码" DockPanel.Dock="Top" x:Name="btnMakeCode" Click="btnMakeCode_Click" Margin="5" Width="89" Height="26" HorizontalAlignment="Left"></Button>
-            
-            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5,0,5,5">
-                <Label Content="Html代码："></Label>
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
+                <Button Content="生成代码" DockPanel.Dock="Top" x:Name="btnMakeCode" Click="btnMakeCode_Click" Width="89" Height="26" HorizontalAlignment="Left"></Button>
+                <Button Margin="15,0,0,0" Content="Copy" x:Name="btnCopy" Click="btnCopy_Click"></Button>
             </StackPanel>
+            <Label Content="Html代码："></Label>
             <TextBox DockPanel.Dock="Top" x:Name="txtHtml" Margin="5,0,5,5"></TextBox>
         </DockPanel>
     </Grid>

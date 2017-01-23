@@ -241,5 +241,10 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayGridView
                 Helper.ShowError(ex);
             }
         }
+
+        private void btnCopy_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(txtHtml.Text);
+        }
     }
 }
