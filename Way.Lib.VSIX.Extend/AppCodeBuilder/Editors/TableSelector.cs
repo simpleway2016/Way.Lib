@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using Way.Lib.VSIX.Extend.AppCodeBuilder.Editors;
+
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
     internal class TableSelector : System.Drawing.Design.UITypeEditor
@@ -66,21 +68,22 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
                 if(this.wSrv == null)
                     this.wSrv = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
 
-                WayGridViewBuilder builder = (WayGridViewBuilder)this.context.Instance;
-                if (builder.DBContext == null)
+                IDataControl dataControl = this.context.Instance as IDataControl;
+                if (dataControl.GetDBContextType() == null)
                     throw new Exception("Please select DBContext first!");
 
                 if (list == null)
                 {
                     list = new ListBox();
                     list.Height = 300;
+                    list.Width = 200;
                     list.Click += new EventHandler(list_Click);
                     list.GotFocus += List_GotFocus;
                 }
 
                 list.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
-                var properties = ((Type)builder.DBContext.Value).GetProperties( BindingFlags.Public | BindingFlags.Instance).OrderBy(m=>m.Name).Where(m=>m.PropertyType.IsGenericType || m.PropertyType.IsArray || m.PropertyType.HasElementType).ToArray();
+                var properties = dataControl.GetDBContextType().GetProperties( BindingFlags.Public | BindingFlags.Instance).OrderBy(m=>m.Name).Where(m=>m.PropertyType.IsGenericType || m.PropertyType.IsArray || m.PropertyType.HasElementType).ToArray();
 
                 list.DisplayMember = "Name";
                 list.DataSource = properties;

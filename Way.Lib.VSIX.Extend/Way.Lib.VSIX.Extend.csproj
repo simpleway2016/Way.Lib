@@ -229,12 +229,13 @@
     <Compile Include="AppCodeBuilder\BuilderWindow.xaml.cs">
       <DependentUpon>BuilderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AppCodeBuilder\Editors\IDataControl.cs" />
     <Compile Include="AppCodeBuilder\IAppCodeBuilder.cs" />
     <Compile Include="AppCodeBuilder\Impls\WayGridView\Control.xaml.cs">
       <DependentUpon>Control.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AppCodeBuilder\Impls\WayGridView\TableSelector.cs" />
-    <Compile Include="AppCodeBuilder\Impls\WayGridView\DatabaseSelector.cs" />
+    <Compile Include="AppCodeBuilder\Editors\TableSelector.cs" />
+    <Compile Include="AppCodeBuilder\Editors\DatabaseSelector.cs" />
     <Compile Include="AppCodeBuilder\Impls\WayGridView\WayGridViewBuilder.cs" />
     <Compile Include="AppCodeBuilder\SampleCode.cs" />
     <Compile Include="AppCodeBuilder\SampleColumn.cs" />

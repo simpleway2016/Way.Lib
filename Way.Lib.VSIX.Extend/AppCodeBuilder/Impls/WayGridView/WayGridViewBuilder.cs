@@ -6,10 +6,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Way.Lib.VSIX.Extend.AppCodeBuilder.Editors;
 
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
-    public class WayGridViewBuilder : IAppCodeBuilder
+    public class WayGridViewBuilder : IAppCodeBuilder,IDataControl
     {
         Impls.WayGridView.Control _control;
         public WayGridViewBuilder()
@@ -74,7 +75,12 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
                 return _control;
             }
         }
-      
-     
+
+        public Type GetDBContextType()
+        {
+            if (this.DBContext == null)
+                return null;
+            return (Type)this.DBContext.Value;
+        }
     }
 }
