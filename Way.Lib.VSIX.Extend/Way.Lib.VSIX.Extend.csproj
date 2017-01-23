@@ -237,6 +237,9 @@
     <Compile Include="AppCodeBuilder\Editors\TableSelector.cs" />
     <Compile Include="AppCodeBuilder\Editors\DatabaseSelector.cs" />
     <Compile Include="AppCodeBuilder\Impls\WayGridView\WayGridViewBuilder.cs" />
+    <Compile Include="AppCodeBuilder\Impls\WayRelateList\Control.xaml.cs">
+      <DependentUpon>Control.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AppCodeBuilder\Impls\WayRelateList\WayRelateListBuilder.cs" />
     <Compile Include="AppCodeBuilder\SampleCode.cs" />
     <Compile Include="AppCodeBuilder\SampleColumn.cs" />
@@ -255,6 +258,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="AppCodeBuilder\Impls\WayGridView\Control.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AppCodeBuilder\Impls\WayRelateList\Control.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -7,7 +7,7 @@ using System.Windows.Controls;
 
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
-    class WayRelateListBuilder : IAppCodeBuilder
+    public class WayRelateListBuilder : IAppCodeBuilder
     {
         UserControl _Control;
         [System.ComponentModel.Browsable(false)]
@@ -25,7 +25,8 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
         }
         public WayRelateListBuilder()
         {
-            this.ControlId = "";
+            this.ControlId = "relateList1";
+            _Control = new Impls.WayRelateList.Control(this);
         }
     }
 }
