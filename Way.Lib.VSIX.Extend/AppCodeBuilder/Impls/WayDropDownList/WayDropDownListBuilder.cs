@@ -8,7 +8,45 @@ using Way.Lib.VSIX.Extend.AppCodeBuilder.Editors;
 
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayDropDownList
 {
-    public class WayDropDownListBuilder : IAppCodeBuilder, IDataControl
+    public class WayDropDownListBuilder:WayCheckboxListBuilder
+    {
+        internal override string Name
+        {
+            get
+            {
+                return "WayDropDownList";
+            }
+        }
+        public WayDropDownListBuilder()
+        {
+            this.ControlId = "drpList1";
+        }
+        [System.ComponentModel.Description("如果为True，用户不能输入文字")]
+        public bool SelectOnly
+        {
+            get;
+            set;
+        }
+        public override string GetAttributes()
+        {
+            return base.GetAttributes() + (this.SelectOnly ?  "selectonly=\"true\" "  :"");
+        }
+    }
+    public class WayRadioListBuilder : WayCheckboxListBuilder
+    {
+        internal override string Name
+        {
+            get
+            {
+                return "WayRadioList";
+            }
+        }
+        public WayRadioListBuilder()
+        {
+            this.ControlId = "radList1";
+        }
+    }
+    public class WayCheckboxListBuilder : IAppCodeBuilder, IDataControl
     {
         Impls.WayDropDownList.Control _Control;
         [System.ComponentModel.Browsable(false)]
@@ -19,11 +57,18 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayDropDownList
                 return _Control;
             }
         }
-
-        public WayDropDownListBuilder()
+        [System.ComponentModel.Browsable(false)]
+        internal virtual string Name
+        {
+            get
+            {
+                return "WayCheckboxList";
+            }
+        }
+        public WayCheckboxListBuilder()
         {
             _Control = new WayDropDownList.Control(this);
-            this.ControlId = "drpList1";
+            this.ControlId = "chkList1";
         }
 
         public string ControlId
@@ -60,12 +105,11 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayDropDownList
             get;
             set;
         }
-        [System.ComponentModel.Description("如果为True，用户不能输入文字")]
-        public bool SelectOnly
+        
+      public virtual string GetAttributes()
         {
-            get;
-            set;
+            string attStr = $" valueMember=\"{ValueMember}\" textMember=\"{TextMember}\" datasource=\"{DBContext.Value.ToString()}.{((System.Reflection.PropertyInfo)Table.Value).Name}\" ";
+            return attStr;
         }
-      
     }
 }

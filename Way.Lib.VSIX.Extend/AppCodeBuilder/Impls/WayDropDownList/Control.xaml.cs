@@ -21,8 +21,10 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayDropDownList
     /// </summary>
     public partial class Control : UserControl
     {
-        WayDropDownListBuilder _builder;
-        public Control(WayDropDownListBuilder b)
+        WayCheckboxListBuilder _builder;
+        
+    
+        public Control(WayCheckboxListBuilder b)
         {
             _builder = b;
             InitializeComponent();
@@ -38,7 +40,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayDropDownList
                     throw new Exception("缺乏代码模板文件夹，不能生成代码");
 
                 var encode = System.Text.Encoding.GetEncoding("gb2312");
-                templateFolderPath += "//WayDropDownList//";
+                templateFolderPath += "//"+_builder.Name+"//";
 
                 if (true)
                 {
@@ -58,10 +60,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayDropDownList
                         htmlTemplate = htmlTemplate.Replace("{%ControlId}", _builder.ControlId);
 
 
-                        string attStr = $" valueMember=\"{_builder.ValueMember}\" textMember=\"{_builder.TextMember}\" datasource=\"{_builder.DBContext.Value.ToString()}.{((System.Reflection.PropertyInfo)_builder.Table.Value).Name}\" ";
-                        if (_builder.SelectOnly)
-                            attStr += "selectonly=\"true\" ";
-                        txtHtml.Text = htmlTemplate.Replace("{%Attributes}", attStr);
+                        txtHtml.Text = htmlTemplate.Replace("{%Attributes}", _builder.GetAttributes());
                     }
                     #endregion
 
