@@ -20,7 +20,8 @@
     </style>
 </head>
 <body controller="Way.Lib.ScriptRemoting.Test.TestPage">
-    
+    <WayDropDownList id="chkList2" selectonly="true" datasource="[{text:'a',value:0},{text:'b',value:1}]" style="width:200px;background-color:#dddcdc;">
+    </WayDropDownList>
 
     <input id="aa" />
     <div id="titleDiv"></div>
@@ -28,6 +29,8 @@
     <input type="text" id="txt555" databind="value=@mytext">
     <WayCheckboxList id="chkList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;">
     </WayCheckboxList>
+   
+
     <WayRadioList id="rdList1" databind="value=@dbids" valueMember="id" textMember="Name" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" style="width:200px;background-color:#dddcdc;margin-top:10px;">
     </WayRadioList>
     <WayDropDownList id="list1" databind="value=@myvalue,text=@mytext" valueMember="id" textMember="caption" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" style="margin-top:100px;">

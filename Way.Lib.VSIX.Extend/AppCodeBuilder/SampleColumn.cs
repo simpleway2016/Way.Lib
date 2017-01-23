@@ -63,5 +63,6 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             set;
         }
         public string DisplayColumnName { get; set; }
+        public System.Reflection.PropertyInfo PropertyInfo;
     }
 }

@@ -2191,7 +2191,7 @@ var WayGridView = (function (_super) {
             });
         }
         else {
-            pageData = this.getDataByPagesize(this.datasource);
+            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource) : this.datasource;
             this.bindDataToGrid(pageData);
         }
     };
@@ -2696,6 +2696,7 @@ var WayDropDownList = (function () {
         }
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
+        this.selectonly = this.element.attr("selectonly") === "true";
         var textele = this.element.find("*[istext]");
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
@@ -2708,6 +2709,16 @@ var WayDropDownList = (function () {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+        if (!this.valueMember || this.valueMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.valueMember = "value";
+            }
+        }
+        if (!this.textMember || this.textMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.textMember = "text";
+            }
+        }
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
@@ -2742,6 +2753,10 @@ var WayDropDownList = (function () {
                     };
                 }
             }
+        }
+        var valueattr = this.element.attr("value");
+        if (valueattr) {
+            this.value = valueattr;
         }
     }
     Object.defineProperty(WayDropDownList.prototype, "value", {
@@ -2805,6 +2820,13 @@ var WayDropDownList = (function () {
         }
     };
     WayDropDownList.prototype.getTextByValue = function (value) {
+        if (this.grid.datasource instanceof Array) {
+            for (var i = 0; i < this.grid.datasource.length; i++) {
+                if (this.grid.datasource[i][this.valueMember] == value)
+                    return this.grid.datasource[i][this.textMember];
+            }
+            return null;
+        }
         for (var i = 0; i < this.grid.items.length; i++) {
             var data = this.grid.items[i].data;
             if (data.value == value) {
@@ -2829,6 +2851,13 @@ var WayDropDownList = (function () {
         return null;
     };
     WayDropDownList.prototype.getValueByText = function (text) {
+        if (this.grid.datasource instanceof Array) {
+            for (var i = 0; i < this.grid.datasource.length; i++) {
+                if (this.grid.datasource[i][this.textMember] == text)
+                    return this.grid.datasource[i][this.valueMember];
+            }
+            return null;
+        }
         for (var i = 0; i < this.grid.items.length; i++) {
             var data = this.grid.items[i].data;
             if (data.text == text) {
@@ -2898,21 +2927,33 @@ var WayDropDownList = (function () {
             this.itemContainer.css("height", "300px");
         }
         document.body.appendChild(this.itemContainer[0]);
-        this.actionElement.click(function (e) {
-            e = e || window.event;
-            if (e.stopPropagation)
-                e.stopPropagation();
-            else
-                e.cancelBubble = true;
-            _this.showList();
-        });
-        this.textElement.click(function (e) {
-            e = e || window.event;
-            if (e.stopPropagation)
-                e.stopPropagation();
-            else
-                e.cancelBubble = true;
-        });
+        if (this.selectonly) {
+            this.element.click(function (e) {
+                e = e || window.event;
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+                _this.showList();
+            });
+        }
+        else {
+            this.actionElement.click(function (e) {
+                e = e || window.event;
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+                _this.showList();
+            });
+            this.textElement.click(function (e) {
+                e = e || window.event;
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+            });
+        }
         if (this.textElement[0].tagName == "INPUT") {
             if (this.isMobile) {
             }
@@ -3020,6 +3061,16 @@ var WayCheckboxList = (function () {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+        if (!this.valueMember || this.valueMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.valueMember = "value";
+            }
+        }
+        if (!this.textMember || this.textMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.textMember = "text";
+            }
+        }
         if (true) {
             this.grid = new WayGridView(this.element[0], 0);
             this.grid.datasource = datasource;
@@ -3152,6 +3203,16 @@ var WayRadioList = (function () {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+        if (!this.valueMember || this.valueMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.valueMember = "value";
+            }
+        }
+        if (!this.textMember || this.textMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.textMember = "text";
+            }
+        }
         if (true) {
             this.grid = new WayGridView(this.element[0], 0);
             this.grid.datasource = datasource;
@@ -3776,13 +3837,25 @@ var initWayControl = function (virtualEle, element) {
     var control = null;
     switch (controlType) {
         case "WAYDROPDOWNLIST":
-            control = new WayDropDownList(replaceEleObj, replaceEleObj.attr("datasource"));
+            var strDatasource = replaceEleObj.attr("datasource");
+            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
+                eval("strDatasource=" + strDatasource);
+            }
+            control = new WayDropDownList(replaceEleObj, strDatasource);
             break;
         case "WAYCHECKBOXLIST":
-            control = new WayCheckboxList(replaceEleObj, replaceEleObj.attr("datasource"));
+            var strDatasource = replaceEleObj.attr("datasource");
+            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
+                eval("strDatasource=" + strDatasource);
+            }
+            control = new WayCheckboxList(replaceEleObj, strDatasource);
             break;
         case "WAYRADIOLIST":
-            control = new WayRadioList(replaceEleObj, replaceEleObj.attr("datasource"));
+            var strDatasource = replaceEleObj.attr("datasource");
+            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
+                eval("strDatasource=" + strDatasource);
+            }
+            control = new WayRadioList(replaceEleObj, strDatasource);
             break;
         case "WAYBUTTON":
             control = new WayButton(replaceEleObj);

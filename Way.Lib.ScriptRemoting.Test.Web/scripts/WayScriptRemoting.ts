@@ -2421,7 +2421,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         }
         else {
-            pageData = this.getDataByPagesize(this.datasource);
+            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource) : this.datasource;
             this.bindDataToGrid(pageData);
         }
 
@@ -2993,6 +2993,7 @@ class WayDropDownList {
     actionElement: JQuery;
     element: JQuery;
     itemContainer: JQuery;
+    selectonly: boolean;
     private isMobile: boolean = false;
     private grid: WayGridView;
     private isBindedGrid: boolean = false;
@@ -3051,7 +3052,7 @@ class WayDropDownList {
         }
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
-
+        this.selectonly = this.element.attr("selectonly") === "true";
         var textele = this.element.find("*[istext]");
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
@@ -3069,10 +3070,22 @@ class WayDropDownList {
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
 
+        if (!this.valueMember || this.valueMember.length == 0)
+        {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.valueMember = "value";
+            }
+        }
+        if (!this.textMember || this.textMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.textMember = "text";
+            }
+        }
+
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
-            this.grid = new WayGridView(<any>this.itemContainer[0], 20);
+            this.grid = new WayGridView(<any>this.itemContainer[0],  20);
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
             
@@ -3106,6 +3119,12 @@ class WayDropDownList {
                 }
             }
         }
+
+        var valueattr = this.element.attr("value");
+        if (valueattr) {
+            this.value = valueattr;
+        }
+        
     }
 
     addEventListener(eventName: string, func: any) {
@@ -3138,6 +3157,13 @@ class WayDropDownList {
 
   
     getTextByValue(value: string): string {
+        if (this.grid.datasource instanceof Array) {
+            for (var i = 0; i < this.grid.datasource.length; i++) {
+                if (this.grid.datasource[i][this.valueMember] == value)
+                    return this.grid.datasource[i][this.textMember];
+            }
+            return null;
+        }
         for (var i = 0; i < this.grid.items.length; i++) {
             var data = (<any>this.grid.items[i]).data;
             if (data.value == value) {
@@ -3162,6 +3188,14 @@ class WayDropDownList {
         return null;
     }
     getValueByText(text: string): string {
+        if (this.grid.datasource instanceof Array) {
+            for (var i = 0; i < this.grid.datasource.length; i++) {
+                if (this.grid.datasource[i][this.textMember] == text)
+                    return this.grid.datasource[i][this.valueMember];
+            }
+            return null;
+        }
+
         for (var i = 0; i < this.grid.items.length; i++) {
             var data = (<any>this.grid.items[i]).data;
             if (data.text == text) {
@@ -3235,22 +3269,34 @@ class WayDropDownList {
 
         document.body.appendChild(this.itemContainer[0]);
 
-        this.actionElement.click((e) => {
-            e = e || <any>window.event;
-            if (e.stopPropagation)
-                e.stopPropagation();
-            else
-                e.cancelBubble = true;
-            this.showList();
-        });
+        if (this.selectonly) {
+            this.element.click((e) => {
+                e = e || <any>window.event;
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+                this.showList();
+            });
+        }
+        else {
+            this.actionElement.click((e) => {
+                e = e || <any>window.event;
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+                this.showList();
+            });
 
-        this.textElement.click((e) => {
-            e = e || <any>window.event;
-            if (e.stopPropagation)
-                e.stopPropagation();
-            else
-                e.cancelBubble = true;
-        });
+            this.textElement.click((e) => {
+                e = e || <any>window.event;
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+            });
+        }
 
         if (this.textElement[0].tagName == "INPUT") {
             if (this.isMobile) {
@@ -3400,6 +3446,17 @@ class WayCheckboxList {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+
+        if (!this.valueMember || this.valueMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.valueMember = "value";
+            }
+        }
+        if (!this.textMember || this.textMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.textMember = "text";
+            }
+        }
 
         if (true) {
             this.grid = new WayGridView(<any>this.element[0], 0);
@@ -3553,6 +3610,17 @@ class WayRadioList {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+
+        if (!this.valueMember || this.valueMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.valueMember = "value";
+            }
+        }
+        if (!this.textMember || this.textMember.length == 0) {
+            if (datasource && datasource instanceof Array && datasource.length > 0) {
+                this.textMember = "text";
+            }
+        }
 
         if (true) {
             this.grid = new WayGridView(<any>this.element[0], 0);
@@ -4243,15 +4311,29 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
         virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
     }
     var control = null;
+   
+
     switch (controlType) {
         case "WAYDROPDOWNLIST":
-            control = new WayDropDownList(<any>replaceEleObj, replaceEleObj.attr("datasource"));
+            var strDatasource = replaceEleObj.attr("datasource");
+            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
+                eval("strDatasource=" + strDatasource);
+            }
+            control = new WayDropDownList(<any>replaceEleObj, strDatasource);
             break;
         case "WAYCHECKBOXLIST":
-            control = new WayCheckboxList(<any>replaceEleObj, replaceEleObj.attr("datasource"));
+            var strDatasource = replaceEleObj.attr("datasource");
+            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
+                eval("strDatasource=" + strDatasource);
+            }
+            control = new WayCheckboxList(<any>replaceEleObj, strDatasource);
             break;
         case "WAYRADIOLIST":
-            control = new WayRadioList(<any>replaceEleObj, replaceEleObj.attr("datasource"));
+            var strDatasource = replaceEleObj.attr("datasource");
+            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
+                eval("strDatasource=" + strDatasource);
+            }
+            control = new WayRadioList(<any>replaceEleObj, strDatasource);
             break;
         case "WAYBUTTON":
             control = new WayButton(<any>replaceEleObj);

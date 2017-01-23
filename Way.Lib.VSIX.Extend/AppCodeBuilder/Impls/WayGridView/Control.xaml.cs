@@ -76,6 +76,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayGridView
             {
                 Name = pro.Name,
                 caption = pro.GetCustomAttribute<Way.EntityDB.WayLinqColumnAttribute>().Comment,
+                PropertyInfo = pro,
             };
             
             return column;
@@ -145,12 +146,12 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayGridView
                         string htmlTemplate;
                         string itemTemplate;
                         string headerItemTemplate;
+                        string searchTemplate = null;
 
                         htmlTemplate = File.ReadAllText($"{templateFolderPath}html.txt", encode);
                         itemTemplate = File.ReadAllText($"{templateFolderPath}html.Item.txt", encode);
                         headerItemTemplate = File.ReadAllText($"{templateFolderPath}html.HeaderItem.txt", encode);
-
-
+                       
 
                         htmlTemplate = htmlTemplate.Replace("{%ControlId}", _builder.ControlId)
                             .Replace("{%PageSize}", _builder.PageSize.ToString())
@@ -182,7 +183,54 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayGridView
                         htmlTemplate = htmlTemplate.Replace("{%Items}", itemBuffer.ToString());
                         htmlTemplate = htmlTemplate.Replace("{%HeaderItems}", headerBuffer.ToString());
 
-                        txtHtml.Text = htmlTemplate;
+                        if (_builder.ShowSearchArea)
+                        {
+                            searchTemplate = File.ReadAllText($"{templateFolderPath}html.Search.txt", encode).
+                                Replace("{%ElementId}", _builder.ControlId + "_search").
+                                Replace("{%ControlId}", _builder.ControlId  );
+
+                            string textTemplate = File.ReadAllText($"{templateFolderPath}html.Search.Item.Text.txt", encode);
+                            string selectorTemplate = File.ReadAllText($"{templateFolderPath}html.Search.Item.Selector.txt", encode);
+                            StringBuilder searchBuffer = new StringBuilder();
+                            foreach (var column in columns)
+                            {
+                                string template = textTemplate;
+                                bool relateOtherTable = column.RelaTableName.IsNullOrEmpty() == false && column.RelaColumnName.IsNullOrEmpty() == false && column.DisplayColumnName.IsNullOrEmpty() == false;
+                                if (column.PropertyInfo.PropertyType.IsEnum || relateOtherTable)
+                                {
+                                    template = selectorTemplate;
+                                }
+                                template = template.Replace("{%Caption}" , column.caption.IsNullOrEmpty() ? column.Name : column.caption)
+                                    .Replace("{%ColumnName}" , column.Name);
+                                if (column.PropertyInfo.PropertyType.IsEnum)
+                                {
+                                    StringBuilder arrStr = new StringBuilder();
+                                    arrStr.Append("[");
+                                    FieldInfo[] fields = column.PropertyInfo.PropertyType.GetFields();
+                                    for(int i = 1; i < fields.Length; i ++)
+                                    {
+                                        if (i > 1)
+                                            arrStr.Append(',');
+                                        arrStr.Append($"{{text:\"{fields[i].Name}\",value:\"{fields[i].Name}\"}}");
+                                    }
+                         
+                                    arrStr.Append("]");
+                                    template = template.Replace("{%DataSource}", arrStr.ToString())
+                                        .Replace("{%AttributeArea}", "selectonly=\"true\"");
+                                }
+                                else if(relateOtherTable)
+                                {
+                                    template = template.Replace("{%DataSource}", $"{((Type)_builder.DBContext.Value).FullName}.{column.RelaTableName}")
+                                        .Replace("{%AttributeArea}", $"textMember='{column.DisplayColumnName}' valueMember='{column.RelaColumnName}'");
+                                }
+                                searchBuffer.AppendLine(template);
+                            }
+                            searchTemplate = searchTemplate.Replace("{%SearchItems}", searchBuffer.ToString());
+                        }
+
+                        if (!searchTemplate.IsNullOrEmpty())
+                            searchTemplate += "\r\n";
+                        txtHtml.Text = searchTemplate + htmlTemplate;
                     }
                     #endregion
 
