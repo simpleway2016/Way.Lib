@@ -9,16 +9,14 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
-            <ColumnDefinition x:Name="mainColumn2" Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <DockPanel Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="True">
             <ComboBox DockPanel.Dock="Top" Height="25" SelectedValuePath="Type" DisplayMemberPath="Name" Margin="5" HorizontalAlignment="Stretch" x:Name="lstCodeBuilders"></ComboBox>
-            <WindowsFormsHost x:Name="hostBuilderPG" DockPanel.Dock="Top" HorizontalAlignment="Stretch" />
+            <WindowsFormsHost x:Name="hostBuilderPG" DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,0,5,0" />
         </DockPanel>
         <GridSplitter Width="5"></GridSplitter>
         <DockPanel x:Name="viewContainer" Grid.Column="1"></DockPanel>
-        <GridSplitter x:Name="splitter2" Width="5"></GridSplitter>
-        <DockPanel Grid.Column="2"></DockPanel>
+        
     </Grid>
 </Window>

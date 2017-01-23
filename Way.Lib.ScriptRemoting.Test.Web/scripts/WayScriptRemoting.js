@@ -1850,6 +1850,10 @@ var WayGridView = (function (_super) {
             if (!this.element[0].WayControl) {
                 this.element[0].WayControl = this;
             }
+            var searchid = this.element.attr("searchid");
+            if (searchid && searchid.length > 0) {
+                this.searchModel = WayDataBindHelper.dataBind(searchid, {});
+            }
             this.allowEdit = this.element.attr("allowedit") == "true";
             this.element.css({
                 "overflow-y": "auto",
@@ -3788,7 +3792,7 @@ var initWayControl = function (virtualEle, element) {
             break;
         case "WAYGRIDVIEW":
             replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-            control = new WayGridView(replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
+            control = new WayGridView(replaceEleObj, parseInt(replaceEleObj.attr("pagesize")));
             break;
         default:
             break;

@@ -9,13 +9,13 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
-    internal class DatabaseSelector : System.Drawing.Design.UITypeEditor
+    internal class TableSelector : System.Drawing.Design.UITypeEditor
     {
         private IWindowsFormsEditorService wSrv;
         private ListBox list;
         private IServiceProvider provider;
         private System.ComponentModel.ITypeDescriptorContext context;
-        string xmlfilePath;
+
         /// <summary>
         /// 
         /// </summary>
@@ -29,7 +29,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             this.provider = provider;
             this.context = context;
 
-            ShowDrowDown(value == null ? "" : value.ToString());
+            ShowDrowDown( value == null ? null : (PropertyInfo)((ValueDescription)value).Value  );
 
             return value;
         }
@@ -49,42 +49,47 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             this.wSrv.CloseDropDown();
             try
             {
-                this.context.PropertyDescriptor.SetValue(this.context.Instance, list.SelectedItem);
+                this.context.PropertyDescriptor.SetValue(this.context.Instance,new ValueDescription(list.SelectedItem, ()=>
+                {
+                    return ((System.Reflection.PropertyInfo)list.SelectedItem).Name;
+                }));
             }
             catch (Exception ex)
             { MessageBox.Show(ex.Message); }
         }
 
         #region ShowDrowDown
-        private void ShowDrowDown(string value)
+        private void ShowDrowDown(PropertyInfo value)
         {
             try
             {
+                if(this.wSrv == null)
+                    this.wSrv = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
 
+                WayGridViewBuilder builder = (WayGridViewBuilder)this.context.Instance;
+                if (builder.DBContext == null)
+                    throw new Exception("Please select DBContext first!");
 
                 if (list == null)
                 {
                     list = new ListBox();
+                    list.Height = 300;
                     list.Click += new EventHandler(list_Click);
+                    list.GotFocus += List_GotFocus;
                 }
-                else
-                    list.Items.Clear();
 
                 list.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
-                var typeDiscoverer = BuilderForm.GetService<Services.ITypeDiscoverer>();
-                var dbtypes = typeDiscoverer.GetTypes(typeof(Way.EntityDB.DBContext));
-                if (dbtypes != null)
-                {
-                    dbtypes = dbtypes.Where(m=>m.GetConstructor(null)!=null).ToArray();
-                    list.DisplayMember = "Name";
-                    list.ValueMember = "FullName";
-                    list.DataSource = dbtypes;
-                }
+                var properties = ((Type)builder.DBContext.Value).GetProperties( BindingFlags.Public | BindingFlags.Instance).OrderBy(m=>m.Name).Where(m=>m.PropertyType.IsGenericType || m.PropertyType.IsArray || m.PropertyType.HasElementType).ToArray();
 
-                list.SelectedValue = value;
+                list.DisplayMember = "Name";
+                list.DataSource = properties;
 
+                _tosetValue = ( value == null ? null : properties.FirstOrDefault(m => m.Name == value.Name));
+                //if (value != null)
+                //    list.SelectedItem = properties.FirstOrDefault(m => m.Name == value.Name);
                 wSrv.DropDownControl(list);
+               
             }
             catch (Exception ex2)
             {
@@ -92,6 +97,13 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
             }
 
         }
+        object _tosetValue;
+        private void List_GotFocus(object sender, EventArgs e)
+        {
+            list.SelectedItem = _tosetValue;
+        }
+
+
         #endregion
 
 

@@ -49,7 +49,7 @@ namespace Way.Lib.VSIX.Extend
             List<object> objs = new List<object>();
             objs.Add(new { Type = typeof(string), Name = "请选择控件类型" });
             var types = Assembly.GetExecutingAssembly().GetTypes().Where(m=>m.GetInterface("Way.Lib.VSIX.Extend.AppCodeBuilder.IAppCodeBuilder") != null).OrderBy(m=>m.Name)
-                .Select(m=> new { Type = m, Name = m.Name }).ToArray() ;
+                .Select(m=> new { Type = m, Name = m.Name.Replace("Builder" , "") }).ToArray() ;
 
             objs.AddRange(types);
             lstCodeBuilders.ItemsSource = objs;
@@ -63,17 +63,11 @@ namespace Way.Lib.VSIX.Extend
             {
                 Type type = (Type)lstCodeBuilders.SelectedValue;
                 _currentBuilder = (Way.Lib.VSIX.Extend.AppCodeBuilder.IAppCodeBuilder)Activator.CreateInstance(type);
+                viewContainer.Children.Clear();
                 if (_currentBuilder.ViewControl != null)
                 {
-                    mainColumn2.Width = new GridLength(_currentBuilder.ViewControl.Width);
-                    splitter2.Visibility = Visibility.Visible;
                     _currentBuilder.ViewControl.HorizontalAlignment = HorizontalAlignment.Stretch;
                     viewContainer.Children.Add(_currentBuilder.ViewControl);
-                }
-                else
-                {
-                    mainColumn2.Width = new GridLength(0);
-                    splitter2.Visibility = Visibility.Collapsed;
                 }
                 _propertyGrid.SelectedObject = _currentBuilder;
             }
@@ -88,8 +82,10 @@ namespace Way.Lib.VSIX.Extend
         public static T GetService<T>()
         {
             Type t = typeof(T);
-            return (T)Services.Where(m => m.GetType() == t).FirstOrDefault();
+            return (T)Services.Where(m => m.GetType().GetInterface(t.FullName) != null).FirstOrDefault();
         }
         #endregion
+
+      
     }
 }

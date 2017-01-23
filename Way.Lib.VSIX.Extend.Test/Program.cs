@@ -9,6 +9,12 @@ using Way.Lib.VSIX.Extend.Services;
 
 namespace Way.Lib.VSIX.Extend.Test
 {
+    class MyDB : EJ.DB.EasyJob
+    {
+        public MyDB() : base(null, EntityDB.DatabaseType.Sqlite)
+        {
+        }
+    }
     static class Program
     {
         /// <summary>
@@ -18,27 +24,30 @@ namespace Way.Lib.VSIX.Extend.Test
         static void Main()
         {
             BuilderForm.AddService(new MyTypeDiscoverer());
-
+            BuilderForm.AddService(new MyApplication());
             BuilderForm win = new BuilderForm();
             win.ShowDialog();
          
         }
 
-        class MyDB : EJ.DB.EasyJob
-        {
-            public MyDB() : base(null, EntityDB.DatabaseType.Sqlite)
-            {
-            }
-        }
+  
 
         class MyTypeDiscoverer : ITypeDiscoverer
         {
             public Type[] GetTypes(Type basetype)
             {
                 var types = Assembly.GetExecutingAssembly().GetTypes().
-                    Where(m => m.GetInterface("Way.Lib.VSIX.Extend.AppCodeBuilder.IAppCodeBuilder") != null).
+                    Where(m => m.IsSubclassOf(basetype)  ).
                     OrderBy(m => m.Name).ToArray();
                 return types;
+            }
+        }
+
+        class MyApplication : IApplication
+        {
+            public string GetTemplatePath()
+            {
+                return AppDomain.CurrentDomain.BaseDirectory + "CodeTemplates";
             }
         }
     }

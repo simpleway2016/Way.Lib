@@ -5,9 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Way.Lib.VSIX.Extend.AppCodeBuilder.Impls.WayGridView"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="900">
     <Grid>
-        <ListView x:Name="lstColumns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="560"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="lstColumns" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="列" Width="160">
@@ -27,7 +31,7 @@
                     <GridViewColumn Header="关联表" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <ComboBox ItemsSource="{Binding Tables}" Tag="{Binding}"  SelectedItem="{Binding RelaTableName , Mode=TwoWay}"/>
+                                <ComboBox ItemsSource="{Binding Tables}" Tag="{Binding}"  SelectionChanged="RelaTableNameChanged"   SelectedItem="{Binding RelaTableName , Mode=TwoWay}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -48,5 +52,14 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <GridSplitter Width="5"></GridSplitter>
+        <DockPanel Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Button Content="生成代码" DockPanel.Dock="Top" x:Name="btnMakeCode" Click="btnMakeCode_Click" Margin="5" Width="89" Height="26" HorizontalAlignment="Left"></Button>
+            
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5,0,5,5">
+                <Label Content="Html代码："></Label>
+            </StackPanel>
+            <TextBox DockPanel.Dock="Top" x:Name="txtHtml" Margin="5,0,5,5"></TextBox>
+        </DockPanel>
     </Grid>
 </UserControl>

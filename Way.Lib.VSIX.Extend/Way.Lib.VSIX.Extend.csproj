@@ -141,6 +141,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Globalization.Calendars, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Globalization.Calendars.4.3.0\lib\net46\System.Globalization.Calendars.dll</HintPath>
       <Private>True</Private>
@@ -232,7 +233,8 @@
     <Compile Include="AppCodeBuilder\Impls\WayGridView\Control.xaml.cs">
       <DependentUpon>Control.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AppCodeBuilder\Impls\WayGridView\DBSelector.cs" />
+    <Compile Include="AppCodeBuilder\Impls\WayGridView\TableSelector.cs" />
+    <Compile Include="AppCodeBuilder\Impls\WayGridView\DatabaseSelector.cs" />
     <Compile Include="AppCodeBuilder\Impls\WayGridView\WayGridViewBuilder.cs" />
     <Compile Include="AppCodeBuilder\SampleCode.cs" />
     <Compile Include="AppCodeBuilder\SampleColumn.cs" />
@@ -241,7 +243,9 @@
     </Compile>
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IApplication.cs" />
     <Compile Include="Services\ITypeDiscoverer.cs" />
+    <Compile Include="ValueDescription.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="AppCodeBuilder\BuilderWindow.xaml">

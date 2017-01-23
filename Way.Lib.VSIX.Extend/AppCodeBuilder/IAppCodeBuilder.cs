@@ -9,8 +9,6 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 {
     public interface IAppCodeBuilder
     {
-        string Name { get; }
         UserControl ViewControl { get; }
-        List<SampleCode> Build(SampleColumn[] columns);
     }
 }

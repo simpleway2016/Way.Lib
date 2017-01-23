@@ -80,8 +80,7 @@ namespace Way.Lib.VSIX.Extend.AppCodeBuilder
 
         private void btnMake_Click(object sender, RoutedEventArgs e)
         {
-            var codes = _builder.Build(_columns);
-            lstCodes.ItemsSource = codes;
+           
         }
 
         private void btnCopy_Click(object sender, RoutedEventArgs e)

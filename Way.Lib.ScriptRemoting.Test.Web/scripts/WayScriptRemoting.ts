@@ -2031,7 +2031,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 _pagesize = 10;
 
             var controller = document.body.getAttribute("controller");
-           
+            
             this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
                 this.element = $("#" + elementId);
@@ -2042,6 +2042,11 @@ class WayGridView extends WayBaseObject implements IPageable {
 
             if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
                 (<any>this.element[0]).WayControl = this;
+            }
+
+            var searchid = this.element.attr("searchid");
+            if (searchid && searchid.length > 0) {
+                this.searchModel = WayDataBindHelper.dataBind(searchid, {});
             }
 
             this.allowEdit = this.element.attr("allowedit") == "true";
@@ -4256,7 +4261,7 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
             break;
         case "WAYGRIDVIEW":
             replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-            control = new WayGridView(<any>replaceEleObj, parseInt(replaceEleObj.attr("_pagesize")));
+            control = new WayGridView(<any>replaceEleObj, parseInt(replaceEleObj.attr("pagesize")));
             break;
         default:
             break;
