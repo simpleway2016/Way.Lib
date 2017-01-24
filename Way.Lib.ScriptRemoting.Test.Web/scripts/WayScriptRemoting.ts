@@ -4384,6 +4384,10 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
 
     var controlType = virtualEle.tagName;
     var replaceEleObj = $(element.innerHTML);
+    for (var k = 0; k < element.attributes.length; k++) {
+        replaceEleObj.attr(element.attributes[k].name, element.attributes[k].value)
+    }
+
     checkToInitWayControl(replaceEleObj[0]);
 
     var style1 = virtualEle.getAttribute("style");
@@ -4460,26 +4464,36 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
     }
 };
 
-var _styles = $(WayHelper.downloadUrl("/templates/main.html"));
-var _bodyObj: JQuery = $(document.body);
+var _styles: JQuery;
+var _bodyObj: JQuery;
 var _windowObj: JQuery = $(window);
 $(document).ready(() => {
-    var body = $(document.body);
-    var controllerName = body.attr("controller");
+    _bodyObj = $(document.body);
+    var controllerName = _bodyObj.attr("controller");
     if (!controllerName) {
         throw "<Body>没有定义controller";
     }
     else {
         (<any>window).controller = WayScriptRemoting.createRemotingController(controllerName);
     }
+
+    var _controlTemplatePath = _bodyObj.attr("controlTemplate");
+    if (!_controlTemplatePath || _controlTemplatePath.length == 0)
+        _controlTemplatePath = "/templates/main.html";
+    _styles = $(WayHelper.downloadUrl(_controlTemplatePath));
+
     for (var i = 0; i < _styles.length; i++) {
         var element = _styles[i];
         if (element.tagName == "STYLE") {
             document.body.appendChild(element);
         }
-        else {
+        else if (element.children) {
             var controlType = element.tagName;
-            var controlEles = body.find(controlType);
+            while (element.children.length > 1) {
+                element.removeChild(element.children[1]);
+            }
+
+            var controlEles = _bodyObj.find(controlType);
             for (var j = 0; j < controlEles.length; j++) {
                 var virtualEle = controlEles[j];
                 initWayControl(virtualEle, element);
