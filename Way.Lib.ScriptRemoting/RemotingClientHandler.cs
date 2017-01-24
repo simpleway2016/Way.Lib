@@ -296,36 +296,7 @@ namespace Way.Lib.ScriptRemoting
                 }));
             }
         }
-        static byte[] HexStringToBytes(string hex,int index,int len)
-        {
-            if (len == 0)
-            {
-                return new byte[0];
-            }
 
-
-
-            byte[] result = new byte[len / 2];
-            int myindex = 0;
-            int endindex = index + len;
-            for (int i = index; i < endindex; i+=2)
-            {
-                result[myindex] = byte.Parse(hex.Substring(i, 2), System.Globalization.NumberStyles.AllowHexSpecifier);
-                myindex++;
-            }
-
-            return result;
-        }
-        private static string BytesToHexString(byte[] input)
-        {
-            StringBuilder hexString = new StringBuilder(64);
-
-            for (int i = 0; i < input.Length; i++)
-            {
-                hexString.Append(String.Format("{0:X2}", input[i]));
-            }
-            return hexString.ToString();
-        }
         internal static void CreateRSAKey(SessionState session)
         {
             if (session["$$_RSACryptoServiceProvider"] == null)
