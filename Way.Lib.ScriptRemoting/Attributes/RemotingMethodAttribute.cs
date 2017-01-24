@@ -6,23 +6,35 @@ using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting
 {
+    public enum RSAApplyScene
+    {
+        /// <summary>
+        /// 不使用RSA加密
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// js提交的参数，使用RSA加密
+        /// </summary>
+        WithSubmit = 1,
+        /// <summary>
+        /// 服务器返回的数据，使用RSA加密
+        /// </summary>
+        WithReturn = WithSubmit<<1,
+        /// <summary>
+        ///  js提交的参数，服务器返回的数据，都使用RSA加密
+        /// </summary>
+        WithSubmitAndReturn = WithSubmit | WithReturn,
+    }
     /// <summary>
     /// 定义了此属性的函数，才允许被JS执行
     /// </summary>
     public class RemotingMethodAttribute : Attribute
     {
+       
         /// <summary>
-        /// Javascript传输的参数,是否使用RSA加密
+        /// RSA加密场景设置
         /// </summary>
-        public bool SubmitUseRSA
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// 函数返回的值，是否采用rsa加密
-        /// </summary>
-        public bool ReturnUseRSA
+        public RSAApplyScene UseRSA
         {
             get;
             set;
@@ -31,6 +43,7 @@ namespace Way.Lib.ScriptRemoting
     
         public RemotingMethodAttribute()
         {
+            UseRSA = RSAApplyScene.None;
         }
      
     }

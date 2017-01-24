@@ -258,10 +258,10 @@ namespace Way.Lib.ScriptRemoting
                         }
                     }
                     RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)method.GetCustomAttribute(typeof(RemotingMethodAttribute));
-                    if (methodAttr.SubmitUseRSA || methodAttr.ReturnUseRSA)
+                    if (methodAttr.UseRSA != RSAApplyScene.None)
                     {
                         outputRSAKey = true;
-                        methodOutput.AppendLine($"] , callback,true,{(methodAttr.SubmitUseRSA?"true":"false")},{(methodAttr.ReturnUseRSA ? "true" : "false")} );");
+                        methodOutput.AppendLine($"] , callback,true,{(methodAttr.UseRSA.HasFlag(RSAApplyScene.WithSubmit) ?"true":"false")},{(methodAttr.UseRSA.HasFlag(RSAApplyScene.WithReturn) ? "true" : "false")} );");
                     }
                     else
                     {
@@ -387,7 +387,7 @@ namespace Way.Lib.ScriptRemoting
                 RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                 var pInfos = methodinfo.GetParameters();
 
-                if(methodAttr.SubmitUseRSA)
+                if(methodAttr.UseRSA.HasFlag(RSAApplyScene.WithSubmit))
                 {
                     var parameterStr = DecrptRSA(this.Session, msgBag.Parameters[0]);
                     msgBag.Parameters = (string[])Newtonsoft.Json.JsonConvert.DeserializeObject( $"[{parameterStr}]" , typeof(string[]) );
@@ -410,7 +410,7 @@ namespace Way.Lib.ScriptRemoting
                     }
                 }
                 var result = methodinfo.Invoke(currentPage, parameters);
-                if (methodAttr.ReturnUseRSA && result != null)
+                if (methodAttr.UseRSA.HasFlag(RSAApplyScene.WithReturn) && result != null)
                 {
                     SendData(MessageType.Result, result, encryptToReturn);
                 }
