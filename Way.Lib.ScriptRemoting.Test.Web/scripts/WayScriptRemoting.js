@@ -2710,6 +2710,9 @@ var WayDropDownList = (function () {
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
         }
+        if (this.selectonly && this.textElement && this.textElement[0].tagName == "INPUT") {
+            this.textElement.attr("readonly", "readonly");
+        }
         var actionEle = this.element.find("*[isaction]");
         if (actionEle.length > 0) {
             this.actionElement = $(actionEle[0]);

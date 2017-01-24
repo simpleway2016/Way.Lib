@@ -93,9 +93,13 @@ namespace Way.Lib.HtmlUtil
                 if(String.Equals( node.Name , "input" , StringComparison.CurrentCultureIgnoreCase) == false)
                     str.AppendLine($"</{node.Name}>");
             }
-            while( str.Length > 0 && ( str[str.Length - 1] == '\n' || str[str.Length - 1] == '\r'))
+            while( str.Length > 0 && ( str[str.Length - 1] == '\n' || str[str.Length - 1] == '\r' || str[str.Length - 1] == ' ' || str[str.Length - 1] == '\t'))
             {
                 str.Remove(str.Length - 1, 1);
+            }
+            while (str.Length > 0 && (str[0] == '\n' || str[0] == '\r' || str[0] == ' ' || str[0] == '\t'))
+            {
+                str.Remove(0, 1);
             }
             return str.ToString();
         }

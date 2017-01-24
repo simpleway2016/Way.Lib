@@ -3064,11 +3064,14 @@ class WayDropDownList {
         this.isMobile = "ontouchstart" in this.element[0];
         //this.isMobile = true;
         this.selectonly = this.element.attr("selectonly") === "true";
+       
         var textele = this.element.find("*[istext]");
         if (textele.length > 0) {
             this.textElement = $(textele[0]);
         }
-
+        if (this.selectonly && this.textElement && this.textElement[0].tagName == "INPUT") {
+            this.textElement.attr("readonly", "readonly");
+        }
         var actionEle = this.element.find("*[isaction]");
         if (actionEle.length > 0) {
             this.actionElement = $(actionEle[0]);
