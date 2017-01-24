@@ -87,7 +87,7 @@ namespace Way.Lib.ScriptRemoting.Test
             return DateTime.Now.ToString();
         }
 
-        [RemotingMethod( SubmitByRSA = true)]
+        [RemotingMethod( SubmitUseRSA =true, ReturnUseRSA =true)]
         public string TestRSA(string content,int number)
         {
             return content;

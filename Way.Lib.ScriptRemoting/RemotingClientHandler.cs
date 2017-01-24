@@ -258,10 +258,10 @@ namespace Way.Lib.ScriptRemoting
                         }
                     }
                     RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)method.GetCustomAttribute(typeof(RemotingMethodAttribute));
-                    if (methodAttr.SubmitByRSA)
+                    if (methodAttr.SubmitUseRSA || methodAttr.ReturnUseRSA)
                     {
                         outputRSAKey = true;
-                        methodOutput.AppendLine("] , callback,true,true );");
+                        methodOutput.AppendLine($"] , callback,true,{(methodAttr.SubmitUseRSA?"true":"false")},{(methodAttr.ReturnUseRSA ? "true" : "false")} );");
                     }
                     else
                     {
@@ -331,43 +331,22 @@ namespace Way.Lib.ScriptRemoting
             if (session["$$_RSACryptoServiceProvider"] == null)
             {
 
-                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-                
-                //把公钥适当转换，准备发往客户端
-                RSAParameters parameter = rsa.ExportParameters(true);
-                string publicKeyExponent = BytesToHexString(parameter.Exponent);
-                string publicKeyModulus = BytesToHexString(parameter.Modulus);
+                Way.Lib.RSA rsa = new RSA();
+
                 session["$$_RSACryptoServiceProvider"] = rsa;
-                session["$$_rsa_PublicKeyExponent"] = publicKeyExponent;
-                session["$$_rsa_PublicKeyModulus"] = publicKeyModulus;
+                session["$$_rsa_PublicKeyExponent"] = rsa.PublicKeyExponent;
+                session["$$_rsa_PublicKeyModulus"] = rsa.PublicKeyModulus;
             }
         }
 
         internal static string DecrptRSA(SessionState session,string content)
         {
-            System.Text.ASCIIEncoding enc = new ASCIIEncoding();
-            RSACryptoServiceProvider rsa = session["$$_RSACryptoServiceProvider"] as RSACryptoServiceProvider;
+            RSA rsa = session["$$_RSACryptoServiceProvider"] as RSA;
             if (rsa == null )
             {
                 throw new RSADecrptException();
             }
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < content.Length; i += 256)
-            {
-                byte[] bs = null;
-                try
-                {
-                    bs = rsa.Decrypt(HexStringToBytes(content, i, 256), false);
-                }
-                catch
-                {
-                    throw new RSADecrptException();
-                }
-                string str = enc.GetString(bs);
-                result.Append(str);
-            }
-
-            return System.Net.WebUtility.UrlDecode( result.ToString()) ;
+            return System.Net.WebUtility.UrlDecode(rsa.Decrypt(content)) ;
         }
 
         void handleUploadFile(MessageBag msgBag)
@@ -407,6 +386,13 @@ namespace Way.Lib.ScriptRemoting
                 MethodInfo methodinfo = pageDefine.Methods.Single(m => m.Name == msgBag.MethodName);
                 RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                 var pInfos = methodinfo.GetParameters();
+
+                if(methodAttr.SubmitUseRSA)
+                {
+                    var parameterStr = DecrptRSA(this.Session, msgBag.Parameters[0]);
+                    msgBag.Parameters = (string[])Newtonsoft.Json.JsonConvert.DeserializeObject( $"[{parameterStr}]" , typeof(string[]) );
+                }
+
                 if (pInfos.Length != msgBag.Parameters.Length)
                     throw new Exception($"{msgBag.MethodName}参数个数不相符");
                 object[] parameters = new object[pInfos.Length];
@@ -420,18 +406,18 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else
                     {
-                        if (methodAttr.SubmitByRSA && msgBag.Parameters[i] != null && msgBag.Parameters[i].Length >= 258)
-                        {
-                            parameters[i] = Convert.ChangeType(DecrptRSA(this.Session, msgBag.Parameters[i].Substring(1, msgBag.Parameters[i].Length - 2)), pType);
-                        }
-                        else
-                        {
-                            parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
-                        }
+                        parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
                     }
                 }
                 var result = methodinfo.Invoke(currentPage, parameters);
-                SendData(MessageType.Result, result);
+                if (methodAttr.ReturnUseRSA && result != null)
+                {
+                    SendData(MessageType.Result, result, encryptToReturn);
+                }
+                else
+                {
+                    SendData(MessageType.Result, result);
+                }
             }
             catch (RSADecrptException)
             {
@@ -445,7 +431,19 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
+        string encryptToReturn(string ret)
+        {
+            if (ret == null)
+                return null;
+            RSA rsa = this.Session["$$_RSACryptoServiceProvider"] as RSA;
+            return rsa.Encrypt2(System.Net.WebUtility.UrlEncode(ret));
+        }
+
         public void SendData(MessageType msgType, object resultObj)
+        {
+            SendData(msgType , resultObj,null);
+        }
+        public void SendData(MessageType msgType, object resultObj,Func<string,string> rsaFunc)
         {
             try
             {
@@ -461,7 +459,10 @@ namespace Way.Lib.ScriptRemoting
                     {
                         objstr = Newtonsoft.Json.JsonConvert.SerializeObject(resultObj);
                     }
+                   
                     var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + "}";
+                    if (rsaFunc != null)
+                        dataStr = rsaFunc(dataStr);
                     mSendDataFunc(dataStr);
                 }
             }

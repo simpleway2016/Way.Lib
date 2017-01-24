@@ -1,6 +1,7 @@
 ﻿declare var setMaxDigits: (n: number) => void;
 declare class RSAKeyPair { constructor(e: string,n:string, m: string); };
 declare var encryptedString: (key: RSAKeyPair, value: string) => string;
+declare var decryptedString: (key: RSAKeyPair, value: string) => string;
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -489,7 +490,7 @@ class WayScriptRemoting extends WayBaseObject {
         }
     }
 
-    pageInvoke(name: string, parameters: any[], callback: any, async: boolean = true, useRsa: boolean=false) {
+    pageInvoke(name: string, parameters: any[], callback: any, async: boolean = true, useRsa: boolean=false , returnUseRsa:boolean = false) {
         try {
             if (WayScriptRemoting.onBeforeInvoke) {
                 WayScriptRemoting.onBeforeInvoke(name, parameters);
@@ -501,7 +502,7 @@ class WayScriptRemoting extends WayBaseObject {
                     if (paramerStr.length > 0)
                         paramerStr += ",";
 
-                    var itemstr = JSON.stringify(useRsa && p && typeof p == "string" ? this.encrypt(p) : p);
+                    var itemstr = JSON.stringify(p);
                     paramerStr += JSON.stringify(itemstr);
                 });
             }
@@ -517,6 +518,11 @@ class WayScriptRemoting extends WayBaseObject {
                 }
                 else {
                     var resultObj;
+                    if (returnUseRsa && ret.indexOf("{") != 0) {
+                        setMaxDigits(129);
+                        var rsakey = new RSAKeyPair("", this.rsa.Exponent, this.rsa.Modulus);
+                        ret = decodeURIComponent(decryptedString(rsakey, ret));
+                    }
                     eval("resultObj=" + ret);
 
                     if (resultObj.type == WayScriptRemotingMessageType.Result) {
@@ -531,6 +537,10 @@ class WayScriptRemoting extends WayBaseObject {
                     }
                 }
             };
+
+            if (useRsa) {
+                paramerStr = "\"" + this.encrypt(paramerStr) + "\"";
+            }
             invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
 
         }

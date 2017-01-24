@@ -469,10 +469,11 @@ var WayScriptRemoting = (function (_super) {
             return result;
         }
     };
-    WayScriptRemoting.prototype.pageInvoke = function (name, parameters, callback, async, useRsa) {
+    WayScriptRemoting.prototype.pageInvoke = function (name, parameters, callback, async, useRsa, returnUseRsa) {
         var _this = this;
         if (async === void 0) { async = true; }
         if (useRsa === void 0) { useRsa = false; }
+        if (returnUseRsa === void 0) { returnUseRsa = false; }
         try {
             if (WayScriptRemoting.onBeforeInvoke) {
                 WayScriptRemoting.onBeforeInvoke(name, parameters);
@@ -482,7 +483,7 @@ var WayScriptRemoting = (function (_super) {
                 parameters.forEach(function (p) {
                     if (paramerStr.length > 0)
                         paramerStr += ",";
-                    var itemstr = JSON.stringify(useRsa && p && typeof p == "string" ? _this.encrypt(p) : p);
+                    var itemstr = JSON.stringify(p);
                     paramerStr += JSON.stringify(itemstr);
                 });
             }
@@ -497,6 +498,11 @@ var WayScriptRemoting = (function (_super) {
                 }
                 else {
                     var resultObj;
+                    if (returnUseRsa && ret.indexOf("{") != 0) {
+                        setMaxDigits(129);
+                        var rsakey = new RSAKeyPair("", _this.rsa.Exponent, _this.rsa.Modulus);
+                        ret = decodeURIComponent(decryptedString(rsakey, ret));
+                    }
                     eval("resultObj=" + ret);
                     if (resultObj.type == WayScriptRemotingMessageType.Result) {
                         callback(resultObj.result, null);
@@ -510,6 +516,9 @@ var WayScriptRemoting = (function (_super) {
                     }
                 }
             };
+            if (useRsa) {
+                paramerStr = "\"" + this.encrypt(paramerStr) + "\"";
+            }
             invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
         }
         catch (e) {
