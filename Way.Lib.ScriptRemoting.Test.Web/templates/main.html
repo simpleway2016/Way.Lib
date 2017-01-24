@@ -55,7 +55,7 @@
 <WayRadioList>
     <div>
         <script for="item" type="text/html">
-            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;" expression="this.style.backgroundColor=($Selected&&@text)?'green':'';"><input type="radio" databind="checked=$Selected">{@text}</div>
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;" expression="this.style.color=$Selected?'#eee':'';this.style.backgroundColor=($Selected&&@text)?'green':'';"><input type="radio" databind="checked=$Selected">{@text}</div>
         </script>
     </div>
 </WayRadioList>
