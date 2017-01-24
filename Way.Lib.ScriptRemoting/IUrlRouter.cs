@@ -78,7 +78,8 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="originalUrl">原始url</param>
         /// <param name="fromUrl">从哪个url访问的</param>
         /// <param name="connectInfo"></param>
+        /// <param name="requestQuery"></param>
         /// <returns>如果返回null，表示不改变路由</returns>
-        string GetUrl(string originalUrl,string fromUrl, HttpConnectInformation connectInfo);
+        string GetUrl(string originalUrl,string fromUrl, HttpConnectInformation connectInfo,Dictionary<string,string> requestQuery);
     }
 }

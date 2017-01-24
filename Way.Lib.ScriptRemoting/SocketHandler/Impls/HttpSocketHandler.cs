@@ -107,6 +107,7 @@ namespace Way.Lib.ScriptRemoting
 
         //static List<string> compiledTSFiles = new List<string>();
         Dictionary<string, string> RequestForms;
+        Dictionary<string, string> RequestQueryString = new Dictionary<string, string>();
         public Connection Connection
         {
             get;
@@ -199,6 +200,15 @@ namespace Way.Lib.ScriptRemoting
                 {
                   
                     string url = this.Connection.mKeyValues["GET"].ToSafeString();
+                    if (url.Contains("?"))
+                    {
+                        MatchCollection matches = Regex.Matches(url, @"(?<n>(\w)+)\=(?<v>([^\=\&])+)");
+                        foreach( Match m in matches )
+                        {
+                            RequestQueryString[m.Groups["n"].Value] = WebUtility.UrlDecode(m.Groups["v"].Value);
+                        }
+                        url = url.Substring(0, url.IndexOf("?"));
+                    }
                     url = getUrl(url);
 
                     string filepath = url;
@@ -250,7 +260,7 @@ namespace Way.Lib.ScriptRemoting
             foreach (var router in ScriptRemotingServer.Routers)
             {
 
-                var url = router.GetUrl(visitingUrl, (string)this.Connection.mKeyValues["Referer"], _currentHttpConnectInformation);
+                var url = router.GetUrl(visitingUrl, (string)this.Connection.mKeyValues["Referer"], _currentHttpConnectInformation,RequestQueryString);
                 if (url != null)
                 {
                     visitingUrl = url;
@@ -316,18 +326,23 @@ namespace Way.Lib.ScriptRemoting
 
         string outputWiteMaster(string url, string filePath)
         {
-            string content = System.Text.Encoding.UTF8.GetString( File.ReadAllBytes(filePath));
-            if (content.StartsWith("<Master "))
+            using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
             {
-                Match match = Regex.Match(content, @"<Master( )+src\=(\'|\"")(?<f>(\w|\.)+)(\'|\"")");
-                if (match != null)
+                byte[] bs = new byte[20];
+                fs.Read(bs, 0, bs.Length);
+                fs.Position = 0;
+
+                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<Master "))
                 {
-                    var masterUrl = match.Groups["f"].Value;
+                    Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
+                    parser.Parse(new StreamReader(fs));
+
+                    var masterUrl = parser.Nodes[0].Attributes.Where(m => m.Name == "src").Select(m => m.Value).FirstOrDefault();
                     if (masterUrl.StartsWith("/") == false)
                     {
                         if (url.EndsWith("/") == false)
                         {
-                            if(url.Contains("/"))
+                            if (url.Contains("/"))
                                 url = url.Substring(0, url.LastIndexOf("/"));
                             url += "/";
                         }
@@ -339,18 +354,26 @@ namespace Way.Lib.ScriptRemoting
                         filepath = filepath.Substring(1);
                     filepath = ScriptRemotingServer.Root + filepath;
                     string masterContent = outputWiteMaster(masterUrl, filepath);
-
-                    Dictionary<string, string> variables = new Dictionary<string, string>();
-                    MatchCollection matches = Regex.Matches(content, @"<Variable( )+name\=(\'|\"")(?<n>[.\n]+)(\'|\"")\>");
-                    foreach( Match m in matches )
+                    foreach( HtmlUtil.HtmlNode node in parser.Nodes )
                     {
-                        variables.Add(m.Groups["n"].Value , m.Groups["c"].Value);
+                        if(node.Name == "Variable")
+                        {
+                            var name = node.Attributes.Where(m => m.Name == "name").Select(m => m.Value).FirstOrDefault();
+                            masterContent = masterContent.Replace($"{{%{name}%}}" , node.getInnerHtml());
+                        }
                     }
+                    return masterContent;
+                }
+                else
+                {
+                    bs = new byte[fs.Length];
+                    fs.Read(bs, 0, bs.Length);
+                    return System.Text.Encoding.UTF8.GetString(bs);
                 }
             }
-            return content;
+            return "";
         }
-
+        static Dictionary<string, string> MasterFileTemps = new Dictionary<string, string>();
          void outputFile(string url , string filePath , string lastModifyTime)
         {
             string headers;
@@ -360,20 +383,75 @@ namespace Way.Lib.ScriptRemoting
             {
                 bs = new byte[20];
                 fs.Read(bs , 0 , bs.Length);
+                fs.Position = 0;
                 if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<Master "))
                 {
                     //母版模式
                     fs.Dispose();
-                    var content = outputWiteMaster(url,filePath);
-                    bs = System.Text.Encoding.UTF8.GetBytes(content);
-                    headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), bs.Length, false, -1, 0, lastModifyTime, null, true);
-                    this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
-                    this.Connection.mClient.Socket.Send(bs, bs.Length, System.Net.Sockets.SocketFlags.None);
-                    return;
+                    if (MasterFileTemps.ContainsKey(filePath) && new FileInfo(MasterFileTemps[filePath]).LastWriteTime == new FileInfo(filePath).LastWriteTime)
+                    {
+                        fs = new System.IO.FileStream(MasterFileTemps[filePath], System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read);
+                    }
+                    else
+                    {
+                        //文件更新，解析过需要清除，重新解析
+                        for(int i = 0; i < RemotingController.ParsedHtmls.Count; i ++)
+                        {
+                            var info = RemotingController.ParsedHtmls[i];
+                            if (info != null)
+                            {
+                                string infourl = info.Url;
+                                Match m = Regex.Match(infourl, @"http(s)?://(\w|\:|\.)+(?<u>/(.)+)");
+                                infourl = m.Groups["u"].Value;
+                                if (infourl.StartsWith(url , StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    RemotingController.ParsedHtmls.RemoveAt(i);
+                                    i--;
+                                }
+                            }
+                        }
+                        var content = outputWiteMaster(url, filePath);
+                        bs = System.Text.Encoding.UTF8.GetBytes(content);
+                        string temppath = ScriptRemotingServer.HtmlTempPath + "/" + Guid.NewGuid();
+                        File.WriteAllBytes(temppath, bs);
+                        new FileInfo(temppath).LastWriteTime = new FileInfo(filePath).LastWriteTime;
+                        try
+                        {
+                            MasterFileTemps[filePath] = temppath;
+                        }
+                        catch
+                        { }
+                        headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), bs.Length, false, -1, 0, lastModifyTime, null, true);
+                        this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
+                        this.Connection.mClient.Socket.Send(bs, bs.Length, System.Net.Sockets.SocketFlags.None);
+                        return;
+                    }
+                }
+                else
+                {
+                    DateTime lastModified = DateTime.Parse(lastModifyTime);
+                    //文件更新，解析过需要清除，重新解析
+                    for (int i = 0; i < RemotingController.ParsedHtmls.Count; i++)
+                    {
+                        var info = RemotingController.ParsedHtmls[i];
+                        if (info != null)
+                        {
+                            string infourl = info.Url;
+                            Match m = Regex.Match(infourl, @"http(s)?://(\w|\:|\.)+(?<u>/(.)+)");
+                            infourl = m.Groups["u"].Value;
+                            if (infourl.StartsWith(url, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                if (lastModified != info.LastModified)
+                                {
+                                    RemotingController.ParsedHtmls.RemoveAt(i);
+                                    i--;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            
-           
+             
             headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), fs.Length, false, -1, 0, lastModifyTime, null, true);
             this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
 

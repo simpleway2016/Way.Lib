@@ -28,6 +28,7 @@ namespace Way.Lib.ScriptRemoting
         internal static string SERVERID = Guid.NewGuid().ToString();
         internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal static string ScriptFilePath;
+        internal static string HtmlTempPath;
         static SocketServer socketServer;
         internal static string Root;
     
@@ -125,6 +126,22 @@ namespace Way.Lib.ScriptRemoting
             {
                 Root = webRootPath.EndsWith("/") ? webRootPath : webRootPath + "/";
                 makeTscFiles(Root);
+
+                HtmlTempPath = PlatformHelper.GetAppDirectory() + "$_HtmlTemps";
+                try
+                {
+                    if (Directory.Exists(HtmlTempPath))
+                    {
+                        Directory.Delete(HtmlTempPath, true);
+                        Directory.CreateDirectory(HtmlTempPath);
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(HtmlTempPath);
+                    }
+                }
+                catch { }
+
 
                 socketServer = new ScriptRemoting.SocketServer(port);
                 socketServer.Start();

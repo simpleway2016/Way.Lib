@@ -21,7 +21,7 @@
         <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.Databases" relateMember="ProjectID" textMember="Name" valueMember="id"></config>
         <config datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBTable" relateMember="DatabaseID" textMember="Name" valueMember="id"></config>
     </WayRelateList>
-    <button onclick="relList.value=[1,2,8]">relList test</button>
+    <button onclick="relList.value=[1,2,8]">relList test</button> 
     <div id="d1" style="height:30px;overflow-y:auto;">
         wfea<span>22</span>pp
     </div>
@@ -33,8 +33,10 @@
             var value = "";
             for (var p in d1.childNodes[0])
                 value += p + ":" + d1.childNodes[0][p] + "\r\n";
-            //d1.setAttribute("style","width:20px;height:20px;background-color:red;")
-
+            /*d1.setAttribute("style","width:20px;height:20px;background-color:red;")
+             
+            sefre = {
+            */
             window.onload = function () {
 
                 var test = WayDataBindHelper.dataBind(list1, { myvalue: 16 });

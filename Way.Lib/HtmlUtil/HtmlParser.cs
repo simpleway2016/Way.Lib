@@ -79,6 +79,27 @@ namespace Way.Lib.HtmlUtil
             this.Parent = parent;
         }
 
+        public virtual string getInnerHtml()
+        {
+            StringBuilder str = new StringBuilder();
+            foreach( var node in Nodes )
+            {
+                str.AppendLine(node.ToString());
+                if (node is HtmlTextBlock)
+                    continue;
+                string content = node.getInnerHtml();
+                if(content.Length > 0)
+                    str.AppendLine(content);
+                if(String.Equals( node.Name , "input" , StringComparison.CurrentCultureIgnoreCase) == false)
+                    str.AppendLine($"</{node.Name}>");
+            }
+            while( str.Length > 0 && ( str[str.Length - 1] == '\n' || str[str.Length - 1] == '\r'))
+            {
+                str.Remove(str.Length - 1, 1);
+            }
+            return str.ToString();
+        }
+
         public override string ToString()
         {
             StringBuilder str = new StringBuilder();
@@ -126,7 +147,7 @@ namespace Way.Lib.HtmlUtil
                 else if(c == '>')
                 {
                     stream.Read();
-                    if (lastChar == '/')
+                    if (lastChar == '/' || String.Equals(nameStr.ToString(), "input" , StringComparison.CurrentCultureIgnoreCase))
                     {
                         hasInnerContent = false;
                     }
@@ -389,7 +410,10 @@ namespace Way.Lib.HtmlUtil
         {
             this.Text = "";
         }
-
+        public override string getInnerHtml()
+        {
+            return this.Text.ToString();
+        }
         public override string ToString()
         {
             return this.Text.ToString();

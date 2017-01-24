@@ -49,6 +49,7 @@ namespace Way.Lib.ScriptRemoting
         {
             public string Url;
             public string Controller;
+            public DateTime LastModified;
             public List<string> Datasources = new List<string>();
             public List<string> AllowEditDatasources = new List<string>();
         }
@@ -91,7 +92,7 @@ namespace Way.Lib.ScriptRemoting
             for (int i = 0; i < ParsedHtmls.Count; i++)
             {
                 var info = ParsedHtmls[i];
-                if (String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
+                if (info != null && String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return;
                 }
@@ -102,7 +103,7 @@ namespace Way.Lib.ScriptRemoting
                 for (int i = 0; i < ParsedHtmls.Count; i++)
                 {
                     var info = ParsedHtmls[i];
-                    if (String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
+                    if (info != null && String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
                     {
                         return;
                     }
@@ -110,6 +111,7 @@ namespace Way.Lib.ScriptRemoting
 
                 var match = Regex.Match(url, @"(?<h>http(s)?\:\/\/)(?<g>(\w|\:|\.)+)\/");
                 string domain = match.Groups["g"].Value;
+
 
                 HttpClient client = new HttpClient();
                 if (SafeDomains.Contains(domain) == false)
@@ -124,15 +126,29 @@ namespace Way.Lib.ScriptRemoting
                 }
                 if (true)
                 {
-                    var task = client.GetStreamAsync(url);
+                    var task = client.GetAsync(url);
                     task.Wait();
 
+                    DateTime lastModifiedTime = DateTime.MinValue;
+                    try
+                    {
+                        lastModifiedTime = task.Result.Content.Headers.LastModified.Value.DateTime;
+                    }
+                    catch
+                    {
+
+                    }
+
+                    var taskStream = task.Result.Content.ReadAsStreamAsync();
+                    taskStream.Wait();
+
                     Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
-                    var stream = new System.IO.StreamReader(task.Result);
+                    var stream = new System.IO.StreamReader(taskStream.Result);
                     parser.Parse(stream);
                     stream.Dispose();
                     ParseHtmlInfo htmlinfo = new ScriptRemoting.RemotingController.ParseHtmlInfo();
                     htmlinfo.Url = url;
+                    htmlinfo.LastModified = lastModifiedTime;
                     CheckHtmlFile(htmlinfo, parser.Nodes,
                         match.Groups["h"].Value + domain + "/",
                         url.Substring(0, url.LastIndexOf("/") + 1));
@@ -192,7 +208,7 @@ namespace Way.Lib.ScriptRemoting
                                 {
                                     string fullname = m.Groups["g1"].Value;
                                     fullname = fullname.Substring(0, fullname.LastIndexOf("."));
-                                    if(info.Datasources.Contains(fullname) == false)
+                                    if(info.Datasources.Contains(fullname) == false && fullname.StartsWith("[") == false)
                                         info.Datasources.Add(fullname);
                                 }
                             }
@@ -209,9 +225,10 @@ namespace Way.Lib.ScriptRemoting
                     else
                     {
                         var _datasource = (from m in node.Attributes where m.Name == "datasource" select m.Value).FirstOrDefault();
-                        if (_datasource != null)
+                        if (_datasource != null && _datasource.StartsWith("[") == false)
                         {
-                            info.Datasources.Add(_datasource);
+                            if (info.Datasources.Contains(_datasource) == false)
+                                info.Datasources.Add(_datasource);
                             if (node.Attributes.Any(m => m.Name == "allowedit" && m.Value == "true"))
                             {
                                 if (info.AllowEditDatasources.Contains(_datasource) == false)
