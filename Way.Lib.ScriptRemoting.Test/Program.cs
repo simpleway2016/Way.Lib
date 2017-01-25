@@ -14,18 +14,11 @@ namespace Way.Lib.ScriptRemoting.Test
     {
         public static void Main(string[] args)
         {
-            //Way.Lib.RSA rsa = new RSA();
-
-            //var p = "";
-            //for (int i = 0; i < 110; i++)
-            //{
-
-            //    p += i < 110 - 1 ? "a":"b";
-            //}
-            //p += "end";
-            //    var pp = rsa.Encrypt2(p);
-            //var kk = rsa.Decrypt2(pp);
-
+           // Console.OutputEncoding = System.Text.Encoding.Unicode;
+           // Console.WriteLine("你好福娃额放假哦");
+           // Console.SetCursorPosition(2, 0);
+           // Console.Write("ab");//相当于backspace  
+           
 
             if (System.IO.Directory.Exists(@"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web"))
                 ScriptRemotingServer.Start(9090, @"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web", 1);
