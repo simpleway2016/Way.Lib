@@ -27,6 +27,7 @@
     <Content Include="ListTest.html" />
     <Content Include="GridViewTest.html" />
     <Content Include="master.html" />
+    <Content Include="master2.html" />
     <Content Include="scripts\Barrett.js" />
     <Content Include="scripts\BigInt.js" />
     <Content Include="scripts\jquery.js" />

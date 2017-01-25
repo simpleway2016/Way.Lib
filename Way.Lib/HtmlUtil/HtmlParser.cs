@@ -90,7 +90,7 @@ namespace Way.Lib.HtmlUtil
                 string content = node.getInnerHtml();
                 if(content.Length > 0)
                     str.AppendLine(content);
-                if(String.Equals( node.Name , "input" , StringComparison.CurrentCultureIgnoreCase) == false)
+                if(String.Equals( node.Name , "input" , StringComparison.CurrentCultureIgnoreCase) == false && String.Equals(node.Name, "br", StringComparison.CurrentCultureIgnoreCase) == false)
                     str.AppendLine($"</{node.Name}>");
             }
             while( str.Length > 0 && ( str[str.Length - 1] == '\n' || str[str.Length - 1] == '\r' || str[str.Length - 1] == ' ' || str[str.Length - 1] == '\t'))
@@ -109,7 +109,7 @@ namespace Way.Lib.HtmlUtil
             StringBuilder str = new StringBuilder();
             str.Append('<');
             str.Append(Name);
-            if(this.Attributes.Count > 0)
+            if( this.Attributes.Count > 0)
             {
                 foreach( var att in Attributes )
                 {

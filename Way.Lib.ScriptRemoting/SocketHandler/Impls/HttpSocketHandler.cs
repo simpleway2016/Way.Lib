@@ -324,7 +324,7 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        string outputWiteMaster(string url, string filePath)
+        string outputWithMaster(string url, string filePath)
         {
             using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
             {
@@ -353,7 +353,7 @@ namespace Way.Lib.ScriptRemoting
                     if (filepath.StartsWith("/"))
                         filepath = filepath.Substring(1);
                     filepath = ScriptRemotingServer.Root + filepath;
-                    string masterContent = outputWiteMaster(masterUrl, filepath);
+                    string masterContent = outputWithMaster(masterUrl, filepath);
                     foreach( HtmlUtil.HtmlNode node in parser.Nodes )
                     {
                         if(node.Name == "Variable")
@@ -371,7 +371,6 @@ namespace Way.Lib.ScriptRemoting
                     return System.Text.Encoding.UTF8.GetString(bs);
                 }
             }
-            return "";
         }
         static Dictionary<string, string> MasterFileTemps = new Dictionary<string, string>();
          void outputFile(string url , string filePath , string lastModifyTime)
@@ -410,7 +409,7 @@ namespace Way.Lib.ScriptRemoting
                                 }
                             }
                         }
-                        var content = outputWiteMaster(url, filePath);
+                        var content = outputWithMaster(url, filePath);
                         bs = System.Text.Encoding.UTF8.GetBytes(content);
                         string temppath = ScriptRemotingServer.HtmlTempPath + "/" + Guid.NewGuid();
                         File.WriteAllBytes(temppath, bs);
