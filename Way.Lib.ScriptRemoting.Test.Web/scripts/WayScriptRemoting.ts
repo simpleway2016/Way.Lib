@@ -4362,7 +4362,7 @@ var checkToInitWayControl = (parentElement: HTMLElement) => {
     }
 }
 
-var initWayControl = (virtualEle: HTMLElement, element: HTMLElement) => {
+var initWayControl = (virtualEle: HTMLElement, element: HTMLElement = null) => {
     //自定义模板<WayButton template='btnTemplate'>
     var mytemplate = virtualEle.getAttribute("template");
     if (mytemplate && mytemplate.length > 0) {
