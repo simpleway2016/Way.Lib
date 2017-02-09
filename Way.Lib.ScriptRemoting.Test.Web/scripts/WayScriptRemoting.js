@@ -1880,10 +1880,7 @@ var WayGridView = (function (_super) {
             var isTouch = "ontouchstart" in this.element[0];
             if (!isTouch)
                 this.supportDropdownRefresh = false;
-            var _ds = this.element.attr("datasource");
-            if (!_ds || _ds.length == 0)
-                _ds = "[]";
-            this.datasource = _ds;
+            this.datasource = this.element.attr("datasource");
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[for='body']");
@@ -2160,6 +2157,8 @@ var WayGridView = (function (_super) {
     };
     //绑定数据
     WayGridView.prototype.databind = function () {
+        if (!this._datasource || (typeof this._datasource == "string" && this._datasource.length == 0))
+            return;
         if (this.pageMode) {
             this.initForPageMode();
         }

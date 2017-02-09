@@ -2081,10 +2081,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (!isTouch)
                 this.supportDropdownRefresh = false;
 
-            var _ds = this.element.attr("datasource");
-            if (!_ds || _ds.length == 0)
-                _ds = "[]";
-            this.datasource = _ds;
+            this.datasource = this.element.attr("datasource");
 
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
@@ -2385,6 +2382,8 @@ class WayGridView extends WayBaseObject implements IPageable {
 
     //绑定数据
     databind(): void {
+        if (!this._datasource || (typeof this._datasource == "string" && this._datasource.length == 0))
+            return;
         if (this.pageMode) {//翻页模式
             this.initForPageMode();
         }
