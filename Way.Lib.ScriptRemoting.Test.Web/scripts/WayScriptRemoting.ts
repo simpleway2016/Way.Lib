@@ -2655,7 +2655,10 @@ class WayGridView extends WayBaseObject implements IPageable {
                 var field = str.substr(2, str.length - 3);
                 if (field.indexOf(":") > 0) {
                     field = field.substr(0, field.indexOf(":"));
-                    result = result.replace(str, eval("data." + field + ".text"));
+                    var value = eval("data." + field + ".text");
+                    if (!value)
+                        value = "";
+                    result = result.replace(str, value);
                 }
                 else {
                     var value = eval("data." + field);

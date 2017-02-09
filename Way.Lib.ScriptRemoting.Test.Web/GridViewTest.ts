@@ -57,7 +57,15 @@ window.onload = () => {
 }
 
 function additem() {
-    grid.addItem(<any>grid.items[1].data);
+    grid.addItem({
+        Name:"newName",
+        caption: "test one",
+        dbType: "new type",
+        TableID: {
+            value: 998,
+            text:"tableName",
+        },
+    });
 }
 
 function goSearch() {
