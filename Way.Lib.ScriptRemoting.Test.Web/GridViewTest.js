@@ -47,6 +47,9 @@ window.onload = function () {
     };
     grid.databind();
 };
+function additem() {
+    grid.addItem(grid.items[1].data);
+}
 function goSearch() {
     grid.databind();
 }

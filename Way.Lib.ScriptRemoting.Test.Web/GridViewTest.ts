@@ -56,6 +56,10 @@ window.onload = () => {
     grid.databind();
 }
 
+function additem() {
+    grid.addItem(<any>grid.items[1].data);
+}
+
 function goSearch() {
     grid.databind();
 }

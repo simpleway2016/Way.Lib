@@ -2781,6 +2781,20 @@ class WayGridView extends WayBaseObject implements IPageable {
         return item;
     }
 
+    addItem(data: any) {
+        this.originalItems.push(data);
+        var itemindex = this.items.length;
+        var item = this.createItem(itemindex);
+        if (this.footerItem) {
+            item.insertBefore(this.footerItem);
+        }
+        else {
+            this.itemContainer.append(item);
+        }
+        this.items.push(item);
+        return item;
+    }
+
     private binddatas(datas: any[]): void {
         if (this.pageMode) {
             this.binddatas_pageMode(datas);
@@ -2790,16 +2804,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
             //bind items
             for (var i = 0; i < datas.length; i++) {
-                this.originalItems.push(datas[i]);
-                var itemindex = this.items.length;
-                var item = this.createItem(itemindex);
-                if (this.footerItem) {
-                    item.insertBefore(this.footerItem);
-                }
-                else {
-                    this.itemContainer.append(item);
-                }
-                this.items.push(item);
+                this.addItem(datas[i]);
             }
 
 

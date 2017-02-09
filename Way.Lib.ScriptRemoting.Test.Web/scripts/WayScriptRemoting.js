@@ -2505,6 +2505,19 @@ var WayGridView = (function (_super) {
         }
         return item;
     };
+    WayGridView.prototype.addItem = function (data) {
+        this.originalItems.push(data);
+        var itemindex = this.items.length;
+        var item = this.createItem(itemindex);
+        if (this.footerItem) {
+            item.insertBefore(this.footerItem);
+        }
+        else {
+            this.itemContainer.append(item);
+        }
+        this.items.push(item);
+        return item;
+    };
     WayGridView.prototype.binddatas = function (datas) {
         if (this.pageMode) {
             this.binddatas_pageMode(datas);
@@ -2513,16 +2526,7 @@ var WayGridView = (function (_super) {
         try {
             //bind items
             for (var i = 0; i < datas.length; i++) {
-                this.originalItems.push(datas[i]);
-                var itemindex = this.items.length;
-                var item = this.createItem(itemindex);
-                if (this.footerItem) {
-                    item.insertBefore(this.footerItem);
-                }
-                else {
-                    this.itemContainer.append(item);
-                }
-                this.items.push(item);
+                this.addItem(datas[i]);
             }
             //bind footer
             if (!this.footerItem && this.footer) {
