@@ -2081,7 +2081,10 @@ class WayGridView extends WayBaseObject implements IPageable {
             if (!isTouch)
                 this.supportDropdownRefresh = false;
 
-            this.datasource = this.element.attr("datasource");
+            var _ds = this.element.attr("datasource");
+            if (!_ds || _ds.length == 0)
+                _ds = "[]";
+            this.datasource = _ds;
 
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;

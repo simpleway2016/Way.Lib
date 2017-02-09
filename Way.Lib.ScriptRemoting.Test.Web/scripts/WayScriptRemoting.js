@@ -1880,7 +1880,10 @@ var WayGridView = (function (_super) {
             var isTouch = "ontouchstart" in this.element[0];
             if (!isTouch)
                 this.supportDropdownRefresh = false;
-            this.datasource = this.element.attr("datasource");
+            var _ds = this.element.attr("datasource");
+            if (!_ds || _ds.length == 0)
+                _ds = "[]";
+            this.datasource = _ds;
             this.pager = new WayPager(this.element, this);
             this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[for='body']");
