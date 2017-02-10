@@ -972,7 +972,10 @@ class WayHelper {
     }
 
     //用touch触发click
-    static setTouchFireClickEvent(element:any,handler:any) {
+    static setTouchFireClickEvent(element: any, handler: any) {
+        if (!("ontouchstart" in element))
+            return;
+
         var touchPoint;
         var canBeClick;
         element.addEventListener("touchstart", function (e) {

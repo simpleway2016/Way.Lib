@@ -923,6 +923,8 @@ var WayHelper = (function () {
     };
     //用touch触发click
     WayHelper.setTouchFireClickEvent = function (element, handler) {
+        if (!("ontouchstart" in element))
+            return;
         var touchPoint;
         var canBeClick;
         element.addEventListener("touchstart", function (e) {
