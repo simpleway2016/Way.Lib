@@ -921,6 +921,42 @@ var WayHelper = (function () {
             return new WayVirtualWebSocket(url);
         }
     };
+    //用touch触发click
+    WayHelper.setTouchFireClickEvent = function (element, handler) {
+        var touchPoint;
+        var canBeClick;
+        element.addEventListener("touchstart", function (e) {
+            canBeClick = true;
+            touchPoint = {
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY,
+                time: new Date().getTime()
+            };
+        });
+        element.addEventListener("touchmove", function (e) {
+            var x = e.touches[0].clientX;
+            var y = e.touches[0].clientY;
+            if (Math.abs(x - touchPoint.x) > window.innerWidth / 15 || Math.abs(y - touchPoint.y) > window.innerHeight / 15) {
+                canBeClick = false;
+            }
+        });
+        element.addEventListener("touchend", function (e) {
+            if (canBeClick && (new Date().getTime() - touchPoint.time) < 300) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (handler) {
+                    handler();
+                }
+                else {
+                    if (element.fireEvent)
+                        element.fireEvent("click");
+                    else
+                        element.click();
+                }
+            }
+            canBeClick = false;
+        });
+    };
     WayHelper.writePage = function (url) {
         document.write(WayHelper.downloadUrl(url));
     };
