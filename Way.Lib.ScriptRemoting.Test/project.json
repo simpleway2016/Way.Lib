@@ -9,7 +9,7 @@
       "type": "platform",
       "version": "1.0.1"
     },
-    "Way.EntityDB": "1.0.0.1",
+    "Way.EntityDB": "1.0.0-*",
     "Way.Lib.ScriptRemoting": "1.0.0-*"
   },
 
