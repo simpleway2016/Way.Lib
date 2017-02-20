@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.VSIX.Extend", "Way.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.VSIX.Extend.Test", "Way.Lib.VSIX.Extend.Test\Way.Lib.VSIX.Extend.Test.csproj", "{BC71C20D-22C5-4C25-98C1-2F7C4D660B2B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.Pay", "Way.Lib.Pay\Way.Lib.Pay.csproj", "{436D2EE6-3EBB-455E-8ACC-934071C4A385}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{BC71C20D-22C5-4C25-98C1-2F7C4D660B2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC71C20D-22C5-4C25-98C1-2F7C4D660B2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC71C20D-22C5-4C25-98C1-2F7C4D660B2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
