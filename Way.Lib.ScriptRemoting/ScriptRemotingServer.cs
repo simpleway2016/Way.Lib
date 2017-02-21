@@ -27,6 +27,7 @@ namespace Way.Lib.ScriptRemoting
     {
         internal static string SERVERID = Guid.NewGuid().ToString();
         internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
+        internal static List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
         internal static string ScriptFilePath;
         internal static string HtmlTempPath;
         static SocketServer socketServer;
@@ -243,6 +244,15 @@ namespace Way.Lib.ScriptRemoting
         public static void RegisterRouter(IUrlRouter router)
         {
             Routers.Add(router);
+        }
+
+        /// <summary>
+        /// 注册HttpHandler
+        /// </summary>
+        /// <param name="router"></param>
+        public static void RegisterRouter(ICustomHttpHandler handler)
+        {
+            Handlers.Add(handler);
         }
     }
     class SocketServer

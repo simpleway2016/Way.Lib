@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -65,7 +66,17 @@ namespace Way.Lib.ScriptRemoting
                 return _Cookie;
             }
         }
-    
+
+        public Dictionary<string, string> RequestQuery
+        {
+            get;
+            internal set;
+        }
+        public Dictionary<string, string> RequestForm
+        {
+            get;
+            internal set;
+        }
     }
     /// <summary>
     /// 自定义路由接口
@@ -81,5 +92,7 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="requestQuery"></param>
         /// <returns>如果返回null，表示不改变路由</returns>
         string GetUrl(string originalUrl,string fromUrl, HttpConnectInformation connectInfo,Dictionary<string,string> requestQuery);
+
+       
     }
 }

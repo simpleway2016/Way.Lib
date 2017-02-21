@@ -15,96 +15,8 @@ namespace Way.Lib.ScriptRemoting
     class HttpSocketHandler : ISocketHandler
     {
         HttpConnectInformation _currentHttpConnectInformation;
-        static string[][] s_HTTPStatusDescriptions;
-        static HttpSocketHandler()
-        {
-            s_HTTPStatusDescriptions = new string[][]
-    {
-        null,
-        new string[]
-        {
-            "Continue",
-            "Switching Protocols",
-            "Processing"
-        },
-        new string[]
-        {
-            "OK",
-            "Created",
-            "Accepted",
-            "Non-Authoritative Information",
-            "No Content",
-            "Reset Content",
-            "Partial Content",
-            "Multi-Status"
-        },
-        new string[]
-        {
-            "Multiple Choices",
-            "Moved Permanently",
-            "Found",
-            "See Other",
-            "Not Modified",
-            "Use Proxy",
-            string.Empty,
-            "Temporary Redirect"
-        },
-        new string[]
-        {
-            "Bad Request",
-            "Unauthorized",
-            "Payment Required",
-            "Forbidden",
-            "Not Found",
-            "Method Not Allowed",
-            "Not Acceptable",
-            "Proxy Authentication Required",
-            "Request Timeout",
-            "Conflict",
-            "Gone",
-            "Length Required",
-            "Precondition Failed",
-            "Request Entity Too Large",
-            "Request-Uri Too Long",
-            "Unsupported Media Type",
-            "Requested Range Not Satisfiable",
-            "Expectation Failed",
-            string.Empty,
-            string.Empty,
-            string.Empty,
-            string.Empty,
-            "Unprocessable Entity",
-            "Locked",
-            "Failed Dependency"
-        },
-        new string[]
-        {
-            "Internal Server Error",
-            "Not Implemented",
-            "Bad Gateway",
-            "Service Unavailable",
-            "Gateway Timeout",
-            "Http Version Not Supported",
-            string.Empty,
-            "Insufficient Storage"
-        }
-    };
-        }
 
-        public static string GetStatusDescription(int code)
-        {
-            if (code >= 100 && code < 600)
-            {
-                int num = code / 100;
-                int num2 = code % 100;
-                if (num2 < s_HTTPStatusDescriptions[num].Length)
-                {
-                    return s_HTTPStatusDescriptions[num][num2];
-                }
-            }
-            return string.Empty;
-        }
-
+        HttpResponse _resonse;
         //static List<string> compiledTSFiles = new List<string>();
         Dictionary<string, string> RequestForms;
         Dictionary<string, string> RequestQueryString = new Dictionary<string, string>();
@@ -116,15 +28,17 @@ namespace Way.Lib.ScriptRemoting
         public HttpSocketHandler(Connection session)
         {
             this.Connection = session;
+            _resonse = new HttpResponse(this.Connection.mClient);
         }
         public void Handle()
         {
+           
             try
             {
                 //访问ts脚本
                 if (this.Connection.mKeyValues["GET"].ToSafeString().EndsWith("/SERVERID"))
                 {
-                    outputHttpResponse(ScriptRemotingServer.SERVERID);
+                    _resonse.Write(ScriptRemotingServer.SERVERID);
                 }
                 else if (this.Connection.mKeyValues["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
                 {
@@ -133,7 +47,7 @@ namespace Way.Lib.ScriptRemoting
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
                     if (lastWriteTime == since)
                     {
-                        this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
+                        this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + HttpResponse.GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
                     }
                     else
                     {
@@ -146,7 +60,7 @@ namespace Way.Lib.ScriptRemoting
                     string json = RequestForms["m"];
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
-                        outputHttpResponse(data);
+                        _resonse.Write(data);
                     }, null, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0], (string)this.Connection.mKeyValues["Referer"]);
                     rs.OnReceived(json);
 
@@ -157,21 +71,10 @@ namespace Way.Lib.ScriptRemoting
                     urlRequestHandler();
                     new VirtualWebSocketHandler(RequestForms, (data) =>
                    {
-                       outputHttpResponse(data);
+                       _resonse.Write(data);
                    }, () =>
                      {
-                         while (true)
-                         {
-                             try
-                             {
-                                 this.Connection.mClient.ReceiveDatas(1);
-                             }
-                             catch
-                             {
-                                 break;
-                             }
-                         }
-                         this.Connection.mClient.Close();
+                         _resonse.End();
 
                          return 0;
                      }, () =>
@@ -184,21 +87,22 @@ namespace Way.Lib.ScriptRemoting
 
                     return;
                 }
-                else if (this.Connection.mKeyValues["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
-                {
-                    try
-                    {
-                        urlRequestHandler();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        
-                    }
-                }
                 else
                 {
-                  
+
+                    if (this.Connection.mKeyValues["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
+                    {
+                        try
+                        {
+                            urlRequestHandler();
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
                     string url = this.Connection.mKeyValues["GET"].ToSafeString();
                     if (url.Contains("?"))
                     {
@@ -209,24 +113,24 @@ namespace Way.Lib.ScriptRemoting
                         }
                         url = url.Substring(0, url.IndexOf("?"));
                     }
-                    url = getUrl(url);
-
-                    string filepath = url;
-                    if (filepath.StartsWith("/"))
-                        filepath = filepath.Substring(1);
-                    filepath = ScriptRemotingServer.Root + filepath;
-                    string ext = Path.GetExtension(filepath).ToLower();
-                    if (ext == ".aspx")
+                    checkHandlers(url);
+                   
+                    if (_resonse._client != null)
                     {
-                        outputAspx(filepath);
-                    }
-                    else if (ext == ".html")
-                    {
-                        outputFile(url , filepath);
-                    }
-                    else
-                    {
-                        outputFile(url, filepath);
+                        url = getUrl(url);
+                        string filepath = url;
+                        if (filepath.StartsWith("/"))
+                            filepath = filepath.Substring(1);
+                        filepath = ScriptRemotingServer.Root + filepath;
+                        string ext = Path.GetExtension(filepath).ToLower();
+                        if (ext == ".html")
+                        {
+                            outputFile(url, filepath);
+                        }
+                        else
+                        {
+                            outputFile(url, filepath);
+                        }
                     }
                 }
             }
@@ -235,31 +139,45 @@ namespace Way.Lib.ScriptRemoting
             }
 
 
-            //wait for close
-            while (true)
+            _resonse.End();
+        }
+        void checkHandlers(string visitingUrl)
+        {
+
+            if (ScriptRemotingServer.Routers.Count > 0 && _currentHttpConnectInformation == null)
+            {
+                _currentHttpConnectInformation = new HttpConnectInformation(this.Connection.mKeyValues, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
+                _currentHttpConnectInformation.RequestQuery = RequestQueryString;
+                _currentHttpConnectInformation.RequestForm = RequestForms;
+            }
+
+            foreach (var handler in ScriptRemotingServer.Handlers)
             {
                 try
                 {
-                    this.Connection.mClient.ReceiveDatas(1);
+                    bool handled = false;
+                    handler.Handle(visitingUrl, _resonse, _currentHttpConnectInformation, ref handled);
+                    if (handled)
+                        return;
                 }
                 catch
                 {
-                    break;
                 }
             }
-            this.Connection.mClient.Close();
+           
         }
-
         string getUrl(string visitingUrl)
         {
             
             if (ScriptRemotingServer.Routers.Count > 0 && _currentHttpConnectInformation == null)
             {
                 _currentHttpConnectInformation = new HttpConnectInformation(this.Connection.mKeyValues, this.Connection.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0]);
+                _currentHttpConnectInformation.RequestQuery = RequestQueryString;
+                _currentHttpConnectInformation.RequestForm = RequestForms;
             }
+
             foreach (var router in ScriptRemotingServer.Routers)
             {
-
                 var url = router.GetUrl(visitingUrl, (string)this.Connection.mKeyValues["Referer"], _currentHttpConnectInformation,RequestQueryString);
                 if (url != null)
                 {
@@ -278,15 +196,7 @@ namespace Way.Lib.ScriptRemoting
         {
 
         }
-        void outputHttpResponse(string text)
-        {
-            byte[] bs = System.Text.Encoding.UTF8.GetBytes(text);
-            string headers = MakeResponseHeaders(200, "Content-Type: text/html\r\n", bs.Length, false, -1, 0, DateTime.Now.ToUniversalTime().ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo), null, true);
-            this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
-            this.Connection.mClient.Socket.Send(bs);
-
-        }
-
+       
         //void outputTS(string tspath,string jspath)
         //{
         //    if (compiledTSFiles.Contains(tspath) == false)
@@ -309,14 +219,14 @@ namespace Way.Lib.ScriptRemoting
         {
             if (File.Exists(filePath) == false)
             {
-                this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 404 " + GetStatusDescription(404) + "\r\nConnection: Close\r\n\r\n"));
+                this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 404 " + HttpResponse.GetStatusDescription(404) + "\r\nConnection: Close\r\n\r\n"));
                 return;
             }
             var since = this.Connection.mKeyValues["If-Modified-Since"].ToSafeString();
             var lastWriteTime = new System.IO.FileInfo(filePath).LastWriteTime.ToString("R");
             if (lastWriteTime == since)
             {
-                this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
+                this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + HttpResponse.GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
             }
             else
             {
@@ -420,7 +330,7 @@ namespace Way.Lib.ScriptRemoting
                         }
                         catch
                         { }
-                        headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), bs.Length, false, -1, 0, lastModifyTime, null, true);
+                        headers = HttpResponse.MakeResponseHeaders(200, MakeContentTypeHeader(filePath), bs.Length, false, -1, 0, lastModifyTime, null, true);
                         this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
                         this.Connection.mClient.Socket.Send(bs, bs.Length, System.Net.Sockets.SocketFlags.None);
                         return;
@@ -451,7 +361,7 @@ namespace Way.Lib.ScriptRemoting
                 }
             }
              
-            headers = MakeResponseHeaders(200, MakeContentTypeHeader(filePath), fs.Length, false, -1, 0, lastModifyTime, null, true);
+            headers = HttpResponse.MakeResponseHeaders(200, MakeContentTypeHeader(filePath), fs.Length, false, -1, 0, lastModifyTime, null, true);
             this.Connection.mClient.Socket.Send(System.Text.Encoding.UTF8.GetBytes(headers));
 
             bs = new byte[4096];
@@ -533,55 +443,5 @@ namespace Way.Lib.ScriptRemoting
             return "Content-Type: " + contentType + "\r\n";
         }
 
-        private String MakeResponseHeaders(int statusCode, String moreHeaders,
-           long contentLength, bool keepAlive,
-           int range, int rangeend, string lastModifyDate, string cookie, bool AcceptRanges)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (range >= 0)
-                statusCode = 206;
-
-
-            sb.Append("HTTP/1.1 " + statusCode + " " + GetStatusDescription(statusCode) + "\r\n");
-            sb.Append("Server: Microsoft-IIS6.0\r\n");
-            if (cookie != null)
-                sb.Append("Set-Cookie: " + cookie + "\r\n");
-            sb.Append("Date: " + DateTime.Now.ToUniversalTime().ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo) + "\r\n");
-            if (lastModifyDate != null)
-            {
-                sb.Append("Last-Modified: " + lastModifyDate + "\r\n");
-            }
-            if (contentLength >= 0)
-            {
-                if (range >= 0)
-                    sb.Append("Content-Length: " + (rangeend - range + 1) + "\r\n");
-                else
-                {
-                    sb.Append("Content-Length: " + contentLength + "\r\n");
-                }
-            }
-            if (range >= 0)
-            {
-                sb.Append("Content-Range: bytes " + range + "-" + rangeend + "/" + contentLength + "\r\n");
-            }
-            if (moreHeaders != null)
-                sb.Append(moreHeaders);
-
-            if (AcceptRanges == false)
-            {
-                sb.Append("Accept-Ranges: none\r\n");
-            }
-            else if (range == 0)
-            {
-                sb.Append("Accept-Ranges: bytes\r\n");
-            }
-
-            //sb.Append("Content-Encoding: gzip\r\n");//压缩
-            if (!keepAlive)
-                sb.Append("Connection: Close\r\n");
-
-            sb.Append("\r\n");
-            return sb.ToString();
-        }
     }
 }
