@@ -113,11 +113,11 @@ namespace Way.Lib.ScriptRemoting
                         }
                         url = url.Substring(0, url.IndexOf("?"));
                     }
+                    url = getUrl(url);
                     checkHandlers(url);
                    
                     if (_resonse._client != null)
                     {
-                        url = getUrl(url);
                         string filepath = url;
                         if (filepath.StartsWith("/"))
                             filepath = filepath.Substring(1);
