@@ -38,6 +38,7 @@
       <DependentUpon>WayScriptRemoting.ts</DependentUpon>
     </Content>
     <Content Include="socketTest.html" />
+    <Content Include="swipe_2.jpg" />
     <Content Include="templates\main.html" />
     <Content Include="test.html" />
   </ItemGroup>

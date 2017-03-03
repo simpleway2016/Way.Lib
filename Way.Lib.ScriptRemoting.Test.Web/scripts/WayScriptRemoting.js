@@ -2625,8 +2625,8 @@ var WayGridView = (function (_super) {
             //"will-change": "transform",
             "position": "relative",
             "transition-property": "transform",
-            "-moz-transition-property": "transform",
-            "-webkit-transition-property": "transform",
+            "-moz-transition-property": "-moz-transform",
+            "-webkit-transition-property": "-webkit-transform",
         });
         var isTouch = "ontouchstart" in this.itemContainer[0];
         var point;

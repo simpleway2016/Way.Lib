@@ -2908,14 +2908,16 @@ class WayGridView extends WayBaseObject implements IPageable {
             "-webkit-transform-style": "preserve-3d",
             "-moz-transform-style": "preserve-3d",
         });
+
         this.itemContainer.css(
             {
                 "height": "100%",
                 //"will-change": "transform",
                 "position": "relative",
                 "transition-property": "transform",
-                "-moz-transition-property": "transform",
-                "-webkit-transition-property":"transform",
+                "-moz-transition-property": "-moz-transform",
+                "-webkit-transition-property": "-webkit-transform",
+
             });
 
         var isTouch = "ontouchstart" in this.itemContainer[0];
