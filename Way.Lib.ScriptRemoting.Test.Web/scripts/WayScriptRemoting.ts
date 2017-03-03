@@ -2908,8 +2908,11 @@ class WayGridView extends WayBaseObject implements IPageable {
                 "height": "100%",
                 //"will-change": "transform",
                 "position": "relative",
-                "transition-property":"transform",
-                "transform-style":"preserve-3d",
+                "transition-property": "transform",
+                "-moz-transition-property": "transform",
+                "-webkit-transition-property":"transform",
+                "transform-style": "preserve-3d",
+                "-webkit-transform-style": "preserve-3d",
             });
 
         var isTouch = "ontouchstart" in this.itemContainer[0];
@@ -3005,6 +3008,8 @@ class WayGridView extends WayBaseObject implements IPageable {
                     var desLocation = "translate3d(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0,0)";
 
                     this.itemContainer.css({
+                        "-moz-transition": "-moz-transform 0.5s",
+                        "-webkit-transition": "-webkit-transform 0.5s",
                         "transition": "transform 0.5s",
                         "-webkit-transform": desLocation,
                         "-moz-transform": desLocation,
@@ -3015,9 +3020,11 @@ class WayGridView extends WayBaseObject implements IPageable {
         };
 
         this.element[0].ontouchcancel = () => {
-            var desLocation = "translate(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0px)";
+            var desLocation = "translate3d(" + -this.pageinfo.ViewingPageIndex * this.element.width() + "px,0,0)";
 
             this.itemContainer.css({
+                "-moz-transition": "-moz-transform 0.5s",
+                "-webkit-transition": "-webkit-transform 0.5s",
                 "transition": "transform 0.5s",
                 "-webkit-transform": desLocation,
                 "-moz-transform": desLocation,
@@ -3029,7 +3036,11 @@ class WayGridView extends WayBaseObject implements IPageable {
 
 
         WayHelper.addEventListener(this.itemContainer[0], "transitionend", (e) => {
+            //这是pc的TransitionEnd事件
             this.itemContainer.css({
+                "-moz-transition": "",
+                "-webkit-transition": "",
+                "-o-transition": "",
                 "transition": "",
             });
             if (this.onViewPageIndexChange) {
@@ -3037,6 +3048,20 @@ class WayGridView extends WayBaseObject implements IPageable {
             }
             this.preLoadPage();
         }, true);
+        WayHelper.addEventListener(this.itemContainer[0], "webkitTransitionEnd", (e) => {
+            //这是android的TransitionEnd事件
+            this.itemContainer.css({
+                "-moz-transition": "",
+                "-webkit-transition": "",
+                "-o-transition": "",
+                "transition": "",
+            });
+            if (this.onViewPageIndexChange) {
+                this.onViewPageIndexChange(this.pageinfo.ViewingPageIndex);
+            }
+            this.preLoadPage();
+        }, true);
+
     }
 
     private preLoadPage() {
@@ -3053,6 +3078,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             }
             if (index >= 0)
                 this.shouldLoadMorePage(index);
+           
         }
         //
         this.preloadedMaxPageIndex = 0;

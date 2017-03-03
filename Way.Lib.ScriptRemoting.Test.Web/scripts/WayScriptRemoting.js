@@ -2620,7 +2620,10 @@ var WayGridView = (function (_super) {
             //"will-change": "transform",
             "position": "relative",
             "transition-property": "transform",
+            "-moz-transition-property": "transform",
+            "-webkit-transition-property": "transform",
             "transform-style": "preserve-3d",
+            "-webkit-transform-style": "preserve-3d",
         });
         var isTouch = "ontouchstart" in this.itemContainer[0];
         var point;
@@ -2703,6 +2706,8 @@ var WayGridView = (function (_super) {
                     }
                     var desLocation = "translate3d(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0,0)";
                     _this.itemContainer.css({
+                        "-moz-transition": "-moz-transform 0.5s",
+                        "-webkit-transition": "-webkit-transform 0.5s",
                         "transition": "transform 0.5s",
                         "-webkit-transform": desLocation,
                         "-moz-transform": desLocation,
@@ -2712,8 +2717,10 @@ var WayGridView = (function (_super) {
             }
         };
         this.element[0].ontouchcancel = function () {
-            var desLocation = "translate(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0px)";
+            var desLocation = "translate3d(" + -_this.pageinfo.ViewingPageIndex * _this.element.width() + "px,0,0)";
             _this.itemContainer.css({
+                "-moz-transition": "-moz-transform 0.5s",
+                "-webkit-transition": "-webkit-transform 0.5s",
                 "transition": "transform 0.5s",
                 "-webkit-transform": desLocation,
                 "-moz-transform": desLocation,
@@ -2722,7 +2729,24 @@ var WayGridView = (function (_super) {
         };
         WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
         WayHelper.addEventListener(this.itemContainer[0], "transitionend", function (e) {
+            //这是pc的TransitionEnd事件
             _this.itemContainer.css({
+                "-moz-transition": "",
+                "-webkit-transition": "",
+                "-o-transition": "",
+                "transition": "",
+            });
+            if (_this.onViewPageIndexChange) {
+                _this.onViewPageIndexChange(_this.pageinfo.ViewingPageIndex);
+            }
+            _this.preLoadPage();
+        }, true);
+        WayHelper.addEventListener(this.itemContainer[0], "webkitTransitionEnd", function (e) {
+            //这是android的TransitionEnd事件
+            _this.itemContainer.css({
+                "-moz-transition": "",
+                "-webkit-transition": "",
+                "-o-transition": "",
                 "transition": "",
             });
             if (_this.onViewPageIndexChange) {
