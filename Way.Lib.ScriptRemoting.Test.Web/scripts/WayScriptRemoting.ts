@@ -2447,6 +2447,14 @@ class WayGridView extends WayBaseObject implements IPageable {
         while (this.itemContainer[0].children.length > 0) {
             this.itemContainer[0].removeChild(this.itemContainer[0].children[0]);
         }
+        if (this.pageMode) {
+            var x = "translate3d(0,0,0)";
+            this.itemContainer.css({
+                "-webkit-transform": x,
+                "-moz-transform": x,
+                "transform": x
+            });
+        }
         //bind header
         if (this.header) {
             var headerObj = $(this.header.content);
