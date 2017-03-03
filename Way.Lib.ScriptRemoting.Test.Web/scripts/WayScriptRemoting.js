@@ -1894,6 +1894,7 @@ var WayGridView = (function (_super) {
         //搜索条件model
         this.searchModel = {};
         this.allowEdit = false;
+        this.initedPageMode = false;
         try {
             if (isNaN(_pagesize))
                 _pagesize = 10;
@@ -2603,6 +2604,9 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.initForPageMode = function () {
         var _this = this;
+        if (this.initedPageMode)
+            return;
+        this.initedPageMode = true;
         if (this.itemContainer[0] != this.element[0]) {
             this.itemContainer[0].parentElement.removeChild(this.itemContainer[0]);
         }

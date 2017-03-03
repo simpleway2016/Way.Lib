@@ -2888,7 +2888,12 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
     }
 
+    private initedPageMode = false;
     private initForPageMode(): void {
+        if (this.initedPageMode)
+            return;
+        this.initedPageMode = true;
+
         if (this.itemContainer[0] != this.element[0]) {
             this.itemContainer[0].parentElement.removeChild(this.itemContainer[0]);
         }
