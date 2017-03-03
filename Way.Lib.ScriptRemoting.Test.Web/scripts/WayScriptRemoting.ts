@@ -2903,6 +2903,11 @@ class WayGridView extends WayBaseObject implements IPageable {
             {
                 "overflow": "hidden"
             });
+        this.element.css({
+            "transform-style": "preserve-3d",
+            "-webkit-transform-style": "preserve-3d",
+            "-moz-transform-style": "preserve-3d",
+        });
         this.itemContainer.css(
             {
                 "height": "100%",
@@ -2911,8 +2916,6 @@ class WayGridView extends WayBaseObject implements IPageable {
                 "transition-property": "transform",
                 "-moz-transition-property": "transform",
                 "-webkit-transition-property":"transform",
-                "transform-style": "preserve-3d",
-                "-webkit-transform-style": "preserve-3d",
             });
 
         var isTouch = "ontouchstart" in this.itemContainer[0];
@@ -2994,12 +2997,12 @@ class WayGridView extends WayBaseObject implements IPageable {
                 x = (x - point.x);
 
                 if (x != 0) {
-                    if (x > this.element.width() / 3 || (x > this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                    if (x > this.element.width() / 3 || (x > this.element.width() / 18 && new Date().getTime() - point.time < 500)) {
                         if (this.pageinfo.ViewingPageIndex > 0) {
                             this.pageinfo.ViewingPageIndex--;
                         }
                     }
-                    else if (-x > this.element.width() / 3 || (-x > this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                    else if (-x > this.element.width() / 3 || (-x > this.element.width() / 18 && new Date().getTime() - point.time < 500)) {
                         if (this.pageinfo.ViewingPageIndex != this.preloadedMaxPageIndex) {
                             this.pageinfo.ViewingPageIndex++;
                         }
@@ -3010,9 +3013,12 @@ class WayGridView extends WayBaseObject implements IPageable {
                     this.itemContainer.css({
                         "-moz-transition": "-moz-transform 0.5s",
                         "-webkit-transition": "-webkit-transform 0.5s",
+                        "-o-transition": "-o-transform 0.5s",
                         "transition": "transform 0.5s",
-                        "-webkit-transform": desLocation,
+
                         "-moz-transform": desLocation,
+                        "-webkit-transform": desLocation,
+                        "-o-transform": desLocation,
                         "transform": desLocation
                     });
                 }
@@ -3025,9 +3031,12 @@ class WayGridView extends WayBaseObject implements IPageable {
             this.itemContainer.css({
                 "-moz-transition": "-moz-transform 0.5s",
                 "-webkit-transition": "-webkit-transform 0.5s",
+                "-o-transition": "-o-transform 0.5s",
                 "transition": "transform 0.5s",
-                "-webkit-transform": desLocation,
+
                 "-moz-transform": desLocation,
+                "-webkit-transform": desLocation,
+                "-o-transform": desLocation,
                 "transform": desLocation
             });
         };
@@ -3125,6 +3134,9 @@ class WayGridView extends WayBaseObject implements IPageable {
             var width = this.element.width();
             var divContainer = $(this.bodyTemplateHtml);
             (<any>divContainer[0]).pageIndex = pageindex;
+            if (pageindex > this.preloadedMaxPageIndex)
+                this.preloadedMaxPageIndex = pageindex;
+
             divContainer.css(
                 {
                     "position":"absolute",

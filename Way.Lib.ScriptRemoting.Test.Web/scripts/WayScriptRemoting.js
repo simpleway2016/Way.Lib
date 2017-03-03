@@ -2615,6 +2615,11 @@ var WayGridView = (function (_super) {
         this.element.css({
             "overflow": "hidden"
         });
+        this.element.css({
+            "transform-style": "preserve-3d",
+            "-webkit-transform-style": "preserve-3d",
+            "-moz-transform-style": "preserve-3d",
+        });
         this.itemContainer.css({
             "height": "100%",
             //"will-change": "transform",
@@ -2622,8 +2627,6 @@ var WayGridView = (function (_super) {
             "transition-property": "transform",
             "-moz-transition-property": "transform",
             "-webkit-transition-property": "transform",
-            "transform-style": "preserve-3d",
-            "-webkit-transform-style": "preserve-3d",
         });
         var isTouch = "ontouchstart" in this.itemContainer[0];
         var point;
@@ -2694,12 +2697,12 @@ var WayGridView = (function (_super) {
                 var x = isTouch ? e.changedTouches[0].clientX : e.clientX;
                 x = (x - point.x);
                 if (x != 0) {
-                    if (x > _this.element.width() / 3 || (x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                    if (x > _this.element.width() / 3 || (x > _this.element.width() / 18 && new Date().getTime() - point.time < 500)) {
                         if (_this.pageinfo.ViewingPageIndex > 0) {
                             _this.pageinfo.ViewingPageIndex--;
                         }
                     }
-                    else if (-x > _this.element.width() / 3 || (-x > _this.element.width() / 10 && new Date().getTime() - point.time < 500)) {
+                    else if (-x > _this.element.width() / 3 || (-x > _this.element.width() / 18 && new Date().getTime() - point.time < 500)) {
                         if (_this.pageinfo.ViewingPageIndex != _this.preloadedMaxPageIndex) {
                             _this.pageinfo.ViewingPageIndex++;
                         }
@@ -2708,9 +2711,11 @@ var WayGridView = (function (_super) {
                     _this.itemContainer.css({
                         "-moz-transition": "-moz-transform 0.5s",
                         "-webkit-transition": "-webkit-transform 0.5s",
+                        "-o-transition": "-o-transform 0.5s",
                         "transition": "transform 0.5s",
-                        "-webkit-transform": desLocation,
                         "-moz-transform": desLocation,
+                        "-webkit-transform": desLocation,
+                        "-o-transform": desLocation,
                         "transform": desLocation
                     });
                 }
@@ -2721,9 +2726,11 @@ var WayGridView = (function (_super) {
             _this.itemContainer.css({
                 "-moz-transition": "-moz-transform 0.5s",
                 "-webkit-transition": "-webkit-transform 0.5s",
+                "-o-transition": "-o-transform 0.5s",
                 "transition": "transform 0.5s",
-                "-webkit-transform": desLocation,
                 "-moz-transform": desLocation,
+                "-webkit-transform": desLocation,
+                "-o-transform": desLocation,
                 "transform": desLocation
             });
         };
@@ -2809,6 +2816,8 @@ var WayGridView = (function (_super) {
             var width = this.element.width();
             var divContainer = $(this.bodyTemplateHtml);
             divContainer[0].pageIndex = pageindex;
+            if (pageindex > this.preloadedMaxPageIndex)
+                this.preloadedMaxPageIndex = pageindex;
             divContainer.css({
                 "position": "absolute",
                 "width": width + "px",
