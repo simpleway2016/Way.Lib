@@ -1,13 +1,10 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <script src="scripts/BigInt.js" type="text/javascript"></script>
-    <script src="scripts/RSA.js" type="text/javascript"></script>
-    <script src="scripts/Barrett.js" type="text/javascript"></script>
     <script src="scripts/jquery.js" type="text/javascript"></script>
     <script src="scripts/sonic.js" type="text/javascript"></script>
     <script src="scripts/wayscriptremoting.js" type="text/javascript"></script>
-    <script src="gridviewpagetest.js" type="text/javascript"></script>
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <title></title>
@@ -28,16 +25,22 @@
         }
     </style>
 </head>
-<body controller="Way.Lib.ScriptRemoting.Test.TestPage" style="overflow:hidden;">
-    
-    <WayGridView id="grid" datasource="Way.Lib.ScriptRemoting.WinTest.MyDB.DBColumn" pagesize="30" searchid="searchDiv" allowedit="true" style="width:90%;height:100%;background-color:#ccc;">
+<body style="overflow:hidden;">
+    <WayGridView id="grid" pagesize="30" searchid="searchDiv" allowedit="true" style="width:90%;height:100%;background-color:#ccc;">
         <script for="item" type="text/html">
             <div class="item">{@caption}</div>
         </script>
 
     </WayGridView>
   <script>
-
+      window.onload = function () {
+          grid.datasource = [];
+          for (var i = 0 ; i < 68 ; i++) {
+              grid.datasource.push({ caption: i+1 });
+          }
+          grid.pageMode = true;
+          grid.databind();
+      };
   </script>
 </body>
 </html>

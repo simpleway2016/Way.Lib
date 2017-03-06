@@ -2479,11 +2479,12 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         this.transcationID++;
         var mytranId = this.transcationID;
+        var info = new WayPageInfo();
+        info.PageSize = this.pageinfo.PageSize;
+        info.PageIndex = pageindex;
+
         if (typeof this.datasource == "string") {
             this.showLoading();
-            var info = new WayPageInfo();
-            info.PageSize = this.pageinfo.PageSize;
-            info.PageIndex = pageindex;
             this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel,
                 (ret, pkid, err) => {
                 this.hideLoading();
@@ -2506,7 +2507,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         }
         else {
-            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource) : this.datasource;
+            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource,info) : this.datasource;
             this.bindDataToGrid(pageData, pageindex);
         }
 
@@ -2543,13 +2544,13 @@ class WayGridView extends WayBaseObject implements IPageable {
         }
     }
 
-    private getDataByPagesize(datas: any[]): any {
-        if (datas.length <= this.pageinfo.PageSize)
+    private getDataByPagesize(datas: any[], pageinfo: WayPageInfo): any {
+        if (datas.length <= pageinfo.PageSize)
             return datas;
 
         var result = [];
-        var end = this.pageinfo.PageSize * (this.pageinfo.PageIndex + 1);
-        for (var i = this.pageinfo.PageSize * this.pageinfo.PageIndex; i < end && i < datas.length; i++) {
+        var end = pageinfo.PageSize * (pageinfo.PageIndex + 1);
+        for (var i = pageinfo.PageSize * pageinfo.PageIndex; i < end && i < datas.length; i++) {
             result.push(datas[i]);
         }
         return result;
@@ -4637,8 +4638,8 @@ var _windowObj: JQuery = $(window);
 $(document).ready(() => {
     _bodyObj = $(document.body);
     var controllerName = _bodyObj.attr("controller");
-    if (!controllerName) {
-        throw "<Body>没有定义controller";
+    if (!controllerName || controllerName.length == 0) {
+        //throw "<Body>没有定义controller";
     }
     else {
         (<any>window).controller = WayScriptRemoting.createRemotingController(controllerName);

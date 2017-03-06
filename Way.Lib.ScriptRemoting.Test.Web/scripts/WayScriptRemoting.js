@@ -2246,11 +2246,11 @@ var WayGridView = (function (_super) {
         var pageData;
         this.transcationID++;
         var mytranId = this.transcationID;
+        var info = new WayPageInfo();
+        info.PageSize = this.pageinfo.PageSize;
+        info.PageIndex = pageindex;
         if (typeof this.datasource == "string") {
             this.showLoading();
-            var info = new WayPageInfo();
-            info.PageSize = this.pageinfo.PageSize;
-            info.PageIndex = pageindex;
             this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel, function (ret, pkid, err) {
                 _this.hideLoading();
                 if (mytranId != _this.transcationID)
@@ -2269,7 +2269,7 @@ var WayGridView = (function (_super) {
             });
         }
         else {
-            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource) : this.datasource;
+            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource, info) : this.datasource;
             this.bindDataToGrid(pageData, pageindex);
         }
     };
@@ -2299,12 +2299,12 @@ var WayGridView = (function (_super) {
             }
         }
     };
-    WayGridView.prototype.getDataByPagesize = function (datas) {
-        if (datas.length <= this.pageinfo.PageSize)
+    WayGridView.prototype.getDataByPagesize = function (datas, pageinfo) {
+        if (datas.length <= pageinfo.PageSize)
             return datas;
         var result = [];
-        var end = this.pageinfo.PageSize * (this.pageinfo.PageIndex + 1);
-        for (var i = this.pageinfo.PageSize * this.pageinfo.PageIndex; i < end && i < datas.length; i++) {
+        var end = pageinfo.PageSize * (pageinfo.PageIndex + 1);
+        for (var i = pageinfo.PageSize * pageinfo.PageIndex; i < end && i < datas.length; i++) {
             result.push(datas[i]);
         }
         return result;
@@ -4144,8 +4144,7 @@ var _windowObj = $(window);
 $(document).ready(function () {
     _bodyObj = $(document.body);
     var controllerName = _bodyObj.attr("controller");
-    if (!controllerName) {
-        throw "<Body>没有定义controller";
+    if (!controllerName || controllerName.length == 0) {
     }
     else {
         window.controller = WayScriptRemoting.createRemotingController(controllerName);
