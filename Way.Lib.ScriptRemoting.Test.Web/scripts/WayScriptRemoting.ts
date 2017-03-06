@@ -2032,6 +2032,12 @@ class WayGridView extends WayBaseObject implements IPageable {
     private bodyTemplateHtml: string;
     dbContext: WayDBContext;
     private pageinfo: WayPageInfo = new WayPageInfo();
+    get pagesize(): number {
+        return this.pageinfo.PageSize;
+    }
+    set pagesize(value: number) {
+        this.pageinfo.PageSize = value;
+    }
     private pager: WayPager;
     private fieldExp: RegExp = /\{\@(\w|\.|\:)+\}/g;
     private loading: WayProgressBar = new WayProgressBar("#cccccc");
@@ -2089,12 +2095,10 @@ class WayGridView extends WayBaseObject implements IPageable {
     //item大小变化事件
     onItemSizeChanged: () => void;
 
-    constructor(elementId: string, _pagesize: number = 10) {
+    constructor(elementId: string) {
         super();
         try {
-            if (isNaN(_pagesize))
-                _pagesize = 10;
-
+            
             var controller = document.body.getAttribute("controller");
             
             this.dbContext = new WayDBContext(controller, null);
@@ -2132,7 +2136,6 @@ class WayGridView extends WayBaseObject implements IPageable {
             this.datasource = this.element.attr("datasource");
 
             this.pager = new WayPager(this.element, this);
-            this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[for='body']");
             var templates = this.element.find("script");
 
@@ -3296,7 +3299,8 @@ class WayDropDownList {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
-            this.grid = new WayGridView(<any>this.itemContainer[0],  20);
+            this.grid = new WayGridView(<any>this.itemContainer[0]);
+            this.grid.pagesize = 20;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
             
@@ -3700,7 +3704,8 @@ class WayCheckboxList {
         }
 
         if (true) {
-            this.grid = new WayGridView(<any>this.element[0], 0);
+            this.grid = new WayGridView(<any>this.element[0]);
+            this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
 
@@ -3894,7 +3899,8 @@ class WayRadioList {
         }
 
         if (true) {
-            this.grid = new WayGridView(<any>this.element[0], 0);
+            this.grid = new WayGridView(<any>this.element[0]);
+            this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
 
@@ -4291,7 +4297,8 @@ class WayRelateList {
         }
         div.html("<script for='item' type='text/ html'>" + this.element.find("script[for='item']")[0].innerHTML + "</script>");
         this.listContainer.append(div);
-        var grid = new WayGridView(<any>div, 0);
+        var grid = new WayGridView(<any>div);
+        grid.pagesize = 0;
         grid.searchModel = searchModel;
         if (config.textMember) {
             grid.dataMembers.push(config.textMember + "->text");
@@ -4618,7 +4625,8 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement = null) => {
             break;
         case "WAYGRIDVIEW":
             replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-            control = new WayGridView(<any>replaceEleObj, parseInt(replaceEleObj.attr("pagesize")));
+            control = new WayGridView(<any>replaceEleObj);
+            control.pagesize = parseInt(replaceEleObj.attr("pagesize"));
             break;
         default:
             break;

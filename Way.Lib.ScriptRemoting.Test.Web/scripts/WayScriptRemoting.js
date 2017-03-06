@@ -1865,8 +1865,7 @@ var WayDBContext = (function () {
 }());
 var WayGridView = (function (_super) {
     __extends(WayGridView, _super);
-    function WayGridView(elementId, _pagesize) {
-        if (_pagesize === void 0) { _pagesize = 10; }
+    function WayGridView(elementId) {
         _super.call(this);
         this.memberInChange = [];
         this.itemTemplates = [];
@@ -1896,8 +1895,6 @@ var WayGridView = (function (_super) {
         this.allowEdit = false;
         this.initedPageMode = false;
         try {
-            if (isNaN(_pagesize))
-                _pagesize = 10;
             var controller = document.body.getAttribute("controller");
             this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
@@ -1927,7 +1924,6 @@ var WayGridView = (function (_super) {
                 this.supportDropdownRefresh = false;
             this.datasource = this.element.attr("datasource");
             this.pager = new WayPager(this.element, this);
-            this.pageinfo.PageSize = _pagesize;
             var bodyTemplate = this.element.find("script[for='body']");
             var templates = this.element.find("script");
             this.itemContainer = this.element;
@@ -1966,6 +1962,16 @@ var WayGridView = (function (_super) {
             throw "WayGridView构造函数错误，" + e.message;
         }
     }
+    Object.defineProperty(WayGridView.prototype, "pagesize", {
+        get: function () {
+            return this.pageinfo.PageSize;
+        },
+        set: function (value) {
+            this.pageinfo.PageSize = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(WayGridView.prototype, "datasource", {
         get: function () {
             return this._datasource;
@@ -2919,7 +2925,8 @@ var WayDropDownList = (function () {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
-            this.grid = new WayGridView(this.itemContainer[0], 20);
+            this.grid = new WayGridView(this.itemContainer[0]);
+            this.grid.pagesize = 20;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
@@ -3299,7 +3306,8 @@ var WayCheckboxList = (function () {
             }
         }
         if (true) {
-            this.grid = new WayGridView(this.element[0], 0);
+            this.grid = new WayGridView(this.element[0]);
+            this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
@@ -3471,7 +3479,8 @@ var WayRadioList = (function () {
             }
         }
         if (true) {
-            this.grid = new WayGridView(this.element[0], 0);
+            this.grid = new WayGridView(this.element[0]);
+            this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!this.valueMember || this.valueMember == "") {
@@ -3836,7 +3845,8 @@ var WayRelateList = (function () {
         }
         div.html("<script for='item' type='text/ html'>" + this.element.find("script[for='item']")[0].innerHTML + "</script>");
         this.listContainer.append(div);
-        var grid = new WayGridView(div, 0);
+        var grid = new WayGridView(div);
+        grid.pagesize = 0;
         grid.searchModel = searchModel;
         if (config.textMember) {
             grid.dataMembers.push(config.textMember + "->text");
@@ -4126,7 +4136,8 @@ var initWayControl = function (virtualEle, element) {
             break;
         case "WAYGRIDVIEW":
             replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-            control = new WayGridView(replaceEleObj, parseInt(replaceEleObj.attr("pagesize")));
+            control = new WayGridView(replaceEleObj);
+            control.pagesize = parseInt(replaceEleObj.attr("pagesize"));
             break;
         default:
             break;
