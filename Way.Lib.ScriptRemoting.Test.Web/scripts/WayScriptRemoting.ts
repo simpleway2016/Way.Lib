@@ -1282,6 +1282,42 @@ class WayBindingElement extends WayBaseObject {
             }
         }
 
+        /*
+        var test = document.querySelector("#test");
+    var MutationObserver = window.MutationObserver ||
+    window.WebKitMutationObserver ||
+    window.MozMutationObserver;
+
+    var mutationObserverSupport = !!MutationObserver;
+    if (mutationObserverSupport) {
+        try {
+            var options = {
+                'attributes': true,
+                attributeOldValue:true,
+            };
+            var callback = function (records) {//MutationRecord
+                records.map(function (record) {
+                    console.log('Mutation type: ' + record.type);
+                    console.log('Mutation target: ' + record.target);
+                    console.log('attributeName:' + record.attributeName);
+                    console.log('oldValue:' + record.oldValue);
+                    console.log('nowValue:' + record.target[record.attributeName]);
+                });
+            };
+
+            var observer = new MutationObserver(callback);
+            observer.observe(test, options);
+            //observer.disconnect();//disconnect方法用来停止观察。发生相应变动时，不再调用回调函数。
+            //observer.takeRecord//takeRecord方法用来清除变动记录，即不再处理未处理的变动。
+            test.style.display = "none";
+            test.style.display = "";
+            test.style.display = "none";
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    }
+        */
        
         if (_expressionString) {
             var matchs = _expressionString.match(dataMemberExp);
@@ -2190,7 +2226,21 @@ class WayGridView extends WayBaseObject implements IPageable {
         var moving = false;
         var isTouchToRefresh = false;
         //先预设一下,否则有时候第一次设置touchEle会白屏
-        touchEle.css("will-change", "transform");
+        //touchEle.css("will-change", "transform");
+        touchEle.parent().css({
+            "transform-style": "preserve-3d",
+            "-webkit-transform-style": "preserve-3d",
+            "-moz-transform-style": "preserve-3d",
+        });
+
+        touchEle.css(
+            {
+                "transition-property": "transform",
+                "-moz-transition-property": "-moz-transform",
+                "-webkit-transition-property": "-webkit-transform",
+
+            });
+
         var point;
 
         WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) => {
@@ -2202,8 +2252,16 @@ class WayGridView extends WayBaseObject implements IPageable {
                 return;
             }
 
+            if (!isTouch) {
+                if (window.captureEvents) {
+                    (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+                }
+                else
+                    (<any>this.element[0]).setCapture();
+            }
+
             e = e || window.event;
-            touchEle.css("will-change", "transform");
+            //touchEle.css("will-change", "transform");
             point = {
                 x: isTouch ? e.touches[0].clientX : e.clientX,
                 y: isTouch ? e.touches[0].clientY : e.clientY
@@ -2223,7 +2281,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 if (y > 0) {
                     isTouchToRefresh = true;
 
-                    y = "translate(0px," + y + "px)";
+                    y = "translate3d(0," + y + "px,0)";
                     touchEle.css({
                         "-webkit-transform": y,
                         "-moz-transform": y,
@@ -2246,6 +2304,13 @@ class WayGridView extends WayBaseObject implements IPageable {
 
             if (moving) {
                 moving = false;
+                if (!isTouch) {
+                    if (window.releaseEvents) {
+                        (<any>window).releaseEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+                    }
+                    else
+                        (<any>this.element[0]).releaseCapture();
+                }
 
                 e = e || <any>window.event;
 
@@ -2253,36 +2318,59 @@ class WayGridView extends WayBaseObject implements IPageable {
                 y = (y - point.y);
 
                 isTouchToRefresh = (y > this.element.height() * 0.15);
+                var desLocation = "translate3d(0,0,0)";
+
                 touchEle.css({
+                    "-moz-transition": "-moz-transform 0.5s",
+                    "-webkit-transition": "-webkit-transform 0.5s",
+                    "-o-transition": "-o-transform 0.5s",
                     "transition": "transform 0.5s",
-                    "-webkit-transform": "translate(0px,0px)",
-                    "-moz-transform": "translate(0px,0px)",
-                    "transform": "translate(0px,0px)"
+
+                    "-moz-transform": desLocation,
+                    "-webkit-transform": desLocation,
+                    "-o-transform": desLocation,
+                    "transform": desLocation
                 });
             }
         };
 
         WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+       
 
-        this.element[0].ontouchcancel = () => {
+        var touchcancelFunc = () => {
             isTouchToRefresh = false;
+
+            var desLocation = "translate3d(0,0,0)";
+
             touchEle.css({
+                "-moz-transition": "-moz-transform 0.5s",
+                "-webkit-transition": "-webkit-transform 0.5s",
+                "-o-transition": "-o-transform 0.5s",
                 "transition": "transform 0.5s",
-                "-webkit-transform": "translate(0px,0px)",
-                "-moz-transform": "translate(0px,0px)",
-                "transform": "translate(0px,0px)"
+
+                "-moz-transform": desLocation,
+                "-webkit-transform": desLocation,
+                "-o-transform": desLocation,
+                "transform": desLocation
             });
         };
+        this.element[0].ontouchcancel = touchcancelFunc;
 
-        WayHelper.addEventListener(touchEle[0], "transitionend", (e) => {
+        var transitionendFunc = (e) => {
+
             touchEle.css({
+                "-moz-transition": "",
+                "-webkit-transition": "",
+                "-o-transition": "",
                 "transition": "",
-                "will-change": "auto"
             });
             if (isTouchToRefresh) {
                 this.databind();
             }
-        }, true);
+        };
+        WayHelper.addEventListener(touchEle[0], "transitionend", transitionendFunc, true); //这是pc的TransitionEnd事件   
+        WayHelper.addEventListener(touchEle[0], "webkitTransitionEnd", transitionendFunc, true); //这是android的TransitionEnd事件
+
     }
 
 
@@ -3050,8 +3138,8 @@ class WayGridView extends WayBaseObject implements IPageable {
         WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
 
 
-        WayHelper.addEventListener(this.itemContainer[0], "transitionend", (e) => {
-            //这是pc的TransitionEnd事件
+        var transitionendFunc = (e) => {
+           
             this.itemContainer.css({
                 "-moz-transition": "",
                 "-webkit-transition": "",
@@ -3062,20 +3150,9 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.onViewPageIndexChange(this.pageinfo.ViewingPageIndex);
             }
             this.preLoadPage();
-        }, true);
-        WayHelper.addEventListener(this.itemContainer[0], "webkitTransitionEnd", (e) => {
-            //这是android的TransitionEnd事件
-            this.itemContainer.css({
-                "-moz-transition": "",
-                "-webkit-transition": "",
-                "-o-transition": "",
-                "transition": "",
-            });
-            if (this.onViewPageIndexChange) {
-                this.onViewPageIndexChange(this.pageinfo.ViewingPageIndex);
-            }
-            this.preLoadPage();
-        }, true);
+        };
+        WayHelper.addEventListener(this.itemContainer[0], "transitionend", transitionendFunc, true); //这是pc的TransitionEnd事件   
+        WayHelper.addEventListener(this.itemContainer[0], "webkitTransitionEnd", transitionendFunc, true); //这是android的TransitionEnd事件
 
     }
 

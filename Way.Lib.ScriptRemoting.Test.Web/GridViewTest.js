@@ -18,6 +18,7 @@ window.onload = function () {
     //    grid.setSameWidthForTables(tableSource, tableHeader);
     //    grid.setSameWidthForTables(tableSource, tableFooter);
     //}
+    grid.supportDropdownRefresh = true;
     grid.itemStatusModel = {
         Selected: false,
         onchange: function (model, itemIndex, name, value) {

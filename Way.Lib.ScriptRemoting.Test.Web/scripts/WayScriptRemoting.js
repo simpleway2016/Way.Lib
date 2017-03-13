@@ -1205,6 +1205,42 @@ var WayBindingElement = (function (_super) {
                 }
             }
         }
+        /*
+        var test = document.querySelector("#test");
+    var MutationObserver = window.MutationObserver ||
+    window.WebKitMutationObserver ||
+    window.MozMutationObserver;
+
+    var mutationObserverSupport = !!MutationObserver;
+    if (mutationObserverSupport) {
+        try {
+            var options = {
+                'attributes': true,
+                attributeOldValue:true,
+            };
+            var callback = function (records) {//MutationRecord
+                records.map(function (record) {
+                    console.log('Mutation type: ' + record.type);
+                    console.log('Mutation target: ' + record.target);
+                    console.log('attributeName:' + record.attributeName);
+                    console.log('oldValue:' + record.oldValue);
+                    console.log('nowValue:' + record.target[record.attributeName]);
+                });
+            };
+
+            var observer = new MutationObserver(callback);
+            observer.observe(test, options);
+            //observer.disconnect();//disconnect方法用来停止观察。发生相应变动时，不再调用回调函数。
+            //observer.takeRecord//takeRecord方法用来清除变动记录，即不再处理未处理的变动。
+            test.style.display = "none";
+            test.style.display = "";
+            test.style.display = "none";
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    }
+        */
         if (_expressionString) {
             var matchs = _expressionString.match(dataMemberExp);
             if (matchs) {
@@ -1995,7 +2031,17 @@ var WayGridView = (function (_super) {
         var moving = false;
         var isTouchToRefresh = false;
         //先预设一下,否则有时候第一次设置touchEle会白屏
-        touchEle.css("will-change", "transform");
+        //touchEle.css("will-change", "transform");
+        touchEle.parent().css({
+            "transform-style": "preserve-3d",
+            "-webkit-transform-style": "preserve-3d",
+            "-moz-transform-style": "preserve-3d",
+        });
+        touchEle.css({
+            "transition-property": "transform",
+            "-moz-transition-property": "-moz-transform",
+            "-webkit-transition-property": "-webkit-transform",
+        });
         var point;
         WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
             if (!_this.supportDropdownRefresh || _this.pageMode)
@@ -2004,8 +2050,15 @@ var WayGridView = (function (_super) {
             if (_this.element.scrollTop() > 0) {
                 return;
             }
+            if (!isTouch) {
+                if (window.captureEvents) {
+                    window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+                }
+                else
+                    _this.element[0].setCapture();
+            }
             e = e || window.event;
-            touchEle.css("will-change", "transform");
+            //touchEle.css("will-change", "transform");
             point = {
                 x: isTouch ? e.touches[0].clientX : e.clientX,
                 y: isTouch ? e.touches[0].clientY : e.clientY
@@ -2023,7 +2076,7 @@ var WayGridView = (function (_super) {
                 y = (y - point.y);
                 if (y > 0) {
                     isTouchToRefresh = true;
-                    y = "translate(0px," + y + "px)";
+                    y = "translate3d(0," + y + "px,0)";
                     touchEle.css({
                         "-webkit-transform": y,
                         "-moz-transform": y,
@@ -2043,37 +2096,59 @@ var WayGridView = (function (_super) {
         var touchoutFunc = function (e) {
             if (moving) {
                 moving = false;
+                if (!isTouch) {
+                    if (window.releaseEvents) {
+                        window.releaseEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+                    }
+                    else
+                        _this.element[0].releaseCapture();
+                }
                 e = e || window.event;
                 var y = isTouch ? e.changedTouches[0].clientY : e.clientY;
                 y = (y - point.y);
                 isTouchToRefresh = (y > _this.element.height() * 0.15);
+                var desLocation = "translate3d(0,0,0)";
                 touchEle.css({
+                    "-moz-transition": "-moz-transform 0.5s",
+                    "-webkit-transition": "-webkit-transform 0.5s",
+                    "-o-transition": "-o-transform 0.5s",
                     "transition": "transform 0.5s",
-                    "-webkit-transform": "translate(0px,0px)",
-                    "-moz-transform": "translate(0px,0px)",
-                    "transform": "translate(0px,0px)"
+                    "-moz-transform": desLocation,
+                    "-webkit-transform": desLocation,
+                    "-o-transform": desLocation,
+                    "transform": desLocation
                 });
             }
         };
         WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
-        this.element[0].ontouchcancel = function () {
+        var touchcancelFunc = function () {
             isTouchToRefresh = false;
+            var desLocation = "translate3d(0,0,0)";
             touchEle.css({
+                "-moz-transition": "-moz-transform 0.5s",
+                "-webkit-transition": "-webkit-transform 0.5s",
+                "-o-transition": "-o-transform 0.5s",
                 "transition": "transform 0.5s",
-                "-webkit-transform": "translate(0px,0px)",
-                "-moz-transform": "translate(0px,0px)",
-                "transform": "translate(0px,0px)"
+                "-moz-transform": desLocation,
+                "-webkit-transform": desLocation,
+                "-o-transform": desLocation,
+                "transform": desLocation
             });
         };
-        WayHelper.addEventListener(touchEle[0], "transitionend", function (e) {
+        this.element[0].ontouchcancel = touchcancelFunc;
+        var transitionendFunc = function (e) {
             touchEle.css({
+                "-moz-transition": "",
+                "-webkit-transition": "",
+                "-o-transition": "",
                 "transition": "",
-                "will-change": "auto"
             });
             if (isTouchToRefresh) {
                 _this.databind();
             }
-        }, true);
+        };
+        WayHelper.addEventListener(touchEle[0], "transitionend", transitionendFunc, true); //这是pc的TransitionEnd事件   
+        WayHelper.addEventListener(touchEle[0], "webkitTransitionEnd", transitionendFunc, true); //这是android的TransitionEnd事件
     };
     WayGridView.prototype.showLoading = function () {
         this.loading.show(this.element);
@@ -2741,8 +2816,7 @@ var WayGridView = (function (_super) {
             });
         };
         WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
-        WayHelper.addEventListener(this.itemContainer[0], "transitionend", function (e) {
-            //这是pc的TransitionEnd事件
+        var transitionendFunc = function (e) {
             _this.itemContainer.css({
                 "-moz-transition": "",
                 "-webkit-transition": "",
@@ -2753,20 +2827,9 @@ var WayGridView = (function (_super) {
                 _this.onViewPageIndexChange(_this.pageinfo.ViewingPageIndex);
             }
             _this.preLoadPage();
-        }, true);
-        WayHelper.addEventListener(this.itemContainer[0], "webkitTransitionEnd", function (e) {
-            //这是android的TransitionEnd事件
-            _this.itemContainer.css({
-                "-moz-transition": "",
-                "-webkit-transition": "",
-                "-o-transition": "",
-                "transition": "",
-            });
-            if (_this.onViewPageIndexChange) {
-                _this.onViewPageIndexChange(_this.pageinfo.ViewingPageIndex);
-            }
-            _this.preLoadPage();
-        }, true);
+        };
+        WayHelper.addEventListener(this.itemContainer[0], "transitionend", transitionendFunc, true); //这是pc的TransitionEnd事件   
+        WayHelper.addEventListener(this.itemContainer[0], "webkitTransitionEnd", transitionendFunc, true); //这是android的TransitionEnd事件
     };
     WayGridView.prototype.preLoadPage = function () {
         //看看是否需要加载上一页
