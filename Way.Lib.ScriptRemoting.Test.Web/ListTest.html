@@ -32,7 +32,6 @@
     </div>
     <script lang="ja">
             //var list = new WayDropDownList("list1", "Way.Lib.ScriptRemoting.Test.TestPage" , "grid");
-            WayHelper.writePage("/aa.html");
 
             var d1 = document.getElementById("d1");
             var value = "";
@@ -50,16 +49,15 @@
 
                 var chkObj = WayDataBindHelper.dataBind(chkList1, { dbids: [10] });
 
-                chkObj.onchange = function (model, tag, name, value) {
+                chkObj.addEventListener("change", function (model,name, value) {
                     titleDiv.innerHTML = "chkObj.onchange:" + (chkObj.dbids);
-                };
+                });
 
                 var chkObj2 = WayDataBindHelper.dataBind(rdList1, { dbids: 10 });
 
-                chkObj2.onchange = function (model, tag, name, value) {
+                chkObj2.addEventListener("change", function (model, name, value) {
                     titleDiv.innerHTML = "chkObj2.onchange:" + (chkObj2.dbids);
-                };
-
+                });
 
             }
 

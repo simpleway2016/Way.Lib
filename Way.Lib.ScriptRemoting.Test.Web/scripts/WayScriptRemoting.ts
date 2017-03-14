@@ -1200,7 +1200,7 @@ class WayObserveObject {
         this.__data[proName] = value;
 
         var type = typeof value;
-        if ( value == null || type != "object") {
+        if (value == null || value instanceof Array  || type != "object") {
             Object.defineProperty(this, proName, {
                 get: function () {
                     return this.__data[proName];
@@ -1231,7 +1231,7 @@ class WayObserveObject {
 
     private __addProperty(proName) {
         var type = typeof this.__data[proName];
-        if (type == "object") {
+        if (type == "object" && !(this.__data[proName] instanceof Array )) {
             this[proName] = new WayObserveObject(this.__data[proName], this, proName);
         }
         else if (type != "function") {
@@ -1281,7 +1281,7 @@ class WayObserveObject {
     __changed(name: string,value) {
         for (var i = 0; i < this.__onchanges.length; i++) {
             if (this.__onchanges[i]) {
-                this.__onchanges[i](name, value);
+                this.__onchanges[i](this , name, value);
             }
         }
     }
@@ -1596,7 +1596,7 @@ class WayDataBindHelper {
         if (!data)
             data = {};
 
-        if (data.__changed && typeof data.__changed == "function") {
+        if (data instanceof WayObserveObject) {
             model = data;
             data = model.__data;
         }
@@ -1605,7 +1605,7 @@ class WayDataBindHelper {
         }
 
         var bindingInfo = new WayBindingElement(element, model,  expressionExp, dataMemberExp);
-        (<any>bindingInfo)._changefunc = (proname, value) => {
+        (<any>bindingInfo)._changefunc = (datamodel , proname, value) => {
             bindingInfo.onchange(tag, proname, value);
         };
         (<WayObserveObject>model).addEventListener("change", (<any>bindingInfo)._changefunc);
@@ -3171,7 +3171,14 @@ class WayDropDownList {
                 this._text = "";
                 this.setText("");
             }
-
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if ((<any>this.grid.items[i]).data.value == this._value) {
+                    (<any>this.grid.items[i]).status.Selected = true;
+                }
+                else {
+                    (<any>this.grid.items[i]).status.Selected = false;
+                }
+            }
             this.fireEvent("change");
         }
     }
@@ -3183,8 +3190,16 @@ class WayDropDownList {
     set text(v: string) {
         if (v != this._text) {
             this._text = v;
+            this.setText(v);
             this._value = this.getValueByText(v);
-
+            for (var i = 0; i < this.grid.items.length; i++) {
+                if ((<any>this.grid.items[i]).data.value == this._value) {
+                    (<any>this.grid.items[i]).status.Selected = true;
+                }
+                else {
+                    (<any>this.grid.items[i]).status.Selected = false;
+                }
+            }
             this.fireEvent("change");
         }
     }
@@ -3409,12 +3424,6 @@ class WayDropDownList {
         (<any>item).status.Selected = (<any>item).data.value == this.value;
         item.click(() => {
             this.hideList();
-            (<any>item).status.Selected = true;
-            for (var i = 0; i < this.grid.items.length; i++) {
-                if (this.grid.items[i] != item) {
-                    (<any>this.grid.items[i]).status.Selected = false;
-                }
-            }
             this.value = (<any>item).data.value;
         });
     }
@@ -4077,6 +4086,9 @@ class WayRelateList {
             this.listContainer.css(
                 {
                     height: "100%",
+                    "-webkit-box-sizing": "border-box",
+                    "-moz-box-sizing": "border-box",
+                    "box-sizing": "border-box",
                 });
 
             scrollConainer.css(
@@ -4110,7 +4122,9 @@ class WayRelateList {
                     height: "300px",
                     "z-index": 999,
                     position: "absolute",
-
+                    "-webkit-box-sizing": "border-box",
+                    "-moz-box-sizing": "border-box",
+                    "box-sizing": "border-box",
                 });
 
             document.body.appendChild(this.listContainer[0]);
@@ -4193,7 +4207,7 @@ class WayRelateList {
             this.listContainer[0].parentElement.scrollLeft = 100000;
         }
         else {
-            this.listContainer.width(contentWidth);
+            this.listContainer.width(contentWidth + 1);//这里至少+1，刚刚好的宽度，会让最后一个换行
         }
     }
 
@@ -4250,6 +4264,9 @@ class WayRelateList {
             "overflow-y": "auto",
             "min-width": "100px",
             "float": "left",
+            "-webkit-box-sizing": "border-box",
+            "-moz-box-sizing": "border-box",
+            "box-sizing": "border-box",
         });
         if (configIndex > 0) {
             div.css({
