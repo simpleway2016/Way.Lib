@@ -4,6 +4,9 @@ var testPage: WayScriptRemoting;
 window.onload = () => {
     var objtest : any = {  };
     objtest = WayDataBindHelper.dataBind("div1", objtest);
+    for (var c in objtest) {
+        console.log(c);
+    }
     $("#div1btn").click(function () {
         alert(objtest.name);
     });

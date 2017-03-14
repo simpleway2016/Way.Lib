@@ -1186,7 +1186,17 @@ class WayObserveObject {
     private __onchanges = [];
     private __objects = {};
 
-    constructor(data, parent: WayObserveObject = null, parentname :string = null) {
+    constructor(data, parent: WayObserveObject = null, parentname: string = null) {
+
+        if (data instanceof WayObserveObject) {
+            var old: WayObserveObject = data;
+            this.addEventListener("change", (_model, _name, _value) => {
+                old.__changed(_name, _value);
+            });
+            //old发生变化，无法通知newModel，否则就进入死循环了
+            data = old.__data;
+        }
+
         this.__data = data;
         this.__parent = parent;
         this.__parentName = parentname;
@@ -1229,21 +1239,11 @@ class WayObserveObject {
         }
     }
 
+
     private __addProperty(proName) {
         var type = typeof this.__data[proName];
         if (type == "object" && !(this.__data[proName] instanceof Array)) {
-            if (this.__data[proName] instanceof WayObserveObject) {
-                var old: WayObserveObject = this.__data[proName];
-                var newModel: WayObserveObject = new WayObserveObject(old.__data, this, proName);
-                newModel.addEventListener("change", (_model, _name, _value) => {
-                    old.__changed(_name, _value);
-                });
-                //old发生变化，无法通知newModel，否则就进入死循环了
-                this[proName] = newModel;
-            }
-            else {
-                this[proName] = new WayObserveObject(this.__data[proName], this, proName);
-            }
+            this[proName] = new WayObserveObject(this.__data[proName], this, proName);
         }
         else if (type != "function") {
 
