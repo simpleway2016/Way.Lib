@@ -2032,7 +2032,7 @@ var WayGridView = (function (_super) {
         var isTouchToRefresh = false;
         //先预设一下,否则有时候第一次设置touchEle会白屏
         //touchEle.css("will-change", "transform");
-        touchEle.parent().css({
+        $(touchEle[0].parentElement).css({
             "transform-style": "preserve-3d",
             "-webkit-transform-style": "preserve-3d",
             "-moz-transform-style": "preserve-3d",
@@ -2043,7 +2043,7 @@ var WayGridView = (function (_super) {
             "-webkit-transition-property": "-webkit-transform",
         });
         var point;
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", function (e) {
             if (!_this.supportDropdownRefresh || _this.pageMode)
                 return;
             isTouchToRefresh = false;
@@ -2065,7 +2065,7 @@ var WayGridView = (function (_super) {
             };
             moving = true;
         }, true);
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", function (e) {
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchmove" : "mousemove", function (e) {
             if (moving) {
                 if (_this.element.scrollTop() > 0) {
                     moving = false;
@@ -2080,6 +2080,7 @@ var WayGridView = (function (_super) {
                     touchEle.css({
                         "-webkit-transform": y,
                         "-moz-transform": y,
+                        "-o-transform": y,
                         "transform": y
                     });
                 }
@@ -2120,7 +2121,7 @@ var WayGridView = (function (_super) {
                 });
             }
         };
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
         var touchcancelFunc = function () {
             isTouchToRefresh = false;
             var desLocation = "translate3d(0,0,0)";
@@ -2135,7 +2136,7 @@ var WayGridView = (function (_super) {
                 "transform": desLocation
             });
         };
-        this.element[0].ontouchcancel = touchcancelFunc;
+        touchEle[0].ontouchcancel = touchcancelFunc;
         var transitionendFunc = function (e) {
             touchEle.css({
                 "-moz-transition": "",
@@ -2712,12 +2713,10 @@ var WayGridView = (function (_super) {
         var isTouch = "ontouchstart" in this.itemContainer[0];
         var point;
         var moving;
-        var isTouchToRefresh = false;
         this.element[0].ontouchstart = null;
         this.element[0].ontouchend = null;
         this.element[0].ontouchmove = null;
         WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", function (e) {
-            isTouchToRefresh = false;
             e = e || window.event;
             point = {
                 x: isTouch ? e.touches[0].clientX : e.clientX,
@@ -2745,16 +2744,13 @@ var WayGridView = (function (_super) {
                 else if (x < 0 && _this.pageinfo.ViewingPageIndex == _this.preloadedMaxPageIndex) {
                     x /= 3;
                 }
-                if (Math.abs(x) > 0) {
-                    isTouchToRefresh = true;
-                }
                 x = "translate3d(" + (point.left + x) + "px,0,0)";
                 _this.itemContainer.css({
                     "-webkit-transform": x,
                     "-moz-transform": x,
                     "transform": x
                 });
-                if (isTouchToRefresh) {
+                if (Math.abs(x) > 0) {
                     if (e.stopPropagation) {
                         e.stopPropagation();
                         e.preventDefault();
@@ -4161,12 +4157,15 @@ var initWayControl = function (virtualEle, element) {
         replaceEleObj.attr(virtualEle.attributes[k].name, virtualEle.attributes[k].value);
     }
     if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
-        virtualEle.parentElement.removeChild(virtualEle);
-        virtualEle.parentElement.appendChild(replaceEleObj[0]);
+        var parent = virtualEle.parentElement;
+        parent.removeChild(virtualEle);
+        parent.appendChild(replaceEleObj[0]);
     }
     else {
-        var nextlib = virtualEle.nextSibling;
-        virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
+        var nextlib = virtualEle.nextElementSibling;
+        var parent = virtualEle.parentElement;
+        parent.removeChild(virtualEle);
+        parent.insertBefore(replaceEleObj[0], nextlib);
     }
     var control = null;
     switch (controlType) {
@@ -4207,11 +4206,21 @@ var initWayControl = function (virtualEle, element) {
     }
     if (control) {
         var idstr = replaceEleObj.attr("id");
-        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + ".WayControl")) {
-            eval("window." + idstr + "=control;");
+        if (idstr && idstr.length > 0) {
+            var exists = false;
+            for (var k = 0; k < _allWayControlNames.length; k++) {
+                if (_allWayControlNames[k] == idstr) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                eval("window." + idstr + "=control;");
+            }
         }
     }
 };
+var _allWayControlNames = [];
 var _styles;
 var _bodyObj;
 var _windowObj = $(window);

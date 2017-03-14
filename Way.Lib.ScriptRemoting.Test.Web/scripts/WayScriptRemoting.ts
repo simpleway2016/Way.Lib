@@ -2227,12 +2227,13 @@ class WayGridView extends WayBaseObject implements IPageable {
         var isTouchToRefresh = false;
         //先预设一下,否则有时候第一次设置touchEle会白屏
         //touchEle.css("will-change", "transform");
-        touchEle.parent().css({
+
+        $(touchEle[0].parentElement).css({
             "transform-style": "preserve-3d",
             "-webkit-transform-style": "preserve-3d",
             "-moz-transform-style": "preserve-3d",
         });
-
+       
         touchEle.css(
             {
                 "transition-property": "transform",
@@ -2240,10 +2241,10 @@ class WayGridView extends WayBaseObject implements IPageable {
                 "-webkit-transition-property": "-webkit-transform",
 
             });
-
+ 
         var point;
 
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) => {
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchstart" : "mousedown", (e) => {
             if (!this.supportDropdownRefresh || this.pageMode)
                 return;
 
@@ -2269,7 +2270,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             moving = true;
         }, true);
 
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchmove" : "mousemove", (e: TouchEvent) => {
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchmove" : "mousemove", (e: TouchEvent) => {
             if (moving) {
                 if (this.element.scrollTop() > 0) {
                     moving = false;
@@ -2285,6 +2286,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                     touchEle.css({
                         "-webkit-transform": y,
                         "-moz-transform": y,
+                        "-o-transform": y,
                         "transform": y
                     });
                 }
@@ -2334,7 +2336,7 @@ class WayGridView extends WayBaseObject implements IPageable {
             }
         };
 
-        WayHelper.addEventListener(this.element[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
+        WayHelper.addEventListener(touchEle[0], isTouch ? "touchend" : "mouseup", touchoutFunc, undefined);
        
 
         var touchcancelFunc = () => {
@@ -2354,7 +2356,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 "transform": desLocation
             });
         };
-        this.element[0].ontouchcancel = touchcancelFunc;
+        touchEle[0].ontouchcancel = touchcancelFunc;
 
         var transitionendFunc = (e) => {
 
@@ -3015,14 +3017,14 @@ class WayGridView extends WayBaseObject implements IPageable {
         var isTouch = "ontouchstart" in this.itemContainer[0];
         var point;
         var moving;
-        var isTouchToRefresh = false;
+
 
         this.element[0].ontouchstart = null;
         this.element[0].ontouchend = null;
         this.element[0].ontouchmove = null;
 
         WayHelper.addEventListener(this.element[0], isTouch ? "touchstart" : "mousedown", (e) => {
-            isTouchToRefresh = false;
+
             e = e || window.event;
             point = {
                 x: isTouch ? e.touches[0].clientX : e.clientX,
@@ -3052,9 +3054,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                 else if (x < 0 && this.pageinfo.ViewingPageIndex == this.preloadedMaxPageIndex) {
                     x /= 3;
                 }
-                if (Math.abs(x) > 0) {
-                    isTouchToRefresh = true;
-                }
+                
 
                 x = "translate3d(" + (point.left + x) + "px,0,0)";
                 this.itemContainer.css({
@@ -3063,7 +3063,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                     "transform": x
                 });
 
-                if (isTouchToRefresh) {
+                if (Math.abs(x) > 0) {
                     if (e.stopPropagation) {
                         e.stopPropagation();
                         e.preventDefault();
@@ -3071,6 +3071,7 @@ class WayGridView extends WayBaseObject implements IPageable {
                     else
                         window.event.cancelBubble = true;
                 }
+                
 
             }
         }, true);
@@ -4662,12 +4663,17 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement = null) => {
     }
 
     if (virtualEle == virtualEle.parentElement.children[virtualEle.parentElement.children.length - 1]) {
-        virtualEle.parentElement.removeChild(virtualEle);
-        virtualEle.parentElement.appendChild(replaceEleObj[0]);
+        var parent = virtualEle.parentElement;
+        parent.removeChild(virtualEle);
+        parent.appendChild(replaceEleObj[0]);
     }
     else {
-        var nextlib = virtualEle.nextSibling;
-        virtualEle.parentElement.insertBefore(replaceEleObj[0], nextlib);
+        var nextlib = virtualEle.nextElementSibling;
+        var parent = virtualEle.parentElement;
+
+        parent.removeChild(virtualEle);
+        parent.insertBefore(replaceEleObj[0], nextlib);
+        
     }
     var control = null;
    
@@ -4711,12 +4717,23 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement = null) => {
 
     if (control) {
         var idstr = replaceEleObj.attr("id");
-        if (idstr && idstr.length > 0 && eval("!window." + idstr + " || !window." + idstr + ".WayControl")) {
-            eval("window." + idstr + "=control;");
+        if (idstr && idstr.length > 0) {
+            var exists = false;
+            for (var k = 0; k < _allWayControlNames.length; k++)
+            {
+                if (_allWayControlNames[k] == idstr) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                eval("window." + idstr + "=control;");
+            }
         }
     }
 };
 
+var _allWayControlNames = [];
 var _styles: JQuery;
 var _bodyObj: JQuery;
 var _windowObj: JQuery = $(window);
