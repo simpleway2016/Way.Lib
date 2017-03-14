@@ -1,5 +1,13 @@
 var testPage;
 window.onload = function () {
+    var objtest = {};
+    objtest = WayDataBindHelper.dataBind("div1", objtest);
+    $("#div1btn").click(function () {
+        alert(objtest.name);
+    });
+    $("#div1btn2").click(function () {
+        objtest.name = new Date().toString();
+    });
     testPage = window.controller;
     testPage.onmessage = function (e) {
         alert("group msg:" + e);

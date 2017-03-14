@@ -2,6 +2,14 @@
 var testPage: WayScriptRemoting;
 
 window.onload = () => {
+    var objtest : any = {  };
+    objtest = WayDataBindHelper.dataBind("div1", objtest);
+    $("#div1btn").click(function () {
+        alert(objtest.name);
+    });
+    $("#div1btn2").click(function () {
+        objtest.name = new Date().toString();
+    });
     testPage = (<any>window).controller;
     testPage.onmessage = (e) => {
         alert("group msg:" + e);

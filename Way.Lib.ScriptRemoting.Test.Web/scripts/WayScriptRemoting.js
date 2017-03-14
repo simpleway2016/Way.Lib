@@ -1116,22 +1116,117 @@ var WayBindMemberConfig = (function () {
     }
     return WayBindMemberConfig;
 }());
+var WayObserveObject = (function () {
+    function WayObserveObject(data, parent, parentname) {
+        if (parent === void 0) { parent = null; }
+        if (parentname === void 0) { parentname = null; }
+        this.__onchanges = [];
+        this.__objects = {};
+        this.__data = data;
+        this.__parent = parent;
+        this.__parentName = parentname;
+        for (var p in data) {
+            this.__addProperty(p);
+        }
+    }
+    WayObserveObject.prototype.addNewProperty = function (proName, value) {
+        this.__data[proName] = value;
+        var type = typeof value;
+        if (value == null || type != "object") {
+            Object.defineProperty(this, proName, {
+                get: function () {
+                    return this.__data[proName];
+                },
+                set: function (value) {
+                    if (this.__data[proName] != value) {
+                        this.__data[proName] = value;
+                        this.__changed(proName, value);
+                        if (this.__parent) {
+                            var curparent = this.__parent;
+                            var pname = this.__parentName;
+                            while (curparent) {
+                                proName = pname + "." + proName;
+                                curparent.__changed(proName, value);
+                                pname = curparent.__parentName;
+                                curparent = curparent.__parent;
+                            }
+                        }
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+        }
+    };
+    WayObserveObject.prototype.__addProperty = function (proName) {
+        var type = typeof this.__data[proName];
+        if (type == "object") {
+            this[proName] = new WayObserveObject(this.__data[proName], this, proName);
+        }
+        else if (type != "function") {
+            Object.defineProperty(this, proName, {
+                get: function () {
+                    return this.__data[proName];
+                },
+                set: function (value) {
+                    if (this.__data[proName] != value) {
+                        this.__data[proName] = value;
+                        this.__changed(proName, value);
+                        if (this.__parent) {
+                            var curparent = this.__parent;
+                            var pname = this.__parentName;
+                            while (curparent) {
+                                proName = pname + "." + proName;
+                                curparent.__changed(proName, value);
+                                pname = curparent.__parentName;
+                                curparent = curparent.__parent;
+                            }
+                        }
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+        }
+    };
+    WayObserveObject.prototype.addEventListener = function (name, func) {
+        if (name == "change") {
+            this.__onchanges.push(func);
+        }
+    };
+    WayObserveObject.prototype.removeEventListener = function (name, func) {
+        if (name == "change") {
+            for (var i = 0; i < this.__onchanges.length; i++) {
+                if (this.__onchanges[i] == func) {
+                    this.__onchanges[i] = null;
+                }
+            }
+        }
+    };
+    WayObserveObject.prototype.__changed = function (name, value) {
+        for (var i = 0; i < this.__onchanges.length; i++) {
+            if (this.__onchanges[i]) {
+                this.__onchanges[i](name, value);
+            }
+        }
+    };
+    return WayObserveObject;
+}());
 var WayBindingElement = (function (_super) {
     __extends(WayBindingElement, _super);
-    function WayBindingElement(_element, _model, _dataSource, expressionExp, dataMemberExp) {
+    function WayBindingElement(_element, _model, expressionExp, dataMemberExp) {
         _super.call(this);
         this.configs = [];
         this.expressionConfigs = [];
         this.element = _element;
         this.model = _model;
-        this.dataSource = _dataSource;
         var elements = WayHelper.findBindingElements(_element);
         for (var i = 0; i < elements.length; i++) {
             var ctrlEle = elements[i];
-            this.initEle(ctrlEle, _dataSource, expressionExp, dataMemberExp);
+            this.initEle(ctrlEle, expressionExp, dataMemberExp);
         }
     }
-    WayBindingElement.prototype.initEle = function (ctrlEle, _dataSource, expressionExp, dataMemberExp) {
+    WayBindingElement.prototype.initEle = function (ctrlEle, expressionExp, dataMemberExp) {
         var _this = this;
         var databind = ctrlEle.getAttribute("databind");
         var _expressionString = ctrlEle.getAttribute("expression");
@@ -1150,10 +1245,10 @@ var WayBindingElement = (function (_super) {
                         eleMember = eleMember.match(/(\w|\.)+/g)[0];
                         var dataMember = match.match(dataMemberExp)[0];
                         dataMember = dataMember.substr(1);
-                        //检查data.member是否存在
-                        if (_dataSource) {
+                        //检查data.member是否存在，不存在需要添加到model
+                        if (this.model) {
                             var fields = dataMember.split('.');
-                            var findingObj = _dataSource;
+                            var findingObj = this.model;
                             for (var k = 0; k < fields.length; k++) {
                                 var field = fields[k];
                                 if (field.length == 0)
@@ -1161,21 +1256,20 @@ var WayBindingElement = (function (_super) {
                                 if (k < fields.length - 1) {
                                     var isUndefined = eval("typeof findingObj." + field + "!='object'");
                                     if (isUndefined) {
-                                        eval("findingObj." + field + "={};");
+                                        findingObj.addNewProperty(field, new WayObserveObject({}, findingObj, field));
                                     }
-                                    findingObj = eval("findingObj." + field);
+                                    findingObj = findingObj[field];
                                 }
                                 else {
                                     var isUndefined = eval("typeof findingObj." + field + "=='undefined'");
                                     if (isUndefined) {
-                                        eval("findingObj." + field + "=null;");
+                                        findingObj.addNewProperty(field, null);
                                     }
-                                    findingObj = eval("findingObj." + field);
                                 }
                             }
                         }
-                        if (_dataSource) {
-                            var isObject = eval("_dataSource." + dataMember + " && typeof _dataSource." + dataMember + "=='object' && typeof _dataSource." + dataMember + ".value!='undefined'");
+                        if (this.model) {
+                            var isObject = this.model[dataMember] && typeof this.model[dataMember] == 'object' && typeof this.model[dataMember]["value"] != "undefined";
                             if (isObject) {
                                 dataMember += ".value";
                             }
@@ -1183,7 +1277,7 @@ var WayBindingElement = (function (_super) {
                         var config = new WayBindMemberConfig(eleMember, dataMember, ctrlEle);
                         this.configs.push(config);
                         ctrlEle.data = this.model;
-                        if (_dataSource) {
+                        if (this.model) {
                             var addevent = false;
                             if (isWayControl) {
                                 if (ctrlEle.memberInChange && WayHelper.contains(ctrlEle.memberInChange, eleMember))
@@ -1252,7 +1346,7 @@ var WayBindingElement = (function (_super) {
                 if (!ctrlEle.expressionDatas) {
                     ctrlEle.expressionDatas = [];
                 }
-                ctrlEle.expressionDatas.push({ exp: dataMemberExp, data: _dataSource });
+                ctrlEle.expressionDatas.push({ exp: dataMemberExp, data: this.model.__data });
                 var config = new WayBindMemberConfig(null, datamembers, ctrlEle);
                 config.expressionString = _expressionString;
                 config.dataMemberExp = dataMemberExp;
@@ -1334,132 +1428,10 @@ var WayBindingElement = (function (_super) {
 var WayDataBindHelper = (function () {
     function WayDataBindHelper() {
     }
-    WayDataBindHelper.getObjectStr = function (obj, onchangeMembers, parent) {
-        var getmodelStr;
-        if (!parent) {
-            parent = "";
-            getmodelStr = "this";
-        }
-        else {
-            getmodelStr = "this.getModel()";
-        }
-        if (obj != null && typeof obj == "object") {
-            var str = "{";
-            if (parent == "") {
-                str += "getSource:function(){return item;}";
-            }
-            else {
-                str += "getModel:function(){return null;}";
-            }
-            var index = 0;
-            for (var pro in obj) {
-                var pvalue = obj[pro];
-                if (typeof pvalue == "function") {
-                    continue;
-                }
-                str += ",";
-                if (pvalue != null && typeof pvalue == "object" && !(pvalue instanceof Array)) {
-                    str += pro + ":" + WayDataBindHelper.getObjectStr(pvalue, onchangeMembers, parent + pro + ".");
-                    continue;
-                }
-                var onchangeStr;
-                if (WayHelper.contains(onchangeMembers, parent + pro)) {
-                    onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
-                }
-                else {
-                    //onchangeStr = "onProChange(false," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
-                    onchangeStr = "onProChange(true," + getmodelStr + ",item,itemIndex,'" + parent + pro + "',v);";
-                }
-                str += "get " + pro + "(){return item." + parent + pro + ";},";
-                str += "set " + pro + "(v){if(item." + parent + pro + "!=v){item." + parent + pro + "=v;" + onchangeStr + "}}";
-                index++;
-            }
-            str += "}";
-            return str;
-        }
-        else {
-            return JSON.stringify(obj);
-        }
-    };
-    WayDataBindHelper.setSubObjectModel = function (model, rootModel) {
-        for (var p in model) {
-            var value = model[p];
-            if (value != null && typeof value == "object" && typeof value.getModel == "function") {
-                var obj = model[p];
-                obj.getModel = function () {
-                    return rootModel;
-                };
-                WayDataBindHelper.setSubObjectModel(obj, rootModel);
-            }
-        }
-    };
-    WayDataBindHelper.addPropertyToObject = function (model, obj, source, _itemIndex, propertyName, fullMemberName, _onchange) {
-        var member = propertyName.split('.')[0];
-        //var prototype = Object.getPrototypeOf(obj);
-        if (eval("typeof obj." + member + " == \"undefined\"")) {
-            if (member == propertyName) {
-                //直接defineProperty (obj) 即可，不要defineProperty (prototype)，用prototype，jquery会报错（其原因不解）
-                Object.defineProperty(obj, member, {
-                    get: function () {
-                        return eval("source." + fullMemberName);
-                    },
-                    set: function (value) {
-                        if (eval("source." + fullMemberName + "!=value")) {
-                            eval("source." + fullMemberName + "=value");
-                            _onchange(true, model, _itemIndex, source, fullMemberName, value);
-                        }
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                return;
-            }
-            else {
-                obj[member] = {};
-            }
-        }
-        if (member != propertyName) {
-            propertyName = propertyName.substr(member.length + 1);
-            WayDataBindHelper.addPropertyToObject(model, obj[member], source, _itemIndex, propertyName, fullMemberName, _onchange);
-        }
-    };
-    WayDataBindHelper.cloneObjectForBind = function (obj, _itemIndex, onchangeMembers, _onchange) {
-        if (obj.getSource && typeof obj.getSource == "function") {
-            //需要增加没有的属性
-            var prototype = Object.getPrototypeOf(obj);
-            for (var i = 0; i < onchangeMembers.length; i++) {
-                WayDataBindHelper.addPropertyToObject(obj, obj, obj.getSource(), _itemIndex, onchangeMembers[i], onchangeMembers[i], _onchange);
-            }
-            return obj;
-        }
-        var str = WayDataBindHelper.getObjectStr(obj, onchangeMembers, null);
-        str = "result=(function(item,itemIndex,onProChange){ return " + str + ";})(obj,_itemIndex,_onchange);";
-        var result;
-        eval(str);
-        WayDataBindHelper.setSubObjectModel(result, result);
-        return result;
-    };
-    WayDataBindHelper.onchange = function (toCheckedEles, model, dataSource, itemIndex, name, value) {
-        if (typeof model.onchange == "function") {
-            model.onchange(model, itemIndex, name, value);
-        }
-        else if (model.onchange && typeof model.onchange.length != "undefined") {
-            for (var i = 0; i < model.onchange.length; i++) {
-                model.onchange[i](model, itemIndex, name, value);
-            }
-        }
-        if (toCheckedEles) {
-            for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
-                var binding = WayDataBindHelper.bindings[i];
-                if (binding && binding.model == model) {
-                    binding.onchange(itemIndex, name, value);
-                }
-            }
-        }
-    };
     WayDataBindHelper.removeDataBind = function (element) {
         for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
             if (WayDataBindHelper.bindings[i] != null && WayDataBindHelper.bindings[i].element == element) {
+                WayDataBindHelper.bindings[i].model.removeEventListener("change", WayDataBindHelper.bindings[i]._changefunc);
                 WayDataBindHelper.bindings[i].configs = [];
                 WayDataBindHelper.bindings[i] = null;
             }
@@ -1472,7 +1444,7 @@ var WayDataBindHelper = (function () {
         if (typeof element == "string") {
             element = document.getElementById(element);
         }
-        var bindingInfo = new WayBindingElement(element, null, null, expressionExp, dataMemberExp);
+        var bindingInfo = new WayBindingElement(element, null, expressionExp, dataMemberExp);
         var onchangeMembers = bindingInfo.getDataMembers();
         for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
             if (WayDataBindHelper.bindings[i] == bindingInfo) {
@@ -1515,13 +1487,18 @@ var WayDataBindHelper = (function () {
         var model = null;
         if (!data)
             data = {};
-        else if (data.getSource && typeof data.getSource == "function") {
+        if (data.__changed && typeof data.__changed == "function") {
             model = data;
-            data = model.getSource();
+            data = model.__data;
         }
-        var bindingInfo = new WayBindingElement(element, null, data, expressionExp, dataMemberExp);
-        var onchangeMembers = bindingInfo.getDataMembers();
-        model = WayDataBindHelper.cloneObjectForBind(model ? model : data, tag, onchangeMembers, WayDataBindHelper.onchange);
+        else {
+            model = new WayObserveObject(data);
+        }
+        var bindingInfo = new WayBindingElement(element, model, expressionExp, dataMemberExp);
+        bindingInfo._changefunc = function (proname, value) {
+            bindingInfo.onchange(tag, proname, value);
+        };
+        model.addEventListener("change", bindingInfo._changefunc);
         var finded = false;
         bindingInfo.initEleValues(model);
         for (var i = 0; i < WayDataBindHelper.bindings.length; i++) {
@@ -1776,58 +1753,6 @@ var WayPopup = (function () {
         }
     };
     return WayPopup;
-}());
-var WayValidator = (function () {
-    function WayValidator(_element) {
-        var _this = this;
-        this.element = $(_element);
-        if (_element.addEventListener) {
-            _element.addEventListener("change", function () { _this.onvalueChanged(); });
-        }
-        else {
-            _element.attachEvent("onchange", function () { _this.onvalueChanged(); });
-        }
-        this.popup = new WayPopup();
-    }
-    WayValidator.prototype.validate = function () {
-        var showed = false;
-        for (var i = 0; i < this.element[0].attributes.length; i++) {
-            var name = this.element[0].attributes[i].name;
-            if (name.indexOf("_verify") == 0 && name.indexOf("_msg") < 0) {
-                try {
-                    var expression = this.element[0].attributes[i].value;
-                    expression = WayHelper.replace(expression, "{0}", JSON.stringify(WayControlHelper.getValue(this.element[0])));
-                    var result = eval(expression);
-                    if (result == true) {
-                        var msg = this.element[0].getAttribute(name + "_msg");
-                        var match = msg.match(/\[(\w)+\]/g);
-                        var direction;
-                        if (match) {
-                            direction = match[0];
-                            msg = msg.substr(direction.length);
-                        }
-                        else {
-                            direction = "[left]";
-                        }
-                        showed = true;
-                        this.popup.show(msg, this.element, direction);
-                        break;
-                    }
-                }
-                catch (e) {
-                    throw "数据验证发生错误，" + e.message;
-                }
-            }
-        }
-        if (showed == false) {
-            this.popup.hide();
-        }
-        return !showed;
-    };
-    WayValidator.prototype.onvalueChanged = function () {
-        this.validate();
-    };
-    return WayValidator;
 }());
 var WayDBContext = (function () {
     function WayDBContext(controller, _datasource) {
@@ -2595,51 +2520,25 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.createItem = function (itemIndex, mode) {
         if (mode === void 0) { mode = ""; }
         //把数据克隆一份
-        var currentItemStatus;
+        var status;
         if (itemIndex < this.items.length) {
-            currentItemStatus = this.items[itemIndex].status;
+            status = this.items[itemIndex].status;
         }
-        var statusmodel = currentItemStatus ? currentItemStatus : this.itemStatusModel;
+        else {
+            status = new WayObserveObject(WayHelper.clone(this.itemStatusModel));
+        }
         var data = WayHelper.clone(this.originalItems[itemIndex]);
         var template = this.findItemTemplate(data, mode);
         var itemContent = template.content;
         var item = $(itemContent);
-        this.replaceVariable(item[0], itemIndex, statusmodel, data);
+        this.replaceVariable(item[0], itemIndex, status, data);
         //把WayControl初始化
         for (var i = 0; i < item[0].children.length; i++) {
             checkToInitWayControl(item[0].children[i]);
         }
         var model = WayDataBindHelper.dataBind(item[0], data, itemIndex, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g);
         //创建status
-        var myChangeFunc = statusmodel.onchange;
-        var statusData = WayHelper.clone(statusmodel);
-        item.status = WayDataBindHelper.dataBind(item[0], statusData, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g, true);
-        if (typeof myChangeFunc == "function") {
-            item.status.onchange = myChangeFunc;
-        }
-        //建立验证
-        if (true) {
-            var bindItemElements = item.find("*[databind]");
-            var validators = [];
-            for (var i = 0; i < bindItemElements.length; i++) {
-                try {
-                    validators.push(new WayValidator(bindItemElements[i]));
-                }
-                catch (e) {
-                }
-            }
-            if (validators.length > 0) {
-                item.validate = function () {
-                    var passed = true;
-                    for (var i = 0; i < validators.length; i++) {
-                        if (!validators[i].validate()) {
-                            passed = false;
-                        }
-                    }
-                    return passed;
-                };
-            }
-        }
+        item.status = WayDataBindHelper.dataBind(item[0], status, itemIndex, /(\w|\.)+( )?\=( )?\$(\w|\.)+/g, /\$(\w|\.)+/g, true);
         ////////////
         item.data = model;
         item.mode = mode;
@@ -3440,13 +3339,8 @@ var WayCheckboxList = (function () {
                 for (var m = 0; m < binding.configs.length; m++) {
                     var config = binding.configs[m];
                     if (config.elementMember == "value") {
-                        if (typeof binding.model.onchange == "function") {
-                            binding.model.onchange(binding.model, null, config.dataMember, this._value);
-                        }
-                        else if (binding.model.onchange && typeof binding.model.onchange.length != "undefined") {
-                            for (var i = 0; i < binding.model.onchange.length; i++) {
-                                binding.model.onchange[i](binding.model, null, config.dataMember, this._value);
-                            }
+                        if (typeof binding.model.__changed == "function") {
+                            binding.model.__changed(config.dataMember, this._value);
                         }
                     }
                 }
@@ -3611,13 +3505,8 @@ var WayRadioList = (function () {
                 for (var m = 0; m < binding.configs.length; m++) {
                     var config = binding.configs[m];
                     if (config.elementMember == "value") {
-                        if (typeof binding.model.onchange == "function") {
-                            binding.model.onchange(binding.model, null, config.dataMember, this._value);
-                        }
-                        else if (binding.model.onchange && typeof binding.model.onchange.length != "undefined") {
-                            for (var i = 0; i < binding.model.onchange.length; i++) {
-                                binding.model.onchange[i](binding.model, null, config.dataMember, this._value);
-                            }
+                        if (typeof binding.model.__changed == "function") {
+                            binding.model.__changed(config.dataMember, this._value);
                         }
                     }
                 }
