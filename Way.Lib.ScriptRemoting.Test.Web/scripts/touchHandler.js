@@ -48,7 +48,7 @@
     var timeoutflag;
 
     element.addEventListener("touchstart", function (e) {
-        e.preventDefault();
+        
         if (modeclass) {
             addCls(element, modeclass);
         }
@@ -109,7 +109,7 @@
             removeCls(element, modeclass);
         }
         if (touchPoint && (new Date().getTime() - touchPoint.time) < CLICKACTIVETIME) {
-
+            e.preventDefault();
             simulateClick(element);
         }
         touchPoint = null;
