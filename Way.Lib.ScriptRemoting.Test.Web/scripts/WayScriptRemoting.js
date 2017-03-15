@@ -8,6 +8,8 @@ window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
 function TouchHandler(element) {
+    if (!("ontouchstart" in element))
+        return;
     function simulateClick(el) {
         var evt;
         if (document.createEvent) {

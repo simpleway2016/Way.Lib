@@ -7,6 +7,9 @@ window.onerror = (errorMessage, scriptURI, lineNumber) => {
 }
 
 function TouchHandler(element) {
+    if (!("ontouchstart" in element))
+        return;
+
     function simulateClick(el) {
         var evt;
         if (document.createEvent) {
