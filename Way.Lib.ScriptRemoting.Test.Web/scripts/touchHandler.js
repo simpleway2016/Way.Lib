@@ -136,8 +136,6 @@ function parseTouchHandler() {
         }
     }
 
-    func(document);
-
     if (!window._touchHandlerInited) {
         window._touchHandlerInited = true;
         //监视document.body子元素变动事件，新加入的element，如果定义touchmode，则自动TouchHandler(element)
@@ -171,7 +169,11 @@ function parseTouchHandler() {
             }
         }
     }
+
+    func(document);
+
 }
+
 
 if (window.addEventListener) {
     window.addEventListener("load", parseTouchHandler);
