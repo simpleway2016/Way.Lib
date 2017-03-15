@@ -1989,8 +1989,11 @@ class WayDBContext {
     }
 }
 
+class WayControlBase extends WayBaseObject {
 
-class WayGridView extends WayBaseObject implements IPageable {
+}
+
+class WayGridView extends WayControlBase implements IPageable {
     memberInChange: any[]=[];
     element: JQuery;
     private itemContainer: JQuery;
@@ -2064,10 +2067,10 @@ class WayGridView extends WayBaseObject implements IPageable {
     //item大小变化事件
     onItemSizeChanged: () => void;
 
-    constructor(elementId: string) {
+    constructor(elementId: string, configElement: HTMLElement) {
         super();
         try {
-            
+           
             var controller = document.body.getAttribute("controller");
             
             this.dbContext = new WayDBContext(controller, null);
@@ -2077,6 +2080,12 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.element = $(<any>elementId);
             else
                 this.element = <any>elementId;
+
+            var configElementObj: JQuery;
+            if (configElement)
+                configElementObj = $(configElement);
+            else
+                configElementObj = this.element;
 
             if (!(<any>this.element[0]).WayControl) {//如果有值，证明它已经被其他WayControl实例化
                 (<any>this.element[0]).WayControl = this;
@@ -2103,10 +2112,13 @@ class WayGridView extends WayBaseObject implements IPageable {
                 this.supportDropdownRefresh = false;
 
             this.datasource = this.element.attr("datasource");
-
+            this.pagesize = parseInt(this.element.attr("pagesize"));
+            if (isNaN(this.pagesize)) {
+                this.pagesize = 10; 
+            }
             this.pager = new WayPager(this.element, this);
-            var bodyTemplate = this.element.find("script[for='body']");
-            var templates = this.element.find("script");
+            var bodyTemplate = configElementObj.find("script[for='body']");
+            var templates = configElementObj.find("script");
 
             this.itemContainer = this.element;
             if (bodyTemplate.length > 0) {
@@ -2349,14 +2361,14 @@ class WayGridView extends WayBaseObject implements IPageable {
 
     count(callback: (data: any, err: any) => void): void {
         this.showLoading();
-        this.dbContext.count(this.searchModel, (data: any, err: any) => {
+        this.dbContext.count((this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, (data: any, err: any) => {
             this.hideLoading();
             callback(data, err);
         });
     }
     sum(fields: string[], callback: (data: any, err: any) => void): void {
         this.showLoading();
-        this.dbContext.sum(fields, this.searchModel, (data: any, err: any) => {
+        this.dbContext.sum(fields, (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, (data: any, err: any) => {
             this.hideLoading();
             callback(data, err);
         });
@@ -2511,7 +2523,7 @@ class WayGridView extends WayBaseObject implements IPageable {
 
         if (typeof this.datasource == "string") {
             this.showLoading();
-            this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel,
+            this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data,
                 (ret, pkid, err) => {
                 this.hideLoading();
 
@@ -3151,7 +3163,7 @@ class WayGridView extends WayBaseObject implements IPageable {
     }
 }
 
-class WayDropDownList {
+class WayDropDownList extends WayControlBase {
     memberInChange: any[]= ["text","value"];
     textElement: JQuery;
     actionElement: JQuery;
@@ -3217,7 +3229,8 @@ class WayDropDownList {
 
     onchange: any = null;
 
-    constructor(elementid: string, datasource: any) {
+    constructor(elementid: string, configElement: HTMLElement) {
+        super();
         this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
@@ -3251,6 +3264,12 @@ class WayDropDownList {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+
+
+        var datasource : any = this.element.attr("datasource");
+        if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
+            eval("datasource=" + datasource);
+        }
 
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
@@ -3296,12 +3315,12 @@ class WayDropDownList {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
-            this.grid = new WayGridView(<any>this.itemContainer[0]);
+            this.grid = new WayGridView(<any>this.itemContainer[0],null);
             this.grid.pagesize = 20;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
-            
-          
+
+
             if (!this.valueMember || this.valueMember == "") {
             }
             else {
@@ -3336,7 +3355,6 @@ class WayDropDownList {
         if (valueattr) {
             this.value = valueattr;
         }
-        
     }
 
     addEventListener(eventName: string, func: any) {
@@ -3606,7 +3624,7 @@ class WayDropDownList {
 }
 
 
-class WayCheckboxList {
+class WayCheckboxList extends WayControlBase {
     memberInChange: any[] = ["value"];
     element: JQuery;
     private isMobile: boolean = false;
@@ -3635,7 +3653,8 @@ class WayCheckboxList {
 
 
 
-    constructor(elementid: string, datasource: any) {
+    constructor(elementid: string) {
+        super();
         this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
@@ -3652,6 +3671,11 @@ class WayCheckboxList {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+
+        var datasource:any = this.element.attr("datasource");
+        if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
+            eval("datasource=" + datasource);
+        }
 
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
@@ -3695,7 +3719,7 @@ class WayCheckboxList {
         }
 
         if (true) {
-            this.grid = new WayGridView(<any>this.element[0]);
+            this.grid = new WayGridView(<any>this.element[0],null);
             this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
@@ -3798,7 +3822,7 @@ class WayCheckboxList {
 
 }
 
-class WayRadioList {
+class WayRadioList extends WayControlBase {
     memberInChange: any[] = ["value"];
     element: JQuery;
     private isMobile: boolean = false;
@@ -3825,7 +3849,8 @@ class WayRadioList {
 
 
 
-    constructor(elementid: string, datasource: any) {
+    constructor(elementid: string) {
+        super();
         this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
@@ -3842,6 +3867,11 @@ class WayRadioList {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+
+        var datasource: any = this.element.attr("datasource");
+        if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
+            eval("datasource=" + datasource);
+        }
 
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
@@ -3885,7 +3915,7 @@ class WayRadioList {
         }
 
         if (true) {
-            this.grid = new WayGridView(<any>this.element[0]);
+            this.grid = new WayGridView(<any>this.element[0],null);
             this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
@@ -3971,14 +4001,14 @@ class WayRadioList {
 
 }
 
-class WayRelateListDatasource {
+class WayRelateListDatasource  {
     datasource: string;
     relateMember: string;
     textMember: string;
     valueMember: string;
     loop: boolean = false;
 }
-class WayRelateList {
+class WayRelateList extends WayControlBase {
     memberInChange: any[] = ["value"];
     element: JQuery;
     textElement: JQuery;
@@ -4055,6 +4085,7 @@ class WayRelateList {
     }
 
     constructor(elementid: string, virtualEle: HTMLElement) {
+        super();
         this.windowObj = _windowObj;
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
@@ -4286,7 +4317,7 @@ class WayRelateList {
         }
         div.html("<script for='item' type='text/ html'>" + this.element.find("script[for='item']")[0].innerHTML + "</script>");
         this.listContainer.append(div);
-        var grid = new WayGridView(<any>div);
+        var grid = new WayGridView(<any>div , null);
         grid.pagesize = 0;
         grid.searchModel = searchModel;
         if (config.textMember) {
@@ -4403,7 +4434,7 @@ class WayRelateList {
     }
 }
 
-class WayButton {
+class WayButton extends WayControlBase {
     memberInChange: any[] = ["text"];
     element: JQuery;
 
@@ -4425,6 +4456,7 @@ class WayButton {
 
 
     constructor(elementid: string) {
+        super();
         if (typeof elementid == "string")
             this.element = $("#" + elementid);
         else if ((<any>elementid).tagName)
@@ -4587,43 +4619,18 @@ var initWayControl = (virtualEle: HTMLElement, element: HTMLElement = null) => {
         
     }
     var control = null;
-   
 
-    switch (controlType) {
-        case "WAYDROPDOWNLIST":
-            var strDatasource = replaceEleObj.attr("datasource");
-            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
-                eval("strDatasource=" + strDatasource);
-            }
-            control = new WayDropDownList(<any>replaceEleObj, strDatasource);
+    var typeFunctionName = null;
+    for (var name in window)
+    {
+        if (name.toLowerCase() == controlType.toLowerCase()) {
+            typeFunctionName = name;
             break;
-        case "WAYCHECKBOXLIST":
-            var strDatasource = replaceEleObj.attr("datasource");
-            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
-                eval("strDatasource=" + strDatasource);
-            }
-            control = new WayCheckboxList(<any>replaceEleObj, strDatasource);
-            break;
-        case "WAYRADIOLIST":
-            var strDatasource = replaceEleObj.attr("datasource");
-            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
-                eval("strDatasource=" + strDatasource);
-            }
-            control = new WayRadioList(<any>replaceEleObj, strDatasource);
-            break;
-        case "WAYBUTTON":
-            control = new WayButton(<any>replaceEleObj);
-            break;
-        case "WAYRELATELIST":
-            control = new WayRelateList(<any>replaceEleObj, virtualEle);
-            break;
-        case "WAYGRIDVIEW":
-            replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-            control = new WayGridView(<any>replaceEleObj);
-            control.pagesize = parseInt(replaceEleObj.attr("pagesize"));
-            break;
-        default:
-            break;
+        }
+    }
+
+    if (typeFunctionName) {
+        eval("control = new " + typeFunctionName + "(replaceEleObj,virtualEle)");
     }
 
     if (control) {

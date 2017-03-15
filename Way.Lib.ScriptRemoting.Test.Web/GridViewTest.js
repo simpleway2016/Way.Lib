@@ -2,8 +2,14 @@ var testPage;
 window.onload = function () {
     var objtest = {};
     objtest = WayDataBindHelper.dataBind("div1", objtest);
-    for (var c in objtest) {
-        console.log(c);
+    for (var c in window) {
+        if (c.indexOf("Way") == 0) {
+            try {
+                console.log(c + ":" + eval(c + ".test()"));
+            }
+            catch (e) {
+            }
+        }
     }
     $("#div1btn").click(function () {
         alert(objtest.name);

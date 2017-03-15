@@ -1832,9 +1832,16 @@ var WayDBContext = (function () {
     };
     return WayDBContext;
 }());
+var WayControlBase = (function (_super) {
+    __extends(WayControlBase, _super);
+    function WayControlBase() {
+        _super.apply(this, arguments);
+    }
+    return WayControlBase;
+}(WayBaseObject));
 var WayGridView = (function (_super) {
     __extends(WayGridView, _super);
-    function WayGridView(elementId) {
+    function WayGridView(elementId, configElement) {
         _super.call(this);
         this.memberInChange = [];
         this.itemTemplates = [];
@@ -1872,6 +1879,11 @@ var WayGridView = (function (_super) {
                 this.element = $(elementId);
             else
                 this.element = elementId;
+            var configElementObj;
+            if (configElement)
+                configElementObj = $(configElement);
+            else
+                configElementObj = this.element;
             if (!this.element[0].WayControl) {
                 this.element[0].WayControl = this;
             }
@@ -1892,9 +1904,13 @@ var WayGridView = (function (_super) {
             if (!isTouch)
                 this.supportDropdownRefresh = false;
             this.datasource = this.element.attr("datasource");
+            this.pagesize = parseInt(this.element.attr("pagesize"));
+            if (isNaN(this.pagesize)) {
+                this.pagesize = 10;
+            }
             this.pager = new WayPager(this.element, this);
-            var bodyTemplate = this.element.find("script[for='body']");
-            var templates = this.element.find("script");
+            var bodyTemplate = configElementObj.find("script[for='body']");
+            var templates = configElementObj.find("script");
             this.itemContainer = this.element;
             if (bodyTemplate.length > 0) {
                 this.bodyTemplateHtml = bodyTemplate[0].innerHTML;
@@ -2121,7 +2137,7 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.count = function (callback) {
         var _this = this;
         this.showLoading();
-        this.dbContext.count(this.searchModel, function (data, err) {
+        this.dbContext.count((this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (data, err) {
             _this.hideLoading();
             callback(data, err);
         });
@@ -2129,7 +2145,7 @@ var WayGridView = (function (_super) {
     WayGridView.prototype.sum = function (fields, callback) {
         var _this = this;
         this.showLoading();
-        this.dbContext.sum(fields, this.searchModel, function (data, err) {
+        this.dbContext.sum(fields, (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (data, err) {
             _this.hideLoading();
             callback(data, err);
         });
@@ -2266,7 +2282,7 @@ var WayGridView = (function (_super) {
         info.PageIndex = pageindex;
         if (typeof this.datasource == "string") {
             this.showLoading();
-            this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel, function (ret, pkid, err) {
+            this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (ret, pkid, err) {
                 _this.hideLoading();
                 if (mytranId != _this.transcationID)
                     return;
@@ -2812,10 +2828,12 @@ var WayGridView = (function (_super) {
         }
     };
     return WayGridView;
-}(WayBaseObject));
-var WayDropDownList = (function () {
-    function WayDropDownList(elementid, datasource) {
+}(WayControlBase));
+var WayDropDownList = (function (_super) {
+    __extends(WayDropDownList, _super);
+    function WayDropDownList(elementid, configElement) {
         var _this = this;
+        _super.call(this);
         this.memberInChange = ["text", "value"];
         this.isMobile = false;
         this.isBindedGrid = false;
@@ -2848,6 +2866,10 @@ var WayDropDownList = (function () {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+        var datasource = this.element.attr("datasource");
+        if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
+            eval("datasource=" + datasource);
+        }
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("value" in datasource[0])
@@ -2891,7 +2913,7 @@ var WayDropDownList = (function () {
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
-            this.grid = new WayGridView(this.itemContainer[0]);
+            this.grid = new WayGridView(this.itemContainer[0], null);
             this.grid.pagesize = 20;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
@@ -3220,10 +3242,12 @@ var WayDropDownList = (function () {
         }
     };
     return WayDropDownList;
-}());
-var WayCheckboxList = (function () {
-    function WayCheckboxList(elementid, datasource) {
+}(WayControlBase));
+var WayCheckboxList = (function (_super) {
+    __extends(WayCheckboxList, _super);
+    function WayCheckboxList(elementid) {
         var _this = this;
+        _super.call(this);
         this.memberInChange = ["value"];
         this.isMobile = false;
         this._value = [];
@@ -3242,6 +3266,10 @@ var WayCheckboxList = (function () {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+        var datasource = this.element.attr("datasource");
+        if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
+            eval("datasource=" + datasource);
+        }
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("value" in datasource[0])
@@ -3283,7 +3311,7 @@ var WayCheckboxList = (function () {
             }
         }
         if (true) {
-            this.grid = new WayGridView(this.element[0]);
+            this.grid = new WayGridView(this.element[0], null);
             this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
@@ -3389,10 +3417,12 @@ var WayCheckboxList = (function () {
         });
     };
     return WayCheckboxList;
-}());
-var WayRadioList = (function () {
-    function WayRadioList(elementid, datasource) {
+}(WayControlBase));
+var WayRadioList = (function (_super) {
+    __extends(WayRadioList, _super);
+    function WayRadioList(elementid) {
         var _this = this;
+        _super.call(this);
         this.memberInChange = ["value"];
         this.isMobile = false;
         this.onchange = null;
@@ -3410,6 +3440,10 @@ var WayRadioList = (function () {
         var itemtemplate = this.element.find("script[for='item']")[0];
         this.valueMember = this.element[0].getAttribute("valueMember");
         this.textMember = this.element[0].getAttribute("textMember");
+        var datasource = this.element.attr("datasource");
+        if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
+            eval("datasource=" + datasource);
+        }
         if (!this.valueMember || this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("value" in datasource[0])
@@ -3451,7 +3485,7 @@ var WayRadioList = (function () {
             }
         }
         if (true) {
-            this.grid = new WayGridView(this.element[0]);
+            this.grid = new WayGridView(this.element[0], null);
             this.grid.pagesize = 0;
             this.grid.datasource = datasource;
             this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
@@ -3539,15 +3573,17 @@ var WayRadioList = (function () {
         });
     };
     return WayRadioList;
-}());
+}(WayControlBase));
 var WayRelateListDatasource = (function () {
     function WayRelateListDatasource() {
         this.loop = false;
     }
     return WayRelateListDatasource;
 }());
-var WayRelateList = (function () {
+var WayRelateList = (function (_super) {
+    __extends(WayRelateList, _super);
     function WayRelateList(elementid, virtualEle) {
+        _super.call(this);
         this.memberInChange = ["value"];
         this.onchange = null;
         this.configs = [];
@@ -3821,7 +3857,7 @@ var WayRelateList = (function () {
         }
         div.html("<script for='item' type='text/ html'>" + this.element.find("script[for='item']")[0].innerHTML + "</script>");
         this.listContainer.append(div);
-        var grid = new WayGridView(div);
+        var grid = new WayGridView(div, null);
         grid.pagesize = 0;
         grid.searchModel = searchModel;
         if (config.textMember) {
@@ -3926,10 +3962,12 @@ var WayRelateList = (function () {
         this.text = text;
     };
     return WayRelateList;
-}());
-var WayButton = (function () {
+}(WayControlBase));
+var WayButton = (function (_super) {
+    __extends(WayButton, _super);
     function WayButton(elementid) {
         var _this = this;
+        _super.call(this);
         this.memberInChange = ["text"];
         this.internalModel = { text: null };
         this.onchange = null;
@@ -4004,7 +4042,7 @@ var WayButton = (function () {
         }
     };
     return WayButton;
-}());
+}(WayControlBase));
 var checkToInitWayControl = function (parentElement) {
     if (parentElement.tagName == "SCRIPT" || parentElement.tagName == "STYLE")
         return;
@@ -4085,41 +4123,15 @@ var initWayControl = function (virtualEle, element) {
         parent.insertBefore(replaceEleObj[0], nextlib);
     }
     var control = null;
-    switch (controlType) {
-        case "WAYDROPDOWNLIST":
-            var strDatasource = replaceEleObj.attr("datasource");
-            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
-                eval("strDatasource=" + strDatasource);
-            }
-            control = new WayDropDownList(replaceEleObj, strDatasource);
+    var typeFunctionName = null;
+    for (var name in window) {
+        if (name.toLowerCase() == controlType.toLowerCase()) {
+            typeFunctionName = name;
             break;
-        case "WAYCHECKBOXLIST":
-            var strDatasource = replaceEleObj.attr("datasource");
-            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
-                eval("strDatasource=" + strDatasource);
-            }
-            control = new WayCheckboxList(replaceEleObj, strDatasource);
-            break;
-        case "WAYRADIOLIST":
-            var strDatasource = replaceEleObj.attr("datasource");
-            if (strDatasource && strDatasource.length > 0 && strDatasource.substr(0, 1) == "[") {
-                eval("strDatasource=" + strDatasource);
-            }
-            control = new WayRadioList(replaceEleObj, strDatasource);
-            break;
-        case "WAYBUTTON":
-            control = new WayButton(replaceEleObj);
-            break;
-        case "WAYRELATELIST":
-            control = new WayRelateList(replaceEleObj, virtualEle);
-            break;
-        case "WAYGRIDVIEW":
-            replaceEleObj[0].innerHTML += virtualEle.innerHTML;
-            control = new WayGridView(replaceEleObj);
-            control.pagesize = parseInt(replaceEleObj.attr("pagesize"));
-            break;
-        default:
-            break;
+        }
+    }
+    if (typeFunctionName) {
+        eval("control = new " + typeFunctionName + "(replaceEleObj,virtualEle)");
     }
     if (control) {
         var idstr = replaceEleObj.attr("id");
