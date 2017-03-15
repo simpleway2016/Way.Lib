@@ -45,13 +45,7 @@
     if (!modeclass || modeclass.length == 0)
         modeclass = null;
     var touchPoint;
-    var longClickEvent = element.onlongclick;
     var timeoutflag;
-    if (!longClickEvent) {
-        longClickEvent = element.getAttribute("onlongclick");
-        if (longClickEvent && longClickEvent.length == 0)
-            longClickEvent = null;
-    }
 
     element.addEventListener("touchstart", function (e) {
         e.preventDefault();
@@ -63,6 +57,13 @@
             y: e.touches[0].clientY,
             time: new Date().getTime()
         };
+
+        var longClickEvent = element.onlongclick;
+        if (!longClickEvent) {
+            longClickEvent = element.getAttribute("onlongclick");
+            if (longClickEvent && longClickEvent.length == 0)
+                longClickEvent = null;
+        }
         if (longClickEvent) {
             timeoutflag = setTimeout(function () {
                 timeoutflag = null;
@@ -175,6 +176,7 @@ function parseTouchHandler() {
 }
 
 
-if (window.addEventListener) {
-    window.addEventListener("load", parseTouchHandler);
+if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', parseTouchHandler, false);
+    //window.addEventListener("load", parseTouchHandler);
 }
