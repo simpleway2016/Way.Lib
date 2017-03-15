@@ -15,7 +15,7 @@ namespace Way.Lib.ScriptRemoting
     class HttpSocketHandler : ISocketHandler
     {
         HttpConnectInformation _currentHttpConnectInformation;
-
+        static string[] NotAllowDownloadFiles = new string[] { ".dll", ".exe", ".config" };
         HttpResponse _resonse;
         //static List<string> compiledTSFiles = new List<string>();
         Dictionary<string, string> RequestForms;
@@ -102,9 +102,15 @@ namespace Way.Lib.ScriptRemoting
 
                         }
                     }
-
+                   
                     string url = this.Connection.mKeyValues["GET"].ToSafeString();
-                    if (url.Contains("?"))
+                    string ext = Path.GetExtension(url).ToLower();
+                    if (NotAllowDownloadFiles.Contains(ext))
+                    {
+                        //不能访问dll exe等文件
+                        throw new Exception("not allow");
+                    }
+                     if (url.Contains("?"))
                     {
                         MatchCollection matches = Regex.Matches(url, @"(?<n>(\w)+)\=(?<v>([^\=\&])+)");
                         foreach( Match m in matches )
@@ -122,7 +128,7 @@ namespace Way.Lib.ScriptRemoting
                         if (filepath.StartsWith("/"))
                             filepath = filepath.Substring(1);
                         filepath = ScriptRemotingServer.Root + filepath;
-                        string ext = Path.GetExtension(filepath).ToLower();
+                        ext = Path.GetExtension(filepath).ToLower();
                         if (ext == ".html")
                         {
                             outputFile(url, filepath);
