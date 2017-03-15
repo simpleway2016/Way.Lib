@@ -1662,6 +1662,7 @@ var WayProgressBar = (function () {
         if (this.showRef > 0) {
             this.showRef++;
             if (this.lastMouseDownTime && new Date().getTime() - this.lastMouseDownTime < 1000) {
+                var x, y;
                 x = this.lastMouseDownLocation.x - 50;
                 y = this.lastMouseDownLocation.y;
                 loadele.css({
@@ -1671,26 +1672,26 @@ var WayProgressBar = (function () {
             }
             return;
         }
-        var offset = centerElement.offset();
-        var x, y;
-        if (this.lastMouseDownTime) {
-            if (new Date().getTime() - this.lastMouseDownTime < 1000) {
-                x = this.lastMouseDownLocation.x - 50;
-                y = this.lastMouseDownLocation.y + 30;
-            }
-        }
-        else {
-            x = offset.left + (centerElement.width() - loadele.width()) / 2;
-            y = offset.top + (centerElement.height() - loadele.height()) / 2;
-        }
-        loadele.css({
-            "left": x + "px",
-            "top": y + "px"
-        });
         this.showRef++;
         this.timingNumber = setTimeout(function () {
             if (_this.timingNumber) {
                 _this.timingNumber = 0;
+                var offset = centerElement.offset();
+                var x, y;
+                if (_this.lastMouseDownTime && false) {
+                    if (new Date().getTime() - _this.lastMouseDownTime < 1000) {
+                        x = _this.lastMouseDownLocation.x - 50;
+                        y = _this.lastMouseDownLocation.y + 30;
+                    }
+                }
+                else {
+                    x = offset.left + (centerElement.width() - loadele.width()) / 2;
+                    y = offset.top + (centerElement.height() - loadele.height()) / 2;
+                }
+                loadele.css({
+                    "left": x + "px",
+                    "top": y + "px"
+                });
                 loadele.show();
                 _this.loading.play();
             }
@@ -2100,8 +2101,8 @@ var WayGridView = (function (_super) {
         WayHelper.addEventListener(touchEle[0], "transitionend", transitionendFunc, true); //这是pc的TransitionEnd事件   
         WayHelper.addEventListener(touchEle[0], "webkitTransitionEnd", transitionendFunc, true); //这是android的TransitionEnd事件
     };
-    WayGridView.prototype.showLoading = function () {
-        this.loading.show(this.element);
+    WayGridView.prototype.showLoading = function (centerElement) {
+        this.loading.show(centerElement);
     };
     WayGridView.prototype.hideLoading = function () {
         this.loading.hide();
@@ -2136,7 +2137,7 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.count = function (callback) {
         var _this = this;
-        this.showLoading();
+        this.showLoading(this.element);
         this.dbContext.count((this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (data, err) {
             _this.hideLoading();
             callback(data, err);
@@ -2144,7 +2145,7 @@ var WayGridView = (function (_super) {
     };
     WayGridView.prototype.sum = function (fields, callback) {
         var _this = this;
-        this.showLoading();
+        this.showLoading(this.element);
         this.dbContext.sum(fields, (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (data, err) {
             _this.hideLoading();
             callback(data, err);
@@ -2164,7 +2165,7 @@ var WayGridView = (function (_super) {
             if (this.primaryKey && this.primaryKey.length > 0) {
                 eval("changedData." + this.primaryKey + "=model." + this.primaryKey + ";");
             }
-            this.showLoading();
+            this.showLoading(this.element);
             this.dbContext.saveData(changedData, this.primaryKey, function (data, err) {
                 _this.hideLoading();
                 if (err) {
@@ -2281,7 +2282,7 @@ var WayGridView = (function (_super) {
         info.PageSize = this.pageinfo.PageSize;
         info.PageIndex = pageindex;
         if (typeof this.datasource == "string") {
-            this.showLoading();
+            this.showLoading(this.element);
             this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (ret, pkid, err) {
                 _this.hideLoading();
                 if (mytranId != _this.transcationID)
@@ -3029,6 +3030,7 @@ var WayDropDownList = (function (_super) {
         }
     };
     WayDropDownList.prototype.getTextByValue = function (value) {
+        var _this = this;
         if (this.grid.datasource instanceof Array) {
             for (var i = 0; i < this.grid.datasource.length; i++) {
                 if (this.grid.datasource[i][this.valueMember] == value)
@@ -3046,7 +3048,9 @@ var WayDropDownList = (function (_super) {
         var model;
         var result;
         eval("model={" + this.valueMember + ":" + JSON.stringify(value) + "}");
+        this.grid.showLoading(this.textElement ? this.textElement : this.element);
         this.grid.dbContext.getDataItem([this.valueMember, this.textMember], model, function (data, err) {
+            _this.grid.hideLoading();
             if (err) {
                 throw err;
             }
@@ -3060,6 +3064,7 @@ var WayDropDownList = (function (_super) {
         return null;
     };
     WayDropDownList.prototype.getValueByText = function (text) {
+        var _this = this;
         if (this.grid.datasource instanceof Array) {
             for (var i = 0; i < this.grid.datasource.length; i++) {
                 if (this.grid.datasource[i][this.textMember] == text)
@@ -3077,7 +3082,9 @@ var WayDropDownList = (function (_super) {
         var model;
         var result;
         eval("model={" + this.textMember + ":" + JSON.stringify("equal:" + text) + "}");
+        this.grid.showLoading(this.textElement ? this.textElement : this.element);
         this.grid.dbContext.getDataItem([this.valueMember, this.textMember], model, function (data, err) {
+            _this.grid.hideLoading();
             if (err) {
                 throw err;
             }

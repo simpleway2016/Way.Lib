@@ -1805,6 +1805,7 @@ class WayProgressBar {
         if (this.showRef > 0) {
             this.showRef++;
             if (this.lastMouseDownTime && new Date().getTime() - this.lastMouseDownTime < 1000) {
+                var x, y;
                 x = this.lastMouseDownLocation.x - 50;
                 y = this.lastMouseDownLocation.y;
 
@@ -1817,26 +1818,28 @@ class WayProgressBar {
             return;
         }
 
-        var offset = centerElement.offset();
-        var x, y;
-        if (this.lastMouseDownTime) {
-            if (new Date().getTime() - this.lastMouseDownTime < 1000) {
-                x = this.lastMouseDownLocation.x - 50;
-                y = this.lastMouseDownLocation.y + 30;
-            }
-        }
-        else {
-            x = offset.left + (centerElement.width() - loadele.width()) / 2;
-            y = offset.top + (centerElement.height() - loadele.height()) / 2;
-        }
-        loadele.css({
-            "left": x + "px",
-            "top": y + "px"
-        });
+        
         this.showRef++;
         this.timingNumber = setTimeout(() => {
             if (this.timingNumber) {
                 this.timingNumber = 0;
+                
+                var offset = centerElement.offset();
+                var x, y;
+                if (this.lastMouseDownTime && false) {
+                    if (new Date().getTime() - this.lastMouseDownTime < 1000) {
+                        x = this.lastMouseDownLocation.x - 50;
+                        y = this.lastMouseDownLocation.y + 30;
+                    }
+                }
+                else {
+                    x = offset.left + (centerElement.width() - loadele.width()) / 2;
+                    y = offset.top + (centerElement.height() - loadele.height()) / 2;
+                }
+                loadele.css({
+                    "left": x + "px",
+                    "top": y + "px"
+                });
                 loadele.show();
                 this.loading.play();
             }
@@ -1844,7 +1847,6 @@ class WayProgressBar {
 
     }
     hide(): void {
-
         if (this.showRef > 0)
             this.showRef--;
         if (this.showRef > 0)
@@ -2321,10 +2323,10 @@ class WayGridView extends WayControlBase implements IPageable {
     }
 
 
-    private showLoading(): void {
-        this.loading.show(this.element);
+    showLoading(centerElement: JQuery): void {
+        this.loading.show(centerElement);
     }
-    private hideLoading(): void {
+    hideLoading(): void {
         this.loading.hide();
     }
 
@@ -2360,14 +2362,14 @@ class WayGridView extends WayControlBase implements IPageable {
     }
 
     count(callback: (data: any, err: any) => void): void {
-        this.showLoading();
+        this.showLoading(this.element);
         this.dbContext.count((this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, (data: any, err: any) => {
             this.hideLoading();
             callback(data, err);
         });
     }
     sum(fields: string[], callback: (data: any, err: any) => void): void {
-        this.showLoading();
+        this.showLoading(this.element);
         this.dbContext.sum(fields, (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, (data: any, err: any) => {
             this.hideLoading();
             callback(data, err);
@@ -2391,7 +2393,7 @@ class WayGridView extends WayControlBase implements IPageable {
                 eval("changedData." + this.primaryKey + "=model." + this.primaryKey + ";");
             }
 
-            this.showLoading();
+            this.showLoading(this.element);
             this.dbContext.saveData(changedData, this.primaryKey, (data, err) => {
                 this.hideLoading();
                 if (err) {
@@ -2522,7 +2524,7 @@ class WayGridView extends WayControlBase implements IPageable {
         info.PageIndex = pageindex;
 
         if (typeof this.datasource == "string") {
-            this.showLoading();
+            this.showLoading(this.element);
             this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data,
                 (ret, pkid, err) => {
                 this.hideLoading();
@@ -3404,7 +3406,10 @@ class WayDropDownList extends WayControlBase {
         var model;
         var result;
         eval("model={" + this.valueMember + ":" + JSON.stringify(value) + "}");
+
+        this.grid.showLoading(this.textElement ? this.textElement : this.element); 
         this.grid.dbContext.getDataItem([this.valueMember, this.textMember], model, (data, err) => {
+            this.grid.hideLoading();
             if (err) {
                 throw err;
             }
@@ -3435,8 +3440,10 @@ class WayDropDownList extends WayControlBase {
         //find in server
         var model;
         var result;
-        eval("model={" + this.textMember + ":" + JSON.stringify("equal:"+text) + "}");
+        eval("model={" + this.textMember + ":" + JSON.stringify("equal:" + text) + "}");
+        this.grid.showLoading(this.textElement ? this.textElement : this.element);
         this.grid.dbContext.getDataItem([this.valueMember, this.textMember], model, (data, err) => {
+            this.grid.hideLoading();
             if (err) {
                 throw err;
             }
