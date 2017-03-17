@@ -83,8 +83,16 @@
         var LONGCLICKACTIVETIME = 600;//长按触发时间
         var CLICKACTIVETIME = 300;//click点击有效按下时间
         var modeclass = element.getAttribute("touchmode");
+        var modeclassElement = element;
         if (!modeclass || modeclass.length == 0)
             modeclass = null;
+        if (modeclass) {
+            if (modeclass.indexOf("[") == 0) {
+                var expression = modeclass.substr(1, modeclass.indexOf("]") - 1);
+                modeclass = modeclass.substr(modeclass.indexOf("]") + 1);
+                modeclassElement = eval(expression.replace("{0}", "element"));
+            }
+        }
         var touchPoint;
         var timeoutflag;
 
@@ -116,7 +124,7 @@
                 e.preventDefault();
             }
             if (modeclass) {
-                addCls(element, modeclass);
+                addCls(modeclassElement, modeclass);
             }
             touchPoint = {
                 x: e.touches[0].clientX,
@@ -135,7 +143,7 @@
                     timeoutflag = null;
                     if (touchPoint) {
                         if (modeclass) {
-                            removeCls(element, modeclass);
+                            removeCls(modeclassElement, modeclass);
                         }
                         touchPoint = null;
                         if (typeof longClickEvent == "function")
@@ -160,7 +168,7 @@
                 var y = e.touches[0].clientY;
                 if (Math.abs(x - touchPoint.x) > window.innerWidth / 15 || Math.abs(y - touchPoint.y) > window.innerHeight / 15) {
                     if (modeclass) {
-                        removeCls(element, modeclass);
+                        removeCls(modeclassElement, modeclass);
                     }
                     touchPoint = null;
                 }
@@ -173,7 +181,7 @@
                 timeoutflag = null;
             }
             if (modeclass) {
-                removeCls(element, modeclass);
+                removeCls(modeclassElement, modeclass);
             }
 
             if (touchPoint) {
