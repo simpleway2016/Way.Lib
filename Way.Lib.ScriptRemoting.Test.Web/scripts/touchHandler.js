@@ -79,7 +79,7 @@
         if (!("ontouchstart" in element))
             return;
 
-
+        var maxMoveDistance = Math.max(window.innerWidth , window.innerHeight) / 10;
         var LONGCLICKACTIVETIME = 600;//长按触发时间
         var CLICKACTIVETIME = 300;//click点击有效按下时间
         var modeclass = element.getAttribute("touchmode");
@@ -166,7 +166,7 @@
 
                 var x = e.touches[0].clientX;
                 var y = e.touches[0].clientY;
-                if (Math.abs(x - touchPoint.x) > window.innerWidth / 15 || Math.abs(y - touchPoint.y) > window.innerHeight / 15) {
+                if (Math.abs(x - touchPoint.x) > maxMoveDistance || Math.abs(y - touchPoint.y) > maxMoveDistance) {
                     if (modeclass) {
                         removeCls(modeclassElement, modeclass);
                     }
