@@ -1,5 +1,6 @@
 ﻿(function () {
     window.lowAndroidCustomScrolls = [];
+    var lastClickEvent = null;
     var androidVersion = 5;
     var userAgent = navigator.userAgent;
     var index = userAgent.indexOf("Android")
@@ -10,8 +11,12 @@
     function simulateClick(el) {
         var evt;
         if (document.createEvent) {
-            var theEvent = document.createEvent('MouseEvents');
-            theEvent.initEvent('click', true, true);
+            var theEvent = lastClickEvent;
+            if (!theEvent) {
+                theEvent = document.createEvent('MouseEvents');
+                theEvent.initEvent('click', true, true);
+                lastClickEvent = theEvent;
+            }
             el.dispatchEvent(theEvent);
         } else if (el.fireEvent) {
             el.fireEvent('onclick');
@@ -79,7 +84,7 @@
         if (!("ontouchstart" in element))
             return;
 
-        var maxMoveDistance = Math.max(window.innerWidth , window.innerHeight) / 10;
+        var maxMoveDistance = Math.max(window.innerWidth, window.innerHeight) / 10;
         var LONGCLICKACTIVETIME = 600;//长按触发时间
         var CLICKACTIVETIME = 300;//click点击有效按下时间
         var modeclass = element.getAttribute("touchmode");
@@ -120,6 +125,7 @@
         }
 
         element.addEventListener("touchstart", function (e) {
+            lastClickEvent = null;
             if (element._shouldPreventDefaultOnTouchStart) {
                 e.preventDefault();
             }
@@ -254,7 +260,7 @@
     }
 
 
-    if (document.addEventListener) {
+    if (document.addEventListener && "ontouchstart" in document.documentElement) {
         document.addEventListener('DOMContentLoaded', parseTouchHandler, false);
     }
 })();
