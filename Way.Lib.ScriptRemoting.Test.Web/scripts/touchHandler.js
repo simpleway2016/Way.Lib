@@ -1,11 +1,15 @@
 ﻿(function () {
     window.lowAndroidCustomScrolls = [];
     var lastClickEvent = null;
+    var LONGCLICKACTIVETIME = 600;//长按触发时间
+    var CLICKACTIVETIME = 300;//click点击有效按下时间
     var androidVersion = 5;
-    var userAgent = navigator.userAgent;
-    var index = userAgent.indexOf("Android")
-    if (index >= 0) {
-        androidVersion = parseFloat(userAgent.slice(index + 8));
+    if (navigator.userAgent) {
+        var userAgent = navigator.userAgent;
+        var index = userAgent.indexOf("Android")
+        if (index >= 0) {
+            androidVersion = parseFloat(userAgent.slice(index + 8));
+        }
     }
 
     function simulateClick(el) {
@@ -85,8 +89,7 @@
             return;
 
         var maxMoveDistance = Math.max(window.innerWidth, window.innerHeight) / 10;
-        var LONGCLICKACTIVETIME = 600;//长按触发时间
-        var CLICKACTIVETIME = 300;//click点击有效按下时间
+        
         var modeclass = element.getAttribute("touchmode");
         var modeclassElement = element;
         if (!modeclass || modeclass.length == 0)
