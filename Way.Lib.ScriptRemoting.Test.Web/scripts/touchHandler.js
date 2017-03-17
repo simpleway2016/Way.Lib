@@ -1,6 +1,7 @@
 ﻿(function () {
     window.lowAndroidCustomScrolls = [];
     var lastClickEvent = null;
+    var lastLongTouchEvent = null;
     var LONGCLICKACTIVETIME = 600;//长按触发时间
     var CLICKACTIVETIME = 300;//click点击有效按下时间
     var androidVersion = 5;
@@ -127,6 +128,16 @@
             }
         }
 
+        var longTouchAttr = element.getAttribute("onlongtouch");
+        if (longTouchAttr && longTouchAttr.length > 0) {
+            element.addEventListener("longtouch", function (e) {
+                eval(longTouchAttr);
+            }, false);
+        }
+        else {
+            longTouchAttr = null;
+        }
+
         element.addEventListener("touchstart", function (e) {
             lastClickEvent = null;
             if (element._shouldPreventDefaultOnTouchStart) {
@@ -141,13 +152,8 @@
                 time: new Date().getTime()
             };
 
-            var longClickEvent = element.onlongclick;
-            if (!longClickEvent) {
-                longClickEvent = element.getAttribute("onlongclick");
-                if (longClickEvent && longClickEvent.length == 0)
-                    longClickEvent = null;
-            }
-            if (longClickEvent) {
+            
+            if (longTouchAttr) {
                 timeoutflag = setTimeout(function () {
                     timeoutflag = null;
                     if (touchPoint) {
@@ -155,11 +161,14 @@
                             removeCls(modeclassElement, modeclass);
                         }
                         touchPoint = null;
-                        if (typeof longClickEvent == "function")
-                            longClickEvent();
-                        else if (typeof longClickEvent == "string") {
-                            eval(longClickEvent);
+                        
+                        var theEvent = lastLongTouchEvent;
+                        if (!theEvent) {
+                            theEvent = document.createEvent('MouseEvents');
+                            theEvent.initEvent('longtouch', true, true);
+                            lastLongTouchEvent = theEvent;
                         }
+                        element.dispatchEvent(theEvent);
                     }
                 }, LONGCLICKACTIVETIME);
             }
