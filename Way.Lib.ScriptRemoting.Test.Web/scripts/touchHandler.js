@@ -16,7 +16,7 @@
     function simulateClick(el) {
         el.focus();
         if (document.createEvent) {
-            var theEvent = lastClickEvent;
+            var theEvent = lastClickEvent;//使用上一个event对象，这样，才能让e.stopPropagation()有作用
             if (!theEvent) {
                 theEvent = document.createEvent('MouseEvents');
                 theEvent.initEvent('click', true, true);
