@@ -14,7 +14,6 @@
     }
 
     function simulateClick(el) {
-        var evt;
         el.focus();
         if (document.createEvent) {
             var theEvent = lastClickEvent;
