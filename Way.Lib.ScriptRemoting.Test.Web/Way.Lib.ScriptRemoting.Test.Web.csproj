@@ -32,6 +32,7 @@
     <Content Include="scripts\Barrett.js" />
     <Content Include="scripts\BigInt.js" />
     <Content Include="scripts\jquery.js" />
+    <Content Include="scripts\remConfig.js" />
     <Content Include="scripts\RSA.js" />
     <Content Include="scripts\sonic.js" />
     <Content Include="scripts\touchHandler.js" />
