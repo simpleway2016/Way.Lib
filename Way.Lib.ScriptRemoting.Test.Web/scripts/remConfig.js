@@ -5,7 +5,7 @@
     var design_height = 1280;//UI设计图的px高度
     var scale = 1.0;//后期调整这个值调整整体大小
 
-    window.__remConfig_flag = (window.innerHeight / design_height) * 10;
+    window.__remConfig_flag = (window.innerHeight / design_height) * 10 * scale;
     document.documentElement.style.fontSize = window.__remConfig_flag + "px";
 
 })();
