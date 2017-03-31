@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="aa.html" />
+    <Content Include="css\flex.css" />
     <Content Include="Global.asax" />
     <Content Include="GridViewPageTest.html" />
     <Content Include="ListTest.html" />
