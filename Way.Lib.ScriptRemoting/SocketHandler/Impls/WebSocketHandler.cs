@@ -20,7 +20,7 @@ namespace Way.Lib.ScriptRemoting
         }
 
         NetStream mClient;
-        protected Connection Session
+        protected Connection Connection
         {
             get;
             private set;
@@ -33,7 +33,7 @@ namespace Way.Lib.ScriptRemoting
         {
             get
             {
-                string secWebSocketKey = this.Session.mKeyValues["Sec-WebSocket-Key"].ToString();
+                string secWebSocketKey = this.Connection.Request.Headers["Sec-WebSocket-Key"].ToString();
                 string m_Magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                 string responseKey = Convert.ToBase64String(SHA1.Create().ComputeHash(Encoding.ASCII.GetBytes(secWebSocketKey + m_Magic)));
 
@@ -41,11 +41,11 @@ namespace Way.Lib.ScriptRemoting
                 response.Append("HTTP/1.1 101 Web Socket Protocol Way\r\n");
 
                 //将请求串的键值转换为对应的响应串的键值并添加到响应串
-                response.AppendFormat("Upgrade: {0}\r\n", this.Session.mKeyValues["Upgrade"]);
-                response.AppendFormat("Connection: {0}\r\n", this.Session.mKeyValues["Connection"]);
+                response.AppendFormat("Upgrade: {0}\r\n", this.Connection.Request.Headers["Upgrade"]);
+                response.AppendFormat("Connection: {0}\r\n", this.Connection.Request.Headers["Connection"]);
                 response.AppendFormat("Sec-WebSocket-Accept: {0}\r\n", responseKey);
-                response.AppendFormat("WebSocket-Origin: {0}\r\n", this.Session.mKeyValues["Origin"]);
-                response.AppendFormat("WebSocket-Location: {0}\r\n", this.Session.mKeyValues["Host"]);
+                response.AppendFormat("WebSocket-Origin: {0}\r\n", this.Connection.Request.Headers["Origin"]);
+                response.AppendFormat("WebSocket-Location: {0}\r\n", this.Connection.Request.Headers["Host"]);
 
                 response.Append("\r\n");
 
@@ -55,8 +55,8 @@ namespace Way.Lib.ScriptRemoting
 
         public WebSocketHandler(Connection session)
         {
-            this.Session = session;
-            mClient = session.mClient;
+            this.Connection = session;
+            mClient = session.Request.mClient;
             mRemotingHandler = new ScriptRemoting.RemotingClientHandler((string data) =>
             {
                 byte[] bs = new DataFrame(data).GetBytes();
@@ -64,7 +64,7 @@ namespace Way.Lib.ScriptRemoting
             } , ()=>
             {
                 mClient.Close();
-            },session.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0],null);
+            },session.Request.mClient.Socket.RemoteEndPoint.ToString().Split(':')[0],null);
         }
         public void Handle()
         {

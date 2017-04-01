@@ -11,9 +11,8 @@ namespace Way.Lib.ScriptRemoting
         /// 自定义处理socket
         /// </summary>
         /// <param name="originalUrl"></param>
-        /// <param name="response"></param>
         /// <param name="connectInfo"></param>
         /// <param name="handled">是否已经处理，如果是true，系统将不再处理</param>
-        void Handle(string originalUrl, HttpResponse response, HttpConnectInformation connectInfo, ref bool handled);
+        void Handle(string originalUrl, HttpConnectInformation connectInfo, ref bool handled);
     }
 }

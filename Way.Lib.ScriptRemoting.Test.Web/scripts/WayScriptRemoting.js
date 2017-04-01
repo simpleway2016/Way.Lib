@@ -3651,7 +3651,7 @@ var WayRelateList = (function (_super) {
                 var text = "";
                 for (var i = 0; i < v.length; i++) {
                     var config = i < this.configs.length ? this.configs[i] : this.configs[this.configs.length - 1];
-                    var grid;
+                    var grid = null;
                     if (this.listContainer[0].children.length > i) {
                         grid = this.listContainer[0].children[i].WayControl;
                     }

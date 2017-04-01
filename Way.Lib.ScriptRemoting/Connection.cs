@@ -14,13 +14,12 @@ namespace Way.Lib.ScriptRemoting
 {
     class Connection
     {
-        internal NetStream mClient;
-        internal Hashtable mKeyValues;
+        NetStream mClient;
+        internal Net.Request Request;
 
         public string SessionID = Guid.NewGuid().ToString();
         public Connection(Socket socket)
         {
-            mKeyValues = new Hashtable();
             mClient = new NetStream(socket);
         }
 
@@ -29,54 +28,12 @@ namespace Way.Lib.ScriptRemoting
         {
             try
             {
-                while (true)
-                {
-                    string line = mClient.ReadLine();
-                    //Debug.WriteLine(line);
-                    if (line.Length == 0)
-                        break;
-                    else
-                    {
-                        int flag = line.IndexOf(":");
-                        if (flag > 0)
-                        {
-                            try
-                            {
-                                string name = line.Substring(0, flag);
-                                string value = line.Substring(flag + 1);
-                                mKeyValues[name] = value.Trim();
-                            }
-                            catch
-                            {
-                            }
-                        }
-                        else if (line.StartsWith("GET"))
-                        {
-                            try
-                            {
-                                mKeyValues["GET"] = line.Split(' ')[1];
-                            }
-                            catch
-                            {
-                            }
-                        }
-                        else if (line.StartsWith("POST"))
-                        {
-                            try
-                            {
-                                mKeyValues["POST"] = line.Split(' ')[1];
-                            }
-                            catch
-                            {
-                            }
-                        }
-                    }
-                }
+                Request = new Net.Request(mClient);
 
                 ISocketHandler handler = null;
-                if ("Upgrade".Equals(mKeyValues["Connection"]) == false)
+                if ("Upgrade".Equals(Request.Headers["Connection"]) == false)
                 {
-                    handler = new HttpSocketHandler(this);
+                    handler = new HttpSocketHandler(Request);
                 }
                 else
                 {

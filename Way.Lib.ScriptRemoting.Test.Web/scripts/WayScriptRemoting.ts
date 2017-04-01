@@ -4051,7 +4051,7 @@ class WayRelateList extends WayControlBase {
             var text = "";
             for (var i = 0; i < v.length; i++) {
                 var config = i < this.configs.length ? this.configs[i] : this.configs[this.configs.length - 1];
-                var grid;
+                var grid = null;
                 if (this.listContainer[0].children.length > i) {
                     grid = (<any>this.listContainer[0].children[i]).WayControl;
                 }
@@ -4387,7 +4387,6 @@ class WayRelateList extends WayControlBase {
  
     getTextByValue(config: WayRelateListDatasource, grid: WayGridView, value: string): string {
 
-      
         var dbcontext;
         if (grid) {
             for (var i = 0; i < grid.items.length; i++) {
@@ -4415,6 +4414,7 @@ class WayRelateList extends WayControlBase {
                 result = data;
             }
         }, false);
+        
         if (result) {
             return result[config.textMember];
         }
