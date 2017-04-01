@@ -299,11 +299,22 @@ namespace Way.Lib.ScriptRemoting
                     {
                         try
                         {
-                            Connection session = new Connection(socket);
-                            session.OnConnect();
+                            var Request = new Net.Request(new NetStream(socket));
+
+                            ISocketHandler handler = null;
+                            if ("Upgrade".Equals(Request.Headers["Connection"]) == false)
+                            {
+                                handler = new HttpSocketHandler(Request);
+                            }
+                            else
+                            {
+                                handler = new WebSocketHandler(Request);
+                            }
+                            handler.Handle();
                         }
                         catch
                         {
+
                         }
                     });
                 }
