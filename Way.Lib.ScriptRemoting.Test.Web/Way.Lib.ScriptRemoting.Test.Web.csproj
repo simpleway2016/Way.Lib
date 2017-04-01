@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="aa.html" />
+    <Content Include="css\flex.css" />
     <Content Include="Global.asax" />
     <Content Include="GridViewPageTest.html" />
     <Content Include="ListTest.html" />
@@ -116,11 +117,13 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+<TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+<TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />

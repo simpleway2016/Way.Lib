@@ -22,19 +22,6 @@ window.onload = function () {
         alert("group msg:" + e);
     };
     testPage.groupName = "g1";
-    //grid.header = new WayTemplate( '<tr><td>H1</td><td>H2</td></tr>');
-    //grid.footer = new WayTemplate('<tr><td>footer1</td><td>F2</td></tr>');
-    //{$ItemIndex}代表当前Item的索引号
-    //grid.searchModel = WayDataBindHelper.dataBind(<any>"searchDiv", {});
-    //grid.onItemSizeChanged = function () {
-    //    //注意，headertable里面的td不要设置width，width要设置在item里的td
-    //    var tableSource = $("#grid1");
-    //    var tableHeader = tableSource.prev();
-    //    var tableFooter = tableSource.next();
-    //    //保持两个table的td同宽
-    //    grid.setSameWidthForTables(tableSource, tableHeader);
-    //    grid.setSameWidthForTables(tableSource, tableFooter);
-    //}
     grid.supportDropdownRefresh = true;
     grid.itemStatusModel = {
         Selected: false,
