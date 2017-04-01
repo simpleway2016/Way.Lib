@@ -110,7 +110,7 @@
             //查找上级element是否需要滚动，然后用touch帮它实现滚动
             var parentEle = element.parentElement;
             while (true) {
-                if (!parentEle || parentEle.tagName == "BODY")
+                if (!parentEle)
                     break;
                 var found = false;
                 for (var i = 0 ; i < window.lowAndroidCustomScrolls.length ; i++) {
