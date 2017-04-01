@@ -47,7 +47,6 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else if (this.Request.Headers["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
                 {
-                    //m_client.Socket.Send(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + System.Web.HttpWorkerRequest.GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
                     var since = this.Request.Headers["If-Modified-Since"].ToSafeString();
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
                     if (lastWriteTime == since)
@@ -292,7 +291,6 @@ namespace Way.Lib.ScriptRemoting
         static Dictionary<string, string> MasterFileTemps = new Dictionary<string, string>();
          void outputFile(string url , string filePath , string lastModifyTime)
         {
-            string headers;
             byte[] bs;
             var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read);
             if (filePath.EndsWith(".html" , StringComparison.CurrentCultureIgnoreCase))

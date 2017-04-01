@@ -124,6 +124,7 @@ namespace Way.Lib.ScriptRemoting
 
                     SafeDomains.Add(domain);
                 }
+                //继续检查页面上定义的waycontrols，如果访问没有定义的datasource，则应该是属于黑客攻击
                 if (true)
                 {
                     var task = client.GetAsync(url);
