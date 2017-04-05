@@ -19,6 +19,16 @@ namespace Way.Lib.ScriptRemoting.Net
                 return _Headers;
             }
         }
+        System.IO.MemoryStream _buffer;
+        System.IO.MemoryStream buffer
+        {
+            get
+            {
+                if (_buffer == null)
+                    _buffer = new System.IO.MemoryStream();
+                return _buffer;
+            }
+        }
 
         internal Response(NetStream client)
         {
@@ -121,6 +131,12 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         public void Write(byte[] content , int offset ,int count)
         {
+            if (_Headers["Content-Length"] == null)
+            {
+                this.buffer.Write(content , offset , count);
+                return;
+            }
+
             if (!_sendedHeader)
             {
                 _sendedHeader = true;
@@ -136,6 +152,15 @@ namespace Way.Lib.ScriptRemoting.Net
                 buffer.Append("\r\n");
                 mClient.Socket.Send(getBytes("HTTP/1.1 200 OK\r\n"));
                 mClient.Socket.Send(getBytes(buffer.ToString()));
+            }
+            if(_buffer != null && _buffer.Length > 0)
+            {
+                byte[] bs = new byte[_buffer.Length];
+                _buffer.Position = 0;
+                _buffer.Read(bs, 0, bs.Length);
+                _buffer.Dispose();
+                _buffer = null;
+                mClient.Socket.Send(bs, 0, bs.Length, System.Net.Sockets.SocketFlags.None);
             }
             mClient.Socket.Send(content , offset , count , System.Net.Sockets.SocketFlags.None);
         }
@@ -156,6 +181,16 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         public void End()
         {
+            if (_buffer != null && _buffer.Length > 0)
+            {
+                _Headers["Content-Length"] = _buffer.Length.ToString();
+                byte[] bs = new byte[_buffer.Length];
+                _buffer.Position = 0;
+                _buffer.Read(bs, 0, bs.Length);
+                _buffer.Dispose();
+                _buffer = null;
+                this.Write(bs , 0 , bs.Length);
+            }
             if (mClient == null)
                 return;
            
