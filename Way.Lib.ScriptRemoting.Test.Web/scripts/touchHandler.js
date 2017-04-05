@@ -5,7 +5,7 @@
     var LONGCLICKACTIVETIME = 600;//长按触发时间
     var CLICKACTIVETIME = 300;//click点击有效按下时间
     var androidVersion = 5;
-    var touch_event_target;
+
 
     if (navigator.userAgent) {
         var userAgent = navigator.userAgent;
@@ -15,7 +15,7 @@
         }
     }
 
-    function simulateClick(el) {
+    function simulateClick(el, touch_event_target) {
         if (touch_event_target)
             touch_event_target.focus();
         else
@@ -112,7 +112,7 @@
         }
         var touchPoint;
         var timeoutflag;
-
+        var touch_event_target;
 
         if (androidVersion < 5 && window.lowAndroidCustomScrolls.length > 0) {
             //如果android版本小于5，必须禁止它的滚动功能，否则1px的滚动都会导致touchend事件无法触发
@@ -217,7 +217,7 @@
             if (touchPoint) {
                 if ((new Date().getTime() - touchPoint.time) < CLICKACTIVETIME) {
                     e.preventDefault();
-                    simulateClick(element);
+                    simulateClick(element, touch_event_target);
                 }
                 touchPoint = null;
             }
