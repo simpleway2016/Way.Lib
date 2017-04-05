@@ -5,6 +5,8 @@
     var LONGCLICKACTIVETIME = 600;//长按触发时间
     var CLICKACTIVETIME = 300;//click点击有效按下时间
     var androidVersion = 5;
+    var touch_event_target;
+
     if (navigator.userAgent) {
         var userAgent = navigator.userAgent;
         var index = userAgent.indexOf("Android")
@@ -14,7 +16,10 @@
     }
 
     function simulateClick(el) {
-        el.focus();
+        if (touch_event_target)
+            touch_event_target.focus();
+        else
+            el.focus();
         if (document.createEvent) {
             var theEvent = lastClickEvent;//使用上一个event对象，这样，才能让e.stopPropagation()有作用
             if (!theEvent) {
@@ -22,7 +27,10 @@
                 theEvent.initEvent('click', true, true);
                 lastClickEvent = theEvent;
             }
-            el.dispatchEvent(theEvent);
+            if (touch_event_target)
+                touch_event_target.dispatchEvent(theEvent);
+            else
+                el.dispatchEvent(theEvent);
         } else if (el.fireEvent) {
             el.fireEvent('onclick');
         }
@@ -90,7 +98,7 @@
             return;
 
         var maxMoveDistance = Math.max(window.innerWidth, window.innerHeight) / 10;
-        
+
         var modeclass = element.getAttribute("touchmode");
         var modeclassElement = element;
         if (!modeclass || modeclass.length == 0)
@@ -105,12 +113,13 @@
         var touchPoint;
         var timeoutflag;
 
+
         if (androidVersion < 5 && window.lowAndroidCustomScrolls.length > 0) {
             //如果android版本小于5，必须禁止它的滚动功能，否则1px的滚动都会导致touchend事件无法触发
             //查找上级element是否需要滚动，然后用touch帮它实现滚动
             var parentEle = element.parentElement;
             while (true) {
-                if (!parentEle)
+                if (!parentEle || parentEle.tagName == "BODY")
                     break;
                 var found = false;
                 for (var i = 0 ; i < window.lowAndroidCustomScrolls.length ; i++) {
@@ -140,6 +149,9 @@
 
         element.addEventListener("touchstart", function (e) {
             lastClickEvent = null;
+            if (e) {
+                touch_event_target = e.target;
+            }
             if (element._shouldPreventDefaultOnTouchStart) {
                 e.preventDefault();
             }
@@ -152,7 +164,7 @@
                 time: new Date().getTime()
             };
 
-            
+
             if (longTouchAttr) {
                 timeoutflag = setTimeout(function () {
                     timeoutflag = null;
@@ -161,7 +173,7 @@
                             removeCls(modeclassElement, modeclass);
                         }
                         touchPoint = null;
-                        
+
                         var theEvent = lastLongTouchEvent;
                         if (!theEvent) {
                             theEvent = document.createEvent('MouseEvents');
