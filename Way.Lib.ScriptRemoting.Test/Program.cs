@@ -14,11 +14,11 @@ namespace Way.Lib.ScriptRemoting.Test
     {
         public static void Main(string[] args)
         {
-           // Console.OutputEncoding = System.Text.Encoding.Unicode;
-           // Console.WriteLine("你好福娃额放假哦");
-           // Console.SetCursorPosition(2, 0);
-           // Console.Write("ab");//相当于backspace  
-           
+            // Console.OutputEncoding = System.Text.Encoding.Unicode;
+            // Console.WriteLine("你好福娃额放假哦");
+            // Console.SetCursorPosition(2, 0);
+            // Console.Write("ab");//相当于backspace  
+            var dirs = Way.Lib.PlatformHelper.GetAppDirectory();
 
             if (System.IO.Directory.Exists(@"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web"))
                 ScriptRemotingServer.Start(9090, @"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web", 1);

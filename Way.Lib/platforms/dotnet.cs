@@ -17,11 +17,11 @@ namespace Way.Lib
         {
             if (System.Web.HttpRuntime.AppDomainAppPath != null)
             {
-                return System.Web.HttpRuntime.AppDomainAppPath;
+                return System.Web.HttpRuntime.AppDomainAppPath.Replace("\\" , "/");
             }
             else
             {
-                return AppDomain.CurrentDomain.BaseDirectory;
+                return AppDomain.CurrentDomain.BaseDirectory.Replace("\\" , "/");
             }
         }
     }

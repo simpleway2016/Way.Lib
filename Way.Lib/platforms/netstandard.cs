@@ -27,7 +27,7 @@ namespace Way.Lib
        
         public static string GetAppDirectory()
         {
-            string directory = AppContext.BaseDirectory;
+            string directory = AppContext.BaseDirectory.Replace("\\" , "/");
             if(directory.EndsWith("/") == false)
              directory += "/";
             return directory;
