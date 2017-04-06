@@ -166,12 +166,29 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         internal void SendFileNoChanged()
         {
+            if (_buffer != null )
+            {
+                _buffer = null;
+            }
             mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
             this.End();
         }
         internal void SendFileNotFound()
         {
+            if (_buffer != null)
+            {
+                _buffer = null;
+            }
             mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + "\r\nConnection: Close\r\n\r\n"));
+            this.End();
+        }
+        internal void SendServerError()
+        {
+            if (_buffer != null)
+            {
+                _buffer = null;
+            }
+            mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + "\r\nConnection: Close\r\n\r\n"));
             this.End();
         }
         internal void CloseSocket()

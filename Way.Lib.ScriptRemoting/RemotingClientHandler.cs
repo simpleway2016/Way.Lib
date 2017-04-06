@@ -292,7 +292,7 @@ namespace Way.Lib.ScriptRemoting
             {
                 mSendDataFunc(Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
-                    err = ex.Message,
+                    err = ex.ToString(),
                 }));
             }
         }

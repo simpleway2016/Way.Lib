@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,21 +12,23 @@ namespace Way.Lib
     }
     public class RSA
     {
-        RSACryptoServiceProvider _rsa;
-        RSAParameters _parameter;
+        System.Security.Cryptography.RSA _rsa;
+        System.Security.Cryptography.RSAParameters _parameter;
         string _PublicKeyExponent;
-        public string PublicKeyExponent {
+        public string PublicKeyExponent
+        {
             get { return _PublicKeyExponent; }
         }
 
         string _publicKeyModulus;
-        public string PublicKeyModulus {
+        public string PublicKeyModulus
+        {
             get { return _publicKeyModulus; }
         }
         public RSA()
         {
-            _rsa = new RSACryptoServiceProvider();
-
+            _rsa = System.Security.Cryptography.RSA.Create();
+            _rsa.KeySize = 1024;//默认是2048，也就是_parameter.Modulus是256字节，但是js那边的算法会卡死
             //把公钥适当转换，准备发往客户端
             _parameter = _rsa.ExportParameters(true);
             _PublicKeyExponent = BytesToHexString(_parameter.Exponent);
@@ -38,7 +39,7 @@ namespace Way.Lib
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        public string Decrypt(  string content)
+        public string Decrypt(string content)
         {
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < content.Length; i += 256)
@@ -46,7 +47,7 @@ namespace Way.Lib
                 byte[] bs = null;
                 try
                 {
-                    bs = _rsa.Decrypt(HexStringToBytes(content, i, 256), false);
+                    bs = _rsa.Decrypt(HexStringToBytes(content, i, 256), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                 }
                 catch
                 {
@@ -69,7 +70,7 @@ namespace Way.Lib
             StringBuilder result = new StringBuilder();
             for (int j = 0; j < data.Length; j += 110)
             {
-                string content = data.Substring(j , Math.Min(110, data.Length - j) );
+                string content = data.Substring(j, Math.Min(110, data.Length - j));
                 byte[] source = System.Text.Encoding.ASCII.GetBytes(content);
                 BigInteger d = new BigInteger(_parameter.D);
                 BigInteger n = new BigInteger(_parameter.Modulus);
@@ -95,7 +96,7 @@ namespace Way.Lib
                     temp.AddRange(b);
                     len -= blockLen;
                 }
-                result.Append( BytesToHexString(temp.ToArray()));
+                result.Append(BytesToHexString(temp.ToArray()));
             }
             return result.ToString();
         }
@@ -135,12 +136,12 @@ namespace Way.Lib
                     temp.AddRange(b);
                     len -= blockLen;
                 }
-                result.Append( System.Text.Encoding.ASCII.GetString(temp.ToArray()));
+                result.Append(System.Text.Encoding.ASCII.GetString(temp.ToArray()));
             }
 
             return result.ToString();
 
-            
+
         }
 
         static byte[] HexStringToBytes(string hex, int index, int len)
