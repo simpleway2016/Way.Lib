@@ -261,7 +261,7 @@ namespace Way.Lib.ScriptRemoting
                     if (methodAttr.UseRSA != RSAApplyScene.None)
                     {
                         outputRSAKey = true;
-                        methodOutput.AppendLine($"] , callback,true,{(methodAttr.UseRSA.HasFlag(RSAApplyScene.WithSubmit) ?"true":"false")},{(methodAttr.UseRSA.HasFlag(RSAApplyScene.WithReturn) ? "true" : "false")} );");
+                        methodOutput.AppendLine($"] , callback,true,{(methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters) ?"true":"false")},{(methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) ? "true" : "false")} );");
                     }
                     else
                     {
@@ -358,7 +358,7 @@ namespace Way.Lib.ScriptRemoting
                 RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                 var pInfos = methodinfo.GetParameters();
 
-                if(methodAttr.UseRSA.HasFlag(RSAApplyScene.WithSubmit))
+                if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters))
                 {
                     var parameterStr = DecrptRSA(this.Session, msgBag.Parameters[0]);
                     msgBag.Parameters = (string[])Newtonsoft.Json.JsonConvert.DeserializeObject( $"[{parameterStr}]" , typeof(string[]) );
@@ -381,7 +381,7 @@ namespace Way.Lib.ScriptRemoting
                     }
                 }
                 var result = methodinfo.Invoke(currentPage, parameters);
-                if (methodAttr.UseRSA.HasFlag(RSAApplyScene.WithReturn) && result != null)
+                if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
                 {
                     SendData(MessageType.Result, result, encryptToReturn);
                 }

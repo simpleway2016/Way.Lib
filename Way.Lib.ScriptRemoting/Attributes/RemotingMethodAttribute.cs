@@ -15,15 +15,15 @@ namespace Way.Lib.ScriptRemoting
         /// <summary>
         /// js提交的参数，使用RSA加密
         /// </summary>
-        WithSubmit = 1,
+        EncryptParameters = 1,
         /// <summary>
         /// 服务器返回的数据，使用RSA加密
         /// </summary>
-        WithReturn = WithSubmit<<1,
+        EncryptResult = EncryptParameters << 1,
         /// <summary>
         ///  js提交的参数，服务器返回的数据，都使用RSA加密
         /// </summary>
-        WithSubmitAndReturn = WithSubmit | WithReturn,
+        EncryptResultAndParameters = EncryptParameters | EncryptResult,
     }
     /// <summary>
     /// 定义了此属性的函数，才允许被JS执行
