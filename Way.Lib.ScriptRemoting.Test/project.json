@@ -9,6 +9,7 @@
       "type": "platform",
       "version": "1.0.1"
     },
+    "System.IO.FileSystem.Watcher": "4.0.0",
     "Way.EntityDB": "1.0.0-*",
     "Way.Lib.ScriptRemoting": "1.0.0-*"
   },

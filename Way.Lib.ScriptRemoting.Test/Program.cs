@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Way.Lib.ScriptRemoting.WinTest;
+using System.IO;
 
 namespace Way.Lib.ScriptRemoting.Test
 {
@@ -18,19 +19,22 @@ namespace Way.Lib.ScriptRemoting.Test
             // Console.WriteLine("你好福娃额放假哦");
             // Console.SetCursorPosition(2, 0);
             // Console.Write("ab");//相当于backspace  
-           
+                   
 
-                Console.WriteLine("server starting...");
+            Console.WriteLine("server starting...");
             if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}Web"))
             {
+                
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
                 ScriptRemotingServer.Start(9090, $"{Way.Lib.PlatformHelper.GetAppDirectory()}Web", 1);
             }
             else
             {
+              
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
                 ScriptRemotingServer.Start(9090, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web", 1);
             }
+          
             Console.WriteLine("server started");
             using (var db = new MyDB())
             {
@@ -40,6 +44,8 @@ namespace Way.Lib.ScriptRemoting.Test
             Console.ReadKey();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
+
+  
         static byte[] HexStringToBytes(string hex, int index, int len)
         {
             if (len == 0)

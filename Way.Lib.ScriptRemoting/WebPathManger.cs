@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting
 {
+    /// <summary>
+    /// linux文件名区分大小写，所以只能记录当前所有文件路径
+    /// </summary>
     internal class WebPathManger
     {
         static List<String> Paths = new List<string>();
@@ -32,9 +35,12 @@ namespace Way.Lib.ScriptRemoting
         }
         internal static string getFileUrl(string url)
         {
-            return (from m in Paths
+            var result = (from m in Paths
                     where string.Equals(m, url, StringComparison.CurrentCultureIgnoreCase)
                     select m).FirstOrDefault();
+            if (result == null)
+                return url;
+            return result;
         }
     }
 }

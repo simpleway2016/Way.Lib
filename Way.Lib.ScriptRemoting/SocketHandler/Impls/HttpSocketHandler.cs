@@ -124,11 +124,6 @@ namespace Way.Lib.ScriptRemoting
                         url = url.Substring(0, url.IndexOf("?"));
                     }
                     url = WebPathManger.getFileUrl(url);
-                    if(url == null)
-                    {
-                        Response.SendFileNotFound();
-                        return;
-                    }
                     url = getUrl(url);
                     checkHandlers(url);
                    
