@@ -114,6 +114,16 @@ namespace Way.Lib.ScriptRemoting
         //        CompileTsToStream(folder,stream);
         //    }
         //}
+
+         public static void Stop()
+        {
+            if(socketServer != null)
+            {
+                socketServer.Stop();
+                socketServer = null;
+            }
+        }
+
         /// <summary>
         /// 启动ScriptRemotingServer，建议在Application_Start执行
         /// </summary>

@@ -42,6 +42,7 @@ namespace Way.Lib.ScriptRemoting.Test
             }
             Console.WriteLine("database ready");
             Console.ReadKey();
+            ScriptRemotingServer.Stop();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
 
