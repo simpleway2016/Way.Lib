@@ -140,15 +140,7 @@ namespace Way.Lib.ScriptRemoting
                         if (filepath.StartsWith("/"))
                             filepath = filepath.Substring(1);
                         filepath = ScriptRemotingServer.Root + filepath;
-                        ext = Path.GetExtension(filepath).ToLower();
-                        if (ext == ".html")
-                        {
-                            outputFile(url, filepath);
-                        }
-                        else
-                        {
-                            outputFile(url, filepath);
-                        }
+                        outputFile(url, filepath);
                     }
                 }
             }
