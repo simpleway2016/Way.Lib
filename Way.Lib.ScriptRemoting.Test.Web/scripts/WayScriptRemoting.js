@@ -157,11 +157,11 @@ var WayScriptRemoting = (function (_super) {
             }
         };
         invoker.Post({
-            m: {
+            m: JSON.stringify({
                 Action: 'init',
                 ClassFullName: remoteName,
                 SessionID: WayCookie.getCookie("WayScriptRemoting")
-            }
+            })
         });
         if (hasErr) {
             throw hasErr;
@@ -517,12 +517,12 @@ var WayScriptRemoting = (function (_super) {
                 }
             }
             invoker.Post({
-                m: {
+                m: JSON.stringify({
                     ClassFullName: this.classFullName,
                     MethodName: name,
                     Parameters: parameters,
                     SessionID: WayCookie.getCookie("WayScriptRemoting")
-                }
+                })
             });
         }
         catch (e) {

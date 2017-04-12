@@ -167,11 +167,11 @@ class WayScriptRemoting extends WayBaseObject {
             }
         };
         invoker.Post({
-            m: {
+            m: JSON.stringify( {
                 Action: 'init',
                 ClassFullName: remoteName,
                 SessionID: WayCookie.getCookie("WayScriptRemoting") 
-            }
+            })
         });
 
         if (hasErr) {
@@ -541,12 +541,12 @@ class WayScriptRemoting extends WayBaseObject {
                 }
             }
             invoker.Post({
-                m: {
+                m: JSON.stringify({
                     ClassFullName: this.classFullName,
                     MethodName: name,
                     Parameters: parameters,
                     SessionID: WayCookie.getCookie("WayScriptRemoting")
-                }
+                })
             });
             
         }
