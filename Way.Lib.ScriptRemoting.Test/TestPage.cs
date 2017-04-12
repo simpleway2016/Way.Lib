@@ -86,11 +86,15 @@ namespace Way.Lib.ScriptRemoting.Test
         {
             return DateTime.Now.ToString();
         }
-
-        [RemotingMethod( UseRSA = RSAApplyScene.EncryptResultAndParameters )]
-        public string TestRSA(string content,int number)
+        public class NameInfo
         {
-            return content;
+            public string name;
+            public int age;
+        }
+        [RemotingMethod( UseRSA = RSAApplyScene.EncryptResultAndParameters )]
+        public string TestRSA(string content, NameInfo number)
+        {
+            return content + ",age:" + number.age;
         }
 
         FileStream fs;

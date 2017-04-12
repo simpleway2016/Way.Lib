@@ -63,7 +63,7 @@
 
             function rsatest() {
                 var c = "看到这个，证明成功了。";
-                window.controller.TestRSA(c, 8899, function (ret, err) {
+                window.controller.TestRSA(c, {name:"way",age:18}, function (ret, err) {
                     if (err)
                         alert(err);
                     else

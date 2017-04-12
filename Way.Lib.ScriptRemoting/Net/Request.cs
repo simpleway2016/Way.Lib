@@ -99,11 +99,27 @@ namespace Way.Lib.ScriptRemoting.Net
 
         internal void urlRequestHandler()
         {
-            if (string.Equals(_Headers["Content-Type"], "application/json", StringComparison.CurrentCultureIgnoreCase))
+            if (string.Compare(_Headers["Content-Type"], "application/json", true) == 0)
             {
                 //post 的是json数据
-                var codec = System.Text.Encoding.UTF8;
-                if(!string.IsNullOrEmpty( _Headers["Charset"]) )
+                System.Text.Encoding codec = null;
+                if( _Headers["Content-Type"].Contains(";") )
+                {
+                    try
+                    {
+                        var charset = _Headers["Content-Type"].Split(';').SingleOrDefault(m => m.StartsWith("charset="));
+                        if (charset != null)
+                        {
+                            charset = charset.Substring(8);
+                            codec = System.Text.Encoding.GetEncoding(charset.Trim());
+                        }
+                    }
+                    catch
+                    {
+                    }
+                   
+                }
+                if(codec == null && !string.IsNullOrEmpty( _Headers["Charset"]) )
                 {
                     try
                     {
@@ -113,6 +129,8 @@ namespace Way.Lib.ScriptRemoting.Net
                     {
                     }
                 }
+                if (codec == null)
+                    codec = System.Text.Encoding.UTF8;
                 int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
                 byte[] jsonBS = mClient.ReceiveDatas(contentLength);
                 string jsonStr = codec.GetString(jsonBS);

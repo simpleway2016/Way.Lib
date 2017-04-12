@@ -360,8 +360,10 @@ namespace Way.Lib.ScriptRemoting
 
                 if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters))
                 {
-                    var parameterStr = DecrptRSA(this.Session, msgBag.Parameters[0]);
-                    msgBag.Parameters = (string[])Newtonsoft.Json.JsonConvert.DeserializeObject( $"[{parameterStr}]" , typeof(string[]) );
+                    for(var i = 0; i < msgBag.Parameters.Length; i ++)
+                    {
+                        msgBag.Parameters[i] = DecrptRSA(this.Session, msgBag.Parameters[i]);
+                    }
                 }
 
                 if (pInfos.Length != msgBag.Parameters.Length)

@@ -481,15 +481,6 @@ var WayScriptRemoting = (function (_super) {
             if (WayScriptRemoting.onBeforeInvoke) {
                 WayScriptRemoting.onBeforeInvoke(name, parameters);
             }
-            var paramerStr = "";
-            if (parameters) {
-                parameters.forEach(function (p) {
-                    if (paramerStr.length > 0)
-                        paramerStr += ",";
-                    var itemstr = JSON.stringify(p);
-                    paramerStr += JSON.stringify(itemstr);
-                });
-            }
             var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
             invoker.async = async;
             invoker.onCompleted = function (ret, err) {
@@ -519,10 +510,20 @@ var WayScriptRemoting = (function (_super) {
                     }
                 }
             };
-            if (useRsa) {
-                paramerStr = "\"" + this.encrypt(paramerStr) + "\"";
+            for (var i = 0; i < parameters.length; i++) {
+                parameters[i] = JSON.stringify(parameters[i]);
+                if (useRsa) {
+                    parameters[i] = this.encrypt(parameters[i]);
+                }
             }
-            invoker.Post({ m: "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}" });
+            invoker.Post({
+                m: {
+                    ClassFullName: this.classFullName,
+                    MethodName: name,
+                    Parameters: parameters,
+                    SessionID: WayCookie.getCookie("WayScriptRemoting")
+                }
+            });
         }
         catch (e) {
             callback(null, e.message);
