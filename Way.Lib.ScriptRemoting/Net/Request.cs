@@ -53,7 +53,9 @@ namespace Way.Lib.ScriptRemoting.Net
             while (true)
             {
                 string line = mClient.ReadLine();
-                //Debug.WriteLine(line);
+#if DEBUG
+                //System.Diagnostics.Debug.WriteLine(line);
+#endif      
                 if (line.Length == 0)
                     break;
                 else
@@ -97,37 +99,71 @@ namespace Way.Lib.ScriptRemoting.Net
 
         internal void urlRequestHandler()
         {
-            int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
-            List<byte> buffer = new List<byte>();
-
-            string keyName = null;
-            for (int i = 0; i < contentLength; i++)
+            if (string.Equals(_Headers["Content-Type"], "application/json", StringComparison.CurrentCultureIgnoreCase))
             {
-                int b = this.mClient.ReadByte();
-                if (b == (int)'=')
+                //post 的是json数据
+                var codec = System.Text.Encoding.UTF8;
+                if(!string.IsNullOrEmpty( _Headers["Charset"]) )
                 {
-                    keyName = System.Text.Encoding.UTF8.GetString(buffer.ToArray());
-                    buffer.Clear();
-
-                    continue;
+                    try
+                    {
+                        codec = System.Text.Encoding.GetEncoding(_Headers["Charset"]);
+                    }
+                    catch
+                    {
+                    }
                 }
-                else if (b == (int)'&')
+                int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
+                byte[] jsonBS = mClient.ReceiveDatas(contentLength);
+                string jsonStr = codec.GetString(jsonBS);
+                var jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonStr);
+                if (jsonObj is Newtonsoft.Json.Linq.JArray)
                 {
 
+                }
+                else
+                {
+                    Newtonsoft.Json.Linq.JToken jsonToken = (Newtonsoft.Json.Linq.JToken)jsonObj;
+                    foreach (Newtonsoft.Json.Linq.JProperty item in jsonToken)
+                    {
+                        _Form.Add(item.Name, item.Value.ToString());
+                    }
+                }
+            }
+            else
+            {
+                int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
+                List<byte> buffer = new List<byte>();
+
+                string keyName = null;
+                for (int i = 0; i < contentLength; i++)
+                {
+                    int b = this.mClient.ReadByte();
+                    if (b == (int)'=')
+                    {
+                        keyName = System.Text.Encoding.UTF8.GetString(buffer.ToArray());
+                        buffer.Clear();
+
+                        continue;
+                    }
+                    else if (b == (int)'&')
+                    {
+
+                        string str = System.Text.Encoding.UTF8.GetString(buffer.ToArray());
+                        string value = WebUtility.UrlDecode(str);
+                        buffer.Clear();
+                        _Form.Add(keyName, value);
+                        keyName = null;
+                        continue;
+                    }
+                    buffer.Add((byte)b);
+                }
+                if (buffer.Count > 0 && keyName != null)
+                {
                     string str = System.Text.Encoding.UTF8.GetString(buffer.ToArray());
                     string value = WebUtility.UrlDecode(str);
-                    buffer.Clear();
                     _Form.Add(keyName, value);
-                    keyName = null;
-                    continue;
                 }
-                buffer.Add((byte)b);
-            }
-            if (buffer.Count > 0 && keyName != null)
-            {
-                string str = System.Text.Encoding.UTF8.GetString(buffer.ToArray());
-                string value = WebUtility.UrlDecode(str);
-                _Form.Add(keyName, value);
             }
         }
     }

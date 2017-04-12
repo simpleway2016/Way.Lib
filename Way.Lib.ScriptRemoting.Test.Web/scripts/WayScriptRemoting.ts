@@ -166,7 +166,13 @@ class WayScriptRemoting extends WayBaseObject {
 
             }
         };
-        invoker.invoke(["m", "{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
+        invoker.Post({
+            m: {
+                Action: 'init',
+                ClassFullName: remoteName,
+                SessionID: WayCookie.getCookie("WayScriptRemoting") 
+            }
+        });
 
         if (hasErr) {
             throw hasErr;
@@ -541,7 +547,7 @@ class WayScriptRemoting extends WayBaseObject {
             if (useRsa) {
                 paramerStr = "\"" + this.encrypt(paramerStr) + "\"";
             }
-            invoker.invoke(["m", "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}"]);
+            invoker.Post({ m: "{'ClassFullName':'" + this.classFullName + "','MethodName':'" + name + "','Parameters':[" + paramerStr + "] , 'SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}" });
 
         }
         catch (e) {
@@ -715,7 +721,7 @@ class WayVirtualWebSocket {
                 this.receiveChannelConnect();
             }
         };
-        invoker.invoke(["mode", "init"]);
+        invoker.Post({ "mode": "init" });
     }
 
     send(data): void {
@@ -741,7 +747,12 @@ class WayVirtualWebSocket {
             data = this.arrayBufferToString(data);
 
         }
-        invoker.invoke(["mode", "send", "data", data, "id", this.guid, "binaryType", this.binaryType]);
+        invoker.Post({
+            "mode": "send",
+            "data": data,
+            "id": this.guid,
+            "binaryType": this.binaryType
+        });
     }
 
     private arrayBufferToString(data) {
@@ -783,14 +794,21 @@ class WayVirtualWebSocket {
                 }
             }
         };
-        this.receiver.invoke(["mode", "receive", "id", this.guid, "binaryType", this.binaryType]);
+        this.receiver.Post({
+            "mode": "receive",
+            "id": this.guid,
+            "binaryType": this.binaryType
+        });
         setTimeout(() => this.sendHeart(), 30000);
     }
 
     private sendHeart(): void {
         if (this.status == WayVirtualWebSocketStatus.connected) {
             var invoker = new WayScriptInvoker(this.url);
-            invoker.invoke(["mode", "heart", "id", this.guid]);
+            invoker.Post({
+                "mode": "heart",
+                "id": this.guid
+            });
             setTimeout(() => this.sendHeart(), 30000);
         }
     }
@@ -803,7 +821,6 @@ class WayScriptInvoker {
     onBeforeInvoke: () => any;
     onInvokeFinish: () => any;
     onCompleted: (result: any, err: any) => any;
-    method: string = "POST";
     private xmlHttp: XMLHttpRequest;
 
     constructor(_url: string) {
@@ -827,26 +844,12 @@ class WayScriptInvoker {
         this.xmlHttp.timeout = millseconds;
 
     }
-    invoke(nameAndValues: string[]): void {
-        /*
-        escape不编码字符有69个：*，+，-，.，/，@，_，0-9，a-z，A-Z
 
-encodeURI不编码字符有82个：!，#，$，&，'，(，)，*，+，,，-，.，/，:，;，=，?，@，_，~，0-9，a-z，A-Z
-
-encodeURIComponent不编码字符有71个：!， '，(，)，*，-，.，_，~，0-9，a-z，A-Z
-        */
+    Post(obj) {
         if (!this.xmlHttp) {
             this.xmlHttp = this.createXMLHttp();
         }
-        var p: string = "";
-        if (nameAndValues) {
-            for (var i = 0; i < nameAndValues.length; i += 2) {
-                if (i > 0)
-                    p += "&";
-                p += nameAndValues[i] + "=" + (<any>window).encodeURIComponent(nameAndValues[i + 1], "utf-8");
 
-            }
-        }
         if (this.onBeforeInvoke)
             this.onBeforeInvoke();
 
@@ -865,23 +868,63 @@ encodeURIComponent不编码字符有71个：!， '，(，)，*，-，.，_，~�
                 this.onCompleted(null, "连接服务器超时");
             }
         }
-        if (this.method == "POST") {
-            this.xmlHttp.open("POST", this.url, this.async);
-            this.xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            this.xmlHttp.send(p); //null,对ff浏览器是必须的
+        this.xmlHttp.open("POST", this.url, this.async);
+        this.xmlHttp.setRequestHeader("Content-Type", "application/json");
+        this.xmlHttp.send(JSON.stringify(obj)); //null,对ff浏览器是必须的
+    }
+
+    Get(nameAndValues: string[] = null): void {
+       
+        /*
+               escape不编码字符有69个：*，+，-，.，/，@，_，0-9，a-z，A-Z
+
+        encodeURI不编码字符有82个：!，#，$，&，'，(，)，*，+，,，-，.，/，:，;，=，?，@，_，~，0-9，a-z，A-Z
+
+        encodeURIComponent不编码字符有71个：!， '，(，)，*，-，.，_，~，0-9，a-z，A-Z
+               */
+        if (!this.xmlHttp) {
+            this.xmlHttp = this.createXMLHttp();
         }
-        else {
-            var myurl = this.url;
-            if (nameAndValues && nameAndValues.length > 0) {
-                if (myurl.indexOf("?") < 0)
-                    myurl += "?";
-                else
-                    myurl += "&";
+
+        if (this.onBeforeInvoke)
+            this.onBeforeInvoke();
+
+        this.xmlHttp.onreadystatechange = () => this.xmlHttpStatusChanged();
+        this.xmlHttp.onerror = (e) => {
+            if (this.onInvokeFinish)
+                this.onInvokeFinish();
+            if (this.onCompleted) {
+                this.onCompleted(null, "无法连接服务器");
             }
-            myurl += p;
-            this.xmlHttp.open("GET", myurl, this.async);
-            this.xmlHttp.send(null);
         }
+        this.xmlHttp.ontimeout = () => {
+            if (this.onInvokeFinish)
+                this.onInvokeFinish();
+            if (this.onCompleted) {
+                this.onCompleted(null, "连接服务器超时");
+            }
+        }
+
+        var p: string = "";
+        if (nameAndValues) {
+            for (var i = 0; i < nameAndValues.length; i += 2) {
+                if (i > 0)
+                    p += "&";
+                p += nameAndValues[i] + "=" + (<any>window).encodeURIComponent(nameAndValues[i + 1], "utf-8");
+
+            }
+        }
+
+        var myurl = this.url;
+        if (nameAndValues && nameAndValues.length > 0) {
+            if (myurl.indexOf("?") < 0)
+                myurl += "?";
+            else
+                myurl += "&";
+        }
+        myurl += p;
+        this.xmlHttp.open("GET", myurl, this.async);
+        this.xmlHttp.send(null);
     }
 
     private xmlHttpStatusChanged(): void {
@@ -1019,7 +1062,6 @@ class WayHelper {
 
     static downloadUrl(url: string): string {
         var invoker = new WayScriptInvoker(url);
-        invoker.method = "GET";
         invoker.async = false;
         var errcount = 0;
         var result;
@@ -1027,7 +1069,7 @@ class WayHelper {
             if (err) {
                 errcount++;
                 if (errcount <= 1) {
-                    invoker.invoke([]);
+                    invoker.Get();
                 }
                 else {
                     throw "无法打开网页：" + url;
@@ -1037,7 +1079,7 @@ class WayHelper {
                 result = ret;
             }
         }
-        invoker.invoke([]);
+        invoker.Get();
         return result;
     }
 

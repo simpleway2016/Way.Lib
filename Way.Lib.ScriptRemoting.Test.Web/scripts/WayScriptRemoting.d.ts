@@ -93,12 +93,12 @@ declare class WayScriptInvoker {
     onBeforeInvoke: () => any;
     onInvokeFinish: () => any;
     onCompleted: (result: any, err: any) => any;
-    method: string;
     private xmlHttp;
     constructor(_url: string);
     abort(): void;
     setTimeout(millseconds: number): void;
-    invoke(nameAndValues: string[]): void;
+    Post(obj: any): void;
+    Get(nameAndValues?: string[]): void;
     private xmlHttpStatusChanged();
     private createXMLHttp();
 }
