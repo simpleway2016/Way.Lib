@@ -110,8 +110,8 @@ namespace Way.Lib.ScriptRemoting.Net
                         var charset = _Headers["Content-Type"].Split(';').SingleOrDefault(m => m.StartsWith("charset="));
                         if (charset != null)
                         {
-                            charset = charset.Substring(8);
-                            codec = System.Text.Encoding.GetEncoding(charset.Trim());
+                            charset = charset.Trim().Substring(8);
+                            codec = System.Text.Encoding.GetEncoding(charset);
                         }
                     }
                     catch
