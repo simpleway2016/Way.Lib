@@ -131,6 +131,9 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         public void Write(byte[] content , int offset ,int count)
         {
+            if (mClient == null)
+                return;
+
             if (_Headers["Content-Length"] == null)
             {
                 this.buffer.Write(content , offset , count);
@@ -166,6 +169,9 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         internal void SendFileNoChanged()
         {
+            if (mClient == null)
+                return;
+
             if (_buffer != null )
             {
                 _buffer = null;
@@ -175,6 +181,9 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         internal void SendFileNotFound()
         {
+            if (mClient == null)
+                return;
+
             if (_buffer != null)
             {
                 _buffer = null;
@@ -184,6 +193,9 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         internal void SendServerError()
         {
+            if (mClient == null)
+                return;
+
             if (_buffer != null)
             {
                 _buffer = null;
@@ -198,6 +210,9 @@ namespace Way.Lib.ScriptRemoting.Net
         }
         public void End()
         {
+            if (mClient == null)
+                return;
+
             if (_buffer != null && _buffer.Length > 0)
             {
                 _Headers["Content-Length"] = _buffer.Length.ToString();
@@ -208,8 +223,6 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
                 this.Write(bs , 0 , bs.Length);
             }
-            if (mClient == null)
-                return;
            
             //wait for close
             while (true)
