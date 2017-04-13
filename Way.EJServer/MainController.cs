@@ -233,7 +233,7 @@ namespace Way.EJServer
                     }
                     foreach (var drow in dt.Rows)
                     {
-                        if (drow.RowState == RowState.Added)
+                        if (drow.RowState == DataRowState.Added)
                         {
                             var dataitem = new Way.EntityDB.CustomDataItem(table.Name, null, null);
                             foreach (var column in columns)
@@ -243,7 +243,7 @@ namespace Way.EJServer
                             }
                             invokingDB.Insert(dataitem);
                         }
-                        else if (drow.RowState == RowState.Modified)
+                        else if (drow.RowState == DataRowState.Modified)
                         {
                             var dataitem = new Way.EntityDB.CustomDataItem(table.Name, pkcolumn.Name, drow[pkcolumn.Name]);
                             foreach (var column in columns)

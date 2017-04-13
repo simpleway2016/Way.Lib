@@ -43,6 +43,7 @@ namespace Way.EntityDB
             {
                 var newrow = new WayDataRow();
                 this.Rows.Add(newrow);
+                newrow.RowState = (DataRowState)row.RowState;
                 foreach (System.Data.DataColumn column in source.Columns)
                 {
                     newrow[column.ColumnName] = row[column.ColumnName];
@@ -110,12 +111,28 @@ namespace Way.EntityDB
         public string Name;
         public object Value;
     }
-    public enum RowState:short
+    public enum DataRowState
     {
-        None = 0,
-        Added = 3,
-        Modified = 1,
-        Deleted = 2
+        //
+        // 摘要:
+        //     已创建该行，但它不是任何 System.Data.DataRowCollection 的一部分。System.Data.DataRow 在以下情况下立即处于此状态：创建之后添加到集合中之前；或从集合中移除之后。
+        Detached = 1,
+        //
+        // 摘要:
+        //     自上一次调用 System.Data.DataRow.AcceptChanges 之后，该行未更改。
+        Unchanged = 2,
+        //
+        // 摘要:
+        //     该行已添加到 System.Data.DataRowCollection 中，System.Data.DataRow.AcceptChanges 尚未调用。
+        Added = 4,
+        //
+        // 摘要:
+        //     该行已通过 System.Data.DataRow 的 System.Data.DataRow.Delete 方法被删除。
+        Deleted = 8,
+        //
+        // 摘要:
+        //     该行已被修改，System.Data.DataRow.AcceptChanges 尚未调用。
+        Modified = 16
     }
     public class WayDataRow  
     {
@@ -127,7 +144,7 @@ namespace Way.EntityDB
                 return _items;
             }
         }
-        public RowState RowState
+        public DataRowState RowState
         {
             get;
             set;
