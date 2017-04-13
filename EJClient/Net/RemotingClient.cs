@@ -20,6 +20,7 @@ namespace EJClient.Net
         }
         class ResultInfo<T>
         {
+            public string sessionid;
             public T result;
             public WayScriptRemotingMessageType type;
         }
@@ -30,7 +31,7 @@ namespace EJClient.Net
             public string[] Parameters;
             public string SessionID;
         }
-        static string RemotingCookie = "";
+        static string SessionID = "";
         string _ServerUrl;
         string _Referer;
         public RemotingClient(string serverUrl)
@@ -82,7 +83,7 @@ namespace EJClient.Net
                 ClassFullName = "Way.EJServer.MainController",
                 MethodName = name,
                 Parameters = ps,
-                SessionID = RemotingCookie
+                SessionID = SessionID
             }).ToJsonString();
             var result = await client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
             if (result.StatusCode != System.Net.HttpStatusCode.OK)
@@ -100,6 +101,8 @@ namespace EJClient.Net
                 }
                 else if (response.type == WayScriptRemotingMessageType.Result)
                 {
+                    if (response.sessionid != null && response.sessionid.Length > 0)
+                        SessionID = response.sessionid;
                     callback(response.result, null);
                 }
                 else

@@ -119,7 +119,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     mUploadFileHandler.OnGettingFileData(data);
                 }
-                SendData(MessageType.Result, mFileGettedSize);
+                SendData(MessageType.Result, mFileGettedSize , "");
 
                 if (mFileGettedSize >= mCurrentBag.FileSize)
                 {
@@ -130,14 +130,14 @@ namespace Way.Lib.ScriptRemoting
                     mUploadFileHandler = null;
                     //重新接收text
                     this.StreamType = RemotingStreamType.Text;
-                    SendData(MessageType.Result, "ok");
+                    SendData(MessageType.Result, "ok" , "");
                 }
             }
             catch (Exception ex)
             {
                 this.StreamType = RemotingStreamType.Text;
                 var baseException = ex.GetBaseException();
-                SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message);
+                SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message , "");
             }
         }
         public virtual void OnDisconnected()
@@ -332,12 +332,12 @@ namespace Way.Lib.ScriptRemoting
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
                 mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName,msgBag.State, msgBag.FileSize , msgBag.Offset);
-                SendData(MessageType.UploadFileBegined,"ok");
+                SendData(MessageType.UploadFileBegined,"ok" , "");
             }
             catch (Exception ex)
             {
                 var baseException = ex.GetBaseException();
-                SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message);
+                SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message , "");
             }
             finally
             {
@@ -350,12 +350,13 @@ namespace Way.Lib.ScriptRemoting
 
        void handleMethodInvoke(MessageBag msgBag)
         {
+            RemotingController currentPage = null;
             try
             {
                 string remoteName = (from m in RemotingController.ParsedHtmls where string.Equals(this._Referer, m.Url, StringComparison.CurrentCultureIgnoreCase) select m.Controller).FirstOrDefault();
                 var pageDefine = checkRemotingName(remoteName);
 
-                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
+                currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
                 currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
 
@@ -398,22 +399,22 @@ namespace Way.Lib.ScriptRemoting
                 var result = methodinfo.Invoke(currentPage, parameters);
                 if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
                 {
-                    SendData(MessageType.Result, result, encryptToReturn);
+                    SendData(MessageType.Result, result,Session.SessionID, encryptToReturn );
                 }
                 else
                 {
-                    SendData(MessageType.Result, result);
+                    SendData(MessageType.Result, result, Session.SessionID);
                 }
             }
             catch (RSADecrptException)
             {
                 CreateRSAKey(this.Session);
-                SendData(MessageType.RSADecrptError, new { Exponent = this.Session["$$_rsa_PublicKeyExponent"], Modulus = this.Session["$$_rsa_PublicKeyModulus"] });
+                SendData(MessageType.RSADecrptError, new { Exponent = this.Session["$$_rsa_PublicKeyExponent"], Modulus = this.Session["$$_rsa_PublicKeyModulus"] } , currentPage.Session.SessionID);
             }
             catch (Exception ex)
             {
                 var baseException = ex.GetBaseException();
-                SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message);
+                SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message, currentPage.Session.SessionID);
             }
             finally
             {
@@ -432,11 +433,11 @@ namespace Way.Lib.ScriptRemoting
             return rsa.Encrypt2(System.Net.WebUtility.UrlEncode(ret));
         }
 
-        public void SendData(MessageType msgType, object resultObj)
+        public void SendData(MessageType msgType, object resultObj,string sessionid)
         {
-            SendData(msgType , resultObj,null);
+            SendData(msgType , resultObj, sessionid , null);
         }
-        public void SendData(MessageType msgType, object resultObj,Func<string,string> rsaFunc)
+        public void SendData(MessageType msgType, object resultObj, string sessionid, Func<string,string> rsaFunc)
         {
             try
             {
@@ -453,7 +454,7 @@ namespace Way.Lib.ScriptRemoting
                         objstr = Newtonsoft.Json.JsonConvert.SerializeObject(resultObj);
                     }
                    
-                    var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + "}";
+                    var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + ",sessionid:'"+ sessionid + "'}";
                     if (rsaFunc != null)
                         dataStr = rsaFunc(dataStr);
                     mSendDataFunc(dataStr);

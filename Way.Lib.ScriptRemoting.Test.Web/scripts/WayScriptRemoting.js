@@ -498,6 +498,9 @@ var WayScriptRemoting = (function (_super) {
                         ret = decodeURIComponent(decryptedString(rsakey, ret));
                     }
                     eval("resultObj=" + ret);
+                    if (resultObj.sessionid && resultObj.sessionid.length > 0) {
+                        WayCookie.setCookie("WayScriptRemoting", resultObj.sessionid);
+                    }
                     if (resultObj.type == WayScriptRemotingMessageType.Result) {
                         callback(resultObj.result, null);
                     }
