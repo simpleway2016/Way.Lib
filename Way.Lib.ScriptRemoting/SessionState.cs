@@ -22,7 +22,7 @@ namespace Way.Lib.ScriptRemoting
         /// </summary>
         internal DateTime LastUseTime;
 
-        internal static System.Collections.Hashtable ThreadSessions = Hashtable.Synchronized(new Hashtable());
+        
         public delegate void OnSessionRemovedHandler(SessionState session);
         /// <summary>
         /// session超时，被移除时触发的事件
@@ -90,11 +90,7 @@ namespace Way.Lib.ScriptRemoting
                 }
                 obj.LastUseTime = DateTime.Now;
             }
-         
-            if (ThreadSessions.ContainsKey(Thread.CurrentThread) == false)
-            {
-                ThreadSessions[Thread.CurrentThread] = obj;
-            }
+
             return obj;
         }
 

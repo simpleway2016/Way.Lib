@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting
@@ -27,6 +28,7 @@ namespace Way.Lib.ScriptRemoting
         internal static ArrayList KeepAliveHandlers = ArrayList.Synchronized(new ArrayList());
         static ConcurrentDictionary<string, TypeDefine> ExistTypes = new ConcurrentDictionary<string, TypeDefine>();
         public delegate void SendDataHandler(string data);
+        internal delegate string GetHeaderValueHandler(string key);
         internal SendDataHandler mSendDataFunc;
         internal Action mCloseStreamHandler;
         SessionState Session;
@@ -39,7 +41,8 @@ namespace Way.Lib.ScriptRemoting
         internal object Tag2;
         internal DateTime _heartTime;
         string _Referer;
-        public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP,string referer)
+        GetHeaderValueHandler _GetHeaderValueHandler;
+        public RemotingClientHandler(SendDataHandler sendFunc , Action closeStreamHandler,string clientIP,string referer, GetHeaderValueHandler getHeaderValueHandler)
         {
             _Referer = referer;
                mCloseStreamHandler = closeStreamHandler;
@@ -47,6 +50,7 @@ namespace Way.Lib.ScriptRemoting
             this.StreamType = RemotingStreamType.Text;
             mClientIP = clientIP;
             _heartTime = DateTime.Now;
+            _GetHeaderValueHandler = getHeaderValueHandler;
         }
         public virtual void OnReceived(string data)
         {
@@ -102,14 +106,6 @@ namespace Way.Lib.ScriptRemoting
             catch(Exception ex)
             {
                 throw ex;
-            }
-            finally
-            {
-                var thread = System.Threading.Thread.CurrentThread;
-                if (SessionState.ThreadSessions.ContainsKey(thread))
-                {
-                    SessionState.ThreadSessions.Remove(thread);
-                }
             }
             
         }
@@ -330,6 +326,9 @@ namespace Way.Lib.ScriptRemoting
 
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
+                currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
+                RemotingController.ThreadControllers[Thread.CurrentThread] = currentPage;
+
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
                 mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName,msgBag.State, msgBag.FileSize , msgBag.Offset);
@@ -339,6 +338,13 @@ namespace Way.Lib.ScriptRemoting
             {
                 var baseException = ex.GetBaseException();
                 SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message);
+            }
+            finally
+            {
+                if (RemotingController.ThreadControllers.ContainsKey(Thread.CurrentThread))
+                {
+                    RemotingController.ThreadControllers.Remove(Thread.CurrentThread);
+                }
             }
         }
 
@@ -351,10 +357,17 @@ namespace Way.Lib.ScriptRemoting
 
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
+                currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
+
+                RemotingController.ThreadControllers[Thread.CurrentThread] = currentPage;
+
                 currentPage.onLoad();
 
 
-                MethodInfo methodinfo = pageDefine.Methods.Single(m => m.Name == msgBag.MethodName);
+                MethodInfo methodinfo = pageDefine.Methods.SingleOrDefault(m => m.Name == msgBag.MethodName);
+                if (methodinfo == null)
+                    throw new Exception($"没有找到方法{msgBag.MethodName},可能因为此方法没有定义[RemotingMethod]");
+                currentPage._OnBeforeInvokeMethod(methodinfo);
                 RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                 var pInfos = methodinfo.GetParameters();
 
@@ -401,6 +414,13 @@ namespace Way.Lib.ScriptRemoting
             {
                 var baseException = ex.GetBaseException();
                 SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message);
+            }
+            finally
+            {
+                if(RemotingController.ThreadControllers.ContainsKey(Thread.CurrentThread))
+                {
+                    RemotingController.ThreadControllers.Remove(Thread.CurrentThread);
+                }
             }
         }
 

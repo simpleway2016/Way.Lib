@@ -41,7 +41,13 @@ namespace Way.Lib.ScriptRemoting.Test
 
             }
             Console.WriteLine("database ready");
-            Console.ReadKey();
+           
+            while (true)
+            {
+                Console.Write("Web>");
+                if (Console.ReadLine() == "exit")
+                    break;
+            }
             ScriptRemotingServer.Stop();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }

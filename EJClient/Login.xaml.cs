@@ -44,38 +44,44 @@ namespace EJClient
             this.Cursor = Cursors.Wait;
             try
             {
-                Helper.WebSite = txtAddress.Text;
-                while (Helper.WebSite.EndsWith("/"))
-                    Helper.WebSite = Helper.WebSite.Substring(0, Helper.WebSite.Length - 1);
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    var result = web.Login(txtUserName.Text.Trim(), txtPwd.Password);
-                    Helper.CurrentUserRole = (EJ.User_RoleEnum)result[0];
-                    Helper.CurrentUserID = result[1];
-                    System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "url.txt", new logininfo()
-                        {
-                            url = Helper.WebSite,
-                            username = txtUserName.Text.Trim(),
-                        }.ToJsonString());
-                }
-                if (Helper.CurrentUserRole == EJ.User_RoleEnum.客户端测试人员)
-                {
-                    Application.Current.MainWindow = new Forms.BugCenter.BugRecorder();
-                }
-                else
-                {
-                    Application.Current.MainWindow = new MainWindow();
-                }
-                Application.Current.MainWindow.Show();
-                this.Close();
+                string url = txtAddress.Text;
+                while (url.EndsWith("/"))
+                    url = url.Substring(0, Helper.WebSite.Length - 1);
+                Helper.Client = new Net.RemotingClient(url);
+                Helper.Client.Invoke<int[]>("Login", (result, error) =>
+               {
+                   this.Cursor = null;
+                   if (error != null)
+                   {
+                       MessageBox.Show(this, error);
+                   }
+                   else
+                   {
+                       Helper.CurrentUserRole = (EJ.User_RoleEnum)result[0];
+                       Helper.CurrentUserID = result[1];
+                       System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "url.txt", new logininfo()
+                       {
+                           url = Helper.WebSite,
+                           username = txtUserName.Text.Trim(),
+                       }.ToJsonString());
+                       if (Helper.CurrentUserRole == EJ.User_RoleEnum.客户端测试人员)
+                       {
+                           Application.Current.MainWindow = new Forms.BugCenter.BugRecorder();
+                       }
+                       else
+                       {
+                           Application.Current.MainWindow = new MainWindow();
+                       }
+                       Application.Current.MainWindow.Show();
+                       this.Close();
+                   }
+
+               }, txtUserName.Text.Trim(), txtPwd.Password);
+                
             }
             catch (Exception ex)
             {
                 MessageBox.Show(this, ex.Message);
-            }
-            finally
-            {
-                this.Cursor = null;
             }
         }
     }

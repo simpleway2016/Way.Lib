@@ -33,7 +33,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
             }, () =>
             {
                 socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None).Wait();
-            }, clientip,referer);
+            }, clientip,referer,null);
             var bs = new byte[204800];
             while (true)
             {
@@ -109,7 +109,11 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                         {
                             waitObject.Set();
                             return 0;
-                        }, clientip, context.Request.Headers["Referer"]
+                        }, clientip, context.Request.Headers["Referer"],
+                        (key)=>
+                        {
+                            return context.Request.Headers[key];
+                        }
 
                       ).Handle();
                         waitObject.WaitOne();
@@ -145,7 +149,11 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                     {
                         content = data;
 
-                    }, null, clientip, context.Request.Headers["Referer"]);
+                    }, null, clientip, context.Request.Headers["Referer"] ,
+                    (key) =>
+                    {
+                        return context.Request.Headers[key];
+                    });
                     rs.OnReceived(json);
 
                     return context.Response.WriteAsync(content);

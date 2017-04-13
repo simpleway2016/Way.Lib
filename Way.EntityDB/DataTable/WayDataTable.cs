@@ -110,7 +110,13 @@ namespace Way.EntityDB
         public string Name;
         public object Value;
     }
-
+    public enum RowState:short
+    {
+        None = 0,
+        Added = 3,
+        Modified = 1,
+        Deleted = 2
+    }
     public class WayDataRow  
     {
         List<ItemPair> _items = new List<ItemPair>();
@@ -120,6 +126,11 @@ namespace Way.EntityDB
             {
                 return _items;
             }
+        }
+        public RowState RowState
+        {
+            get;
+            set;
         }
         public object this[string name]
         {

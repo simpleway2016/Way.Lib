@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Way.Lib.ScriptRemoting
+namespace Way.Lib
 {
     public class NetStreamEventArgs 
     {
@@ -94,8 +94,8 @@ namespace Way.Lib.ScriptRemoting
         {
 
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.SendTimeout = 6000;
-            socket.ReceiveTimeout = 6000;
+            socket.SendTimeout = 10000;
+            socket.ReceiveTimeout = 10000;
 
             socket.Connect(IPAddress.Parse(Address), port);
             this.m_ClientSocket = socket;
@@ -108,8 +108,8 @@ namespace Way.Lib.ScriptRemoting
         public NetStream(Socket SocketClient)
         {
             this.m_ClientSocket = SocketClient;
-            this.Socket.SendTimeout = 6000;
-            this.Socket.ReceiveTimeout = 6000;
+            this.Socket.SendTimeout = 10000;
+            this.Socket.ReceiveTimeout = 10000;
             this.Socket.ReceiveBufferSize = 1024 * 100;
 
             try

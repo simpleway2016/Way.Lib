@@ -65,7 +65,11 @@ namespace Way.Lib.ScriptRemoting
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
                         this.Response.WriteStringBody(data);
-                    }, null, this.Request.RemoteEndPoint.ToString().Split(':')[0], (string)this.Request.Headers["Referer"]);
+                    }, null, this.Request.RemoteEndPoint.ToString().Split(':')[0], (string)this.Request.Headers["Referer"],
+                    (key) =>
+                    {
+                        return this.Request.Headers[key];
+                    });
                     rs.OnReceived(json);
 
                 }
@@ -85,7 +89,11 @@ namespace Way.Lib.ScriptRemoting
                       {
                           this.Response.CloseSocket();
                           return 0;
-                      }, this.Request.RemoteEndPoint.ToString().Split(':')[0],(string)this.Request.Headers["Referer"]
+                      }, this.Request.RemoteEndPoint.ToString().Split(':')[0],(string)this.Request.Headers["Referer"],
+                      (key) =>
+                      {
+                          return this.Request.Headers[key];
+                      }
 
                     ).Handle();
 

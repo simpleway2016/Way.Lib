@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EJClient.Net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace EJClient
 {
     class Helper
     {
+        public static RemotingClient Client;
         public static EJ.User_RoleEnum CurrentUserRole;
         public static int CurrentUserID;
         public static string WebSite = "http://localhost:888";
@@ -87,16 +89,16 @@ namespace EJClient
 
     static class MyExtensions
     {
-        static System.Web.Script.Serialization.JavaScriptSerializer json = new System.Web.Script.Serialization.JavaScriptSerializer();
+         
         public static string ToJsonString(this object obj)
         {
             if (obj == null)
                 return null;
-            return json.Serialize(obj);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
         }
         public static T ToJsonObject<T>(this string str)
         {
-            return json.Deserialize<T>(str);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(str);
         }
     }
 }

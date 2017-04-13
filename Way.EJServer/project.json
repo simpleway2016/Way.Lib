@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
+    "Newtonsoft.Json": "9.0.1",
+    "Way.EntityDB": "1.0.0.2",
+    "Way.Lib": "1.0.0.2",
+    "Way.Lib.ScriptRemoting": "1.0.0-*"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  }
+}

@@ -49,6 +49,8 @@ namespace Way.EntityDB.Design
                         {
                             actionType = "EntityDB.Design." + actionType.Substring("ECWeb.Database.".Length);
                         }
+                        if (actionType.StartsWith("EntityDB."))
+                            actionType = "Way." + actionType;
                         Type type = typeof(EntityDB.Design.Actions.Action).GetTypeInfo().Assembly.GetType(actionType);
                         var actionItem = (EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
 

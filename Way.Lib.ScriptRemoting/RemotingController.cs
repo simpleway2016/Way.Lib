@@ -53,6 +53,24 @@ namespace Way.Lib.ScriptRemoting
             public List<string> Datasources = new List<string>();
             public List<string> AllowEditDatasources = new List<string>();
         }
+        public class RequestHeaderCollection:Dictionary<string,string>
+        {
+            RemotingClientHandler.GetHeaderValueHandler _GetHeaderValueHandler;
+            internal RequestHeaderCollection(RemotingClientHandler.GetHeaderValueHandler getHeaderValueHandler)
+            {
+                _GetHeaderValueHandler = getHeaderValueHandler;
+            }
+            public string this[string key]
+            {
+                get
+                {
+                    if (_GetHeaderValueHandler == null)
+                        return null;
+                    return _GetHeaderValueHandler(key);
+                }
+            }
+        }
+        internal static System.Collections.Hashtable ThreadControllers = Hashtable.Synchronized(new Hashtable());
         static List<string> SafeDomains = new List<string>();
         internal static List<ParseHtmlInfo> ParsedHtmls = new List<ParseHtmlInfo>();
         internal string SocketID;
@@ -61,12 +79,12 @@ namespace Way.Lib.ScriptRemoting
             get;
             internal set;
         }
-        public delegate bool OnMessageReceiverConnectHandler(SessionState session ,string groupName);
+        public delegate bool OnMessageReceiverConnectHandler(SessionState session, string groupName);
         /// <summary>
         /// 当有客户端试图连接，接收group信息时触发，您可以return false，或者throw Exception，拒绝对方连接
         /// </summary>
         public static event OnMessageReceiverConnectHandler OnMessageReceiverConnect;
-        internal static bool MessageReceiverConnect(SessionState session ,string groupName)
+        internal static bool MessageReceiverConnect(SessionState session, string groupName)
         {
             if (OnMessageReceiverConnect == null)
                 return true;
@@ -76,18 +94,34 @@ namespace Way.Lib.ScriptRemoting
         /// 获取当前上下文对应的Session
         /// </summary>
         /// <returns></returns>
-        public static SessionState GetCurrentSession()
+        public static RemotingController GetCurrentController()
         {
             var thread = System.Threading.Thread.CurrentThread;
-            if (SessionState.ThreadSessions.ContainsKey(thread))
-                return (SessionState)SessionState.ThreadSessions[thread];
+            if (ThreadControllers.ContainsKey(thread))
+                return (RemotingController)ThreadControllers[thread];
             else
                 return null;
         }
 
+        /// <summary>
+        /// 获取web所在文件夹
+        /// </summary>
+        public static string WebRoot
+        {
+            get
+            {
+                return ScriptRemotingServer.Root;
+            }
+        }
+        public RequestHeaderCollection RequestHeaders
+        {
+            get;
+            internal set;
+        }
         internal static void CheckHtmlFile(string url)
         {
-       
+            if (url == null)
+                return;
 
             for (int i = 0; i < ParsedHtmls.Count; i++)
             {
@@ -253,6 +287,12 @@ namespace Way.Lib.ScriptRemoting
         {
         }
 
+        internal void _OnBeforeInvokeMethod(MethodInfo method)
+        {
+            OnBeforeInvokeMethod(method);
+        }
+        protected virtual void OnBeforeInvokeMethod(MethodInfo method)
+        { }
 
         Type getType(string fullname)
         {

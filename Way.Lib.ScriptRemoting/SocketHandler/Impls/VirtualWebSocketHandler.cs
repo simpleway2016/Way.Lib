@@ -15,6 +15,7 @@ namespace Way.Lib.ScriptRemoting
         Func<int> mCloseConnectionFunc;
         string mClientIP;
         string _Referer;
+        RemotingClientHandler.GetHeaderValueHandler _GetHeaderValueHandler;
         static VirtualWebSocketHandler()
         {
             new System.Threading.Thread(() =>
@@ -49,7 +50,7 @@ namespace Way.Lib.ScriptRemoting
             RemotingClientHandler.SendDataHandler sendFunc, 
             Func<int> waitForCloseFunc,
             Func<int> closeConFunc,
-            string clientip,string referer)
+            string clientip,string referer, RemotingClientHandler.GetHeaderValueHandler getHeaderValueHandler)
         {
             _Referer = referer;
             mCloseConnectionFunc = closeConFunc;
@@ -57,6 +58,7 @@ namespace Way.Lib.ScriptRemoting
             mRequestForms = forms;
             mSendFunc = sendFunc;
             mWaitForCloseFunc = waitForCloseFunc;
+            _GetHeaderValueHandler = getHeaderValueHandler;
         }
 
         public void Handle()
@@ -94,7 +96,7 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else
                     {
-                        remotingHandler = new ScriptRemoting.RemotingClientHandler(null, null, mClientIP,_Referer);
+                        remotingHandler = new ScriptRemoting.RemotingClientHandler(null, null, mClientIP,_Referer, _GetHeaderValueHandler);
 
                         ActivedVirtualWebSocketHandler.Add(id, remotingHandler);
                     }
