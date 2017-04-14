@@ -67,14 +67,11 @@ namespace EJClient.Forms
                 Columns.Clear();
                 if (!string.IsNullOrEmpty(this.TableName))
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
+                    string[] columns = Helper.Client.InvokeSync<string[]>("GetColumnNames", m_databaseid, this.TableName);
+
+                    foreach (string c in columns)
                     {
-                        string[] columns = web.GetColumnNames(m_databaseid, this.TableName);
-                        
-                        foreach (string c in columns)
-                        {
-                            Columns.Add(c);
-                        }
+                        Columns.Add(c);
                     }
                 }
             }
@@ -496,37 +493,31 @@ namespace EJClient.Forms
                 m_modifyingTable = currentTable;
                 m_IsModify = true;
                 m_table = (EJ.DBTable)Helper.Clone(currentTable);
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", currentTable.id.Value);
+                foreach (var c in columns)
                 {
-                    var columns = web.GetColumnList(currentTable.id.Value).ToJsonObject<EJ.DBColumn[]>();
-                    foreach (var c in columns)
+                    m_columns.Add(new 数据列基本信息(c, this));
+                }
+                var delconfigs = Helper.Client.InvokeSync<EJ.DBDeleteConfig[]>("GetTableDeleteConfigList", currentTable.id.Value);
+                foreach (var delitem in delconfigs)
+                {
+                    m_deleteConfigs.Add(new 级联删除信息(currentTable.DatabaseID.Value, delitem.RelaTable_Desc)
                     {
-                        m_columns.Add(new 数据列基本信息(c , this));
-                    }
-                    var delconfigs = web.GetTableDeleteConfigList(currentTable.id.Value).ToJsonObject<EJ.DBDeleteConfig[]>();
-                    foreach (var delitem in delconfigs)
-                    {
-                        m_deleteConfigs.Add(new 级联删除信息(currentTable.DatabaseID.Value , delitem.RelaTable_Desc)
-                            {
-                                ColumnName = delitem.RelaColumn_Desc
-                            });
-                    }
+                        ColumnName = delitem.RelaColumn_Desc
+                    });
+                }
 
-                    var idxConfig = web.GetTableIDXIndexList(currentTable.id.Value).ToJsonObject<EJ.IDXIndex[]>();
-                    foreach (var config in idxConfig)
+                var idxConfig = Helper.Client.InvokeSync<EJ.IDXIndex[]>("GetTableIDXIndexList", currentTable.id.Value);
+                foreach (var config in idxConfig)
+                {
+                    m_IDXConfigs.Add(new 索引(m_columns, config.IsUnique.Value, config.IsClustered.Value)
                     {
-                        m_IDXConfigs.Add(new 索引(m_columns ,config.IsUnique.Value , config.IsClustered.Value)
-                            {
-                                ColumnNames = config.Keys.Split(',')
-                            });
-                    }
+                        ColumnNames = config.Keys.Split(',')
+                    });
                 }
             }
 
-            using (Web.DatabaseService web = Helper.CreateWebService())
-            {
-                Tables = web.GetTableNames(dbnode.Database.id.Value).OrderBy(m=>m).ToArray();
-            }
+            Tables = Helper.Client.InvokeSync<string[]>("GetTableNames", dbnode.Database.id.Value).OrderBy(m => m).ToArray();
 
             pgridForTable.SelectedObject = new 数据表基本信息(m_table);
 
@@ -632,51 +623,48 @@ namespace EJClient.Forms
 
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                EJ.DBColumn[] columns = new EJ.DBColumn[m_columns.Count];
+                for (int i = 0; i < m_columns.Count; i++)
                 {
-                    EJ.DBColumn[] columns = new EJ.DBColumn[m_columns.Count];
-                    for (int i = 0; i < m_columns.Count; i++)
+                    columns[i] = m_columns[i].m_column;
+                    m_columns[i].m_column.orderid = i;
+                }
+
+                if (m_IsModify)
+                {
+
+                    Helper.Client.InvokeSync<string>("ModifyTable", m_table, columns, delconfigs, idsConfigs);
+                    m_modifyingTable.Name = m_table.Name;
+                    m_modifyingTable.caption = m_table.caption;
+
+                    foreach (UI.Document doc in MainWindow.instance.documentContainer.Items)
                     {
-                        columns[i] = m_columns[i].m_column;
-                        m_columns[i].m_column.orderid = i;
-                    }
-
-                    if (m_IsModify)
-                    {
-
-                        web.ModifyTable(m_table.ToJsonString(), columns.ToJsonString(), delconfigs.ToJsonString(), idsConfigs.ToJsonString());
-                        m_modifyingTable.Name = m_table.Name;
-                        m_modifyingTable.caption = m_table.caption;
-
-                        foreach (UI.Document doc in MainWindow.instance.documentContainer.Items)
+                        if (doc is UI.ModuleDocument)
                         {
-                            if (doc is UI.ModuleDocument)
+                            var ui = ((UI.ModuleDocument)doc).getTableById(this.m_table.id.GetValueOrDefault());
+                            if (ui != null)
                             {
-                                var ui = ((UI.ModuleDocument)doc).getTableById(this.m_table.id.GetValueOrDefault());
-                                if (ui != null)
+                                ui.DataSource = new UI.Table._DataSource()
                                 {
-                                    ui.DataSource = new UI.Table._DataSource()
-                                        {
-                                            Table = m_table,
-                                            Columns = web.GetColumns(m_table.id.GetValueOrDefault()).ToJsonObject<EJ.DBColumn[]>(),
-                                        };
-                                    ui.DataBind();
-                                }
+                                    Table = m_table,
+                                    Columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumns", m_table.id.GetValueOrDefault()),
+                                };
+                                ui.DataBind();
                             }
                         }
                     }
-                    else
-                    {
-                        string newTable = web.CreateTable(m_table.ToJsonString(), columns.ToJsonString(), delconfigs.ToJsonString(), idsConfigs.ToJsonString());
-                        m_table = newTable.ToJsonObject<EJ.DBTable>();
-                        //ChangedProperties本来是0，但ToJsonObject转换时，每个属性都进行set操作，又产生了ChangedProperties
-                        m_table.ChangedProperties.Clear();
-
-                        数据表Node parent = (数据表Node)m_DBNode.Children.FirstOrDefault(m => m is 数据表Node);
-                        parent.Children.Insert(0, new DBTableNode(m_table, parent));
-                        this.DialogResult = true;
-                    }
                 }
+                else
+                {
+                    m_table = Helper.Client.InvokeSync<EJ.DBTable>("CreateTable", m_table , columns , delconfigs , idsConfigs );
+                    //ChangedProperties本来是0，但ToJsonObject转换时，每个属性都进行set操作，又产生了ChangedProperties
+                    m_table.ChangedProperties.Clear();
+
+                    数据表Node parent = (数据表Node)m_DBNode.Children.FirstOrDefault(m => m is 数据表Node);
+                    parent.Children.Insert(0, new DBTableNode(m_table, parent));
+                    this.DialogResult = true;
+                }
+
                 this.Close();
                 if (m_relationChanged)
                 {

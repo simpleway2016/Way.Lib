@@ -65,25 +65,20 @@ namespace EJClient.Forms.BugCenter
 
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
+                    int count = Helper.Client.InvokeSync<int>("GetMyBugListCount");
+                    if (count != bugCount)
                     {
-                        int count = web.GetMyBugListCount();
-                        if (count != bugCount)
+                        bugCount = count;
+                        this.Dispatcher.Invoke(delegate
                         {
-                            bugCount = count;
-                            this.Dispatcher.Invoke(delegate
+                            if (count == 0)
+                                lblParent.Visibility = System.Windows.Visibility.Collapsed;
+                            else
                             {
-                                if (count == 0)
-                                    lblParent.Visibility = System.Windows.Visibility.Collapsed;
-                                else
-                                {
-                                    lblParent.Visibility = System.Windows.Visibility.Visible;
-                                    lblNowCount.Content = count.ToString();
-                                }
-                            });
-                           
- 
-                        }
+                                lblParent.Visibility = System.Windows.Visibility.Visible;
+                                lblNowCount.Content = count.ToString();
+                            }
+                        });
                     }
                 }
                 catch

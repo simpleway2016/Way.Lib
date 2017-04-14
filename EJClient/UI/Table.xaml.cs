@@ -290,11 +290,8 @@ namespace EJClient.UI
             {
                 if (MessageBox.Show("确定从当前模块移除吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.RemoveTableFromModule(this.TableInModule.id.Value, this.DataSource.Table.id.Value);
-                        ((Panel)this.Parent).Children.Remove(this);
-                    }
+                    Helper.Client.InvokeSync<string>("RemoveTableFromModule", this.TableInModule.id.Value, this.DataSource.Table.id.Value);
+                    ((Panel)this.Parent).Children.Remove(this);
                 }
             }
             catch (Exception ex)

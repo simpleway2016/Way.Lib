@@ -287,7 +287,7 @@ namespace Way.EJServer
             }
         }
     }
-    class SearchContent
+    public class SearchContent
     {
         public int? ID
         {

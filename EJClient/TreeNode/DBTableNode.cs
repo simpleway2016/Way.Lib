@@ -59,19 +59,16 @@ namespace EJClient.TreeNode
         {
             if (MessageBox.Show(MainWindow.instance, "确定删除吗？", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                try
                 {
-                    try
-                    {
-                        web.DeleteTable( this.Table.DatabaseID.Value , this.Table.Name );
-                        this.Parent.Children.Remove(this);
-                        AllTableNodes.Remove(this);
-                    }
-                    catch (Exception ex)
-                    {
+                    Helper.Client.InvokeSync<string>("DeleteTable", this.Table.DatabaseID.Value, this.Table.Name);
+                    this.Parent.Children.Remove(this);
+                    AllTableNodes.Remove(this);
+                }
+                catch (Exception ex)
+                {
 
-                        MessageBox.Show(MainWindow.instance, ex.Message);
-                    }
+                    MessageBox.Show(MainWindow.instance, ex.Message);
                 }
             }
         }

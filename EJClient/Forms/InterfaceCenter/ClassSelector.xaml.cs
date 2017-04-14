@@ -27,16 +27,13 @@ namespace EJClient.Forms.InterfaceCenter
             InitializeComponent();
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                string[] files = Helper.Client.InvokeSync<string[]>("GetProjectDllFiles", projectid);
+                System.Collections.ObjectModel.ObservableCollection<TreeNodeBase> list = new System.Collections.ObjectModel.ObservableCollection<TreeNodeBase>();
+                foreach (string f in files)
                 {
-                    string[] files = web.GetProjectDllFiles(projectid);
-                    System.Collections.ObjectModel.ObservableCollection<TreeNodeBase> list = new System.Collections.ObjectModel.ObservableCollection<TreeNodeBase>();
-                    foreach (string f in files)
-                    {
-                        list.Add( new Nodes.DLLNode(f) );
-                    }
-                    tree1.ItemsSource = list;
+                    list.Add(new Nodes.DLLNode(f));
                 }
+                tree1.ItemsSource = list;
             }
             catch (Exception ex)
             {

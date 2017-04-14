@@ -23,10 +23,7 @@ namespace EJClient.UI
             this.SetBinding(TabItem.HeaderProperty, "Name");
             if (interfaceNode.Module.LockUserId != null)
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    this.HeaderStringFormat = "{0}(" + web.GetUserNameByID(interfaceNode.Module.LockUserId.Value) + "锁定)";
-                }
+                this.HeaderStringFormat = "{0}(" + Helper.Client.InvokeSync<string>("GetUserNameByID", interfaceNode.Module.LockUserId.Value) + "锁定)";
             }
            
 
@@ -65,43 +62,39 @@ namespace EJClient.UI
         {
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                var items = Helper.Client.InvokeSync<EJ.InterfaceInModule[]>("GetInterfaceInModule", this.InterfaceItemNode.Module.id.Value);
+                foreach (var item in items)
                 {
-                    var items = web.GetInterfaceInModule(this.InterfaceItemNode.Module.id.Value).ToJsonObject<EJ.InterfaceInModule[]>();
-                    foreach (var item in items)
+                    Type type = typeof(InterfaceItemNode).Assembly.GetType(item.Type);
+                    if (type == typeof(UI.DescriptionView))
                     {
-                        Type type = typeof(InterfaceItemNode).Assembly.GetType(item.Type);
-                        if (type == typeof(UI.DescriptionView))
+                        DescriptionView view = new DescriptionView("", item);
+                        view.LoadJsonData(item.JsonData);
+                        view.Margin = new Thickness((double)item.x, (double)item.y, 0, 0);
+                        if (item.width != null)
                         {
-                            DescriptionView view = new DescriptionView("", item);
-                            view.LoadJsonData(item.JsonData);
-                            view.Margin = new Thickness((double)item.x, (double)item.y, 0, 0);
-                            if (item.width != null)
-                            {
-                                view.Width = item.width.Value;
-                                view.Height = item.height.Value;
-                            }
-                            m_Grid.Children.Add(view);
+                            view.Width = item.width.Value;
+                            view.Height = item.height.Value;
                         }
-                        else if (type == typeof(UI.ClassView))
+                        m_Grid.Children.Add(view);
+                    }
+                    else if (type == typeof(UI.ClassView))
+                    {
+                        ClassView view = new ClassView(item);
+                        view.Margin = new Thickness((double)item.x, (double)item.y, 0, 0);
+                        m_Grid.Children.Add(view);
+                    }
+                }
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    foreach (FrameworkElement view in m_Grid.Children)
+                    {
+                        if (view is DescriptionView)
                         {
-                            ClassView view = new ClassView(item);
-                            view.Margin = new Thickness((double)item.x, (double)item.y, 0, 0);
-                            m_Grid.Children.Add(view);
+                            ((DescriptionView)view).LoadConnects();
                         }
                     }
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            foreach (FrameworkElement view in m_Grid.Children)
-                            {
-                                if (view is DescriptionView)
-                                {
-                                    ((DescriptionView)view).LoadConnects();
-                                }
-                            }
-                        }), System.Windows.Threading.DispatcherPriority.Loaded, null);
-
-                }
+                }), System.Windows.Threading.DispatcherPriority.Loaded, null);
             }
             catch (Exception ex)
             {
@@ -145,17 +138,14 @@ namespace EJClient.UI
             var menuitem = (MenuItem)sender; 
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.UnLockInterfaceModule(InterfaceItemNode.Module.id.Value);
-                    InterfaceItemNode.Module.LockUserId = null;
-                    this.HeaderStringFormat = "{0}";
-                    this.SetBinding(TabItem.HeaderProperty, "");
-                    this.SetBinding(TabItem.HeaderProperty, "Name");
-                    menuitem.Click -= menuitem_解锁_Click;
-                    menuitem.Header = "锁定";
-                    menuitem.Click += menuitem_锁定_Click;
-                }
+                Helper.Client.InvokeSync<string>("UnLockInterfaceModule", InterfaceItemNode.Module.id.Value);
+                InterfaceItemNode.Module.LockUserId = null;
+                this.HeaderStringFormat = "{0}";
+                this.SetBinding(TabItem.HeaderProperty, "");
+                this.SetBinding(TabItem.HeaderProperty, "Name");
+                menuitem.Click -= menuitem_解锁_Click;
+                menuitem.Header = "锁定";
+                menuitem.Click += menuitem_锁定_Click;
             }
             catch (Exception ex)
             {
@@ -167,18 +157,15 @@ namespace EJClient.UI
             var menuitem = (MenuItem)sender; 
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.LockInterfaceModule(InterfaceItemNode.Module.id.Value);
-                    InterfaceItemNode.Module.LockUserId = Helper.CurrentUserID;
-                    this.HeaderStringFormat = "{0}(" + web.GetUserNameByID(InterfaceItemNode.Module.LockUserId.Value) + "锁定)";
-                    this.SetBinding(TabItem.HeaderProperty, "");
-                    this.SetBinding(TabItem.HeaderProperty, "Name");
+                Helper.Client.InvokeSync<string>("LockInterfaceModule", InterfaceItemNode.Module.id.Value);
+                InterfaceItemNode.Module.LockUserId = Helper.CurrentUserID;
+                this.HeaderStringFormat = "{0}(" + Helper.Client.InvokeSync<string>("GetUserNameByID", InterfaceItemNode.Module.LockUserId.Value) + "锁定)";
+                this.SetBinding(TabItem.HeaderProperty, "");
+                this.SetBinding(TabItem.HeaderProperty, "Name");
 
-                    menuitem.Click -= menuitem_锁定_Click;
-                    menuitem.Header = "解锁";
-                    menuitem.Click += menuitem_解锁_Click;
-                }
+                menuitem.Click -= menuitem_锁定_Click;
+                menuitem.Header = "解锁";
+                menuitem.Click += menuitem_解锁_Click;
             }
             catch (Exception ex)
             {
@@ -208,15 +195,12 @@ namespace EJClient.UI
                 UI.ClassView view = new ClassView(value, filepath, data);
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        data.JsonData = view.GetJsonData();
-                        data.id = web.UpdateInterfaceInModule(data.ToJsonString());
-                        data.ChangedProperties.Clear();
+                    data.JsonData = view.GetJsonData();
+                    data.id = Helper.Client.InvokeSync<int>("UpdateInterfaceInModule", data);
+                    data.ChangedProperties.Clear();
 
-                        view.Margin = new Thickness(m_RightButtonDownPoint.X, m_RightButtonDownPoint.Y, 0, 0);
-                        m_Grid.Children.Add(view);
-                    }
+                    view.Margin = new Thickness(m_RightButtonDownPoint.X, m_RightButtonDownPoint.Y, 0, 0);
+                    m_Grid.Children.Add(view);
                 }
                 catch (Exception ex)
                 {
@@ -240,18 +224,14 @@ namespace EJClient.UI
                     };
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        
-                        DescriptionView desc = new DescriptionView(frm.Value, data);
+                    DescriptionView desc = new DescriptionView(frm.Value, data);
 
-                        data.JsonData = desc.GetJsonData();
-                        data.id = web.UpdateInterfaceInModule(data.ToJsonString());
-                        data.ChangedProperties.Clear();
+                    data.JsonData = desc.GetJsonData();
+                    data.id = Helper.Client.InvokeSync<int>("UpdateInterfaceInModule", data);
+                    data.ChangedProperties.Clear();
 
-                        desc.Margin = new Thickness(m_RightButtonDownPoint.X, m_RightButtonDownPoint.Y, 0, 0);
-                        m_Grid.Children.Add(desc);
-                    }
+                    desc.Margin = new Thickness(m_RightButtonDownPoint.X, m_RightButtonDownPoint.Y, 0, 0);
+                    m_Grid.Children.Add(desc);
                 }
                 catch (Exception ex)
                 {

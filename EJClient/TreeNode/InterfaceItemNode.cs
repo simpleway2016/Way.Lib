@@ -68,17 +68,14 @@ namespace EJClient.TreeNode
                 string oldname = this.Module.Name;
                 this.Module.ChangedProperties.Clear();
                 this.Module.Name = newName;
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                try
                 {
-                    try
-                    {
-                        web.UpdateInterfaceModule(this.Module.ToJsonString());
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Module.Name = oldname;
-                        MessageBox.Show(MainWindow.instance, ex.Message);
-                    }
+                    Helper.Client.InvokeSync<string>("UpdateInterfaceModule", this.Module);
+                }
+                catch (Exception ex)
+                {
+                    this.Module.Name = oldname;
+                    MessageBox.Show(MainWindow.instance, ex.Message);
                 }
             }
         }
@@ -87,18 +84,15 @@ namespace EJClient.TreeNode
         {
             if (MessageBox.Show(MainWindow.instance, "确定删除吗？", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                try
                 {
-                    try
-                    {
-                        web.DeleteInterfaceModule(this.Module.ToJsonString());
-                        this.Parent.Children.Remove(this);
-                    }
-                    catch (Exception ex)
-                    {
+                    Helper.Client.InvokeSync<string>("DeleteInterfaceModule", this.Module);
+                    this.Parent.Children.Remove(this);
+                }
+                catch (Exception ex)
+                {
 
-                        MessageBox.Show(MainWindow.instance, ex.Message);
-                    }
+                    MessageBox.Show(MainWindow.instance, ex.Message);
                 }
             }
         }

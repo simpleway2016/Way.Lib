@@ -43,23 +43,21 @@ namespace EJClient.Forms
                 {
                     try
                     {
-                        using (Web.DatabaseService web = Helper.CreateWebService())
-                        {
-                            m_database = web.GetDatabase(m_databaseID).ToJsonObject<EJ.Databases>();
+                        m_database = Helper.Client.InvokeSync<EJ.Databases>("GetDatabase", m_databaseID);
 
-                            string folderpath = m_database.dllPath;
-                            if (System.IO.Directory.Exists(folderpath) == false)
-                            {
-                                System.IO.Directory.CreateDirectory(folderpath);
-                            }
-                            if (System.IO.Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "codes") == false)
-                            {
-                                System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "codes");
-                            }
-                            string[] filenames = System.IO.Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "codes", "*.cs");
-                            foreach (string f in filenames)
-                                System.IO.File.Delete(f);
+                        string folderpath = m_database.dllPath;
+                        if (System.IO.Directory.Exists(folderpath) == false)
+                        {
+                            System.IO.Directory.CreateDirectory(folderpath);
                         }
+                        if (System.IO.Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "codes") == false)
+                        {
+                            System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "codes");
+                        }
+                        string[] filenames = System.IO.Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "codes", "*.cs");
+                        foreach (string f in filenames)
+                            System.IO.File.Delete(f);
+
                         var header = System.Text.Encoding.UTF8.GetBytes(@"
 using System;
 using Microsoft.EntityFrameworkCore;

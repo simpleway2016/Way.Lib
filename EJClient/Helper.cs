@@ -10,21 +10,11 @@ namespace EJClient
 {
     class Helper
     {
+        public static string WebSite;
         public static RemotingClient Client;
         public static EJ.User_RoleEnum CurrentUserRole;
         public static int CurrentUserID;
-        public static string WebSite = "http://localhost:888";
-        internal static System.Net.CookieContainer CookieContainer = null;
-        public static Web.DatabaseService CreateWebService()
-        {
-            if (CookieContainer == null)
-                CookieContainer = new System.Net.CookieContainer();
 
-            Web.DatabaseService web = new Web.DatabaseService();
-            web.Url = WebSite + "/DatabaseService.asmx";
-            web.CookieContainer = CookieContainer;
-            return web;
-        }
         public static void ShowMessage( Window win , string msg)
         {
             MessageBox.Show(win, msg);
@@ -66,6 +56,13 @@ namespace EJClient
             MessageBox.Show(MainWindow.instance, err.Message);
             else
                 MessageBox.Show(err.Message);
+        }
+        public static void ShowError(string err)
+        {
+            if (MainWindow.instance != null)
+                MessageBox.Show(MainWindow.instance, err);
+            else
+                MessageBox.Show(err);
         }
         public static object Clone(object src)
         {

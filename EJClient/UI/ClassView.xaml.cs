@@ -177,12 +177,10 @@ namespace EJClient.UI
                 e.MouseDevice.Capture(null);
                 m_titleMoving = false;
 
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    InterfaceInModule.x = (int)this.Margin.Left;
-                    InterfaceInModule.y = (int)this.Margin.Top;
-                    web.UpdateInterfaceInModule(InterfaceInModule.ToJsonString());
-                }
+                InterfaceInModule.x = (int)this.Margin.Left;
+                InterfaceInModule.y = (int)this.Margin.Top;
+                Helper.Client.InvokeSync<string>("UpdateInterfaceInModule", InterfaceInModule);
+
                 if (MoveCompleted != null)
                 {
                     MoveCompleted(this, null);
@@ -195,11 +193,8 @@ namespace EJClient.UI
         {
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.DeleteInterfaceInModule(this.InterfaceInModule.ToJsonString());
-                    ((Panel)this.Parent).Children.Remove(this);
-                }
+                Helper.Client.InvokeSync<string>("DeleteInterfaceInModule", this.InterfaceInModule);
+                ((Panel)this.Parent).Children.Remove(this);
             }
             catch (Exception ex)
             {

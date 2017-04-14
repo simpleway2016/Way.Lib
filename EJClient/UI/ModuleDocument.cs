@@ -149,46 +149,46 @@ namespace EJClient.UI
             text.Margin = new Thickness(10,10,0,0);
             m_Grid.Children.Add(text);
 
-            using (Web.DatabaseService web = Helper.CreateWebService())
+            Helper.Client.Invoke<EJ.TableInModule[]>("GetTablesInModule",(locations, error)=>
             {
-                web.GetTablesInModuleCompleted += web_GetTablesInModuleCompleted;
-                web.GetTablesInModuleAsync(this.ModuleNode.Module.id.Value, text);
-            }
-
-        }
-
-        void web_GetTablesInModuleCompleted(object sender, Web.GetTablesInModuleCompletedEventArgs e)
-        {
-            TextBlock text = (TextBlock)e.UserState;
-            m_Grid.Children.Remove(text);
-
-            EJ.TableInModule[] locations = e.Result.ToJsonObject<EJ.TableInModule[]>();
-            foreach (var tInM in locations)
-            {
-                var dbtable = tInM.flag.ToJsonObject<EJ.DBTable>();
-                var columns = tInM.flag2.ToJsonObject<EJ.DBColumn[]>();
-                tInM.flag = null;
-                tInM.flag2 = null;
-
-                UI.Table uiTable = new Table(this);
-                uiTable.TableInModule = tInM;
-                uiTable.Margin = new Thickness( Math.Max(0, tInM.x.GetValueOrDefault()), Math.Max( 0 , tInM.y.GetValueOrDefault()), 0, 0);
-                uiTable.DataSource = new Table._DataSource()
+                if(error != null)
                 {
-                    Table = dbtable,
-                    Columns = columns,
-                };
-                uiTable.DataBind();
-                uiTable.MoveCompleted += uiTable_MoveCompleted;
-                m_Grid.Children.Add(uiTable);
-            }
-            this.UpdateLayout();
-            refreshTableRelation();
-            if(mFocusTableId > 0)
-            {
-                FocusTable(mFocusTableId);
-            }
+                    Helper.ShowMessage(error);
+                }
+                else
+                {
+                    m_Grid.Children.Remove(text);
+                    
+                    foreach (var tInM in locations)
+                    {
+                        var dbtable = tInM.flag.ToJsonObject<EJ.DBTable>();
+                        var columns = tInM.flag2.ToJsonObject<EJ.DBColumn[]>();
+                        tInM.flag = null;
+                        tInM.flag2 = null;
+
+                        UI.Table uiTable = new Table(this);
+                        uiTable.TableInModule = tInM;
+                        uiTable.Margin = new Thickness(Math.Max(0, tInM.x.GetValueOrDefault()), Math.Max(0, tInM.y.GetValueOrDefault()), 0, 0);
+                        uiTable.DataSource = new Table._DataSource()
+                        {
+                            Table = dbtable,
+                            Columns = columns,
+                        };
+                        uiTable.DataBind();
+                        uiTable.MoveCompleted += uiTable_MoveCompleted;
+                        m_Grid.Children.Add(uiTable);
+                    }
+                    this.UpdateLayout();
+                    refreshTableRelation();
+                    if (mFocusTableId > 0)
+                    {
+                        FocusTable(mFocusTableId);
+                    }
+                }
+            },this.ModuleNode.Module.id.Value);
+
         }
+
 
         public UI.Table getTableById(int id)
         {
@@ -219,60 +219,57 @@ namespace EJClient.UI
         void refreshTableRelation()
         {
             m_canvas.Children.Clear();
-            using (Web.DatabaseService web = Helper.CreateWebService())
+
+            var delconfigs = Helper.Client.InvokeSync<EJ.DBDeleteConfig[]>("GetDeleteConfigInModule", this.ModuleNode.Module.id.Value);
+            foreach (var configItem in delconfigs)
             {
-                var jsonstring = web.GetDeleteConfigInModule(this.ModuleNode.Module.id.Value);
-                EJ.DBDeleteConfig[] delconfigs = jsonstring.ToJsonObject<EJ.DBDeleteConfig[]>();
-                foreach (var configItem in delconfigs)
+                UI.Table table = getTableById(configItem.TableID.GetValueOrDefault());
+                if (table == null)
+                    continue;
+                UI.Table relaTable = getTableById(configItem.RelaTableID.GetValueOrDefault());
+                if (relaTable == null)
+                    continue;
+
+                System.Drawing.Point pointFrom = table.GetColumnLocation(0);
+                System.Drawing.Rectangle rectFrom = new System.Drawing.Rectangle((int)table.Margin.Left, (int)table.Margin.Top, (int)table.ActualWidth, (int)table.ActualHeight);
+                System.Drawing.Point pointTo = relaTable.GetColumnLocation(configItem.RelaColumID.GetValueOrDefault());
+                System.Drawing.Rectangle rectTo = new System.Drawing.Rectangle((int)relaTable.Margin.Left, (int)relaTable.Margin.Top, (int)relaTable.ActualWidth, (int)relaTable.ActualHeight);
+
+                if (rectFrom.Right < rectTo.Left)
                 {
-                    UI.Table table = getTableById(configItem.TableID.GetValueOrDefault());
-                    if (table == null)
-                        continue;
-                    UI.Table relaTable = getTableById(configItem.RelaTableID.GetValueOrDefault());
-                    if (relaTable == null)
-                        continue;
+                    pointFrom = new System.Drawing.Point(pointFrom.X + rectFrom.Width, pointFrom.Y);
+                }
+                if (rectTo.Right < rectFrom.Left)
+                {
+                    pointTo = new System.Drawing.Point(pointTo.X + rectTo.Width, pointTo.Y);
+                }
+                System.Drawing.Point[] points = PathBuilder.GetDirectPath(rectFrom, pointFrom, rectTo, pointTo);
 
-                    System.Drawing.Point pointFrom = table.GetColumnLocation(0);
-                    System.Drawing.Rectangle rectFrom = new System.Drawing.Rectangle((int)table.Margin.Left, (int)table.Margin.Top,(int)table.ActualWidth , (int)table.ActualHeight);
-                    System.Drawing.Point pointTo = relaTable.GetColumnLocation(configItem.RelaColumID.GetValueOrDefault());
-                    System.Drawing.Rectangle rectTo = new System.Drawing.Rectangle((int)relaTable.Margin.Left, (int)relaTable.Margin.Top, (int)relaTable.ActualWidth, (int)relaTable.ActualHeight);
-
-                    if (rectFrom.Right < rectTo.Left)
+                for (int i = 0; i < points.Length - 1; i++)
+                {
+                    if (i == points.Length - 2)
                     {
-                        pointFrom = new System.Drawing.Point( pointFrom.X + rectFrom.Width , pointFrom.Y );
+                        var arrow = new Shapes.Arrow();
+                        arrow.Stroke = Brushes.Red;
+                        arrow.StrokeThickness = 2;
+                        arrow.X1 = points[i].X;
+                        arrow.Y1 = points[i].Y;
+                        arrow.X2 = points[i + 1].X;
+                        arrow.Y2 = points[i + 1].Y;
+                        arrow.HeadWidth = 5;
+                        arrow.HeadHeight = 5;
+                        m_canvas.Children.Add(arrow);
                     }
-                    if (rectTo.Right < rectFrom.Left)
+                    else
                     {
-                        pointTo = new System.Drawing.Point(pointTo.X + rectTo.Width, pointTo.Y);
-                    }
-                    System.Drawing.Point[] points = PathBuilder.GetDirectPath(rectFrom, pointFrom, rectTo, pointTo);
-
-                    for (int i = 0; i < points.Length - 1; i++)
-                    {
-                        if (i == points.Length - 2)
-                        {
-                            var arrow = new Shapes.Arrow();
-                            arrow.Stroke = Brushes.Red;
-                            arrow.StrokeThickness = 2;
-                            arrow.X1 = points[i].X;
-                            arrow.Y1 = points[i].Y;
-                            arrow.X2 = points[i + 1].X;
-                            arrow.Y2 = points[i + 1].Y;
-                            arrow.HeadWidth = 5;
-                            arrow.HeadHeight = 5;
-                            m_canvas.Children.Add(arrow);
-                        }
-                        else
-                        {
-                            Line line = new Line();
-                            line.Stroke = new SolidColorBrush(Color.FromArgb(255, 136, 181, 244));
-                            line.StrokeThickness = 2;
-                            line.X1 = points[i].X;
-                            line.Y1 = points[i].Y;
-                            line.X2 = points[i + 1].X;
-                            line.Y2 = points[i + 1].Y;
-                            m_canvas.Children.Add(line);
-                        }
+                        Line line = new Line();
+                        line.Stroke = new SolidColorBrush(Color.FromArgb(255, 136, 181, 244));
+                        line.StrokeThickness = 2;
+                        line.X1 = points[i].X;
+                        line.Y1 = points[i].Y;
+                        line.X2 = points[i + 1].X;
+                        line.Y2 = points[i + 1].Y;
+                        m_canvas.Children.Add(line);
                     }
                 }
             }
@@ -298,24 +295,21 @@ namespace EJClient.UI
             tInM.ModuleID = this.ModuleNode.Module.id;
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    var columns = web.GetColumns(tableNode.Table.id.Value).ToJsonObject<EJ.DBColumn[]>();
-                    tInM.id = web.UpdateTableInMoudle(tInM.ToJsonString());
-                    tInM.ChangedProperties.Clear();
+                var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumns", tableNode.Table.id.Value);
+                tInM.id = Helper.Client.InvokeSync<int>("UpdateTableInMoudle", tInM);
+                tInM.ChangedProperties.Clear();
 
-                    UI.Table uiTable = new Table(this);
-                    uiTable.TableInModule = tInM;
-                    uiTable.Margin = new Thickness(point.X, point.Y, 0, 0);
-                    uiTable.DataSource = new Table._DataSource()
-                    {
-                        Table = tableNode.Table,
-                        Columns = columns,
-                    };
-                    uiTable.DataBind();
-                    uiTable.MoveCompleted += uiTable_MoveCompleted;
-                    m_Grid.Children.Add(uiTable);
-                }
+                UI.Table uiTable = new Table(this);
+                uiTable.TableInModule = tInM;
+                uiTable.Margin = new Thickness(point.X, point.Y, 0, 0);
+                uiTable.DataSource = new Table._DataSource()
+                {
+                    Table = tableNode.Table,
+                    Columns = columns,
+                };
+                uiTable.DataBind();
+                uiTable.MoveCompleted += uiTable_MoveCompleted;
+                m_Grid.Children.Add(uiTable);
             }
             catch (Exception ex)
             {
@@ -328,10 +322,9 @@ namespace EJClient.UI
             UI.Table uitable = sender as UI.Table;
             uitable.TableInModule.x = Convert.ToInt32(uitable.Margin.Left);
             uitable.TableInModule.y = Convert.ToInt32(uitable.Margin.Top);
-            using (Web.DatabaseService web = Helper.CreateWebService())
-            {
-                web.UpdateTableInMoudle(uitable.TableInModule.ToJsonString());
-            }
+
+            Helper.Client.InvokeSync<int>("UpdateTableInMoudle", uitable.TableInModule);
+
             refreshTableRelation();
         }
 

@@ -70,31 +70,25 @@ namespace EJClient.TreeNode
         }
         public void Delete()
         {
-            using (Web.DatabaseService web = Helper.CreateWebService())
-            {
-                web.DeleteDatabase(this.Database.id.GetValueOrDefault());
-                this.Parent.Children.Remove(this);
-            }
+            Helper.Client.InvokeSync<string>("DeleteDatabase", this.Database.id.GetValueOrDefault());
+            this.Parent.Children.Remove(this);
         }
 
         public void OutputAction(string filename)
         {
-            using (Web.DatabaseService web = Helper.CreateWebService())
-            {
-                var dt =   web.GetActions(Database.id.Value);
-                var dset = new System.Data.DataSet();
-                dset.Tables.Add(dt);
-                dset.DataSetName = this.Database.Guid;
-                string path = Path.GetDirectoryName(filename);
-                if (Directory.Exists(path) == false)
-                    Directory.CreateDirectory(path);
-                System.IO.FileStream fs = System.IO.File.Create(filename);
-                dt.WriteXml(fs, System.Data.XmlWriteMode.WriteSchema);
-                fs.Close();
+            var dt = Helper.Client.InvokeSync<Way.EntityDB.WayDataTable>("GetActions", Database.id).ToDataTable();
+            var dset = new System.Data.DataSet();
+            dset.Tables.Add(dt);
+            dset.DataSetName = this.Database.Guid;
+            string path = Path.GetDirectoryName(filename);
+            if (Directory.Exists(path) == false)
+                Directory.CreateDirectory(path);
+            System.IO.FileStream fs = System.IO.File.Create(filename);
+            dt.WriteXml(fs, System.Data.XmlWriteMode.WriteSchema);
+            fs.Close();
 
-                dt.Dispose();
-                dset.Dispose();
-            }
+            dt.Dispose();
+            dset.Dispose();
         }
     }
 }

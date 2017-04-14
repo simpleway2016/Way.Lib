@@ -96,36 +96,35 @@ namespace EJClient.Forms
             try
             {
                 bool postchecked = true;
-                using (Web.DatabaseService web = Helper.CreateWebService())
+
+                for (int i = 0; i < m_dset.Tables.Count; i++)
                 {
-                    for (int i = 0; i < m_dset.Tables.Count; i++)
+                    if (names.Contains(m_dset.Tables[i].TableName))
                     {
-                        if (names.Contains(m_dset.Tables[i].TableName))
+                        int index = 0;
+                        while (true)
                         {
-                            int index = 0;
-                            while (true)
+                            using (DataSet newSet = new DataSet())
                             {
-                                DataSet newSet = new DataSet();
                                 DataTable dtable = CopyData(m_dset.Tables[i], index, 100);
                                 index += 100;
                                 if (dtable.Rows.Count == 0)
                                     break;
                                 newSet.Tables.Add(dtable);
-                                web.ImportData(newSet, m_databaseItemNode.Database.id.Value, postchecked ? firstCheckValue : false);
+
+                                Helper.Client.InvokeSync<string>("ImportData", new Way.EntityDB.WayDataSet(newSet), m_databaseItemNode.Database.id.Value, postchecked ? firstCheckValue : false);
                                 postchecked = false;
                                 done += dtable.Rows.Count;
                                 this.Dispatcher.Invoke(new Action(() =>
-                                    {
-                                        this.Title = "进度:" + (done * 100 / m_total) + "%";
-                                    }));
-                                newSet.Dispose();
-                                
+                                {
+                                    this.Title = "进度:" + (done * 100 / m_total) + "%";
+                                }));
                             }
+
                         }
                     }
-
                 }
-              
+
                 this.Dispatcher.Invoke(new Action(() =>
                 {
                     this.Title = "Import Sucessed!";

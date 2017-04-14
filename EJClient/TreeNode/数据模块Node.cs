@@ -90,15 +90,12 @@ namespace EJClient.TreeNode
 
         public override void ReBindItems()
         {
-            using (Web.DatabaseService web = Helper.CreateWebService())
+            var modules = Helper.Client.InvokeSync<EJ.DBModule[]>("GetDBModuleList", this.Module.DatabaseID.Value, this.Module.id.Value);
+            foreach (var module in modules)
             {
-               var modules = web.GetDBModuleList(this.Module.DatabaseID.Value , this.Module.id.Value).ToJsonObject<EJ.DBModule[]>();
-                foreach (var module in modules)
-                {
-                    DBModuleNode node = new DBModuleNode(this, module);
-                    this.Children.Add(node);
-                    node.ReBindItems();
-                }
+                DBModuleNode node = new DBModuleNode(this, module);
+                this.Children.Add(node);
+                node.ReBindItems();
             }
         }
 
@@ -138,20 +135,17 @@ namespace EJClient.TreeNode
                     parentID = Module.id,
                     IsFolder = isFolder,
                 };
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                try
                 {
-                    try
-                    {
-                        module.id = web.UpdateDBModule(module.ToJsonString());
-                        module.ChangedProperties.Clear();
+                    module.id = Helper.Client.InvokeSync<int>("UpdateDBModule", module);
+                    module.ChangedProperties.Clear();
 
-                        this.Children.Add(new DBModuleNode(this, module));
-                        this.IsExpanded = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(MainWindow.instance, ex.Message);
-                    }
+                    this.Children.Add(new DBModuleNode(this, module));
+                    this.IsExpanded = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(MainWindow.instance, ex.Message);
                 }
             }
         }

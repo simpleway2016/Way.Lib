@@ -32,10 +32,7 @@ namespace EJClient.UI
         {
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    listView.ItemsSource = web.GetMyBugs().ToJsonObject<Way.EntityDB.Design.BugItem[]>();
-                }
+                listView.ItemsSource = Helper.Client.InvokeSync<Way.EntityDB.Design.BugItem[]>("GetMyBugs");
             }
             catch (Exception ex)
             {

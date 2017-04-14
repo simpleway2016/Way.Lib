@@ -31,10 +31,7 @@ namespace EJClient.Search
                 {
                     try
                     {
-                        using (Web.DatabaseService web = Helper.CreateWebService())
-                        {
-                            _Title = "[数据模块]、" + web.GetDBModulePath(this.m_data.ID.Value);
-                        }
+                        _Title = "[数据模块]、" + Helper.Client.InvokeSync<string>("GetDBModulePath", this.m_data.ID.Value);
                     }
                     catch (Exception ex)
                     {

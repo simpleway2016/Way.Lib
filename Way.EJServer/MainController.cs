@@ -60,7 +60,7 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public string CreateProject(string name)
+        public EJ.Project CreateProject(string name)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -73,7 +73,7 @@ namespace Way.EJServer
                     Name = name
                 };
                 db.Update(project);
-                return project.ToJsonString();
+                return project;
             }
         }
         [RemotingMethod]
@@ -170,17 +170,17 @@ namespace Way.EJServer
         /// </summary>
         /// <returns></returns>
         [RemotingMethod]
-        public string GetCurrentUserProjectList()
+        public EJ.Project[] GetCurrentUserProjectList()
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
-                return db.Project.ToList().ToJsonString();
+                return db.Project.ToArray();
             }
         }
         [RemotingMethod]
-        public string GetTablesInModule(int moduleid)
+        public EJ.TableInModule[] GetTablesInModule(int moduleid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -188,14 +188,14 @@ namespace Way.EJServer
             {
                 var result = (from m in db.TableInModule
                               where m.ModuleID == moduleid
-                              select m).ToList();
+                              select m).ToArray();
                 foreach (var tinm in result)
                 {
                     tinm.flag = db.DBTable.FirstOrDefault(m => m.id == tinm.TableID).ToJsonString();
-                    tinm.flag2 = GetColumns(tinm.TableID.Value);
+                    tinm.flag2 = GetColumns(tinm.TableID.Value).ToJsonString();
                 }
 
-                return result.ToJsonString();
+                return result;
             }
         }
         [RemotingMethod]
@@ -373,13 +373,12 @@ namespace Way.EJServer
 
         static System.Reflection.MethodInfo SqlQueryMethod;
         [RemotingMethod]
-        public WayDataTable GetDataTable(byte[] bs, int tableid, int pageindex, int pagesize)
+        public WayDataTable GetDataTable(string sql, int tableid, int pageindex, int pagesize)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                string sql = System.Text.Encoding.UTF8.GetString(bs);
                 var dbtable = db.DBTable.FirstOrDefault(m => m.id == tableid);
                 var database = db.Databases.FirstOrDefault(m => m.id == dbtable.DatabaseID);
                 Way.EntityDB.IDatabaseService invokingDB = DBHelper.CreateInvokeDatabase(database);
@@ -430,24 +429,23 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public string GetDatabase(int databaseid)
+        public EJ.Databases GetDatabase(int databaseid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                return db.Databases.FirstOrDefault(m => m.id == databaseid).ToJsonString();
+                return db.Databases.FirstOrDefault(m => m.id == databaseid);
             }
-            return null;
         }
         [RemotingMethod]
-        public string GetDatabaseList(int projectid)
+        public EJ.Databases[] GetDatabaseList(int projectid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
-                return db.Databases.Where(m => m.ProjectID == projectid).OrderBy(m => m.Name).ToList().ToJsonString();
+                return db.Databases.Where(m => m.ProjectID == projectid).OrderBy(m => m.Name).ToArray();
             }
         }
         [RemotingMethod]
@@ -468,7 +466,7 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public int UpdateTableInMoudle(string tableInModule)
+        public int UpdateTableInMoudle(EJ.TableInModule tableInModule)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -478,31 +476,30 @@ namespace Way.EJServer
                 {
                     db.BeginTransaction();
 
-                    EJ.TableInModule tInM = tableInModule.ToJsonObject<EJ.TableInModule>();
-                    if (tInM.id == null && this.User.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                    if (tableInModule.id == null && this.User.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                         throw new Exception("你没有权限进行此操作");
 
-                    if (tInM.id != null && this.User.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                    if (tableInModule.id != null && this.User.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     {
                         //更新位置的话直接忽略
                         return 0;
                     }
 
-                    if (db.DBTable.Count(m => m.id == tInM.TableID) == 0)
+                    if (db.DBTable.Count(m => m.id == tableInModule.TableID) == 0)
                         throw new Exception("该数据表已被删除");
-                    if (db.DBModule.Count(m => m.id == tInM.ModuleID) == 0)
+                    if (db.DBModule.Count(m => m.id == tableInModule.ModuleID) == 0)
                         throw new Exception("该数据模块已被删除");
 
-                    if (tInM.id == null)
+                    if (tableInModule.id == null)
                     {
-                        if (db.TableInModule.Count(m => m.TableID == tInM.TableID && m.ModuleID == tInM.ModuleID) > 0)
+                        if (db.TableInModule.Count(m => m.TableID == tableInModule.TableID && m.ModuleID == tableInModule.ModuleID) > 0)
                             throw new Exception("该数据表在此模块已经存在");
                     }
 
-                    db.Update(tInM);
+                    db.Update(tableInModule);
 
                     db.CommitTransaction();
-                    return tInM.id.GetValueOrDefault();
+                    return tableInModule.id.GetValueOrDefault();
                 }
                 catch (Exception ex)
                 {
@@ -513,7 +510,7 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public string GetDeleteConfigInModule(int moduleid)
+        public EJ.DBDeleteConfig[] GetDeleteConfigInModule(int moduleid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -525,7 +522,7 @@ namespace Way.EJServer
                 var result = from m in db.DBDeleteConfig
                              where tableids.Contains(m.TableID) && tableids.Contains(m.RelaTableID)
                              select m;
-                return result.ToArray().ToJsonString();
+                return result.ToArray();
             }
         }
 
@@ -560,7 +557,7 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public string GetColumns(int tableid)
+        public EJ.DBColumn[] GetColumns(int tableid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -570,12 +567,12 @@ namespace Way.EJServer
                              where m.TableID == tableid
                              orderby m.orderid
                              select m;
-                return result.ToArray().ToJsonString();
+                return result.ToArray();
             }
         }
 
         [RemotingMethod]
-        public string GetColumnNamesByTableName(string tablename, int databaseid)
+        public string[] GetColumnNamesByTableName(string tablename, int databaseid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -586,54 +583,53 @@ namespace Way.EJServer
                              where t.Name == tablename && t.DatabaseID == databaseid
                              orderby m.orderid
                              select m.Name;
-                return result.ToArray().ToJsonString();
+                return result.ToArray();
             }
         }
         [RemotingMethod]
-        public string GetDBModuleList(int databaseid, int parentid)
+        public EJ.DBModule[] GetDBModuleList(int databaseid, int parentid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                return db.DBModule.Where(m => m.DatabaseID == databaseid && m.parentID == parentid).OrderBy(m => m.Name).ToList().ToJsonString();
+                return db.DBModule.Where(m => m.DatabaseID == databaseid && m.parentID == parentid).OrderBy(m => m.Name).ToArray();
             }
         }
         [RemotingMethod]
-        public string GetTableDeleteConfigList(int tableid)
+        public EJ.DBDeleteConfig[] GetTableDeleteConfigList(int tableid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                var results = db.DBDeleteConfig.Where(m => m.TableID == tableid).ToList();
+                var results = db.DBDeleteConfig.Where(m => m.TableID == tableid).ToArray();
                 foreach (var item in results)
                 {
                     item.RelaTable_Desc = db.DBTable.FirstOrDefault(m => m.id == item.RelaTableID).Name;
                     item.RelaColumn_Desc = db.DBColumn.FirstOrDefault(m => m.id == item.RelaColumID).Name;
                 }
-                return results.ToJsonString();
+                return results;
             }
         }
         [RemotingMethod]
-        public string GetTableIDXIndexList(int tableid)
+        public EJ.IDXIndex[] GetTableIDXIndexList(int tableid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                var results = db.IDXIndex.Where(m => m.TableID == tableid).ToList();
-                return results.ToJsonString();
+                return db.IDXIndex.Where(m => m.TableID == tableid).ToArray();
             }
         }
         [RemotingMethod]
-        public string GetTableList(int databaseid)
+        public EJ.DBTable[] GetTableList(int databaseid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
-                return db.DBTable.Where(m => m.DatabaseID == databaseid).OrderBy(m => m.Name).ToList().ToJsonString();
+                return db.DBTable.Where(m => m.DatabaseID == databaseid).OrderBy(m => m.Name).ToArray();
             }
         }
         [RemotingMethod]
@@ -652,30 +648,27 @@ namespace Way.EJServer
 
         }
         [RemotingMethod]
-        public string GetColumnList(int tableid)
+        public EJ.DBColumn[] GetColumnList(int tableid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                return db.DBColumn.Where(m => m.TableID == tableid).OrderBy(m => m.orderid).ToList().ToJsonString();
+                return db.DBColumn.Where(m => m.TableID == tableid).OrderBy(m => m.orderid).ToArray();
             }
             return null;
         }
         [RemotingMethod]
-        public void ModifyTable(string newtablejson, string nowcolumnsjson, string deleteConfigJson, string idxJson)
+        public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
-                IndexInfo[] idxConfigs = idxJson.ToJsonObject<IndexInfo[]>();
 
-                EJ.DBTable newtable = newtablejson.ToJsonObject<EJ.DBTable>();
                 EJ.DBTable oldtable = db.DBTable.FirstOrDefault(m => m.id == newtable.id);
 
-                EJ.DBColumn[] nowcolumns = nowcolumnsjson.ToJsonObject<EJ.DBColumn[]>();
                 var nowids = (from m in nowcolumns
                               where m.id != null
                               select m.id).ToArray();
@@ -776,7 +769,7 @@ namespace Way.EJServer
 
                     //添加级联删除
                     db.Database.ExecSqlString("delete from DBDeleteConfig where TableID=" + oldtable.id);
-                    EJ.DBDeleteConfig[] delConfigs = deleteConfigJson.ToJsonObject<EJ.DBDeleteConfig[]>();
+
                     foreach (var delconfig in delConfigs)
                     {
                         delconfig.ChangedProperties.Clear();
@@ -838,13 +831,12 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public void DeleteModule(string modulestring)
+        public void DeleteModule(EJ.DBModule module)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
-                EJ.DBModule module = modulestring.ToJsonObject<EJ.DBModule>();
                 db.Delete(module);
             }
         }
@@ -894,7 +886,7 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public int UpdateDBModule(string modulestring)
+        public int UpdateDBModule(EJ.DBModule module)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -905,7 +897,6 @@ namespace Way.EJServer
                 {
                     db.BeginTransaction();
 
-                    EJ.DBModule module = modulestring.ToJsonObject<EJ.DBModule>();
                     if (db.Databases.Count(m => m.id == module.DatabaseID) == 0)
                         throw new Exception("DBModule归属的数据库已被删除");
 
@@ -998,7 +989,7 @@ namespace Way.EJServer
 
 
         [RemotingMethod]
-        public string CreateTable(string tablejson, string columnsJson, string deleteConfigJson, string idxJson)
+        public EJ.DBTable CreateTable(EJ.DBTable table, EJ.DBColumn[] columns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -1006,9 +997,6 @@ namespace Way.EJServer
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
-                EJ.DBTable table = tablejson.ToJsonObject<EJ.DBTable>();
-                EJ.DBColumn[] columns = columnsJson.ToJsonObject<EJ.DBColumn[]>();
-                IndexInfo[] idxConfigs = idxJson.ToJsonObject<IndexInfo[]>();
                 try
                 {
                     db.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
@@ -1054,7 +1042,6 @@ namespace Way.EJServer
                     }
 
                     //添加级联删除
-                    EJ.DBDeleteConfig[] delConfigs = deleteConfigJson.ToJsonObject<EJ.DBDeleteConfig[]>();
                     foreach (var delconfig in delConfigs)
                     {
                         delconfig.ChangedProperties.Clear();
@@ -1082,7 +1069,7 @@ namespace Way.EJServer
                     }
                     db.CommitTransaction();
 
-                    return table.ToJsonString();
+                    return table;
                 }
                 catch (Exception ex)
                 {
@@ -1162,25 +1149,24 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public string GetInterfaceModuleList(int projectid, int parentid)
+        public EJ.InterfaceModule[] GetInterfaceModuleList(int projectid, int parentid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
             using (EJDB_Check db = new EJDB_Check())
             {
-                return db.InterfaceModule.Where(m => m.ProjectID == projectid && m.ParentID == parentid).OrderBy(m => m.Name).ToList().ToJsonString();
+                return db.InterfaceModule.Where(m => m.ProjectID == projectid && m.ParentID == parentid).OrderBy(m => m.Name).ToArray();
             }
         }
         [RemotingMethod]
-        public void DeleteInterfaceModule(string modulestring)
+        public void DeleteInterfaceModule(EJ.InterfaceModule module)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
             using (EJDB db = new EJDB())
             {
-                EJ.InterfaceModule module = modulestring.ToJsonObject<EJ.InterfaceModule>();
                 db.Delete(module);
             }
         }
@@ -1231,7 +1217,7 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public int UpdateInterfaceModule(string modulestring)
+        public int UpdateInterfaceModule(EJ.InterfaceModule module)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -1242,7 +1228,6 @@ namespace Way.EJServer
                 {
                     db.BeginTransaction();
 
-                    EJ.InterfaceModule module = modulestring.ToJsonObject<EJ.InterfaceModule>();
                     if (db.Project.Count(m => m.id == module.ProjectID) == 0)
                         throw new Exception("归属的工程已被删除");
 
@@ -1293,15 +1278,13 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public int UpdateInterfaceInModule(string mJonsString)
+        public int UpdateInterfaceInModule(EJ.InterfaceInModule module)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
             using (EJDB db = new EJDB())
             {
-
-                EJ.InterfaceInModule module = mJonsString.ToJsonObject<EJ.InterfaceInModule>();
                 var docModule = db.InterfaceModule.FirstOrDefault(m => m.id == module.ModuleID);
                 if (docModule.LockUserId != null && docModule.LockUserId != this.User.id)
                 {
@@ -1312,14 +1295,13 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public void DeleteInterfaceInModule(string mJonsString)
+        public void DeleteInterfaceInModule(EJ.InterfaceInModule module)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
             using (EJDB db = new EJDB())
             {
-                EJ.InterfaceInModule module = mJonsString.ToJsonObject<EJ.InterfaceInModule>();
                 var docModule = db.InterfaceModule.FirstOrDefault(m => m.id == module.ModuleID);
                 if (docModule.LockUserId != null && docModule.LockUserId != this.User.id)
                 {
@@ -1330,15 +1312,14 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public string GetInterfaceInModule(int moduleid)
+        public EJ.InterfaceInModule[] GetInterfaceInModule(int moduleid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
             using (EJDB_Check db = new EJDB_Check())
             {
-                var modules = db.InterfaceInModule.Where(m => m.ModuleID == moduleid).ToList();
-                return modules.ToJsonString();
+                return db.InterfaceInModule.Where(m => m.ModuleID == moduleid).ToArray();
             }
         }
         [RemotingMethod]
@@ -1401,14 +1382,14 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public string Search(string key, int pagesize, int pageindex)
+        public SearchContent[] Search(string key, int pagesize, int pageindex)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
             using (EJDB_Check db = new EJDB_Check())
             {
-                return db.SearchContents.Where(m => m.Content.Contains(key)).OrderBy(m => m.Type).Skip(pagesize * pageindex).Take(pagesize).ToList().ToJsonString();
+                return db.SearchContents.Where(m => m.Content.Contains(key)).OrderBy(m => m.Type).Skip(pagesize * pageindex).Take(pagesize).ToArray();
             }
         }
 
@@ -1473,7 +1454,7 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public string GetMyBugs()
+        public BugItem[] GetMyBugs()
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -1495,13 +1476,13 @@ namespace Way.EJServer
                                 SubmitUserID = m.SubmitUserID,
                                 HandlerUserName = db.User.Where(p => p.id == m.HandlerID).Select(p => p.Name).FirstOrDefault(),
                             };
-                return query.Take(50).ToArray().ToJsonString();
+                return query.Take(50).ToArray();
             }
 
         }
 
         [RemotingMethod]
-        public string GetBugHistories(int bugid)
+        public BugHistoryItem[] GetBugHistories(int bugid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -1518,12 +1499,12 @@ namespace Way.EJServer
                                 SubmitTime = m.SendTime,
                                 UserName = u.Name,
                             };
-                return query.ToArray().ToJsonString();
+                return query.ToArray();
             }
         }
 
         [RemotingMethod]
-        public byte[] GetBugPicture(int bugid)
+        public string GetBugPicture(int bugid)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
@@ -1531,7 +1512,7 @@ namespace Way.EJServer
             {
                 var pic = db.BugImages.FirstOrDefault(m => m.BugID == bugid);
                 if (pic != null)
-                    return pic.content;
+                    return Convert.ToBase64String( pic.content);
             }
             return null;
         }
@@ -1583,11 +1564,11 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public string GetUpdateFileList()
+        public FileInfo[] GetUpdateFileList()
         {
             string folder = $"{WebRoot}/updates";
             if (System.IO.Directory.Exists(folder) == false)
-                return "[]";
+                return new FileInfo[0];
             List<FileInfo> fileinfos = new List<FileInfo>();
             var files = System.IO.Directory.GetFiles(folder);
             foreach (string filepath in files)
@@ -1605,7 +1586,7 @@ namespace Way.EJServer
                     });
                 }
             }
-            return fileinfos.ToArray().ToJsonString();
+            return fileinfos.ToArray();
         }
         /// <summary>
         /// 
@@ -1613,13 +1594,16 @@ namespace Way.EJServer
         /// <param name="savepath">可能是: x86\lib\test.dll形式</param>
         /// <returns></returns>
         [RemotingMethod]
-        public byte[] DownLoadFile(string savepath)
+        public string DownLoadFile(string savepath)
         {
-            return System.IO.File.ReadAllBytes($"{WebRoot}/updates/{savepath}");
+            savepath = savepath.Replace("\\", "/");
+            while (savepath.StartsWith("/"))
+                savepath = savepath.Substring(1);
+            return Convert.ToBase64String( System.IO.File.ReadAllBytes($"{WebRoot}/updates/{savepath}"));
         }
     }
 
-    class FileInfo
+    public class FileInfo
     {
         public string SavePath;
         public string FileName;

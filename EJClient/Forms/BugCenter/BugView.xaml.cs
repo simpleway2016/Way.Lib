@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Way.EntityDB.Design;
 
 namespace EJClient.Forms.BugCenter
 {
@@ -53,16 +54,32 @@ namespace EJClient.Forms.BugCenter
         {
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.GetBugHistoriesCompleted += web_GetBugHistoriesCompleted;
-                    web.GetBugHistoriesAsync(BugID);
-                }
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.GetBugPictureCompleted += web_GetBugPictureCompleted;
-                    web.GetBugPictureAsync(BugID);
-                }
+                Helper.Client.Invoke<BugHistoryItem[]>("GetBugHistories", (result,error) => {
+                    historiesPanel.Children.Clear();
+                    if (error != null)
+                        Helper.ShowError(error);
+                    else
+                    {
+                        foreach (var data in result)
+                        {
+                            HistoryItem control = new HistoryItem(data, historiesPanel.ActualWidth);
+
+                            historiesPanel.Children.Add(control);
+                        }
+
+                    }
+                }, BugID);
+
+                Helper.Client.Invoke<string>("GetBugPicture", (result, error) => {
+                    if (error != null)
+                        Helper.ShowError(error);
+                    else
+                    {
+                        if(result != null)
+                        bugEditor.Load(Convert.FromBase64String(result));
+                    }
+                }, BugID);
+                
             }
             catch (Exception ex)
             {
@@ -70,33 +87,6 @@ namespace EJClient.Forms.BugCenter
             }
         }
 
-        void web_GetBugPictureCompleted(object sender, Web.GetBugPictureCompletedEventArgs e)
-        {
-            if (e.Error != null)
-                Helper.ShowError(e.Error);
-            else
-            {
-                bugEditor.Load(e.Result);
-            }
-        }
-
-        void web_GetBugHistoriesCompleted(object sender, Web.GetBugHistoriesCompletedEventArgs e)
-        {
-            historiesPanel.Children.Clear();
-            if (e.Error != null)
-                Helper.ShowError(e.Error);
-            else
-            {
-                Way.EntityDB.Design.BugHistoryItem[] result = e.Result.ToJsonObject<Way.EntityDB.Design.BugHistoryItem[]>();
-                foreach (var data in result)
-                {
-                    HistoryItem control = new HistoryItem(data , historiesPanel.ActualWidth);
-                
-                    historiesPanel.Children.Add(control);
-                }
-
-            }
-        }
 
         private void Finish_Click_1(object sender, RoutedEventArgs e)
         {
@@ -104,10 +94,8 @@ namespace EJClient.Forms.BugCenter
             {
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.BugFinish(BugID);
-                    }
+                    Helper.Client.InvokeSync<string>("BugFinish", BugID);
+                    
                     this.DialogResult = true;
                     this.Close();
                 }
@@ -128,10 +116,8 @@ namespace EJClient.Forms.BugCenter
             
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.SubmitHistory(BugID, txtContent);
-                }
+                Helper.Client.InvokeSync<string>("SubmitHistory", BugID, txtContent);
+                
                 this.DialogResult = true;
                 this.Close();
             }

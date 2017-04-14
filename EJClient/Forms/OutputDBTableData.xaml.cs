@@ -46,15 +46,16 @@ namespace EJClient.Forms
                         sf.Filter = "*.xml|*.xml";
                         if (sf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         {
-                            using (Web.DatabaseService web = Helper.CreateWebService())
-                            {
-                                using (var dataset = web.GetDataSet(tableids.ToArray()))
-                                {
-                                    dataset.WriteXml(sf.FileName, System.Data.XmlWriteMode.WriteSchema);
-                                }
-                                MessageBox.Show(this, "Output Sucessed!");
-                                this.Close();
-                            }
+                            MessageBox.Show(this, "未实现");
+                            //using (Web.DatabaseService web = Helper.CreateWebService())
+                            //{
+                            //    using (var dataset = web.GetDataSet(tableids.ToArray()))
+                            //    {
+                            //        dataset.WriteXml(sf.FileName, System.Data.XmlWriteMode.WriteSchema);
+                            //    }
+                            //    MessageBox.Show(this, "Output Sucessed!");
+                            //    this.Close();
+                            //}
                         }
                     }
                 }

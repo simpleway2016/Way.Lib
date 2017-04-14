@@ -19,23 +19,20 @@ namespace EJClient.Search
         {
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                int moduleid = Helper.Client.InvokeSync<int>("GetDBModuleID", this.m_data.ID.Value);
+                if (moduleid != 0)
                 {
-                    int moduleid = web.GetDBModuleID(this.m_data.ID.Value);
-                    if (moduleid != 0)
+                    TreeNode.DBModuleNode node = MainWindow.instance.FindDBModule(moduleid);
+                    if (node != null)
                     {
-                        TreeNode.DBModuleNode node = MainWindow.instance.FindDBModule(moduleid);
-                        if (node != null)
-                        {
-                            node.ShowTable(this.m_data.ID.Value);
-                        }
+                        node.ShowTable(this.m_data.ID.Value);
                     }
-                    else
-                    {
-                        TreeNode.DBTableNode tableNode = MainWindow.instance.FindDBTable(m_data.ID.Value);
-                        if (tableNode != null)
-                            tableNode.OnDoubleClick(null, null);
-                    }
+                }
+                else
+                {
+                    TreeNode.DBTableNode tableNode = MainWindow.instance.FindDBTable(m_data.ID.Value);
+                    if (tableNode != null)
+                        tableNode.OnDoubleClick(null, null);
                 }
             }
             catch (Exception ex)
@@ -52,10 +49,7 @@ namespace EJClient.Search
                 {
                     try
                     {
-                        using (Web.DatabaseService web = Helper.CreateWebService())
-                        {
-                            _Title = "[数据表]、" + web.GetDBTablePath(this.m_data.ID.Value);
-                        }
+                        _Title = "[数据表]、" + Helper.Client.InvokeSync<string>("GetDBTablePath", this.m_data.ID.Value);
                     }
                     catch (Exception ex)
                     {

@@ -88,15 +88,12 @@ namespace EJClient.TreeNode
 
         public override void ReBindItems()
         {
-            using (Web.DatabaseService web = Helper.CreateWebService())
+            var modules = Helper.Client.InvokeSync<EJ.InterfaceModule[]>("GetInterfaceModuleList", this.Module.ProjectID.Value, this.Module.id.Value);
+            foreach (var module in modules)
             {
-                var modules = web.GetInterfaceModuleList(this.Module.ProjectID.Value, this.Module.id.Value).ToJsonObject<EJ.InterfaceModule[]>();
-                foreach (var module in modules)
-                {
-                    InterfaceItemNode node = new InterfaceItemNode( module , this);
-                    this.Children.Add(node);
-                    node.ReBindItems();
-                }
+                InterfaceItemNode node = new InterfaceItemNode(module, this);
+                this.Children.Add(node);
+                node.ReBindItems();
             }
         }
 
@@ -120,20 +117,17 @@ namespace EJClient.TreeNode
                     ParentID = Module.id,
                     IsFolder = isFolder,
                 };
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                try
                 {
-                    try
-                    {
-                        module.id = web.UpdateInterfaceModule(module.ToJsonString());
-                        module.ChangedProperties.Clear();
+                    module.id = Helper.Client.InvokeSync<int>("UpdateInterfaceModule", module);
+                    module.ChangedProperties.Clear();
 
-                        this.Children.Add(new InterfaceItemNode( module , this ));
-                        this.IsExpanded = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(MainWindow.instance, ex.Message);
-                    }
+                    this.Children.Add(new InterfaceItemNode(module, this));
+                    this.IsExpanded = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(MainWindow.instance, ex.Message);
                 }
             }
         }

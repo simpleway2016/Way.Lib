@@ -46,7 +46,7 @@ namespace EJClient
             {
                 string url = txtAddress.Text;
                 while (url.EndsWith("/"))
-                    url = url.Substring(0, Helper.WebSite.Length - 1);
+                    url = url.Substring(0, url.Length - 1);
                 Helper.Client = new Net.RemotingClient(url);
                 Helper.Client.Invoke<int[]>("Login", (result, error) =>
                {
@@ -57,6 +57,7 @@ namespace EJClient
                    }
                    else
                    {
+                       Helper.WebSite = url;
                        Helper.CurrentUserRole = (EJ.User_RoleEnum)result[0];
                        Helper.CurrentUserID = result[1];
                        System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "url.txt", new logininfo()

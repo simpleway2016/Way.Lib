@@ -41,16 +41,16 @@ namespace EJClient.UI
             web = new AppLib.WindowsControl.ExtendedWebBrowser();
             web.Dock = DockStyle.Fill;
             this.Controls.Add(web);
-            string url = Helper.WebSite + "/WebForm/bug/mybuglist.aspx";
-            var cookies = Helper.CookieContainer.GetCookies(new Uri(url));
-            for (int i = 0; i < cookies.Count; i++)
-            {
-                var cookie = cookies[i];
-                AppLib.WindowsControl.ExtendedWebBrowser.InternetSetCookie(url, cookie.Name, cookie.Value);
-            }
+            //string url = Helper.WebSite + "/WebForm/bug/mybuglist.aspx";
+            //var cookies = Helper.CookieContainer.GetCookies(new Uri(url));
+            //for (int i = 0; i < cookies.Count; i++)
+            //{
+            //    var cookie = cookies[i];
+            //    AppLib.WindowsControl.ExtendedWebBrowser.InternetSetCookie(url, cookie.Name, cookie.Value);
+            //}
 
-            web.DocumentCompleted += web_DocumentCompleted;
-            web.Navigate(url);
+            //web.DocumentCompleted += web_DocumentCompleted;
+            //web.Navigate(url);
         }
 
         void web_DocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e)

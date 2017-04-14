@@ -24,24 +24,18 @@ namespace EJClient.UI
         {
             InitializeComponent();
             this.Header = "Search:" + key;
-            using (Web.DatabaseService web = Helper.CreateWebService())
-            {
-                web.SearchCompleted += web_SearchCompleted;
-                web.SearchAsync(key , 50 , 0);
-            }
+            Helper.Client.Invoke<SearchContent[]>("Search" , (datas,error)=> {
+                txtLoading.Visibility = System.Windows.Visibility.Collapsed;
+                if (error != null)
+                {
+                    MessageBox.Show(MainWindow.instance, error);
+                    return;
+                }
+                list.ItemsSource = datas;
+            } , key, 50, 0);
+           
         }
-
-        void web_SearchCompleted(object sender, Web.SearchCompletedEventArgs e)
-        {
-            if (e.Error != null)
-            {
-                MessageBox.Show(MainWindow.instance, e.Error.Message);
-                return;
-            }
-            txtLoading.Visibility = System.Windows.Visibility.Collapsed;
-            var datas = e.Result.ToJsonObject<SearchContent[]>();
-            list.ItemsSource = datas;
-        }
+        
     }
 
     class SearchContent

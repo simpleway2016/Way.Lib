@@ -27,29 +27,28 @@ namespace EJClient
             try
             {
                 bool hasUpdated = false;
-                using (Web.DatabaseService web = new Web.DatabaseService())
-                {
-                    var fileinfos = web.GetUpdateFileList().ToJsonObject<FileInfo[]>();
 
-                    foreach (var item in fileinfos)
+                var fileinfos = Helper.Client.InvokeSync<FileInfo[]>("GetUpdateFileList");
+
+                foreach (var item in fileinfos)
+                {
+                    if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + item.SavePath) == false)
                     {
-                        if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + item.SavePath) == false)
+                        downloadFile(item.SavePath);
+                        hasUpdated = true;
+                    }
+                    else
+                    {
+                        var serverTime = DateTime.FromFileTime(item.LastWriteTime);
+                        var myFileInfo = new System.IO.FileInfo(AppDomain.CurrentDomain.BaseDirectory + item.SavePath);
+                        if (myFileInfo.LastWriteTime < serverTime)
                         {
-                            downloadFile(web , item.SavePath);
+                            downloadFile(item.SavePath);
                             hasUpdated = true;
-                        }
-                        else
-                        {
-                            var serverTime = DateTime.FromFileTime(item.LastWriteTime);
-                            var myFileInfo = new System.IO.FileInfo(AppDomain.CurrentDomain.BaseDirectory + item.SavePath);
-                            if (myFileInfo.LastWriteTime < serverTime)
-                            {
-                                downloadFile(web , item.SavePath);
-                                hasUpdated = true;
-                            }
                         }
                     }
                 }
+
                 if (hasUpdated)
                 {
                     Application.Current.Dispatcher.Invoke(delegate
@@ -84,16 +83,18 @@ namespace EJClient
             }
         }
 
-        void downloadFile(Web.DatabaseService web , string savepath)
+        void downloadFile(string savepath)
         {
+            var filecontent = Helper.Client.InvokeSync<string>("DownLoadFile" , savepath);
+
             if (System.IO.Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "updates") == false)
                 System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "updates");
             if (savepath.ToLower() == "copy.exe")
             {
-                System.IO.File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + savepath, web.DownLoadFile(savepath));
+                System.IO.File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + savepath,Convert.FromBase64String(filecontent));
             }
             else
-            System.IO.File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "updates" + "\\" + savepath, web.DownLoadFile(savepath));
+            System.IO.File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "updates" + "\\" + savepath, Convert.FromBase64String(filecontent));
         }
 
         internal static void Update()

@@ -34,24 +34,20 @@ namespace EJClient.Forms
             try
             {
                 StringBuilder fieldString = new StringBuilder();
-                string formatString = null;
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                string formatString = Helper.Client.InvokeSync<string>("GetObjectFormat", table.id.Value);
+                var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", table.id.Value);
+                try
                 {
-                    formatString = web.GetObjectFormat(table.id.Value);
-                    var columns = web.GetColumnList(table.id.Value).ToJsonObject<EJ.DBColumn[]>();
-                    try
-                    {
-                        m_pkName = columns.FirstOrDefault(m => m.IsPKID == true).Name;
-                    }
-                    catch
-                    {
-                    }
-                    foreach (var column in columns)
-                    {
-                        if (fieldString.Length > 0)
-                            fieldString.Append(',');
-                        fieldString.Append(string.Format(formatString , column.Name));
-                    }
+                    m_pkName = columns.FirstOrDefault(m => m.IsPKID == true).Name;
+                }
+                catch
+                {
+                }
+                foreach (var column in columns)
+                {
+                    if (fieldString.Length > 0)
+                        fieldString.Append(',');
+                    fieldString.Append(string.Format(formatString, column.Name));
                 }
 
                 richTextBox1.Text = string.Format("select {1} from {0}", string.Format(formatString, table.Name), fieldString);
@@ -93,56 +89,53 @@ namespace EJClient.Forms
             this.Cursor = Cursors.WaitCursor;
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                var dt = Helper.Client.InvokeSync<Way.EntityDB.WayDataTable>("GetDataTable", richTextBox1.Text, m_Table.id.Value, pageindex, pagesize).ToDataTable();
+                int rowcount = dt.TableName.ToInt();
+                dt.AcceptChanges();
+                deletedIds.Clear();
+                dataGridView1.DataSource = dt;
+                bool addChk = false;
+                if (checkedListBox1.Items.Count != dt.Columns.Count)
                 {
-                    var dt = web.GetDataTable(System.Text.Encoding.UTF8.GetBytes(richTextBox1.Text), m_Table.id.Value, pageindex, pagesize);
-                    int rowcount = dt.TableName.ToInt();
-                    dt.AcceptChanges();
-                    deletedIds.Clear();
-                    dataGridView1.DataSource = dt;
-                    bool addChk = false;
-                    if (checkedListBox1.Items.Count != dt.Columns.Count)
-                    {
-                        addChk = true;
-                        while (checkedListBox1.Items.Count > 1)
-                            checkedListBox1.Items.RemoveAt(1);
-                        
-                    }
+                    addChk = true;
+                    while (checkedListBox1.Items.Count > 1)
+                        checkedListBox1.Items.RemoveAt(1);
 
-                    for (int i = 0; i < dt.Columns.Count; i++)
-                    {
-                        if (addChk)
-                        {
-                            checkedListBox1.Items.Add(dt.Columns[i].ColumnName, notSelecteds.Contains(dt.Columns[i].ColumnName) ? false : true);
-                        }
-
-                        if (dt.Columns[i].DataType == typeof(DateTime))
-                        {
-                            dataGridView1.Columns[i].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
-                        }
-                        else if (dt.Columns[i].DataType == typeof(bool))
-                        {
-                            dataGridView1.Columns[i].DefaultCellStyle.Format = "{0}";
-                        }
-                    }
-
-                        pagecount = rowcount / pagesize;
-                    if (rowcount % pagesize > 0)
-                        pagecount++;
-
-                    bindingNavigator1.Enabled = true;
-                    bindingNavigatorCountItem.Text = "/ " + pagecount;
-                    bindingNavigatorPositionItem.Text = Convert.ToString(pageindex + 1);
-                    bindingNavigatorPositionItem.Enabled = true;
-
-                    bindingNavigatorMovePreviousItem.Enabled = pageindex > 0;
-                    bindingNavigatorMoveFirstItem.Enabled = pageindex > 0;
-
-                    bindingNavigatorMoveNextItem.Enabled = pageindex < pagecount - 1;
-                    bindingNavigatorMoveLastItem.Enabled = bindingNavigatorMoveNextItem.Enabled;
-
-                    hideGridColumn();
                 }
+
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    if (addChk)
+                    {
+                        checkedListBox1.Items.Add(dt.Columns[i].ColumnName, notSelecteds.Contains(dt.Columns[i].ColumnName) ? false : true);
+                    }
+
+                    if (dt.Columns[i].DataType == typeof(DateTime))
+                    {
+                        dataGridView1.Columns[i].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
+                    }
+                    else if (dt.Columns[i].DataType == typeof(bool))
+                    {
+                        dataGridView1.Columns[i].DefaultCellStyle.Format = "{0}";
+                    }
+                }
+
+                pagecount = rowcount / pagesize;
+                if (rowcount % pagesize > 0)
+                    pagecount++;
+
+                bindingNavigator1.Enabled = true;
+                bindingNavigatorCountItem.Text = "/ " + pagecount;
+                bindingNavigatorPositionItem.Text = Convert.ToString(pageindex + 1);
+                bindingNavigatorPositionItem.Enabled = true;
+
+                bindingNavigatorMovePreviousItem.Enabled = pageindex > 0;
+                bindingNavigatorMoveFirstItem.Enabled = pageindex > 0;
+
+                bindingNavigatorMoveNextItem.Enabled = pageindex < pagecount - 1;
+                bindingNavigatorMoveLastItem.Enabled = bindingNavigatorMoveNextItem.Enabled;
+
+                hideGridColumn();
             }
             catch (Exception ex)
             {
@@ -241,11 +234,8 @@ namespace EJClient.Forms
 
                 if (dt != null)
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.SaveDataTable(dt, m_Table.id.Value, deletedIds.ToArray());
-                        deletedIds.Clear();
-                    }
+                    Helper.Client.InvokeSync<string>("SaveDataTable", new Way.EntityDB.WayDataTable(dt), m_Table.id.Value, deletedIds.ToArray());
+                    deletedIds.Clear();
                     dt.Dispose();
                     oldsource.AcceptChanges();
                 }

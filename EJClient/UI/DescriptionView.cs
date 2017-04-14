@@ -124,10 +124,7 @@ namespace EJClient.UI
             try
             {
                 InterfaceInModule.JsonData = m_jsonObj.ToJsonString();
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.UpdateInterfaceInModule(InterfaceInModule.ToJsonString());
-                }
+                Helper.Client.InvokeSync<string>("UpdateInterfaceInModule", InterfaceInModule);
 
                 m_grid.Children.Remove(arrow);
             }
@@ -290,18 +287,15 @@ namespace EJClient.UI
             {
                 if (MessageBox.Show("确定删除吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.DeleteInterfaceInModule(this.InterfaceInModule.ToJsonString());
-                        Panel parent = this.Parent as Panel;
-                        parent.Children.Remove(this);
+                    Helper.Client.InvokeSync<string>("DeleteInterfaceInModule", this.InterfaceInModule);
+                    Panel parent = this.Parent as Panel;
+                    parent.Children.Remove(this);
 
-                        foreach (FrameworkElement control in parent.Children)
+                    foreach (FrameworkElement control in parent.Children)
+                    {
+                        if (control is DescriptionView)
                         {
-                            if (control is DescriptionView)
-                            {
-                                ((DescriptionView)control).ResetConnects();
-                            }
+                            ((DescriptionView)control).ResetConnects();
                         }
                     }
                 }
@@ -345,10 +339,7 @@ namespace EJClient.UI
                 arrow.Text = connect.Text;
 
                 InterfaceInModule.JsonData = m_jsonObj.ToJsonString();
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.UpdateInterfaceInModule(InterfaceInModule.ToJsonString());
-                }
+                Helper.Client.InvokeSync<string>("UpdateInterfaceInModule", InterfaceInModule);
             }
         }
 
@@ -441,10 +432,7 @@ namespace EJClient.UI
                 try
                 {
                     InterfaceInModule.JsonData = m_jsonObj.ToJsonString();
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.UpdateInterfaceInModule(InterfaceInModule.ToJsonString());
-                    }
+                    Helper.Client.InvokeSync<string>("UpdateInterfaceInModule", InterfaceInModule);
                     afterMoving();
                 }
                 catch (Exception ex)
@@ -599,10 +587,7 @@ namespace EJClient.UI
                     InterfaceInModule.width = (int)this.Width;
                     InterfaceInModule.height = (int)this.Height;
                 }
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.UpdateInterfaceInModule( InterfaceInModule.ToJsonString() );
-                }
+                Helper.Client.InvokeSync<string>("UpdateInterfaceInModule", InterfaceInModule);
 
                 if (m_titleMoving)
                 {
@@ -652,10 +637,7 @@ namespace EJClient.UI
                         InterfaceInModule.JsonData = m_jsonObj.ToJsonString();
                         try
                         {
-                            using (Web.DatabaseService web = Helper.CreateWebService())
-                            {
-                                web.UpdateInterfaceInModule(InterfaceInModule.ToJsonString());
-                            }
+                            Helper.Client.InvokeSync<string>("UpdateInterfaceInModule", InterfaceInModule);
                         }
                         catch (Exception ex)
                         {

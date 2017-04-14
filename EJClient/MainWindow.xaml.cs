@@ -42,17 +42,15 @@ namespace EJClient
         {
             tree1.Items.Clear();
             ProjectList = new System.Collections.ObjectModel.ObservableCollection<TreeNodeBase>();
-            using (var web = Helper.CreateWebService())
+
+            var projects = Helper.Client.InvokeSync<EJ.Project[]>("GetCurrentUserProjectList");
+            foreach (var project in projects)
             {
-              
-                var projects = web.GetCurrentUserProjectList().ToJsonObject<EJ.Project[]>();
-                foreach (var project in projects)
-                {
-                    ProjectNode node = new ProjectNode(project);
-                    ProjectList.Add(node);
-                    pnode = node;
-                }
+                ProjectNode node = new ProjectNode(project);
+                ProjectList.Add(node);
+                pnode = node;
             }
+
             if (ProjectList.Count == 1)
             {
                 ProjectList[0].IsExpanded = true;
@@ -312,11 +310,8 @@ namespace EJClient
                 ProjectNode projectNode = (ProjectNode)tree1.SelectedItem;
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.DeleteProject(projectNode.Project.id.Value );
-                        this.ProjectList.Remove(projectNode);
-                    }
+                    Helper.Client.InvokeSync<string>("DeleteProject", projectNode.Project.id.Value);
+                    this.ProjectList.Remove(projectNode);
                 }
                 catch (Exception ex)
                 {
@@ -333,12 +328,9 @@ namespace EJClient
             {
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        web.UpdateProject(projectNode.Project.id.Value, inputBox.Value.Trim());
-                        projectNode.Project.Name = inputBox.Value.Trim();
-                        projectNode.Name = projectNode.Project.Name;
-                    }
+                    Helper.Client.InvokeSync<string>("UpdateProject", projectNode.Project.id.Value, inputBox.Value.Trim());
+                    projectNode.Project.Name = inputBox.Value.Trim();
+                    projectNode.Name = projectNode.Project.Name;
                 }
                 catch (Exception ex)
                 {
@@ -493,10 +485,7 @@ namespace EJClient
                 }
                 if (parentid >= 0 && (((DBModuleNode)m_drogItem).Module.parentID != parentid))
                 {
-                    using (var web = Helper.CreateWebService())
-                    {
-                        web.ChangeModuleParent(((DBModuleNode)m_drogItem).Module.id.Value, parentid);
-                    }
+                    Helper.Client.InvokeSync<string>("ChangeModuleParent", ((DBModuleNode)m_drogItem).Module.id.Value, parentid);
                     ((DBModuleNode)m_drogItem).Module.parentID = parentid;
                     m_drogItem.Parent.Children.Remove(m_drogItem);
                     selectedItem.Children.Add(m_drogItem);
@@ -626,12 +615,9 @@ namespace EJClient
                 try
                 {
 
-                    using (Web.DatabaseService web = Helper.CreateWebService())
-                    {
-                        var project = web.CreateProject(inputBox.Value.Trim()).ToJsonObject<EJ.Project>();
-                        TreeNode.ProjectNode node = new ProjectNode(project);
-                        this.ProjectList.Add(node);
-                    }
+                    var project = Helper.Client.InvokeSync<EJ.Project>("CreateProject", inputBox.Value.Trim());
+                    TreeNode.ProjectNode node = new ProjectNode(project);
+                    this.ProjectList.Add(node);
                 }
                 catch (Exception ex)
                 {

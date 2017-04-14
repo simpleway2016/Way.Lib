@@ -20,13 +20,6 @@ namespace EJClient
            
             InitializeComponent();
 
-            var cookies = Helper.CookieContainer.GetCookies(new Uri(url));
-            for (int i = 0; i < cookies.Count; i++)
-            {
-                var cookie = cookies[i];
-                AppLib.WindowsControl.ExtendedWebBrowser.InternetSetCookie(url, cookie.Name, cookie.Value);
-            }
-
             web.Navigate(URL);
         }
     }

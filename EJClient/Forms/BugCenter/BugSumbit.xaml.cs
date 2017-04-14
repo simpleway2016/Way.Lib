@@ -72,10 +72,7 @@ namespace EJClient.Forms.BugCenter
                     picContents = m_PictureSelector.Editor.GetContent();
                 }
                 this.Cursor = Cursors.Wait;
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.SubmitBug( txtTitle.Text, textContent, picContents);
-                }
+                Helper.Client.InvokeSync<string>("SubmitBug", txtTitle.Text, textContent, picContents);
                 Helper.ShowMessage(this,"成功提交");
                 this.Close();
             }

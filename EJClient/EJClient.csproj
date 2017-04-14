@@ -326,11 +326,6 @@
     <Compile Include="UI\Table.xaml.cs">
       <DependentUpon>Table.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Web References\Web\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="WebForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -475,36 +470,12 @@
     </None>
     <AppDesigner Include="Properties\" />
     <None Include="Shapes\Arrows\Arrow.cd" />
-    <None Include="Web References\Web\DatabaseService.wsdl" />
-    <None Include="Web References\Web\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferences Include="Web References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:889/DatabaseService.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Web\</RelPath>
-      <UpdateFromURL>http://localhost:889/DatabaseService.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>EJClient_Web_DatabaseService</CachedSettingsPropName>
-    </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\Web\DatabaseService.disco" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="imgs\dbitem.png" />

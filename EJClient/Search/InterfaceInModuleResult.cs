@@ -16,17 +16,14 @@ namespace EJClient.Search
         }
         public void Show()
         {
-            using (Web.DatabaseService web = Helper.CreateWebService())
+            int moduleid = Helper.Client.InvokeSync<int>("GetInterfaceModuleID", m_data.ID.GetValueOrDefault());
+            if (moduleid != 0)
             {
-                int moduleid = web.GetInterfaceModuleID(m_data.ID.GetValueOrDefault());
-                if (moduleid != 0)
-                {
 
-                    TreeNode.InterfaceItemNode itemNode = MainWindow.instance.FindInterfaceModule(moduleid);
-                    if (itemNode != null)
-                    {
-                        itemNode.ShowItem(m_data.ID.GetValueOrDefault());
-                    }
+                TreeNode.InterfaceItemNode itemNode = MainWindow.instance.FindInterfaceModule(moduleid);
+                if (itemNode != null)
+                {
+                    itemNode.ShowItem(m_data.ID.GetValueOrDefault());
                 }
             }
         }
@@ -39,10 +36,7 @@ namespace EJClient.Search
                 {
                     try
                     {
-                        using (Web.DatabaseService web = Helper.CreateWebService())
-                        {
-                            _Title = "[接口说明]、" + web.GetInterfaceInModulePath(this.m_data.ID.Value);
-                        }
+                        _Title = "[接口说明]、" + Helper.Client.InvokeSync<string>("GetInterfaceInModulePath", this.m_data.ID.Value);
                     }
                     catch (Exception ex)
                     {

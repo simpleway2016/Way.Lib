@@ -13,28 +13,28 @@ namespace EJClient.OldVersionService
     {
         public static void import(string configFile,int projectid,TreeNode.DatabaseNode parentNode)
         {
-            string xsl = Regex.Replace(configFile, @"(\.config)$", ".xsl", RegexOptions.IgnoreCase);
-            DataSet dataset = new DataSet();
-            dataset.ReadXmlSchema(xsl);
+            //string xsl = Regex.Replace(configFile, @"(\.config)$", ".xsl", RegexOptions.IgnoreCase);
+            //DataSet dataset = new DataSet();
+            //dataset.ReadXmlSchema(xsl);
 
-            ProjectConfig proConfig = System.IO.File.ReadAllText(Regex.Replace(configFile, @"(\.config)$", ".pro", RegexOptions.IgnoreCase)).ToJsonObject<ProjectConfig>();
-            EJ.Databases database = new EJ.Databases();
-            database.ProjectID = projectid;
-            database.Name = proConfig.DataBaseName;
-            database.NameSpace = proConfig.NameSpace;
-            database.dllPath = proConfig.ClassFileFolder;
-            database.conStr = string.Format("server={0};uid={1};pwd={2};database={3}", proConfig.DataServerName, proConfig.DataUserName, proConfig.DataPassword, proConfig.DataBaseName);
-            database.dbType = (EJ.Databases_dbTypeEnum)(int)Way.EntityDB.DatabaseType.SqlServer;
+            //ProjectConfig proConfig = System.IO.File.ReadAllText(Regex.Replace(configFile, @"(\.config)$", ".pro", RegexOptions.IgnoreCase)).ToJsonObject<ProjectConfig>();
+            //EJ.Databases database = new EJ.Databases();
+            //database.ProjectID = projectid;
+            //database.Name = proConfig.DataBaseName;
+            //database.NameSpace = proConfig.NameSpace;
+            //database.dllPath = proConfig.ClassFileFolder;
+            //database.conStr = string.Format("server={0};uid={1};pwd={2};database={3}", proConfig.DataServerName, proConfig.DataUserName, proConfig.DataPassword, proConfig.DataBaseName);
+            //database.dbType = (EJ.Databases_dbTypeEnum)(int)Way.EntityDB.DatabaseType.SqlServer;
 
-            XMLReadAndWrite xrw = new XMLReadAndWrite();
-            xrw.Read(configFile, dataset);
+            //XMLReadAndWrite xrw = new XMLReadAndWrite();
+            //xrw.Read(configFile, dataset);
 
-            using (Web.DatabaseService web = Helper.CreateWebService())
-            {
-                database.id = web.ImportDatabaseConfig(projectid, database.ToJsonString(), dataset);
-                database.ChangedProperties.Clear();
-                parentNode.Children.Add(new TreeNode.DatabaseItemNode(parentNode, database));
-            }
+            //using (Web.DatabaseService web = Helper.CreateWebService())
+            //{
+            //    database.id = web.ImportDatabaseConfig(projectid, database.ToJsonString(), dataset);
+            //    database.ChangedProperties.Clear();
+            //    parentNode.Children.Add(new TreeNode.DatabaseItemNode(parentNode, database));
+            //}
         }
     }
     public class ProjectConfig

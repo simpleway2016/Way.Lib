@@ -45,30 +45,28 @@ namespace EJClient.TreeNode
         public override void ReBindItems()
         {
             ProjectNode parentNode = this.Parent as ProjectNode;
-            using (Web.DatabaseService web = Helper.CreateWebService())
+            var mydatabases = Helper.Client.InvokeSync<EJ.Databases[]>("GetDatabaseList", parentNode.Project.id);
+            foreach (var dbitem in mydatabases)
             {
-                var mydatabases = web.GetDatabaseList(parentNode.Project.id.Value).ToJsonObject<EJ.Databases[]>();
-                foreach (var dbitem in mydatabases)
+                DatabaseItemNode dbnode = this.Children.Where(m => ((DatabaseItemNode)m).Database.id == dbitem.id).FirstOrDefault() as DatabaseItemNode;
+                if (dbnode == null)
                 {
-                    DatabaseItemNode dbnode = this.Children.Where(m => ((DatabaseItemNode)m).Database.id == dbitem.id).FirstOrDefault() as DatabaseItemNode;
-                    if (dbnode == null)
-                    {
-                        dbnode = new DatabaseItemNode( this ,  dbitem);
-                        this.Children.Add(dbnode);
-                    }
-                    else{
-                        dbnode.Database = dbitem;
-                    }
+                    dbnode = new DatabaseItemNode(this, dbitem);
+                    this.Children.Add(dbnode);
                 }
-
-                for (int i = 0; i < Children.Count; i ++ )
+                else
                 {
-                    if (mydatabases.Where(m => m.id == ((DatabaseItemNode)Children[i]).Database.id).Count() == 0)
-                    {
-                        //删除
-                        this.Children.RemoveAt(i);
-                        i--;
-                    }
+                    dbnode.Database = dbitem;
+                }
+            }
+
+            for (int i = 0; i < Children.Count; i++)
+            {
+                if (mydatabases.Where(m => m.id == ((DatabaseItemNode)Children[i]).Database.id).Count() == 0)
+                {
+                    //删除
+                    this.Children.RemoveAt(i);
+                    i--;
                 }
             }
         }

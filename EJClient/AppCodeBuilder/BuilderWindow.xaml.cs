@@ -42,12 +42,9 @@ namespace EJClient.AppCodeBuilder
         void loadColumns()
         {
             try {
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    SampleColumn.s_Tables = web.GetTableNames(_databaseid).OrderBy(m => m).ToArray();
-                    _columns = web.GetColumns(_TableId).ToJsonObject<SampleColumn[]>();
-                    lstColumns.ItemsSource = _columns;
-                }
+                SampleColumn.s_Tables = Helper.Client.InvokeSync<string[]>("GetTableNames", _databaseid).OrderBy(m => m).ToArray();
+                _columns = Helper.Client.InvokeSync<SampleColumn[]>("GetColumns", _TableId);
+                lstColumns.ItemsSource = _columns;
             }
             catch(Exception ex) {
                 Helper.ShowError(ex);
@@ -62,13 +59,10 @@ namespace EJClient.AppCodeBuilder
             column.RelaColumns.Clear();
             try
             {
-                using (Web.DatabaseService web = Helper.CreateWebService())
+                var columnNames = Helper.Client.InvokeSync<string[]>("GetColumnNamesByTableName", column.RelaTableName, _databaseid);
+                foreach (string c in columnNames)
                 {
-                    var columnNames = web.GetColumnNamesByTableName(column.RelaTableName, _databaseid).ToJsonObject<string[]>();
-                    foreach (string c in columnNames)
-                    {
-                        column.RelaColumns.Add(c);
-                    }
+                    column.RelaColumns.Add(c);
                 }
             }
             catch (Exception ex)

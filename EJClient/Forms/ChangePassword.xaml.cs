@@ -30,12 +30,9 @@ namespace EJClient.Forms
             {
                 if (txtNewPwd.Password != pwdConfirm.Password)
                     throw new Exception("密码确认不一致");
-                using (Web.DatabaseService web = Helper.CreateWebService())
-                {
-                    web.ChangePassword(txtOldPwd.Password, txtNewPwd.Password);
-                    Helper.ShowMessage("成功修改密码!");
-                    this.Close();
-                }
+                Helper.Client.InvokeSync<string>("ChangePassword", txtOldPwd.Password, txtNewPwd.Password);
+                Helper.ShowMessage("成功修改密码!");
+                this.Close();
             }
             catch(Exception ex)
             {

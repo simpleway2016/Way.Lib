@@ -57,14 +57,11 @@ namespace EJClient.TreeNode
                 
                 try
                 {
-                    using (Web.DatabaseService web = Helper.CreateWebService())
+                    int count = Helper.Client.InvokeSync<int>("GetMyBugListCount");
+                    if (count != bugCount)
                     {
-                        int count = web.GetMyBugListCount();
-                        if (count != bugCount)
-                        {
-                            this.Name = string.Format("Bug({0})", count);
-                            bugCount = count;
-                        }
+                        this.Name = string.Format("Bug({0})", count);
+                        bugCount = count;
                     }
                 }
                 catch
