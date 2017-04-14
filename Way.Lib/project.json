@@ -2,7 +2,7 @@
   "version": "1.0.0.2",
 
   "dependencies": {
-    "Microsoft.Extensions.DependencyModel": "*",
+    "Microsoft.Extensions.DependencyModel": "1.1.1",
     "NETStandard.Library": "1.6.1",
     "Newtonsoft.Json": "9.0.1",
     "System.Collections.NonGeneric": "4.0.1",
