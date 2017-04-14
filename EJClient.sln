@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B0BFDD8E-7A73-4D5E-A1C0-BC212AFB5E8B}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EJClient", "EJClient\EJClient.csproj", "{B8036D92-2D73-428E-B12A-79D39F0BEDF2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECWeb", "ECWeb\ECWeb.csproj", "{048F3DEE-AE80-4E6E-B3B8-1753561FF939}"
