@@ -154,14 +154,13 @@ namespace EJClient
             ContextMenu menu = (ContextMenu)item.Parent;
             var obj = (StackPanel)menu.PlacementTarget;
             ProjectNode projectNode = (ProjectNode)obj.Tag;
-            using (Forms.DatabaseEditor form = new Forms.DatabaseEditor(projectNode.Project.id.Value))
+            Forms.DatabaseEditor form = new Forms.DatabaseEditor(projectNode.Project.id.Value);
+            form.Title = "新建数据库";
+            form.Owner = this;
+            if (form.ShowDialog() == true)
             {
-                form.Text = "新建数据库";
-                if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    DatabaseNode dbnode = (DatabaseNode)projectNode.Children.Where(m => m is TreeNode.DatabaseNode).FirstOrDefault();
-                    dbnode.ReBindItems();
-                }
+                DatabaseNode dbnode = (DatabaseNode)projectNode.Children.Where(m => m is TreeNode.DatabaseNode).FirstOrDefault();
+                dbnode.ReBindItems();
             }
 
         }
@@ -191,14 +190,14 @@ namespace EJClient
         {
             DatabaseItemNode databaseItemNode = tree1.SelectedItem as DatabaseItemNode;
             ProjectNode projectNode = databaseItemNode.Parent.Parent as ProjectNode;
-            using (Forms.DatabaseEditor form = new Forms.DatabaseEditor(projectNode.Project.id.Value , databaseItemNode.Database.id.Value))
+            Forms.DatabaseEditor form = new Forms.DatabaseEditor(projectNode.Project.id.Value, databaseItemNode.Database);
+            form.Title = "数据库属性";
+            form.Owner = this;
+            if (form.ShowDialog() == true)
             {
-                form.Text = "数据库属性";
-                if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    databaseItemNode.Parent.ReBindItems();
-                }
+                databaseItemNode.Parent.ReBindItems();
             }
+
         }
        
         private void MenuItem_设置引用的类库_Click_1(object sender, RoutedEventArgs e)

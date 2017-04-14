@@ -675,7 +675,7 @@ namespace Way.EJServer
 
                 try
                 {
-                    db.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+                    db.BeginTransaction();
                     //锁住，防止同时添加table
                     EJ.Databases database = db.Databases.Where(m => m.id == oldtable.DatabaseID).FirstOrDefault();
                     database.iLock++;
@@ -800,7 +800,7 @@ namespace Way.EJServer
                 }
                 catch (Exception ex)
                 {
-                    if (invokingDB.DBContext != db)
+                    if (invokingDB != null && invokingDB.DBContext != db)
                     {
                         invokingDB.DBContext.RollbackTransaction();
                     }
@@ -935,7 +935,7 @@ namespace Way.EJServer
             {
                 try
                 {
-                    db.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+                    db.BeginTransaction();
                     //锁住，防止同时添加table
                     EJ.Databases database = db.Databases.Where(m => m.id == databaseID).FirstOrDefault();
                     database.iLock++;
@@ -999,7 +999,7 @@ namespace Way.EJServer
                 Way.EntityDB.IDatabaseService invokingDB = null;
                 try
                 {
-                    db.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+                    db.BeginTransaction();
                     //锁住，防止同时添加table
                     EJ.Databases database = db.Databases.Where(m => m.id == table.DatabaseID).FirstOrDefault();
                     database.iLock++;
@@ -1073,7 +1073,7 @@ namespace Way.EJServer
                 }
                 catch (Exception ex)
                 {
-                    if (invokingDB.DBContext != db)
+                    if (invokingDB != null && invokingDB.DBContext != db)
                     {
                         invokingDB.DBContext.RollbackTransaction();
                     }
@@ -1094,32 +1094,93 @@ namespace Way.EJServer
         /// </summary>
         /// <param name="databaseType">数据库类型，如SqlServer</param>
         /// <param name="connectionString">连接字符串</param>
-        /// <param name="dllpath"></param>
+        /// <param name="nameSpace"></param>
         /// <param name="dbname"></param>
         [RemotingMethod]
-        public void CreateDatabase(int projectid, Way.EntityDB.DatabaseType databaseType, string connectionString, string dllpath, string dbname)
+        public int UpdateDatabase(EJ.Databases dataitem)
         {
             if (this.User == null)
                 throw new Exception("请重新登陆");
 
+            if (string.IsNullOrEmpty(dataitem.Name))
+                throw new Exception("database name is empty");
+            if (string.IsNullOrEmpty(dataitem.conStr))
+                throw new Exception("connection string is empty");
+            if (string.IsNullOrEmpty(dataitem.NameSpace))
+                throw new Exception("namespace is empty");
             using (EJDB db = new EJDB())
             {
-                db.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+                db.BeginTransaction();
                 try
                 {
-                    EJ.Databases dataitem = new EJ.Databases();
-                    dataitem.conStr = connectionString;
-                    dataitem.dbType = (EJ.Databases_dbTypeEnum)(int)databaseType;
-                    dataitem.dllPath = dllpath;
-                    dataitem.Name = dbname;
-                    dataitem.ProjectID = projectid;
-                    dataitem.Guid = Guid.NewGuid().ToString();
-                    db.Update(dataitem);
+                    if (dataitem.id == null)
+                    {
+                        db.Insert(dataitem);
+                        IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
+                        dbservice.Create(dataitem);
+                    }
+                    else
+                    {
+                        var oldData = db.Databases.FirstOrDefault(m => m.id == dataitem.id);
 
-                    IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
-                    dbservice.Create(dataitem);
+                        if (dataitem.dbType != oldData.dbType)
+                        {
+                            //变更数据库类型
+                            IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
+                            dbservice.Create(dataitem);
+                            //更新到现在的数据结构
+                            var invokeDB = Way.EntityDB.Design.DBHelper.CreateInvokeDatabase(dataitem);
+                            var dbconfig = invokeDB.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
+                            dbconfig.DatabaseGuid = dataitem.Guid;
+                            invokeDB.DBContext.BeginTransaction();
+                            try
+                            {
+                                int? lastid = null;
+                                using (var dt = db.Database.SelectTable("select * from __action where id>" + dbconfig.LastUpdatedID + " and databaseid=" + dataitem.id + " order by [id]"))
+                                {
+                                    foreach (var datarow in dt.Rows)
+                                    {
+                                        string actiontype = datarow["type"].ToString();
+                                        int id = Convert.ToInt32(datarow["id"]);
 
+                                        string json = datarow["content"].ToString();
+
+
+                                        Type type = typeof(Way.EntityDB.Design.Actions.Action).GetTypeInfo().Assembly.GetType(actiontype);
+                                        var actionItem = (Way.EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
+
+                                        actionItem.Invoke(invokeDB);
+
+                                        lastid = id;
+                                    }
+                                    if (lastid != null)
+                                    {
+                                        dbconfig.LastUpdatedID = lastid.Value;
+                                    }
+                                }
+
+                                var obj = new Way.EntityDB.CustomDataItem("__WayEasyJob", null, null);
+                                obj.SetValue("contentConfig", dbconfig.ToJsonString());
+                                invokeDB.Update(obj);
+
+                                invokeDB.DBContext.CommitTransaction();
+                            }
+                            catch
+                            {
+                                invokeDB.DBContext.RollbackTransaction();
+                                throw;
+                            }
+                        }
+                        else if (dataitem.Name.ToLower() != oldData.Name.ToLower())
+                        {
+                            IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)oldData.dbType);
+                            dbservice.ChangeName(oldData, dataitem.Name, dataitem.conStr);
+                        }
+
+                        db.Update(dataitem);
+                    }
                     db.CommitTransaction();
+                    return dataitem.id.Value;
                 }
                 catch (Exception ex)
                 {

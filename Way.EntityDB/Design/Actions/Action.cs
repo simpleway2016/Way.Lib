@@ -13,7 +13,24 @@ namespace Way.EntityDB.Design.Actions
         public object Save( EJ.DB.EasyJob db , int databaseid)
         {
             BeforeSave();
-          
+
+            try
+            {
+                db.Database.ExecSqlString("select id from __action limit 0,1");
+            }
+            catch
+            {
+                //没有__action
+                db.Database.ExecSqlString(@"
+create table __action (
+    [id]            integer PRIMARY KEY autoincrement,
+    [type]          varchar (100),
+    [content]         text,
+    [databaseid]      int 
+)
+");
+            }
+
             var action = new EntityDB.CustomDataItem("__action" , "id" , null);
             action.SetValue("type", this.GetType().FullName);
             action.SetValue("databaseid",databaseid);
