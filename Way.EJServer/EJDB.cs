@@ -15,56 +15,14 @@ namespace Way.EJServer
                 return session["user"] as EJ.User;
             }
         }
-        static Port2DBConfirg[] _Port2DBConfirgs;
-        static Port2DBConfirg[] Port2DBConfirgs
-        {
-            get
-            {
-                if (_Port2DBConfirgs == null)
-                {
-                    _Port2DBConfirgs = System.IO.File.ReadAllText($"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}/Port2DB.config").ToJsonObject<Port2DBConfirg[]>();
-                    //var currentFilePath = HttpContext.Current.Server.MapPath("/EasyJob_cur.db");
-                    //var nullFilePath = HttpContext.Current.Server.MapPath("/EasyJob.db");
-                    //if (System.IO.File.Exists(nullFilePath) && File.Exists(currentFilePath) == false)
-                    //{
-                    //    File.Copy(nullFilePath, currentFilePath);
-                    //}
-                    //foreach (var item in _Port2DBConfirgs)
-                    //{
-                    //    if (item.ConnectionString.Contains("EasyJob.db"))
-                    //    {
-                    //        item.ConnectionString = item.ConnectionString.Replace("EasyJob.db", "EasyJob_cur.db");
-                    //    }
-                    //}
-                }
-                return _Port2DBConfirgs;
-            }
-        }
-
+      
         static string ConnectionString = null;
         static string GetConnectionString()
         {
             if (ConnectionString != null)
                 return ConnectionString;
-            var host = Way.Lib.ScriptRemoting.RemotingController.GetCurrentController().RequestHeaders["Host"];
-            int port = 80;
-            if (host.Contains(":"))
-            {
-                try
-                {
-                    port = Convert.ToInt32(host.Split(':')[1].Trim());
-                }
-                catch
-                {
 
-                }
-            }
-            var portConfig = Port2DBConfirgs.FirstOrDefault(m => m.Port == port);
-            if (portConfig == null)
-                portConfig = Port2DBConfirgs[0];
-            string conStr = portConfig.ConnectionString;
-            ConnectionString = string.Format(conStr,
-                    $"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}/");
+            ConnectionString = $"Data Source=\"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}/EasyJob.db\"";
             return ConnectionString;
         }
 
@@ -313,9 +271,5 @@ namespace Way.EJServer
             set;
         }
     }
-    class Port2DBConfirg
-    {
-        public int Port { get; set; }
-        public string ConnectionString { get; set; }
-    }
+
 }

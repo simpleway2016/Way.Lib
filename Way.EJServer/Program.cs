@@ -10,18 +10,25 @@ namespace Way.EJServer
     {
         public static void Main(string[] args)
         {
-            ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
-            Console.WriteLine("server starting...");
-            if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}web"))
+            int port = 6060;
+            if(args != null && args.Length > 0)
             {
+                port = Convert.ToInt32(args[0]);
+            }
 
-                Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}web");
-                ScriptRemotingServer.Start(6060, $"{Way.Lib.PlatformHelper.GetAppDirectory()}web", 1);
-            }
-            else
+            ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
+            Console.WriteLine($"server starting at port:{port}...");
+            if (!System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}web"))
             {
-                Console.WriteLine("can not find web folder");
+                System.IO.Directory.CreateDirectory($"{Way.Lib.PlatformHelper.GetAppDirectory()}web");
             }
+
+            if (System.IO.File.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}web/main.html") == false)
+            {
+                System.IO.File.WriteAllText($"{Way.Lib.PlatformHelper.GetAppDirectory()}web/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
+            }
+            Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}web");
+            ScriptRemotingServer.Start(6060, $"{Way.Lib.PlatformHelper.GetAppDirectory()}web", 1);
 
             while (true)
             {
