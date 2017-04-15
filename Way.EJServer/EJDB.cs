@@ -41,8 +41,11 @@ namespace Way.EJServer
             }
         }
 
+        static string ConnectionString = null;
         static string GetConnectionString()
         {
+            if (ConnectionString != null)
+                return ConnectionString;
             var host = Way.Lib.ScriptRemoting.RemotingController.GetCurrentController().RequestHeaders["Host"];
             int port = 80;
             if (host.Contains(":"))
@@ -60,9 +63,9 @@ namespace Way.EJServer
             if (portConfig == null)
                 portConfig = Port2DBConfirgs[0];
             string conStr = portConfig.ConnectionString;
-            conStr = string.Format(conStr,
+            ConnectionString = string.Format(conStr,
                     $"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}/");
-            return conStr;
+            return ConnectionString;
         }
 
         static bool setted = false;

@@ -273,10 +273,16 @@ namespace EJClient
                 fd.FileName = selectedItem.Database.Name + ".cs";
                 if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                  
-                    Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value , fd.FileName);
-                    code.Owner = this;
-                    code.ShowDialog();
+                    try
+                    {
+                        Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value, fd.FileName);
+                        code.Owner = this;
+                        code.ShowDialog();
+                    }
+                    catch(Exception ex)
+                    {
+                        Helper.ShowError(ex);
+                    }
                 }
             }
 

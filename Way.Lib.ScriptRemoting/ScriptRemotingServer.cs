@@ -260,7 +260,7 @@ namespace Way.Lib.ScriptRemoting
         /// 注册HttpHandler
         /// </summary>
         /// <param name="router"></param>
-        public static void RegisterRouter(ICustomHttpHandler handler)
+        public static void RegisterHandler(ICustomHttpHandler handler)
         {
             Handlers.Add(handler);
         }

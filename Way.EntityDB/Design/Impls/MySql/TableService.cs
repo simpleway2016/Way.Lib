@@ -243,7 +243,7 @@ Alter table tb drop primary key;//删除主建
                 }
 
                 int changeColumnCount = 0;
-                var changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "Name");
+                var changeitem = column.BackupChangedProperties["Name"];
                 if (changeitem != null)
                 {
                     changeColumnCount++;
@@ -254,7 +254,7 @@ Alter table tb drop primary key;//删除主建
                     #endregion
                 }
 
-                changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "IsAutoIncrement");
+                changeitem = column.BackupChangedProperties["IsAutoIncrement"];
                 if (changeitem != null)
                 {
                     changeColumnCount++;
@@ -274,7 +274,7 @@ Alter table tb drop primary key;//删除主建
                     #endregion
                 }
 
-                changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "IsPKID");
+                changeitem = column.BackupChangedProperties["IsPKID"];
                 if (changeitem != null)
                 {
                     changeColumnCount++;
@@ -295,7 +295,7 @@ Alter table tb drop primary key;//删除主建
 
 
                 bool defaultvalueChanged = false;
-                changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "defaultValue");
+                changeitem = column.BackupChangedProperties["defaultValue"];
                 if (changeitem != null)
                 {
                     defaultvalueChanged = true;

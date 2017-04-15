@@ -91,6 +91,7 @@ namespace EJClient.Forms
                 _data.Name = _old.Name;
                 _data.Role = _old.Role;
             }
+            _data.ChangedProperties.Clear();
             base.OnClosing(e);
         }
     }

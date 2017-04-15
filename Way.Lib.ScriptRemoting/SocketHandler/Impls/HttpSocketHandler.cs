@@ -15,7 +15,7 @@ namespace Way.Lib.ScriptRemoting
     class HttpSocketHandler : ISocketHandler
     {
         HttpConnectInformation _currentHttpConnectInformation;
-        static string[] NotAllowDownloadFiles = new string[] { ".dll", ".exe", ".config" };
+        static string[] NotAllowDownloadFiles = new string[] { ".dll", ".exe", ".config",".db" };
 
         //static List<string> compiledTSFiles = new List<string>();
 
@@ -101,27 +101,9 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else
                 {
-
-                    if (this.Request.Headers["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
-                    {
-                        try
-                        {
-                            Request.urlRequestHandler();
-
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                    }
                    
                     string url = this.Request.Headers["GET"].ToSafeString();
-                    string ext = Path.GetExtension(url).ToLower();
-                    if (NotAllowDownloadFiles.Contains(ext))
-                    {
-                        //不能访问dll exe等文件
-                        throw new Exception("not allow");
-                    }
+                   
                      if (url.Contains("?"))
                     {
                         MatchCollection matches = Regex.Matches(url, @"(?<n>(\w)+)\=(?<v>([^\=\&])+)");
@@ -131,6 +113,12 @@ namespace Way.Lib.ScriptRemoting
                         }
                         url = url.Substring(0, url.IndexOf("?"));
                     }
+                    string ext = Path.GetExtension(url).ToLower();
+                    if (NotAllowDownloadFiles.Contains(ext))
+                    {
+                        //不能访问dll exe等文件
+                        throw new Exception("not allow");
+                    }
                     if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
                     {
                         url = WebPathManger.getFileUrl($"{url}.html");
@@ -139,9 +127,20 @@ namespace Way.Lib.ScriptRemoting
                     {
                         url = WebPathManger.getFileUrl(url);
                     }
+
+                    try
+                    {
+                        Request.urlRequestHandler();
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
                     url = getUrl(url);
                     checkHandlers(url);
-                   
+                    
                     if (Response.mClient != null)
                     {
                         string filepath = url;
@@ -162,7 +161,7 @@ namespace Way.Lib.ScriptRemoting
         void checkHandlers(string visitingUrl)
         {
 
-            if (ScriptRemotingServer.Routers.Count > 0 && _currentHttpConnectInformation == null)
+            if (ScriptRemotingServer.Handlers.Count > 0 && _currentHttpConnectInformation == null)
             {
                 _currentHttpConnectInformation = new HttpConnectInformation(Request , Response);
             }
@@ -174,10 +173,14 @@ namespace Way.Lib.ScriptRemoting
                     bool handled = false;
                     handler.Handle(visitingUrl, _currentHttpConnectInformation, ref handled);
                     if (handled)
+                    {
+                        _currentHttpConnectInformation.Response.End();
                         return;
+                    }
                 }
                 catch
                 {
+                    _currentHttpConnectInformation.Response.End();
                 }
             }
            

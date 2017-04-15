@@ -66,7 +66,7 @@ namespace Way.EntityDB.Design.Actions
             if (changedColumns != null)
                 foreach (var c in changedColumns)
                 {
-                    c.BackupChangedProperties = new List<EntityDB.DataValueChangedItem>(c.ChangedProperties.ToArray());
+                    c.BackupChangedProperties.ImportData(c.ChangedProperties);
                     c.ChangedProperties.Clear();
                 }
 

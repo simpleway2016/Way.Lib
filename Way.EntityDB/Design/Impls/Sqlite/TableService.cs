@@ -210,7 +210,7 @@ CREATE TABLE [" + table.Name + @"] (
                     {
                         if (deletedColumns.Count(m => m.Name.ToLower() == c.ColumnName.ToLower()) == 0)
                         {
-                            var newName = changedColumns.FirstOrDefault(m => m.BackupChangedProperties.Count(p => p.PropertyName == "Name" && p.OriginalValue.ToSafeString().ToLower() == c.ColumnName.ToLower()) > 0);
+                            var newName = changedColumns.FirstOrDefault(m => m.BackupChangedProperties.Count(p => p.Key == "Name" && ((DataValueChangedItem)p.Value).OriginalValue.ToSafeString().ToLower() == c.ColumnName.ToLower()) > 0);
                             oldColumnNames.Add("[" + c.ColumnName + "]");
                             if (newName != null)
                                 newColumnNames.Add("[" + newName.Name + "]");

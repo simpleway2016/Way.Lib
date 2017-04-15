@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,11 +28,6 @@ namespace Way.EntityDB
     [System.ComponentModel.DataAnnotations.Schema.NotMapped()]
     public class DataValueChangedItem
     {
-        public string PropertyName
-        {
-            get;
-            set;
-        }
         public object OriginalValue
         {
             get;
@@ -40,15 +36,132 @@ namespace Way.EntityDB
     }
     public interface IDataValueChanged
     {
-        List<DataValueChangedItem> ChangedProperties
+        DataValueChangedItemCollection ChangedProperties
         {
             get;
         }
     }
 
+    public class DataValueChangedItemCollection : Dictionary<string,object>
+    {
+        public DataValueChangedItem this[string key]
+        {
+            get
+            {
+                if (base.ContainsKey(key))
+                    return (DataValueChangedItem)base[key];
+                else
+                    return null;
+            }
+            set
+            {
+                if (base.ContainsKey(key) == false)
+                {
+                    base.Add(key , value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 先清空自己，然后从source导入数据
+        /// </summary>
+        /// <param name="source">数据源</param>
+        public void ImportData(DataValueChangedItemCollection source)
+        {
+            this.Clear();
+            foreach( var item in source )
+            {
+                base[item.Key] = item.Value;
+            }
+        }
+    }
+
+    class DataItemConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+        public override bool CanRead
+        {
+            get
+            {
+                return true;
+            }
+        }
+        public override bool CanWrite
+        {
+            get
+            {
+                return true;
+            }
+        }
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.StartObject)
+            {
+                DataItem dataitem = (DataItem)Activator.CreateInstance(objectType);
+                dataitem.m_notSendPropertyChanged = true;
+                //让serializer去读reader
+                serializer.Populate(reader, dataitem);
+
+
+                //这种是自己去读reader
+                //string proName = null;
+                //while (reader.TokenType != JsonToken.EndObject)
+                //{
+                //    if(reader.TokenType == JsonToken.PropertyName)
+                //    {
+                //        proName = reader.Value.ToString();
+                //    }
+                //    else if(reader.Value != null)
+                //    {
+
+                //    }
+                //    reader.Read();
+                //}
+                dataitem.m_notSendPropertyChanged = false;
+                return dataitem;
+            }
+            else
+            return null;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            DataItem dataitem = (DataItem)value;
+            var properties = value.GetType().GetTypeInfo().GetProperties();
+            writer.WriteStartObject();
+            foreach( var p in properties )
+            {
+                if (p.GetCustomAttribute(typeof(NotMappedAttribute)) != null)
+                    continue;
+                object pvalue = p.GetValue(dataitem);
+                if (pvalue == null)
+                    continue;
+                writer.WritePropertyName(p.Name);
+                serializer.Serialize(writer, pvalue);
+
+            }
+            if(dataitem.ChangedProperties.Count > 0)
+            {
+                writer.WritePropertyName("ChangedProperties");
+                serializer.Serialize(writer , dataitem.ChangedProperties);
+            }
+            if (dataitem.BackupChangedProperties.Count > 0)
+            {
+                writer.WritePropertyName("BackupChangedProperties");
+                serializer.Serialize(writer, dataitem.BackupChangedProperties);
+            }
+            writer.WriteEndObject();
+        }
+    }
+
+
+    [Newtonsoft.Json.JsonConverter(typeof(DataItemConverter))]
     public abstract class DataItem : IDataItem, INotifyPropertyChanging, INotifyPropertyChanged, IDataValueChanged
     {
-        //internal bool m_notSendPropertyChanged = false;
+        internal bool m_notSendPropertyChanged = false;
         public static DateTime getdate()
         {
             return DateTime.Now;
@@ -112,12 +225,12 @@ namespace Way.EntityDB
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        List<DataValueChangedItem> _ChangedProperties = new List<DataValueChangedItem>();
+        DataValueChangedItemCollection _ChangedProperties = new DataValueChangedItemCollection();
         /// <summary>
         /// 被修改的属性的记录
         /// </summary>
         [NotMapped()]
-        public List<DataValueChangedItem> ChangedProperties
+        public DataValueChangedItemCollection ChangedProperties
         {
             get { return _ChangedProperties ; }
         }
@@ -189,7 +302,6 @@ namespace Way.EntityDB
             List<FieldValue> fields = new List<FieldValue>();
             if (isInsert)
             {
-
                 var pinfos = this.GetType().GetProperties();
 
                 foreach (var pinfo in pinfos)
@@ -216,7 +328,7 @@ namespace Way.EntityDB
                 Type tableType = this.GetType();
                 foreach (var changeItem in this.ChangedProperties)
                 {
-                    var pinfo = tableType.GetProperty(changeItem.PropertyName);
+                    var pinfo = tableType.GetProperty(changeItem.Key);
 
                     if (pinfo.GetCustomAttribute(typeof(WayLinqColumnAttribute)) == null)
                         continue;
@@ -232,13 +344,13 @@ namespace Way.EntityDB
             }
             return fields.ToArray();
         }
-        
-        List<DataValueChangedItem> _BackupChangedProperties = new List<DataValueChangedItem>();
+
+        DataValueChangedItemCollection _BackupChangedProperties = new DataValueChangedItemCollection();
         /// <summary>
         /// 可以用来手动备份ChangedProperties
         /// </summary>
         [NotMapped()]
-        public List<DataValueChangedItem> BackupChangedProperties
+        public DataValueChangedItemCollection BackupChangedProperties
         {
             get { return _BackupChangedProperties; }
             set
@@ -252,67 +364,28 @@ namespace Way.EntityDB
         /// </summary>
         protected virtual void SendPropertyChanging(String propertyName  , object originalValue,object nowvalue)
         {
-            //if (m_notSendPropertyChanged)
-            //{
-            //    return;
-            //}
-            //else
-            //{
-            //    var threadid = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            if (m_notSendPropertyChanged)
+                return;
 
-            //    MyReadingDataHandlerState item = null;
-            //    while (true)
-            //    {
-            //        try
-            //        {
-            //            int count = MyReadingDataHandler.ReadingThreads.Count;
-            //            for (int i = 0; i < count; i++)
-            //            {
-            //                MyReadingDataHandlerState areading = MyReadingDataHandler.ReadingThreads[i] as MyReadingDataHandlerState;
-            //                if (areading != null && areading.ThreadID == threadid)
-            //                {
-            //                    item = areading;
-            //                    break;
-            //                }
-            //            }
-            //            break;
-            //        }
-            //        catch (System.ArgumentOutOfRangeException)
-            //        {
-            //            //索引超出范围,从头检查
-            //            continue;
-            //        }
-            //    }
-            //    if (item != null)
-            //    {
-            //        item.DataItems.Add(this);
-            //        this.m_notSendPropertyChanged = true;
-            //        return;
-            //    }
-            //}
-                DataValueChangedItem changeditem =
-                    _ChangedProperties.FirstOrDefault(m => m.PropertyName == propertyName);
-                if (changeditem == null)
+            DataValueChangedItem changeditem = this.ChangedProperties[propertyName];
+            if (changeditem != null)
+            {
+                if (changeditem.OriginalValue == null && nowvalue == null)
                 {
-                    changeditem = new DataValueChangedItem()
-                    {
-                        PropertyName = propertyName,
-                        OriginalValue = originalValue,
-                    };
-                    _ChangedProperties.Add(changeditem);
+                    ChangedProperties.Remove(propertyName);
                 }
-                else
+                else if (changeditem.OriginalValue != null && changeditem.OriginalValue.Equals(nowvalue))
                 {
-                    if (changeditem.OriginalValue == null && nowvalue == null)
-                    {
-                        _ChangedProperties.Remove(changeditem);
-                    }
-                    else if (changeditem.OriginalValue != null && changeditem.OriginalValue.Equals(nowvalue))
-                    {
-                        _ChangedProperties.Remove(changeditem);
-                    }
+                    ChangedProperties.Remove(propertyName);
                 }
-            
+            }
+            else
+            {
+                this.ChangedProperties[propertyName] = new DataValueChangedItem()
+                {
+                    OriginalValue = originalValue,
+                };
+            }
             if ((this.PropertyChanging != null))
             {
                 this.PropertyChanging(this, emptyChangingEventArgs);

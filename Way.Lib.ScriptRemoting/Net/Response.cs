@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting.Net
 {
-    public class Response
+    public class Response:System.IO.Stream
     {
         bool _sendedHeader = false;
         bool _makeHeaders = false;
@@ -27,6 +28,51 @@ namespace Way.Lib.ScriptRemoting.Net
                 if (_buffer == null)
                     _buffer = new System.IO.MemoryStream();
                 return _buffer;
+            }
+        }
+
+        public override bool CanRead
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool CanSeek
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool CanWrite
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override long Length
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override long Position
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -129,7 +175,7 @@ namespace Way.Lib.ScriptRemoting.Net
         {
             Write(content, 0, content.Length);
         }
-        public void Write(byte[] content , int offset ,int count)
+        public override void Write(byte[] content , int offset ,int count)
         {
             if (mClient == null)
                 return;
@@ -306,5 +352,27 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             
         }
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+      
     }
 }

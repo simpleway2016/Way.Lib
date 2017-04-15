@@ -30,7 +30,7 @@ namespace EJClient.Forms
         {
             m_outputFileName = filename;
             m_FileStream = File.Create(filename);
-           
+
             m_databaseID = databaseid;
             InitializeComponent();
             this.Loaded += BuildeCode_Loaded;
@@ -45,15 +45,7 @@ namespace EJClient.Forms
                     {
                         m_database = Helper.Client.InvokeSync<EJ.Databases>("GetDatabase", m_databaseID);
 
-                        string folderpath = m_database.dllPath;
-                        if (System.IO.Directory.Exists(folderpath) == false)
-                        {
-                            System.IO.Directory.CreateDirectory(folderpath);
-                        }
-                        if (System.IO.Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "codes") == false)
-                        {
-                            System.IO.Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "codes");
-                        }
+
                         string[] filenames = System.IO.Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "codes", "*.cs");
                         foreach (string f in filenames)
                             System.IO.File.Delete(f);
@@ -77,7 +69,7 @@ using System.Text;
                         }));
 
 
-                        m_FileStream.Close();
+                        
                         this.Dispatcher.Invoke(new Action(() =>
                         {
                             lblStatus.Content = "Output " + m_database.Name + " Completed!";
@@ -93,6 +85,11 @@ using System.Text;
                                 btnOK.IsEnabled = true;
                                 this.Close();
                             }));
+                    }
+                    finally
+                    {
+                        m_FileStream.Close();
+                        m_FileStream.Dispose();
                     }
                 }).Start();
             

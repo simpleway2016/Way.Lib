@@ -12,7 +12,7 @@
 
             <MenuItem Header="生成模型代码..." Click="MenuItem_生成模型代码_Click_1"></MenuItem>
             <Separator></Separator>
-            <MenuItem Header="导出结构脚本..." Click="MenuItem_导出更新_Click_1"></MenuItem>
+            <!--<MenuItem Header="导出结构脚本..." Click="MenuItem_导出更新_Click_1"></MenuItem>-->
             <Separator></Separator>
             <MenuItem Header="导出数据..." Click="MenuItem_导出数据_Click_1"></MenuItem>
             <MenuItem Header="导入数据..." Click="MenuItem_导入数据_Click_1"></MenuItem>

@@ -10,6 +10,7 @@ namespace Way.EJServer
     {
         public static void Main(string[] args)
         {
+            ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
             Console.WriteLine("server starting...");
             if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}web"))
             {

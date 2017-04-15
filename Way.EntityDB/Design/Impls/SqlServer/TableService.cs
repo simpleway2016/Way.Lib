@@ -355,7 +355,7 @@ CREATE TABLE [" + table.Name + @"] (
             foreach (var column in changedColumns)
             {
                 int changeColumnCount = 0;
-                var changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "Name");
+                var changeitem = column.BackupChangedProperties["Name"];
                 if (changeitem != null)
                 {
                     changeColumnCount++;
@@ -365,7 +365,7 @@ CREATE TABLE [" + table.Name + @"] (
                     #endregion
                 }
 
-                changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "IsAutoIncrement");
+                changeitem = column.BackupChangedProperties["IsAutoIncrement"];
                 if (changeitem != null)
                 {
                     changeColumnCount++;
@@ -393,20 +393,19 @@ CREATE TABLE [" + table.Name + @"] (
                     {
                         //主键不允许为空
                         database.ExecSqlString("alter table [" + newTableName + "] alter column [" + column.Name + "] [" + column.dbType + "] not null");
-                        changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "IsPKID");
+                        changeitem = column.BackupChangedProperties["IsPKID"];
                         if (changeitem == null)
                         {
-                            column.BackupChangedProperties.Add(new EntityDB.DataValueChangedItem()
+                            column.BackupChangedProperties["IsPKID"] = new EntityDB.DataValueChangedItem()
                             {
                                 OriginalValue = false,
-                                PropertyName = "IsPKID",
-                            });
+                            };
                         }
                     }
                     #endregion
                 }
 
-                 changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "IsPKID");
+                 changeitem = column.BackupChangedProperties["IsPKID"];
                  if (changeitem != null)
                  {
                      changeColumnCount++;
@@ -444,7 +443,7 @@ CREATE TABLE [" + table.Name + @"] (
 
 
                  bool defaultvalueChanged = false;
-                 changeitem = column.BackupChangedProperties.FirstOrDefault(m => m.PropertyName == "defaultValue");
+                 changeitem = column.BackupChangedProperties["defaultValue"];
                  if (changeitem != null)
                  {
                      defaultvalueChanged = true;

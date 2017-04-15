@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting.Net
 {
-    public class Request
+    public class Request : System.IO.Stream
     {
         internal NetStream mClient;
 
@@ -39,6 +40,51 @@ namespace Way.Lib.ScriptRemoting.Net
             get
             {
                 return mClient.Socket.RemoteEndPoint;
+            }
+        }
+
+        public override bool CanRead
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override bool CanSeek
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool CanWrite
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override long Length
+        {
+            get
+            {
+                return Convert.ToInt64(_Headers["Content-Length"]);
+            }
+        }
+
+        public override long Position
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -148,7 +194,7 @@ namespace Way.Lib.ScriptRemoting.Net
                     }
                 }
             }
-            else
+            else if (this.Headers["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
             {
                 int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
                 List<byte> buffer = new List<byte>();
@@ -183,6 +229,31 @@ namespace Way.Lib.ScriptRemoting.Net
                     _Form.Add(keyName, value);
                 }
             }
+        }
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            return mClient.Read(buffer, offset, count);
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
         }
     }
 }
