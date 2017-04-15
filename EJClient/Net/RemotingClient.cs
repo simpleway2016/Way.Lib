@@ -129,8 +129,18 @@ namespace EJClient.Net
             {
                 
                 var response = responseString.ToJsonObject<ResultInfo<string>>();
-                Debug.WriteLine($"{name} error:{response.result}");
-                callback(default(T), response.result.ToSafeString());
+
+                if (response.type == WayScriptRemotingMessageType.Result)
+                {
+                    if (response.sessionid != null && response.sessionid.Length > 0)
+                        SessionID = response.sessionid;
+                    callback(default(T), null);
+                }
+                else
+                {
+                    Debug.WriteLine($"{name} error:{response.result}");
+                    callback(default(T), response.result.ToSafeString());
+                }
             }
            
         }

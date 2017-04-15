@@ -50,6 +50,10 @@ namespace EJClient
         {
             MessageBox.Show(win, err.Message);
         }
+        public static void ShowError(Window win, string err)
+        {
+            MessageBox.Show(win, err);
+        }
         public static void ShowError(Exception err)
         {
             if (MainWindow.instance != null)

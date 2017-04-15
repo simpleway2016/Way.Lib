@@ -184,84 +184,87 @@
     <Compile Include="Forms\DatabaseEditor.xaml.cs">
       <DependentUpon>DatabaseEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\BugEditor.xaml.cs">
+    <Compile Include="Forms\UserManager.xaml.cs">
+      <DependentUpon>UserManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\BugCenter\BugEditor.xaml.cs">
       <DependentUpon>BugEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\BugRecorder.xaml.cs">
+    <Compile Include="Forms\BugCenter\BugRecorder.xaml.cs">
       <DependentUpon>BugRecorder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\BugSumbit.xaml.cs">
+    <Compile Include="Forms\BugCenter\BugSumbit.xaml.cs">
       <DependentUpon>BugSumbit.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\BugView.xaml.cs">
+    <Compile Include="Forms\BugCenter\BugView.xaml.cs">
       <DependentUpon>BugView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\HistoryItem.xaml.cs">
+    <Compile Include="Forms\BugCenter\HistoryItem.xaml.cs">
       <DependentUpon>HistoryItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\IToolBarItem.cs" />
-    <Compile Include="Forms_old\BugCenter\ToolbarItems\TButton.cs" />
-    <Compile Include="Forms_old\BugCenter\ToolbarItems\TDraw.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\API\API.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\API\EnumChild.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\API\MessageCutor.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\API\Sound.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\BitmapRegion.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Camera\CameraDriver.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Camera\WebCamera.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Com\Comm.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Com\CommBase.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Com\CommPingPong.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Controls\InputBox.cs">
+    <Compile Include="Forms\BugCenter\IToolBarItem.cs" />
+    <Compile Include="Forms\BugCenter\ToolbarItems\TButton.cs" />
+    <Compile Include="Forms\BugCenter\ToolbarItems\TDraw.cs" />
+    <Compile Include="Forms\BugCenter\Windows\API\API.cs" />
+    <Compile Include="Forms\BugCenter\Windows\API\EnumChild.cs" />
+    <Compile Include="Forms\BugCenter\Windows\API\MessageCutor.cs" />
+    <Compile Include="Forms\BugCenter\Windows\API\Sound.cs" />
+    <Compile Include="Forms\BugCenter\Windows\BitmapRegion.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Camera\CameraDriver.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Camera\WebCamera.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Com\Comm.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Com\CommBase.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Com\CommPingPong.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Controls\InputBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\Windows\Controls\InputBox.Designer.cs">
+    <Compile Include="Forms\BugCenter\Windows\Controls\InputBox.Designer.cs">
       <DependentUpon>InputBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\BugCenter\Windows\Hook\KeyBordHook\KeyBordHook.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Hook\KeyBordHook\WayKeyEventArgs.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Hook\MessageHook.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\Hook\MouseHook\MouseHook.cs" />
-    <Compile Include="Forms_old\BugCenter\Windows\PopupControl.cs">
+    <Compile Include="Forms\BugCenter\Windows\Hook\KeyBordHook\KeyBordHook.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Hook\KeyBordHook\WayKeyEventArgs.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Hook\MessageHook.cs" />
+    <Compile Include="Forms\BugCenter\Windows\Hook\MouseHook\MouseHook.cs" />
+    <Compile Include="Forms\BugCenter\Windows\PopupControl.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms_old\BuildeCode.xaml.cs">
+    <Compile Include="Forms\BuildeCode.xaml.cs">
       <DependentUpon>BuildeCode.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\ChangePassword.xaml.cs">
+    <Compile Include="Forms\ChangePassword.xaml.cs">
       <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\DatabaseUpdate.xaml.cs">
+    <Compile Include="Forms\DatabaseUpdate.xaml.cs">
       <DependentUpon>DatabaseUpdate.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\DataViewer.cs">
+    <Compile Include="Forms\DataViewer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms_old\DataViewer.Designer.cs">
+    <Compile Include="Forms\DataViewer.Designer.cs">
       <DependentUpon>DataViewer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\ImportData.xaml.cs">
+    <Compile Include="Forms\ImportData.xaml.cs">
       <DependentUpon>ImportData.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\InterfaceCenter\ClassSelector.xaml.cs">
+    <Compile Include="Forms\InterfaceCenter\ClassSelector.xaml.cs">
       <DependentUpon>ClassSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\InterfaceCenter\DllClassLoader.cs" />
-    <Compile Include="Forms_old\InterfaceCenter\DllImportEditor.cs">
+    <Compile Include="Forms\InterfaceCenter\DllClassLoader.cs" />
+    <Compile Include="Forms\InterfaceCenter\DllImportEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms_old\InterfaceCenter\Nodes\ClassNode.cs" />
-    <Compile Include="Forms_old\InterfaceCenter\Nodes\DLLNode.cs" />
-    <Compile Include="Forms_old\InterfaceCenter\Nodes\LoadingNode.cs" />
-    <Compile Include="Forms_old\InterfaceCenter\Nodes\NamespaceNode.cs" />
-    <Compile Include="Forms_old\OutputDBTableData.xaml.cs">
+    <Compile Include="Forms\InterfaceCenter\Nodes\ClassNode.cs" />
+    <Compile Include="Forms\InterfaceCenter\Nodes\DLLNode.cs" />
+    <Compile Include="Forms\InterfaceCenter\Nodes\LoadingNode.cs" />
+    <Compile Include="Forms\InterfaceCenter\Nodes\NamespaceNode.cs" />
+    <Compile Include="Forms\OutputDBTableData.xaml.cs">
       <DependentUpon>OutputDBTableData.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\UserMgr.cs">
-      <SubType>Form</SubType>
+    <Compile Include="Forms\UserManager_Editor.xaml.cs">
+      <DependentUpon>UserManager_Editor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms_old\WpfPropertyGrid.cs" />
-    <Compile Include="Forms_old\DBTableEditor.xaml.cs">
+    <Compile Include="Forms\WpfPropertyGrid.cs" />
+    <Compile Include="Forms\DBTableEditor.xaml.cs">
       <DependentUpon>DBTableEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helper.cs" />
@@ -344,51 +347,59 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\BugCenter\BugEditor.xaml">
+    <Page Include="Forms\UserManager.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\BugCenter\BugRecorder.xaml">
+    <Page Include="Forms\BugCenter\BugEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\BugCenter\BugSumbit.xaml">
+    <Page Include="Forms\BugCenter\BugRecorder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\BugCenter\BugView.xaml">
+    <Page Include="Forms\BugCenter\BugSumbit.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\BugCenter\HistoryItem.xaml">
+    <Page Include="Forms\BugCenter\BugView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\BuildeCode.xaml">
+    <Page Include="Forms\BugCenter\HistoryItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\ChangePassword.xaml">
+    <Page Include="Forms\BuildeCode.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\DatabaseUpdate.xaml">
+    <Page Include="Forms\ChangePassword.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\DBTableEditor.xaml">
+    <Page Include="Forms\DatabaseUpdate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\ImportData.xaml">
+    <Page Include="Forms\DBTableEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\InterfaceCenter\ClassSelector.xaml">
+    <Page Include="Forms\ImportData.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms_old\OutputDBTableData.xaml">
+    <Page Include="Forms\InterfaceCenter\ClassSelector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\OutputDBTableData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\UserManager_Editor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -454,10 +465,10 @@
     <EmbeddedResource Include="Designer\EnumEditorForm.resx">
       <DependentUpon>EnumEditorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms_old\BugCenter\Windows\Controls\InputBox.resx">
+    <EmbeddedResource Include="Forms\BugCenter\Windows\Controls\InputBox.resx">
       <DependentUpon>InputBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms_old\DataViewer.resx">
+    <EmbeddedResource Include="Forms\DataViewer.resx">
       <DependentUpon>DataViewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -534,7 +545,7 @@
     <Resource Include="Controls\images\alignright.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Forms_old\BugCenter\imgs\record.png" />
+    <Resource Include="Forms\BugCenter\imgs\record.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="imgs\interface.png" />
@@ -546,10 +557,10 @@
     <Resource Include="imgs\search.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Forms_old\BugCenter\imgs\next.png" />
+    <Resource Include="Forms\BugCenter\imgs\next.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Forms_old\BugCenter\imgs\checked.png" />
+    <Resource Include="Forms\BugCenter\imgs\checked.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

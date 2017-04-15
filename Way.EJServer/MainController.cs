@@ -60,6 +60,66 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
+        public EJ.User[] GetUsers()
+        {
+            if (this.User.Role != EJ.User_RoleEnum.管理员)
+                throw new Exception("无权进行此项操作");
+            using (EJDB db = new EJDB())
+            {
+                return (from m in db.User
+                        select new EJ.User {
+                            Name = m.Name,
+                            id = m.id,
+                            Role = m.Role
+                        }).ToArray();
+            
+            }
+        }
+        [RemotingMethod]
+        public int UpdateUser(EJ.User user)
+        {
+            if (this.User.Role != EJ.User_RoleEnum.管理员)
+                throw new Exception("无权进行此项操作");
+            using (EJDB db = new EJDB())
+            {
+                if(user.id == null)
+                {
+                    if (db.User.Any(m => m.Name == user.Name))
+                        throw new Exception("用户名已存在");
+                }
+                else
+                {
+                    if (db.User.Any(m => m.Name == user.Name && m.id != user.id))
+                        throw new Exception("用户名已存在");
+                }
+                db.Update(user);
+                return user.id.Value;
+            }
+        }
+        [RemotingMethod]
+        public void DeleteUsers(int[] userids)
+        {
+            if (this.User.Role != EJ.User_RoleEnum.管理员)
+                throw new Exception("无权进行此项操作");
+            using (EJDB db = new EJDB())
+            {
+                db.BeginTransaction();
+                try
+                {
+                    foreach (var id in userids)
+                    {
+                        db.Delete(db.User.Where(m => userids.Contains(m.id.Value)));
+                    }
+                    db.CommitTransaction();
+                }
+                catch (Exception ex)
+                {
+                    db.RollbackTransaction();
+                    throw ex;
+                }
+            }
+        }
+        [RemotingMethod]
         public EJ.Project CreateProject(string name)
         {
             if (this.User == null)

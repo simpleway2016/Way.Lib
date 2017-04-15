@@ -1,0 +1,20 @@
+﻿<Window x:Class="EJClient.Forms.UserManager_Editor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EJClient.Forms"
+        mc:Ignorable="d"
+        Title="User Info Editor" WindowStartupLocation="CenterOwner" Height="222" Width="300" ResizeMode="NoResize">
+    <Grid>
+        <StackPanel x:Name="main" Margin="5">
+            <Label>用户名</Label>
+            <TextBox Text="{Binding Name}"></TextBox>
+            <Label>角色</Label>
+            <ComboBox x:Name="cmbRoles" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Role}"></ComboBox>
+            <Label x:Name="lbl1">密码</Label>
+            <PasswordBox x:Name="txtPwd"></PasswordBox>
+            <Button Width="60" Margin="15" Click="Button_Click">确定</Button>
+        </StackPanel>
+    </Grid>
+</Window>

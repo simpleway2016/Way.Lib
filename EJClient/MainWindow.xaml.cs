@@ -590,10 +590,7 @@ namespace EJClient
         }
         private void menu_users_mgr_Click_1(object sender, RoutedEventArgs e)
         {
-            using (Forms.UserMgr frm = new Forms.UserMgr())
-            {
-                frm.ShowDialog();
-            }
+            new Forms.UserManager() { Owner = this}.ShowDialog();
         }
 
         private void txtSearch_KeyUp(object sender, KeyEventArgs e)
