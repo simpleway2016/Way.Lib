@@ -367,7 +367,7 @@ namespace Way.EntityDB
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
                             string name = reader.GetName(i);
-                            dtable.Columns.Add(new WayDataColumn(name, reader.GetFieldType(i)));
+                            dtable.Columns.Add(new WayDataColumn(name, reader.GetFieldType(i).FullName));
                         }
 
                         while (reader.Read())
@@ -419,7 +419,7 @@ namespace Way.EntityDB
                                 for (int i = 0; i < datareader.FieldCount; i++)
                                 {
                                     string name = datareader.GetName(i);
-                                    datatable.Columns.Add(new WayDataColumn(name,datareader.GetFieldType(i)));
+                                    datatable.Columns.Add(new WayDataColumn(name,datareader.GetFieldType(i).FullName));
                                 }
                                 dataset.Tables.Add(datatable);
                                 while (datareader.Read())

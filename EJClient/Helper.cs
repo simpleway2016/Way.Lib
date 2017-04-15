@@ -19,26 +19,7 @@ namespace EJClient
         {
             MessageBox.Show(win, msg);
         }
-        public static System.Data.DataTable GetDataTable(Way.EntityDB.WayDataTable source)
-        {
-            var dtable = new System.Data.DataTable();
-            dtable.TableName = source.TableName;
-            foreach (var column in source.Columns)
-            {
-                dtable.Columns.Add(new System.Data.DataColumn(column.ColumnName,column.DataType));
-            }
-            foreach (var row in source.Rows)
-            {
-                var newrow = dtable.NewRow();
-                foreach (var column in source.Columns)
-                {
-                    newrow[column.ColumnName] = row[column.ColumnName];
-                }
-                dtable.Rows.Add(newrow);
-            }
-            dtable.AcceptChanges();
-            return dtable;
-        }
+      
         public static void ShowMessage(string msg)
         {
             if(MainWindow.instance != null)

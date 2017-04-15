@@ -37,7 +37,7 @@ namespace Way.EntityDB
             this.TableName = source.TableName;
             foreach (System.Data.DataColumn column in source.Columns)
             {
-                this.Columns.Add(new WayDataColumn(column.ColumnName , column.DataType));
+                this.Columns.Add(new WayDataColumn(column.ColumnName , column.DataType.FullName));
             }
             foreach (System.Data.DataRow row in source.Rows)
             {
@@ -57,14 +57,15 @@ namespace Way.EntityDB
             dtable.TableName = this.TableName;
             foreach (var column in this.Columns)
             {
-                dtable.Columns.Add(new System.Data.DataColumn(column.ColumnName, column.DataType));
+                dtable.Columns.Add(new System.Data.DataColumn(column.ColumnName, typeof(int).Assembly.GetType(column.DataType)));
             }
             foreach (var row in this.Rows)
             {
                 var newrow = dtable.NewRow();
                 foreach (var column in this.Columns)
                 {
-                    newrow[column.ColumnName] = row[column.ColumnName];
+                    if(row[column.ColumnName] != null)
+                        newrow[column.ColumnName] = row[column.ColumnName];
                 }
                 dtable.Rows.Add(newrow);
             }
@@ -92,7 +93,7 @@ namespace Way.EntityDB
             get;
             set;
         }
-        public Type DataType
+        public string DataType
         {
             get;
             set;
@@ -100,7 +101,7 @@ namespace Way.EntityDB
         public WayDataColumn()
         {
         }
-        public WayDataColumn(string name , Type dtype)
+        public WayDataColumn(string name , string dtype)
         {
             this.DataType = dtype;
             this.ColumnName = name;
@@ -165,6 +166,8 @@ namespace Way.EntityDB
             }
             set
             {
+                if (value == DBNull.Value)
+                    value = null;
                 var item = _items.FirstOrDefault(m => m.Name == name);
                 if (item==null)
                 {

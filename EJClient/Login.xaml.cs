@@ -27,6 +27,7 @@ namespace EJClient
         }
         public Login()
         {
+            //System.IO.File.ReadAllText(@"D:\注释\2016\EasyJobCore\Way.EJServer\bin\Debug\netcoreapp1.0\web\a.txt").ToJsonObject<Net.RemotingClient.ResultInfo<Way.EntityDB.WayDataTable>>();
             InitializeComponent();
             try
             {

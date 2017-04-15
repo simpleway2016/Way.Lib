@@ -10,7 +10,7 @@ namespace EJClient.Net
 {
     class RemotingClient
     {
-        enum WayScriptRemotingMessageType
+        internal enum WayScriptRemotingMessageType
         {
             Result = 1,
             Notify = 2,
@@ -19,7 +19,7 @@ namespace EJClient.Net
             UploadFileBegined = 5,
             RSADecrptError = 6,
         }
-        class ResultInfo<T>
+        internal class ResultInfo<T>
         {
             public string sessionid;
             public T result;
@@ -125,21 +125,28 @@ namespace EJClient.Net
                     callback(default(T), response.result.ToSafeString());
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                
-                var response = responseString.ToJsonObject<ResultInfo<string>>();
+                try
+                {
+                    var response = responseString.ToJsonObject<ResultInfo<string>>();
 
-                if (response.type == WayScriptRemotingMessageType.Result)
-                {
-                    if (response.sessionid != null && response.sessionid.Length > 0)
-                        SessionID = response.sessionid;
-                    callback(default(T), null);
+                    if (response.type == WayScriptRemotingMessageType.Result)
+                    {
+                        if (response.sessionid != null && response.sessionid.Length > 0)
+                            SessionID = response.sessionid;
+                        callback(default(T), null);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"{name} error:{response.result}");
+                        callback(default(T), response.result.ToSafeString());
+                    }
                 }
-                else
+                catch(Exception ex2)
                 {
-                    Debug.WriteLine($"{name} error:{response.result}");
-                    callback(default(T), response.result.ToSafeString());
+                    Debug.WriteLine($"{name} error:{ex.ToString()}");
+                    callback(default(T), ex.ToString());
                 }
             }
            
@@ -162,26 +169,7 @@ namespace EJClient.Net
             {
                 ps = new string[0];
             }
-
-            //System.Net.WebClient web = new System.Net.WebClient();
-            //web.Headers["Content-Type"] = "application/json";
-            //byte[] bs = null;
-            //await Task.Run(()=>
-            //{
-            //    bs  = web.UploadData(_ServerUrl, System.Text.Encoding.UTF8.GetBytes((new InvokeM
-            //    {
-            //        m = new InvokeArg
-            //        {
-            //            ClassFullName = "Way.EJServer.MainController",
-            //            MethodName = name,
-            //            Parameters = ps,
-            //            SessionID = RemotingCookie
-            //        }
-            //    }).ToJsonString()));
-
-            //});
-
-            //string body = System.Text.Encoding.UTF8.GetString(bs);
+            
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Referer", _Referer);
             values["m"] = (new InvokeArg
@@ -219,11 +207,24 @@ namespace EJClient.Net
                     throw new Exception(response.result.ToSafeString());
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                var response = responseString.ToJsonObject<ResultInfo<string>>();
-                throw new Exception(response.result.ToSafeString());
+                string err = null;
+                try
+                {
+                    var response = responseString.ToJsonObject<ResultInfo<string>>();
+                    err = response.result.ToSafeString();
+                   
+                }
+                catch(Exception ex2)
+                {
+                    throw ex;
+                }
+                if(err != null)
+                    throw new Exception(err);
             }
+
+            return default(T);
 
         }
     }

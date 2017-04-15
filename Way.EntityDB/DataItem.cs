@@ -42,7 +42,7 @@ namespace Way.EntityDB
         }
     }
 
-    public class DataValueChangedItemCollection : Dictionary<string,object>
+    public class DataValueChangedItemCollection : Dictionary<string, DataValueChangedItem>
     {
         public DataValueChangedItem this[string key]
         {

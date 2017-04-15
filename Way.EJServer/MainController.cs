@@ -298,7 +298,7 @@ namespace Way.EJServer
                             var dataitem = new Way.EntityDB.CustomDataItem(table.Name, null, null);
                             foreach (var column in columns)
                             {
-                                if (column.IsAutoIncrement == false)
+                                if (column.IsAutoIncrement == false && drow[column.Name] != null)
                                     dataitem.SetValue(column.Name, drow[column.Name]);
                             }
                             invokingDB.Insert(dataitem);
@@ -431,6 +431,7 @@ namespace Way.EJServer
             }
         }
 
+        
         static System.Reflection.MethodInfo SqlQueryMethod;
         [RemotingMethod]
         public WayDataTable GetDataTable(string sql, int tableid, int pageindex, int pagesize)
