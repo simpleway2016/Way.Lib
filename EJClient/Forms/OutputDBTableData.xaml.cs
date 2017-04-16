@@ -102,7 +102,10 @@ namespace EJClient.Forms
                             readed++;
                         }
                     });
-                    this.Title = $"正在导出...{ (readed*100)/totalCount }%";
+                    if (totalCount > 0)
+                    {
+                        this.Title = $"正在导出...{ (readed * 100) / totalCount }%";
+                    }
                 }
                 bw.Close();
             }

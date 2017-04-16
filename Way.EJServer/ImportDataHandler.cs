@@ -101,11 +101,11 @@ namespace Way.EJServer
                         }
                     }
                 }
-                new System.IO.BinaryWriter( connectInfo.Response).Write("ok");
+                connectInfo.Response.Write("ok\r\n");
             }
             catch(Exception ex)
             {
-                new System.IO.BinaryWriter(connectInfo.Response).Write(ex.Message);
+                connectInfo.Response.Write($"{ex.Message}\r\n");
             }
             
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -51,50 +52,88 @@ namespace EJClient.Forms
             using (System.IO.BinaryReader br = new System.IO.BinaryReader(System.IO.File.OpenRead(_filepath)))
             {
                 string result = null;
-                string tablenames = br.ReadString();
+                var tablenames = br.ReadString().ToJsonObject< List<string>>();
                 int[] rowCounts = br.ReadString().ToJsonObject<int[]>();
-                var req = HttpWebRequest.Create($"{Helper.WebSite}/ImportTableData.aspx?dbid={m_databaseItemNode.Database.id}&clearDataFirst={(chkClearDataFirst.IsChecked == true ? 1 : 0)}") as System.Net.HttpWebRequest;
 
+                var host = $"{Helper.WebSite}/";
+                 host = host.Substring(host.IndexOf("://") + 3);
+                host = host.Substring(0 , host.IndexOf("/"));
+                int port = 80;
+                if(host.Contains(":"))
+                {
+                    port = Convert.ToInt32( host.Split(':')[1]);
+                    host = host.Split(':')[0];
+                }
+
+                string url = $"POST /ImportTableData.aspx?dbid={m_databaseItemNode.Database.id}&clearDataFirst={(chkClearDataFirst.IsChecked == true ? 1 : 0)}";
                 string[] importTables = new string[list.SelectedItems.Count];
                 for(int i = 0; i < list.SelectedItems.Count; i ++)
                 {
                     importTables[i] = list.SelectedItems[i].ToString();
                 }
+                int totalCount = 0;
+                for(int i = 0; i < importTables.Length; i ++)
+                {
+                    totalCount += rowCounts[tablenames.IndexOf(importTables[i])];
+                }
+                
                 await Task.Run(()=> {
-                    req.Headers["Cookie"] = $"WayScriptRemoting={Net.RemotingClient.SessionID}";
-                    req.AllowAutoRedirect = true;
-                    req.KeepAlive = false;
-                    req.Timeout = 2000000;
-                    req.ServicePoint.ConnectionLeaseTimeout = 2 * 60 * 1000;
-                    req.Method = "POST";
-                    req.ContentType = "import";
-
-                   
-                    var request = req.GetRequestStream();
-                    request.Flush();
-
-                    System.IO.BinaryWriter bw = new System.IO.BinaryWriter(request);
-                    bw.Write(importTables.ToJsonString());
-
-                  
-                    while (true)
+                    try
                     {
-                        string tablename = br.ReadString();
-                        if (tablename == ":end")
-                        {
-                            break;
-                        }
-                        string content = br.ReadString();
-                        if (importTables.Contains(tablename) == false)
-                            continue;
-                        bw.Write(tablename);
-                        bw.Write(content);
-                    }
-                    bw.Write(":end");
+                        Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                        socket.Connect(Dns.GetHostAddresses(host), port);
+                        Way.Lib.NetStream client = new Way.Lib.NetStream(socket);
+                        System.IO.StreamWriter stream = new System.IO.StreamWriter(client);
+                        stream.WriteLine(url);
+                        stream.WriteLine($"Cookie: WayScriptRemoting={Net.RemotingClient.SessionID}");
+                        stream.WriteLine($"Content-Type: import");
+                        stream.WriteLine("");
+                        stream.Flush();
 
-                    var res = req.GetResponse() as System.Net.HttpWebResponse;
-                    var reader = new System.IO.BinaryReader(res.GetResponseStream());
-                    result = reader.ReadString();
+
+                        System.IO.BinaryWriter bw = new System.IO.BinaryWriter(client);
+                        bw.Write(importTables.ToJsonString());
+
+                        int uploaded = 0;
+                        while (true)
+                        {
+                            string tablename = br.ReadString();
+                            if (tablename == ":end")
+                            {
+                                break;
+                            }
+                            string content = br.ReadString();
+                            if (importTables.Contains(tablename) == false)
+                                continue;
+                            bw.Write(tablename);
+                            bw.Write(content);
+                            bw.Flush();
+                            uploaded++;
+                            if (totalCount > 0)
+                            {
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    this.Title = $"正在导入...{(uploaded * 100) / totalCount}%";
+                                });
+                            }
+                        }
+                        bw.Write(":end");
+                        bw.Flush();
+
+                        
+                        var reader = new System.IO.StreamReader(client);
+                        while(true)
+                        {
+                            if (reader.ReadLine().Length == 0)
+                                break;
+                        }
+                        result = reader.ReadLine();
+                        client.Close();
+                    }
+                    catch(Exception ex)
+                    {
+                        result = ex.Message;
+                    }
                     
                 });
                 if (result != "ok")
