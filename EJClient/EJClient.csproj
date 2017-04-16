@@ -263,6 +263,9 @@
     <Compile Include="Forms\UserManager_Editor.xaml.cs">
       <DependentUpon>UserManager_Editor.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Forms\UserManager_PowerSetting.xaml.cs">
+      <DependentUpon>UserManager_PowerSetting.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\WpfPropertyGrid.cs" />
     <Compile Include="Forms\DBTableEditor.xaml.cs">
       <DependentUpon>DBTableEditor.xaml</DependentUpon>
@@ -400,6 +403,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Forms\UserManager_Editor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\UserManager_PowerSetting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

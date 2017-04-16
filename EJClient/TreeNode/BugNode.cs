@@ -19,9 +19,9 @@ namespace EJClient.TreeNode
         {
             if (m_thread_readBugCount == null)
             {
-                m_thread_readBugCount = new Thread(readBugCount);
-                m_thread_readBugCount.IsBackground = true;
-                m_thread_readBugCount.Start();
+                //m_thread_readBugCount = new Thread(readBugCount);
+                //m_thread_readBugCount.IsBackground = true;
+                //m_thread_readBugCount.Start();
             }
             
         }
@@ -49,26 +49,6 @@ namespace EJClient.TreeNode
             }
         }
 
-        void readBugCount()
-        {
-            int bugCount = 0;
-            while (true)
-            {
-                
-                try
-                {
-                    int count = Helper.Client.InvokeSync<int>("GetMyBugListCount");
-                    if (count != bugCount)
-                    {
-                        this.Name = string.Format("Bug({0})", count);
-                        bugCount = count;
-                    }
-                }
-                catch
-                {
-                }
-                Thread.Sleep(2000);
-            }
-        }
+       
     }
 }

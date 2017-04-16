@@ -53,14 +53,25 @@ namespace Way.EntityDB
             fieldName = fieldName.ToLower();
             var field = _fields.FirstOrDefault(m => m.FieldName == fieldName);
             if (field != null)
-                field.Value = value;
+            {
+                if (field.Value != value)
+                {
+                    SendPropertyChanging(fieldName, field.Value , value);
+                    field.Value = value;
+                 
+                }
+            }
             else
             {
-                _fields.Add(new FieldValue()
+                if (value != null)
+                {
+                    SendPropertyChanging(fieldName, null, value);
+                    _fields.Add(new FieldValue()
                     {
                         FieldName = fieldName,
                         Value = value
                     });
+                }
             }
         }
         public override object GetValue(string fieldName)

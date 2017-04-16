@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,127 +22,92 @@ namespace EJClient.Forms
     public partial class ImportData : Window
     {
         System.Data.DataSet m_dset;
+        string _filepath;
         TreeNode.DatabaseItemNode m_databaseItemNode;
         internal ImportData(string filename, TreeNode.DatabaseItemNode databaseItemNode)
         {
             m_databaseItemNode = databaseItemNode;
             InitializeComponent();
+            _filepath = filename;
 
-            m_dset = new System.Data.DataSet();
-            m_dset.ReadXml(filename);
-            List<string> names = new List<string>();
-            foreach (System.Data.DataTable t in m_dset.Tables)
+            using (System.IO.BinaryReader br = new System.IO.BinaryReader(System.IO.File.OpenRead(filename)))
             {
-                names.Add(t.TableName);
+                list.ItemsSource = br.ReadString().ToJsonObject<string[]>();
             }
-            list.ItemsSource = names;
             list.SelectAll();
             list.Focus();
-        }
-
-        private DataTable CopyData(DataTable source, int offset, int count)
-        {
-            DataTable dtable = new DataTable();
-            dtable.TableName = source.TableName;
-            for(int i = 0 ; i < source.Columns.Count ; i ++)
-            {
-                dtable.Columns.Add(new DataColumn(source.Columns[i].ColumnName , source.Columns[i].DataType));
-            }
-            for (int i = offset; i < offset + count && i < source.Rows.Count; i++)
-            {
-                DataRow drow = dtable.NewRow();
-                for (int j = 0; j < dtable.Columns.Count; j++)
-                {
-                    drow[j] = source.Rows[i][j];
-                }
-                dtable.Rows.Add(drow);
-            }
-            return dtable;
         }
 
         int m_total = 0;
         private void btnOK_Click_1(object sender, RoutedEventArgs e)
         {
-            btnOK.IsEnabled = false;
-            btnCancel.IsEnabled = false;
-            List<string> names = new List<string>();
-            foreach (string name in list.SelectedItems)
-            {
-                names.Add(name);
-            }
-            for (int i = 0; i < m_dset.Tables.Count; i++)
-            {
-                if (names.Contains(m_dset.Tables[i].TableName))
-                {
-                    m_total += m_dset.Tables[i].Rows.Count;
-                }
-            }
-            new System.Threading.Thread(import).Start();
+            this.IsEnabled = false;
+
+            import();
         }
 
-        void import()
+        async void import()
         {
-            bool firstCheckValue = false;
-            List<string> names = new List<string>();
-            this.Dispatcher.Invoke(new Action(() =>
-                {
-                    firstCheckValue = chkClearDataFirst.IsChecked.GetValueOrDefault();
-                    foreach (string name in list.SelectedItems)
-                    {
-                        names.Add(name);
-                    }
-                }));
-            
-            int done = 0;
-            try
+            using (System.IO.BinaryReader br = new System.IO.BinaryReader(System.IO.File.OpenRead(_filepath)))
             {
-                bool postchecked = true;
+                string result = null;
+                string tablenames = br.ReadString();
+                int[] rowCounts = br.ReadString().ToJsonObject<int[]>();
+                var req = HttpWebRequest.Create($"{Helper.WebSite}/ImportTableData.aspx?dbid={m_databaseItemNode.Database.id}&clearDataFirst={(chkClearDataFirst.IsChecked == true ? 1 : 0)}") as System.Net.HttpWebRequest;
 
-                for (int i = 0; i < m_dset.Tables.Count; i++)
+                string[] importTables = new string[list.SelectedItems.Count];
+                for(int i = 0; i < list.SelectedItems.Count; i ++)
                 {
-                    if (names.Contains(m_dset.Tables[i].TableName))
-                    {
-                        int index = 0;
-                        while (true)
-                        {
-                            using (DataSet newSet = new DataSet())
-                            {
-                                DataTable dtable = CopyData(m_dset.Tables[i], index, 100);
-                                index += 100;
-                                if (dtable.Rows.Count == 0)
-                                    break;
-                                newSet.Tables.Add(dtable);
-
-                                Helper.Client.InvokeSync<string>("ImportData", new Way.EntityDB.WayDataSet(newSet), m_databaseItemNode.Database.id.Value, postchecked ? firstCheckValue : false);
-                                postchecked = false;
-                                done += dtable.Rows.Count;
-                                this.Dispatcher.Invoke(new Action(() =>
-                                {
-                                    this.Title = "进度:" + (done * 100 / m_total) + "%";
-                                }));
-                            }
-
-                        }
-                    }
+                    importTables[i] = list.SelectedItems[i].ToString();
                 }
+                await Task.Run(()=> {
+                    req.Headers["Cookie"] = $"WayScriptRemoting={Net.RemotingClient.SessionID}";
+                    req.AllowAutoRedirect = true;
+                    req.KeepAlive = false;
+                    req.Timeout = 2000000;
+                    req.ServicePoint.ConnectionLeaseTimeout = 2 * 60 * 1000;
+                    req.Method = "POST";
+                    req.ContentType = "import";
 
-                this.Dispatcher.Invoke(new Action(() =>
+                   
+                    var request = req.GetRequestStream();
+                    request.Flush();
+
+                    System.IO.BinaryWriter bw = new System.IO.BinaryWriter(request);
+                    bw.Write(importTables.ToJsonString());
+
+                  
+                    while (true)
+                    {
+                        string tablename = br.ReadString();
+                        if (tablename == ":end")
+                        {
+                            break;
+                        }
+                        string content = br.ReadString();
+                        if (importTables.Contains(tablename) == false)
+                            continue;
+                        bw.Write(tablename);
+                        bw.Write(content);
+                    }
+                    bw.Write(":end");
+
+                    var res = req.GetResponse() as System.Net.HttpWebResponse;
+                    var reader = new System.IO.BinaryReader(res.GetResponseStream());
+                    result = reader.ReadString();
+                    
+                });
+                if (result != "ok")
                 {
-                    this.Title = "Import Sucessed!";
-                    MessageBox.Show(this, "Import Sucessed!");
+                    this.IsEnabled = true;
+                    Helper.ShowError(this , result);
+                }
+                else
+                {
+                   
+                    Helper.ShowMessage(this, "导入完毕！");
                     this.Close();
-                }));
-                
-            }
-            catch (Exception ex)
-            {
-                this.Dispatcher.Invoke(new Action(() =>
-                {
-                    btnOK.IsEnabled = true;
-                    btnCancel.IsEnabled = true;
-                    Helper.ShowError(ex);
-                }));
-               
+                }
             }
         }
     }

@@ -19,6 +19,9 @@ namespace Way.EJServer
             }
 
             ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
+            ScriptRemotingServer.RegisterHandler(new DownloadTableDataHandler());
+            ScriptRemotingServer.RegisterHandler(new ImportDataHandler());
+
             Console.WriteLine($"server starting at port:{port}...");
             var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}Port{port}";
 

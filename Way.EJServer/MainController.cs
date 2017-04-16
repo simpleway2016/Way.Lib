@@ -121,8 +121,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.Project CreateProject(string name)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             if (this.User.Role != EJ.User_RoleEnum.管理员)
                 throw new Exception("无权进行此项操作");
             using (EJDB db = new EJDB())
@@ -138,8 +136,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteProject(int id)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             if (this.User.Role != EJ.User_RoleEnum.管理员)
                 throw new Exception("无权进行此项操作");
             using (EJDB db = new EJDB())
@@ -150,8 +146,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void UpdateProject(int id, string name)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             if (this.User.Role != EJ.User_RoleEnum.管理员)
                 throw new Exception("无权进行此项操作");
             using (EJDB db = new EJDB())
@@ -164,8 +158,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetUserNameByID(int id)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 return db.User.FirstOrDefault(m => m.id == id).Name;
@@ -213,8 +205,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void ChangePassword(string oldpwd, string newpwd)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             if (this.User.Password != oldpwd)
                 throw new Exception("旧密码错误");
 
@@ -231,18 +221,170 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.Project[] GetCurrentUserProjectList()
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.Project.ToArray();
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [RemotingMethod]
+        public EJ.Project[] GetCurrentUserProjectToSetPowerList(int settingUserId)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var result = db.Project.ToArray();
+               foreach( var project in result )
+                {
+                    if (db.ProjectPower.Any(m => m.UserID == settingUserId && m.ProjectID == project.id))
+                    {
+                        project.BackupChangedProperties.Add("HasPower", new DataValueChangedItem());
+                    }
+                }
+                return result;
+            }
+        }
+        [RemotingMethod]
+        public EJ.Databases[] GetCurrentUserDatabaseToSetPowerList(int settingUserId , int projectid)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var result = db.Databases.Where(m=>m.ProjectID == projectid).ToArray();
+                foreach (var dbitem in result)
+                {
+                    if (db.DBPower.Any(m => m.UserID == settingUserId && m.DatabaseID == dbitem.id))
+                    {
+                        dbitem.BackupChangedProperties.Add("HasPower", new DataValueChangedItem());
+                    }
+                }
+                return result;
+            }
+        }
+        [RemotingMethod]
+        public EJ.DBTable[] GetCurrentUserDBTableToSetPowerList(int settingUserId, int databaseid)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var result = db.DBTable.Where(m => m.DatabaseID == databaseid).Select(m => new EJ.DBTable
+                {
+                    Name = m.Name,
+                    id = m.id
+                }).ToArray();
+            
+                foreach (var dbtable in result)
+                {
+                    if (db.TablePower.Any(m => m.UserID == settingUserId && m.TableID == dbtable.id))
+                    {
+                        dbtable.BackupChangedProperties.Add("HasPower", new DataValueChangedItem());
+                    }
+                }
+                return result;
+            }
+        }
+        [RemotingMethod]
+        public EJ.InterfaceModule[] GetCurrentUseInterfaceToSetPowerList(int settingUserId, int projectid,int parentid)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var result = db.InterfaceModule.Where(m => m.ProjectID == projectid && m.ParentID == parentid).ToArray();
+
+                foreach (var interfaceItem in result)
+                {
+                    if (interfaceItem.IsFolder == false)
+                    {
+                        if (db.InterfaceModulePower.Any(m => m.UserID == settingUserId && m.ModuleID == interfaceItem.id))
+                        {
+                            interfaceItem.BackupChangedProperties.Add("HasPower", new DataValueChangedItem());
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+        [RemotingMethod]
+        public int SetProjectPower(int projectid,int userid,bool hasPower)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var project = db.Project.Single(m => m.id == projectid);
+                if (!hasPower)
+                    db.Delete( db.ProjectPower.Where(m=>m.UserID == userid && m.ProjectID == projectid) );
+                else
+                {
+                    db.Insert(new EJ.ProjectPower() {
+                        ProjectID = projectid,
+                        UserID = userid
+                    });
+                }
+            }
+            return 0;
+        }
+
+        [RemotingMethod]
+        public int SetDatabasePower(int databaseid, int userid, bool hasPower)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var database = db.Databases.Single(m => m.id == databaseid);
+                if (!hasPower)
+                    db.Delete(db.DBPower.Where(m => m.UserID == userid && m.DatabaseID == databaseid));
+                else
+                {
+                    db.Insert(new EJ.DBPower()
+                    {
+                        DatabaseID = databaseid,
+                        UserID = userid
+                    });
+                }
+            }
+            return 0;
+        }
+
+        [RemotingMethod]
+        public int SetTablePower(int tableid, int userid, bool hasPower)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var table = db.DBTable.Single(m => m.id == tableid);
+                if (!hasPower)
+                    db.Delete(db.TablePower.Where(m => m.UserID == userid && m.TableID == tableid));
+                else
+                {
+                    db.Insert(new EJ.TablePower()
+                    {
+                        TableID = tableid,
+                        UserID = userid
+                    });
+                }
+            }
+            return 0;
+        }
+
+        [RemotingMethod]
+        public int SetInterfaceModulePower(int moduleid, int userid, bool hasPower)
+        {
+            using (EJDB_Check db = new EJDB_Check())
+            {
+                var interfaceModule = db.InterfaceModule.Single(m => m.id == moduleid);
+                if (!hasPower)
+                    db.Delete(db.InterfaceModulePower.Where(m => m.UserID == userid && m.ModuleID == moduleid));
+                else
+                {
+                    db.Insert(new EJ.InterfaceModulePower()
+                    {
+                        ModuleID = moduleid,
+                        UserID = userid
+                    });
+                }
+            }
+            return 0;
+        }
         [RemotingMethod]
         public EJ.TableInModule[] GetTablesInModule(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
                 var result = (from m in db.TableInModule
@@ -260,8 +402,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetPkColumnName(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var table = db.DBTable.FirstOrDefault(m => m.id == tableid);
@@ -271,8 +411,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void SaveDataTable(WayDataTable dt, int tableid, List<string> delIds)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             try
             {
                 using (EJDB db = new EJDB())
@@ -329,8 +467,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteDatabase(int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 db.Delete(db.Databases.Where(m => m.id == databaseid));
@@ -339,8 +475,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public WayDataTable GetActions(int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var database = db.Databases.FirstOrDefault(m => m.id == databaseid);
@@ -356,8 +490,6 @@ namespace Way.EJServer
         /// <param name="databaseid"></param>
         void setDataBaseIsNEW(int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             Way.EntityDB.IDatabaseService invokingDB = null;
             using (EJDB db = new EJDB())
             {
@@ -420,8 +552,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void RemoveTableFromModule(int tableInModuleId, int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var item = db.TableInModule.FirstOrDefault(m => m.id == tableInModuleId);
@@ -435,8 +565,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public WayDataTable GetDataTable(string sql, int tableid, int pageindex, int pagesize)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var dbtable = db.DBTable.FirstOrDefault(m => m.id == tableid);
@@ -459,40 +587,10 @@ namespace Way.EJServer
                 }
             }
         }
-        [RemotingMethod]
-        public void ImportData(WayDataSet dset, int databaseid, bool clearDataFirst)
-        {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-            try
-            {
-                using (EJDB db = new EJDB())
-                {
-                    var database = db.Databases.FirstOrDefault(m => m.id == databaseid);
-                    var invokingDB = DBHelper.CreateInvokeDatabase(database);
-                    {
-                        //不开事务，太慢
-                        var service = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)database.dbType);
-                        service.ImportData(invokingDB, db, dset, clearDataFirst);
-                        dset.Dispose();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                using (CLog log = new CLog("ImportData error "))
-                {
-                    log.Log(ex.ToString());
-                }
-                throw ex;
-            }
-        }
-
+      
         [RemotingMethod]
         public EJ.Databases GetDatabase(int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 return db.Databases.FirstOrDefault(m => m.id == databaseid);
@@ -501,8 +599,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.Databases[] GetDatabaseList(int projectid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.Databases.Where(m => m.ProjectID == projectid).OrderBy(m => m.Name).ToArray();
@@ -511,8 +607,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public int GetDBModuleID(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
                 var table = db.DBTable.FirstOrDefault(m => m.id == tableid);
@@ -528,8 +622,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateTableInMoudle(EJ.TableInModule tableInModule)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 try
@@ -572,8 +664,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBDeleteConfig[] GetDeleteConfigInModule(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var tableids = from m in db.TableInModule
@@ -589,8 +679,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public string[] GetTableNames(int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var names = from m in db.DBTable
@@ -602,8 +690,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string[] GetColumnNames(int databaseid, string tableName)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+
             using (EJDB db = new EJDB())
             {
                 var tableid = (from m in db.DBTable
@@ -619,8 +706,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBColumn[] GetColumns(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+
             using (EJDB db = new EJDB())
             {
                 var result = from m in db.DBColumn
@@ -634,8 +720,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string[] GetColumnNamesByTableName(string tablename, int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+
             using (EJDB db = new EJDB())
             {
                 var result = from m in db.DBColumn
@@ -649,8 +734,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBModule[] GetDBModuleList(int databaseid, int parentid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 return db.DBModule.Where(m => m.DatabaseID == databaseid && m.parentID == parentid).OrderBy(m => m.Name).ToArray();
@@ -659,8 +742,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBDeleteConfig[] GetTableDeleteConfigList(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 var results = db.DBDeleteConfig.Where(m => m.TableID == tableid).ToArray();
@@ -675,8 +756,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.IDXIndex[] GetTableIDXIndexList(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 return db.IDXIndex.Where(m => m.TableID == tableid).ToArray();
@@ -685,8 +764,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBTable[] GetTableList(int databaseid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.DBTable.Where(m => m.DatabaseID == databaseid).OrderBy(m => m.Name).ToArray();
@@ -710,8 +787,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBColumn[] GetColumnList(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 return db.DBColumn.Where(m => m.TableID == tableid).OrderBy(m => m.orderid).ToArray();
@@ -721,8 +796,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
@@ -893,8 +966,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteModule(EJ.DBModule module)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB db = new EJDB())
             {
                 db.Delete(module);
@@ -903,8 +974,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetDBTablePath(int tableid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
 
             using (EJDB_Check db = new EJDB_Check())
             {
@@ -923,8 +992,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetDBModulePath(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
 
             using (EJDB_Check db = new EJDB_Check())
             {
@@ -948,8 +1015,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateDBModule(EJ.DBModule module)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
 
             using (EJDB db = new EJDB())
             {
@@ -987,8 +1052,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteTable(int databaseID, string tableName)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
 
             Way.EntityDB.IDatabaseService invokingDB = null;
             using (EJDB db = new EJDB())
@@ -1051,9 +1114,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBTable CreateTable(EJ.DBTable table, EJ.DBColumn[] columns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
@@ -1195,9 +1256,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateDatabase(EJ.Databases dataitem)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             if (string.IsNullOrEmpty(dataitem.Name))
                 throw new Exception("database name is empty");
             if (string.IsNullOrEmpty(dataitem.conStr))
@@ -1291,9 +1350,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string[] GetProjectDllFiles(int projectid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 var datas = db.DLLImport.Where(m => m.ProjectID == projectid).ToList();
@@ -1308,9 +1365,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.InterfaceModule[] GetInterfaceModuleList(int projectid, int parentid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.InterfaceModule.Where(m => m.ProjectID == projectid && m.ParentID == parentid).OrderBy(m => m.Name).ToArray();
@@ -1319,9 +1374,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteInterfaceModule(EJ.InterfaceModule module)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+          
             using (EJDB db = new EJDB())
             {
                 db.Delete(module);
@@ -1330,9 +1383,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void UnLockInterfaceModule(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 var module = db.InterfaceModule.FirstOrDefault(m => m.id == moduleid);
@@ -1345,9 +1396,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public int LockInterfaceModule(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
             int userid = this.User.id.Value;
             using (EJDB_Check db = new EJDB_Check())
             {
@@ -1376,9 +1424,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateInterfaceModule(EJ.InterfaceModule module)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+          
             using (EJDB db = new EJDB())
             {
                 try
@@ -1415,9 +1461,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetInterfaceModulePath(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 StringBuilder result = new StringBuilder();
@@ -1437,9 +1481,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateInterfaceInModule(EJ.InterfaceInModule module)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB db = new EJDB())
             {
                 var docModule = db.InterfaceModule.FirstOrDefault(m => m.id == module.ModuleID);
@@ -1454,9 +1496,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteInterfaceInModule(EJ.InterfaceInModule module)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+            
             using (EJDB db = new EJDB())
             {
                 var docModule = db.InterfaceModule.FirstOrDefault(m => m.id == module.ModuleID);
@@ -1471,9 +1511,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.InterfaceInModule[] GetInterfaceInModule(int moduleid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.InterfaceInModule.Where(m => m.ModuleID == moduleid).ToArray();
@@ -1482,9 +1520,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int GetInterfaceModuleID(int interfaceInModuleId)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 var item = db.InterfaceInModule.FirstOrDefault(m => m.id == interfaceInModuleId);
@@ -1496,9 +1532,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetInterfaceInModulePath(int itemid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+          
             using (EJDB_Check db = new EJDB_Check())
             {
                 StringBuilder result = new StringBuilder();
@@ -1541,9 +1575,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public SearchContent[] Search(string key, int pagesize, int pageindex)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.SearchContents.Where(m => m.Content.Contains(key)).OrderBy(m => m.Type).Skip(pagesize * pageindex).Take(pagesize).ToArray();
@@ -1553,9 +1585,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void SubmitBug(string title, byte[] textContent, byte[] picContent)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
-
+          
             using (EJDB db = new EJDB())
             {
                 db.BeginTransaction();
@@ -1600,8 +1630,6 @@ namespace Way.EJServer
         [RemotingMethod]
         public int GetMyBugListCount()
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
             using (EJDB_Check db = new EJDB_Check())
             {
                 if (this.User.Role == EJ.User_RoleEnum.客户端测试人员)
@@ -1613,8 +1641,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public BugItem[] GetMyBugs()
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+          
             using (EJDB_Check db = new EJDB_Check())
             {
                 var query = from m in db.MyBugList
@@ -1641,8 +1668,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public BugHistoryItem[] GetBugHistories(int bugid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+           
             using (EJDB_Check db = new EJDB_Check())
             {
 
@@ -1663,8 +1689,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetBugPicture(int bugid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+           
             using (EJDB_Check db = new EJDB_Check())
             {
                 var pic = db.BugImages.FirstOrDefault(m => m.BugID == bugid);
@@ -1676,8 +1701,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void BugFinish(int bugid)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+            
             using (EJDB_Check db = new EJDB_Check())
             {
                 var bug = db.Bug.FirstOrDefault(m => m.id == bugid);
@@ -1688,8 +1712,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void SubmitHistory(int bugid, byte[] txtContent)
         {
-            if (this.User == null)
-                throw new Exception("请重新登陆");
+         
             using (EJDB_Check db = new EJDB_Check())
             {
                 if (txtContent != null)

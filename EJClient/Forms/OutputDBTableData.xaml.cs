@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,24 +47,67 @@ namespace EJClient.Forms
                         sf.Filter = "*.xml|*.xml";
                         if (sf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         {
-                            MessageBox.Show(this, "未实现");
-                            //using (Web.DatabaseService web = Helper.CreateWebService())
-                            //{
-                            //    using (var dataset = web.GetDataSet(tableids.ToArray()))
-                            //    {
-                            //        dataset.WriteXml(sf.FileName, System.Data.XmlWriteMode.WriteSchema);
-                            //    }
-                            //    MessageBox.Show(this, "Output Sucessed!");
-                            //    this.Close();
-                            //}
+                            this.IsEnabled = false;
+                            output(sf.FileName , tableids.ToArray());
+
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Helper.ShowError(ex);
+                Helper.ShowError(this, ex);
             }
+        }
+
+        async void output(string filename,int[] tableids)
+        {
+            this.Title = $"正在导出...0%";
+            System.IO.BinaryReader br = null;
+            int[] rowcounts = null;
+            string tableNamesDesc = null;
+            await Task.Run(()=> {
+                var req = HttpWebRequest.Create(Helper.WebSite + "/DownloadTableData.aspx?tableids=" + tableids.ToJsonString()) as System.Net.HttpWebRequest;
+                req.Headers["Cookie"] = $"WayScriptRemoting={Net.RemotingClient.SessionID}";
+                req.AllowAutoRedirect = true;
+                req.KeepAlive = false;
+                req.Timeout = 20000;
+                req.ServicePoint.ConnectionLeaseTimeout = 2 * 60 * 1000;
+
+                var res = req.GetResponse() as System.Net.HttpWebResponse;
+                br = new System.IO.BinaryReader(res.GetResponseStream());
+                tableNamesDesc = br.ReadString();
+                rowcounts = br.ReadString().ToJsonObject<int[]>();
+            });
+            int totalCount = rowcounts.Sum();
+            using (System.IO.BinaryWriter bw = new System.IO.BinaryWriter(System.IO.File.Create(filename)))
+            {
+                bw.Write(tableNamesDesc);
+                bw.Write(rowcounts.ToJsonString());
+
+                int readed = 0;
+                bool isEnd = false;
+                while (!isEnd)
+                {
+                    await Task.Run(()=> {
+                        string tablename = br.ReadString();
+                        bw.Write(tablename);
+                        if (tablename == ":end")
+                        {
+                            isEnd = true;
+                        }
+                        else
+                        {
+                            bw.Write(br.ReadString());
+                            readed++;
+                        }
+                    });
+                    this.Title = $"正在导出...{ (readed*100)/totalCount }%";
+                }
+                bw.Close();
+            }
+            Helper.ShowMessage(this, "数据导出完毕！");
+            this.Close();
         }
     }
 }

@@ -63,6 +63,28 @@ namespace Way.Lib.ScriptRemoting.Net
             }
         }
 
+        public int? ContentLength
+        {
+            get
+            {
+                if (_Headers.ContainsKey("Content-Length") == false)
+                    return null;
+                return Convert.ToInt32(_Headers["Content-Length"]);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    if (_Headers.ContainsKey("Content-Length"))
+                    {
+                        _Headers.Remove("Content-Length");
+                    }
+                }
+                else
+                    _Headers["Content-Length"] = value.ToString();
+            }
+        }
+
         public override long Position
         {
             get
@@ -180,10 +202,24 @@ namespace Way.Lib.ScriptRemoting.Net
             if (mClient == null)
                 return;
 
-            if (_Headers["Content-Length"] == null)
+            if (_Headers["Content-Length"] == null && this.buffer != null)
             {
-                this.buffer.Write(content , offset , count);
-                return;
+                this.buffer.Write(content, offset, count);
+                if (this.buffer.Length > 1024*8)
+                {
+                    content = new byte[_buffer.Length];
+                    _buffer.Position = 0;
+                    _buffer.Read(content, 0, content.Length);
+                    _buffer.Dispose();
+                    _buffer = null;
+
+                    offset = 0;
+                    count = content.Length;
+                }
+                else
+                {
+                    return;
+                }
             }
 
             if (!_sendedHeader)
@@ -196,7 +232,16 @@ namespace Way.Lib.ScriptRemoting.Net
                 StringBuilder buffer = new StringBuilder();
                 foreach (var headeritem in this.Headers)
                 {
-                    buffer.Append($"{headeritem.Key}: {headeritem.Value}\r\n");
+                    try
+                    {
+                        if (headeritem.Key == "Content-Length" && Convert.ToInt32(headeritem.Value) < 0)
+                            continue;
+                        buffer.Append($"{headeritem.Key}: {headeritem.Value}\r\n");
+                    }
+                    catch
+                    {
+
+                    }
                 }
                 buffer.Append("\r\n");
                 mClient.Socket.Send(getBytes("HTTP/1.1 200 OK\r\n"));

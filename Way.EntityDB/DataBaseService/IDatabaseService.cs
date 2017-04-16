@@ -26,6 +26,12 @@ namespace Way.EntityDB
         void Update(DataItem dataitem);
         void Delete(DataItem dataitem);
         /// <summary>
+        /// 允许自增长字段手动设置值
+        /// </summary>
+        /// <param name="tablename">表名</param>
+        /// <param name="allow">是否允许</param>
+        void AllowIdentityInsert(string tablename ,bool allow);
+        /// <summary>
         /// 执行sql语句
         /// </summary>
         /// <param name="sql"></param>
@@ -33,7 +39,13 @@ namespace Way.EntityDB
         /// <returns></returns>
         object ExecSqlString(string sql,params object[] sqlparameters);
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="func">datareader读取数据期间的委托函数，如果返回false，表示不继续从数据库读取数据</param>
+        /// <param name="sql"></param>
+        /// <param name="sqlparameters"></param>
+        void ExecuteReader(Func<System.Data.IDataReader,bool> func, string sql, params object[] sqlparameters);
         /// <summary>
         /// 通过sql语句，读取DataTable
         /// </summary>

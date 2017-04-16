@@ -51,14 +51,15 @@ namespace EJClient.Forms.BugCenter
             this.Left = SystemParameters.WorkArea.Width - this.Width - 260;
             this.Top = 0;
 
-            new System.Threading.Thread(readBugCount)
-            {
-                IsBackground = true,
-            }.Start();
+            //new System.Threading.Thread(readBugCount)
+            //{
+            //    IsBackground = true,
+            //}.Start();
         }
 
         void readBugCount()
         {
+
             int bugCount = 0;
             while (true)
             {

@@ -102,7 +102,7 @@ namespace Way.Lib.ScriptRemoting
                 else
                 {
                    
-                    string url = this.Request.Headers["GET"].ToSafeString();
+                    string url = (this.Request.Headers["GET"] == null ? this.Request.Headers["POST"] : this.Request.Headers["GET"]).ToSafeString();
                    
                      if (url.Contains("?"))
                     {

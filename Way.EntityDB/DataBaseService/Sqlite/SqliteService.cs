@@ -37,7 +37,10 @@ namespace Way.EntityDB
         {
             return new SqliteConnection(connectString);
         }
+        public virtual void AllowIdentityInsert(string tablename, bool allow)
+        {
 
+        }
         public virtual string FormatObjectName(string name)
         {
             if (name.StartsWith("[") || name.StartsWith("("))
@@ -460,6 +463,44 @@ namespace Way.EntityDB
             return SelectTable(sql, sqlparameters);
         }
 
+        public void ExecuteReader(Func<System.Data.IDataReader,bool> func , string sql, params object[] parames)
+        {
+            bool needToClose = false;
+            if (this.Connection.State != System.Data.ConnectionState.Open)
+            {
+                needToClose = true;
+                this.Connection.Open();
+            }
+            try
+            {
+                using (var command = this.CreateCommand(sql, parames))
+                {
+                    var dataset = new WayDataSet();
+                    using (var datareader = command.ExecuteReader())
+                    {
+
+                        while (datareader.Read())
+                        {
+                            if (func(datareader) == false)
+                                break;
+                        }
+                        
+                    }
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (needToClose)
+                {
+                    this.Connection.Close();
+                }
+            }
+        }
 
         public DBContext DBContext
         {

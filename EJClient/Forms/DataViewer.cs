@@ -243,78 +243,79 @@ namespace EJClient.Forms
         private void bindData()
         {
             this.Cursor = Cursors.WaitCursor;
-            try
-            {
-                var dt = Helper.Client.InvokeSync<Way.EntityDB.WayDataTable>("GetDataTable", richTextBox1.Text, m_Table.id.Value, pageindex, pagesize).ToDataTable();
-                if(dt.Rows.Count == 0 )
+            Helper.Client.Invoke<Way.EntityDB.WayDataTable>("GetDataTable",(r,err)=> {
+                this.Cursor = null;
+                if (err != null)
                 {
+                    MessageBox.Show(this, err);
+                }
+                else
+                {
+                    var dt = r.ToDataTable();
+                    if (dt.Rows.Count == 0)
+                    {
 
-                    //如果没有数据，可能column的数据类型都会是int，这样不对
+                        //如果没有数据，可能column的数据类型都会是int，这样不对
+                        for (int i = 0; i < dt.Columns.Count; i++)
+                        {
+                            try
+                            {
+                                dt.Columns[i].DataType = SqlType2CsharpType(SqlTypeString2SqlType(m_columns.FirstOrDefault(m => m.Name == dt.Columns[i].ColumnName).dbType));
+                            }
+                            catch { }
+                        }
+                    }
+
+                    int rowcount = dt.TableName.ToInt();
+                    dt.AcceptChanges();
+                    deletedIds.Clear();
+                    dataGridView1.DataSource = dt;
+                    bool addChk = false;
+                    if (checkedListBox1.Items.Count != dt.Columns.Count)
+                    {
+                        addChk = true;
+                        while (checkedListBox1.Items.Count > 1)
+                            checkedListBox1.Items.RemoveAt(1);
+
+                    }
+
                     for (int i = 0; i < dt.Columns.Count; i++)
                     {
-                        try
+                        if (addChk)
                         {
-                            dt.Columns[i].DataType = SqlType2CsharpType(SqlTypeString2SqlType(m_columns.FirstOrDefault(m=>m.Name == dt.Columns[i].ColumnName).dbType));
+                            checkedListBox1.Items.Add(dt.Columns[i].ColumnName, notSelecteds.Contains(dt.Columns[i].ColumnName) ? false : true);
                         }
-                        catch { }
+
+                        if (dt.Columns[i].DataType == typeof(DateTime))
+                        {
+                            dataGridView1.Columns[i].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
+                        }
+                        else if (dt.Columns[i].DataType == typeof(bool))
+                        {
+                            dataGridView1.Columns[i].DefaultCellStyle.Format = "{0}";
+                        }
                     }
+
+                    pagecount = rowcount / pagesize;
+                    if (rowcount % pagesize > 0)
+                        pagecount++;
+
+                    bindingNavigator1.Enabled = true;
+                    bindingNavigatorCountItem.Text = "/ " + pagecount;
+                    bindingNavigatorPositionItem.Text = Convert.ToString(pageindex + 1);
+                    bindingNavigatorPositionItem.Enabled = true;
+
+                    bindingNavigatorMovePreviousItem.Enabled = pageindex > 0;
+                    bindingNavigatorMoveFirstItem.Enabled = pageindex > 0;
+
+                    bindingNavigatorMoveNextItem.Enabled = pageindex < pagecount - 1;
+                    bindingNavigatorMoveLastItem.Enabled = bindingNavigatorMoveNextItem.Enabled;
+
+                    hideGridColumn();
                 }
+            }, richTextBox1.Text, m_Table.id.Value, pageindex, pagesize);
 
-                int rowcount = dt.TableName.ToInt();
-                dt.AcceptChanges();
-                deletedIds.Clear();
-                dataGridView1.DataSource = dt;
-                bool addChk = false;
-                if (checkedListBox1.Items.Count != dt.Columns.Count)
-                {
-                    addChk = true;
-                    while (checkedListBox1.Items.Count > 1)
-                        checkedListBox1.Items.RemoveAt(1);
-
-                }
-
-                for (int i = 0; i < dt.Columns.Count; i++)
-                {
-                    if (addChk)
-                    {
-                        checkedListBox1.Items.Add(dt.Columns[i].ColumnName, notSelecteds.Contains(dt.Columns[i].ColumnName) ? false : true);
-                    }
-
-                    if (dt.Columns[i].DataType == typeof(DateTime))
-                    {
-                        dataGridView1.Columns[i].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
-                    }
-                    else if (dt.Columns[i].DataType == typeof(bool))
-                    {
-                        dataGridView1.Columns[i].DefaultCellStyle.Format = "{0}";
-                    }
-                }
-
-                pagecount = rowcount / pagesize;
-                if (rowcount % pagesize > 0)
-                    pagecount++;
-
-                bindingNavigator1.Enabled = true;
-                bindingNavigatorCountItem.Text = "/ " + pagecount;
-                bindingNavigatorPositionItem.Text = Convert.ToString(pageindex + 1);
-                bindingNavigatorPositionItem.Enabled = true;
-
-                bindingNavigatorMovePreviousItem.Enabled = pageindex > 0;
-                bindingNavigatorMoveFirstItem.Enabled = pageindex > 0;
-
-                bindingNavigatorMoveNextItem.Enabled = pageindex < pagecount - 1;
-                bindingNavigatorMoveLastItem.Enabled = bindingNavigatorMoveNextItem.Enabled;
-
-                hideGridColumn();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
+          
         }
 
         private void bindingNavigatorMoveNextItem_Click(object sender, EventArgs e)

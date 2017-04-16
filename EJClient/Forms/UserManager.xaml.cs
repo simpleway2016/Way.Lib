@@ -52,7 +52,8 @@ namespace EJClient.Forms
 
         private void powersetting_click(object sender, RoutedEventArgs e)
         {
-
+            Button btn = sender as Button;
+            new UserManager_PowerSetting((btn.Tag as EJ.User).id.Value) { Owner = this }.ShowDialog();
         }
 
         private void btnAdd_Click(object sender, RoutedEventArgs e)

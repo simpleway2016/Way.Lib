@@ -36,7 +36,10 @@ namespace Way.EntityDB
             return new MySqlConnection(connectString);
         }
 
-        
+        public override void AllowIdentityInsert(string tablename, bool allow)
+        {
+            
+        }
         public override WayDataTable SelectTable(string sql, int skip, int take, params object[] sqlparameters)
         {
             sql = string.Format("select * from ({0}) as t1 limit {1},{2}", sql, skip, take);

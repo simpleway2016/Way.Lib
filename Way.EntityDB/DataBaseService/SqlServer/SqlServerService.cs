@@ -27,7 +27,10 @@ namespace Way.EntityDB
              return new SqlConnection(connectString);
          }
 
-        
+        public override void AllowIdentityInsert(string tablename, bool allow)
+        {
+            this.ExecSqlString($"SET IDENTITY_INSERT [{tablename}] {(allow ? "on":"off")}");
+        }
         public override WayDataTable SelectTable(string sql, int skip, int take, params object[] sqlparameters)
         {
             sql = string.Format("SELECT * FROM  ({0}) as t1 ORDER BY 1   OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY", sql, skip, take);

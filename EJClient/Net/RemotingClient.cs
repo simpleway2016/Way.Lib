@@ -32,8 +32,8 @@ namespace EJClient.Net
             public string[] Parameters;
             public string SessionID;
         }
-        string _sessionid = "";
-        string SessionID
+        static string _sessionid = "";
+        public static string SessionID
         {
             get
             {
@@ -42,9 +42,9 @@ namespace EJClient.Net
             set
             {
                 _sessionid = value;
-                AppLib.WindowsControl.ExtendedWebBrowser.InternetSetCookie(_ServerUrl, "WayScriptRemoting", value);
             }
         }
+       
         string _ServerUrl;
         string _Referer;
         public RemotingClient(string serverUrl)

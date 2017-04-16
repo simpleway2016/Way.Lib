@@ -21,6 +21,7 @@ namespace EJClient.BuildDatabase
             {
                 req = HttpWebRequest.Create(Helper.WebSite + "/DownloadDatabaseCode.aspx?databaseid=" + databaseid) as System.Net.HttpWebRequest;
                 req.CookieContainer = new CookieContainer();
+                req.CookieContainer.Add(new Cookie("WayScriptRemoting", Net.RemotingClient.SessionID));
                 req.AllowAutoRedirect = true;
                 req.KeepAlive = false;
                 req.Timeout = 20000;
