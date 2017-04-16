@@ -71,17 +71,17 @@ namespace Way.EJServer
         {
             if (e.DataItem is EJ.DLLImport)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.管理员) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.管理员) == false)
                     throw new Exception("你没有权限");
             }
             else if (e.DataItem is EJ.Databases)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.管理员) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.管理员) == false)
                     throw new Exception("你没有移除数据库的权限");
             }
             else if (e.DataItem is EJ.DBModule || e.DataItem is EJ.Databases || e.DataItem is EJ.Project || e.DataItem is EJ.TableInModule || e.DataItem is EJ.DBTable || e.DataItem is EJ.DBColumn)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有修改数据表的权限");
             }
 
@@ -90,19 +90,19 @@ namespace Way.EJServer
                 return;
             if (e.DataItem is EJ.DBModule)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有修改数据表的权限");
                 beforeDelete_IDBModule(db, (EJ.DBModule)e.DataItem);
             }
             else if (e.DataItem is EJ.InterfaceModule)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有修改数据表的权限");
                 beforeDelete_InterfaceModule(db, (EJ.InterfaceModule)e.DataItem);
             }
             else if (e.DataItem is EJ.DBTable || e.DataItem is EJ.DBColumn)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有修改数据表的权限");
             }
             else if (e.DataItem is EJ.Databases)
@@ -116,17 +116,17 @@ namespace Way.EJServer
         {
             if (e.DataItem is EJ.DLLImport)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.管理员) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.管理员) == false)
                     throw new Exception("你没有权限");
             }
             else if (e.DataItem is EJ.Databases || e.DataItem is EJ.Project || e.DataItem is EJ.DBModule || e.DataItem is EJ.TableInModule || e.DataItem is EJ.DBTable || e.DataItem is EJ.DBColumn)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有修改数据表的权限");
             }
             else if (e.DataItem is EJ.DBModule)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有此项权限");
             }
         }
@@ -135,19 +135,19 @@ namespace Way.EJServer
         {
             if (e.DataItem is EJ.DLLImport)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.管理员) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.管理员) == false)
                     throw new Exception("你没有权限");
             }
             else if (e.DataItem is EJ.InterfaceModulePower)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.管理员) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.管理员) == false)
                     throw new Exception("你没有权限");
                 
 
             }
             else if (e.DataItem is EJ.Databases || e.DataItem is EJ.Project || e.DataItem is EJ.DBModule || e.DataItem is EJ.DBTable || e.DataItem is EJ.DBColumn)
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     throw new Exception("你没有修改数据表的权限");
             }
         }

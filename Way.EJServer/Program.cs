@@ -20,17 +20,19 @@ namespace Way.EJServer
 
             ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
             Console.WriteLine($"server starting at port:{port}...");
-            if (!System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}web"))
+            var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}Port{port}";
+
+            if (!System.IO.Directory.Exists(webroot))
             {
-                System.IO.Directory.CreateDirectory($"{Way.Lib.PlatformHelper.GetAppDirectory()}web");
+                System.IO.Directory.CreateDirectory(webroot);
             }
 
-            if (System.IO.File.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}web/main.html") == false)
+            if (System.IO.File.Exists($"{webroot}/main.html") == false)
             {
-                System.IO.File.WriteAllText($"{Way.Lib.PlatformHelper.GetAppDirectory()}web/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
+                System.IO.File.WriteAllText($"{webroot}/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
             }
-            Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}web");
-            ScriptRemotingServer.Start(6060, $"{Way.Lib.PlatformHelper.GetAppDirectory()}web", 1);
+            Console.WriteLine($"path:{webroot}");
+            ScriptRemotingServer.Start(6060, webroot, 1);
 
             while (true)
             {

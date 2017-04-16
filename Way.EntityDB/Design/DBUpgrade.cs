@@ -38,20 +38,15 @@ namespace Way.EntityDB.Design
                     int count = query.Count();
                     int done = 0;
                     int? lastid = null;
+                    var assembly = typeof(Way.EntityDB.Design.Actions.CreateTableAction).GetTypeInfo().Assembly;
                     foreach (var datarow in query)
                     {
                         string actionType = datarow["type"].ToString();
                         int id = Convert.ToInt32(datarow["id"]);
 
                         string json = datarow["content"].ToString();
-
-                        if (actionType.StartsWith("ECWeb.Database.Actions"))
-                        {
-                            actionType = "EntityDB.Design." + actionType.Substring("ECWeb.Database.".Length);
-                        }
-                        if (actionType.StartsWith("EntityDB."))
-                            actionType = "Way." + actionType;
-                        Type type = typeof(EntityDB.Design.Actions.Action).GetTypeInfo().Assembly.GetType(actionType);
+                                               
+                        Type type = assembly.GetType($"Way.EntityDB.Design.Actions.{actionType}");
                         var actionItem = (EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
 
                         actionItem.Invoke(db);

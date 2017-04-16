@@ -357,6 +357,7 @@ namespace EJClient.Forms
                     if (m_column.EnumDefine != value)
                     {
                         m_column.EnumDefine = value;
+                        this.dbType = "int";
                         if (PropertyChanged != null)
                             PropertyChanged(this, new PropertyChangedEventArgs("EnumDefine"));
                     }
@@ -581,11 +582,7 @@ namespace EJClient.Forms
             }
             for (int i = 0; i < m_columns.Count; i++)
             {
-                if (m_columns[i].EnumDefine.IsNullOrEmpty() == false && m_columns[i].defaultValue.IsNullOrEmpty())
-                {
-                    MessageBox.Show(this, string.Format("{0}({1})定义为枚举类型，所以必须定义默认值", m_columns[i].Name, m_columns[i].caption));
-                    return;
-                }
+                
                 if (m_columns[i].EnumDefine.IsNullOrEmpty() == false && m_columns[i].dbType != "int")
                 {
                     MessageBox.Show(this, string.Format("{0}({1})定义为枚举类型，所以必须是int类型", m_columns[i].Name, m_columns[i].caption));

@@ -20,16 +20,12 @@ namespace EJClient.Designer
 											"int",
 											"image",
 											"text",
-											"uniqueidentifier",
-											"tinyint",
 											"smallint",
 											"smalldatetime",
 											"real",
 											"money",
 											"datetime",
 											"float",
-											"sql_variant",
-											"ntext",
 											"bit",
 											"decimal",
 											"numeric",
@@ -38,10 +34,7 @@ namespace EJClient.Designer
 											"varbinary",
 											"binary",
 											"char",
-											"timestamp",
-											"nvarchar",
-											"nchar",
-											"sysname" });
+											"timestamp", });
 
 			StandardValuesCollection svc = new StandardValuesCollection((from m in val orderby m select m).ToArray());
 			return svc;

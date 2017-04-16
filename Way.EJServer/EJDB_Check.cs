@@ -12,7 +12,7 @@ namespace Way.EJServer
         {
             get
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师))
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师))
                 {
                     return base.DBTable;
                 }
@@ -47,7 +47,7 @@ namespace Way.EJServer
         {
             get
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师))
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师))
                 {
                     return base.Databases;
                 }
@@ -64,7 +64,7 @@ namespace Way.EJServer
         {
             get
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师))
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师))
                 {
                     return base.TableInModule;
                 }
@@ -82,7 +82,7 @@ namespace Way.EJServer
         {
             get
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师))
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师))
                 {
                     return base.InterfaceModule;
                 }
@@ -101,7 +101,7 @@ namespace Way.EJServer
         {
             get
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师))
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师))
                 {
                     return base.InterfaceInModule;
                 }
@@ -120,7 +120,7 @@ namespace Way.EJServer
         {
             get
             {
-                if (LoginUser.Role.HasFlag(EJ.User_RoleEnum.数据库设计师))
+                if (LoginUser.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师))
                 {
                     var query = from m in this.Bug
                                 select m;

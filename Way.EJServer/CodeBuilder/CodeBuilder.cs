@@ -210,16 +210,10 @@ System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
                     return "System.Nullable<Int16>";
                 case "smallmoney":
                     return "System.Nullable<Decimal>";
-                case "sql_variant":
-                    return "Object";
                 case "text":
                     return "String";
                 case "timestamp":
                     return "Byte[]";
-                case "tinyint":
-                    return "Byte";
-                case "uniqueidentifier":
-                    return "Guid";
                 case "varbinary":
                     return "Byte[]";
                 case "varchar":
@@ -374,9 +368,8 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 
                     }
                     enumDefines.Append("}\r\n");
-
-                    dataType = table.Name + "_" + column.Name + "Enum";
-                    eqString = "=(" + dataType + ")int.MinValue";
+                    
+                    dataType = "System.Nullable<" + table.Name + "_" + column.Name + "Enum>";
                 }
 
             

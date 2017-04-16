@@ -41,7 +41,6 @@ namespace Way.EJServer
         {
             using (EJDB db = new EJDB())
             {
-
                 if (db.User.Any() == false)
                 {
                     //如果没有任何用户，需要添加一个sa用户
@@ -52,7 +51,7 @@ namespace Way.EJServer
                     db.Insert(saUser);
                 }
                 var user = db.User.FirstOrDefault(m => m.Name == name);
-                if (user.Password != pwd)
+                if (user == null || user.Password != pwd)
                     throw new Exception("用户名密码错误");
                 Session["user"] = user;
 
@@ -537,10 +536,10 @@ namespace Way.EJServer
                 {
                     db.BeginTransaction();
 
-                    if (tableInModule.id == null && this.User.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                    if (tableInModule.id == null && this.User.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                         throw new Exception("你没有权限进行此操作");
 
-                    if (tableInModule.id != null && this.User.Role.HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
+                    if (tableInModule.id != null && this.User.Role.GetValueOrDefault().HasFlag(EJ.User_RoleEnum.数据库设计师) == false)
                     {
                         //更新位置的话直接忽略
                         return 0;
@@ -1148,6 +1147,42 @@ namespace Way.EJServer
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// 重建数据库action
+        /// </summary>
+        void rebuildDatabaseActions(EJDB db, EJ.Databases dbobj)
+        {
+            db.BeginTransaction();
+            try
+            {
+                db.Database.ExecSqlString($"delete from __action where databaseid={dbobj.id}");
+                var tables = db.DBTable.Where(m => m.DatabaseID == dbobj.id).ToArray();
+                foreach( var table in tables )
+                {
+                    var columns = db.DBColumn.Where(m => m.TableID == table.id).ToArray();
+                    var indexes = db.IDXIndex.Where(m => m.TableID == table.id).ToArray();
+                    IndexInfo[] idxConfigs = new IndexInfo[indexes.Length];
+                    for(int i = 0; i < idxConfigs.Length; i ++)
+                    {
+                        idxConfigs[i] = new IndexInfo() {
+                            ColumnNames = indexes[i].Keys.Split(','),
+                            IsClustered = indexes[i].IsClustered.GetValueOrDefault(),
+                            IsUnique = indexes[i].IsUnique.GetValueOrDefault(),
+                            Name = $"{table.Name}_{indexes[i].Keys.Replace(",","_")}",
+                        };
+                    }
+                    var action = new CreateTableAction(table, columns, idxConfigs);
+                    action.Save(db , dbobj.id.Value);
+                }
+                db.CommitTransaction();
+            }
+            catch(Exception ex)
+            {
+                db.RollbackTransaction();
+                throw ex;
+            }
         }
 
         /// <summary>

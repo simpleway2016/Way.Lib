@@ -32,7 +32,7 @@ create table __action (
             }
 
             var action = new EntityDB.CustomDataItem("__action" , "id" , null);
-            action.SetValue("type", this.GetType().FullName);
+            action.SetValue("type", this.GetType().Name);
             action.SetValue("databaseid",databaseid);
             action.SetValue("content", this.ToJsonString());
 
