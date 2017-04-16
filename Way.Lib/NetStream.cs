@@ -96,8 +96,8 @@ namespace Way.Lib
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SendTimeout = 10000;
             socket.ReceiveTimeout = 10000;
-
-            socket.Connect(IPAddress.Parse(Address), port);
+            System.Net.DnsEndPoint endPoint = new DnsEndPoint(Address , port);
+            socket.Connect(endPoint);
             this.m_ClientSocket = socket;
         }
 

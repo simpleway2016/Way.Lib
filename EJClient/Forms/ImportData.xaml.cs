@@ -81,7 +81,7 @@ namespace EJClient.Forms
                     try
                     {
                         Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                        socket.Connect(Dns.GetHostAddresses(host), port);
+                        socket.Connect(new System.Net.DnsEndPoint(host,port));
                         Way.Lib.NetStream client = new Way.Lib.NetStream(socket);
                         System.IO.StreamWriter stream = new System.IO.StreamWriter(client);
                         stream.WriteLine(url);

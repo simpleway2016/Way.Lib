@@ -11,7 +11,6 @@ namespace Way.EJServer
         
         public static void Main(string[] args)
         {
-
             int port = 6060;
             if(args != null && args.Length > 0)
             {
