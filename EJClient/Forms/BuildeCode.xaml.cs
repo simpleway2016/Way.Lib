@@ -25,11 +25,9 @@ namespace EJClient.Forms
         int m_databaseID;
         EJ.Databases m_database;
         string m_outputFileName;
-        FileStream m_FileStream;
         public BuildeCode(int databaseid,string filename)
         {
             m_outputFileName = filename;
-            m_FileStream = File.Create(filename);
 
             m_databaseID = databaseid;
             InitializeComponent();
@@ -50,19 +48,9 @@ namespace EJClient.Forms
                         foreach (string f in filenames)
                             System.IO.File.Delete(f);
 
-                        var header = System.Text.Encoding.UTF8.GetBytes(@"
-using System;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
+                       
 
-");
-                        m_FileStream.Write(header,0, header.Length);
-
-                        BuildDatabase.Downloader.downloadFile(this.m_databaseID, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
+                        BuildDatabase.Downloader.downloadFile(this.m_databaseID, m_outputFileName, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
                         this.Dispatcher.Invoke(new Action(() =>
                         {
                             lblStatus.Content = "Building...";
@@ -86,11 +74,7 @@ using System.Text;
                                 this.Close();
                             }));
                     }
-                    finally
-                    {
-                        m_FileStream.Close();
-                        m_FileStream.Dispose();
-                    }
+                   
                 }).Start();
             
         }
@@ -158,8 +142,7 @@ using System.Text;
                     progressBar.Maximum = fileCount;
                     progressBar.Value = Math.Min(fileCount , readedFileCount);
                 });
-            m_FileStream.Write(fileData, 0, fileData.Length);
-            //System.IO.File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "codes\\" + fileName, fileData);
+           
         }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {

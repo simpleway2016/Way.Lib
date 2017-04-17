@@ -16,13 +16,20 @@ namespace Way.EJServer
             handled = true;
             try
             {
+                if (connectInfo.Session["user"] == null )
+                    throw new Exception("not arrow");
+
                 int databaseid = Convert.ToInt32(connectInfo.Request.Query["databaseid"]);
                 using (EJDB db = new EJDB())
                 {
 
                     var database = db.Databases.FirstOrDefault(m => m.id == databaseid);
+                    database.dllPath = connectInfo.Request.Query["filepath"];
+                    db.Update(database);
+
                     var tables = db.DBTable.Where(m => m.DatabaseID == databaseid).ToList();
                     System.IO.BinaryWriter bw = new System.IO.BinaryWriter(connectInfo.Response);
+                    bw.Write("start");
 
                     var invokingDB = Way.EntityDB.Design.DBHelper.CreateInvokeDatabase(database);
                     IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)database.dbType);
@@ -57,7 +64,7 @@ namespace Way.EJServer
             }
             catch(Exception ex)
             {
-                throw ex;
+                new System.IO.BinaryWriter(connectInfo.Response).Write(ex.Message);
             }
         }
     }

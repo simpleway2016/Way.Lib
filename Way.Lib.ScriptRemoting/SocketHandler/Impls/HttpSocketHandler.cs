@@ -138,6 +138,13 @@ namespace Way.Lib.ScriptRemoting
 
                     }
 
+                    if ((ScriptRemotingServer.Routers.Count > 0 || ScriptRemotingServer.Handlers.Count > 0) && _currentHttpConnectInformation == null)
+                    {
+                        _currentHttpConnectInformation = new HttpConnectInformation(Request, Response);
+                        //先设一个默认controller，后面具体controller可以替换
+                        RemotingController.ThreadControllers[Thread.CurrentThread] = new RemotingController() { Session = _currentHttpConnectInformation.Session };
+                    }
+
                     url = getUrl(url);
                     checkHandlers(url);
                     
@@ -154,17 +161,18 @@ namespace Way.Lib.ScriptRemoting
             catch(Exception ex)
             {
             }
-
+            finally
+            {
+                if (RemotingController.ThreadControllers.ContainsKey(Thread.CurrentThread))
+                {
+                    RemotingController.ThreadControllers.Remove(Thread.CurrentThread);
+                }
+            }
 
             this.Response.End();
         }
         void checkHandlers(string visitingUrl)
         {
-
-            if (ScriptRemotingServer.Handlers.Count > 0 && _currentHttpConnectInformation == null)
-            {
-                _currentHttpConnectInformation = new HttpConnectInformation(Request , Response);
-            }
 
             foreach (var handler in ScriptRemotingServer.Handlers)
             {
@@ -187,11 +195,8 @@ namespace Way.Lib.ScriptRemoting
         }
         string getUrl(string visitingUrl)
         {
-            
-            if (ScriptRemotingServer.Routers.Count > 0 && _currentHttpConnectInformation == null)
-            {
-                _currentHttpConnectInformation = new HttpConnectInformation(Request , Response);
-            }
+
+           
 
             foreach (var router in ScriptRemotingServer.Routers)
             {

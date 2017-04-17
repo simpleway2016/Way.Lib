@@ -270,7 +270,13 @@ namespace EJClient
             DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
             using (System.Windows.Forms.SaveFileDialog fd = new System.Windows.Forms.SaveFileDialog())
             {
-                fd.FileName = selectedItem.Database.Name + ".cs";
+                if (!string.IsNullOrEmpty(selectedItem.Database.dllPath))
+                {
+                    fd.InitialDirectory = System.IO.Path.GetDirectoryName(selectedItem.Database.dllPath);
+                    fd.FileName = System.IO.Path.GetFileName(selectedItem.Database.dllPath);
+                }
+                else
+                    fd.FileName = selectedItem.Database.Name + ".cs";
                 if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     try

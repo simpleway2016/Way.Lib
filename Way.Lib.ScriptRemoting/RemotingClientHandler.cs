@@ -416,13 +416,7 @@ namespace Way.Lib.ScriptRemoting
                 var baseException = ex.GetBaseException();
                 SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message, currentPage.Session.SessionID);
             }
-            finally
-            {
-                if(RemotingController.ThreadControllers.ContainsKey(Thread.CurrentThread))
-                {
-                    RemotingController.ThreadControllers.Remove(Thread.CurrentThread);
-                }
-            }
+           
         }
 
         string encryptToReturn(string ret)
