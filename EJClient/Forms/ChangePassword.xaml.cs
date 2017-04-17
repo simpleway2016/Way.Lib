@@ -24,20 +24,23 @@ namespace EJClient.Forms
             InitializeComponent();
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (txtNewPwd.Password != pwdConfirm.Password)
-                    throw new Exception("密码确认不一致");
-                Helper.Client.InvokeSync<string>("ChangePassword", txtOldPwd.Password, txtNewPwd.Password);
-                Helper.ShowMessage("成功修改密码!");
-                this.Close();
-            }
-            catch(Exception ex)
-            {
-                Helper.ShowError(ex);
-            }
+            if (txtNewPwd.Password != pwdConfirm.Password)
+                throw new Exception("密码确认不一致");
+
+            this.Cursor = Cursors.Wait;
+            Helper.Client.Invoke<int>("ChangePassword", (r, err) => {
+                this.Cursor = null;
+                if (err != null)
+                    Helper.ShowError(this, err);
+                else
+                {
+                    Helper.ShowMessage(this, "成功修改密码!");
+                    this.Close();
+                }
+            }, txtOldPwd.Password, txtNewPwd.Password);
+
         }
     }
 }

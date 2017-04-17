@@ -232,8 +232,8 @@
     <Reference Include="Way.EntityDB">
       <HintPath>..\Way.EntityDB\bin\Debug\net46\Way.EntityDB.dll</HintPath>
     </Reference>
-    <Reference Include="Way.Lib, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Way.Lib.1.0.0.5\lib\net46\Way.Lib.dll</HintPath>
+    <Reference Include="Way.Lib, Version=1.0.0.6, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Way.Lib.1.0.0.6\lib\net46\Way.Lib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />

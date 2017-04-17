@@ -10,6 +10,8 @@ namespace EJClient
 {
     class Helper
     {
+        public static byte[] Exponent;
+        public static byte[] Modulus;
         public static string WebSite;
         public static RemotingClient Client;
         public static EJ.User_RoleEnum CurrentUserRole;

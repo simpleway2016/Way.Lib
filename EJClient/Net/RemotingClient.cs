@@ -19,6 +19,16 @@ namespace EJClient.Net
             UploadFileBegined = 5,
             RSADecrptError = 6,
         }
+        class InitInfo
+        {
+            public class rsainfo
+            {
+                public string Exponent;
+                public string Modulus;
+            }
+            public rsainfo rsa;
+            public string SessionID;
+        }
         internal class ResultInfo<T>
         {
             public string sessionid;
@@ -53,8 +63,41 @@ namespace EJClient.Net
                _ServerUrl = serverUrl + "/wayscriptremoting_invoke?a=1";
         }
         public delegate void CallbackHandler<T>(T result, string error);
+
+
+        public void Init(out byte[] exponent, out byte[] modulus)
+        {
+            Dictionary<string, string> values = new Dictionary<string, string>();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Referer", _Referer);
+            values["m"] = (new  {
+                Action= "init",
+                ClassFullName = "Way.EJServer.MainController",
+            }).ToJsonString() ;
+            var resultTask = client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
+            resultTask.Wait();
+            var result = resultTask.Result;
+            if (result.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new Exception(result.ReasonPhrase);
+            }
+            var responseStringTask = result.Content.ReadAsStringAsync();
+            responseStringTask.Wait();
+            var responseString = responseStringTask.Result;
+            var initInfo = responseString.ToJsonObject<InitInfo>();
+            SessionID = initInfo.SessionID;
+            modulus = Way.Lib.RSA.HexStringToBytes( initInfo.rsa.Modulus);
+            exponent = Way.Lib.RSA.HexStringToBytes(initInfo.rsa.Exponent);
+        }
+
         public async void Invoke<T>(string name, CallbackHandler<T> callback , params object[] methodParams)
         {
+            if(name == "Login")
+            {
+                await Task.Run(()=> {
+                    Helper.Client.Init(out Helper.Exponent, out Helper.Modulus);
+                });
+            }
             Dictionary<string, string> values = new Dictionary<string, string>();
             string[] ps;
             if (methodParams != null)
@@ -63,6 +106,10 @@ namespace EJClient.Net
                 for (int i = 0; i < methodParams.Length; i++)
                 {
                     ps[i] = methodParams[i].ToJsonString();
+                    if(name == "Login" || name == "ChangePassword")
+                    {
+                        ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode( ps[i]), Helper.Exponent, Helper.Modulus);
+                    }
                 }
             }
             else
@@ -163,6 +210,10 @@ namespace EJClient.Net
                 for (int i = 0; i < methodParams.Length; i++)
                 {
                     ps[i] = methodParams[i].ToJsonString();
+                    if (name == "Login" || name == "ChangePassword")
+                    {
+                        ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(ps[i]), Helper.Exponent, Helper.Modulus);
+                    }
                 }
             }
             else

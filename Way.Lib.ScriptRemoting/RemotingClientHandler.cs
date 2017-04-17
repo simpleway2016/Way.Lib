@@ -301,8 +301,8 @@ namespace Way.Lib.ScriptRemoting
                 Way.Lib.RSA rsa = new RSA();
 
                 session["$$_RSACryptoServiceProvider"] = rsa;
-                session["$$_rsa_PublicKeyExponent"] = rsa.PublicKeyExponent;
-                session["$$_rsa_PublicKeyModulus"] = rsa.PublicKeyModulus;
+                session["$$_rsa_PublicKeyExponent"] = rsa.KeyExponent;
+                session["$$_rsa_PublicKeyModulus"] = rsa.KeyModulus;
             }
         }
 
@@ -430,7 +430,7 @@ namespace Way.Lib.ScriptRemoting
             if (ret == null)
                 return null;
             RSA rsa = this.Session["$$_RSACryptoServiceProvider"] as RSA;
-            return rsa.Encrypt2(System.Net.WebUtility.UrlEncode(ret));
+            return rsa.EncryptByPublicKey(System.Net.WebUtility.UrlEncode(ret));
         }
 
         public void SendData(MessageType msgType, object resultObj,string sessionid)

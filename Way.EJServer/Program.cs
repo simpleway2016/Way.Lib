@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Way.Lib.ScriptRemoting;
 
@@ -8,9 +9,10 @@ namespace Way.EJServer
 {
     public class Program
     {
-        
+       
         public static void Main(string[] args)
         {
+
             int port = 6060;
             if(args != null && args.Length > 0)
             {

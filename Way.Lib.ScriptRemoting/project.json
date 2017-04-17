@@ -1,6 +1,5 @@
 {
   "version": "1.0.0-*",
-
   "dependencies": {
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.1",
@@ -14,7 +13,6 @@
     "Way.EntityDB": "1.0.0.1",
     "Way.Lib": "1.0.0.2"
   },
-
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50"
@@ -24,5 +22,8 @@
         "System.Web": "4.0.0.0"
       }
     }
+  },
+  "buildOptions": {
+    "xmlDoc": true
   }
 }

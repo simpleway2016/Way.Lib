@@ -36,7 +36,7 @@ namespace Way.EJServer
             base.OnBeforeInvokeMethod(method);
         }
 
-        [RemotingMethod]
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
         public int[] Login(string name, string pwd)
         {
             using (EJDB db = new EJDB())
@@ -202,8 +202,8 @@ namespace Way.EJServer
             }
         }
 
-        [RemotingMethod]
-        public void ChangePassword(string oldpwd, string newpwd)
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        public int ChangePassword(string oldpwd, string newpwd)
         {
             if (this.User.Password != oldpwd)
                 throw new Exception("旧密码错误");
@@ -213,6 +213,7 @@ namespace Way.EJServer
                 this.User.Password = newpwd;
                 db.Update(this.User);
             }
+            return 0;
         }
         /// <summary>
         /// 获取当前用户有权查看的项目
