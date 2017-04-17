@@ -481,7 +481,7 @@ class WayScriptRemoting extends WayBaseObject {
         value = (<any>window).encodeURIComponent(value, "utf-8");
 
         var key = new RSAKeyPair(this.rsa.Exponent, "", this.rsa.Modulus);
-        if (value.length <= 110) {
+        if (value.length <= 110) {//只有110是正常，试过120都发生异常，但是c#里面的算法，128都可以
             return encryptedString(key, value);
         }
         else {

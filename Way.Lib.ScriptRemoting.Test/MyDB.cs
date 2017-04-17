@@ -9,7 +9,7 @@ namespace Way.Lib.ScriptRemoting.WinTest
     [Way.Lib.ScriptRemoting.RemotingMethod]
     public class MyDB:EJ.DB.EasyJob
     {
-        public MyDB() : base($"Data Source=\"{AppContext.BaseDirectory}/easyjob.db\"" ,  EntityDB.DatabaseType.Sqlite)
+        public MyDB() : base($"Data Source=\"{AppContext.BaseDirectory}/EasyJob.db\"" ,  EntityDB.DatabaseType.Sqlite)
         {
         }
     }

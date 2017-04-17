@@ -430,7 +430,7 @@ namespace Way.Lib.ScriptRemoting
             if (ret == null)
                 return null;
             RSA rsa = this.Session["$$_RSACryptoServiceProvider"] as RSA;
-            return rsa.EncryptByPublicKey(System.Net.WebUtility.UrlEncode(ret));
+            return rsa.EncryptByD(System.Net.WebUtility.UrlEncode(ret) );
         }
 
         public void SendData(MessageType msgType, object resultObj,string sessionid)

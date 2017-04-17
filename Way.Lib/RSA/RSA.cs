@@ -27,6 +27,13 @@ namespace Way.Lib
         {
             get { return _KeyModulus; }
         }
+        public byte[] D
+        {
+            get
+            {
+                return _parameter.D;
+            }
+        }
         public RSA()
         {
             _rsa = System.Security.Cryptography.RSA.Create();
@@ -53,7 +60,7 @@ namespace Way.Lib
             var rsa = System.Security.Cryptography.RSA.Create();
             rsa.ImportParameters(rp);
 
-            if (content.Length <= 110)
+            if (content.Length <= 128)
             {
                 var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                 return BytesToHexString(data);
@@ -62,9 +69,9 @@ namespace Way.Lib
             {
                 var result = new StringBuilder();
                 var total = content.Length;
-                for (var i = 0; i < content.Length; i += 110)
+                for (var i = 0; i < content.Length; i += 128)
                 {
-                    var text = content.Substring(i, Math.Min(110, total));
+                    var text = content.Substring(i, Math.Min(128, total));
                     total -= text.Length;
                     var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                     result.Append( BytesToHexString(data));
@@ -74,6 +81,8 @@ namespace Way.Lib
 
           
         }
+
+      
         private static int GetIntegerSize(BinaryReader binr)
         {
             byte bt = 0;
@@ -182,7 +191,7 @@ namespace Way.Lib
         }
 
         /// <summary>
-        /// 解开私钥解密的内容
+        /// 解开Exponent加密的内容
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
@@ -208,82 +217,48 @@ namespace Way.Lib
         }
 
         /// <summary>
-        /// 利用公钥加密
+        /// 利用D进行加密
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public string EncryptByPublicKey(string data)
+        public string EncryptByD(string data)
         {
+            BigInteger d = new BigInteger(_parameter.D);
+            BigInteger n = new BigInteger(_parameter.Modulus);
+
             StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += 110)
+            for (int j = 0; j < data.Length; j += 128)
             {
-                string content = data.Substring(j, Math.Min(110, data.Length - j));
+                string content = data.Substring(j, Math.Min(128, data.Length - j));
                 byte[] source = System.Text.Encoding.ASCII.GetBytes(content);
-                BigInteger d = new BigInteger(_parameter.D);
-                BigInteger n = new BigInteger(_parameter.Modulus);
-                int sug = 127;
-                int len = source.Length;
-                int cycle = 0;
-                if ((len % sug) == 0) cycle = len / sug; else cycle = len / sug + 1;
 
-                List<byte> temp = new List<byte>();
-                int blockLen = 0;
-                for (int i = 0; i < cycle; i++)
-                {
-                    if (len >= sug) blockLen = sug; else blockLen = len;
+                BigInteger biText = new BigInteger(source);
+                BigInteger biEnText = biText.modPow(d, n);
 
-                    byte[] context = new byte[blockLen];
-                    int po = i * sug;
-                    Array.Copy(source, po, context, 0, blockLen);
-
-                    BigInteger biText = new BigInteger(context);
-                    BigInteger biEnText = biText.modPow(d, n);
-
-                    byte[] b = biEnText.getBytes();
-                    temp.AddRange(b);
-                    len -= blockLen;
-                }
-                result.Append(BytesToHexString(temp.ToArray()));
-            }
+                byte[] b = biEnText.getBytes();
+                result.Append(BytesToHexString(b));
+             }
             return result.ToString();
         }
         /// <summary>
-        /// 解开公钥加密的内容
+        /// 解开D加密的内容
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public string DecryptContentFromPublicKeyEncrypt(string data)
+        public string DecryptContentFromDEncrypt(string data)
         {
+            BigInteger e = new BigInteger(_parameter.Exponent);
+            BigInteger n = new BigInteger(_parameter.Modulus);
+
             StringBuilder result = new StringBuilder();
             for (int j = 0; j < data.Length; j += 256)
             {
                 byte[] source = HexStringToBytes(data, j, 256);
-                BigInteger e = new BigInteger(_parameter.Exponent);
-                BigInteger n = new BigInteger(_parameter.Modulus);
+                BigInteger biText = new BigInteger(source);
+                BigInteger biEnText = biText.modPow(e, n);
 
-                int bk = 128;
-                int len = source.Length;
-                int cycle = 0;
-                if ((len % bk) == 0) cycle = len / bk; else cycle = len / bk + 1;
-
-                List<byte> temp = new List<byte>();
-                int blockLen = 0;
-                for (int i = 0; i < cycle; i++)
-                {
-                    if (len >= bk) blockLen = bk; else blockLen = len;
-
-                    byte[] context = new byte[blockLen];
-                    int po = i * bk;
-                    Array.Copy(source, po, context, 0, blockLen);
-
-                    BigInteger biText = new BigInteger(context);
-                    BigInteger biEnText = biText.modPow(e, n);
-
-                    byte[] b = biEnText.getBytes();
-                    temp.AddRange(b);
-                    len -= blockLen;
-                }
-                result.Append(System.Text.Encoding.ASCII.GetString(temp.ToArray()));
+                byte[] b = biEnText.getBytes();
+                result.Append(System.Text.Encoding.ASCII.GetString(b));
             }
 
             return result.ToString();
