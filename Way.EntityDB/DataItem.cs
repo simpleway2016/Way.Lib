@@ -306,7 +306,7 @@ namespace Way.EntityDB
 
                 foreach (var pinfo in pinfos)
                 {
-                    var columnDefine = pinfo.GetCustomAttribute(typeof(WayLinqColumnAttribute)) as WayLinqColumnAttribute;
+                    var columnDefine = pinfo.GetCustomAttribute(typeof(WayDBColumnAttribute)) as WayDBColumnAttribute;
                     if (columnDefine == null)
                         continue;
 
@@ -330,7 +330,7 @@ namespace Way.EntityDB
                 {
                     var pinfo = tableType.GetProperty(changeItem.Key);
 
-                    if (pinfo.GetCustomAttribute(typeof(WayLinqColumnAttribute)) == null)
+                    if (pinfo.GetCustomAttribute(typeof(WayDBColumnAttribute)) == null)
                         continue;
 
                   

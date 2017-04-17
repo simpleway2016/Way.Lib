@@ -1498,9 +1498,9 @@ namespace AppLib.Controls
                 }
                 foreach (var pinfo in datasource)
                 {
-                    Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
+                    Way.EntityDB.WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayDBColumnAttribute)) as Way.EntityDB.WayDBColumnAttribute;
                     if (columnAtt == null)
-                        columnAtt = new WayLinqColumnAttribute();
+                        columnAtt = new WayDBColumnAttribute();
 
                     frm.listBox1.Items.Add(columnAtt.Caption + " - " + pinfo.Name);
                 }
@@ -1521,9 +1521,9 @@ namespace AppLib.Controls
             {
                 if (pinfo.Name == tableAtt.IDField)
                     continue;
-                Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
+                Way.EntityDB.WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayDBColumnAttribute)) as Way.EntityDB.WayDBColumnAttribute;
                 if (columnAtt == null)
-                    columnAtt = new WayLinqColumnAttribute();
+                    columnAtt = new WayDBColumnAttribute();
 
                 List<ValueChange> valueselects = new List<ValueChange>();
                 if (pinfo.PropertyType.IsEnum)
@@ -1603,9 +1603,9 @@ namespace AppLib.Controls
                 }
                 foreach (var pinfo in datasource)
                 {
-                    Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
+                    Way.EntityDB.WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayDBColumnAttribute)) as Way.EntityDB.WayDBColumnAttribute;
                     if (columnAtt == null)
-                        columnAtt = new WayLinqColumnAttribute();
+                        columnAtt = new WayDBColumnAttribute();
 
                     frm.listBox1.Items.Add(columnAtt.Caption + " - " + pinfo.Name);
                 }
@@ -1620,9 +1620,9 @@ namespace AppLib.Controls
 
             foreach (var pinfo in bkcolumns)
             {
-                Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
+                Way.EntityDB.WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayDBColumnAttribute)) as Way.EntityDB.WayDBColumnAttribute;
                 if (columnAtt == null)
-                    columnAtt = new WayLinqColumnAttribute();
+                    columnAtt = new WayDBColumnAttribute();
 
                 if (pinfo.Name == tableAtt.IDField )
                 {

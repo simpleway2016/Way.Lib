@@ -412,7 +412,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 /// <summary>
 /// " + column.caption + @"
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
         public " + dataType + @" " + column.Name + @"
         {
             get

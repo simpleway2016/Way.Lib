@@ -29,7 +29,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -52,7 +52,7 @@ String _Name;
 /// <summary>
 /// Name
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -118,7 +118,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -141,7 +141,7 @@ System.Nullable<Int32> _ProjectID;
 /// <summary>
 /// 项目ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="项目ID",Storage = "_ProjectID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="项目ID",Storage = "_ProjectID",DbType="int")]
         public System.Nullable<Int32> ProjectID
         {
             get
@@ -164,7 +164,7 @@ String _Name;
 /// <summary>
 /// Name
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -187,7 +187,7 @@ System.Nullable<Databases_dbTypeEnum> _dbType=(System.Nullable<Databases_dbTypeE
 /// <summary>
 /// 数据库类型
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="数据库类型",Storage = "_dbType",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="数据库类型",Storage = "_dbType",DbType="int")]
         public System.Nullable<Databases_dbTypeEnum> dbType
         {
             get
@@ -210,7 +210,7 @@ String _conStr;
 /// <summary>
 /// 连接字符串
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="连接字符串",Storage = "_conStr",DbType="varchar(200)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="连接字符串",Storage = "_conStr",DbType="varchar(200)")]
         public String conStr
         {
             get
@@ -233,7 +233,7 @@ String _dllPath;
 /// <summary>
 /// dll生成文件夹
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="dll生成文件夹",Storage = "_dllPath",DbType="varchar(100)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="dll生成文件夹",Storage = "_dllPath",DbType="varchar(100)")]
         public String dllPath
         {
             get
@@ -256,7 +256,7 @@ System.Nullable<Int32> _iLock=0;
 /// <summary>
 /// iLock
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="iLock",Storage = "_iLock",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="iLock",Storage = "_iLock",DbType="int")]
         public System.Nullable<Int32> iLock
         {
             get
@@ -279,7 +279,7 @@ String _NameSpace;
 /// <summary>
 /// NameSpace
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="NameSpace",Storage = "_NameSpace",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="NameSpace",Storage = "_NameSpace",DbType="varchar(50)")]
         public String NameSpace
         {
             get
@@ -302,7 +302,7 @@ String _Guid;
 /// <summary>
 /// 唯一标示ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="唯一标示ID",Storage = "_Guid",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="唯一标示ID",Storage = "_Guid",DbType="varchar(50)")]
         public String Guid
         {
             get
@@ -380,7 +380,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -403,7 +403,7 @@ System.Nullable<User_RoleEnum> _Role;
 /// <summary>
 /// 角色
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="角色",Storage = "_Role",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="角色",Storage = "_Role",DbType="int")]
         public System.Nullable<User_RoleEnum> Role
         {
             get
@@ -426,7 +426,7 @@ String _Name;
 /// <summary>
 /// Name
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -449,7 +449,7 @@ String _Password;
 /// <summary>
 /// Password
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Password",Storage = "_Password",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Password",Storage = "_Password",DbType="varchar(50)")]
         public String Password
         {
             get
@@ -509,7 +509,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -532,7 +532,7 @@ System.Nullable<Int32> _UserID;
 /// <summary>
 /// 用户
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="用户",Storage = "_UserID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="用户",Storage = "_UserID",DbType="int")]
         public System.Nullable<Int32> UserID
         {
             get
@@ -555,7 +555,7 @@ System.Nullable<DBPower_PowerEnum> _Power;
 /// <summary>
 /// 权限
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="权限",Storage = "_Power",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="权限",Storage = "_Power",DbType="int")]
         public System.Nullable<DBPower_PowerEnum> Power
         {
             get
@@ -578,7 +578,7 @@ System.Nullable<Int32> _DatabaseID;
 /// <summary>
 /// 数据库ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="数据库ID",Storage = "_DatabaseID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="数据库ID",Storage = "_DatabaseID",DbType="int")]
         public System.Nullable<Int32> DatabaseID
         {
             get
@@ -644,7 +644,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -667,7 +667,7 @@ String _Title;
 /// <summary>
 /// 标题
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="标题",Storage = "_Title",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="标题",Storage = "_Title",DbType="varchar(50)")]
         public String Title
         {
             get
@@ -690,7 +690,7 @@ System.Nullable<Int32> _SubmitUserID;
 /// <summary>
 /// 提交者ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="提交者ID",Storage = "_SubmitUserID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="提交者ID",Storage = "_SubmitUserID",DbType="int")]
         public System.Nullable<Int32> SubmitUserID
         {
             get
@@ -713,7 +713,7 @@ System.Nullable<DateTime> _SubmitTime;
 /// <summary>
 /// 提交时间
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="提交时间",Storage = "_SubmitTime",DbType="datetime")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="提交时间",Storage = "_SubmitTime",DbType="datetime")]
         public System.Nullable<DateTime> SubmitTime
         {
             get
@@ -736,7 +736,7 @@ System.Nullable<Int32> _HandlerID;
 /// <summary>
 /// 处理者ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="处理者ID",Storage = "_HandlerID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="处理者ID",Storage = "_HandlerID",DbType="int")]
         public System.Nullable<Int32> HandlerID
         {
             get
@@ -759,7 +759,7 @@ System.Nullable<DateTime> _LastDate;
 /// <summary>
 /// 最后反馈时间
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="最后反馈时间",Storage = "_LastDate",DbType="datetime")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="最后反馈时间",Storage = "_LastDate",DbType="datetime")]
         public System.Nullable<DateTime> LastDate
         {
             get
@@ -782,7 +782,7 @@ System.Nullable<DateTime> _FinishTime;
 /// <summary>
 /// 处理完毕时间
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="处理完毕时间",Storage = "_FinishTime",DbType="datetime")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="处理完毕时间",Storage = "_FinishTime",DbType="datetime")]
         public System.Nullable<DateTime> FinishTime
         {
             get
@@ -805,7 +805,7 @@ System.Nullable<Bug_StatusEnum> _Status;
 /// <summary>
 /// 当前状态
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="当前状态",Storage = "_Status",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="当前状态",Storage = "_Status",DbType="int")]
         public System.Nullable<Bug_StatusEnum> Status
         {
             get
@@ -846,7 +846,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -869,7 +869,7 @@ String _caption;
 /// <summary>
 /// caption
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="caption",Storage = "_caption",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="caption",Storage = "_caption",DbType="varchar(50)")]
         public String caption
         {
             get
@@ -892,7 +892,7 @@ String _Name;
 /// <summary>
 /// Name
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -915,7 +915,7 @@ System.Nullable<Int32> _DatabaseID;
 /// <summary>
 /// DatabaseID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="DatabaseID",Storage = "_DatabaseID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="DatabaseID",Storage = "_DatabaseID",DbType="int")]
         public System.Nullable<Int32> DatabaseID
         {
             get
@@ -938,7 +938,7 @@ System.Nullable<Int32> _iLock=0;
 /// <summary>
 /// iLock
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="iLock",Storage = "_iLock",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="iLock",Storage = "_iLock",DbType="int")]
         public System.Nullable<Int32> iLock
         {
             get
@@ -979,7 +979,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1002,7 +1002,7 @@ String _caption;
 /// <summary>
 /// caption
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="caption",Storage = "_caption",DbType="varchar(200)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="caption",Storage = "_caption",DbType="varchar(200)")]
         public String caption
         {
             get
@@ -1025,7 +1025,7 @@ String _Name;
 /// <summary>
 /// Name
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -1048,7 +1048,7 @@ System.Nullable<Boolean> _IsAutoIncrement=false;
 /// <summary>
 /// 自增长
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="自增长",Storage = "_IsAutoIncrement",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="自增长",Storage = "_IsAutoIncrement",DbType="bit")]
         public System.Nullable<Boolean> IsAutoIncrement
         {
             get
@@ -1071,7 +1071,7 @@ System.Nullable<Boolean> _CanNull=true;
 /// <summary>
 /// 可以为空
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="可以为空",Storage = "_CanNull",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="可以为空",Storage = "_CanNull",DbType="bit")]
         public System.Nullable<Boolean> CanNull
         {
             get
@@ -1094,7 +1094,7 @@ String _dbType;
 /// <summary>
 /// 数据库字段类型
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="数据库字段类型",Storage = "_dbType",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="数据库字段类型",Storage = "_dbType",DbType="varchar(50)")]
         public String dbType
         {
             get
@@ -1117,7 +1117,7 @@ String _Type;
 /// <summary>
 /// c#类型
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="c#类型",Storage = "_Type",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="c#类型",Storage = "_Type",DbType="varchar(50)")]
         public String Type
         {
             get
@@ -1140,7 +1140,7 @@ String _EnumDefine;
 /// <summary>
 /// Enum定义
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Enum定义",Storage = "_EnumDefine",DbType="varchar(300)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Enum定义",Storage = "_EnumDefine",DbType="varchar(300)")]
         public String EnumDefine
         {
             get
@@ -1163,7 +1163,7 @@ String _length;
 /// <summary>
 /// 长度
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="长度",Storage = "_length",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="长度",Storage = "_length",DbType="varchar(50)")]
         public String length
         {
             get
@@ -1186,7 +1186,7 @@ String _defaultValue;
 /// <summary>
 /// 默认值
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="默认值",Storage = "_defaultValue",DbType="varchar(200)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="默认值",Storage = "_defaultValue",DbType="varchar(200)")]
         public String defaultValue
         {
             get
@@ -1209,7 +1209,7 @@ System.Nullable<Int32> _TableID;
 /// <summary>
 /// TableID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
         public System.Nullable<Int32> TableID
         {
             get
@@ -1232,7 +1232,7 @@ System.Nullable<Boolean> _IsPKID=false;
 /// <summary>
 /// 是否是主键
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="是否是主键",Storage = "_IsPKID",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="是否是主键",Storage = "_IsPKID",DbType="bit")]
         public System.Nullable<Boolean> IsPKID
         {
             get
@@ -1255,7 +1255,7 @@ System.Nullable<Int32> _orderid=0;
 /// <summary>
 /// orderid
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="orderid",Storage = "_orderid",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="orderid",Storage = "_orderid",DbType="int")]
         public System.Nullable<Int32> orderid
         {
             get
@@ -1296,7 +1296,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1319,7 +1319,7 @@ System.Nullable<Int32> _UserID;
 /// <summary>
 /// UserID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="UserID",Storage = "_UserID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="UserID",Storage = "_UserID",DbType="int")]
         public System.Nullable<Int32> UserID
         {
             get
@@ -1342,7 +1342,7 @@ System.Nullable<Int32> _TableID;
 /// <summary>
 /// TableID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
         public System.Nullable<Int32> TableID
         {
             get
@@ -1383,7 +1383,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1406,7 +1406,7 @@ System.Nullable<Int32> _ProjectID;
 /// <summary>
 /// ProjectID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="ProjectID",Storage = "_ProjectID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="ProjectID",Storage = "_ProjectID",DbType="int")]
         public System.Nullable<Int32> ProjectID
         {
             get
@@ -1429,7 +1429,7 @@ System.Nullable<Int32> _UserID;
 /// <summary>
 /// UserID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="UserID",Storage = "_UserID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="UserID",Storage = "_UserID",DbType="int")]
         public System.Nullable<Int32> UserID
         {
             get
@@ -1470,7 +1470,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1493,7 +1493,7 @@ String _Name;
 /// <summary>
 /// Name
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Name",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -1516,7 +1516,7 @@ System.Nullable<Int32> _DatabaseID;
 /// <summary>
 /// DatabaseID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="DatabaseID",Storage = "_DatabaseID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="DatabaseID",Storage = "_DatabaseID",DbType="int")]
         public System.Nullable<Int32> DatabaseID
         {
             get
@@ -1539,7 +1539,7 @@ System.Nullable<Boolean> _IsFolder=false;
 /// <summary>
 /// IsFolder
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="IsFolder",Storage = "_IsFolder",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="IsFolder",Storage = "_IsFolder",DbType="bit")]
         public System.Nullable<Boolean> IsFolder
         {
             get
@@ -1562,7 +1562,7 @@ System.Nullable<Int32> _parentID;
 /// <summary>
 /// parentID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="parentID",Storage = "_parentID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="parentID",Storage = "_parentID",DbType="int")]
         public System.Nullable<Int32> parentID
         {
             get
@@ -1603,7 +1603,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1626,7 +1626,7 @@ System.Nullable<Int32> _TableID;
 /// <summary>
 /// TableID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
         public System.Nullable<Int32> TableID
         {
             get
@@ -1649,7 +1649,7 @@ System.Nullable<Int32> _RelaTableID;
 /// <summary>
 /// 关联表ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="关联表ID",Storage = "_RelaTableID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="关联表ID",Storage = "_RelaTableID",DbType="int")]
         public System.Nullable<Int32> RelaTableID
         {
             get
@@ -1672,7 +1672,7 @@ String _RelaTable_Desc;
 /// <summary>
 /// RelaTable_Desc
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="RelaTable_Desc",Storage = "_RelaTable_Desc",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="RelaTable_Desc",Storage = "_RelaTable_Desc",DbType="varchar(50)")]
         public String RelaTable_Desc
         {
             get
@@ -1695,7 +1695,7 @@ System.Nullable<Int32> _RelaColumID;
 /// <summary>
 /// 关联字段的ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="关联字段的ID",Storage = "_RelaColumID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="关联字段的ID",Storage = "_RelaColumID",DbType="int")]
         public System.Nullable<Int32> RelaColumID
         {
             get
@@ -1718,7 +1718,7 @@ String _RelaColumn_Desc;
 /// <summary>
 /// RelaColumn_Desc
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="RelaColumn_Desc",Storage = "_RelaColumn_Desc",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="RelaColumn_Desc",Storage = "_RelaColumn_Desc",DbType="varchar(50)")]
         public String RelaColumn_Desc
         {
             get
@@ -1759,7 +1759,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1782,7 +1782,7 @@ System.Nullable<Int32> _TableID;
 /// <summary>
 /// TableID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
         public System.Nullable<Int32> TableID
         {
             get
@@ -1805,7 +1805,7 @@ System.Nullable<Int32> _ModuleID;
 /// <summary>
 /// ModuleID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="ModuleID",Storage = "_ModuleID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="ModuleID",Storage = "_ModuleID",DbType="int")]
         public System.Nullable<Int32> ModuleID
         {
             get
@@ -1828,7 +1828,7 @@ System.Nullable<Int32> _x;
 /// <summary>
 /// x
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="x",Storage = "_x",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="x",Storage = "_x",DbType="int")]
         public System.Nullable<Int32> x
         {
             get
@@ -1851,7 +1851,7 @@ System.Nullable<Int32> _y;
 /// <summary>
 /// y
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="y",Storage = "_y",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="y",Storage = "_y",DbType="int")]
         public System.Nullable<Int32> y
         {
             get
@@ -1874,7 +1874,7 @@ String _flag;
 /// <summary>
 /// 临时变量
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="临时变量",Storage = "_flag",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="临时变量",Storage = "_flag",DbType="varchar(50)")]
         public String flag
         {
             get
@@ -1897,7 +1897,7 @@ String _flag2;
 /// <summary>
 /// flag2
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="flag2",Storage = "_flag2",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="flag2",Storage = "_flag2",DbType="varchar(50)")]
         public String flag2
         {
             get
@@ -1938,7 +1938,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
             get
@@ -1961,7 +1961,7 @@ System.Nullable<Int32> _TableID;
 /// <summary>
 /// TableID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="TableID",Storage = "_TableID",DbType="int")]
         public System.Nullable<Int32> TableID
         {
             get
@@ -1984,7 +1984,7 @@ String _Keys;
 /// <summary>
 /// Keys
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="Keys",Storage = "_Keys",DbType="varchar(100)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="Keys",Storage = "_Keys",DbType="varchar(100)")]
         public String Keys
         {
             get
@@ -2007,7 +2007,7 @@ System.Nullable<Boolean> _IsUnique=true;
 /// <summary>
 /// 是否唯一索引
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="是否唯一索引",Storage = "_IsUnique",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="是否唯一索引",Storage = "_IsUnique",DbType="bit")]
         public System.Nullable<Boolean> IsUnique
         {
             get
@@ -2030,7 +2030,7 @@ System.Nullable<Boolean> _IsClustered=false;
 /// <summary>
 /// 是否聚焦
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="是否聚焦",Storage = "_IsClustered",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="是否聚焦",Storage = "_IsClustered",DbType="bit")]
         public System.Nullable<Boolean> IsClustered
         {
             get
@@ -2071,7 +2071,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
             get
@@ -2094,7 +2094,7 @@ System.Nullable<Int32> _BugID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_BugID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_BugID",DbType="int")]
         public System.Nullable<Int32> BugID
         {
             get
@@ -2117,7 +2117,7 @@ System.Nullable<Int32> _UserID;
 /// <summary>
 /// 发标者ID
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="发标者ID",Storage = "_UserID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="发标者ID",Storage = "_UserID",DbType="int")]
         public System.Nullable<Int32> UserID
         {
             get
@@ -2140,7 +2140,7 @@ Byte[] _content;
 /// <summary>
 /// 内容
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="内容",Storage = "_content",DbType="image")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="内容",Storage = "_content",DbType="image")]
         public Byte[] content
         {
             get
@@ -2163,7 +2163,7 @@ System.Nullable<DateTime> _SendTime;
 /// <summary>
 /// 发表时间
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="发表时间",Storage = "_SendTime",DbType="datetime")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="发表时间",Storage = "_SendTime",DbType="datetime")]
         public System.Nullable<DateTime> SendTime
         {
             get
@@ -2204,7 +2204,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
             get
@@ -2227,7 +2227,7 @@ System.Nullable<Int32> _BugID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_BugID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_BugID",DbType="int")]
         public System.Nullable<Int32> BugID
         {
             get
@@ -2250,7 +2250,7 @@ Byte[] _content;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_content",DbType="image")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_content",DbType="image")]
         public Byte[] content
         {
             get
@@ -2273,7 +2273,7 @@ System.Nullable<Int32> _orderID;
 /// <summary>
 /// 排序
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="排序",Storage = "_orderID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="排序",Storage = "_orderID",DbType="int")]
         public System.Nullable<Int32> orderID
         {
             get
@@ -2314,7 +2314,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
             get
@@ -2337,7 +2337,7 @@ String _path;
 /// <summary>
 /// dll文件路径
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="dll文件路径",Storage = "_path",DbType="varchar(200)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="dll文件路径",Storage = "_path",DbType="varchar(200)")]
         public String path
         {
             get
@@ -2360,7 +2360,7 @@ System.Nullable<Int32> _ProjectID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_ProjectID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_ProjectID",DbType="int")]
         public System.Nullable<Int32> ProjectID
         {
             get
@@ -2401,7 +2401,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
             get
@@ -2424,7 +2424,7 @@ System.Nullable<Int32> _ProjectID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_ProjectID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_ProjectID",DbType="int")]
         public System.Nullable<Int32> ProjectID
         {
             get
@@ -2447,7 +2447,7 @@ String _Name;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_Name",DbType="varchar(50)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_Name",DbType="varchar(50)")]
         public String Name
         {
             get
@@ -2470,7 +2470,7 @@ System.Nullable<Int32> _ParentID=0;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_ParentID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_ParentID",DbType="int")]
         public System.Nullable<Int32> ParentID
         {
             get
@@ -2493,7 +2493,7 @@ System.Nullable<Boolean> _IsFolder=false;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_IsFolder",DbType="bit")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_IsFolder",DbType="bit")]
         public System.Nullable<Boolean> IsFolder
         {
             get
@@ -2516,7 +2516,7 @@ System.Nullable<Int32> _LockUserId;
 /// <summary>
 /// 已经被某人锁定
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="已经被某人锁定",Storage = "_LockUserId",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="已经被某人锁定",Storage = "_LockUserId",DbType="int")]
         public System.Nullable<Int32> LockUserId
         {
             get
@@ -2557,7 +2557,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
             get
@@ -2580,7 +2580,7 @@ System.Nullable<Int32> _ModuleID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_ModuleID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_ModuleID",DbType="int")]
         public System.Nullable<Int32> ModuleID
         {
             get
@@ -2603,7 +2603,7 @@ System.Nullable<Int32> _x;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_x",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_x",DbType="int")]
         public System.Nullable<Int32> x
         {
             get
@@ -2626,7 +2626,7 @@ System.Nullable<Int32> _y;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_y",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_y",DbType="int")]
         public System.Nullable<Int32> y
         {
             get
@@ -2649,7 +2649,7 @@ String _Type;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_Type",DbType="varchar(100)")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_Type",DbType="varchar(100)")]
         public String Type
         {
             get
@@ -2672,7 +2672,7 @@ String _JsonData;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_JsonData",DbType="text")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_JsonData",DbType="text")]
         public String JsonData
         {
             get
@@ -2695,7 +2695,7 @@ System.Nullable<Int32> _width;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_width",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_width",DbType="int")]
         public System.Nullable<Int32> width
         {
             get
@@ -2718,7 +2718,7 @@ System.Nullable<Int32> _height;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_height",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_height",DbType="int")]
         public System.Nullable<Int32> height
         {
             get
@@ -2759,7 +2759,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
             get
@@ -2782,7 +2782,7 @@ System.Nullable<Int32> _UserID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_UserID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_UserID",DbType="int")]
         public System.Nullable<Int32> UserID
         {
             get
@@ -2805,7 +2805,7 @@ System.Nullable<Int32> _ModuleID;
 /// <summary>
 /// 
 	/// </summary>
-[Way.EntityDB.WayLinqColumnAttribute(Comment="",Caption="",Storage = "_ModuleID",DbType="int")]
+[Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_ModuleID",DbType="int")]
         public System.Nullable<Int32> ModuleID
         {
             get

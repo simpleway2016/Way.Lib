@@ -94,9 +94,22 @@ namespace EJClient.Net
         {
             if(name == "Login")
             {
+                Exception err = null;
                 await Task.Run(()=> {
-                    Helper.Client.Init(out Helper.Exponent, out Helper.Modulus);
+                    try
+                    {
+                        Helper.Client.Init(out Helper.Exponent, out Helper.Modulus);
+                    }
+                    catch(Exception ex)
+                    {
+                        err = ex.InnerException != null ? ex.InnerException : ex;
+                    }
                 });
+                if (err != null)
+                {
+                    callback(default(T), err.Message);
+                    return;
+                }
             }
             Dictionary<string, string> values = new Dictionary<string, string>();
             string[] ps;

@@ -7,11 +7,11 @@ namespace Way.EntityDB
 {
     // 摘要:
     //     将类与数据库表中的列相关联。
-    public class WayLinqColumnAttribute:Attribute
+    public class WayDBColumnAttribute:Attribute
     {
         // 摘要:
         //     初始化 System.Data.Linq.Mapping.ColumnAttribute 类的新实例。
-        public WayLinqColumnAttribute()
+        public WayDBColumnAttribute()
         {
         }
         public string Comment { get; set; }

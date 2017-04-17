@@ -105,7 +105,7 @@ namespace Way.EntityDB
                     for (int i = 0; i < keys.Count; i++)
                     {
                         var pinfo = tableType.GetProperty(keys[i]);
-                        WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(WayLinqColumnAttribute)) as WayLinqColumnAttribute;
+                        WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(WayDBColumnAttribute)) as WayDBColumnAttribute;
                         captions[i] = columnAtt.Caption;
                         if (output.Length > 0)
                             output.Append(',');

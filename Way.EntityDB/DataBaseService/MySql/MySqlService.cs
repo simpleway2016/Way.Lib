@@ -79,7 +79,7 @@ namespace Way.EntityDB
                         {
                             var pinfo = tableType.GetTypeInfo().GetProperty(keys[i]);
 
-                            WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(WayLinqColumnAttribute)) as WayLinqColumnAttribute;
+                            WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(WayDBColumnAttribute)) as WayDBColumnAttribute;
                             captions[i] = columnAtt.Caption;
                             if (output.Length > 0)
                                 output.Append(',');

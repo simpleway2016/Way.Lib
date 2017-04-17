@@ -1114,9 +1114,9 @@ namespace AppLib.Controls
                 }
                 foreach (var pinfo in datasource)
                 {
-                    Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
+                    Way.EntityDB.WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayDBColumnAttribute)) as Way.EntityDB.WayDBColumnAttribute;
                     if (columnAtt == null)
-                        columnAtt = new Way.EntityDB.WayLinqColumnAttribute();
+                        columnAtt = new Way.EntityDB.WayDBColumnAttribute();
                     frm2.listBox1.Items.Add(columnAtt.Caption + " - " + pinfo.Name);
                 }
                 
@@ -1161,9 +1161,9 @@ namespace AppLib.Controls
                     }
                 }
                 string content = null;
-                Way.EntityDB.WayLinqColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayLinqColumnAttribute)) as Way.EntityDB.WayLinqColumnAttribute;
+                Way.EntityDB.WayDBColumnAttribute columnAtt = pinfo.GetCustomAttribute(typeof(Way.EntityDB.WayDBColumnAttribute)) as Way.EntityDB.WayDBColumnAttribute;
                 if (columnAtt == null)
-                    columnAtt = new Way.EntityDB.WayLinqColumnAttribute();
+                    columnAtt = new Way.EntityDB.WayDBColumnAttribute();
 
                 if (pinfo.PropertyType == typeof(DateTime) || pinfo.PropertyType == typeof(DateTime?))
                 {
