@@ -186,6 +186,30 @@ namespace EJClient.Net
                     }
                     else
                     {
+                        if (response.result == "请先登录")
+                        {
+                            if (Login.instance == null)
+                            {
+                                Login login = new Login();
+                                login.Topmost = true;
+                                if (login.ShowDialog() == true)
+                                {
+                                    Invoke<T>(name, callback, methodParams);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                await Task.Run(() =>
+                                {
+                                    while (Login.instance != null)
+                                        System.Threading.Thread.Sleep(200);
+                                });
+                                Invoke<T>(name, callback, methodParams);
+                                return;
+                            }
+                        }
+
                         Debug.WriteLine($"{name} error:{response.result}");
                         callback(default(T), response.result.ToSafeString());
                     }
@@ -264,6 +288,27 @@ namespace EJClient.Net
                 try
                 {
                     var response = responseString.ToJsonObject<ResultInfo<string>>();
+                    if (response.result == "请先登录")
+                    {
+                        if (Login.instance == null)
+                        {
+                            Login login = new Login();
+                            login.Topmost = true;
+                            if (login.ShowDialog() == true)
+                            {
+                                return InvokeSync<T>(name , methodParams);
+                            }
+                        }
+                        else
+                        {
+                            while(Login.instance != null)
+                            {
+                                System.Windows.Forms.Application.DoEvents();
+                                System.Threading.Thread.Sleep(10);
+                            }
+                            return InvokeSync<T>(name, methodParams);
+                        }
+                    }
                     err = response.result.ToSafeString();
                    
                 }

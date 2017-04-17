@@ -36,7 +36,7 @@ namespace Way.EJServer
                 System.IO.File.WriteAllText($"{webroot}/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
             }
             Console.WriteLine($"path:{webroot}");
-            ScriptRemotingServer.Start(6060, webroot, 1);
+            ScriptRemotingServer.Start(port, webroot, 1);
 
             while (true)
             {

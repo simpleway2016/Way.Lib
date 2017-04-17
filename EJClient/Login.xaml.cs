@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,8 +26,10 @@ namespace EJClient
             public string url;
             public string username;
         }
+        public static Login instance;
         public Login()
         {
+            instance = this;
             //System.IO.File.ReadAllText(@"D:\注释\2016\EasyJobCore\Way.EJServer\bin\Debug\netcoreapp1.0\web\a.txt").ToJsonObject<Net.RemotingClient.ResultInfo<Way.EntityDB.WayDataTable>>();
             InitializeComponent();
             try
@@ -39,7 +42,11 @@ namespace EJClient
             {
             }
         }
-
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            instance = null;
+            base.OnClosing(e);
+        }
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
             this.Cursor = Cursors.Wait;
@@ -63,6 +70,12 @@ namespace EJClient
                    }
                    else
                    {
+                       if (Application.Current.MainWindow  != this)
+                       {
+                           this.DialogResult = true;
+                           return;
+                       }
+
                        Helper.WebSite = url;
                        Helper.CurrentUserRole = (EJ.User_RoleEnum)result[0];
                        Helper.CurrentUserID = result[1];

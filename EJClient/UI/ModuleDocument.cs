@@ -219,59 +219,65 @@ namespace EJClient.UI
         void refreshTableRelation()
         {
             m_canvas.Children.Clear();
-
-            var delconfigs = Helper.Client.InvokeSync<EJ.DBDeleteConfig[]>("GetDeleteConfigInModule", this.ModuleNode.Module.id.Value);
-            foreach (var configItem in delconfigs)
+            try
             {
-                UI.Table table = getTableById(configItem.TableID.GetValueOrDefault());
-                if (table == null)
-                    continue;
-                UI.Table relaTable = getTableById(configItem.RelaTableID.GetValueOrDefault());
-                if (relaTable == null)
-                    continue;
-
-                System.Drawing.Point pointFrom = table.GetColumnLocation(0);
-                System.Drawing.Rectangle rectFrom = new System.Drawing.Rectangle((int)table.Margin.Left, (int)table.Margin.Top, (int)table.ActualWidth, (int)table.ActualHeight);
-                System.Drawing.Point pointTo = relaTable.GetColumnLocation(configItem.RelaColumID.GetValueOrDefault());
-                System.Drawing.Rectangle rectTo = new System.Drawing.Rectangle((int)relaTable.Margin.Left, (int)relaTable.Margin.Top, (int)relaTable.ActualWidth, (int)relaTable.ActualHeight);
-
-                if (rectFrom.Right < rectTo.Left)
+                var delconfigs = Helper.Client.InvokeSync<EJ.DBDeleteConfig[]>("GetDeleteConfigInModule", this.ModuleNode.Module.id.Value);
+                foreach (var configItem in delconfigs)
                 {
-                    pointFrom = new System.Drawing.Point(pointFrom.X + rectFrom.Width, pointFrom.Y);
-                }
-                if (rectTo.Right < rectFrom.Left)
-                {
-                    pointTo = new System.Drawing.Point(pointTo.X + rectTo.Width, pointTo.Y);
-                }
-                System.Drawing.Point[] points = PathBuilder.GetDirectPath(rectFrom, pointFrom, rectTo, pointTo);
+                    UI.Table table = getTableById(configItem.TableID.GetValueOrDefault());
+                    if (table == null)
+                        continue;
+                    UI.Table relaTable = getTableById(configItem.RelaTableID.GetValueOrDefault());
+                    if (relaTable == null)
+                        continue;
 
-                for (int i = 0; i < points.Length - 1; i++)
-                {
-                    if (i == points.Length - 2)
+                    System.Drawing.Point pointFrom = table.GetColumnLocation(0);
+                    System.Drawing.Rectangle rectFrom = new System.Drawing.Rectangle((int)table.Margin.Left, (int)table.Margin.Top, (int)table.ActualWidth, (int)table.ActualHeight);
+                    System.Drawing.Point pointTo = relaTable.GetColumnLocation(configItem.RelaColumID.GetValueOrDefault());
+                    System.Drawing.Rectangle rectTo = new System.Drawing.Rectangle((int)relaTable.Margin.Left, (int)relaTable.Margin.Top, (int)relaTable.ActualWidth, (int)relaTable.ActualHeight);
+
+                    if (rectFrom.Right < rectTo.Left)
                     {
-                        var arrow = new Shapes.Arrow();
-                        arrow.Stroke = Brushes.Red;
-                        arrow.StrokeThickness = 2;
-                        arrow.X1 = points[i].X;
-                        arrow.Y1 = points[i].Y;
-                        arrow.X2 = points[i + 1].X;
-                        arrow.Y2 = points[i + 1].Y;
-                        arrow.HeadWidth = 5;
-                        arrow.HeadHeight = 5;
-                        m_canvas.Children.Add(arrow);
+                        pointFrom = new System.Drawing.Point(pointFrom.X + rectFrom.Width, pointFrom.Y);
                     }
-                    else
+                    if (rectTo.Right < rectFrom.Left)
                     {
-                        Line line = new Line();
-                        line.Stroke = new SolidColorBrush(Color.FromArgb(255, 136, 181, 244));
-                        line.StrokeThickness = 2;
-                        line.X1 = points[i].X;
-                        line.Y1 = points[i].Y;
-                        line.X2 = points[i + 1].X;
-                        line.Y2 = points[i + 1].Y;
-                        m_canvas.Children.Add(line);
+                        pointTo = new System.Drawing.Point(pointTo.X + rectTo.Width, pointTo.Y);
+                    }
+                    System.Drawing.Point[] points = PathBuilder.GetDirectPath(rectFrom, pointFrom, rectTo, pointTo);
+
+                    for (int i = 0; i < points.Length - 1; i++)
+                    {
+                        if (i == points.Length - 2)
+                        {
+                            var arrow = new Shapes.Arrow();
+                            arrow.Stroke = Brushes.Red;
+                            arrow.StrokeThickness = 2;
+                            arrow.X1 = points[i].X;
+                            arrow.Y1 = points[i].Y;
+                            arrow.X2 = points[i + 1].X;
+                            arrow.Y2 = points[i + 1].Y;
+                            arrow.HeadWidth = 5;
+                            arrow.HeadHeight = 5;
+                            m_canvas.Children.Add(arrow);
+                        }
+                        else
+                        {
+                            Line line = new Line();
+                            line.Stroke = new SolidColorBrush(Color.FromArgb(255, 136, 181, 244));
+                            line.StrokeThickness = 2;
+                            line.X1 = points[i].X;
+                            line.Y1 = points[i].Y;
+                            line.X2 = points[i + 1].X;
+                            line.Y2 = points[i + 1].Y;
+                            m_canvas.Children.Add(line);
+                        }
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                Helper.ShowError(ex);
             }
         }
 
