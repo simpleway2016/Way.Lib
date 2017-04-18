@@ -1279,7 +1279,7 @@ namespace Way.EJServer
                     {
                         var oldData = db.Databases.FirstOrDefault(m => m.id == dataitem.id);
 
-                        if (dataitem.dbType != oldData.dbType)
+                        if (dataitem.dbType != oldData.dbType || dataitem.conStr != oldData.conStr)
                         {
                             //变更数据库类型
                             IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
