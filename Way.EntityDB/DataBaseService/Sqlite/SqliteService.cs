@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Way.EntityDB
 {
@@ -54,6 +55,10 @@ namespace Way.EntityDB
         protected virtual System.Data.Common.DbCommand CreateCommand(string sql , params object[] parames)
         {
             var cmd = this.Connection.CreateCommand();
+            if (_database.CurrentTransaction != null)
+            {
+                cmd.Transaction = (System.Data.Common.DbTransaction)_database.CurrentTransaction.GetDbTransaction();
+            }
             cmd.CommandText = sql;
             if (parames != null && parames.Length > 0)
             {

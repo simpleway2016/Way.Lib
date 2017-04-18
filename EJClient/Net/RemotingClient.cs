@@ -92,146 +92,155 @@ namespace EJClient.Net
 
         public async void Invoke<T>(string name, CallbackHandler<T> callback , params object[] methodParams)
         {
-            if(name == "Login")
-            {
-                Exception err = null;
-                await Task.Run(()=> {
-                    try
-                    {
-                        Helper.Client.Init(out Helper.Exponent, out Helper.Modulus);
-                    }
-                    catch(Exception ex)
-                    {
-                        err = ex.InnerException != null ? ex.InnerException : ex;
-                    }
-                });
-                if (err != null)
-                {
-                    callback(default(T), err.Message);
-                    return;
-                }
-            }
-            Dictionary<string, string> values = new Dictionary<string, string>();
-            string[] ps;
-            if (methodParams != null)
-            {
-                ps = new string[methodParams.Length];
-                for (int i = 0; i < methodParams.Length; i++)
-                {
-                    ps[i] = methodParams[i].ToJsonString();
-                    if(name == "Login" || name == "ChangePassword")
-                    {
-                        ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode( ps[i]), Helper.Exponent, Helper.Modulus);
-                    }
-                }
-            }
-            else
-            {
-                ps = new string[0];
-            }
-
-            //System.Net.WebClient web = new System.Net.WebClient();
-            //web.Headers["Content-Type"] = "application/json";
-            //byte[] bs = null;
-            //await Task.Run(()=>
-            //{
-            //    bs  = web.UploadData(_ServerUrl, System.Text.Encoding.UTF8.GetBytes((new InvokeM
-            //    {
-            //        m = new InvokeArg
-            //        {
-            //            ClassFullName = "Way.EJServer.MainController",
-            //            MethodName = name,
-            //            Parameters = ps,
-            //            SessionID = RemotingCookie
-            //        }
-            //    }).ToJsonString()));
-
-            //});
-
-            //string body = System.Text.Encoding.UTF8.GetString(bs);
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Referer", _Referer);
-            values["m"] = (new InvokeArg
-            {
-                ClassFullName = "Way.EJServer.MainController",
-                MethodName = name,
-                Parameters = ps,
-                SessionID = SessionID
-            }).ToJsonString();
-            var result = await client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
-            if (result.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                callback(default(T), result.ReasonPhrase);
-                return;
-            }
-            var responseString = await result.Content.ReadAsStringAsync();
+            
             try
             {
-                var response = responseString.ToJsonObject<ResultInfo<T>>();
-                if (response.type == WayScriptRemotingMessageType.InvokeError)
+                if (name == "Login")
                 {
-                    Debug.WriteLine($"{name} error:{response.result}");
-                    callback(default(T), response.result.ToSafeString());
+                    Exception err = null;
+                    await Task.Run(() => {
+                        try
+                        {
+                            Helper.Client.Init(out Helper.Exponent, out Helper.Modulus);
+                        }
+                        catch (Exception ex)
+                        {
+                            err = ex.InnerException != null ? ex.InnerException : ex;
+                        }
+                    });
+                    if (err != null)
+                    {
+                        callback(default(T), err.Message);
+                        return;
+                    }
                 }
-                else if (response.type == WayScriptRemotingMessageType.Result)
+                Dictionary<string, string> values = new Dictionary<string, string>();
+                string[] ps;
+                if (methodParams != null)
                 {
-                    if (response.sessionid != null && response.sessionid.Length > 0)
-                        SessionID = response.sessionid;
-                    callback(response.result, null);
+                    ps = new string[methodParams.Length];
+                    for (int i = 0; i < methodParams.Length; i++)
+                    {
+                        ps[i] = methodParams[i].ToJsonString();
+                        if (name == "Login" || name == "ChangePassword")
+                        {
+                            ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(ps[i]), Helper.Exponent, Helper.Modulus);
+                        }
+                    }
                 }
                 else
                 {
-                    Debug.WriteLine($"{name} error:{response.result}");
-                    callback(default(T), response.result.ToSafeString());
+                    ps = new string[0];
                 }
-            }
-            catch(Exception ex)
-            {
+
+                //System.Net.WebClient web = new System.Net.WebClient();
+                //web.Headers["Content-Type"] = "application/json";
+                //byte[] bs = null;
+                //await Task.Run(()=>
+                //{
+                //    bs  = web.UploadData(_ServerUrl, System.Text.Encoding.UTF8.GetBytes((new InvokeM
+                //    {
+                //        m = new InvokeArg
+                //        {
+                //            ClassFullName = "Way.EJServer.MainController",
+                //            MethodName = name,
+                //            Parameters = ps,
+                //            SessionID = RemotingCookie
+                //        }
+                //    }).ToJsonString()));
+
+                //});
+
+                //string body = System.Text.Encoding.UTF8.GetString(bs);
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Referer", _Referer);
+                values["m"] = (new InvokeArg
+                {
+                    ClassFullName = "Way.EJServer.MainController",
+                    MethodName = name,
+                    Parameters = ps,
+                    SessionID = SessionID
+                }).ToJsonString();
+
+                var result = await client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
+                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    callback(default(T), result.ReasonPhrase);
+                    return;
+                }
+                var responseString = await result.Content.ReadAsStringAsync();
                 try
                 {
-                    var response = responseString.ToJsonObject<ResultInfo<string>>();
-
-                    if (response.type == WayScriptRemotingMessageType.Result)
+                    var response = responseString.ToJsonObject<ResultInfo<T>>();
+                    if (response.type == WayScriptRemotingMessageType.InvokeError)
+                    {
+                        Debug.WriteLine($"{name} error:{response.result}");
+                        callback(default(T), response.result.ToSafeString());
+                    }
+                    else if (response.type == WayScriptRemotingMessageType.Result)
                     {
                         if (response.sessionid != null && response.sessionid.Length > 0)
                             SessionID = response.sessionid;
-                        callback(default(T), null);
+                        callback(response.result, null);
                     }
                     else
                     {
-                        if (response.result == "请先登录")
-                        {
-                            if (Login.instance == null)
-                            {
-                                Login login = new Login();
-                                login.Topmost = true;
-                                if (login.ShowDialog() == true)
-                                {
-                                    Invoke<T>(name, callback, methodParams);
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                await Task.Run(() =>
-                                {
-                                    while (Login.instance != null)
-                                        System.Threading.Thread.Sleep(200);
-                                });
-                                Invoke<T>(name, callback, methodParams);
-                                return;
-                            }
-                        }
-
                         Debug.WriteLine($"{name} error:{response.result}");
                         callback(default(T), response.result.ToSafeString());
                     }
                 }
-                catch(Exception ex2)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine($"{name} error:{ex.ToString()}");
-                    callback(default(T), ex.ToString());
+                    try
+                    {
+                        var response = responseString.ToJsonObject<ResultInfo<string>>();
+
+                        if (response.type == WayScriptRemotingMessageType.Result)
+                        {
+                            if (response.sessionid != null && response.sessionid.Length > 0)
+                                SessionID = response.sessionid;
+                            callback(default(T), null);
+                        }
+                        else
+                        {
+                            if (response.result == "请先登录")
+                            {
+                                if (Login.instance == null)
+                                {
+                                    Login login = new Login();
+                                    login.Topmost = true;
+                                    if (login.ShowDialog() == true)
+                                    {
+                                        Invoke<T>(name, callback, methodParams);
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        while (Login.instance != null)
+                                            System.Threading.Thread.Sleep(200);
+                                    });
+                                    Invoke<T>(name, callback, methodParams);
+                                    return;
+                                }
+                            }
+
+                            Debug.WriteLine($"{name} error:{response.result}");
+                            callback(default(T), response.result.ToSafeString());
+                        }
+                    }
+                    catch (Exception ex2)
+                    {
+                        Debug.WriteLine($"{name} error:{ex.ToString()}");
+                        callback(default(T), ex.ToString());
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                callback(default(T), ex.ToString());
             }
            
         }

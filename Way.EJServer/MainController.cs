@@ -1296,13 +1296,13 @@ namespace Way.EJServer
                                 {
                                     foreach (var datarow in dt.Rows)
                                     {
-                                        string actiontype = datarow["type"].ToString();
+                                        string actionType = datarow["type"].ToString();
                                         int id = Convert.ToInt32(datarow["id"]);
 
                                         string json = datarow["content"].ToString();
 
 
-                                        Type type = typeof(Way.EntityDB.Design.Actions.Action).GetTypeInfo().Assembly.GetType(actiontype);
+                                        Type type = typeof(Way.EntityDB.Design.Actions.Action).GetTypeInfo().Assembly.GetType($"Way.EntityDB.Design.Actions.{actionType}");
                                         var actionItem = (Way.EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
 
                                         actionItem.Invoke(invokeDB);

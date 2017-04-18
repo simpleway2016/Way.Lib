@@ -71,7 +71,7 @@ namespace EJClient.Forms
             Helper.Client.Invoke<int>("UpdateDatabase", (id,err)=> {
                 this.Cursor = null;
                 if (err != null)
-                    Helper.ShowError(err);
+                    Helper.ShowError(this , err);
                 else
                 {
                     this.DialogResult = true;
