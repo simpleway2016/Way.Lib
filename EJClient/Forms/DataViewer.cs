@@ -32,30 +32,7 @@ namespace EJClient.Forms
             {
                 notSelecteds = history.NotSelecteds;
             }
-            try
-            {
-                StringBuilder fieldString = new StringBuilder();
-                string formatString = Helper.Client.InvokeSync<string>("GetObjectFormat", table.id.Value);
-                m_columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", table.id.Value);
-                try
-                {
-                    m_pkName = m_columns.FirstOrDefault(m => m.IsPKID == true).Name;
-                }
-                catch
-                {
-                }
-                foreach (var column in m_columns)
-                {
-                    if (fieldString.Length > 0)
-                        fieldString.Append(',');
-                    fieldString.Append(string.Format(formatString, column.Name));
-                }
-
-                richTextBox1.Text = string.Format("select {1} from {0}", string.Format(formatString, table.Name), fieldString);
-            }
-            catch(Exception ex){
-                MessageBox.Show(ex.Message);
-            }
+            
         }
         class history
         {
@@ -82,7 +59,49 @@ namespace EJClient.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            bindData();
+            this.Cursor = Cursors.WaitCursor;
+            Helper.Client.Invoke<string>("GetObjectFormat",(formatString,err) => {
+                if(err != null)
+                {
+                    this.Cursor = Cursors.Default;
+                    MessageBox.Show(this , err);
+                }
+                else
+                {
+                   
+                    Helper.Client.Invoke<EJ.DBColumn[]>("GetColumnList",(ret,err2)=> {
+                        this.Cursor = Cursors.Default;
+                        if (err2 != null)
+                        {
+                            MessageBox.Show(this, err2);
+                        }
+                        else
+                        {
+                            m_columns = ret;
+                            StringBuilder fieldString = new StringBuilder();
+                            try
+                            {
+                                m_pkName = m_columns.FirstOrDefault(m => m.IsPKID == true).Name;
+                            }
+                            catch
+                            {
+                            }
+                            foreach (var column in m_columns)
+                            {
+                                if (fieldString.Length > 0)
+                                    fieldString.Append(',');
+                                fieldString.Append(string.Format(formatString, column.Name));
+                            }
+
+                            richTextBox1.Text = string.Format("select {1} from {0}", string.Format(formatString, m_Table.Name), fieldString);
+                            bindData();
+                        }
+                      
+                    }, m_Table.id.Value);
+                   
+                }
+            }, m_Table.id.Value);
+            
         }
 
         public static SqlDbType SqlTypeString2SqlType(string sqlTypeString)
@@ -244,7 +263,7 @@ namespace EJClient.Forms
         {
             this.Cursor = Cursors.WaitCursor;
             Helper.Client.Invoke<Way.EntityDB.WayDataTable>("GetDataTable",(r,err)=> {
-                this.Cursor = null;
+                this.Cursor = Cursors.Default;
                 if (err != null)
                 {
                     MessageBox.Show(this, err);
