@@ -21,7 +21,15 @@ namespace Way.EntityDB.Design.Database.SqlServer
             //throw new Exception(constr);
             var db = EntityDB.DBContext.CreateDatabaseService(constr, EntityDB.DatabaseType.SqlServer);
 
-            db.ExecSqlString("if not exists(select [dbid] from sysdatabases where [name]='" + database.Name + "') create database " + database.Name);
+            /*
+             COLLATE Chinese_PRC_CI_AS ，如果没有这句，linux的sql server中文会乱码
+             指定SQL server的排序规则
+                Chinese_PRC指的是中国大陆地区，如果是台湾地区则为Chinese_Taiwan
+                CI指定不区分大小写，如果要在查询时区分输入的大小写则改为CS
+                AS指定区分重音，同样如果不需要区分重音，则改为AI
+                COLLATE可以针对整个数据库更改排序规则，也可以单独修改某一个表或者某一个字段的排序规则，指定排序规则很有用，比如用户管理表，需要验证输入的用户名和密码的正确性，一般是要区分大小写的。
+             */
+            db.ExecSqlString("if not exists(select [dbid] from sysdatabases where [name]='" + database.Name + "') create database " + database.Name + " COLLATE Chinese_PRC_CI_AS");
 
             db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.SqlServer);
             CreateEasyJobTable(db);
