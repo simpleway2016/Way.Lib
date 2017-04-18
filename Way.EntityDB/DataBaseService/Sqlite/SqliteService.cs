@@ -55,7 +55,7 @@ namespace Way.EntityDB
         protected virtual System.Data.Common.DbCommand CreateCommand(string sql , params object[] parames)
         {
             var cmd = this.Connection.CreateCommand();
-            if (_database.CurrentTransaction != null)
+            if (_database.CurrentTransaction != null && cmd.Transaction == null)
             {
                 cmd.Transaction = (System.Data.Common.DbTransaction)_database.CurrentTransaction.GetDbTransaction();
             }
