@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Way.EntityDB.Design.Database.MySql
 {
+    //在mysql 5.7.18 版本测试
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
     public class TableService : Services.ITableDesignService
     {
@@ -129,32 +130,7 @@ CREATE TABLE `" + table.Name + @"` (
         {
             database.ExecSqlString(string.Format("DROP TABLE IF EXISTS `{0}`", tableName));
         }
-
-        /*
-                CREATE TABLE `people` (
-          `peopleid` smallint(6) NOT NULL AUTO_INCREMENT,
-          `firstname` char(50) NOT NULL,
-          `lastname` char(50) NOT NULL,
-          `age` smallint(6) NOT NULL,
-          `townid` smallint(6) NOT NULL,
-          PRIMARY KEY (`peopleid`),
-          UNIQUE KEY `unique_fname_lname`(`firstname`,`lastname`),
-          KEY `fname_lname_age` (`firstname`,`lastname`,`age`)
-        ) ;
-         * 删除索引
-         * ALTER TABLE good_booked DROP INDEX good_id;
-         * 
-         * 设置主键或自增长
-         * Alter table tb add primary key(id);
-Alter table tb change id id int(10) not null auto_increment=1;
-4 删除自增长的主键id
-先删除自增长在删除主键
-Alter table tb change id id int(10);//删除自增长
-Alter table tb drop primary key;//删除主建
-         * 
-         * 修改字段名
-         *    alter table     tablename    change   旧名    new_field_name  字段类型;
-         * */
+               
 
 
         List<string> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename, List<IndexInfo> indexInfos)
