@@ -170,12 +170,38 @@ var WayScriptRemoting = (function (_super) {
             throw result.err;
         }
         var func;
-        eval("func = " + result.text);
+        eval("func = " + WayScriptRemoting.getClassDefineScript(result.methods));
         var page = new func(remoteName);
         page.rsa = result.rsa;
         WayScriptRemoting.ExistControllers.push(page);
         WayCookie.setCookie("WayScriptRemoting", result.SessionID);
         return page;
+    };
+    WayScriptRemoting.getClassDefineScript = function (methods) {
+        var text = "";
+        text += ("(function (_super) {__extends(func, _super);function func() {_super.apply(this, arguments);}");
+        for (var i = 0; i < methods.length; i++) {
+            var m = methods[i];
+            text += "func.prototype." + m.Method + " = function (";
+            for (var j = 0; j < m.ParameterLength; j++) {
+                text += "p" + j + ",";
+            }
+            text += "callback){_super.prototype.pageInvoke.call(this,'" + methods[i].Method + "',[";
+            for (var j = 0; j < m.ParameterLength; j++) {
+                text += "p" + j;
+                if (j < m.ParameterLength - 1) {
+                    text += ",";
+                }
+            }
+            if (m.EncryptParameters || m.EncryptResult) {
+                text += "] , callback,true," + m.EncryptParameters + "," + m.EncryptResult + " );};";
+            }
+            else {
+                text += "] , callback );};";
+            }
+        }
+        text += "return func;}(WayScriptRemoting));";
+        return text;
     };
     WayScriptRemoting.createRemotingControllerAsync = function (remoteName, callback) {
         WayScriptRemoting.getServerAddress();
@@ -194,7 +220,7 @@ var WayScriptRemoting = (function (_super) {
             else {
                 try {
                     var func;
-                    eval("func = " + result.text);
+                    eval("func = " + WayScriptRemoting.getClassDefineScript(result.methods));
                     var page = new func(remoteName);
                     page.rsa = result.rsa;
                     WayCookie.setCookie("WayScriptRemoting", result.SessionID);

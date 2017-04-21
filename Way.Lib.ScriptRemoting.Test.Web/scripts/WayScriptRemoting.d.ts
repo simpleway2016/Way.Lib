@@ -44,6 +44,7 @@ declare class WayScriptRemoting extends WayBaseObject {
     constructor(remoteName: string);
     static getServerAddress(): void;
     static createRemotingController(remoteName: string): WayScriptRemoting;
+    static getClassDefineScript(methods: any[]): string;
     private static createRemotingControllerAsync(remoteName, callback);
     private _uploadFileWithHTTP(fileElement, state, callback, handler);
     private arrayBufferToString(data);

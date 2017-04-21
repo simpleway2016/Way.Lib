@@ -216,6 +216,13 @@ namespace Way.Lib.ScriptRemoting
             return pageDefine;
         }
 
+        class MethodDefineForJs
+        {
+            public string Method;
+            public int ParameterLength;
+            public bool EncryptParameters;
+            public bool EncryptResult;
+        }
         void handleInit(MessageBag msgBag)
         {
             try
@@ -224,7 +231,7 @@ namespace Way.Lib.ScriptRemoting
                 string remoteName = msgBag.ClassFullName;
                 TypeDefine pageDefine = checkRemotingName(remoteName);
 
-
+                List<MethodDefineForJs> methodDefineForOutput = new List<MethodDefineForJs>();
                 StringBuilder methodOutput = new StringBuilder();
                 methodOutput.Append(@"(function (_super) {
     __extends(func, _super);
@@ -235,6 +242,7 @@ namespace Way.Lib.ScriptRemoting
                 foreach (MethodInfo method in pageDefine.Methods)
                 {
                    
+                
                     methodOutput.Append($"func.prototype." + method.Name + " = function (");
                     var parameters = method.GetParameters();
 
@@ -264,6 +272,14 @@ namespace Way.Lib.ScriptRemoting
                         methodOutput.AppendLine("] , callback );");
                     }
                     methodOutput.AppendLine("};");
+
+                    methodDefineForOutput.Add(new MethodDefineForJs()
+                    {
+                        Method = method.Name,
+                        ParameterLength = parameters.Length,
+                        EncryptParameters = methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters),
+                        EncryptResult = methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult),
+                    });
                 }
 
                 methodOutput.Append(@"
@@ -279,7 +295,7 @@ namespace Way.Lib.ScriptRemoting
                 }
                 mSendDataFunc(Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
-                    text = methodOutput.ToString(),
+                    methods = methodDefineForOutput,
                     SessionID = this.Session.SessionID,
                     rsa = outputRSAKey ? new { Exponent=this.Session["$$_rsa_PublicKeyExponent"], Modulus= this.Session["$$_rsa_PublicKeyModulus"] } : null,
                 }));
