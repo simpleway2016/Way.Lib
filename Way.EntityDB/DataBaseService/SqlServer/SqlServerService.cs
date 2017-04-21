@@ -37,10 +37,7 @@ namespace Way.EntityDB
             return SelectTable(sql, sqlparameters);
         }
 
-        protected override System.Data.Common.DbParameter CreateParameter(string name, object value)
-         {
-             return new SqlParameter(name, value);
-         }
+      
         public override string FormatObjectName(string name)
         {
             if (name.StartsWith("[") || name.StartsWith("("))

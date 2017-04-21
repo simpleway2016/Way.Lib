@@ -64,7 +64,10 @@ namespace Way.EntityDB
             {
                 for (int i = 0; i < parames.Length; i++)
                 {
-                    cmd.Parameters.Add(CreateParameter("@p" + i, parames[i]));
+                    var sqlParameter = cmd.CreateParameter();
+                    sqlParameter.ParameterName = "@p" + i;
+                    sqlParameter.Value = parames[i];
+                    cmd.Parameters.Add(sqlParameter);
                 }
             }
             return cmd;
@@ -75,10 +78,7 @@ namespace Way.EntityDB
             return new mySQLiteDataAdapter((SqliteCommand)this.CreateCommand(sql));
         }
 #endif
-        protected virtual System.Data.Common.DbParameter CreateParameter(string name,object value)
-        {
-            return new SqliteParameter(name , value);
-        }
+     
         protected virtual void ThrowSqlException(Type tableType, Exception ex)
         {
             if (!(ex is SqliteException))
@@ -148,34 +148,32 @@ namespace Way.EntityDB
 
             StringBuilder str_fields = new StringBuilder();
             StringBuilder str_values = new StringBuilder();
-            List<System.Data.Common.DbParameter> parameters = new List<System.Data.Common.DbParameter>();
-            int parameterIndex = 1;
-
-            foreach (var field in fieldValues)
-            {
-
-                if (str_fields.Length > 0)
-                    str_fields.Append(',');
-                str_fields.Append(FormatObjectName(field.FieldName));
-
-                string parameterName = "@p" + (parameterIndex++);
-                var parameter = CreateParameter(parameterName, field.Value);
-                parameters.Add(parameter);
-
-                if (str_values.Length > 0)
-                    str_values.Append(',');
-                str_values.Append(parameterName);
-            }
+           
             try
             {
-                string sql = string.Format("insert into {0} ({1}) values ({2})", FormatObjectName(dataitem.TableName), str_fields, str_values);
-                using (var command = CreateCommand(sql))
+              
+                using (var command = CreateCommand(null))
                 {
-                    foreach (var p in parameters)
+                    int parameterIndex = 1;
+                    foreach (var field in fieldValues)
                     {
-                        command.Parameters.Add(p);
+
+                        if (str_fields.Length > 0)
+                            str_fields.Append(',');
+                        str_fields.Append(FormatObjectName(field.FieldName));
+
+
+                        var parameter = command.CreateParameter();
+                        parameter.ParameterName = "@p" + (parameterIndex++);
+                        parameter.Value = field.Value;
+                        command.Parameters.Add(parameter);
+
+                        if (str_values.Length > 0)
+                            str_values.Append(',');
+                        str_values.Append(parameter.ParameterName);
                     }
-                    parameters.Clear();
+
+                    command.CommandText = string.Format("insert into {0} ({1}) values ({2})", FormatObjectName(dataitem.TableName), str_fields, str_values);
                     command.ExecuteNonQuery();
 
                     command.Parameters.Clear();
@@ -230,53 +228,54 @@ namespace Way.EntityDB
 
                 StringBuilder str_fields = new StringBuilder();
                 int parameterIndex = 1;
-                List<System.Data.Common.DbParameter> parameters = new List<System.Data.Common.DbParameter>();
-                var fieldValues = dataitem.GetFieldValues(false);
-                if (fieldValues.Length == 0)
-                    return;
-                foreach (var fieldValue in fieldValues)
+               
+                
+                using (var command = CreateCommand(null))
                 {
-
-                    if (str_fields.Length > 0)
-                        str_fields.Append(',');
-                    str_fields.Append(FormatObjectName(fieldValue.FieldName));
-                    str_fields.Append('=');
-
-
-                    object value = fieldValue.Value;
-                    if (value == DBNull.Value || value == null)
+                    var fieldValues = dataitem.GetFieldValues(false);
+                    if (fieldValues.Length == 0)
+                        return;
+                    foreach (var fieldValue in fieldValues)
                     {
-                        str_fields.Append("null");
 
+                        if (str_fields.Length > 0)
+                            str_fields.Append(',');
+                        str_fields.Append(FormatObjectName(fieldValue.FieldName));
+                        str_fields.Append('=');
+
+
+                        object value = fieldValue.Value;
+                        if (value == DBNull.Value || value == null)
+                        {
+                            str_fields.Append("null");
+
+                        }
+                        else
+                        {
+                            string parameterName = "@p" + (parameterIndex++);
+                            var parameter = command.CreateParameter();
+                            parameter.ParameterName = parameterName;
+                            parameter.Value = value;
+                            command.Parameters.Add(parameter);
+
+                            str_fields.Append(parameterName);
+
+                        }
+                    }
+
+                    if (pkvalue != null)
+                    {
+                        var parameter = command.CreateParameter();
+                        parameter.ParameterName = "@pid";
+                        parameter.Value = pkvalue;
+                        command.Parameters.Add(parameter);
+
+                        command.CommandText = string.Format("update {0} set {1} where {2}=@pid", FormatObjectName(dataitem.TableName), str_fields, FormatObjectName(pkid));
                     }
                     else
                     {
-                        string parameterName = "@p" + (parameterIndex++);
-                        var parameter = CreateParameter(parameterName, value);
-                        parameters.Add(parameter);
-
-                        str_fields.Append(parameterName);
-
+                        command.CommandText = string.Format("update {0} set {1}", FormatObjectName(dataitem.TableName), str_fields);
                     }
-                }
-                
-                string sql;
-                if (pkvalue != null)
-                {
-                    parameters.Add(CreateParameter("@pid", pkvalue));
-                    sql = string.Format("update {0} set {1} where {2}=@pid", FormatObjectName(dataitem.TableName), str_fields, FormatObjectName(pkid));
-                }
-                else
-                {
-                    sql = string.Format("update {0} set {1}", FormatObjectName(dataitem.TableName), str_fields);
-                }
-                using (var command = CreateCommand(sql))
-                {
-                    foreach (var p in parameters)
-                    {
-                        command.Parameters.Add(p);
-                    }
-                    parameters.Clear();
                     command.ExecuteNonQuery();
 
                     command.Parameters.Clear();
@@ -306,10 +305,13 @@ namespace Way.EntityDB
 
             try
             {
-                string sql = string.Format("delete from {0} where {1}=@p0", FormatObjectName(dataitem.TableName), FormatObjectName(dataitem.PKIDField));
-                using (var command = CreateCommand(sql))
+                using (var command = CreateCommand(null))
                 {
-                    command.Parameters.Add(CreateParameter("@p0", dataitem.PKValue));
+                    command.CommandText = string.Format("delete from {0} where {1}=@p0", FormatObjectName(dataitem.TableName), FormatObjectName(dataitem.PKIDField));
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@p0";
+                    parameter.Value = dataitem.PKValue;
+                    command.Parameters.Add(parameter);
                     command.ExecuteNonQuery();
                 }
             }

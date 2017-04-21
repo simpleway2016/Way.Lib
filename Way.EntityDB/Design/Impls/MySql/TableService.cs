@@ -17,7 +17,7 @@ namespace Way.EntityDB.Design.Database.MySql
 
 
             if (dbtype.Contains("int"))
-                return "int(11)";
+                return "int";
 
             if (dbtype.Contains("real"))
                 return "REAL";
@@ -35,7 +35,7 @@ namespace Way.EntityDB.Design.Database.MySql
             if (dbtype.Contains("date"))
                 return "DATETIME";
             if (dbtype.Contains("byte"))
-                return "BLOB";
+                return "tinyint";
             if (dbtype.Contains("image"))
                 return "BLOB";
             if (dbtype.Contains("binary"))
@@ -45,7 +45,7 @@ namespace Way.EntityDB.Design.Database.MySql
 
         public void CreateTable(EntityDB.IDatabaseService db, EJ.DBTable table, EJ.DBColumn[] columns, IndexInfo[] indexInfos)
         {
-            
+            //db.ExecSqlString("drop table if exists `" + table.Name + "`");
 
                 string sqlstr;
                 sqlstr = @"
@@ -165,7 +165,7 @@ Alter table tb drop primary key;//删除主建
             var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.ConnectionString, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             if (dbnameMatch == null)
             {
-                throw new Exception("连接字符串必须采用以下形式server=localhost;User Id=root;password=123456;Database=testDB");
+                throw new Exception("连接字符串必须采用以下形式server=localhost;User Id=root;password=123456;Database=testdb");
             }
             dbname = dbnameMatch.Groups["dname"].Value;
             var db = EntityDB.DBContext.CreateDatabaseService(database.ConnectionString.Replace(dbnameMatch.Value, "database=INFORMATION_SCHEMA"), EntityDB.DatabaseType.MySql);
@@ -183,7 +183,8 @@ Alter table tb drop primary key;//删除主建
 
                         if (findExistItem == null)
                         {
-                            needToDels.Add(indexName);
+                            if(indexName != "GEN_CLUST_INDEX")//GEN_CLUST_INDEX好像是表示没有主键的意思
+                                needToDels.Add(indexName);
                         }
                         else
                         {
@@ -268,7 +269,7 @@ Alter table tb drop primary key;//删除主建
                     else
                     {
                         //设为自增长
-                        database.ExecSqlString(string.Format("Alter table `{0}` change `{1}` `{1}` {2} not null auto_increment=1", newTableName, column.Name.ToLower(), sqltype));
+                        database.ExecSqlString(string.Format("Alter table `{0}` change `{1}` `{1}` {2} not null auto_increment", newTableName, column.Name.ToLower(), sqltype));
                     }
 
                     #endregion
@@ -303,7 +304,7 @@ Alter table tb drop primary key;//删除主建
 
                     #region 默认值
                     //删除默认值
-                    database.ExecSqlString(string.Format("alter table `{0}` alter column `{1}` set default null",newTableName,column.Name));
+                    database.ExecSqlString($"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default null");
 
                     #endregion
                 }
@@ -332,7 +333,7 @@ Alter table tb drop primary key;//删除主建
                         database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`=" + defaultValue + " where `" + column.Name + "` is null");
                     }
 
-                    string sql = "alter table `" + newTableName + "` alter column `" + column.Name + "` " + sqltype;
+                    string sql = "alter table `" + newTableName + "` MODIFY `" + column.Name + "` " + sqltype;
                     if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
                         sql += " NOT";
                     sql += " NULL ";
@@ -347,12 +348,12 @@ Alter table tb drop primary key;//删除主建
                     string defaultValue = column.defaultValue.Trim();
                     if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
                     {
-                        sql += "alter table `"+ newTableName +"` alter column `"+column.Name+"` set default " + defaultValue;
+                        sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default {defaultValue}";
                     }
                     else
                     {
-                        sql += "alter table `" + newTableName + "` alter column `" + column.Name + "` set default '" + defaultValue + "'";
-                        
+                        sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default '{defaultValue}'";
+
                     }
                     if (sql.Length > 0)
                         database.ExecSqlString(sql);
@@ -402,11 +403,11 @@ Alter table tb drop primary key;//删除主建
                     string defaultValue = column.defaultValue.Trim();
                     if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
                     {
-                        sql += " default (" + defaultValue +")" ;
+                        sql += " default " + defaultValue ;
                     }
                     else
                     {
-                        sql += " default ('" + defaultValue + "')";
+                        sql += " default '" + defaultValue + "'";
                     }
 
 
