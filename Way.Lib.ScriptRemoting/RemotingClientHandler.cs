@@ -232,60 +232,23 @@ namespace Way.Lib.ScriptRemoting
                 TypeDefine pageDefine = checkRemotingName(remoteName);
 
                 List<MethodDefineForJs> methodDefineForOutput = new List<MethodDefineForJs>();
-                StringBuilder methodOutput = new StringBuilder();
-                methodOutput.Append(@"(function (_super) {
-    __extends(func, _super);
-    function func() {
-        _super.apply(this, arguments);
-    }
-");
+               
                 foreach (MethodInfo method in pageDefine.Methods)
                 {
-                   
-                
-                    methodOutput.Append($"func.prototype." + method.Name + " = function (");
                     var parameters = method.GetParameters();
-
-                    for (int i = 0; i < parameters.Length; i++)
-                    {
-                        methodOutput.Append(parameters[i].Name);
-                        methodOutput.Append(',');
-                    }
-                    methodOutput.AppendLine("callback){");
-                    methodOutput.Append("_super.prototype.pageInvoke.call(this,'" + method.Name + "',[");
-                    for (int i = 0; i < parameters.Length; i++)
-                    {
-                        methodOutput.Append(parameters[i].Name);
-                        if (i < parameters.Length - 1)
-                        {
-                            methodOutput.Append(',');
-                        }
-                    }
                     RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)method.GetCustomAttribute(typeof(RemotingMethodAttribute));
-                    if (methodAttr.UseRSA != RSAApplyScene.None)
-                    {
-                        outputRSAKey = true;
-                        methodOutput.AppendLine($"] , callback,true,{(methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters) ?"true":"false")},{(methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) ? "true" : "false")} );");
-                    }
-                    else
-                    {
-                        methodOutput.AppendLine("] , callback );");
-                    }
-                    methodOutput.AppendLine("};");
-
-                    methodDefineForOutput.Add(new MethodDefineForJs()
+                    var mItem = new MethodDefineForJs()
                     {
                         Method = method.Name,
                         ParameterLength = parameters.Length,
                         EncryptParameters = methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters),
                         EncryptResult = methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult),
-                    });
+                    };
+                    if (mItem.EncryptResult || mItem.EncryptParameters)
+                        outputRSAKey = true;
+                    methodDefineForOutput.Add(mItem);
                 }
 
-                methodOutput.Append(@"
-    return func;
-}(WayScriptRemoting));
-");
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
                 currentPage.onLoad();
