@@ -1,4 +1,4 @@
-﻿using Pomelo.Data.MySql;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,7 +33,7 @@ namespace Way.EntityDB
         }
         public override DbConnection CreateConnection(string connectString)
         {
-            return new MySqlConnection(connectString);
+            return new MySql.Data.MySqlClient.MySqlConnection(connectString);
         }
 
         public override void AllowIdentityInsert(string tablename, bool allow)
@@ -48,13 +48,13 @@ namespace Way.EntityDB
 
         protected override System.Data.Common.DbParameter CreateParameter(string name, object value)
         {
-            return new MySqlParameter(name, value);
+            return new MySql.Data.MySqlClient.MySqlParameter { ParameterName = name , Value = value};
         }
         protected override void ThrowSqlException(Type tableType, Exception ex)
         {
-            if (!(ex is MySqlException))
+            if (!(ex is MySql.Data.MySqlClient.MySqlException))
                 throw ex;
-            if (((MySqlException)ex).Number != 1062)
+            if (((MySql.Data.MySqlClient.MySqlException)ex).Number != 1062)
                 throw ex;
 
             StringBuilder output = new StringBuilder();

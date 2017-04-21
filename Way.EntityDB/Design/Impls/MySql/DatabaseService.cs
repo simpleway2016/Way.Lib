@@ -15,6 +15,8 @@ namespace Way.EntityDB.Design.Database.MySql
 
         public void Create(EJ.Databases database)
         {
+            if (database.Name.ToLower() != database.Name)
+                throw new Exception("MySql数据库名称必须是小写");
             var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             if (dbnameMatch == null)
             {
@@ -22,11 +24,21 @@ namespace Way.EntityDB.Design.Database.MySql
             }
 
             var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.MySql);
-            db.ExecSqlString("create database `" + database.Name.ToLower() + "` CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'");
+            db.ExecSqlString("create database if not exists `" + database.Name.ToLower() + "` CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'");
 
             //创建必须表
             db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.MySql);
-            CreateEasyJobTable(db);
+            db.DBContext.BeginTransaction();
+            try
+            {
+                CreateEasyJobTable(db);
+                db.DBContext.CommitTransaction();
+            }
+            catch(Exception ex)
+            {
+                db.DBContext.RollbackTransaction();
+                throw ex;
+            }
         }
 
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
