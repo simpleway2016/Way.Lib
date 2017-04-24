@@ -41,11 +41,20 @@ namespace Way.Lib.ScriptRemoting.Test
 
             }
             Console.WriteLine("database ready");
-           
+
             while (true)
             {
                 Console.Write("Web>");
-                if (Console.ReadLine() == "exit")
+                var line = Console.ReadLine();
+                if (line == null)
+                {
+                    //是在后台运行的
+                    while (true)
+                    {
+                        System.Threading.Thread.Sleep(10000000);
+                    }
+                }
+                else if (line == "exit")
                     break;
             }
             ScriptRemotingServer.Stop();
