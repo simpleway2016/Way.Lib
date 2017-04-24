@@ -281,11 +281,11 @@ namespace Way.Lib.ScriptRemoting
                         masterUrl = url + masterUrl;
                     }
                     masterUrl = getUrl(masterUrl);
-                    string filepath = masterUrl;
-                    if (filepath.StartsWith("/"))
-                        filepath = filepath.Substring(1);
-                    filepath = ScriptRemotingServer.Root + filepath;
-                    string masterContent = outputWithMaster(masterUrl, filepath);
+                    string masterFilePath = masterUrl;
+                    if (masterFilePath.StartsWith("/"))
+                        masterFilePath = masterFilePath.Substring(1);
+                    masterFilePath = ScriptRemotingServer.Root + masterFilePath;
+                    string masterContent = outputWithMaster(masterUrl, masterFilePath);
                     foreach( HtmlUtil.HtmlNode node in parser.Nodes )
                     {
                         if(node.Name == "Variable")
