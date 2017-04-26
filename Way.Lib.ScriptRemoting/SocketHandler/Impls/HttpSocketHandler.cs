@@ -264,7 +264,7 @@ namespace Way.Lib.ScriptRemoting
                 fs.Read(bs, 0, bs.Length);
                 fs.Position = 0;
 
-                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<Master "))
+                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<master " , StringComparison.CurrentCultureIgnoreCase))
                 {
                     Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
                     parser.Parse(new StreamReader(fs));
@@ -288,12 +288,13 @@ namespace Way.Lib.ScriptRemoting
                     string masterContent = outputWithMaster(masterUrl, masterFilePath);
                     foreach( HtmlUtil.HtmlNode node in parser.Nodes )
                     {
-                        if(node.Name == "Variable")
+                        if(string.Equals(node.Name , "set" , StringComparison.CurrentCultureIgnoreCase))
                         {
                             var name = node.Attributes.Where(m => m.Name == "name").Select(m => m.Value).FirstOrDefault();
                             masterContent = masterContent.Replace($"{{%{name}%}}" , node.getInnerHtml());
                         }
                     }
+                    
                     return masterContent;
                 }
                 else
@@ -314,7 +315,7 @@ namespace Way.Lib.ScriptRemoting
                 bs = new byte[20];
                 fs.Read(bs , 0 , bs.Length);
                 fs.Position = 0;
-                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<Master "))
+                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<master " , StringComparison.CurrentCultureIgnoreCase))
                 {
                     //母版模式
                     fs.Dispose();
@@ -341,6 +342,7 @@ namespace Way.Lib.ScriptRemoting
                             }
                         }
                         var content = outputWithMaster(url, filePath);
+                        content = Regex.Replace(content, @"\{\%(\w)+\%\}", "");
                         bs = System.Text.Encoding.UTF8.GetBytes(content);
                         string temppath = ScriptRemotingServer.HtmlTempPath + "/" + Guid.NewGuid();
                         File.WriteAllBytes(temppath, bs);

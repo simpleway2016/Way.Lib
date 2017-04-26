@@ -30,6 +30,7 @@
     <Content Include="GridViewTest.html" />
     <Content Include="master.html" />
     <Content Include="master2.html" />
+    <Content Include="master3.html" />
     <Content Include="scripts\Barrett.js" />
     <Content Include="scripts\BigInt.js" />
     <Content Include="scripts\jquery.js" />
@@ -118,12 +119,12 @@
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
-<TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
-<TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
