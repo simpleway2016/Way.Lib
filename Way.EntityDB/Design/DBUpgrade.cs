@@ -36,7 +36,6 @@ namespace Way.EntityDB.Design
                     var query = dtable.Rows.Where(m=>(long)m["id"] > dbconfig.LastUpdatedID).OrderBy(m=>(long)m["id"]);
 
                     int count = query.Count();
-                    int done = 0;
                     int? lastid = null;
                     var assembly = typeof(Way.EntityDB.Design.Actions.CreateTableAction).GetTypeInfo().Assembly;
                     foreach (var datarow in query)
@@ -51,7 +50,6 @@ namespace Way.EntityDB.Design
 
                         actionItem.Invoke(db);
 
-                        done++;
                         lastid = id;
 
                     }
