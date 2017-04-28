@@ -19,8 +19,8 @@ namespace Way.Lib.ScriptRemoting.Test
             // Console.WriteLine("你好福娃额放假哦");
             // Console.SetCursorPosition(2, 0);
             // Console.Write("ab");//相当于backspace  
-                   
 
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.WriteLine("server starting...");
             if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}Web"))
             {
