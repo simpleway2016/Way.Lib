@@ -1759,8 +1759,87 @@ var WayPopup = (function () {
     };
     return WayPopup;
 }());
-var WayDBContext = (function () {
+var WayDataSource = (function () {
+    function WayDataSource() {
+    }
+    WayDataSource.prototype.getDatas = function (pageinfo, bindFields, searchModel, callback, async) {
+        if (async === void 0) { async = true; }
+    };
+    WayDataSource.prototype.getDataItem = function (bindFields, searchModel, callback, async) {
+        if (async === void 0) { async = true; }
+    };
+    WayDataSource.prototype.count = function (searchModel, callback) {
+    };
+    WayDataSource.prototype.sum = function (fields, searchModel, callback) {
+    };
+    WayDataSource.prototype.saveData = function (data, primaryKey, callback) {
+    };
+    return WayDataSource;
+}());
+var WayArrayDataSource = (function (_super) {
+    __extends(WayArrayDataSource, _super);
+    function WayArrayDataSource(data) {
+        _super.call(this);
+        this._data = data;
+    }
+    WayArrayDataSource.prototype.getDatas = function (pageinfo, bindFields, searchModel, callback, async) {
+        if (async === void 0) { async = true; }
+        var result = [];
+        var startindex = pageinfo.PageIndex * pageinfo.PageSize;
+        for (var i = startindex; i < startindex + pageinfo.PageSize && i < this._data.length; i++) {
+            result.push(this._data[i]);
+        }
+        if (callback) {
+            callback(result, null, null);
+        }
+    };
+    WayArrayDataSource.prototype.getDataItem = function (bindFields, searchModel, callback, async) {
+        if (async === void 0) { async = true; }
+        if (callback) {
+            try {
+                callback(this._data[0], null);
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+        }
+    };
+    WayArrayDataSource.prototype.count = function (searchModel, callback) {
+        if (callback) {
+            try {
+                callback(this._data.length, null);
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+        }
+    };
+    WayArrayDataSource.prototype.sum = function (fields, searchModel, callback) {
+        if (callback) {
+            try {
+                callback(null, "暂时不支持array数据源的sum");
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+        }
+    };
+    WayArrayDataSource.prototype.saveData = function (data, primaryKey, callback) {
+        if (callback) {
+            try {
+                callback(null, "暂时不支持array数据源的sum");
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+        }
+    };
+    return WayArrayDataSource;
+}(WayDataSource));
+var WayDBContext = (function (_super) {
+    __extends(WayDBContext, _super);
     function WayDBContext(controller, _datasource) {
+        _super.call(this);
         if (typeof controller == "object") {
             this.remoting = controller;
         }
@@ -1828,7 +1907,7 @@ var WayDBContext = (function () {
         this.remoting.pageInvoke("Sum", [this.datasource, fields, searchModel], callback);
     };
     return WayDBContext;
-}());
+}(WayDataSource));
 var WayControlBase = (function (_super) {
     __extends(WayControlBase, _super);
     function WayControlBase() {
@@ -1858,8 +1937,6 @@ var WayGridView = (function (_super) {
         this.allowEdit = false;
         this.initedPageMode = false;
         try {
-            var controller = document.body.getAttribute("controller");
-            this.dbContext = new WayDBContext(controller, null);
             if (typeof elementId == "string")
                 this.element = $("#" + elementId);
             else if (elementId.tagName)
@@ -1952,7 +2029,7 @@ var WayGridView = (function (_super) {
                 _v = JSON.parse(_v);
             }
             this._datasource = _v;
-            this.dbContext.datasource = _v;
+            this.dbContext = ((typeof _v) == "string") ? new WayDBContext(document.body.getAttribute("controller"), _v) : new WayArrayDataSource(_v);
         },
         enumerable: true,
         configurable: true
@@ -2200,7 +2277,7 @@ var WayGridView = (function (_super) {
         return result;
     };
     WayGridView.prototype.databind = function () {
-        if (!this._datasource || (typeof this._datasource == "string" && this._datasource.length == 0))
+        if (!this.dbContext)
             return;
         if (this.pageMode) {
             this.initForPageMode();
@@ -2244,29 +2321,23 @@ var WayGridView = (function (_super) {
         var info = new WayPageInfo();
         info.PageSize = this.pageinfo.PageSize;
         info.PageIndex = pageindex;
-        if (typeof this.datasource == "string") {
-            this.showLoading(this.element);
-            this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (ret, pkid, err) {
-                _this.hideLoading();
-                if (mytranId != _this.transcationID)
-                    return;
-                if (err) {
-                    _this.hasMorePage = true;
-                    _this.onErr(err);
+        this.showLoading(this.element);
+        this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data, function (ret, pkid, err) {
+            _this.hideLoading();
+            if (mytranId != _this.transcationID)
+                return;
+            if (err) {
+                _this.hasMorePage = true;
+                _this.onErr(err);
+            }
+            else {
+                if (pkid != null) {
+                    _this.primaryKey = pkid;
                 }
-                else {
-                    if (pkid != null) {
-                        _this.primaryKey = pkid;
-                    }
-                    pageData = ret;
-                    _this.bindDataToGrid(pageData, pageindex);
-                }
-            });
-        }
-        else {
-            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource, info) : this.datasource;
-            this.bindDataToGrid(pageData, pageindex);
-        }
+                pageData = ret;
+                _this.bindDataToGrid(pageData, pageindex);
+            }
+        });
     };
     WayGridView.prototype.bindDataToGrid = function (pageData, pageindex) {
         this.binddatas(pageData, pageindex);

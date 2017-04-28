@@ -207,9 +207,25 @@ declare class WayPopup {
     show(content: string, element: JQuery, direction: string): void;
     hide(): void;
 }
-declare class WayDBContext {
+declare class WayDataSource {
+    getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel: any, callback: (_data: any, _pkid: any, err: any) => void, async?: boolean): void;
+    getDataItem(bindFields: any, searchModel: any, callback: (data: any, err: any) => void, async?: boolean): void;
+    count(searchModel: any, callback: (data: any, err: any) => void): void;
+    sum(fields: string[], searchModel: any, callback: (data: any, err: any) => void): void;
+    saveData(data: any, primaryKey: string, callback: (data: any, err: any) => void): void;
+}
+declare class WayArrayDataSource extends WayDataSource {
+    private _data;
+    constructor(data: any[]);
+    getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel: any, callback: (_data: any, _pkid: any, err: any) => void, async?: boolean): void;
+    getDataItem(bindFields: any, searchModel: any, callback: (data: any, err: any) => void, async?: boolean): void;
+    count(searchModel: any, callback: (data: any, err: any) => void): void;
+    sum(fields: string[], searchModel: any, callback: (data: any, err: any) => void): void;
+    saveData(data: any, primaryKey: string, callback: (data: any, err: any) => void): void;
+}
+declare class WayDBContext extends WayDataSource {
     private remoting;
-    datasource: any;
+    private datasource;
     constructor(controller: string, _datasource: string);
     getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel: any, callback: (_data: any, _pkid: any, err: any) => void, async?: boolean): void;
     getDataItem(bindFields: any, searchModel: any, callback: (data: any, err: any) => void, async?: boolean): void;
@@ -227,7 +243,7 @@ declare class WayGridView extends WayControlBase implements IPageable {
     items: JQuery[];
     private originalItems;
     private bodyTemplateHtml;
-    dbContext: WayDBContext;
+    dbContext: WayDataSource;
     private pageinfo;
     pagesize: number;
     private pager;
