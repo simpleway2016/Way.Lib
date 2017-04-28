@@ -38,10 +38,12 @@ namespace Way.Lib.ScriptRemoting.Test
             Console.WriteLine("server started");
             try
             {
+                //创建一个数据库对象实例，数据库第一次实例化，会检查数据库结构，会自动更新数据库结构
                 using (var db = new MyDB())
                 {
 
                 }
+                //到这里可以确定数据库结构已经更新了
                 Console.WriteLine("database ready");
             }
             catch(Way.EntityDB.Exceptons.SqlExecException ex)
