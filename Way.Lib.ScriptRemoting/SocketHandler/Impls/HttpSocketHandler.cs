@@ -113,6 +113,9 @@ namespace Way.Lib.ScriptRemoting
                         }
                         url = url.Substring(0, url.IndexOf("?"));
                     }
+                    if (url.Length == 0 || url == "/")
+                        url = "/index.html";
+
                     string ext = Path.GetExtension(url).ToLower();
                     if (NotAllowDownloadFiles.Contains(ext))
                     {
