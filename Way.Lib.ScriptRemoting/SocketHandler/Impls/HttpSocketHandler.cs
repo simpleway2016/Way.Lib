@@ -121,14 +121,7 @@ namespace Way.Lib.ScriptRemoting
                         //不能访问dll exe等文件
                         throw new Exception("not allow");
                     }
-                    if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
-                    {
-                        url = WebPathManger.getFileUrl($"{url}.html");
-                    }
-                    else
-                    {
-                        url = WebPathManger.getFileUrl(url);
-                    }
+                    
 
                     try
                     {
@@ -152,6 +145,15 @@ namespace Way.Lib.ScriptRemoting
                     {
                         url = WebPathManger.getFileUrl("/index.html");
                     }
+                    if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
+                    {
+                        url = WebPathManger.getFileUrl($"{url}.html");
+                    }
+                    else
+                    {
+                        url = WebPathManger.getFileUrl(url);
+                    }
+
                     checkHandlers(url);
                     
                     if (Response.mClient != null)
