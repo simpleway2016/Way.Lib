@@ -345,9 +345,9 @@ namespace Way.EntityDB
                     return command.ExecuteScalar();
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                throw;
+                throw new Exceptons.SqlExecException(ex.Message ,sql, ex);
             }
             finally
             {

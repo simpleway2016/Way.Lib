@@ -59,10 +59,10 @@ namespace Way.EntityDB.Design
                     }
                     db.DBContext.CommitTransaction();
                 }
-                catch (Exception ex)
+                catch
                 {
                     db.DBContext.RollbackTransaction();
-                    throw ex;
+                    throw;
                 }
             }
         }

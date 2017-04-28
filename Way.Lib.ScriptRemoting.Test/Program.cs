@@ -36,11 +36,27 @@ namespace Way.Lib.ScriptRemoting.Test
             }
           
             Console.WriteLine("server started");
-            using (var db = new MyDB())
+            try
             {
+                using (var db = new MyDB())
+                {
+
+                }
+                Console.WriteLine("database ready");
+            }
+            catch(Way.EntityDB.Exceptons.SqlExecException ex)
+            {
+                Console.WriteLine("数据库更新发生错误");
+                Console.WriteLine("错误信息：" + ex.Message);
+                Console.WriteLine("执行的语句：" + ex.SqlString);
 
             }
-            Console.WriteLine("database ready");
+            catch(Exception ex)
+            {
+                Console.WriteLine("发生错误");
+                Console.WriteLine("错误信息：" + ex.Message);
+            }
+           
 
             while (true)
             {
