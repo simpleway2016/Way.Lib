@@ -9,7 +9,7 @@ using System.Text;
 namespace Way.EntityDB.Design.Database.MySql
 {
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
-    public class DatabaseService : IDatabaseDesignService
+    class DatabaseService : IDatabaseDesignService
     {
 
 

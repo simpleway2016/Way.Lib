@@ -21,14 +21,16 @@ namespace Way.EntityDB
         /// <summary>
         /// 
         /// </summary>
-
         Sqlite = 2,
 
         /// <summary>
         /// 
         /// </summary>
-
         MySql = 3,
+        /// <summary>
+        /// 
+        /// </summary>
+        PostgreSQL = 4,
     }
     public class DatabaseModifyEventArg
     {
@@ -655,12 +657,12 @@ namespace Way.EntityDB
         //    Helper.Init(mainAssembly);
         //}
 
-        static System.Data.Common.DbConnection CreateConnection(string connectionString, DatabaseType dbType)
-        {
-            Type type = DatabaseServiceTypes[dbType];
-            IDatabaseService service = (IDatabaseService)Activator.CreateInstance(type);
-            return service.CreateConnection(connectionString);
-        }
+        //static System.Data.Common.DbConnection CreateConnection(string connectionString, DatabaseType dbType)
+        //{
+        //    Type type = DatabaseServiceTypes[dbType];
+        //    IDatabaseService service = (IDatabaseService)Activator.CreateInstance(type);
+        //    return service.CreateConnection(connectionString);
+        //}
 
         public static IDatabaseService CreateDatabaseService(string connectionString, DatabaseType dbType)
         {
@@ -682,18 +684,7 @@ namespace Way.EntityDB
 
         protected override void OnConfiguring(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder)
         {
-            if (this.DatabaseType == DatabaseType.SqlServer)
-            {
-                optionsBuilder.UseSqlServer(this.ConnectionString);
-            }
-            else if (this.DatabaseType == DatabaseType.Sqlite)
-            {
-                optionsBuilder.UseSqlite(this.ConnectionString);
-            }
-            else if (this.DatabaseType == DatabaseType.MySql)
-            {
-                optionsBuilder.UseMySql(this.ConnectionString);
-            }
+            _databaseService.OnConfiguring(optionsBuilder);
         }
 
 

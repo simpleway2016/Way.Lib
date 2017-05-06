@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 namespace Way.EntityDB.Design.Database.SqlServer
 {
     [EntityDB.Attributes.DatabaseTypeAttribute( DatabaseType.SqlServer)]
-    public class DatabaseService : IDatabaseDesignService
+    class DatabaseService : IDatabaseDesignService
     {
         public void Create(EJ.Databases database)
         {

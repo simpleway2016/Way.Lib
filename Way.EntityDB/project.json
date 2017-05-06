@@ -5,6 +5,7 @@
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
     "NETStandard.Library": "1.6.1",
     "Newtonsoft.Json": "9.0.1",
+    "Npgsql.EntityFrameworkCore.PostgreSQL": "1.1.0",
     "Pomelo.Data.MySql": "1.0.0",
     "Pomelo.EntityFrameworkCore.MySql": "1.1.0",
     "System.Buffers": "4.3.0",

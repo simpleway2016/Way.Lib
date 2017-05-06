@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace Way.EntityDB.Design.Database.SqlServer
 {
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.SqlServer)]
-    public class TableService : Services.ITableDesignService
+    class TableService : Services.ITableDesignService
     {
         public void CreateTable(EntityDB.IDatabaseService db, EJ.DBTable table, EJ.DBColumn[] columns
             , IndexInfo[] IDXConfigs)

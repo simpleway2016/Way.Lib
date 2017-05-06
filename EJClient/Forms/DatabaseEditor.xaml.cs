@@ -81,12 +81,14 @@ namespace EJClient.Forms
 
         private void cmbDBType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(_currentData.dbType == EJ.Databases_dbTypeEnum.MySql)
+            if (_currentData.dbType == EJ.Databases_dbTypeEnum.MySql)
                 txt_conStr.Text = "server=;User Id=;password=;Database=";
-            else  if (_currentData.dbType == EJ.Databases_dbTypeEnum.SqlServer)
+            else if (_currentData.dbType == EJ.Databases_dbTypeEnum.SqlServer)
                 txt_conStr.Text = "server=;uid=;pwd=;Database=";
             else if (_currentData.dbType == EJ.Databases_dbTypeEnum.Sqlite)
                 txt_conStr.Text = "data source=\"\"";
+            else if (_currentData.dbType == EJ.Databases_dbTypeEnum.PostgreSql)
+                txt_conStr.Text = "Server=;Port=5432;UserId=;Password=;Database=;";
         }
     }
 }

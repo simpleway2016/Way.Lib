@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+
 namespace Way.EntityDB
 {
     [Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
@@ -21,8 +23,11 @@ namespace Way.EntityDB
          {
             
         }
-
-         public override string FormatObjectName(string name)
+        public override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseMySql(this.ConnectionString);
+        }
+        public override string FormatObjectName(string name)
         {
             if (name.StartsWith("`") || name.StartsWith("("))
                 return name;
@@ -32,10 +37,7 @@ namespace Way.EntityDB
         {
             return "SELECT LAST_INSERT_ID()";
         }
-        public override DbConnection CreateConnection(string connectString)
-        {
-            return new MySqlConnection(connectString);
-        }
+      
 
         public override void AllowIdentityInsert(string tablename, bool allow)
         {

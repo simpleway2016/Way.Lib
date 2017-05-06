@@ -96,7 +96,8 @@ Sqlite = 2,
 	/// </summary>
 
 MySql=3,
-}
+        PostgreSql = 4
+    }
 
 
     /// <summary>

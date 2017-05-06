@@ -9,7 +9,7 @@ using System.Linq;
 namespace Way.EntityDB.Design.Database.Sqlite
 {
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
-    public class TableService : ITableDesignService
+    class TableService : ITableDesignService
     {
         string getSqliteType(string dbtype,string length)
         {

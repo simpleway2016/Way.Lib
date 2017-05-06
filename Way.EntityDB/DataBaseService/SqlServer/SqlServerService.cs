@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Way.EntityDB
 {
@@ -22,10 +23,11 @@ namespace Way.EntityDB
          {
             
         }
-         public override DbConnection CreateConnection(string connectString)
-         {
-             return new SqlConnection(connectString);
-         }
+        public override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(this.ConnectionString);
+        }
+      
 
         public override void AllowIdentityInsert(string tablename, bool allow)
         {

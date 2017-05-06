@@ -10,7 +10,7 @@ namespace Way.EntityDB.Design.Database.MySql
 {
     //在mysql 5.7.18 版本测试
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
-    public class TableService : Services.ITableDesignService
+    class TableService : Services.ITableDesignService
     {
         string getSqlType(string dbtype)
         {

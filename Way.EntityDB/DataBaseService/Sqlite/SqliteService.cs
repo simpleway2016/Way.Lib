@@ -19,6 +19,11 @@ namespace Way.EntityDB
         protected DatabaseFacade _database;
         DBContext _dbcontext;
 
+        public virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite(this.ConnectionString);
+        }
+
         public System.Data.Common.DbConnection Connection
         {
             get
@@ -34,10 +39,10 @@ namespace Way.EntityDB
              _dbcontext = dbcontext;
              _database = ((Microsoft.EntityFrameworkCore.DbContext)dbcontext).Database;
         }
-        public virtual System.Data.Common.DbConnection CreateConnection(string connectString)
-        {
-            return new SqliteConnection(connectString);
-        }
+        //public virtual System.Data.Common.DbConnection CreateConnection(string connectString)
+        //{
+        //    return new SqliteConnection(connectString);
+        //}
         public virtual void AllowIdentityInsert(string tablename, bool allow)
         {
 
@@ -508,6 +513,8 @@ namespace Way.EntityDB
                 }
             }
         }
+
+       
 
         public DBContext DBContext
         {
