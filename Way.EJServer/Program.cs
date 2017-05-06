@@ -13,6 +13,7 @@ namespace Way.EJServer
         public static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             int port = 6060;
             if(args != null && args.Length > 0)
             {

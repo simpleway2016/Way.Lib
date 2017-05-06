@@ -40,9 +40,7 @@ namespace Way.EntityDB
 
         public override string FormatObjectName(string name)
         {
-            if (name.StartsWith("[") || name.StartsWith("("))
-                return name;
-            return string.Format("[{0}]", name);
+            return name;
         }
         protected override string GetInsertIDValueSqlString()
         {

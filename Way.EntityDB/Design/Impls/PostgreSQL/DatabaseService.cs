@@ -17,19 +17,22 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
 
         public void Create(Databases database)
         {
-            if (database.Name.ToLower() != database.Name)
-                throw new Exception("PostgreSQL数据库名称必须是小写");
+
             var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             if (dbnameMatch == null)
             {
                 throw new Exception("连接字符串必须采用以下形式Server=;Port=5432;UserId=;Password=;Database=;");
             }
 
-            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.MySql);
-            db.ExecSqlString("CREATE DATABASE " + database.Name.ToLower() + " ENCODING='UTF-8'");
+            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSQL);
+            object flag = db.ExecSqlString("select count(*) from pg_catalog.pg_database where datname=@p0", database.Name);
+            if (Convert.ToInt32(flag)== 0)
+            {
+                db.ExecSqlString("CREATE DATABASE " + database.Name + " ENCODING='UTF-8'");
+            }
 
             //创建必须表
-            db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.MySql);
+            db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.PostgreSQL);
             db.DBContext.BeginTransaction();
             try
             {
@@ -56,7 +59,7 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             }
             if (!exists)
             {
-                db.ExecSqlString("create table  __WayEasyJob (contentConfig varchar(1000)  not null)");
+                db.ExecSqlString("create table  __WayEasyJob (contentConfig VARCHAR(1000) NOT NULL)");
                 db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", new DataBaseConfig().ToJsonString());
             }
         }
