@@ -113,20 +113,15 @@ namespace Way.Lib.ScriptRemoting
                         }
                         url = url.Substring(0, url.IndexOf("?"));
                     }
+                   
+
                     string ext = Path.GetExtension(url).ToLower();
                     if (NotAllowDownloadFiles.Contains(ext))
                     {
                         //不能访问dll exe等文件
                         throw new Exception("not allow");
                     }
-                    if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
-                    {
-                        url = WebPathManger.getFileUrl($"{url}.html");
-                    }
-                    else
-                    {
-                        url = WebPathManger.getFileUrl(url);
-                    }
+                    
 
                     try
                     {
@@ -146,6 +141,19 @@ namespace Way.Lib.ScriptRemoting
                     }
 
                     url = getUrl(url);
+                    if (url.Length == 0 || url == "/")
+                    {
+                        url = WebPathManger.getFileUrl("/index.html");
+                    }
+                    if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
+                    {
+                        url = WebPathManger.getFileUrl($"{url}.html");
+                    }
+                    else
+                    {
+                        url = WebPathManger.getFileUrl(url);
+                    }
+
                     checkHandlers(url);
                     
                     if (Response.mClient != null)

@@ -1985,11 +1985,94 @@ class WayPopup {
     }
 }
 
-class WayDBContext {
+class WayDataSource {
+    getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel: any, callback: (_data: any, _pkid: any, err: any) => void, async: boolean = true): void {
+    }
+
+    getDataItem(bindFields: any, searchModel: any, callback: (data: any, err: any) => void, async: boolean = true): void {
+    }
+
+    count(searchModel: any, callback: (data: any, err: any) => void): void {
+
+    }
+    sum(fields: string[], searchModel: any, callback: (data: any, err: any) => void): void {
+
+    }
+    saveData(data: any, primaryKey: string, callback: (data: any, err: any) => void): void {
+       
+    }
+}
+
+class WayArrayDataSource extends WayDataSource {
+    private _data: any[];
+    constructor(data: any[]) {
+        super();
+        this._data = data;
+    }
+
+    getDatas(pageinfo: WayPageInfo, bindFields: any, searchModel: any, callback: (_data: any, _pkid: any, err: any) => void, async: boolean = true): void {
+        var result: any[] = [];
+        var startindex = pageinfo.PageIndex * pageinfo.PageSize;
+        for (var i = startindex; i < startindex + pageinfo.PageSize && i < this._data.length; i++) {
+            result.push(this._data[i]);
+        }
+        if (callback) {
+            callback(result, null, null);
+        }
+    }
+
+    getDataItem(bindFields: any, searchModel: any, callback: (data: any, err: any) => void, async: boolean = true): void {
+        if (callback) {
+            try {
+                callback(this._data[0], null);
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+            
+        }
+    }
+
+    count(searchModel: any, callback: (data: any, err: any) => void): void {
+        if (callback) {
+            try {
+                callback(this._data.length, null);
+            }
+            catch (e) {
+                callback(null,e.message);
+            }
+        }
+    }
+    sum(fields: string[], searchModel: any, callback: (data: any, err: any) => void): void {
+        if (callback) {
+            try {
+                callback(null, "暂时不支持array数据源的sum");
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+
+        }
+    }
+    saveData(data: any, primaryKey: string, callback: (data: any, err: any) => void): void {
+        if (callback) {
+            try {
+                callback(null, "暂时不支持array数据源的sum");
+            }
+            catch (e) {
+                callback(null, e.message);
+            }
+
+        }
+    }
+}
+
+class WayDBContext extends WayDataSource {
     private remoting: WayScriptRemoting;
     //数据源
-    datasource: any;
+    private datasource: any;
     constructor(controller: string, _datasource: string) {
+        super();
         if (typeof controller == "object") {
             this.remoting = <any>controller;
         }
@@ -2079,7 +2162,7 @@ class WayGridView extends WayControlBase implements IPageable {
     //原始itemdata
     private originalItems = [];
     private bodyTemplateHtml: string;
-    dbContext: WayDBContext;
+    dbContext: WayDataSource;
     private pageinfo: WayPageInfo = new WayPageInfo();
     get pagesize(): number {
         return this.pageinfo.PageSize;
@@ -2130,7 +2213,7 @@ class WayGridView extends WayControlBase implements IPageable {
             _v = JSON.parse(_v);
         }
         this._datasource = _v;
-        this.dbContext.datasource = _v;
+        this.dbContext = ((typeof _v) == "string") ? new WayDBContext(document.body.getAttribute("controller"), _v) : new WayArrayDataSource(<any>_v);
     }
 
     //用于自定义显示错误
@@ -2147,10 +2230,7 @@ class WayGridView extends WayControlBase implements IPageable {
     constructor(elementId: string, configElement: HTMLElement) {
         super();
         try {
-           
-            var controller = document.body.getAttribute("controller");
-            
-            this.dbContext = new WayDBContext(controller, null);
+
             if (typeof elementId == "string")
                 this.element = $("#" + elementId);
             else if ((<any>elementId).tagName)
@@ -2545,7 +2625,7 @@ class WayGridView extends WayControlBase implements IPageable {
 
     //绑定数据
     databind(): void {
-        if (!this._datasource || (typeof this._datasource == "string" && this._datasource.length == 0))
+        if (!this.dbContext)
             return;
         if (this.pageMode) {//翻页模式
             this.initForPageMode();
@@ -2598,10 +2678,9 @@ class WayGridView extends WayControlBase implements IPageable {
         info.PageSize = this.pageinfo.PageSize;
         info.PageIndex = pageindex;
 
-        if (typeof this.datasource == "string") {
-            this.showLoading(this.element);
-            this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data,
-                (ret, pkid, err) => {
+        this.showLoading(this.element);
+        this.dbContext.getDatas(info, this.getBindFields(), (this.searchModel.submitObject && typeof this.searchModel.submitObject == "function") ? this.searchModel.submitObject() : this.searchModel.__data,
+            (ret, pkid, err) => {
                 this.hideLoading();
 
                 if (mytranId != this.transcationID)
@@ -2619,12 +2698,6 @@ class WayGridView extends WayControlBase implements IPageable {
                     this.bindDataToGrid(pageData, pageindex);
                 }
             });
-
-        }
-        else {
-            pageData = this.pageinfo.PageSize > 0 ? this.getDataByPagesize(this.datasource,info) : this.datasource;
-            this.bindDataToGrid(pageData, pageindex);
-        }
 
     }
 

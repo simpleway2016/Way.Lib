@@ -60,7 +60,7 @@ namespace Way.Lib
             var rsa = System.Security.Cryptography.RSA.Create();
             rsa.ImportParameters(rp);
 
-            if (content.Length <= 128)
+            if (content.Length <= 110)
             {
                 var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                 return BytesToHexString(data);
@@ -69,9 +69,9 @@ namespace Way.Lib
             {
                 var result = new StringBuilder();
                 var total = content.Length;
-                for (var i = 0; i < content.Length; i += 128)
+                for (var i = 0; i < content.Length; i += 110)
                 {
-                    var text = content.Substring(i, Math.Min(128, total));
+                    var text = content.Substring(i, Math.Min(110, total));
                     total -= text.Length;
                     var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                     result.Append( BytesToHexString(data));
@@ -227,9 +227,9 @@ namespace Way.Lib
             BigInteger n = new BigInteger(_parameter.Modulus);
 
             StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += 128)
+            for (int j = 0; j < data.Length; j += 110)
             {
-                string content = data.Substring(j, Math.Min(128, data.Length - j));
+                string content = data.Substring(j, Math.Min(110, data.Length - j));
                 byte[] source = System.Text.Encoding.ASCII.GetBytes(content);
 
                 BigInteger biText = new BigInteger(source);

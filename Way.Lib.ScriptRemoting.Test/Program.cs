@@ -19,8 +19,8 @@ namespace Way.Lib.ScriptRemoting.Test
             // Console.WriteLine("你好福娃额放假哦");
             // Console.SetCursorPosition(2, 0);
             // Console.Write("ab");//相当于backspace  
-                   
 
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.WriteLine("server starting...");
             if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}Web"))
             {
@@ -36,11 +36,29 @@ namespace Way.Lib.ScriptRemoting.Test
             }
           
             Console.WriteLine("server started");
-            using (var db = new MyDB())
+            try
             {
+                //创建一个数据库对象实例，数据库第一次实例化，会检查数据库结构，会自动更新数据库结构
+                using (var db = new MyDB())
+                {
+
+                }
+                //到这里可以确定数据库结构已经更新了
+                Console.WriteLine("database ready");
+            }
+            catch(Way.EntityDB.Exceptons.SqlExecException ex)
+            {
+                Console.WriteLine("数据库更新发生错误");
+                Console.WriteLine("错误信息：" + ex.Message);
+                Console.WriteLine("执行的语句：" + ex.SqlString);
 
             }
-            Console.WriteLine("database ready");
+            catch(Exception ex)
+            {
+                Console.WriteLine("发生错误");
+                Console.WriteLine("错误信息：" + ex.Message);
+            }
+           
 
             while (true)
             {

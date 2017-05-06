@@ -228,6 +228,8 @@
 
     function parseTouchHandler() {
         var func = function (container) {
+            if (!container.getAttribute)
+                return;
             if (container != document && container.nodeType == 3)//3表示#text类型，不是htmlElement
                 return;
             if (container != document && container.getAttribute("touchmode") != null) {
