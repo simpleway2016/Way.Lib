@@ -7,12 +7,19 @@ using Way.EntityDB.Design.Services;
 
 namespace Way.EntityDB.Design.Impls.PostgreSQL
 {
-    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.PostgreSQL)]
-    class DatabaseService : Services.IDatabaseDesignService
+    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.PostgreSql)]
+    class PostgreSQLDatabaseService : Services.IDatabaseDesignService
     {
         public void ChangeName(Databases database, string newName, string newConnectString)
         {
-            throw new NotImplementedException();
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(newConnectString, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (dbnameMatch == null)
+            {
+                throw new Exception("连接字符串必须采用以下形式Server=;Port=5432;UserId=;Password=;Database=;");
+            }
+
+            var db = EntityDB.DBContext.CreateDatabaseService(newConnectString.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
+            db.ExecSqlString($"ALTER DATABASE {database.Name} RENAME TO {newName}");
         }
 
         public void Create(Databases database)
@@ -24,7 +31,7 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
                 throw new Exception("连接字符串必须采用以下形式Server=;Port=5432;UserId=;Password=;Database=;");
             }
 
-            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSQL);
+            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
             object flag = db.ExecSqlString("select count(*) from pg_catalog.pg_database where datname=@p0", database.Name);
             if (Convert.ToInt32(flag)== 0)
             {
@@ -32,7 +39,7 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             }
 
             //创建必须表
-            db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.PostgreSQL);
+            db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.PostgreSql);
             db.DBContext.BeginTransaction();
             try
             {
@@ -48,15 +55,8 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
 
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
-            bool exists = true;
-            try
-            {
-                db.ExecSqlString("select * from __WayEasyJob");
-            }
-            catch
-            {
-                exists = false;
-            }
+            bool exists = Convert.ToInt32(db.ExecSqlString("select count(*) from pg_tables where tablename='__WayEasyJob'")) > 0;
+            
             if (!exists)
             {
                 db.ExecSqlString("create table  __WayEasyJob (contentConfig VARCHAR(1000) NOT NULL)");

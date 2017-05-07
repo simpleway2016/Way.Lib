@@ -9,7 +9,7 @@ using System.Linq;
 namespace Way.EntityDB.Design.Database.Sqlite
 {
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
-    class TableService : ITableDesignService
+    class SqliteTableService : ITableDesignService
     {
         string getSqliteType(string dbtype,string length)
         {
@@ -111,14 +111,14 @@ CREATE TABLE [" + table.Name + @"] (
                     {
                         string keyname = table.Name + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
                         string type = "";
-                        if (config.IsUnique)
+                        if (config.IsUnique || config.IsClustered)
                         {
                             type += "UNIQUE ";
                         }
-                        if (config.IsClustered)
-                        {
-                            throw new Exception("sqlite暂不支持定义聚集索引");
-                        }
+                        //if (config.IsClustered)
+                        //{
+                        //    throw new Exception("sqlite暂不支持定义聚集索引");
+                        //}
                         db.ExecSqlString("CREATE " + type + " INDEX " + keyname + " ON [" + table.Name + "](" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString() + ")");
                         //CREATE UNIQUE  INDEX index_t1 ON t1(a, b, c};
 
@@ -279,14 +279,14 @@ CREATE TABLE [" + table.Name + @"] (
                 {
                     string keyname = newTableName + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
                     string type = "";
-                    if (config.IsUnique)
+                    if (config.IsUnique || config.IsClustered)
                     {
                         type += "UNIQUE ";
                     }
-                    if (config.IsClustered)
-                    {
-                        throw new Exception("sqlite暂不支持定义聚集索引");
-                    }
+                    //if (config.IsClustered)
+                    //{
+                    //    throw new Exception("sqlite暂不支持定义聚集索引");
+                    //}
 
                     database.ExecSqlString("CREATE " + type + " INDEX " + keyname + " ON [" + newTableName + "](" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString() + ")");
                 }

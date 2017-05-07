@@ -9,49 +9,51 @@ using System.Text.RegularExpressions;
 namespace Way.EntityDB.Design.Database.PostgreSQL
 {
     //在mysql 5.7.18 版本测试
-    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.PostgreSQL)]
-    class TableService : Services.ITableDesignService
+    [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.PostgreSql)]
+    class PostgreSQLTableService : Services.ITableDesignService
     {
-        string getSqlType(string dbtype)
+        static List<string> ColumnType = new List<string>(new string[] {
+                                            "varchar",
+                                            "integer",
+                                            "oid",//image
+                                            "text",
+                                            "smallint",
+                                            "date",//smalldatetime
+                                            "real",
+                                            "timestamp",//datetime
+                                            "float",
+                                            "double",
+                                            "boolean",
+                                            "decimal",
+                                            "numeric",
+                                            "bigint",
+                                            "bytea",//varbinary
+                                            "char",
+                                            "timestamp", });
+        string getSqlType(EJ.DBColumn column)
         {
-            dbtype = dbtype.ToLower();
-
-
-            if (dbtype.Contains("int"))
-                return "int";
-
-            if (dbtype.Contains("real"))
-                return "REAL";
-            if (dbtype.Contains("double"))
-                return "DOUBLE";
-            if (dbtype.Contains("float"))
-                return "FLOAT";
-
-            if (dbtype.Contains("numeric"))
-                return "NUMERIC";
-            if (dbtype.Contains("decimal"))
-                return "DECIMAL";
-            if (dbtype.Contains("boolean"))
-                return "BIT";
-            if (dbtype.Contains("date"))
-                return "DATETIME";
-            if (dbtype.Contains("byte"))
-                return "tinyint";
-            if (dbtype.Contains("image"))
-                return "BLOB";
-            if (dbtype.Contains("binary"))
-                return "BLOB";
-            return dbtype;
+            string dbtype = column.dbType.ToLower();
+            if( column.IsAutoIncrement == true )
+            {
+                if (column.dbType.Contains("big"))
+                    return "bigserial";
+                else
+                    return "serial";
+            }
+            int index = Design.ColumnType.SupportTypes.IndexOf(dbtype);
+            if (index < 0 || ColumnType[index] == null)
+                throw new Exception($"不支持字段类型{dbtype}");
+            return ColumnType[index];
         }
 
         public void CreateTable(EntityDB.IDatabaseService db, EJ.DBTable table, EJ.DBColumn[] columns, IndexInfo[] indexInfos)
         {
           
-            //db.ExecSqlString("drop table if exists `" + table.Name + "`");
+            //db.ExecSqlString("drop table if exists " + table.Name + "");
 
                 string sqlstr;
                 sqlstr = @"
-CREATE TABLE `" + table.Name + @"` (
+CREATE TABLE " + table.Name + @" (
 ";
 
                 for (int i = 0; i < columns.Length; i++)
@@ -59,21 +61,22 @@ CREATE TABLE `" + table.Name + @"` (
                     var column = columns[i];
                     if (i > 0)
                         sqlstr += ",\r\n";
-                    string sqltype = getSqlType(column.dbType);
+                    string sqltype = getSqlType(column);
                     if ( string.IsNullOrEmpty( column.length) == false)
                     {
                         if (sqltype.Contains("("))
                             sqltype = sqltype.Substring(0,sqltype.IndexOf("("));
                         sqltype += "(" + column.length + ")";
                     }
-                    sqlstr += "`" + column.Name + "` " + sqltype;
+                    sqlstr += "" + column.Name + " " + sqltype;
                    
                     if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
                         sqlstr += " NOT";
                     sqlstr += " NULL ";
-                    if (column.IsAutoIncrement == true)
+
+                    if (column.IsPKID == true)
                     {
-                        sqlstr += "  AUTO_INCREMENT ";
+                        sqlstr += " PRIMARY KEY ";
                     }
 
                     if (!string.IsNullOrEmpty(column.defaultValue))
@@ -88,90 +91,72 @@ CREATE TABLE `" + table.Name + @"` (
                             sqlstr += " DEFAULT '" + defaultValue + "'";
                         }
                     }
-
+                    
 
                 }
 
-                for (int i = 0; i < columns.Length; i++)
-                {
-                    var column = columns[i];
-                    if (column.IsPKID == true)
-                    {
-                        sqlstr += ",\r\nPRIMARY KEY (`"+ column.Name +"`)";
-                    }
-                }
 
 
-                if (indexInfos != null && indexInfos.Length > 0)
-                {
-                    foreach (var config in indexInfos)
-                    {
-                        string type = "";
-                        if (config.IsUnique)
-                        {
-                            type += "UNIQUE ";
-                        }
-                        if (config.IsClustered)
-                            throw new Exception("MySql不支持定义聚集索引");
-                        string keyname = table.Name.ToLower() + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
-                        sqlstr += (",\r\n"+type+" KEY `" + keyname + "`(" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_", "`{0}`") + ")");
-                    }
-                }
-
-                sqlstr += ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
+                sqlstr += ")";
 
                 db.ExecSqlString(sqlstr);
 
-               
-            
+
+            if (indexInfos != null && indexInfos.Length > 0)
+            {
+                foreach (var config in indexInfos)
+                {
+                    createIndex(db, table.Name, config);
+                }
+            }
+
         }
 
 
         public void DeleteTable(EntityDB.IDatabaseService database, string tableName)
         {
-            database.ExecSqlString(string.Format("DROP TABLE IF EXISTS `{0}`", tableName));
+            database.ExecSqlString(string.Format("DROP TABLE IF EXISTS {0}", tableName));
         }
                
 
 
-        List<string> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename, List<IndexInfo> indexInfos)
+        List<string> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename,string pkid, List<IndexInfo> indexInfos)
         {
 
             List<string> needToDels = new List<string>();
-            string dbname = null;
-            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.ConnectionString, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            if (dbnameMatch == null)
+            var indexTable = database.SelectTable($"select * from pg_indexes where tablename='{tablename}' and schemaname='public'");
+            foreach( var row in indexTable.Rows )
             {
-                throw new Exception("连接字符串必须采用以下形式server=localhost;User Id=root;password=123456;Database=testdb");
-            }
-            dbname = dbnameMatch.Groups["dname"].Value;
-            var db = EntityDB.DBContext.CreateDatabaseService(database.ConnectionString.Replace(dbnameMatch.Value, "database=INFORMATION_SCHEMA"), EntityDB.DatabaseType.MySql);
-            {
-                var tableid = db.ExecSqlString("select TABLE_ID from INNODB_SYS_TABLES where Name='" + dbname + "/"+tablename+"'");
-                using (var INNODB_SYS_INDEXES_table = db.SelectTable("select * from INNODB_SYS_INDEXES where TABLE_ID=" + tableid + " and type<>3"))
+                var indexname = row["indexname"].ToSafeString();
+                var indexdef = row["indexdef"].ToSafeString();
+                Match ms = Regex.Match(indexdef, @"btree( )?\((?<columns>(\w| |,)+)\)");
+                var t_columns = ms.Groups["columns"].Value.Split(',');
+                var columns = (from m in t_columns
+                               where m.Trim().Length > 0
+                           select m.Trim().Split(' ')[0]).OrderBy(m=>m).ToArray();
+                var isClustered = indexdef.Contains(" NULLS FIRST");
+                var isUnique = indexdef.StartsWith("CREATE UNIQUE ");
+                string name = columns.ToSplitString(",");
+                if (name == pkid)
+                    continue;
+                if (indexInfos.Any(m => m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == name) == false)
                 {
-                    foreach (var drow in INNODB_SYS_INDEXES_table.Rows)
+                    needToDels.Add(indexname);
+                }
+                else {
+                    var existIndexes = indexInfos.Where(m => m.IsUnique == isUnique && m.IsClustered == isClustered && m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == name).ToArray();
+                    if (existIndexes.Length == 0)
                     {
-                        string indexName = drow["NAME"].ToString();
-                        bool isUnique = Convert.ToInt32(drow["TYPE"]) == 2;
-
-                        var findExistItem = indexInfos.FirstOrDefault(m => tablename.ToLower() + "_ej_" + m.ColumnNames.OrderBy(p => p).ToArray().ToSplitString("_") == indexName
-                            && m.IsUnique == isUnique);
-
-                        if (findExistItem == null)
-                        {
-                            if(indexName != "GEN_CLUST_INDEX")//GEN_CLUST_INDEX好像是表示没有主键的意思
-                                needToDels.Add(indexName);
-                        }
-                        else
-                        {
-                            indexInfos.Remove(findExistItem);
-                        }
+                        needToDels.Add(indexname);
                     }
- 
+                    else
+                    {
+                        //现有的索引是一样的，所以不用创建了
+                        foreach( var indexinfo in existIndexes )
+                            indexInfos.Remove(indexinfo);
+                    }
                 }
             }
-
 
             return needToDels;
         }
@@ -179,28 +164,37 @@ CREATE TABLE `" + table.Name + @"` (
         {
             table = table.ToLower();
             column = column.ToLower();
-            database.ExecSqlString(string.Format("alter table `{0}` drop column `{1}`" , table , column));
+            database.ExecSqlString(string.Format("alter table {0} drop column {1}" , table , column));
         }
         void dropTableIndex(EntityDB.IDatabaseService database, string table, string indexName)
         {
             table = table.ToLower();
-            database.ExecSqlString("ALTER TABLE `" + table + "` DROP INDEX `" + indexName + "`");
+            database.ExecSqlString("ALTER TABLE " + table + " DROP CONSTRAINT IF EXISTS " + indexName + "");
+            database.ExecSqlString("DROP INDEX IF EXISTS " + indexName + "");
         }
         public void ChangeTable(EntityDB.IDatabaseService database, string oldTableName, string newTableName, EJ.DBColumn[] addColumns, EJ.DBColumn[] changedColumns, EJ.DBColumn[] deletedColumns, EJ.DBColumn[] otherColumns, IndexInfo[] _indexInfos)
         {
             List<IndexInfo> indexInfos = new List<IndexInfo>(_indexInfos);
 
-            oldTableName = oldTableName.ToLower();
-            newTableName = newTableName.ToLower();
-
             //先判断表明是否更改
-            if (oldTableName != newTableName)
+            if (oldTableName.ToLower() != newTableName.ToLower())
             {
                 //更改表名
-                database.ExecSqlString(string.Format("alter table `{0}` rename `{1}`", oldTableName, newTableName));
+                database.ExecSqlString($"alter table {oldTableName} RENAME TO {newTableName}");
             }
-
-            var needToDels = checkIfIdxChanged(database, newTableName,indexInfos);
+            string pkField = null;
+            var pkColumn = otherColumns.FirstOrDefault(m=>m.IsPKID == true);
+            if(pkColumn == null)
+            {
+                pkColumn = changedColumns.FirstOrDefault(m => m.IsPKID == true);
+                if(pkColumn != null && pkColumn.BackupChangedProperties["Name"] != null)
+                {
+                    pkField = pkColumn.BackupChangedProperties["Name"].OriginalValue as string;
+                }
+            }
+            if (pkField == null && pkColumn != null)
+                pkField = pkColumn.Name;
+            var needToDels = checkIfIdxChanged(database, newTableName, pkField, indexInfos);
 
             foreach (var column in deletedColumns)
             {
@@ -212,7 +206,7 @@ CREATE TABLE `" + table.Name + @"` (
 
             foreach (var column in changedColumns)
             {
-                string sqltype = getSqlType(column.dbType);
+                string sqltype = getSqlType(column);
                 if (column.length.IsNullOrEmpty() == false)
                 {
                     if (sqltype.Contains("("))
@@ -227,8 +221,7 @@ CREATE TABLE `" + table.Name + @"` (
                     changeColumnCount++;
 
                     #region 改名
-                   
-                    database.ExecSqlString(string.Format("alter table `{0}` change `{1}` `{2}` {3}",newTableName , changeitem.OriginalValue.ToString().ToLower() , column.Name.ToLower() , sqltype));
+                    database.ExecSqlString($"alter table {newTableName} rename {changeitem.OriginalValue} to {column.Name}");
                     #endregion
                 }
 
@@ -241,12 +234,12 @@ CREATE TABLE `" + table.Name + @"` (
                     if (column.IsAutoIncrement == false)
                     {
                         //去掉自增长
-                        database.ExecSqlString(string.Format("Alter table `{0}` change `{1}` `{1}` {2}", newTableName, column.Name.ToLower(), sqltype));
+                        database.ExecSqlString($"ALTER TABLE {newTableName} ALTER COLUMN {column.Name} TYPE {getSqlType(column)}");
                     }
                     else
                     {
                         //设为自增长
-                        database.ExecSqlString(string.Format("Alter table `{0}` change `{1}` `{1}` {2} not null auto_increment", newTableName, column.Name.ToLower(), sqltype));
+                        database.ExecSqlString($"ALTER TABLE {newTableName} ALTER COLUMN {column.Name} TYPE {getSqlType(column)}");
                     }
 
                     #endregion
@@ -261,12 +254,17 @@ CREATE TABLE `" + table.Name + @"` (
                     if (column.IsPKID == false)
                     {
                         //去除主键;//删除主建
-                        database.ExecSqlString(string.Format("Alter table `{0}` drop primary key", newTableName));
+                        var pkeyIndexName = database.ExecSqlString($"select indexname from pg_indexes where tablename='{newTableName}' and indexname like '%_pkey'").ToSafeString();
+                        if (pkeyIndexName.Length > 0)
+                        {
+                            database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT IF EXISTS {pkeyIndexName}");
+                            database.ExecSqlString("DROP INDEX IF EXISTS " + pkeyIndexName + "");
+                        }
                     }
                     else
                     {
                         //设为主键;
-                        database.ExecSqlString(string.Format("Alter table `{0}` add primary key(`{1}`)", newTableName,column.Name.ToLower()));
+                        database.ExecSqlString($"ALTER TABLE {newTableName} ADD PRIMARY KEY ({column.Name})");
                     }
                     #endregion
                 }
@@ -281,14 +279,25 @@ CREATE TABLE `" + table.Name + @"` (
 
                     #region 默认值
                     //删除默认值
-                    database.ExecSqlString($"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default null");
+                    database.ExecSqlString($"alter table {newTableName} ALTER COLUMN {column.Name} DROP DEFAULT");
 
                     #endregion
                 }
 
-                if (column.BackupChangedProperties.Count > changeColumnCount)
+                if (column.BackupChangedProperties["dbType"] != null || column.BackupChangedProperties["length"] != null)
                 {
-                    #region 如果其他地方还有更改
+                    changeColumnCount++;
+
+                    #region 变更类型
+                    sqltype = getSqlType(column);
+                    string sql = $"alter table {newTableName} ALTER COLUMN {column.Name} TYPE {(sqltype + (column.length.IsNullOrEmpty()?"":$"({column.length})"))} using {column.Name}::{sqltype}";
+                    database.ExecSqlString(sql);
+
+                    #endregion
+                }
+                   if (column.BackupChangedProperties["CanNull"] != null)
+                  {
+                    #region CanNull更改了
                     if (column.CanNull == false && !string.IsNullOrEmpty(column.defaultValue))
                     {
                         string defaultValue = column.defaultValue.Trim();
@@ -307,16 +316,15 @@ CREATE TABLE `" + table.Name + @"` (
                             }
                         }
 
-                        database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`=" + defaultValue + " where `" + column.Name + "` is null");
+                        database.ExecSqlString($"update {newTableName} set {column.Name}=" + defaultValue + " where {" + column.Name + "} is null");
                     }
 
-                    string sql = "alter table `" + newTableName + "` MODIFY `" + column.Name + "` " + sqltype;
-                    if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
-                        sql += " NOT";
-                    sql += " NULL ";
+                    
+                    string sql = $"alter table {newTableName} ALTER COLUMN {column.Name} {(column.CanNull.Value ? "drop not null" : "set not null")}";
                     database.ExecSqlString(sql);
                     #endregion
                 }
+
 
                 #region 设置默认值
                 if (defaultvalueChanged && !string.IsNullOrEmpty(column.defaultValue))
@@ -325,11 +333,11 @@ CREATE TABLE `" + table.Name + @"` (
                     string defaultValue = column.defaultValue.Trim();
                     if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
                     {
-                        sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default {defaultValue}";
+                        sql += $"alter table {newTableName} ALTER COLUMN {column.Name} SET DEFAULT {defaultValue}";
                     }
                     else
                     {
-                        sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default '{defaultValue}'";
+                        sql += $"alter table {newTableName} ALTER COLUMN {column.Name} SET DEFAULT '{defaultValue}'";
 
                     }
                     if (sql.Length > 0)
@@ -350,14 +358,14 @@ CREATE TABLE `" + table.Name + @"` (
                         }
                     }
 
-                    database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`=" + defaultValue + " where `" + column.Name + "` is null");
+                    database.ExecSqlString("update " + newTableName + " set " + column.Name + "=" + defaultValue + " where " + column.Name + " is null");
                 }
                 #endregion
             }
 
             foreach (var column in addColumns)
             {
-                string sqltype = getSqlType(column.dbType);
+                string sqltype = getSqlType(column);
                 if (column.length.IsNullOrEmpty() == false)
                 {
                     if (sqltype.Contains("("))
@@ -365,10 +373,8 @@ CREATE TABLE `" + table.Name + @"` (
                     sqltype += "(" + column.length + ")";
                 }
                 #region 新增字段
-                string sql = "alter table `" + newTableName + "` add `" + column.Name + "` " + sqltype;
+                string sql = "alter table " + newTableName + " add COLUMN " + column.Name + " " + sqltype;
 
-                if (column.IsAutoIncrement == true)
-                    sql += " AUTOINCREMENT";
 
                 if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
                 {
@@ -393,7 +399,7 @@ CREATE TABLE `" + table.Name + @"` (
 
                 if (column.IsPKID == true)
                 {
-                    database.ExecSqlString(string.Format("Alter table `{0}` add primary key(`{1}`)", newTableName, column.Name.ToLower()));
+                    database.ExecSqlString($"ALTER TABLE {newTableName} ADD CONSTRAINT {newTableName}_pkey PRIMARY KEY({column.Name})");
                 }
                 #endregion
             }
@@ -406,24 +412,24 @@ CREATE TABLE `" + table.Name + @"` (
 
         void createIndex(EntityDB.IDatabaseService database, string table, IndexInfo indexinfo)
         {
-            //alter table table_name add unique key `new_uk_name` (`col1`,`col2`);
+            //alter table table_name add unique key new_uk_name (col1,col2);
             var columns = indexinfo.ColumnNames.OrderBy(m => m).ToArray();
-            string columnsStr = "";
             string name = table + "_ej_" + columns.ToSplitString("_");
-            for (int i = 0; i < columns.Length; i++)
-            {
-                columnsStr += "`" + columns[i] + "`";
-                if (i < columns.Length - 1)
-                    columnsStr += ",";
-            }
-            string type = "";
-            if (indexinfo.IsClustered)
-                throw new Exception("MySql不支持定义聚集索引");
+
+            string sql = "CREATE ";
             if (indexinfo.IsUnique)
             {
-                type += "unique ";
+                sql += "UNIQUE ";
             }
-            database.ExecSqlString(string.Format("alter table `{0}` add {3} key `{1}` ({2})", table, name, columnsStr , type));
+            if (indexinfo.IsClustered)
+            {
+                sql += $"INDEX ON {table} ({columns.ToSplitString(" ASC NULLS FIRST,")} ASC NULLS FIRST)";
+            }
+            else
+            {
+                sql += $"INDEX ON {table} ({columns.ToSplitString(",")})";
+            }
+            database.ExecSqlString(sql);
         }
     }
 }

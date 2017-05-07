@@ -53,7 +53,15 @@ namespace Way.EntityDB
                 return name;
             return string.Format("[{0}]", name);
         }
-        protected virtual string GetInsertIDValueSqlString()
+        /// <summary>
+        /// GetInsertIDValueSqlString是否放在一个sql语句
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool GetInsertIDValueSqlStringInOneSql()
+        {
+            return false;
+        }
+        protected virtual string GetInsertIDValueSqlString(string pkColumnName)
         {
             return "select last_insert_rowid()";
         }
@@ -64,7 +72,10 @@ namespace Way.EntityDB
             {
                 cmd.Transaction = (System.Data.Common.DbTransaction)_database.CurrentTransaction.GetDbTransaction();
             }
-            cmd.CommandText = sql;
+            if (sql != null)
+            {
+                cmd.CommandText = sql;
+            }
             if (parames != null && parames.Length > 0)
             {
                 for (int i = 0; i < parames.Length; i++)
@@ -120,7 +131,7 @@ namespace Way.EntityDB
                         if (output.Length > 0)
                             output.Append(',');
 
-                        output.Append(columnAtt.Caption);
+                        output.Append(columnAtt.Caption.IsNullOrEmpty() ? keys[i] : columnAtt.Caption);
                     }
 
                 }
@@ -178,18 +189,39 @@ namespace Way.EntityDB
                         str_values.Append(parameter.ParameterName);
                     }
 
-                    command.CommandText = string.Format("insert into {0} ({1}) values ({2})", FormatObjectName(dataitem.TableName), str_fields, str_values);
-                    command.ExecuteNonQuery();
-
-                    command.Parameters.Clear();
-                    command.CommandText = this.GetInsertIDValueSqlString();
-                    object id = command.ExecuteScalar();
-
-                    if (id != null && !string.IsNullOrEmpty(pkid))
+                    string sql;
+                    if( GetInsertIDValueSqlStringInOneSql() )
                     {
-                        dataitem.SetValue(pkid, id);
+                        sql = string.Format("insert into {0} ({1}) values ({2}) {3}", FormatObjectName(dataitem.TableName), str_fields, str_values , this.GetInsertIDValueSqlString(pkid));
+                        command.CommandText = sql;
+                        object id = command.ExecuteScalar();
 
+                        command.Parameters.Clear();
+                        if (id != null && !string.IsNullOrEmpty(pkid))
+                        {
+                            dataitem.SetValue(pkid, id);
+                        }
                     }
+                    else
+                    {
+                        sql = string.Format("insert into {0} ({1}) values ({2})", FormatObjectName(dataitem.TableName), str_fields, str_values);
+                        command.CommandText = sql;
+                        command.ExecuteNonQuery();
+
+                        command.Parameters.Clear();
+                        sql = this.GetInsertIDValueSqlString(pkid);
+                        if (sql != null)
+                        {
+                            command.CommandText = sql;
+                            object id = command.ExecuteScalar();
+
+                            if (id != null && !string.IsNullOrEmpty(pkid))
+                            {
+                                dataitem.SetValue(pkid, id);
+                            }
+                        }
+                    }
+                   
                 }
                 dataitem.ChangedProperties.Clear();
             }

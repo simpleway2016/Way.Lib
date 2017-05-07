@@ -10,40 +10,35 @@ namespace Way.EntityDB.Design.Database.MySql
 {
     //在mysql 5.7.18 版本测试
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
-    class TableService : Services.ITableDesignService
+    class MySqlTableService : Services.ITableDesignService
     {
+        static List<string> ColumnType = new List<string>(new string[] {
+                                            "varchar",
+                                            "int",
+                                            "BLOB",//image
+                                            "TEXT",//text
+                                            "smallint",
+                                            "date",//smalldatetime
+                                            "real",
+                                            "DATETIME",//datetime
+                                            "float",
+                                            "double",
+                                            "BIT",
+                                            "decimal",
+                                            "numeric",
+                                            "bigint",//
+                                            "VARBINARY",//varbinary
+                                            "char",
+                                            "timestamp", });
         string getSqlType(string dbtype)
         {
             dbtype = dbtype.ToLower();
-
-
-            if (dbtype.Contains("int"))
-                return "int";
-
-            if (dbtype.Contains("real"))
-                return "REAL";
-            if (dbtype.Contains("double"))
-                return "DOUBLE";
-            if (dbtype.Contains("float"))
-                return "FLOAT";
-
-            if (dbtype.Contains("numeric"))
-                return "NUMERIC";
-            if (dbtype.Contains("decimal"))
-                return "DECIMAL";
-            if (dbtype.Contains("boolean"))
-                return "BIT";
-            if (dbtype.Contains("date"))
-                return "DATETIME";
-            if (dbtype.Contains("byte"))
-                return "tinyint";
-            if (dbtype.Contains("image"))
-                return "BLOB";
-            if (dbtype.Contains("binary"))
-                return "BLOB";
-            return dbtype;
+            int index = Design.ColumnType.SupportTypes.IndexOf(dbtype);
+            if (index < 0 || ColumnType[index] == null)
+                throw new Exception($"不支持字段类型{dbtype}");
+            return ColumnType[index];
         }
-
+        
         public void CreateTable(EntityDB.IDatabaseService db, EJ.DBTable table, EJ.DBColumn[] columns, IndexInfo[] indexInfos)
         {
             //db.ExecSqlString("drop table if exists `" + table.Name + "`");
@@ -106,12 +101,12 @@ CREATE TABLE `" + table.Name + @"` (
                     foreach (var config in indexInfos)
                     {
                         string type = "";
-                        if (config.IsUnique)
+                        if (config.IsUnique || config.IsClustered)
                         {
                             type += "UNIQUE ";
                         }
-                        if (config.IsClustered)
-                            throw new Exception("MySql不支持定义聚集索引");
+                        //if (config.IsClustered)
+                        //    throw new Exception("MySql不支持定义聚集索引");
                         string keyname = table.Name.ToLower() + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
                         sqlstr += (",\r\n"+type+" KEY `" + keyname + "`(" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_", "`{0}`") + ")");
                     }
@@ -189,11 +184,8 @@ CREATE TABLE `" + table.Name + @"` (
         {
             List<IndexInfo> indexInfos = new List<IndexInfo>(_indexInfos);
 
-            oldTableName = oldTableName.ToLower();
-            newTableName = newTableName.ToLower();
-
             //先判断表明是否更改
-            if (oldTableName != newTableName)
+            if (oldTableName.ToLower() != newTableName.ToLower())
             {
                 //更改表名
                 database.ExecSqlString(string.Format("alter table `{0}` rename `{1}`", oldTableName, newTableName));
@@ -416,9 +408,9 @@ CREATE TABLE `" + table.Name + @"` (
                     columnsStr += ",";
             }
             string type = "";
-            if (indexinfo.IsClustered)
-                throw new Exception("MySql不支持定义聚集索引");
-            if (indexinfo.IsUnique)
+            //if (indexinfo.IsClustered)
+            //    throw new Exception("MySql不支持定义聚集索引");
+            if (indexinfo.IsUnique || indexinfo.IsClustered)
             {
                 type += "unique ";
             }

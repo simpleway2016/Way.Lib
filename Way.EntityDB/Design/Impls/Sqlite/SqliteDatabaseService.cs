@@ -10,7 +10,7 @@ using System.Text;
 namespace Way.EntityDB.Design.Database.Sqlite
 {
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
-    class DatabaseService : IDatabaseDesignService
+    class SqliteDatabaseService : IDatabaseDesignService
     {
 
         public void Create(EJ.Databases database)

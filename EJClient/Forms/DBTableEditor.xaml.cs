@@ -121,7 +121,7 @@ namespace EJClient.Forms
                 }
                 set
                 {
-                    table.Name = value.Trim();
+                    table.Name = value.Trim().ToLower();
                 }
             }
             EJ.DBTable table;
@@ -152,7 +152,7 @@ namespace EJClient.Forms
                 }
                 set
                 {
-                    value = value.Trim();
+                    value = value.Trim().ToLower();
                     if (m_column.Name != value)
                     {
                         if (m_parentEditor.m_columns.Where(m => m != this && m.Name == value).Count() > 0)

@@ -30,7 +30,7 @@ namespace Way.EntityDB
         /// <summary>
         /// 
         /// </summary>
-        PostgreSQL = 4,
+        PostgreSql = 4,
     }
     public class DatabaseModifyEventArg
     {

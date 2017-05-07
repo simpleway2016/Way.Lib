@@ -46,7 +46,7 @@ namespace Way.EntityDB
                 return name;
             return string.Format("[{0}]", name);
         }
-        protected override string GetInsertIDValueSqlString()
+        protected override string GetInsertIDValueSqlString(string pkColumnName)
         {
             return "select Scope_Identity()";
         }
@@ -93,7 +93,7 @@ namespace Way.EntityDB
                     if (output.Length > 0)
                         output.Append(',');
 
-                    output.Append(columnAtt.Caption);
+                    output.Append(columnAtt.Caption.IsNullOrEmpty() ? keys[i] : columnAtt.Caption);
                 }
 
             }
