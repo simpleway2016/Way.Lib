@@ -21,7 +21,19 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             var db = EntityDB.DBContext.CreateDatabaseService(newConnectString.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
             db.ExecSqlString($"ALTER DATABASE {database.Name} RENAME TO {newName}");
         }
+        public void Drop(Databases database)
+        {
 
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (dbnameMatch == null)
+            {
+                throw new Exception("连接字符串必须采用以下形式Server=;Port=5432;UserId=;Password=;Database=;");
+            }
+
+            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
+            db.ExecSqlString("DROP DATABASE if exists " + database.Name + "");
+            db.DBContext.Dispose();
+        }
         public void Create(Databases database)
         {
 
@@ -55,12 +67,12 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
 
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
-            bool exists = Convert.ToInt32(db.ExecSqlString("select count(*) from pg_tables where tablename='__WayEasyJob'")) > 0;
+            bool exists = Convert.ToInt32(db.ExecSqlString("select count(*) from pg_tables where tablename='__wayeasyjob'")) > 0;
             
             if (!exists)
             {
-                db.ExecSqlString("create table  __WayEasyJob (contentConfig VARCHAR(1000) NOT NULL)");
-                db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", new DataBaseConfig().ToJsonString());
+                db.ExecSqlString("create table  __wayeasyjob (contentConfig VARCHAR(1000) NOT NULL)");
+                db.ExecSqlString("insert into __wayeasyjob (contentConfig) values (@p0)", new DataBaseConfig().ToJsonString());
             }
         }
 

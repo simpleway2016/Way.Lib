@@ -12,7 +12,20 @@ namespace Way.EntityDB.Design.Database.MySql
     class MySqlDatabaseService : IDatabaseDesignService
     {
 
+        public void Drop(EJ.Databases database)
+        {
+            if (database.Name.ToLower() != database.Name)
+                throw new Exception("MySql数据库名称必须是小写");
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (dbnameMatch == null)
+            {
+                throw new Exception("连接字符串必须采用以下形式server=localhost;User Id=root;password=123456;Database=testDB");
+            }
 
+            var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.MySql);
+            db.ExecSqlString("drop database if exists `" + database.Name.ToLower() + "`");
+            db.DBContext.Dispose();
+        }
         public void Create(EJ.Databases database)
         {
             if (database.Name.ToLower() != database.Name)

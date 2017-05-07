@@ -12,7 +12,10 @@ namespace Way.EntityDB.Design.Database.Sqlite
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
     class SqliteDatabaseService : IDatabaseDesignService
     {
-
+        public void Drop(EJ.Databases database)
+        {
+            
+        }
         public void Create(EJ.Databases database)
         {
 

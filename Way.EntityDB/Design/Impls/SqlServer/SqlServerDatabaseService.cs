@@ -14,6 +14,16 @@ namespace Way.EntityDB.Design.Database.SqlServer
     [EntityDB.Attributes.DatabaseTypeAttribute( DatabaseType.SqlServer)]
     class SqlServerDatabaseService : IDatabaseDesignService
     {
+        public void Drop(EJ.Databases database)
+        {
+            string constr = database.conStr;
+            constr = Regex.Replace(database.conStr, @"database=(\w)+", "database=master", RegexOptions.IgnoreCase);
+            //throw new Exception(constr);
+            var db = EntityDB.DBContext.CreateDatabaseService(constr, EntityDB.DatabaseType.SqlServer);
+
+            db.ExecSqlString("if exists(select [dbid] from sysdatabases where [name]='" + database.Name + "') drop database " + database.Name );
+
+        }
         public void Create(EJ.Databases database)
         {
             string constr = database.conStr;
