@@ -65,62 +65,28 @@ namespace Way.EntityDB.Design
                 try
                 {
                     var query = dtable.Rows.Where(m=>(long)m["id"] > dbconfig.LastUpdatedID).OrderBy(m=>(long)m["id"]).ToList();
-                    int? lastid = null;
-                    if(query.Count > 0)
+                   
+                    if (query.Count > 0)
                     {
-                        lastid = Convert.ToInt32(query.Last()["id"]);
-                    }
-                    var assembly = typeof(Way.EntityDB.Design.Actions.CreateTableAction).GetTypeInfo().Assembly;
-                    //查找可以合并的一些action
-                    //for (int i = 0; i < query.Count; i ++)
-                    //{
-                    //    var datarow = query[i];
-                    //    string actionType = datarow["type"].ToString();
-                    //    string json = datarow["content"].ToString();
-                    //    Type type = assembly.GetType($"Way.EntityDB.Design.Actions.{actionType}");
-                    //    var actionItem = (EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
-                    //    bool findnext = false;
-                    //    if ( actionItem is Actions.CreateTableAction )
-                    //    {
-                    //        findnext = true;
-                    //    }
-                    //    else if(actionItem is Actions.ChangeTableAction  )
-                    //    {
-                    //        bool isNewTable = false;
-                    //        Actions.ChangeTableAction changeAction = (Actions.ChangeTableAction)actionItem;
-                    //        try
-                    //        {
-                    //            db.ExecSqlString($"select * from {db.FormatObjectName(changeAction.OldTableName)} where 1=2");
-                    //        }
-                    //        catch
-                    //        {
-                    //            isNewTable = true;
-                    //        }
-                    //        if(isNewTable)
-                    //        {
-                    //            findnext = true;
-                    //        }
-                    //    }
-                    //}
+                        int? lastid = Convert.ToInt32(query.Last()["id"]);
+                        var assembly = typeof(Way.EntityDB.Design.Actions.CreateTableAction).GetTypeInfo().Assembly;
+                        db.DBContext.BeginTransaction();
+                        foreach (var datarow in query)
+                        {
+                            string actionType = datarow["type"].ToString();
 
-                    db.DBContext.BeginTransaction();
-                    foreach (var datarow in query)
-                    {
-                        string actionType = datarow["type"].ToString();
+                            string json = datarow["content"].ToString();
 
-                        string json = datarow["content"].ToString();
-                                               
-                        Type type = assembly.GetType($"Way.EntityDB.Design.Actions.{actionType}");
-                        var actionItem = (EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
+                            Type type = assembly.GetType($"Way.EntityDB.Design.Actions.{actionType}");
+                            var actionItem = (EntityDB.Design.Actions.Action)Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
 
-                        actionItem.Invoke(db);
+                            actionItem.Invoke(db);
 
-                    }
-                    if (lastid != null)
-                    {
+                        }
+
                         SetLastUpdateID(lastid.Value, dset.DataSetName, db);
+                        db.DBContext.CommitTransaction();
                     }
-                    db.DBContext.CommitTransaction();
                 }
                 catch
                 {

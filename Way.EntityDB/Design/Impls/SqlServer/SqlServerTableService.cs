@@ -63,34 +63,28 @@ CREATE TABLE [" + table.Name + @"] (
                         }
                     }
 
-                    sqlstr += ",\r\n";
-                    if (column.IsPKID == true)
-                        pkStr += "[" + column.Name + "],";
+                    sqlstr += ",";
                 }
-
-                if (IDXConfigs.Count(m => m.IsClustered) > 0)
-                {
-                    //有聚焦索引，不再创建
-                    if (pkStr.IndexOf(',') > 0)
-                    {
-                        pkStr = pkStr.Substring(0, pkStr.Length - 1);
-                        sqlstr += "CONSTRAINT [PK_" + table.Name + "] PRIMARY KEY NONCLUSTERED (" + pkStr + ")  ON [PRIMARY] ";
-                    }
-                }
-                else
-                {
-                    if (pkStr.IndexOf(',') > 0)
-                    {
-                        pkStr = pkStr.Substring(0, pkStr.Length - 1);
-                        sqlstr += "CONSTRAINT [PK_" + table.Name + "] PRIMARY KEY  CLUSTERED (" + pkStr + ")  ON [PRIMARY] ";
-                    }
-                }
-                sqlstr += ") ON [PRIMARY]";
+            if (sqlstr.EndsWith(","))
+            {
+                sqlstr = sqlstr.Remove(sqlstr.Length - 1);
+            }
+                sqlstr += ")";
 
 
                 db.ExecSqlString(sqlstr);
 
-                if (IDXConfigs != null && IDXConfigs.Length > 0)
+            foreach (var column in columns)
+            {
+                if (column.IsPKID == true)
+                {
+                    //设为主键
+                    db.ExecSqlString("alter table [" + table.Name + "] add constraint PK_" + table.Name + "_" + column.Name + " primary key ([" + column.Name + "])");
+                    
+                }
+            }
+
+            if (IDXConfigs != null && IDXConfigs.Length > 0)
                 {
                     foreach (var c in IDXConfigs)
                     {
@@ -340,11 +334,10 @@ CREATE TABLE [" + table.Name + @"] (
                 database.ExecSqlString("EXEC sp_rename '" + oldTableName + "', '" + newTableName + "'");
             }
 
+
             //获取那个索引存在了
             var existIndexed = checkIfIdxChanged( database , newTableName , indexInfos);
-
-
-
+            
             dropTableIndex(database, newTableName, existIndexed.ToArray());
 
             foreach (var column in deletedColumns)
@@ -359,43 +352,49 @@ CREATE TABLE [" + table.Name + @"] (
                 if (changeitem != null)
                 {
                     changeColumnCount++;
-
                     #region 改名
-                    database.ExecSqlString("EXEC sp_rename '[" + newTableName + "].[" + changeitem.OriginalValue + "]', '" + column.Name + "', 'COLUMN'"); 
+                    database.ExecSqlString($"EXEC sp_rename '[{newTableName}].[{changeitem.OriginalValue}]', '{column.Name}', 'COLUMN'"); 
                     #endregion
                 }
+
 
                 changeitem = column.BackupChangedProperties["IsAutoIncrement"];
                 if (changeitem != null)
                 {
                     changeColumnCount++;
 
+                    var flagColumnName = "_tempcolumn";
+                    while ( Convert.ToInt32( database.ExecSqlString($"Select count(*) from syscolumns Where  ID=OBJECT_ID('{newTableName}') and name='{flagColumnName}'")) > 0)
+                    {
+                        flagColumnName += "1";
+                    }
                     #region 变更自增长
                     if (column.IsAutoIncrement == false)
                     {
                         //去掉自增长
-                        database.ExecSqlString("alter table [" + newTableName + @"] add __c_change_IsAutoIncrement int");
-                        database.ExecSqlString("update [" + newTableName + "] set __c_change_IsAutoIncrement=[" + column.Name + "]");
+                        database.ExecSqlString($"alter table [{newTableName}] add {flagColumnName} {column.dbType}");
+                        database.ExecSqlString($"update [{newTableName}] set {flagColumnName}=[{column.Name}]");
                         deletecolumn(database, newTableName, column.Name);
-                        database.ExecSqlString("EXEC sp_rename '[" + newTableName + @"].__c_change_IsAutoIncrement', '" + column.Name + @"', 'COLUMN'");
+                        database.ExecSqlString($"EXEC sp_rename '[{newTableName}].{flagColumnName}', '{column.Name}', 'COLUMN'");
                        
                     }
                     else
                     {
                         //设为自增长
-                        database.ExecSqlString("alter table [" + newTableName + "] add __c_change_IsAutoIncrement " + column.dbType + "  IDENTITY (1, 1)");
+                        database.ExecSqlString($"alter table [{newTableName}] add {flagColumnName} {column.dbType} IDENTITY (1, 1)");
                         deletecolumn(database, newTableName, column.Name);
-                        database.ExecSqlString("EXEC sp_rename '[" + newTableName + @"].__c_change_IsAutoIncrement', '" + column.Name + @"', 'COLUMN'");
+                        database.ExecSqlString($"EXEC sp_rename '[{newTableName}].{flagColumnName}', '{column.Name}', 'COLUMN'");
                     }
 
                     //去掉自增长后，由于原来的列删除了，所以如果原来是主键，必须重新设置为主键
                     if (column.IsPKID == true)
                     {
                         //主键不允许为空
-                        database.ExecSqlString("alter table [" + newTableName + "] alter column [" + column.Name + "] [" + column.dbType + "] not null");
+                        database.ExecSqlString($"alter table [{newTableName}] alter column [{column.Name}] [{column.dbType}] not null");
                         changeitem = column.BackupChangedProperties["IsPKID"];
                         if (changeitem == null)
                         {
+                            //标识IsPKID发生变化
                             column.BackupChangedProperties["IsPKID"] = new EntityDB.DataValueChangedItem()
                             {
                                 OriginalValue = false,
@@ -413,25 +412,27 @@ CREATE TABLE [" + table.Name + @"] (
                      #region 变更主键
                      if (column.IsPKID == false)
                      {
-                         //去除主键
-                         using (var sp_helpResult = database.SelectDataSet("sp_help [" + newTableName + "]"))
-                         {
-                             foreach (var dtable in sp_helpResult.Tables)
-                             {
-                                 if (dtable.Columns.Any(m=>m.ColumnName == "constraint_name"))
-                                 {
-                                    var query = from m in dtable.Rows
-                                                where m["constraint_keys"].Equals(column.Name) && ((string)m["constraint_type"]).Contains("PRIMARY KEY")
-                                                select m;
+                        //去除主键
+                        string sql = @"
+DECLARE @NAME SYSNAME
+DECLARE @TB_NAME SYSNAME
+SET @TB_NAME = '" + newTableName + @"'
+SELECT TOP 1 @NAME = NAME FROM SYS.OBJECTS WITH(NOLOCK)
+WHERE TYPE_DESC ='PRIMARY_KEY_CONSTRAINT'
 
-                                     if (query.Count() > 0)
-                                     {
-                                         database.ExecSqlString("alter  table  [" + newTableName + "]  drop  constraint " + query.First()["constraint_name"]);
-                                     }
-                                     break;
-                                 }
-                             }
-                         }
+AND PARENT_OBJECT_ID = (SELECT OBJECT_ID
+
+FROM SYS.OBJECTS WITH(NOLOCK)
+
+WHERE NAME = @TB_NAME )
+SELECT @NAME
+";
+                        var constraintName = database.ExecSqlString(sql).ToSafeString();
+                        if(constraintName.IsNullOrEmpty() == false)
+                        {
+                            //如果constraintName没有值，那么就是变更自增长字段的时候，原来字段被删除了
+                            database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT {constraintName}");
+                        }
                      }
                      else
                      {
@@ -449,27 +450,19 @@ CREATE TABLE [" + table.Name + @"] (
                      defaultvalueChanged = true;
                      changeColumnCount++;
 
-                     #region 默认值
-                     //删除默认值
-                     using (var sp_helpResult = database.SelectDataSet("sp_help [" + newTableName + "]"))
-                     {
-                         foreach (var dtable in sp_helpResult.Tables)
-                         {
-                             if (dtable.Columns.Any(m=>m.ColumnName == "constraint_name"))
-                             {
-                                var query = from m in dtable.Rows
-                                            where ((string)m["constraint_type"]).EndsWith(" " + column.Name) && ((string)m["constraint_type"]).StartsWith("default on ")
-                                            select m;
-
-                                 if (query.Count() > 0)
-                                 {
-                                     database.ExecSqlString( "alter  table  [" + newTableName + "]  drop  constraint " + query.First()["constraint_name"]);
-                                 }
-                                 break;
-                             }
-                         }
-                     }
-
+                    #region 默认值
+                    //获取默认值的id
+                    var defaultSettingID = database.ExecSqlString($"Select cdefault from syscolumns Where  ID=OBJECT_ID('{newTableName}') and name='{column.Name}'");
+                    if (defaultSettingID != null && Convert.ToInt32(defaultSettingID) != 0)
+                    {
+                        var defaultKeyName = database.ExecSqlString($"select name from sysObjects where type='D' and id={defaultSettingID}");
+                        if (defaultKeyName != null)
+                        {
+                            //如果进到这里，那么表示原来有默认值
+                            database.ExecSqlString($"alter  table  [{newTableName}]  drop  constraint {defaultKeyName}");
+                        }
+                    }
+                   
                      #endregion
                  }
 

@@ -872,7 +872,7 @@ namespace Way.EJServer
 
 
 
-                    ChangeTableAction action = new ChangeTableAction(newtable.DatabaseID.Value, oldtable.Name, newtable.Name,
+                    ChangeTableAction action = new ChangeTableAction(oldtable.Name, newtable.Name,
                         addcolumns, changedColumns.ToArray(), delColumns, otherColumns.ToArray(),
                         idxConfigs);
                     action.Invoke(invokingDB);

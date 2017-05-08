@@ -33,13 +33,6 @@ namespace Way.EntityDB.Design.Database.PostgreSQL
         string getSqlType(EJ.DBColumn column)
         {
             string dbtype = column.dbType.ToLower();
-            if( column.IsAutoIncrement == true )
-            {
-                if (column.dbType.Contains("big"))
-                    return "bigserial";
-                else
-                    return "serial";
-            }
             int index = Design.ColumnType.SupportTypes.IndexOf(dbtype);
             if (index < 0 || ColumnType[index] == null)
                 throw new Exception($"不支持字段类型{dbtype}");
@@ -101,6 +94,14 @@ CREATE TABLE " + table.Name + @" (
 
                 db.ExecSqlString(sqlstr);
 
+           
+            foreach ( var column in columns )
+            {
+                if(column.IsAutoIncrement == true)
+                {
+                    setColumn_IsAutoIncrement(db, column, table.Name, true);
+                }
+            }
 
             if (indexInfos != null && indexInfos.Length > 0)
             {
@@ -112,6 +113,29 @@ CREATE TABLE " + table.Name + @" (
 
         }
 
+        void setColumn_IsAutoIncrement( IDatabaseService db , EJ.DBColumn column ,string table,  bool isAutoIncrement)
+        {
+            /*
+             先创建一张表，再创建一个序列，然后将表主键ID的默认值设置成这个序列的NEXT值
+             */
+            if (isAutoIncrement)
+            {
+                db.ExecSqlString($@"
+CREATE SEQUENCE {table}_{column.Name}_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+alter table {table} alter column {column.Name} set default nextval('{table}_{column.Name}_seq');
+");
+            }
+            else
+            {
+                db.ExecSqlString($"alter table {table} ALTER COLUMN {column.Name} DROP DEFAULT");
+                db.ExecSqlString($"DROP SEQUENCE IF EXISTS  {table}_{column.Name}_seq");
+            }
+        }
 
         public void DeleteTable(EntityDB.IDatabaseService database, string tableName)
         {
@@ -231,16 +255,7 @@ CREATE TABLE " + table.Name + @" (
                     changeColumnCount++;
 
                     #region 变更自增长
-                    if (column.IsAutoIncrement == false)
-                    {
-                        //去掉自增长
-                        database.ExecSqlString($"ALTER TABLE {newTableName} ALTER COLUMN {column.Name} TYPE {getSqlType(column)}");
-                    }
-                    else
-                    {
-                        //设为自增长
-                        database.ExecSqlString($"ALTER TABLE {newTableName} ALTER COLUMN {column.Name} TYPE {getSqlType(column)}");
-                    }
+                    setColumn_IsAutoIncrement(database, column, newTableName, column.IsAutoIncrement.Value);
 
                     #endregion
                 }
@@ -254,12 +269,15 @@ CREATE TABLE " + table.Name + @" (
                     if (column.IsPKID == false)
                     {
                         //去除主键;//删除主建
-                        var pkeyIndexName = database.ExecSqlString($"select indexname from pg_indexes where tablename='{newTableName}' and indexname like '%_pkey'").ToSafeString();
-                        if (pkeyIndexName.Length > 0)
-                        {
-                            database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT IF EXISTS {pkeyIndexName}");
-                            database.ExecSqlString("DROP INDEX IF EXISTS " + pkeyIndexName + "");
-                        }
+                        //var pkeyIndexName = database.ExecSqlString($"select indexname from pg_indexes where tablename='{newTableName}' and indexname='{oldTableName}_pkey'").ToSafeString();
+                        //if (pkeyIndexName.Length > 0)
+                        //{
+                        //    database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT IF EXISTS {oldTableName}_pkey");
+                        //    database.ExecSqlString($"DROP INDEX IF EXISTS {oldTableName}_pkey");
+                        //}
+
+                        database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT IF EXISTS {oldTableName}_pkey");
+                        database.ExecSqlString($"DROP INDEX IF EXISTS {oldTableName}_pkey");
                     }
                     else
                     {
@@ -316,7 +334,7 @@ CREATE TABLE " + table.Name + @" (
                             }
                         }
 
-                        database.ExecSqlString($"update {newTableName} set {column.Name}=" + defaultValue + " where {" + column.Name + "} is null");
+                        database.ExecSqlString($"update {newTableName} set {column.Name}={defaultValue} where {column.Name} is null");
                     }
 
                     

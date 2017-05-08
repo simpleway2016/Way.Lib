@@ -47,7 +47,7 @@ namespace Way.EntityDB.Design.Actions
          public ChangeTableAction()
         {
         }
-         public ChangeTableAction(int databaseid , string oldTableName, string newTableName, 
+         public ChangeTableAction( string oldTableName, string newTableName, 
              EJ.DBColumn[] newColumns, EJ.DBColumn[] changedColumns,
              EJ.DBColumn[] deletedColumns, EJ.DBColumn[] othercolumns, IndexInfo[] idxConfigs)
         {
