@@ -21,9 +21,10 @@ namespace Way.EJServer
             {
                 string ip = "192.168.50.128";
 
-                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
-                //var db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\testingdb.db", EntityDB.DatabaseType.Sqlite);
-                //dbservice.GetCurrentIndexes(db, "test3");
+                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
+                var db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\testingdb.db", EntityDB.DatabaseType.Sqlite);
+                dbservice.GetCurrentColumns(db, "test3");
+                dbservice.GetCurrentIndexes(db, "test3");
 
                 //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService( DatabaseType.PostgreSql);
                 //var db = EntityDB.DBContext.CreateDatabaseService("Server="+ ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
@@ -131,7 +132,7 @@ namespace Way.EJServer
                     Name = "c1",
                     dbType = "varchar",
                     length = "50",
-                    defaultValue = "abc"
+                    defaultValue = "a'b,c"
                 });
                 allColumns.Add(new EJ.DBColumn()
                 {
@@ -203,7 +204,8 @@ namespace Way.EJServer
                     {
                         Name = "n0",
                         dbType = "varchar",
-                        length = "30"
+                        length = "30",
+                        defaultValue = "t'b"
                     });
                     newcolumns[1] = (new EJ.DBColumn()
                     {
@@ -217,7 +219,7 @@ namespace Way.EJServer
                     changedColumns[0] = allColumns.FirstOrDefault(m=>m.Name == "c3");
                     changedColumns[0].Name = "c3_changed";
                     changedColumns[0].dbType = "varchar";
-                    changedColumns[0].defaultValue = "1";
+                    changedColumns[0].defaultValue = "1'a";
                     changedColumns[0].CanNull = false;
                     changedColumns[0].length = "88";
 

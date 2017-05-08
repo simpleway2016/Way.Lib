@@ -97,7 +97,114 @@ namespace Way.EntityDB.Design.Database.Sqlite
         }
         public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
         {
-            return null;
+            List<EJ.DBColumn> result = new List<EJ.DBColumn>();
+            var createTableSql = db.ExecSqlString($"select sql from sqlite_master where type='table' and name='{tablename}'");
+            if(createTableSql != null)
+            {
+              
+                var sql = createTableSql.ToString();
+                var match = Regex.Match(sql, @"create( )+table( )+(\w|\[|\])+( )+",  RegexOptions.IgnoreCase);
+                sql = sql.Substring(match.Index + match.Length).Trim();
+                if (sql.StartsWith("("))
+                    sql = sql.Substring(1, sql.Length - 2);
+                List<string> fieldStrings = new List<string>();
+                StringBuilder itemString = new StringBuilder();
+                bool stringBegined = false;
+                for(int i = 0; i < sql.Length; i ++)
+                {
+                    char c = sql[i];
+                    if( c == ',' && stringBegined == false)
+                    {
+                        fieldStrings.Add(itemString.ToString().Trim());
+                        itemString = new StringBuilder();
+                        continue;
+                    }
+                    else if( c == '\'' )
+                    {
+                        if (stringBegined == false)
+                        {
+                            stringBegined = true;
+                        }
+                        else
+                        {
+                            if (i + 1 < sql.Length && sql[i + 1] == '\'')
+                            {
+                                itemString.Append('\'');
+                                i++;
+                            }
+                            else
+                            {
+                                stringBegined = false;
+                            }
+                        }
+                    }
+                    itemString.Append(c);
+                }
+                if(itemString.ToString().Trim().Length > 0)
+                {
+                    fieldStrings.Add(itemString.ToString().Trim());
+                }
+
+                foreach( var itemstring in fieldStrings )
+                {
+                    if(itemstring.Length > 0)
+                    {
+                        sql = itemstring;
+                        match = Regex.Match(sql, @"(\w|\[|\])+( )+", RegexOptions.IgnoreCase);
+                        EJ.DBColumn column = new EJ.DBColumn();
+                        column.Name = match.Value.Trim();
+                        if (column.Name.StartsWith("["))
+                            column.Name = column.Name.Substring(1, column.Name.Length - 2);
+
+                        sql = sql.Substring(match.Index + match.Length);
+                        match = Regex.Match(sql, @"(\w)+", RegexOptions.IgnoreCase);
+                        column.dbType = match.Value;
+                        int typeindex = Database.Sqlite.SqliteTableService.ColumnType.IndexOf(column.dbType);
+                        if (typeindex >= 0)
+                        {
+                            column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                        }
+                        else
+                        {
+                            column.dbType = "[未识别]" + column.dbType;
+                        }
+
+                        sql = sql.Substring(match.Index + match.Length);
+                        if(sql.StartsWith("("))
+                        {
+                            column.length = sql.Substring(0 , sql.IndexOf(")"));
+                            column.length = column.length.Substring(1);
+
+                            sql = sql.Substring(sql.IndexOf(")") + 1);
+                        }
+                        match = Regex.Match(sql, @"DEFAULT( )+", RegexOptions.IgnoreCase);
+                        if(match != null && match.Length > 0)
+                        {
+                            column.defaultValue = sql.Substring(match.Index + match.Length).Trim();
+                            if(column.defaultValue.StartsWith("'"))
+                            {
+                                column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.LastIndexOf("'") - 1);
+                                sql = sql.Replace("'" + column.defaultValue + "'", "");
+                                column.defaultValue = column.defaultValue.Replace("''", "'");
+                            }
+                            else
+                            {
+                                column.defaultValue = Regex.Match(column.defaultValue, @"(\w)+").Value;
+                            }
+
+                            
+                        }
+                        column.CanNull = !sql.ToUpper().Contains("NOT NULL");
+                        column.IsPKID = sql.ToUpper().Contains("PRIMARY KEY");
+                        column.IsAutoIncrement = sql.ToUpper().Contains("AUTOINCREMENT");
+
+                        column.ChangedProperties.Clear();
+                        result.Add(column);
+                    }
+                }
+               
+            }
+            return result;
         }
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {
@@ -121,3 +228,4 @@ namespace Way.EntityDB.Design.Database.Sqlite
         }
     }
 }
+ 

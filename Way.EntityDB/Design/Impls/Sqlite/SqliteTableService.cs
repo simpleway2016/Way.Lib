@@ -11,45 +11,44 @@ namespace Way.EntityDB.Design.Database.Sqlite
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.Sqlite)]
     class SqliteTableService : ITableDesignService
     {
-        string getSqliteType(string dbtype,string length)
+        internal static List<string> ColumnType = new List<string>(new string[] {
+                                            "VARCHAR",
+                                            "INTEGER",
+                                            "BLOB",//image
+                                            "TEXT",
+                                            "SMALLINT",//smallint
+                                            "DATETIME",//smalldatetime
+                                            "REAL",
+                                            "DATETIME",//datetime
+                                            "FLOAT",
+                                            "DOUBLE",
+                                            "BOOLEAN",
+                                            "DECIMAL",//decimal
+                                            "NUMERIC",
+                                            "BIGINT",//bigint
+                                            "BLOB",//varbinary
+                                            "CHARACTER",
+                                            "DATETIME", });
+        string getSqlType(EJ.DBColumn column)
         {
-            dbtype = dbtype.ToLower();
-            // COLLATE NOCASE查询时，不区分大小写
-            if (dbtype.Contains("text"))
-                return "TEXT COLLATE NOCASE";
-            else if (dbtype.Contains("char"))
-            {
-                if (!string.IsNullOrEmpty(length))
-                    return dbtype + "(" + length + ") COLLATE NOCASE";
-                else
-                {
-                    return dbtype + "(50) COLLATE NOCASE";
-                }
+            //serial不是一种自增长类型，只是一个宏，所以不要用serial
+            string dbtype = column.dbType.ToLower();
+            int index = Design.ColumnType.SupportTypes.IndexOf(dbtype);
+            if (index < 0 || ColumnType[index] == null)
+                throw new Exception($"不支持字段类型{dbtype}");
+            return ColumnType[index];
+        }
+
+        string getSqliteType(EJ.DBColumn column)
+        {
+            var dbtype = getSqlType(column);
+            if (!column.length.IsNullOrEmpty())
+                dbtype += "(" + column.length + ")";
+            if( dbtype.Contains("TEXT") || dbtype.Contains("CHAR") )
+            {      // COLLATE NOCASE查询时，不区分大小写
+                dbtype += " COLLATE NOCASE";
             }
-            if (dbtype.Contains("int"))
-                return "INTEGER";
 
-            if( dbtype.Contains("real") )
-                return "REAL";
-            if( dbtype.Contains("double") )
-                return "REAL";
-            if( dbtype.Contains("float") )
-                return "REAL";
-
-             if( dbtype.Contains("numeric") )
-                return "NUMERIC";
-             if( dbtype.Contains("decimal") )
-                return "NUMERIC";
-             if( dbtype.Contains("boolean") )
-                return "NUMERIC";
-             if( dbtype.Contains("date") )
-                 return "datetime";
-             if (dbtype.Contains("byte"))
-                 return "BLOB";
-             if (dbtype.Contains("image"))
-                 return "BLOB";
-             if (dbtype.Contains("binary"))
-                 return "BLOB";
             return dbtype;
         }
 
@@ -68,7 +67,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (i > 0)
                         sqlstr += ",\r\n";
 
-                    sqlstr += "[" + column.Name + "] " + getSqliteType(column.dbType ,column.length) + "";
+                    sqlstr += "[" + column.Name + "] " + getSqliteType(column) + "";
 
                     if (column.IsPKID == true)
                     {
@@ -86,14 +85,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (!string.IsNullOrEmpty(column.defaultValue))
                     {
                         string defaultValue = column.defaultValue.Trim();
-                        if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                        {
-                            sqlstr += " DEFAULT " + defaultValue + "";
-                        }
-                        else
-                        {
-                            sqlstr += " DEFAULT '" + defaultValue + "'";
-                        }
+                        sqlstr += " DEFAULT '" + defaultValue.Replace("'","''") + "'";
                     }
 
 
@@ -242,7 +234,7 @@ CREATE TABLE [" + table.Name + @"] (
                 foreach (var column in addColumns)
                 {
                     #region 新增字段
-                    string sql = "alter table [" + newTableName + "] add [" + column.Name + "] " + getSqliteType( column.dbType, column.length) ;
+                    string sql = "alter table [" + newTableName + "] add [" + column.Name + "] " + getSqliteType( column) ;
 
                     if (column.IsPKID == true)
                     {
@@ -261,14 +253,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (!string.IsNullOrEmpty(column.defaultValue))
                     {
                         string defaultValue = column.defaultValue.Trim();
-                        if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                        {
-                            sql += " DEFAULT " + defaultValue + "";
-                        }
-                        else
-                        {
-                            sql += " DEFAULT '" + defaultValue + "'";
-                        }
+                        sql += " DEFAULT '" + defaultValue.Replace("'","''") + "'";
                     }
                     database.ExecSqlString(sql);
 

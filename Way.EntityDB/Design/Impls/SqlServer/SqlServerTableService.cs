@@ -53,14 +53,8 @@ CREATE TABLE [" + table.Name + @"] (
                     if (!string.IsNullOrEmpty( column.defaultValue) )
                     {
                         string defaultValue = column.defaultValue.Trim();
-                        if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                        {
-                            sqlstr += " CONSTRAINT [DF_" + table.Name + "_" + column.Name + "] DEFAULT (" + defaultValue + ")";
-                        }
-                        else
-                        {
-                            sqlstr += " CONSTRAINT [DF_" + table.Name + "_" + column.Name + "] DEFAULT ('" + defaultValue + "')";
-                        }
+                        sqlstr += " CONSTRAINT [DF_" + table.Name + "_" + column.Name + "] DEFAULT ('" + defaultValue.Replace("'","''") + "')";
+                        
                     }
 
                     sqlstr += ",";
@@ -520,21 +514,9 @@ SELECT @NAME
                  {
                      string sql = "";
                      string defaultValue = column.defaultValue.Trim();
-                     if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                     {
-                         sql += "alter  table  [" + newTableName + "]  add  constraint DF_" + newTableName + "_" + column.Name + " default " + defaultValue + " for [" + column.Name + "]";
-                     }
-                     else
-                     {
-                         if (defaultValue.Contains("()"))
-                         {
-                             sql += "alter  table  [" + newTableName + "]  add  constraint DF_" + newTableName + "_" + column.Name + " default " + defaultValue + " for [" + column.Name + "]";
-                         }
-                         else
-                         {
-                             sql += "alter  table  [" + newTableName + "]  add  constraint DF_" + newTableName + "_" + column.Name + " default '" + defaultValue + "' for [" + column.Name + "]";
-                         }
-                     }
+                     sql += "alter  table  [" + newTableName + "]  add  constraint DF_" + newTableName + "_" + column.Name + " default '" + defaultValue.Replace("'","''") + "' for [" + column.Name + "]";
+                         
+                     
                      if (sql.Length > 0)
                          database.ExecSqlString(sql);
 
@@ -591,16 +573,8 @@ SELECT @NAME
                 if (!string.IsNullOrEmpty(column.defaultValue))
                 {
                     string defaultValue = column.defaultValue.Trim();
-                    if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                    {
-                        sql += " default " + defaultValue + " with values";
-                    }
-                    else
-                    {
-                        sql += " default '" + defaultValue + "' with values";
-                    }
-
-
+                    sql += " default '" + defaultValue.Replace("'","''") + "' with values";
+                    
                 }
                 database.ExecSqlString(sql);
 

@@ -73,14 +73,8 @@ CREATE TABLE `" + table.Name + @"` (
                     if (!string.IsNullOrEmpty(column.defaultValue))
                     {
                         string defaultValue = column.defaultValue.Trim();
-                        if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                        {
-                            sqlstr += " DEFAULT " + defaultValue ;
-                        }
-                        else
-                        {
-                            sqlstr += " DEFAULT '" + defaultValue + "'";
-                        }
+                        sqlstr += " DEFAULT '" + defaultValue.Replace("'","''") + "'";
+                        
                     }
 
 
@@ -314,15 +308,9 @@ CREATE TABLE `" + table.Name + @"` (
                 {
                     string sql = "";
                     string defaultValue = column.defaultValue.Trim();
-                    if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                    {
-                        sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default {defaultValue}";
-                    }
-                    else
-                    {
-                        sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default '{defaultValue}'";
+                    sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default '{defaultValue.Replace("'","''")}'";
 
-                    }
+                    
                     if (sql.Length > 0)
                         database.ExecSqlString(sql);
 
@@ -369,16 +357,8 @@ CREATE TABLE `" + table.Name + @"` (
                 if (!string.IsNullOrEmpty(column.defaultValue))
                 {
                     string defaultValue = column.defaultValue.Trim();
-                    if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                    {
-                        sql += " default " + defaultValue ;
-                    }
-                    else
-                    {
-                        sql += " default '" + defaultValue + "'";
-                    }
-
-
+                    sql += " default '" + defaultValue.Replace("'","''") + "'";
+                    
                 }
                 database.ExecSqlString(sql);
 

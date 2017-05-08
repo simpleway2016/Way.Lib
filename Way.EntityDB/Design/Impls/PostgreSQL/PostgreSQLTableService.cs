@@ -78,14 +78,7 @@ CREATE TABLE " + table.Name + @" (
                     if (!string.IsNullOrEmpty(column.defaultValue))
                     {
                         string defaultValue = column.defaultValue.Trim();
-                        if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                        {
-                            sqlstr += " DEFAULT " + defaultValue ;
-                        }
-                        else
-                        {
-                            sqlstr += " DEFAULT '" + defaultValue + "'";
-                        }
+                        sqlstr += " DEFAULT '" + defaultValue.Replace("'", "''") + "'";
                     }
                     
 
@@ -338,15 +331,9 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
                 {
                     string sql = "";
                     string defaultValue = column.defaultValue.Trim();
-                    if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                    {
-                        sql += $"alter table {newTableName} ALTER COLUMN {column.Name} SET DEFAULT {defaultValue}";
-                    }
-                    else
-                    {
-                        sql += $"alter table {newTableName} ALTER COLUMN {column.Name} SET DEFAULT '{defaultValue}'";
+                    sql += $"alter table {newTableName} ALTER COLUMN {column.Name} SET DEFAULT '{defaultValue.Replace("'","''")}'";
 
-                    }
+                    
                     if (sql.Length > 0)
                         database.ExecSqlString(sql);
 
@@ -391,16 +378,7 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
                 if (!string.IsNullOrEmpty(column.defaultValue))
                 {
                     string defaultValue = column.defaultValue.Trim();
-                    if ((defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'")) || defaultValue.Contains("()"))
-                    {
-                        sql += " default " + defaultValue ;
-                    }
-                    else
-                    {
-                        sql += " default '" + defaultValue + "'";
-                    }
-
-
+                    sql += " DEFAULT '" + defaultValue.Replace("'","''") + "'";
                 }
                 database.ExecSqlString(sql);
 
