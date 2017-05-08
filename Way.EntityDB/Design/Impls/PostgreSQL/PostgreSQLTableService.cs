@@ -117,6 +117,7 @@ CREATE TABLE " + table.Name + @" (
         {
             /*
              先创建一张表，再创建一个序列，然后将表主键ID的默认值设置成这个序列的NEXT值
+             SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';可以查看所有SEQUENCE
              */
             if (isAutoIncrement)
             {
@@ -132,8 +133,16 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
             }
             else
             {
-                db.ExecSqlString($"alter table {table} ALTER COLUMN {column.Name} DROP DEFAULT");
-                db.ExecSqlString($"DROP SEQUENCE IF EXISTS  {table}_{column.Name}_seq");
+                //查找是哪个sequence
+                //select column_name,data_type,column_default,is_nullable from information_schema.columns where table_name = 'tbl_role';
+                var seqName = db.ExecSqlString($"select column_default from information_schema.columns where table_name = '{table}' and column_name='{column.Name}'").ToSafeString();
+                Match m = Regex.Match(seqName, @"nextval\(\'(?<n>(\w)+)\'");
+                if (m != null && m.Length > 0)
+                {
+                    seqName = m.Groups["n"].Value;
+                    db.ExecSqlString($"alter table {table} ALTER COLUMN {column.Name} DROP DEFAULT");
+                    db.ExecSqlString($"DROP SEQUENCE IF EXISTS  {seqName}");
+                }
             }
         }
 
