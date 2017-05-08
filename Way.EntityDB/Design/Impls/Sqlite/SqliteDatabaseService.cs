@@ -21,7 +21,11 @@ namespace Way.EntityDB.Design.Database.Sqlite
                 string filename = m.Groups["f"].Value;
                 if (filename.StartsWith("\"") || filename.StartsWith("\'"))
                     filename = filename.Substring(1, filename.Length - 2);
-                System.IO.File.Delete(filename);
+                if (System.IO.File.Exists(filename))
+                {
+                    System.IO.File.Delete(filename);
+                }
+               
             }
             else
                 throw new Exception("无法从连接字符串获取数据库文件路径");

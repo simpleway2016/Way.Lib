@@ -221,7 +221,7 @@ CREATE TABLE [" + table.Name + @"] (
                 {
                     if (dtable.Columns.Any(m=>m.ColumnName == "constraint_name"))
                     {
-                        var query = dtable.Rows.Where(m=>m["constraint_keys"].Equals(column));
+                        var query = dtable.Rows.Where(m=>m["constraint_keys"].ToSafeString().ToLower() == column.ToLower());
                         if (query.Count() > 0)
                         {
                             database.ExecSqlString("alter  table  [" + table + "]  drop  constraint " + query.First()["constraint_name"]);
@@ -236,7 +236,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (dtable.Columns.Any(m=>m.ColumnName=="constraint_name"))
                     {
                         var query = from m in dtable.Rows
-                                    where ((string)m["constraint_type"]).EndsWith(" " + column) && ((string)m["constraint_type"]).StartsWith("default on ")
+                                    where ((string)m["constraint_type"]).ToLower().EndsWith(" " + column.ToLower()) && ((string)m["constraint_type"]).ToLower().StartsWith("default on ")
                                     select m;
 
                        if (query.Count() > 0)

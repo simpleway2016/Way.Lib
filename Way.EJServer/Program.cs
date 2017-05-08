@@ -25,9 +25,16 @@ namespace Way.EJServer
                 //var db = EntityDB.DBContext.CreateDatabaseService("Server="+ ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
                 //dbservice.GetCurrentColumns(db, "test3");
 
-                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
-                var db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
-                dbservice.GetCurrentColumns(db, "test3");
+                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
+                //var db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                //dbservice.GetCurrentColumns(db, "test3");
+
+                //Test(new EJ.Databases()
+                //{
+                //    conStr = "data source=d:\\testingdb.db",
+                //    Name = "testingdb",
+                //    dbType = EJ.Databases_dbTypeEnum.Sqlite,
+                //});
 
                 //Test(new EJ.Databases()
                 //{
@@ -43,7 +50,7 @@ namespace Way.EJServer
                 //    dbType = EJ.Databases_dbTypeEnum.PostgreSql,
                 //});
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return;
             }
@@ -103,51 +110,70 @@ namespace Way.EJServer
             {
                 dbservice.Create(dbconfig);
                 db = EntityDB.DBContext.CreateDatabaseService(dbconfig.conStr, (EntityDB.DatabaseType)(int)dbconfig.dbType);
-               
+
+                List<EJ.DBColumn> allColumns = new List<EJ.DBColumn>();
+                List<EntityDB.Design.IndexInfo> allindexes = new List<EntityDB.Design.IndexInfo>();
+
+                allColumns.Add(new EJ.DBColumn()
+                {
+                    IsPKID = true,
+                    CanNull = false,
+                    Name = "id",
+                    dbType = "int",
+                    IsAutoIncrement = true,
+                });
+                allColumns.Add(new EJ.DBColumn()
+                {
+                    Name = "c1",
+                    dbType = "varchar",
+                    length = "50",
+                    defaultValue = "abc"
+                });
+                allColumns.Add(new EJ.DBColumn()
+                {
+                    Name = "c2",
+                    dbType = "varchar",
+                    length = "50",
+                    defaultValue = "abc"
+                });
+                allColumns.Add(new EJ.DBColumn()
+                {
+                    Name = "c3",
+                    dbType = "int",
+                    defaultValue = "8"
+                });
+                allColumns.Add(new EJ.DBColumn()
+                {
+                    Name = "text1",
+                    dbType = "text",
+                    defaultValue = "abc"
+                });
+                //索引
+                allindexes.Add(new EntityDB.Design.IndexInfo()
+                {
+                    ColumnNames = new string[] { "c1" },
+                    IsUnique = true,
+                });
+                allindexes.Add(new EntityDB.Design.IndexInfo()
+                {
+                    ColumnNames = new string[] { "c2", "c3" },
+                });
+
+
+                EJ.DBTable table = new EJ.DBTable();
+                table.Name = "test";
+
                 #region CreateTable
                 if (true)
-                {
-                    EJ.DBTable table = new EJ.DBTable();
-                    table.Name = "test";
-                    EJ.DBColumn[] columns = new EJ.DBColumn[4];
-                    columns[0] = new EJ.DBColumn() {
-                        IsPKID = true,
-                        CanNull = false,
-                        Name = "id",
-                        dbType = "int",
-                        IsAutoIncrement = true,
-                    };
-
-                    columns[1] = new EJ.DBColumn()
-                    {
-                        Name = "c1",
-                        dbType = "varchar",
-                        length = "50",
-                        defaultValue = "abc"
-                    };
-                    columns[2] = new EJ.DBColumn()
-                    {
-                        Name = "c2",
-                        dbType = "varchar",
-                        length = "30"
-                    };
-                    columns[3] = new EJ.DBColumn()
-                    {
-                        Name = "c3",
-                        dbType = "int",
-                        defaultValue = "33",
-                    };
-                    EntityDB.Design.IndexInfo[] indexInfos = new EntityDB.Design.IndexInfo[2];
-                    indexInfos[0] = new EntityDB.Design.IndexInfo() {
-                        ColumnNames = new string[] {"c1" },
-                        IsUnique = true,
-                    };
-                    indexInfos[1] = new EntityDB.Design.IndexInfo()
-                    {
-                        ColumnNames = new string[] { "c2","c3" },
-                    };
-                    CreateTableAction _CreateTableAction = new CreateTableAction(table , columns , indexInfos);
+                {                  
+                    CreateTableAction _CreateTableAction = new CreateTableAction(table , allColumns.ToArray() , allindexes.ToArray());
                     _CreateTableAction.Invoke(db);
+
+                    foreach (var c in allColumns)
+                    {
+                        c.ChangedProperties.Clear();
+                        c.BackupChangedProperties.Clear();
+                    }
                 }
                 #endregion
 
@@ -167,106 +193,92 @@ namespace Way.EJServer
                 #region ChangeTable1
                 if (true)
                 {
-                    EJ.DBColumn[] newColumns = new EJ.DBColumn[2];
-                    newColumns[0] = new EJ.DBColumn()
+                    EJ.DBColumn[] newcolumns = new EJ.DBColumn[2];
+                    newcolumns[0] = ( new EJ.DBColumn()
                     {
                         Name = "n0",
                         dbType = "varchar",
                         length = "30"
-                    };
-                    newColumns[1] = new EJ.DBColumn()
+                    });
+                    newcolumns[1] = (new EJ.DBColumn()
                     {
                         Name = "n1",
                         dbType = "int",
                         defaultValue = "18"
-                    };
+                    });
+
+
                     EJ.DBColumn[] changedColumns = new EJ.DBColumn[2];
-                    changedColumns[0] = new EJ.DBColumn()
-                    {
-                        Name = "c3_changed",
-                        dbType = "varchar",
-                        defaultValue = "1",
-                        CanNull = false,
-                    };
-                    changedColumns[0].BackupChangedProperties.Add("Name", new EntityDB.DataValueChangedItem() { OriginalValue = "c3" });
-                    changedColumns[0].BackupChangedProperties.Add("CanNull", new EntityDB.DataValueChangedItem() { OriginalValue = true });
-                    changedColumns[0].BackupChangedProperties.Add("defaultValue", new EntityDB.DataValueChangedItem() { OriginalValue = "" });
-                    changedColumns[0].BackupChangedProperties.Add("dbType", new EntityDB.DataValueChangedItem() { OriginalValue = "int"});
-                    changedColumns[0].BackupChangedProperties.Add("length", new EntityDB.DataValueChangedItem() { OriginalValue = "" });
+                    changedColumns[0] = allColumns.FirstOrDefault(m=>m.Name == "c3");
+                    changedColumns[0].Name = "c3_changed";
+                    changedColumns[0].dbType = "varchar";
+                    changedColumns[0].defaultValue = "1";
+                    changedColumns[0].CanNull = false;
+                    changedColumns[0].length = "88";
 
-                    changedColumns[1] = new EJ.DBColumn()
-                    {
-                        Name = "id",
-                        dbType = "int",
-                        IsAutoIncrement = false,
-                        IsPKID = false,
-                    };
-                    changedColumns[1].BackupChangedProperties.Add("IsAutoIncrement", new EntityDB.DataValueChangedItem() { OriginalValue = true });
-                    changedColumns[1].BackupChangedProperties.Add("IsPKID", new EntityDB.DataValueChangedItem() { OriginalValue = true });
-
+                   
+                    changedColumns[1] = allColumns.FirstOrDefault(m => m.Name == "id");
+                    changedColumns[1].IsAutoIncrement = false;
+                    changedColumns[1].IsPKID = false;
+                  
                   
                     EJ.DBColumn[] deletecolumns = new EJ.DBColumn[1];
-                    deletecolumns[0] = new EJ.DBColumn()
-                    {
-                        Name = "c2",
-                        dbType = "varchar",
-                       length = "30",
-                    };
+                    deletecolumns[0] = allColumns.FirstOrDefault(m => m.Name == "c2");
 
-                    EJ.DBColumn[] otherColumns = new EJ.DBColumn[1];
-                    otherColumns[0] = new EJ.DBColumn()
-                    {
-                        Name = "c1",
-                        dbType = "varchar",
-                        length = "50",
-                        defaultValue = "abc"
-                    };
+                    allColumns.Remove(deletecolumns[0]);
 
-                    EntityDB.Design.IndexInfo[] indexInfos = new EntityDB.Design.IndexInfo[1];
-                    indexInfos[0] = new EntityDB.Design.IndexInfo()
+                    allindexes.Clear();
+                    allindexes.Add( new EntityDB.Design.IndexInfo()
                     {
                         ColumnNames = new string[] { "n0" },
                         IsUnique = true,
                         IsClustered = true
-                    };
+                    });
 
-                    new ChangeTableAction("test", "test2", newColumns, new EJ.DBColumn[0], deletecolumns, otherColumns, indexInfos)
+                    var otherColumns = (from m in allColumns
+                                        where changedColumns.Contains(m) == false
+                                        select m).ToArray();
+
+                    new ChangeTableAction("test", "test2", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
+                    .Invoke(db);
+
+                    allColumns.AddRange(newcolumns);
+
+                    foreach (var c in allColumns)
                     {
-                        changedColumns = changedColumns
-                    }.Invoke(db);
-                   
-                     
+                        c.ChangedProperties.Clear();
+                        c.BackupChangedProperties.Clear();
+                    }
+
                 }
                 #endregion
 
                 #region ChangeTable2
                 if (true)
                 {
-                    EJ.DBColumn[] newColumns = new EJ.DBColumn[0];
+                    EJ.DBColumn[] newcolumns = new EJ.DBColumn[0];
                     EJ.DBColumn[] changedColumns = new EJ.DBColumn[1];
-                    changedColumns[0] = new EJ.DBColumn()
-                    {
-                        Name = "id",
-                        dbType = "int",
-                        IsAutoIncrement = true,
-                        IsPKID = true,
-                    };
-                    changedColumns[0].BackupChangedProperties.Add("IsAutoIncrement", new EntityDB.DataValueChangedItem() { OriginalValue = false });
-                    changedColumns[0].BackupChangedProperties.Add("IsPKID", new EntityDB.DataValueChangedItem() { OriginalValue = false });
+                    changedColumns[0] = allColumns.FirstOrDefault(m => m.Name == "id");
+                    changedColumns[0].IsAutoIncrement = true;
+                    changedColumns[0].IsPKID = true;
 
-
+                  
                     EJ.DBColumn[] deletecolumns = new EJ.DBColumn[0];
 
-                    EJ.DBColumn[] otherColumns = new EJ.DBColumn[0];
+                    var otherColumns = (from m in allColumns
+                                        where changedColumns.Contains(m) == false
+                                        select m).ToArray();
 
-                    EntityDB.Design.IndexInfo[] indexInfos = new EntityDB.Design.IndexInfo[0];
+                    new ChangeTableAction("test2", "test3", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
+                    .Invoke(db);
 
-                    new ChangeTableAction("test2", "test3", newColumns, new EJ.DBColumn[0], deletecolumns, otherColumns, indexInfos)
+                    allColumns.AddRange(newcolumns);
+
+                    foreach (var c in allColumns)
                     {
-                        changedColumns = changedColumns
-                    }.Invoke(db);
-
-
+                        c.ChangedProperties.Clear();
+                        c.BackupChangedProperties.Clear();
+                    }
                 }
                 #endregion
             }
