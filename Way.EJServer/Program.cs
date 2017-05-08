@@ -21,6 +21,10 @@ namespace Way.EJServer
             {
                 string ip = "192.168.50.128";
 
+                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
+                //var db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\testingdb.db", EntityDB.DatabaseType.Sqlite);
+                //dbservice.GetCurrentIndexes(db, "test3");
+
                 //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService( DatabaseType.PostgreSql);
                 //var db = EntityDB.DBContext.CreateDatabaseService("Server="+ ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
                 //dbservice.GetCurrentColumns(db, "test3");
@@ -187,6 +191,7 @@ namespace Way.EJServer
                     db.Insert(dataitem);
                     if (dataitem.GetValue("id") == null)
                         throw new Exception("测试自增长id失败");
+                    db.ExecSqlString("delete from test");
                 }
                 #endregion
 
@@ -230,7 +235,7 @@ namespace Way.EJServer
                     allindexes.Clear();
                     allindexes.Add( new EntityDB.Design.IndexInfo()
                     {
-                        ColumnNames = new string[] { "n0" },
+                        ColumnNames = new string[] { "n0", "c3_changed" },
                         IsUnique = true,
                         IsClustered = true
                     });

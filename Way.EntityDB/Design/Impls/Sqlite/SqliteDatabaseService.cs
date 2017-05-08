@@ -74,7 +74,26 @@ namespace Way.EntityDB.Design.Database.Sqlite
         }
         public List<IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename)
         {
-            throw new NotImplementedException();
+            var result = new List<IndexInfo>();
+            using (var dtable = db.SelectTable("select * from sqlite_master where type='index' and tbl_name='" + tablename + "' "))
+            {
+                foreach (var drow in dtable.Rows)
+                {
+                    var sql = drow["sql"].ToSafeString();
+                    sql = sql.Substring(sql.LastIndexOf("(")).Trim();
+                    var columnNames = sql.Substring(1, sql.Length - 2).Trim().Split(',');
+                    columnNames = (from m in columnNames
+                                   select m.Trim()).OrderBy(m => m).ToArray();
+                    result.Add(new IndexInfo
+                    {
+                        Name = drow["name"].ToSafeString(),
+                        IsUnique = drow["sql"].ToSafeString().Contains(" UNIQUE "),
+                        IsClustered = false,
+                        ColumnNames = columnNames
+                    });
+                }
+            }
+            return result;
         }
         public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
         {
