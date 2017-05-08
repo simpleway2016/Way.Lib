@@ -32,6 +32,7 @@ namespace Way.EntityDB.Design.Database.PostgreSQL
                                             "timestamp", });
         string getSqlType(EJ.DBColumn column)
         {
+            //serial不是一种自增长类型，只是一个宏，所以不要用serial
             string dbtype = column.dbType.ToLower();
             int index = Design.ColumnType.SupportTypes.IndexOf(dbtype);
             if (index < 0 || ColumnType[index] == null)
