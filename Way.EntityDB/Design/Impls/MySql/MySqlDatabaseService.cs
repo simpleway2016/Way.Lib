@@ -58,6 +58,10 @@ namespace Way.EntityDB.Design.Database.MySql
         {
             return null;
         }
+        public List<IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename)
+        {
+            throw new NotImplementedException();
+        }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
             bool exists = true;

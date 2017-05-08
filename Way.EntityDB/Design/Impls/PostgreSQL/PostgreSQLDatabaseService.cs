@@ -65,7 +65,43 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
                 throw ex;
             }
         }
+        public List<IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename)
+        {
+            List<IndexInfo> result = new List<Design.IndexInfo>();
+            var pkeyTable = db.SelectTable($@"select pg_constraint.conname as pk_name,pg_attribute.attname as colname,pg_type.typname as typename from 
+pg_constraint  inner join pg_class 
+on pg_constraint.conrelid = pg_class.oid 
+inner join pg_attribute on pg_attribute.attrelid = pg_class.oid 
+and  pg_attribute.attnum = pg_constraint.conkey[1]
+inner join pg_type on pg_type.oid = pg_attribute.atttypid
+where pg_class.relname = '{tablename}' 
+and pg_constraint.contype='p'");
+            var indexTable = db.SelectTable($"select * from pg_indexes where tablename='{tablename}' and schemaname='public'");
+            foreach (var row in indexTable.Rows)
+            {
+                var indexname = row["indexname"].ToSafeString();
+                var indexdef = row["indexdef"].ToSafeString();
+                Match ms = Regex.Match(indexdef, @"btree( )?\((?<columns>(\w| |,)+)\)");
+                var t_columns = ms.Groups["columns"].Value.Split(',');
+                var columns = (from m in t_columns
+                               where m.Trim().Length > 0
+                               select m.Trim().Split(' ')[0]).OrderBy(m => m).ToArray();
+                var isClustered = indexdef.Contains(" NULLS FIRST");
+                var isUnique = indexdef.StartsWith("CREATE UNIQUE ");
+                string name = columns.ToSplitString(",");
+                if (pkeyTable.Rows.Any(m => m["colname"].ToSafeString() == name))
+                    continue;
 
+                result.Add(new IndexInfo()
+                {
+                    ColumnNames = columns,
+                    IsClustered = isClustered,
+                    IsUnique = isUnique,
+                    Name = indexname
+                });
+            }
+            return result;
+        }
         public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
         {
             List<EJ.DBColumn> result = new List<EJ.DBColumn>();

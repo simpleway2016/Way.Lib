@@ -45,12 +45,35 @@ namespace Way.EntityDB.Design.Database.SqlServer
             CreateEasyJobTable(db);
             //ado.ExecCommandTextUseSameCon("if not exists(select [dbid] from sysdatabases where [name]='" + txt_databasename.Text + "') create database " + txt_databasename.Text);
         }
+
         public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
         {
+            List<string> pkfields = new List<string>();
+            using (var sp_helpResult = db.SelectDataSet("sp_help [" + tablename + "]"))
+            {
+                foreach (var dtable in sp_helpResult.Tables)
+                {
+                    if (dtable.Columns.Any(m => m.ColumnName == "index_keys"))
+                    {
+                        foreach (WayDataRow drow in dtable.Rows)
+                        {
+                            string existColumnString = drow["index_keys"].ToString();
+                            string indexName = drow["index_name"].ToString();
+                            string index_description = drow["index_description"].ToString();
+                            if (index_description.Contains("primary key") == true)
+                            {
+                                //去除空格
+                                string flag = existColumnString.Split(',').ToSplitString();
+                                pkfields.AddRange(flag.Split(',').OrderBy(m => m).ToArray());
+                            }
+                        }
+                    }
+                }
+            }
+
             List<EJ.DBColumn> result = new List<EJ.DBColumn>();
 
-            var table = db.SelectTable($"select name,length,xtype,cdefault,isnullable,columnproperty(id,name,'isidentyty') as IsAutoIncrement from syscolumns where ID=OBJECT_ID('{tablename}') ");
-            // var defaultKeyName = database.ExecSqlString($"select name from sysObjects where type='D' and id={defaultSettingID}");
+            var table = db.SelectTable($"select name,length,xtype,cdefault,isnullable,columnproperty(id,name,'IsIdentity') as IsAutoIncrement from syscolumns where ID=OBJECT_ID('{tablename}') ");
            
             foreach (var row in table.Rows)
             {
@@ -71,12 +94,48 @@ namespace Way.EntityDB.Design.Database.SqlServer
 
                 column.CanNull = row["isnullable"].ToSafeString() == "1";
                 column.IsAutoIncrement = row["IsAutoIncrement"].ToSafeString() == "1";
-                //column.IsPKID = pkeyTable.Rows.Any(m => m["colname"].ToSafeString() == column.Name);
+                //
+
+                column.IsPKID = pkfields.Any(m => string.Equals(m , column.Name , StringComparison.CurrentCultureIgnoreCase));
                 column.length = row["length"].ToString();
                 column.ChangedProperties.Clear();
                 result.Add(column);
             }
             return result;
+        }
+        public List<IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename)
+        {
+            List<IndexInfo> existKeys = new List<IndexInfo>();
+            using (var sp_helpResult = db.SelectDataSet("sp_help [" + tablename + "]"))
+            {
+                foreach (var dtable in sp_helpResult.Tables)
+                {
+                    if (dtable.Columns.Any(m => m.ColumnName == "index_keys"))
+                    {
+                        foreach (WayDataRow drow in dtable.Rows)
+                        {
+                            string existColumnString = drow["index_keys"].ToString();
+                            string indexName = drow["index_name"].ToString();
+                            string index_description = drow["index_description"].ToString();
+                            if (index_description.Contains("primary key") == false)
+                            {
+                                //去除空格
+                                string flag = existColumnString.Split(',').ToSplitString();
+                                string dbname = flag.Split(',').OrderBy(m => m).ToArray().ToSplitString();
+                                //再排序，不要在去除空格之前排序
+                                existKeys.Add(new IndexInfo
+                                {
+                                    Name = indexName,
+                                    IsUnique = index_description.Contains("unique"),
+                                    IsClustered = index_description.Contains("clustered") && !index_description.Contains("nonclustered"),
+                                    ColumnNames = new string[] { dbname },
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return existKeys;
         }
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {
@@ -103,28 +162,28 @@ namespace Way.EntityDB.Design.Database.SqlServer
         }
 
 
-        public static string GetDBTypeString(Type type)
-        {
-            if (type == typeof(long))
-                return "bigint";
-            if (type == typeof(Byte[]))
-                return "binary";
-            if (type == typeof(bool))
-                return "bit";
-            if (type == typeof(string))
-                return "varchar";
-            if (type == typeof(DateTime))
-                return "datetime";
-            if (type == typeof(decimal))
-                return "decimal";
-            if (type == typeof(double))
-                return "float";
-            if (type == typeof(float))
-                return "float";
-            if (type == typeof(int))
-                return "int";
-            return "";
-        }
+        //public static string GetDBTypeString(Type type)
+        //{
+        //    if (type == typeof(long))
+        //        return "bigint";
+        //    if (type == typeof(Byte[]))
+        //        return "binary";
+        //    if (type == typeof(bool))
+        //        return "bit";
+        //    if (type == typeof(string))
+        //        return "varchar";
+        //    if (type == typeof(DateTime))
+        //        return "datetime";
+        //    if (type == typeof(decimal))
+        //        return "decimal";
+        //    if (type == typeof(double))
+        //        return "float";
+        //    if (type == typeof(float))
+        //        return "float";
+        //    if (type == typeof(int))
+        //        return "int";
+        //    return "";
+        //}
 
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
@@ -157,5 +216,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
         {
             return "[{0}]";
         }
+
+       
     }
 }

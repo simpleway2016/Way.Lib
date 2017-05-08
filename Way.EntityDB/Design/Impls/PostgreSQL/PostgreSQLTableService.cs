@@ -156,34 +156,22 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
                
 
 
-        List<string> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename,string pkid, List<IndexInfo> indexInfos)
+        List<string> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename,List<IndexInfo> indexInfos)
         {
-
+            var tableindexes =  new Impls.PostgreSQL.PostgreSQLDatabaseService().GetCurrentIndexes(database, tablename);
             List<string> needToDels = new List<string>();
-            var indexTable = database.SelectTable($"select * from pg_indexes where tablename='{tablename}' and schemaname='public'");
-            foreach( var row in indexTable.Rows )
+            foreach( var dbindex in tableindexes)
             {
-                var indexname = row["indexname"].ToSafeString();
-                var indexdef = row["indexdef"].ToSafeString();
-                Match ms = Regex.Match(indexdef, @"btree( )?\((?<columns>(\w| |,)+)\)");
-                var t_columns = ms.Groups["columns"].Value.Split(',');
-                var columns = (from m in t_columns
-                               where m.Trim().Length > 0
-                           select m.Trim().Split(' ')[0]).OrderBy(m=>m).ToArray();
-                var isClustered = indexdef.Contains(" NULLS FIRST");
-                var isUnique = indexdef.StartsWith("CREATE UNIQUE ");
-                string name = columns.ToSplitString(",");
-                if (name == pkid)
-                    continue;
-                if (indexInfos.Any(m => m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == name) == false)
+                string longname = dbindex.ColumnNames.ToArray().ToSplitString(",");
+                if (indexInfos.Any(m => m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == longname) == false)
                 {
-                    needToDels.Add(indexname);
+                    needToDels.Add(dbindex.Name);
                 }
                 else {
-                    var existIndexes = indexInfos.Where(m => m.IsUnique == isUnique && m.IsClustered == isClustered && m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == name).ToArray();
+                    var existIndexes = indexInfos.Where(m => m.IsUnique == dbindex.IsUnique && m.IsClustered == dbindex.IsClustered && m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == longname).ToArray();
                     if (existIndexes.Length == 0)
                     {
-                        needToDels.Add(indexname);
+                        needToDels.Add(dbindex.Name);
                     }
                     else
                     {
@@ -218,19 +206,8 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
                 //更改表名
                 database.ExecSqlString($"alter table {oldTableName} RENAME TO {newTableName}");
             }
-            string pkField = null;
-            var pkColumn = otherColumns.FirstOrDefault(m=>m.IsPKID == true);
-            if(pkColumn == null)
-            {
-                pkColumn = changedColumns.FirstOrDefault(m => m.IsPKID == true);
-                if(pkColumn != null && pkColumn.BackupChangedProperties["Name"] != null)
-                {
-                    pkField = pkColumn.BackupChangedProperties["Name"].OriginalValue as string;
-                }
-            }
-            if (pkField == null && pkColumn != null)
-                pkField = pkColumn.Name;
-            var needToDels = checkIfIdxChanged(database, newTableName, pkField, indexInfos);
+          
+            var needToDels = checkIfIdxChanged(database, newTableName, indexInfos);
 
             foreach (var column in deletedColumns)
             {

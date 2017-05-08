@@ -16,29 +16,32 @@ namespace Way.EJServer
       
         public static void Main(string[] args)
         {
+            
             try
             {
+                string ip = "192.168.50.128";
+
                 //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService( DatabaseType.PostgreSql);
-                //var db = EntityDB.DBContext.CreateDatabaseService("Server=192.168.136.137;Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
+                //var db = EntityDB.DBContext.CreateDatabaseService("Server="+ ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
                 //dbservice.GetCurrentColumns(db, "test3");
 
                 IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
-                var db = EntityDB.DBContext.CreateDatabaseService("Server=192.168.136.137;uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                var db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
                 dbservice.GetCurrentColumns(db, "test3");
 
                 //Test(new EJ.Databases()
                 //{
-                //    conStr = "Server=192.168.136.137;uid=sa;pwd=Sql12345678;database=testingdb",
+                //    conStr = "Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb",
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.SqlServer,
                 //});
 
-                Test(new EJ.Databases()
-                {
-                    conStr = "Server=192.168.136.137;Port=5432;UserId=postgres;Password=123456;Database=testingdb;",
-                    Name = "testingdb",
-                    dbType = EJ.Databases_dbTypeEnum.PostgreSql,
-                });
+                //Test(new EJ.Databases()
+                //{
+                //    conStr = "Server=" + ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",
+                //    Name = "testingdb",
+                //    dbType = EJ.Databases_dbTypeEnum.PostgreSql,
+                //});
             }
             catch(Exception ex)
             {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-
+using System.Text.RegularExpressions;
 
 namespace Way.EntityDB.Design.Database.Sqlite
 {
@@ -14,7 +14,17 @@ namespace Way.EntityDB.Design.Database.Sqlite
     {
         public void Drop(EJ.Databases database)
         {
-            
+            string constr = database.conStr;
+            var m = Regex.Match(database.conStr, @"data source=(?<f>(\w|:|\\|\/|\.)+)", RegexOptions.IgnoreCase);
+            if (m != null && m.Length > 0)
+            {
+                string filename = m.Groups["f"].Value;
+                if (filename.StartsWith("\"") || filename.StartsWith("\'"))
+                    filename = filename.Substring(1, filename.Length - 2);
+                System.IO.File.Delete(filename);
+            }
+            else
+                throw new Exception("无法从连接字符串获取数据库文件路径");
         }
         public void Create(EJ.Databases database)
         {
@@ -57,6 +67,10 @@ namespace Way.EntityDB.Design.Database.Sqlite
             //catch
             //{
             //}
+        }
+        public List<IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename)
+        {
+            throw new NotImplementedException();
         }
         public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
         {
