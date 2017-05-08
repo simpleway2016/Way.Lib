@@ -58,7 +58,10 @@ namespace Way.EntityDB.Design.Database.Sqlite
             //{
             //}
         }
-
+        public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
+        {
+            return null;
+        }
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {
             var dbnameMatch_old = System.Text.RegularExpressions.Regex.Match(database.conStr, @"Data Source=(?<dname>(\w|\:|\\)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);

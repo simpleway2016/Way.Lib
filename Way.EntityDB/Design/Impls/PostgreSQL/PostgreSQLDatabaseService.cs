@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EJ;
 using Way.EntityDB.Design.Services;
+using System.Text.RegularExpressions;
 
 namespace Way.EntityDB.Design.Impls.PostgreSQL
 {
@@ -63,6 +64,59 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
                 db.DBContext.RollbackTransaction();
                 throw ex;
             }
+        }
+
+        public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
+        {
+            List<EJ.DBColumn> result = new List<EJ.DBColumn>();
+            var table = db.SelectTable($"select column_name,data_type,column_default,is_nullable,character_maximum_length,character_octet_length from information_schema.columns where table_name='{tablename}'");
+            var pkeyTable = db.SelectTable($@"select pg_constraint.conname as pk_name,pg_attribute.attname as colname,pg_type.typname as typename from 
+pg_constraint  inner join pg_class 
+on pg_constraint.conrelid = pg_class.oid 
+inner join pg_attribute on pg_attribute.attrelid = pg_class.oid 
+and  pg_attribute.attnum = pg_constraint.conkey[1]
+inner join pg_type on pg_type.oid = pg_attribute.atttypid
+where pg_class.relname = '{tablename}' 
+and pg_constraint.contype='p'");
+            foreach (var row in table.Rows)
+            {
+                EJ.DBColumn column = new EJ.DBColumn();
+                column.Name = row["column_name"].ToSafeString();
+                column.dbType = row["data_type"].ToSafeString();
+                int typeindex = Database.PostgreSQL.PostgreSQLTableService.ColumnType.IndexOf(column.dbType);
+                if(typeindex >= 0)
+                {
+                    column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                }
+                else
+                {
+                    column.dbType = "[未识别]" + column.dbType;
+                }
+                column.defaultValue = row["column_default"].ToSafeString();
+                if (column.defaultValue.StartsWith("nextval"))
+                    column.defaultValue = "";
+                else if(column.defaultValue.Contains("::") )
+                {
+                    column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.LastIndexOf("::") - 1);
+                }
+
+                column.CanNull = row["is_nullable"].ToSafeString() == "YES";
+                column.IsAutoIncrement = row["column_default"].ToSafeString().StartsWith("nextval");
+                column.IsPKID = pkeyTable.Rows.Any(m => m["colname"].ToSafeString() == column.Name);
+                if (column.dbType.Contains("char"))
+                {
+                    if (row["character_maximum_length"] != null)
+                        column.length = row["character_maximum_length"].ToString();
+                }
+                else
+                {
+                    if (row["character_octet_length"] != null)
+                        column.length = row["character_octet_length"].ToString();
+                }
+                column.ChangedProperties.Clear();
+                result.Add(column);
+            }
+            return result;
         }
 
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)

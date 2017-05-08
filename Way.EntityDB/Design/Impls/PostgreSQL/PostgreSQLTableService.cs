@@ -12,24 +12,24 @@ namespace Way.EntityDB.Design.Database.PostgreSQL
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.PostgreSql)]
     class PostgreSQLTableService : Services.ITableDesignService
     {
-        static List<string> ColumnType = new List<string>(new string[] {
-                                            "varchar",
+       internal static List<string> ColumnType = new List<string>(new string[] {
+                                            "character varying",
                                             "integer",
                                             "oid",//image
                                             "text",
                                             "smallint",
                                             "date",//smalldatetime
                                             "real",
-                                            "timestamp",//datetime
+                                            "timestamp without time zone",//datetime
                                             "float",
                                             "double",
                                             "boolean",
-                                            "decimal",
+                                            "numeric",//decimal
                                             "numeric",
                                             "bigint",
                                             "bytea",//varbinary
-                                            "char",
-                                            "timestamp", });
+                                            "character",
+                                            "timestamp without time zone", });
         string getSqlType(EJ.DBColumn column)
         {
             //serial不是一种自增长类型，只是一个宏，所以不要用serial
@@ -39,6 +39,8 @@ namespace Way.EntityDB.Design.Database.PostgreSQL
                 throw new Exception($"不支持字段类型{dbtype}");
             return ColumnType[index];
         }
+
+       
 
         public void CreateTable(EntityDB.IDatabaseService db, EJ.DBTable table, EJ.DBColumn[] columns, IndexInfo[] indexInfos)
         {
@@ -135,7 +137,7 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
             else
             {
                 //查找是哪个sequence
-                //select column_name,data_type,column_default,is_nullable from information_schema.columns where table_name = 'tbl_role';
+                //select column_name,data_type,column_default,is_nullable,character_maximum_length,character_octet_length from information_schema.columns where table_name = 'tbl_role';
                 var seqName = db.ExecSqlString($"select column_default from information_schema.columns where table_name = '{table}' and column_name='{column.Name}'").ToSafeString();
                 Match m = Regex.Match(seqName, @"nextval\(\'(?<n>(\w)+)\'");
                 if (m != null && m.Length > 0)

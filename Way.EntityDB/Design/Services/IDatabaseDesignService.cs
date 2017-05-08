@@ -11,7 +11,7 @@ namespace Way.EntityDB.Design.Services
         void Create(EJ.Databases database);
         void CreateEasyJobTable(EntityDB.IDatabaseService db);
         void ChangeName(EJ.Databases database, string newName,string newConnectString);
-
+        List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename);
         string GetObjectFormat();
     }
 }

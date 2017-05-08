@@ -45,7 +45,39 @@ namespace Way.EntityDB.Design.Database.SqlServer
             CreateEasyJobTable(db);
             //ado.ExecCommandTextUseSameCon("if not exists(select [dbid] from sysdatabases where [name]='" + txt_databasename.Text + "') create database " + txt_databasename.Text);
         }
+        public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
+        {
+            List<EJ.DBColumn> result = new List<EJ.DBColumn>();
 
+            var table = db.SelectTable($"select name,length,xtype,cdefault,isnullable,columnproperty(id,name,'isidentyty') as IsAutoIncrement from syscolumns where ID=OBJECT_ID('{tablename}') ");
+            // var defaultKeyName = database.ExecSqlString($"select name from sysObjects where type='D' and id={defaultSettingID}");
+           
+            foreach (var row in table.Rows)
+            {
+                EJ.DBColumn column = new EJ.DBColumn();
+                column.Name = row["name"].ToSafeString();
+                column.dbType = db.ExecSqlString($"select name  from SYSTYPES where xtype={row["xtype"]}").ToSafeString();
+                int typeindex = EntityDB.Design.ColumnType.SupportTypes.IndexOf(column.dbType);
+                if (typeindex >= 0)
+                {
+                    column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                }
+                else
+                {
+                    column.dbType = "[未识别]" + column.dbType;
+                }
+                column.defaultValue = row["column_default"].ToSafeString();
+                
+
+                column.CanNull = row["isnullable"].ToSafeString() == "1";
+                column.IsAutoIncrement = row["IsAutoIncrement"].ToSafeString() == "1";
+                //column.IsPKID = pkeyTable.Rows.Any(m => m["colname"].ToSafeString() == column.Name);
+                column.length = row["length"].ToString();
+                column.ChangedProperties.Clear();
+                result.Add(column);
+            }
+            return result;
+        }
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {
              string constr = database.conStr;
@@ -69,6 +101,8 @@ namespace Way.EntityDB.Design.Database.SqlServer
             }
          
         }
+
+
         public static string GetDBTypeString(Type type)
         {
             if (type == typeof(long))

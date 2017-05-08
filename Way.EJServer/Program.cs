@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Way.EntityDB;
 using Way.EntityDB.Design.Actions;
 using Way.EntityDB.Design.Services;
 using Way.Lib.ScriptRemoting;
@@ -12,11 +13,19 @@ namespace Way.EJServer
 {
     public class Program
     {
-       
+      
         public static void Main(string[] args)
         {
             try
             {
+                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService( DatabaseType.PostgreSql);
+                //var db = EntityDB.DBContext.CreateDatabaseService("Server=192.168.136.137;Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
+                //dbservice.GetCurrentColumns(db, "test3");
+
+                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
+                var db = EntityDB.DBContext.CreateDatabaseService("Server=192.168.136.137;uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                dbservice.GetCurrentColumns(db, "test3");
+
                 //Test(new EJ.Databases()
                 //{
                 //    conStr = "Server=192.168.136.137;uid=sa;pwd=Sql12345678;database=testingdb",
@@ -166,6 +175,7 @@ namespace Way.EJServer
                     {
                         Name = "n1",
                         dbType = "int",
+                        defaultValue = "18"
                     };
                     EJ.DBColumn[] changedColumns = new EJ.DBColumn[2];
                     changedColumns[0] = new EJ.DBColumn()

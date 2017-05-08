@@ -54,6 +54,10 @@ namespace Way.EntityDB.Design.Database.MySql
             }
         }
 
+        public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
+        {
+            return null;
+        }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
             bool exists = true;
