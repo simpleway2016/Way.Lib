@@ -25,6 +25,13 @@ namespace Way.EntityDB.Design.Services
         /// <param name="tablename"></param>
         /// <returns></returns>
         List<Design.IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename);
+        /// <summary>
+        /// 获取数据库的数据表列表
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="tablename"></param>
+        /// <returns></returns>
+        List<string> GetCurrentTableNames(IDatabaseService db, string tablename);
         string GetObjectFormat();
     }
 }

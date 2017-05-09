@@ -113,6 +113,10 @@ namespace Way.EntityDB.Design.Database.MySql
 
             return result;
         }
+        public List<string> GetCurrentTableNames(IDatabaseService db, string tablename)
+        {
+            throw new NotImplementedException();
+        }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
             bool exists = true;

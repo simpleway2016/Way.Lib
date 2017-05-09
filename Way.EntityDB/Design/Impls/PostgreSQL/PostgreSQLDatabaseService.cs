@@ -155,7 +155,10 @@ and pg_constraint.contype='p'");
             }
             return result;
         }
-
+        public List<string> GetCurrentTableNames(IDatabaseService db, string tablename)
+        {
+            throw new NotImplementedException();
+        }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
             bool exists = Convert.ToInt32(db.ExecSqlString("select count(*) from pg_tables where tablename='__wayeasyjob'")) > 0;
