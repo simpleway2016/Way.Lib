@@ -43,12 +43,12 @@ namespace Way.EJServer
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 
-                //Test(new EJ.Databases()
-                //{
-                //    conStr = "data source=d:\\testingdb.db",
-                //    Name = "testingdb",
-                //    dbType = EJ.Databases_dbTypeEnum.Sqlite,
-                //});
+                Test(new EJ.Databases()
+                {
+                    conStr = "data source=d:\\testingdb.db",
+                    Name = "testingdb",
+                    dbType = EJ.Databases_dbTypeEnum.Sqlite,
+                });
 
                 //Test(new EJ.Databases()
                 //{
@@ -194,6 +194,8 @@ namespace Way.EJServer
                         c.ChangedProperties.Clear();
                         c.BackupChangedProperties.Clear();
                     }
+
+                    checkColumns(dbservice, db, table.Name, allColumns, allindexes);
                 }
                 #endregion
 
@@ -262,10 +264,10 @@ namespace Way.EJServer
                     var otherColumns = (from m in allColumns
                                         where changedColumns.Contains(m) == false
                                         select m).ToArray();
-
-                    new ChangeTableAction("test", "test2", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
+                   
+                    new ChangeTableAction(table.Name, "test2", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
                     .Invoke(db);
-
+                    table.Name = "test2";
                     allColumns.AddRange(newcolumns);
 
                     foreach (var c in allColumns)
@@ -273,7 +275,7 @@ namespace Way.EJServer
                         c.ChangedProperties.Clear();
                         c.BackupChangedProperties.Clear();
                     }
-
+                    checkColumns(dbservice, db, table.Name, allColumns, allindexes);
                 }
                 #endregion
 
@@ -293,10 +295,10 @@ namespace Way.EJServer
                     var otherColumns = (from m in allColumns
                                         where changedColumns.Contains(m) == false
                                         select m).ToArray();
-
-                    new ChangeTableAction("test2", "test3", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
+                   
+                    new ChangeTableAction(table.Name, "test3", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
                     .Invoke(db);
-
+                    table.Name = "test3";
                     allColumns.AddRange(newcolumns);
 
                     foreach (var c in allColumns)
@@ -304,6 +306,8 @@ namespace Way.EJServer
                         c.ChangedProperties.Clear();
                         c.BackupChangedProperties.Clear();
                     }
+
+                    checkColumns(dbservice, db, table.Name, allColumns, allindexes);
                 }
                 #endregion
             }
@@ -319,6 +323,53 @@ namespace Way.EJServer
                     db.DBContext.Dispose();
                 }
                 
+            }
+        }
+
+        static void checkColumns(IDatabaseDesignService design, IDatabaseService db ,string table, List<EJ.DBColumn> allcolumns,List<EntityDB.Design.IndexInfo> allindex)
+        {
+            var columns = design.GetCurrentColumns(db, table);
+            var indexes = design.GetCurrentIndexes(db, table);
+
+            if (allcolumns.Count != columns.Count)
+            {
+                throw new Exception("column 数量不一致");
+            }
+            foreach( var column in allcolumns )
+            {
+                if (column.defaultValue == null)
+                    column.defaultValue = "";
+
+                var compareColumn = columns.FirstOrDefault(m => m.Name == column.Name);
+                if(compareColumn == null)
+                    throw new Exception("找不到字段" + column.Name);
+                if(column.CanNull != compareColumn.CanNull)
+                    throw new Exception($"column:{column.Name} CanNull 不一致");
+                if (column.dbType != compareColumn.dbType)
+                    throw new Exception($"column:{column.Name} dbType 不一致");
+                if (column.defaultValue != compareColumn.defaultValue)
+                    throw new Exception($"column:{column.Name} defaultValue 不一致 {column.defaultValue}  vs  {compareColumn.defaultValue}");
+                if (column.IsAutoIncrement != compareColumn.IsAutoIncrement)
+                    throw new Exception($"column:{column.Name} IsAutoIncrement 不一致");
+                if (column.IsPKID != compareColumn.IsPKID)
+                    throw new Exception($"column:{column.Name} IsPKID 不一致");
+                if(column.dbType.Contains("char"))
+                {
+                    if (column.length != compareColumn.length)
+                        throw new Exception($"column:{column.Name} length 不一致 {column.length}  vs  {compareColumn.length}");
+                }
+            }
+
+            if (allindex.Count != indexes.Count)
+            {
+                throw new Exception("index 数量不一致");
+            }
+            foreach (var index in allindex)
+            {
+                if(indexes.Any(m=>m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == index.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",")) == false)
+                    throw new Exception($"index:{index.Name} ColumnNames 不一致");
+                if (indexes.Any(m => m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == index.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") && m.IsUnique == index.IsUnique) == false)
+                    throw new Exception($"index:{index.Name} IsUnique 不一致");
             }
         }
     }

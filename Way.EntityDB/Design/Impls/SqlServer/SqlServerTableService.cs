@@ -482,8 +482,15 @@ SELECT @NAME
                          }
                      }
 
-                     //先改变字段类型，下面再设置默认值，和非null
-                    database.ExecSqlString(sql + " NULL");
+                    //先改变字段类型，下面再设置默认值，和非null
+                    if (column.IsPKID == true || column.IsAutoIncrement == true)
+                    {
+                        database.ExecSqlString(sql);
+                    }
+                    else
+                    {
+                        database.ExecSqlString(sql + " NULL");
+                    }
                     if (column.CanNull == false && !string.IsNullOrEmpty(column.defaultValue))
                      {
                          string defaultValue = column.defaultValue.Trim();
@@ -494,10 +501,7 @@ SELECT @NAME
 
                     if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
                     {
-                        sql += " NOT";
-                        sql += " NULL ";
-
-                        database.ExecSqlString(sql);
+                        database.ExecSqlString(sql + " NOT NULL");
                     }
                      #endregion
                  }

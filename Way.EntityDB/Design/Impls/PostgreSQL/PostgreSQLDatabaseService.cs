@@ -133,7 +133,7 @@ and pg_constraint.contype='p'");
                     column.defaultValue = "";
                 else if(column.defaultValue.Contains("::") )
                 {
-                    column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.LastIndexOf("::") - 1);
+                    column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.LastIndexOf("::") - 2);
                     column.defaultValue = column.defaultValue.Replace("''", "'");
                 }
 

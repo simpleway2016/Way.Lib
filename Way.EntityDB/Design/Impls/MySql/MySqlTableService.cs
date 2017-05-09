@@ -292,6 +292,10 @@ CREATE TABLE `" + table.Name + @"` (
                     if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
                         sql += " NOT";
                     sql += " NULL ";
+                    if(column.IsAutoIncrement == true)
+                    {
+                        sql += " auto_increment ";
+                    }
                     database.ExecSqlString(sql);
                     #endregion
                 }
