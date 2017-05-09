@@ -38,6 +38,11 @@ namespace Way.EJServer
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.MySql);
+                //db = EntityDB.DBContext.CreateDatabaseService("server=" + ip + ";User Id=user1;password=User.123456;Database=testingdb", EntityDB.DatabaseType.MySql);
+                //dbservice.GetCurrentColumns(db, "test3");
+                //dbservice.GetCurrentIndexes(db, "test3");
+
                 //Test(new EJ.Databases()
                 //{
                 //    conStr = "data source=d:\\testingdb.db",
@@ -57,6 +62,13 @@ namespace Way.EJServer
                 //    conStr = "Server=" + ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.PostgreSql,
+                //});
+
+                //Test(new EJ.Databases()
+                //{
+                //    conStr = "server=" + ip + ";User Id=user1;password=User.123456;Database=testingdb",
+                //    Name = "testingdb",
+                //    dbType = EJ.Databases_dbTypeEnum.MySql,
                 //});
             }
             catch (Exception ex)
@@ -155,7 +167,6 @@ namespace Way.EJServer
                 {
                     Name = "text1",
                     dbType = "text",
-                    defaultValue = "abc"
                 });
                 //索引
                 allindexes.Add(new EntityDB.Design.IndexInfo()
@@ -231,8 +242,10 @@ namespace Way.EJServer
                     changedColumns[1] = allColumns.FirstOrDefault(m => m.Name == "id");
                     changedColumns[1].IsAutoIncrement = false;
                     changedColumns[1].IsPKID = false;
-                  
-                  
+                    changedColumns[1].CanNull = true;
+
+
+
                     EJ.DBColumn[] deletecolumns = new EJ.DBColumn[1];
                     deletecolumns[0] = allColumns.FirstOrDefault(m => m.Name == "c2");
 
@@ -272,8 +285,9 @@ namespace Way.EJServer
                     changedColumns[0] = allColumns.FirstOrDefault(m => m.Name == "id");
                     changedColumns[0].IsAutoIncrement = true;
                     changedColumns[0].IsPKID = true;
+                    changedColumns[0].CanNull = false;
 
-                  
+
                     EJ.DBColumn[] deletecolumns = new EJ.DBColumn[0];
 
                     var otherColumns = (from m in allColumns

@@ -56,11 +56,62 @@ namespace Way.EntityDB.Design.Database.MySql
 
         public List<EJ.DBColumn> GetCurrentColumns(IDatabaseService db, string tablename)
         {
-            return null;
+            List<EJ.DBColumn> result = new List<EJ.DBColumn>();
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(db.ConnectionString, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var dbname = dbnameMatch.Groups["dname"].Value;
+            var table = db.SelectTable($"select * from information_schema.COLUMNS where TABLE_SCHEMA='{dbname}' and TABLE_NAME='{tablename}'");
+            foreach (var row in table.Rows)
+            {
+                EJ.DBColumn column = new EJ.DBColumn();
+                column.Name = row["COLUMN_NAME"].ToSafeString();
+                column.CanNull = row["IS_NULLABLE"].ToSafeString() == "YES";
+                column.dbType = row["DATA_TYPE"].ToSafeString().ToLower();
+                int typeindex = Database.MySql.MySqlTableService.ColumnType.IndexOf(column.dbType);
+                if (typeindex >= 0)
+                {
+                    column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                }
+                else
+                {
+                    column.dbType = "[未识别]" + column.dbType;
+                }
+                column.defaultValue = row["COLUMN_DEFAULT"].ToSafeString();
+                column.IsAutoIncrement = row["EXTRA"].ToSafeString().Contains("auto_increment");
+                column.IsPKID = row["COLUMN_KEY"].ToSafeString().Contains("PRI");
+                column.length = row["CHARACTER_MAXIMUM_LENGTH"].ToSafeString();
+                column.ChangedProperties.Clear();
+                result.Add(column);
+            }
+            return result;
         }
         public List<IndexInfo> GetCurrentIndexes(IDatabaseService db, string tablename)
         {
-            throw new NotImplementedException();
+            List<IndexInfo> result = new List<IndexInfo>();
+               var dbnameMatch = System.Text.RegularExpressions.Regex.Match(db.ConnectionString, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var dbname = dbnameMatch.Groups["dname"].Value;
+            var table = db.SelectTable($"SELECT *  FROM  information_schema.statistics WHERE TABLE_SCHEMA='{dbname}' and table_name='{tablename}' and INDEX_NAME<>'PRIMARY'");
+            foreach( var row in table.Rows )
+            {
+                string indexName = row["INDEX_NAME"].ToSafeString();
+                bool unique = !Convert.ToBoolean( row["NON_UNIQUE"]);
+                IndexInfo indexInfo = result.FirstOrDefault(m => m.Name == indexName);
+                if(indexInfo == null)
+                {
+                    indexInfo = new IndexInfo()
+                    {
+                        Name = indexName,
+                        IsUnique = unique,
+                        ColumnNames = new string[0],
+                    };
+                    result.Add(indexInfo);
+                }
+                string columnName = row["COLUMN_NAME"].ToSafeString();
+                var columnNames = new List<string>(indexInfo.ColumnNames);
+                columnNames.Add(columnName);
+                indexInfo.ColumnNames = columnNames.OrderBy(m=>m).ToArray();
+            }
+
+            return result;
         }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {

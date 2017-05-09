@@ -12,22 +12,22 @@ namespace Way.EntityDB.Design.Database.MySql
     [EntityDB.Attributes.DatabaseTypeAttribute(DatabaseType.MySql)]
     class MySqlTableService : Services.ITableDesignService
     {
-        static List<string> ColumnType = new List<string>(new string[] {
+        internal static List<string> ColumnType = new List<string>(new string[] {
                                             "varchar",
                                             "int",
-                                            "BLOB",//image
-                                            "TEXT",//text
+                                            "blob",//image
+                                            "text",//text
                                             "smallint",
                                             "date",//smalldatetime
                                             "real",
-                                            "DATETIME",//datetime
+                                            "datetime",//datetime
                                             "float",
                                             "double",
-                                            "BIT",
+                                            "bit",
                                             "decimal",
                                             "numeric",
                                             "bigint",//
-                                            "VARBINARY",//varbinary
+                                            "varbinary",//varbinary
                                             "char",
                                             "timestamp", });
         string getSqlType(string dbtype)
@@ -102,7 +102,7 @@ CREATE TABLE `" + table.Name + @"` (
                         //if (config.IsClustered)
                         //    throw new Exception("MySql不支持定义聚集索引");
                         string keyname = table.Name.ToLower() + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
-                        sqlstr += (",\r\n"+type+" KEY `" + keyname + "`(" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_", "`{0}`") + ")");
+                        sqlstr += (",\r\n"+type+" KEY `" + keyname + "`(" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString(",", "`{0}`") + ")");
                     }
                 }
 
@@ -230,6 +230,13 @@ CREATE TABLE `" + table.Name + @"` (
                     }
                     else
                     {
+                        if( column.IsPKID == true && column.BackupChangedProperties["IsPKID"] != null && (bool)column.BackupChangedProperties["IsPKID"].OriginalValue == false)
+                        {
+                            //设为自增长之前，此字段必须是主键
+                            //设为主键;
+                            database.ExecSqlString(string.Format("Alter table `{0}` add primary key(`{1}`)", newTableName, column.Name.ToLower()));
+                            column.BackupChangedProperties.Remove("IsPKID");
+                        }
                         //设为自增长
                         database.ExecSqlString(string.Format("Alter table `{0}` change `{1}` `{1}` {2} not null auto_increment", newTableName, column.Name.ToLower(), sqltype));
                     }
@@ -277,22 +284,8 @@ CREATE TABLE `" + table.Name + @"` (
                     if (column.CanNull == false && !string.IsNullOrEmpty(column.defaultValue))
                     {
                         string defaultValue = column.defaultValue.Trim();
-
-                        if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                        {
-                        }
-                        else
-                        {
-                            if (defaultValue.Contains("()"))
-                            {
-                            }
-                            else
-                            {
-                                defaultValue = "'" + defaultValue + "'";
-                            }
-                        }
-
-                        database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`=" + defaultValue + " where `" + column.Name + "` is null");
+                        
+                        database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`='" + defaultValue.Replace("'","''") + "' where `" + column.Name + "` is null");
                     }
 
                     string sql = "alter table `" + newTableName + "` MODIFY `" + column.Name + "` " + sqltype;
@@ -308,28 +301,15 @@ CREATE TABLE `" + table.Name + @"` (
                 {
                     string sql = "";
                     string defaultValue = column.defaultValue.Trim();
-                    sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {sqltype} default '{defaultValue.Replace("'","''")}'";
+                    string typestr = sqltype;
+                    if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
+                        typestr += " NOT NULL";
+                    sql += $"alter table `{newTableName}` MODIFY `{column.Name}` {typestr} default '{defaultValue.Replace("'","''")}'";
 
                     
-                    if (sql.Length > 0)
-                        database.ExecSqlString(sql);
-
-
-                    if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                    {
-                    }
-                    else
-                    {
-                        if (defaultValue.Contains("()"))
-                        {
-                        }
-                        else
-                        {
-                            defaultValue = "'" + defaultValue + "'";
-                        }
-                    }
-
-                    database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`=" + defaultValue + " where `" + column.Name + "` is null");
+                    database.ExecSqlString(sql);
+                    
+                    database.ExecSqlString("update `" + newTableName + "` set `" + column.Name + "`='" + defaultValue.Replace("'", "''") + "' where `" + column.Name + "` is null");
                 }
                 #endregion
             }
