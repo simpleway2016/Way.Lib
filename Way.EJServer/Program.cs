@@ -43,12 +43,12 @@ namespace Way.EJServer
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 
-                Test(new EJ.Databases()
-                {
-                    conStr = "data source=d:\\testingdb.db",
-                    Name = "testingdb",
-                    dbType = EJ.Databases_dbTypeEnum.Sqlite,
-                });
+                //Test(new EJ.Databases()
+                //{
+                //    conStr = "data source=d:\\testingdb.db",
+                //    Name = "testingdb",
+                //    dbType = EJ.Databases_dbTypeEnum.Sqlite,
+                //});
 
                 //Test(new EJ.Databases()
                 //{
@@ -343,7 +343,11 @@ namespace Way.EJServer
                 var compareColumn = columns.FirstOrDefault(m => m.Name == column.Name);
                 if(compareColumn == null)
                     throw new Exception("找不到字段" + column.Name);
-                if(column.CanNull != compareColumn.CanNull)
+
+                if (compareColumn.defaultValue == null)
+                    compareColumn.defaultValue = "";
+
+                if (column.CanNull != compareColumn.CanNull)
                     throw new Exception($"column:{column.Name} CanNull 不一致");
                 if (column.dbType != compareColumn.dbType)
                     throw new Exception($"column:{column.Name} dbType 不一致");

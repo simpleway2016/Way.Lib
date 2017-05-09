@@ -191,8 +191,6 @@ namespace Way.EntityDB.Design.Database.Sqlite
                             {
                                 column.defaultValue = Regex.Match(column.defaultValue, @"(\w)+").Value;
                             }
-
-                            
                         }
                         column.CanNull = !sql.ToUpper().Contains("NOT NULL");
                         column.IsPKID = sql.ToUpper().Contains("PRIMARY KEY");
