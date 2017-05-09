@@ -19,20 +19,24 @@ namespace Way.EJServer
             
             try
             {
-                string ip = "192.168.50.128";
+                IDatabaseDesignService dbservice;
+                IDatabaseService db;
+                string ip = "192.168.136.137";
 
-                IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
-                var db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\testingdb.db", EntityDB.DatabaseType.Sqlite);
-                dbservice.GetCurrentColumns(db, "test3");
-                dbservice.GetCurrentIndexes(db, "test3");
-
-                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService( DatabaseType.PostgreSql);
-                //var db = EntityDB.DBContext.CreateDatabaseService("Server="+ ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;",  EntityDB.DatabaseType.PostgreSql);
+                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
+                //var db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\testingdb.db", EntityDB.DatabaseType.Sqlite);
                 //dbservice.GetCurrentColumns(db, "test3");
+                //dbservice.GetCurrentIndexes(db, "test3");
 
-                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
-                //var db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.PostgreSql);
+                //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;", EntityDB.DatabaseType.PostgreSql);
                 //dbservice.GetCurrentColumns(db, "test3");
+                //dbservice.GetCurrentIndexes(db, "test3");
+
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
+                //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                //dbservice.GetCurrentColumns(db, "test3");
+                //dbservice.GetCurrentIndexes(db, "test3");
 
                 //Test(new EJ.Databases()
                 //{

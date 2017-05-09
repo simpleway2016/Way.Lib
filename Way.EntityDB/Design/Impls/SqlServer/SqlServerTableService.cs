@@ -482,30 +482,23 @@ SELECT @NAME
                          }
                      }
 
-                     if (column.CanNull == false && !string.IsNullOrEmpty(column.defaultValue))
+                     //先改变字段类型，下面再设置默认值，和非null
+                    database.ExecSqlString(sql + " NULL");
+                    if (column.CanNull == false && !string.IsNullOrEmpty(column.defaultValue))
                      {
                          string defaultValue = column.defaultValue.Trim();
-                         if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                         {
-                         }
-                         else
-                         {
-                             if (defaultValue.Contains("()"))
-                             {
-                             }
-                             else
-                             {
-                                 defaultValue = "'" + defaultValue + "'";
-                             }
-                         }
-                         database.ExecSqlString("update [" + newTableName + "] set [" + column.Name + "]=" + defaultValue + " where [" + column.Name + "] is null");
+                        
+                         database.ExecSqlString("update [" + newTableName + "] set [" + column.Name + "]='" + defaultValue.Replace("'","''") + "' where [" + column.Name + "] is null");
                      }
 
-                     if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
-                         sql += " NOT";
-                     sql += " NULL ";
-                     
-                     database.ExecSqlString(sql);
+
+                    if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
+                    {
+                        sql += " NOT";
+                        sql += " NULL ";
+
+                        database.ExecSqlString(sql);
+                    }
                      #endregion
                  }
 
@@ -519,23 +512,9 @@ SELECT @NAME
                      
                      if (sql.Length > 0)
                          database.ExecSqlString(sql);
+                     
 
-
-                     if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                     {
-                     }
-                     else
-                     {
-                         if (defaultValue.Contains("()"))
-                         {
-                         }
-                         else
-                         {
-                             defaultValue = "'" + defaultValue + "'";
-                         }
-                     }
-
-                     database.ExecSqlString("update ["+newTableName+"] set ["+column.Name+"]=" + defaultValue + " where ["+column.Name+"] is null");
+                     database.ExecSqlString("update ["+newTableName+"] set ["+column.Name+"]='" + defaultValue.Replace("'","''") + "' where ["+column.Name+"] is null");
                  } 
                  #endregion
             }

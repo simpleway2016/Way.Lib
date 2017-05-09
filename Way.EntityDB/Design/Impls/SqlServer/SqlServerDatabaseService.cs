@@ -89,8 +89,17 @@ namespace Way.EntityDB.Design.Database.SqlServer
                 {
                     column.dbType = "[未识别]" + column.dbType;
                 }
-                column.defaultValue = row["column_default"].ToSafeString();
-                
+                column.defaultValue = row["cdefault"].ToSafeString();
+                if(!column.defaultValue.IsNullOrEmpty())
+                {
+                    column.defaultValue = db.ExecSqlString($@"SELECT TEXT FROM syscomments where id='{column.defaultValue}'").ToSafeString().Trim();
+                    if (column.defaultValue.StartsWith("("))
+                    {
+                        column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.Length - 2).Replace("''","'");
+                        if (column.defaultValue.StartsWith("'"))
+                            column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.Length - 2);
+                    }
+                }
 
                 column.CanNull = row["isnullable"].ToSafeString() == "1";
                 column.IsAutoIncrement = row["IsAutoIncrement"].ToSafeString() == "1";

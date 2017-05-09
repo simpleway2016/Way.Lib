@@ -134,6 +134,7 @@ and pg_constraint.contype='p'");
                 else if(column.defaultValue.Contains("::") )
                 {
                     column.defaultValue = column.defaultValue.Substring(1, column.defaultValue.LastIndexOf("::") - 1);
+                    column.defaultValue = column.defaultValue.Replace("''", "'");
                 }
 
                 column.CanNull = row["is_nullable"].ToSafeString() == "YES";

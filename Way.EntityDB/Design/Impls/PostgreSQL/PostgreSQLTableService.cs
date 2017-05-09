@@ -302,21 +302,9 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
                     {
                         string defaultValue = column.defaultValue.Trim();
 
-                        if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                        {
-                        }
-                        else
-                        {
-                            if (defaultValue.Contains("()"))
-                            {
-                            }
-                            else
-                            {
-                                defaultValue = "'" + defaultValue + "'";
-                            }
-                        }
+                       
 
-                        database.ExecSqlString($"update {newTableName} set {column.Name}={defaultValue} where {column.Name} is null");
+                        database.ExecSqlString($"update {newTableName} set {column.Name}='{defaultValue.Replace("'","''")}' where {column.Name} is null");
                     }
 
                     
@@ -333,26 +321,10 @@ alter table {table} alter column {column.Name} set default nextval('{table}_{col
                     string defaultValue = column.defaultValue.Trim();
                     sql += $"alter table {newTableName} ALTER COLUMN {column.Name} SET DEFAULT '{defaultValue.Replace("'","''")}'";
 
-                    
-                    if (sql.Length > 0)
-                        database.ExecSqlString(sql);
 
+                    database.ExecSqlString(sql);
 
-                    if (defaultValue.Length > 1 && defaultValue.StartsWith("'") && defaultValue.EndsWith("'"))
-                    {
-                    }
-                    else
-                    {
-                        if (defaultValue.Contains("()"))
-                        {
-                        }
-                        else
-                        {
-                            defaultValue = "'" + defaultValue + "'";
-                        }
-                    }
-
-                    database.ExecSqlString("update " + newTableName + " set " + column.Name + "=" + defaultValue + " where " + column.Name + " is null");
+                    database.ExecSqlString($"update {newTableName} set {column.Name}='{defaultValue.Replace("'","''")}' where {column.Name} is null");
                 }
                 #endregion
             }
