@@ -146,6 +146,10 @@ namespace Way.EntityDB.Design.Database.SqlServer
             }
             return existKeys;
         }
+        public List<string> GetCurrentTableNames(IDatabaseService db, string tablename)
+        {
+            throw new NotImplementedException();
+        }
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {
              string constr = database.conStr;
