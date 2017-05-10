@@ -146,9 +146,15 @@ namespace Way.EntityDB.Design.Database.SqlServer
             }
             return existKeys;
         }
-        public List<string> GetCurrentTableNames(IDatabaseService db, string tablename)
+        public List<string> GetCurrentTableNames(IDatabaseService db)
         {
-            throw new NotImplementedException();
+            List<string> result = new List<string>();
+            db.ExecuteReader( (reader)=> {
+                result.Add(reader[0].ToSafeString());
+                return true;
+            }, "SELECT Name FROM SysObjects Where XType='U' and Name<>'__wayeasyjob' ORDER BY Name");
+
+            return result;
         }
         public void ChangeName(EJ.Databases database, string newName, string newConnectString)
         {

@@ -155,9 +155,15 @@ and pg_constraint.contype='p'");
             }
             return result;
         }
-        public List<string> GetCurrentTableNames(IDatabaseService db, string tablename)
+        public List<string> GetCurrentTableNames(IDatabaseService db)
         {
-            throw new NotImplementedException();
+            List<string> result = new List<string>();
+            db.ExecuteReader((reader) => {
+                result.Add(reader[0].ToSafeString());
+                return true;
+            }, "SELECT   tablename   FROM   pg_tables WHERE schemaname='public' and tablename<>'__wayeasyjob'  ORDER  BY  tablename");
+
+            return result;
         }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {

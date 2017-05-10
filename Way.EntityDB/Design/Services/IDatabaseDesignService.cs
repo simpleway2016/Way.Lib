@@ -29,9 +29,8 @@ namespace Way.EntityDB.Design.Services
         /// 获取数据库的数据表列表
         /// </summary>
         /// <param name="db"></param>
-        /// <param name="tablename"></param>
         /// <returns></returns>
-        List<string> GetCurrentTableNames(IDatabaseService db, string tablename);
+        List<string> GetCurrentTableNames(IDatabaseService db);
         string GetObjectFormat();
     }
 }

@@ -23,23 +23,27 @@ namespace Way.EJServer
                 IDatabaseService db;
                 string ip = "192.168.136.137";
 
-                //IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
-                //var db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\testingdb.db", EntityDB.DatabaseType.Sqlite);
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
+                //db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\test\\testingdb.db", EntityDB.DatabaseType.Sqlite);
+                //dbservice.GetCurrentTableNames(db);
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 
                 //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.PostgreSql);
                 //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;", EntityDB.DatabaseType.PostgreSql);
+                //dbservice.GetCurrentTableNames(db);
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 
                 //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
                 //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                //dbservice.GetCurrentTableNames(db);
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 
                 //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.MySql);
                 //db = EntityDB.DBContext.CreateDatabaseService("server=" + ip + ";User Id=user1;password=User.123456;Database=testingdb", EntityDB.DatabaseType.MySql);
+                //dbservice.GetCurrentTableNames(db);
                 //dbservice.GetCurrentColumns(db, "test3");
                 //dbservice.GetCurrentIndexes(db, "test3");
 

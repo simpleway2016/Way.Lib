@@ -113,9 +113,17 @@ namespace Way.EntityDB.Design.Database.MySql
 
             return result;
         }
-        public List<string> GetCurrentTableNames(IDatabaseService db, string tablename)
+        public List<string> GetCurrentTableNames(IDatabaseService db)
         {
-            throw new NotImplementedException();
+            var dbnameMatch = System.Text.RegularExpressions.Regex.Match(db.ConnectionString, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var dbname = dbnameMatch.Groups["dname"].Value;
+            List<string> result = new List<string>();
+            db.ExecuteReader((reader) => {
+                result.Add(reader[0].ToSafeString());
+                return true;
+            }, $"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='{dbname}' and TABLE_NAME<>'__wayeasyjob'  ORDER  BY  TABLE_NAME");
+
+            return result;
         }
         public void CreateEasyJobTable(EntityDB.IDatabaseService db)
         {
