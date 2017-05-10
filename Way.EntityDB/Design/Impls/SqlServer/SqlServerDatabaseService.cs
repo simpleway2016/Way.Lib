@@ -199,7 +199,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
             bool exists = true;
             try
             {
-                db.ExecSqlString("select * from __WayEasyJob");
+                db.ExecSqlString("select * from __wayeasyjob");
             }
             catch
             {
@@ -207,7 +207,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
             }
             if (!exists)
             {
-                db.ExecSqlString("CREATE TABLE [__WayEasyJob](contentConfig varchar(1000) NOT NULL)");
+                db.ExecSqlString("CREATE TABLE [__wayeasyjob](contentConfig varchar(1000) NOT NULL)");
                 var dbconfig = new DataBaseConfig();
                 try
                 {
@@ -216,7 +216,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
                 catch
                 {
                 }
-                db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", dbconfig.ToJsonString());
+                db.ExecSqlString("insert into __wayeasyjob (contentConfig) values (@p0)", dbconfig.ToJsonString());
             }
         }
 

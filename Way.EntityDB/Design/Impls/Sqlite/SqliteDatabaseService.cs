@@ -42,7 +42,7 @@ namespace Way.EntityDB.Design.Database.Sqlite
             bool exists = true;
             try
             {
-                db.ExecSqlString("select * from __WayEasyJob");
+                db.ExecSqlString("select * from __wayeasyjob");
             }
             catch
             {
@@ -50,7 +50,7 @@ namespace Way.EntityDB.Design.Database.Sqlite
             }
             if (!exists)
             {
-                db.ExecSqlString("CREATE TABLE [__WayEasyJob](contentConfig TEXT  NOT NULL)");
+                db.ExecSqlString("CREATE TABLE [__wayeasyjob](contentConfig TEXT  NOT NULL)");
                 var dbconfig = new DataBaseConfig();
                 try
                 {
@@ -59,7 +59,7 @@ namespace Way.EntityDB.Design.Database.Sqlite
                 catch
                 {
                 }
-                db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", dbconfig.ToJsonString());
+                db.ExecSqlString("insert into __wayeasyjob (contentConfig) values (@p0)", dbconfig.ToJsonString());
                
             }
 

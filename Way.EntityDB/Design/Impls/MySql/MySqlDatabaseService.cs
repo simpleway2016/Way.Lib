@@ -118,7 +118,7 @@ namespace Way.EntityDB.Design.Database.MySql
             bool exists = true;
             try
             {
-                db.ExecSqlString("select * from __WayEasyJob");
+                db.ExecSqlString("select * from __wayeasyjob");
             }
             catch
             {
@@ -126,8 +126,8 @@ namespace Way.EntityDB.Design.Database.MySql
             }
             if (!exists)
             {
-                db.ExecSqlString("create table  `__WayEasyJob` (contentConfig varchar(1000)  not null)");
-                db.ExecSqlString("insert into __WayEasyJob (contentConfig) values (@p0)", new DataBaseConfig().ToJsonString());
+                db.ExecSqlString("create table  `__wayeasyjob` (contentConfig varchar(1000)  not null)");
+                db.ExecSqlString("insert into __wayeasyjob (contentConfig) values (@p0)", new DataBaseConfig().ToJsonString());
             }
             
 

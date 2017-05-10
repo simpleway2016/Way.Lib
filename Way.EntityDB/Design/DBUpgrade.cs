@@ -56,7 +56,7 @@ namespace Way.EntityDB.Design
                 IDatabaseDesignService dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(dbType);
                 dbservice.CreateEasyJobTable(db);
 
-                var dbconfig = db.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
+                var dbconfig = db.ExecSqlString("select contentConfig from __wayeasyjob").ToString().ToJsonObject<DataBaseConfig>();
                 if (string.IsNullOrEmpty(dbconfig.DatabaseGuid) == false && dbconfig.DatabaseGuid != dset.DataSetName)
                     throw new Exception("此结构脚本并不是对应此数据库");
 
@@ -100,11 +100,11 @@ namespace Way.EntityDB.Design
         {
             if (string.IsNullOrEmpty(databaseGuid))
                 throw new Exception("Database Guid can not be empty");
-            var dbconfig = db.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
+            var dbconfig = db.ExecSqlString("select contentConfig from __wayeasyjob").ToString().ToJsonObject<DataBaseConfig>();
             dbconfig.LastUpdatedID = Convert.ToInt32(actionid);
             dbconfig.DatabaseGuid = databaseGuid;
 
-            var data = new EntityDB.CustomDataItem("__WayEasyJob", null, null);
+            var data = new EntityDB.CustomDataItem("__wayeasyjob", null, null);
             data.SetValue("contentConfig", dbconfig.ToJsonString());
             db.Update(data);
         }
