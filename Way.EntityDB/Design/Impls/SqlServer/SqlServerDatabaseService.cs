@@ -80,7 +80,15 @@ namespace Way.EntityDB.Design.Database.SqlServer
                 EJ.DBColumn column = new EJ.DBColumn();
                 column.Name = row["name"].ToSafeString();
                 column.dbType = db.ExecSqlString($"select name  from SYSTYPES where xtype={row["xtype"]}").ToSafeString();
-                int typeindex = EntityDB.Design.ColumnType.SupportTypes.IndexOf(column.dbType);
+                int typeindex = -1;
+                for (int i = 0; i < Way.EntityDB.Design.ColumnType.SupportTypes.Count; i++)
+                {
+                    if (string.Equals(Way.EntityDB.Design.ColumnType.SupportTypes[i], column.dbType, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        typeindex = i;
+                        break;
+                    }
+                }
                 if (typeindex >= 0)
                 {
                     column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];

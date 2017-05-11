@@ -59,18 +59,16 @@ namespace EJClient.Forms
 
         private async void btnOK_Click(object sender, RoutedEventArgs e)
         {
+            btnOK.Focus();
             this.Cursor = Cursors.Wait;
-            _currentData.Name = _currentData.Name.ToLower();//统一用小写
             List<string> tableNames = null;
-            try
-            {
-                await Task.Run(() =>
+            Helper.Client.Invoke<List<string>>("GetDatabaseCurrentTableNames", (ts, error) => {
+                if(error != null)
                 {
-                    var dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)_currentData.dbType);
-                    var db = Way.EntityDB.DBContext.CreateDatabaseService(_currentData.conStr, (Way.EntityDB.DatabaseType)(int)_currentData.dbType);
-                    tableNames = dbservice.GetCurrentTableNames(db);
-
-                });
+                    Helper.ShowError(this, error);
+                    return;
+                }
+                tableNames = ts;
                 this.Cursor = null;
                 ImportSchema frm = new Forms.ImportSchema(tableNames, _target.id.Value, _currentData);
                 frm.Owner = this;
@@ -78,12 +76,8 @@ namespace EJClient.Forms
                 {
                     this.DialogResult = true;
                 }
-            }
-            catch (Exception ex)
-            {
-                this.Cursor = null;
-                Helper.ShowError(this, ex);
-            }
+
+            }, _currentData);
         }
 
         private void cmbDBType_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -97,5 +91,13 @@ namespace EJClient.Forms
             else if (_currentData.dbType == EJ.Databases_dbTypeEnum.PostgreSql)
                 txt_conStr.Text = "Server=;Port=5432;UserId=;Password=;Database=;";
         }
+
+    }
+
+    public class TableInfo
+    {
+        public string TableName;
+        public EJ.DBColumn[] Columns;
+        public Way.EntityDB.Design.IndexInfo[] Indexes;
     }
 }

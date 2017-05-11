@@ -250,7 +250,14 @@ namespace EJClient
             DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
             Forms.DatabaseSchema frm = new Forms.DatabaseSchema(selectedItem.Database);
             frm.Owner = this;
-            frm.ShowDialog();
+           if( frm.ShowDialog() == true)
+            {
+               var node =  selectedItem.Children.FirstOrDefault(m => m is 数据表Node) as 数据表Node;
+                selectedItem.IsExpanded = true;
+                node.IsExpanded = true;
+                node.ReBindItems();
+                Helper.ShowMessage(this, "成功生成数据表");
+            }
         }
         private void MenuItem_导出数据_Click_1(object sender, RoutedEventArgs e)
         {

@@ -119,14 +119,40 @@ and pg_constraint.contype='p'");
                 EJ.DBColumn column = new EJ.DBColumn();
                 column.Name = row["column_name"].ToSafeString();
                 column.dbType = row["data_type"].ToSafeString();
-                int typeindex = Database.PostgreSQL.PostgreSQLTableService.ColumnType.IndexOf(column.dbType);
+
+                int typeindex = -1;
+                for (int i = 0; i < Database.PostgreSQL.PostgreSQLTableService.ColumnType.Count; i++)
+                {
+                   if(string.Equals(Database.PostgreSQL.PostgreSQLTableService.ColumnType[i] , column.dbType , StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        typeindex = i;
+                        break;
+                    }
+                }
+
                 if(typeindex >= 0)
                 {
                     column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
                 }
                 else
                 {
-                    column.dbType = "[未识别]" + column.dbType;
+                    for (int i = 0; i < Way.EntityDB.Design.ColumnType.SupportTypes.Count; i++)
+                    {
+                        if (string.Equals(Way.EntityDB.Design.ColumnType.SupportTypes[i], column.dbType, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            typeindex = i;
+                            break;
+                        }
+                    }
+
+                    if (typeindex >= 0)
+                    {
+                        column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                    }
+                    else
+                    {
+                        column.dbType = "[未识别]" + column.dbType;
+                    }
                 }
                 column.defaultValue = row["column_default"].ToSafeString();
                 if (column.defaultValue.StartsWith("nextval"))

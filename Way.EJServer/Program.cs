@@ -49,7 +49,7 @@ namespace Way.EJServer
 
                 //Test(new EJ.Databases()
                 //{
-                //    conStr = "data source=d:\\testingdb.db",
+                //    conStr = "data source=d:\\test.db",
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.Sqlite,
                 //});

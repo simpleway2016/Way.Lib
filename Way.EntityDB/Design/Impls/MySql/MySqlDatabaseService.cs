@@ -66,14 +66,38 @@ namespace Way.EntityDB.Design.Database.MySql
                 column.Name = row["COLUMN_NAME"].ToSafeString();
                 column.CanNull = row["IS_NULLABLE"].ToSafeString() == "YES";
                 column.dbType = row["DATA_TYPE"].ToSafeString().ToLower();
-                int typeindex = Database.MySql.MySqlTableService.ColumnType.IndexOf(column.dbType);
+                int typeindex = -1;
+                for (int i = 0; i < Database.MySql.MySqlTableService.ColumnType.Count; i++)
+                {
+                    if (string.Equals(Database.MySql.MySqlTableService.ColumnType[i], column.dbType, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        typeindex = i;
+                        break;
+                    }
+                }
                 if (typeindex >= 0)
                 {
                     column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
                 }
                 else
                 {
-                    column.dbType = "[未识别]" + column.dbType;
+                    for (int i = 0; i < Way.EntityDB.Design.ColumnType.SupportTypes.Count; i++)
+                    {
+                        if (string.Equals(Way.EntityDB.Design.ColumnType.SupportTypes[i], column.dbType, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            typeindex = i;
+                            break;
+                        }
+                    }
+
+                    if (typeindex >= 0)
+                    {
+                        column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                    }
+                    else
+                    {
+                        column.dbType = "[未识别]" + column.dbType;
+                    }
                 }
                 column.defaultValue = row["COLUMN_DEFAULT"].ToSafeString();
                 column.IsAutoIncrement = row["EXTRA"].ToSafeString().Contains("auto_increment");

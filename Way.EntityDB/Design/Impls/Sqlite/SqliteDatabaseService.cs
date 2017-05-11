@@ -159,14 +159,38 @@ namespace Way.EntityDB.Design.Database.Sqlite
                         sql = sql.Substring(match.Index + match.Length);
                         match = Regex.Match(sql, @"(\w)+", RegexOptions.IgnoreCase);
                         column.dbType = match.Value;
-                        int typeindex = Database.Sqlite.SqliteTableService.ColumnType.IndexOf(column.dbType);
+                        int typeindex = -1;
+                        for (int i = 0; i < Database.Sqlite.SqliteTableService.ColumnType.Count; i++)
+                        {
+                            if (string.Equals(Database.Sqlite.SqliteTableService.ColumnType[i], column.dbType, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                typeindex = i;
+                                break;
+                            }
+                        }
                         if (typeindex >= 0)
                         {
                             column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
                         }
                         else
                         {
-                            column.dbType = "[未识别]" + column.dbType;
+                            for (int i = 0; i < Way.EntityDB.Design.ColumnType.SupportTypes.Count; i++)
+                            {
+                                if (string.Equals(Way.EntityDB.Design.ColumnType.SupportTypes[i], column.dbType, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    typeindex = i;
+                                    break;
+                                }
+                            }
+
+                            if (typeindex >= 0)
+                            {
+                                column.dbType = EntityDB.Design.ColumnType.SupportTypes[typeindex];
+                            }
+                            else
+                            {
+                                column.dbType = "[未识别]" + column.dbType;
+                            }
                         }
 
                         sql = sql.Substring(match.Index + match.Length);

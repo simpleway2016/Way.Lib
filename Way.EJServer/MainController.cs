@@ -955,11 +955,11 @@ namespace Way.EJServer
         {
             if (databaseGuid.IsNullOrEmpty())
                 throw new Exception("Database Guid can not be empty");
-            var dbconfig = db.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
+            var dbconfig = db.ExecSqlString("select contentConfig from __wayeasyjob").ToString().ToJsonObject<DataBaseConfig>();
             dbconfig.LastUpdatedID = Convert.ToInt32(actionid);
             dbconfig.DatabaseGuid = databaseGuid;
 
-            var data = new Way.EntityDB.CustomDataItem("__WayEasyJob", null, null);
+            var data = new Way.EntityDB.CustomDataItem("__wayeasyjob", null, null);
             data.SetValue("contentConfig", dbconfig.ToJsonString());
             db.Update(data);
         }
@@ -1109,7 +1109,117 @@ namespace Way.EJServer
                 }
             }
         }
+        [RemotingMethod]
+        public EJ.DBColumn[] GetDatabaseCurrentColumns(EJ.Databases config , string table)
+        {
+            var dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)config.dbType);
+            var db = Way.EntityDB.DBContext.CreateDatabaseService(config.conStr, (Way.EntityDB.DatabaseType)(int)config.dbType);
+            return dbservice.GetCurrentColumns(db , table).ToArray();
+        }
+        [RemotingMethod]
+        public IndexInfo[] GetDatabaseCurrentIndexes(EJ.Databases config, string table)
+        {
+            var dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)config.dbType);
+            var db = Way.EntityDB.DBContext.CreateDatabaseService(config.conStr, (Way.EntityDB.DatabaseType)(int)config.dbType);
+            return dbservice.GetCurrentIndexes(db, table).ToArray();
+        }
 
+        [RemotingMethod]
+        public string[] GetDatabaseCurrentTableNames(EJ.Databases config)
+        {
+            var dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)config.dbType);
+            var db = Way.EntityDB.DBContext.CreateDatabaseService(config.conStr, (Way.EntityDB.DatabaseType)(int)config.dbType);
+            return dbservice.GetCurrentTableNames(db).ToArray();
+        }
+
+        [RemotingMethod]
+        public int CreateTables(int databaseid,TableInfo[] tableinfos)
+        {
+            using (EJDB db = new EJDB())
+            {
+                Way.EntityDB.IDatabaseService invokingDB = null;
+                try
+                {
+                    db.BeginTransaction();
+                    //锁住，防止同时添加table
+                    EJ.Databases database = db.Databases.Where(m => m.id == databaseid).FirstOrDefault();
+                    database.iLock++;
+                    db.Update(database);
+                    string conStr = string.Format(database.conStr, $"{WebRoot}/");
+                    if (conStr.ToLower() == db.Database.ConnectionString.ToLower())
+                    {
+                        invokingDB = db.Database;
+                    }
+                    else
+                    {
+                        invokingDB = DBHelper.CreateInvokeDatabase(database);
+                        invokingDB.DBContext.BeginTransaction();
+                    }
+                    object lastActionID = null;
+                    foreach (var tableinfo in tableinfos)
+                    {
+                        var table = new EJ.DBTable() {
+                            Name = tableinfo.TableName,
+                            DatabaseID = databaseid,
+                        };
+                        if (db.DBTable.Where(m => m.DatabaseID == databaseid && m.Name == table.Name).Any())
+                            throw new Exception("数据表名称重复");
+
+                        var action = new CreateTableAction(table, tableinfo.Columns, tableinfo.Indexes);
+                        action.Invoke(invokingDB);
+
+                        db.Update(table);
+                        foreach (EJ.DBColumn column in tableinfo.Columns)
+                        {
+                            column.TableID = table.id;
+                            db.Update(column);
+                        }
+
+                        foreach (var config in tableinfo.Indexes)
+                        {
+                            EJ.IDXIndex idxIndex = new EJ.IDXIndex();
+                            idxIndex.TableID = table.id;
+                            idxIndex.IsUnique = config.IsUnique;
+                            idxIndex.IsClustered = config.IsClustered;
+                            idxIndex.Keys = config.ColumnNames.ToSplitString();
+                            db.Update(idxIndex);
+                        }
+
+
+                        lastActionID = action.Save(db, database.id.GetValueOrDefault());
+                        
+                    }
+                    if (lastActionID != null)
+                    {
+                        SetLastUpdateID(lastActionID, database.Guid, invokingDB);
+                    }
+
+                    if (invokingDB.DBContext != db)
+                    {
+                        invokingDB.DBContext.CommitTransaction();
+                    }
+
+                    db.CommitTransaction();
+
+                   
+                }
+                catch (Exception ex)
+                {
+                    if (invokingDB != null && invokingDB.DBContext != db)
+                    {
+                        invokingDB.DBContext.RollbackTransaction();
+                    }
+                    db.RollbackTransaction();
+                    throw ex;
+                }
+                finally
+                {
+                    if (invokingDB != null)
+                        invokingDB.DBContext.Dispose();
+                }
+            }
+            return 0;
+        }
 
 
         [RemotingMethod]
@@ -1286,7 +1396,7 @@ namespace Way.EJServer
                             dbservice.Create(dataitem);
                             //更新到现在的数据结构
                             var invokeDB = Way.EntityDB.Design.DBHelper.CreateInvokeDatabase(dataitem);
-                            var dbconfig = invokeDB.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
+                            var dbconfig = invokeDB.ExecSqlString("select contentConfig from __wayeasyjob").ToString().ToJsonObject<DataBaseConfig>();
                             dbconfig.DatabaseGuid = dataitem.Guid;
                             invokeDB.DBContext.BeginTransaction();
                             try
@@ -1315,7 +1425,7 @@ namespace Way.EJServer
                                     }
                                 }
 
-                                var obj = new Way.EntityDB.CustomDataItem("__WayEasyJob", null, null);
+                                var obj = new Way.EntityDB.CustomDataItem("__wayeasyjob", null, null);
                                 obj.SetValue("contentConfig", dbconfig.ToJsonString());
                                 invokeDB.Update(obj);
 
@@ -1783,7 +1893,12 @@ namespace Way.EJServer
             return Convert.ToBase64String( System.IO.File.ReadAllBytes($"{WebRoot}/updates/{savepath}"));
         }
     }
-
+    public class TableInfo
+    {
+        public string TableName;
+        public EJ.DBColumn[] Columns;
+        public IndexInfo[] Indexes;
+    }
     public class FileInfo
     {
         public string SavePath;

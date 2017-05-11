@@ -38,6 +38,7 @@ namespace EJClient.Forms
         int m_total = 0;
         private void btnOK_Click_1(object sender, RoutedEventArgs e)
         {
+            btnOK.Focus();
             this.IsEnabled = false;
 
             import();
@@ -55,18 +56,44 @@ namespace EJClient.Forms
             {
                 if (importTables.Length > 0)
                 {
+                    List<TableInfo> tables = new List<TableInfo>();
                     await Task.Run(() =>
                     {
-                        var dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)_source.dbType);
-                        var db = Way.EntityDB.DBContext.CreateDatabaseService(_source.conStr, (Way.EntityDB.DatabaseType)(int)_source.dbType);
                         foreach (var table in importTables)
                         {
-                            var columns = dbservice.GetCurrentColumns(db, table);
-                            var indexes = dbservice.GetCurrentIndexes(db, table);
+                            var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetDatabaseCurrentColumns", _source, table);
+                           
+                            var indexes = Helper.Client.InvokeSync<Way.EntityDB.Design.IndexInfo[]>("GetDatabaseCurrentIndexes", _source, table);
 
-                            //Helper.Client.InvokeSync<int>
+                            tables.Add(new TableInfo()
+                            {
+                                TableName = table,
+                                Columns = columns.ToArray(),
+                                Indexes = indexes.ToArray(),
+                            });
                         }
 
+                       
+
+                    });
+
+                    foreach( var tableinfo in tables )
+                    {
+                        var notSureColumn = tableinfo.Columns.Where(n => n.dbType.StartsWith("[未识别]")).ToArray();
+                        if (notSureColumn.Count() > 0)
+                        {
+                            //含有不能确定的字段
+                          if(  new ConfirmColumnsType(tableinfo).ShowDialog() == false)
+                            {
+                                this.Cursor = null;
+                                this.IsEnabled = true;
+                                return;
+                            }
+                        }
+                    }
+
+                    await Task.Run(()=> {
+                        Helper.Client.InvokeSync<int>("CreateTables", _targetDatabaseID, tables);
                     });
                 }
                 this.Cursor = null;

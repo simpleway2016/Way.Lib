@@ -267,6 +267,9 @@
     <Compile Include="Designer\EnumEditorForm.designer.cs">
       <DependentUpon>EnumEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ConfirmColumnsType.xaml.cs">
+      <DependentUpon>ConfirmColumnsType.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\DatabaseSchema.xaml.cs">
       <DependentUpon>DatabaseSchema.xaml</DependentUpon>
     </Compile>
@@ -435,6 +438,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\WayWord.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\ConfirmColumnsType.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
