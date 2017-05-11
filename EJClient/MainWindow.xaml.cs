@@ -245,6 +245,13 @@ namespace EJClient
                 MessageBox.Show(this, ex.Message);
             }
         }
+        void MenuItem_从其他数据库导入表结构_Click_1(object sender, RoutedEventArgs e)
+        {
+            DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
+            Forms.DatabaseSchema frm = new Forms.DatabaseSchema(selectedItem.Database);
+            frm.Owner = this;
+            frm.ShowDialog();
+        }
         private void MenuItem_导出数据_Click_1(object sender, RoutedEventArgs e)
         {
             DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;

@@ -267,8 +267,14 @@
     <Compile Include="Designer\EnumEditorForm.designer.cs">
       <DependentUpon>EnumEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\DatabaseSchema.xaml.cs">
+      <DependentUpon>DatabaseSchema.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\DatabaseEditor.xaml.cs">
       <DependentUpon>DatabaseEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ImportSchema.xaml.cs">
+      <DependentUpon>ImportSchema.xaml</DependentUpon>
     </Compile>
     <Compile Include="Forms\UserManager.xaml.cs">
       <DependentUpon>UserManager.xaml</DependentUpon>
@@ -432,9 +438,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Forms\DatabaseSchema.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Forms\DatabaseEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\ImportSchema.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Forms\UserManager.xaml">
       <SubType>Designer</SubType>

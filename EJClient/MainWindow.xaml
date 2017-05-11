@@ -16,6 +16,8 @@
             <MenuItem Header="导出数据..." Click="MenuItem_导出数据_Click_1"></MenuItem>
             <MenuItem Header="导入数据..." Click="MenuItem_导入数据_Click_1"></MenuItem>
             <Separator></Separator>
+            <MenuItem Header="从其他数据库导入表结构..." Click="MenuItem_从其他数据库导入表结构_Click_1"></MenuItem>
+            <Separator></Separator>
             <MenuItem Header="移除" Click="MenuItem_移除数据库_Click_1"></MenuItem>
             <Separator></Separator>
             <MenuItem Header="属性..." Click="MenuItem_数据库属性_Click_1"></MenuItem>
