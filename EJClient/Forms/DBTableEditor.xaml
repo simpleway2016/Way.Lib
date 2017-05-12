@@ -33,9 +33,9 @@
                                     <TextBlock x:Name="main_text" Margin="20,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Stretch" TextAlignment="Right" Text="{Binding showCaption}"></TextBlock>
                                     <TextBlock x:Name="main_text2" Margin="20,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Stretch"  TextAlignment="Left" Text="{Binding Name}"></TextBlock>
                                     
-                                    <Grid.ToolTip>
+                                    <!--<Grid.ToolTip>
                                         <TextBlock VerticalAlignment="Center" Text="{Binding caption}" TextWrapping="Wrap" MaxWidth="200" ></TextBlock>
-                                    </Grid.ToolTip>
+                                    </Grid.ToolTip>-->
                                 </Grid>
                                 <HierarchicalDataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
