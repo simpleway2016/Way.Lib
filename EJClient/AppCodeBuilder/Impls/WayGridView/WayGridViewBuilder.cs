@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using Way.Lib;
 namespace EJClient.AppCodeBuilder
 {
     class WayGridViewBuilder : IAppCodeBuilder

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.web = new AppLib.WindowsControl.ExtendedWebBrowser();
+            this.web = new UI.WindowsControl.ExtendedWebBrowser();
             this.SuspendLayout();
             // 
             // web
@@ -54,7 +54,7 @@
 
         #endregion
 
-        public AppLib.WindowsControl.ExtendedWebBrowser web;
+        public UI.WindowsControl.ExtendedWebBrowser web;
 
     }
 }

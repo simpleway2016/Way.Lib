@@ -1901,16 +1901,20 @@ class WayProgressBar {
                 
                 var offset = centerElement.offset();
                 var x, y;
-                if (this.lastMouseDownTime && false) {
-                    if (new Date().getTime() - this.lastMouseDownTime < 1000) {
-                        x = this.lastMouseDownLocation.x - 50;
-                        y = this.lastMouseDownLocation.y + 30;
-                    }
-                }
-                else {
-                    x = offset.left + (centerElement.width() - loadele.width()) / 2;
-                    y = offset.top + (centerElement.height() - loadele.height()) / 2;
-                }
+                //if (this.lastMouseDownTime && false) {
+                //    if (new Date().getTime() - this.lastMouseDownTime < 1000) {
+                //        x = this.lastMouseDownLocation.x - 50;
+                //        y = this.lastMouseDownLocation.y + 30;
+                //    }
+                //}
+                //else {
+                //    x = offset.left + (centerElement.width() - loadele.width()) / 2;
+                //    y = offset.top + (centerElement.height() - loadele.height()) / 2;
+                //}
+
+                x = offset.left + (centerElement.width() - loadele.width()) / 2;
+                y = offset.top + (centerElement.height() - loadele.height()) / 2;
+
                 loadele.css({
                     "left": x + "px",
                     "top": y + "px"

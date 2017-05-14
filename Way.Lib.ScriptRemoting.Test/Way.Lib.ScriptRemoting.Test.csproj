@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>Way.Lib.ScriptRemoting.Test</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>Way.Lib.ScriptRemoting.Test</PackageId>
+    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Way.EntityDB\Way.EntityDB.csproj" />
+    <ProjectReference Include="..\Way.Lib.ScriptRemoting\Way.Lib.ScriptRemoting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.FileSystem.Watcher" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>

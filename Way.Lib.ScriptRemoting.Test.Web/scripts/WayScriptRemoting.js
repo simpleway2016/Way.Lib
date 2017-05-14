@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 ;
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
@@ -81,10 +86,11 @@ var RSAInfo = (function () {
 var WayScriptRemoting = (function (_super) {
     __extends(WayScriptRemoting, _super);
     function WayScriptRemoting(remoteName) {
-        _super.call(this);
-        this.mDoConnected = false;
-        this.classFullName = remoteName;
+        var _this = _super.call(this) || this;
+        _this.mDoConnected = false;
+        _this.classFullName = remoteName;
         WayScriptRemoting.getServerAddress();
+        return _this;
     }
     Object.defineProperty(WayScriptRemoting.prototype, "groupName", {
         get: function () {
@@ -601,14 +607,14 @@ var WayScriptRemoting = (function (_super) {
             setTimeout(function () { _this.connect(); }, 1000);
         };
     };
-    WayScriptRemoting.ServerAddress = null;
-    WayScriptRemoting.ExistControllers = [];
     return WayScriptRemoting;
 }(WayBaseObject));
+WayScriptRemoting.ServerAddress = null;
+WayScriptRemoting.ExistControllers = [];
 var WayScriptRemotingChild = (function (_super) {
     __extends(WayScriptRemotingChild, _super);
     function WayScriptRemotingChild() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return WayScriptRemotingChild;
 }(WayScriptRemoting));
@@ -1262,16 +1268,17 @@ var WayObserveObject = (function () {
 var WayBindingElement = (function (_super) {
     __extends(WayBindingElement, _super);
     function WayBindingElement(_element, _model, expressionExp, dataMemberExp) {
-        _super.call(this);
-        this.configs = [];
-        this.expressionConfigs = [];
-        this.element = _element;
-        this.model = _model;
+        var _this = _super.call(this) || this;
+        _this.configs = [];
+        _this.expressionConfigs = [];
+        _this.element = _element;
+        _this.model = _model;
         var elements = WayHelper.findBindingElements(_element);
         for (var i = 0; i < elements.length; i++) {
             var ctrlEle = elements[i];
-            this.initEle(ctrlEle, expressionExp, dataMemberExp);
+            _this.initEle(ctrlEle, expressionExp, dataMemberExp);
         }
+        return _this;
     }
     WayBindingElement.prototype.initEle = function (ctrlEle, expressionExp, dataMemberExp) {
         var _this = this;
@@ -1524,9 +1531,9 @@ var WayDataBindHelper = (function () {
         }
         return model;
     };
-    WayDataBindHelper.bindings = [];
     return WayDataBindHelper;
 }());
+WayDataBindHelper.bindings = [];
 var WayControlHelper = (function () {
     function WayControlHelper() {
     }
@@ -1592,8 +1599,8 @@ var WayPager = (function () {
 }());
 var WayProgressBar = (function () {
     function WayProgressBar(_color) {
-        var _this = this;
         if (_color === void 0) { _color = "#FF2E82"; }
+        var _this = this;
         this.showRef = 0;
         this.lastMouseDownLocation = null;
         this.lastMouseDownTime = null;
@@ -1674,16 +1681,8 @@ var WayProgressBar = (function () {
                 _this.timingNumber = 0;
                 var offset = centerElement.offset();
                 var x, y;
-                if (_this.lastMouseDownTime && false) {
-                    if (new Date().getTime() - _this.lastMouseDownTime < 1000) {
-                        x = _this.lastMouseDownLocation.x - 50;
-                        y = _this.lastMouseDownLocation.y + 30;
-                    }
-                }
-                else {
-                    x = offset.left + (centerElement.width() - loadele.width()) / 2;
-                    y = offset.top + (centerElement.height() - loadele.height()) / 2;
-                }
+                x = offset.left + (centerElement.width() - loadele.width()) / 2;
+                y = offset.top + (centerElement.height() - loadele.height()) / 2;
                 loadele.css({
                     "left": x + "px",
                     "top": y + "px"
@@ -1779,8 +1778,9 @@ var WayDataSource = (function () {
 var WayArrayDataSource = (function (_super) {
     __extends(WayArrayDataSource, _super);
     function WayArrayDataSource(data) {
-        _super.call(this);
-        this._data = data;
+        var _this = _super.call(this) || this;
+        _this._data = data;
+        return _this;
     }
     WayArrayDataSource.prototype.getDatas = function (pageinfo, bindFields, searchModel, callback, async) {
         if (async === void 0) { async = true; }
@@ -1839,14 +1839,15 @@ var WayArrayDataSource = (function (_super) {
 var WayDBContext = (function (_super) {
     __extends(WayDBContext, _super);
     function WayDBContext(controller, _datasource) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         if (typeof controller == "object") {
-            this.remoting = controller;
+            _this.remoting = controller;
         }
         else {
-            this.remoting = WayScriptRemoting.createRemotingController(controller);
+            _this.remoting = WayScriptRemoting.createRemotingController(controller);
         }
-        this.datasource = _datasource;
+        _this.datasource = _datasource;
+        return _this;
     }
     WayDBContext.prototype.getDatas = function (pageinfo, bindFields, searchModel, callback, async) {
         if (async === void 0) { async = true; }
@@ -1911,104 +1912,105 @@ var WayDBContext = (function (_super) {
 var WayControlBase = (function (_super) {
     __extends(WayControlBase, _super);
     function WayControlBase() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return WayControlBase;
 }(WayBaseObject));
 var WayGridView = (function (_super) {
     __extends(WayGridView, _super);
     function WayGridView(elementId, configElement) {
-        _super.call(this);
-        this.memberInChange = [];
-        this.itemTemplates = [];
-        this.items = [];
-        this.originalItems = [];
-        this.pageinfo = new WayPageInfo();
-        this.fieldExp = /\{\@(\w|\.|\:)+\}/g;
-        this.loading = new WayProgressBar("#cccccc");
-        this.transcationID = 1;
-        this.dataMembers = [];
-        this.supportDropdownRefresh = false;
-        this.itemStatusModel = { Selected: false };
-        this.pageMode = false;
-        this.preloadedMaxPageIndex = 0;
-        this.preLoadNumForPageMode = 1;
-        this.searchModel = {};
-        this.allowEdit = false;
-        this.initedPageMode = false;
+        var _this = _super.call(this) || this;
+        _this.memberInChange = [];
+        _this.itemTemplates = [];
+        _this.items = [];
+        _this.originalItems = [];
+        _this.pageinfo = new WayPageInfo();
+        _this.fieldExp = /\{\@(\w|\.|\:)+\}/g;
+        _this.loading = new WayProgressBar("#cccccc");
+        _this.transcationID = 1;
+        _this.dataMembers = [];
+        _this.supportDropdownRefresh = false;
+        _this.itemStatusModel = { Selected: false };
+        _this.pageMode = false;
+        _this.preloadedMaxPageIndex = 0;
+        _this.preLoadNumForPageMode = 1;
+        _this.searchModel = {};
+        _this.allowEdit = false;
+        _this.initedPageMode = false;
         try {
             if (typeof elementId == "string")
-                this.element = $("#" + elementId);
+                _this.element = $("#" + elementId);
             else if (elementId.tagName)
-                this.element = $(elementId);
+                _this.element = $(elementId);
             else
-                this.element = elementId;
+                _this.element = elementId;
             var configElementObj;
             if (configElement)
                 configElementObj = $(configElement);
             else
-                configElementObj = this.element;
-            if (!this.element[0].WayControl) {
-                this.element[0].WayControl = this;
+                configElementObj = _this.element;
+            if (!_this.element[0].WayControl) {
+                _this.element[0].WayControl = _this;
             }
-            var searchid = this.element.attr("searchid");
+            var searchid = _this.element.attr("searchid");
             if (searchid && searchid.length > 0) {
                 try {
-                    this.searchModel = WayDataBindHelper.dataBind(searchid, {});
+                    _this.searchModel = WayDataBindHelper.dataBind(searchid, {});
                 }
                 catch (e) {
                 }
             }
-            this.allowEdit = this.element.attr("allowedit") == "true";
-            this.element.css({
+            _this.allowEdit = _this.element.attr("allowedit") == "true";
+            _this.element.css({
                 "overflow-y": "auto",
                 "-webkit-overflow-scrolling": "touch"
             });
-            var isTouch = "ontouchstart" in this.element[0];
+            var isTouch = "ontouchstart" in _this.element[0];
             if (!isTouch)
-                this.supportDropdownRefresh = false;
-            this.datasource = this.element.attr("datasource");
-            this.pagesize = parseInt(this.element.attr("pagesize"));
-            if (isNaN(this.pagesize)) {
-                this.pagesize = 10;
+                _this.supportDropdownRefresh = false;
+            _this.datasource = _this.element.attr("datasource");
+            _this.pagesize = parseInt(_this.element.attr("pagesize"));
+            if (isNaN(_this.pagesize)) {
+                _this.pagesize = 10;
             }
-            this.pager = new WayPager(this.element, this);
+            _this.pager = new WayPager(_this.element, _this);
             var bodyTemplate = configElementObj.find("script[for='body']");
             var templates = configElementObj.find("script");
-            this.itemContainer = this.element;
+            _this.itemContainer = _this.element;
             if (bodyTemplate.length > 0) {
-                this.bodyTemplateHtml = bodyTemplate[0].innerHTML;
-                this.itemContainer = $(this.bodyTemplateHtml);
-                this.element[0].appendChild(this.itemContainer[0]);
-                this.initRefreshEvent(this.itemContainer);
+                _this.bodyTemplateHtml = bodyTemplate[0].innerHTML;
+                _this.itemContainer = $(_this.bodyTemplateHtml);
+                _this.element[0].appendChild(_this.itemContainer[0]);
+                _this.initRefreshEvent(_this.itemContainer);
             }
             else {
-                this.supportDropdownRefresh = false;
+                _this.supportDropdownRefresh = false;
             }
-            if (this.itemContainer[0].children.length > 0 && this.itemContainer[0].children[0].tagName == "TBODY") {
-                this.itemContainer = $(this.itemContainer[0].children[0]);
+            if (_this.itemContainer[0].children.length > 0 && _this.itemContainer[0].children[0].tagName == "TBODY") {
+                _this.itemContainer = $(_this.itemContainer[0].children[0]);
             }
             for (var i = 0; i < templates.length; i++) {
                 var templateItem = templates[i];
                 templateItem.parentElement.removeChild(templateItem);
                 var _forWhat = templateItem.getAttribute("for");
                 if (_forWhat == "header") {
-                    this.header = new WayTemplate(this.getTemplateOuterHtml(templateItem));
+                    _this.header = new WayTemplate(_this.getTemplateOuterHtml(templateItem));
                 }
                 else if (_forWhat == "footer") {
-                    this.footer = new WayTemplate(this.getTemplateOuterHtml(templateItem));
+                    _this.footer = new WayTemplate(_this.getTemplateOuterHtml(templateItem));
                 }
                 else if (_forWhat == "item") {
                     var mode = templateItem.getAttribute("mode");
                     var match = templateItem.getAttribute("match");
-                    var temp = new WayTemplate(this.getTemplateOuterHtml(templateItem), match, mode);
-                    this.addItemTemplate(temp);
+                    var temp = new WayTemplate(_this.getTemplateOuterHtml(templateItem), match, mode);
+                    _this.addItemTemplate(temp);
                 }
             }
         }
         catch (e) {
             throw "WayGridView构造函数错误，" + e.message;
         }
+        return _this;
     }
     Object.defineProperty(WayGridView.prototype, "pagesize", {
         get: function () {
@@ -2845,54 +2847,53 @@ var WayGridView = (function (_super) {
 var WayDropDownList = (function (_super) {
     __extends(WayDropDownList, _super);
     function WayDropDownList(elementid, configElement) {
-        var _this = this;
-        _super.call(this);
-        this.memberInChange = ["text", "value"];
-        this.isMobile = false;
-        this.isBindedGrid = false;
-        this.onchange = null;
-        this.windowObj = _windowObj;
+        var _this = _super.call(this) || this;
+        _this.memberInChange = ["text", "value"];
+        _this.isMobile = false;
+        _this.isBindedGrid = false;
+        _this.onchange = null;
+        _this.windowObj = _windowObj;
         if (typeof elementid == "string")
-            this.element = $("#" + elementid);
+            _this.element = $("#" + elementid);
         else if (elementid.tagName)
-            this.element = $(elementid);
+            _this.element = $(elementid);
         else
-            this.element = elementid;
-        if (!this.element[0].WayControl) {
-            this.element[0].WayControl = this;
+            _this.element = elementid;
+        if (!_this.element[0].WayControl) {
+            _this.element[0].WayControl = _this;
         }
-        this.isMobile = "ontouchstart" in this.element[0];
-        this.selectonly = this.element.attr("selectonly") === "true";
-        var textele = this.element.find("*[istext]");
+        _this.isMobile = "ontouchstart" in _this.element[0];
+        _this.selectonly = _this.element.attr("selectonly") === "true";
+        var textele = _this.element.find("*[istext]");
         if (textele.length > 0) {
-            this.textElement = $(textele[0]);
+            _this.textElement = $(textele[0]);
         }
-        if (this.selectonly && this.textElement && this.textElement[0].tagName == "INPUT") {
-            this.textElement.attr("readonly", "readonly");
+        if (_this.selectonly && _this.textElement && _this.textElement[0].tagName == "INPUT") {
+            _this.textElement.attr("readonly", "readonly");
         }
-        var actionEle = this.element.find("*[isaction]");
+        var actionEle = _this.element.find("*[isaction]");
         if (actionEle.length > 0) {
-            this.actionElement = $(actionEle[0]);
+            _this.actionElement = $(actionEle[0]);
         }
-        this.itemContainer = $(this.element.find("script[for='itemContainer']")[0].innerHTML);
-        var itemtemplate = this.element.find("script[for='item']")[0];
-        this.valueMember = this.element[0].getAttribute("valueMember");
-        this.textMember = this.element[0].getAttribute("textMember");
-        var datasource = this.element.attr("datasource");
+        _this.itemContainer = $(_this.element.find("script[for='itemContainer']")[0].innerHTML);
+        var itemtemplate = _this.element.find("script[for='item']")[0];
+        _this.valueMember = _this.element[0].getAttribute("valueMember");
+        _this.textMember = _this.element[0].getAttribute("textMember");
+        var datasource = _this.element.attr("datasource");
         if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
             eval("datasource=" + datasource);
         }
-        if (!this.valueMember || this.valueMember.length == 0) {
+        if (!_this.valueMember || _this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("value" in datasource[0])
-                    this.valueMember = "value";
+                    _this.valueMember = "value";
                 else {
-                    this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
-                    if (!this.valueMember)
-                        this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
-                    if (this.valueMember) {
+                    _this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
+                    if (!_this.valueMember)
+                        _this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (_this.valueMember) {
                         for (var i = 0; i < datasource.length; i++) {
-                            eval("datasource[i].value=datasource[i]." + this.valueMember);
+                            eval("datasource[i].value=datasource[i]." + _this.valueMember);
                         }
                     }
                 }
@@ -2900,18 +2901,18 @@ var WayDropDownList = (function (_super) {
         }
         else if (datasource && datasource instanceof Array && datasource.length > 0 && !("value" in datasource[0])) {
             for (var i = 0; i < datasource.length; i++) {
-                eval("datasource[i].value=datasource[i]." + this.valueMember);
+                eval("datasource[i].value=datasource[i]." + _this.valueMember);
             }
         }
-        if (!this.textMember || this.textMember.length == 0) {
+        if (!_this.textMember || _this.textMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("text" in datasource[0])
-                    this.textMember = "text";
+                    _this.textMember = "text";
                 else {
-                    this.textMember = WayHelper.getPropertyName(datasource[0], 0);
-                    if (this.textMember) {
+                    _this.textMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (_this.textMember) {
                         for (var i = 0; i < datasource.length; i++) {
-                            eval("datasource[i].text=datasource[i]." + this.textMember);
+                            eval("datasource[i].text=datasource[i]." + _this.textMember);
                         }
                     }
                 }
@@ -2919,34 +2920,34 @@ var WayDropDownList = (function (_super) {
         }
         else if (datasource && datasource instanceof Array && datasource.length > 0 && !("text" in datasource[0])) {
             for (var i = 0; i < datasource.length; i++) {
-                eval("datasource[i].text=datasource[i]." + this.textMember);
+                eval("datasource[i].text=datasource[i]." + _this.textMember);
             }
         }
-        if (this.actionElement) {
-            this.init();
-            this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
-            this.grid = new WayGridView(this.itemContainer[0], null);
-            this.grid.pagesize = 20;
-            this.grid.datasource = datasource;
-            this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
-            if (!this.valueMember || this.valueMember == "") {
+        if (_this.actionElement) {
+            _this.init();
+            _this.itemContainer[0].appendChild(_this.element.find("script[for='item']")[0]);
+            _this.grid = new WayGridView(_this.itemContainer[0], null);
+            _this.grid.pagesize = 20;
+            _this.grid.datasource = datasource;
+            _this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
+            if (!_this.valueMember || _this.valueMember == "") {
             }
             else {
-                this.grid.dataMembers.push(this.valueMember + "->value");
+                _this.grid.dataMembers.push(_this.valueMember + "->value");
             }
-            if (!this.textMember || this.textMember == "") {
+            if (!_this.textMember || _this.textMember == "") {
             }
             else {
-                this.grid.dataMembers.push(this.textMember + "->text");
-                if (this.textElement[0].tagName == "INPUT") {
-                    this.textElement.attr("databind", "value=@text");
-                    this.grid.searchModel = WayDataBindHelper.dataBind(this.textElement[0], {});
-                    this.grid.searchModel.submitObject = function () {
+                _this.grid.dataMembers.push(_this.textMember + "->text");
+                if (_this.textElement[0].tagName == "INPUT") {
+                    _this.textElement.attr("databind", "value=@text");
+                    _this.grid.searchModel = WayDataBindHelper.dataBind(_this.textElement[0], {});
+                    _this.grid.searchModel.submitObject = function () {
                         var result;
                         eval("result = {" + _this.textMember + ":" + JSON.stringify(_this.grid.searchModel.text) + "}");
                         return result;
                     };
-                    this.grid.searchModel.onchange = function () {
+                    _this.grid.searchModel.onchange = function () {
                         if (_this.itemContainer.css("visibility") == "visible") {
                             _this.grid.databind();
                             _this.isBindedGrid = true;
@@ -2958,10 +2959,11 @@ var WayDropDownList = (function (_super) {
                 }
             }
         }
-        var valueattr = this.element.attr("value");
+        var valueattr = _this.element.attr("value");
         if (valueattr) {
-            this.value = valueattr;
+            _this.value = valueattr;
         }
+        return _this;
     }
     Object.defineProperty(WayDropDownList.prototype, "value", {
         get: function () {
@@ -3257,41 +3259,40 @@ var WayDropDownList = (function (_super) {
 var WayCheckboxList = (function (_super) {
     __extends(WayCheckboxList, _super);
     function WayCheckboxList(elementid) {
-        var _this = this;
-        _super.call(this);
-        this.memberInChange = ["value"];
-        this.isMobile = false;
-        this._value = [];
-        this.onchange = null;
-        this.windowObj = _windowObj;
+        var _this = _super.call(this) || this;
+        _this.memberInChange = ["value"];
+        _this.isMobile = false;
+        _this._value = [];
+        _this.onchange = null;
+        _this.windowObj = _windowObj;
         if (typeof elementid == "string")
-            this.element = $("#" + elementid);
+            _this.element = $("#" + elementid);
         else if (elementid.tagName)
-            this.element = $(elementid);
+            _this.element = $(elementid);
         else
-            this.element = elementid;
-        if (!this.element[0].WayControl) {
-            this.element[0].WayControl = this;
+            _this.element = elementid;
+        if (!_this.element[0].WayControl) {
+            _this.element[0].WayControl = _this;
         }
-        this.isMobile = "ontouchstart" in this.element[0];
-        var itemtemplate = this.element.find("script[for='item']")[0];
-        this.valueMember = this.element[0].getAttribute("valueMember");
-        this.textMember = this.element[0].getAttribute("textMember");
-        var datasource = this.element.attr("datasource");
+        _this.isMobile = "ontouchstart" in _this.element[0];
+        var itemtemplate = _this.element.find("script[for='item']")[0];
+        _this.valueMember = _this.element[0].getAttribute("valueMember");
+        _this.textMember = _this.element[0].getAttribute("textMember");
+        var datasource = _this.element.attr("datasource");
         if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
             eval("datasource=" + datasource);
         }
-        if (!this.valueMember || this.valueMember.length == 0) {
+        if (!_this.valueMember || _this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("value" in datasource[0])
-                    this.valueMember = "value";
+                    _this.valueMember = "value";
                 else {
-                    this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
-                    if (!this.valueMember)
-                        this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
-                    if (this.valueMember) {
+                    _this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
+                    if (!_this.valueMember)
+                        _this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (_this.valueMember) {
                         for (var i = 0; i < datasource.length; i++) {
-                            eval("datasource[i].value=datasource[i]." + this.valueMember);
+                            eval("datasource[i].value=datasource[i]." + _this.valueMember);
                         }
                     }
                 }
@@ -3299,18 +3300,18 @@ var WayCheckboxList = (function (_super) {
         }
         else if (datasource && datasource instanceof Array && datasource.length > 0 && !("value" in datasource[0])) {
             for (var i = 0; i < datasource.length; i++) {
-                eval("datasource[i].value=datasource[i]." + this.valueMember);
+                eval("datasource[i].value=datasource[i]." + _this.valueMember);
             }
         }
-        if (!this.textMember || this.textMember.length == 0) {
+        if (!_this.textMember || _this.textMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("text" in datasource[0])
-                    this.textMember = "text";
+                    _this.textMember = "text";
                 else {
-                    this.textMember = WayHelper.getPropertyName(datasource[0], 0);
-                    if (this.textMember) {
+                    _this.textMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (_this.textMember) {
                         for (var i = 0; i < datasource.length; i++) {
-                            eval("datasource[i].text=datasource[i]." + this.textMember);
+                            eval("datasource[i].text=datasource[i]." + _this.textMember);
                         }
                     }
                 }
@@ -3318,29 +3319,30 @@ var WayCheckboxList = (function (_super) {
         }
         else if (datasource && datasource instanceof Array && datasource.length > 0 && !("text" in datasource[0])) {
             for (var i = 0; i < datasource.length; i++) {
-                eval("datasource[i].text=datasource[i]." + this.textMember);
+                eval("datasource[i].text=datasource[i]." + _this.textMember);
             }
         }
         if (true) {
-            this.grid = new WayGridView(this.element[0], null);
-            this.grid.pagesize = 0;
-            this.grid.datasource = datasource;
-            this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
-            if (!this.valueMember || this.valueMember == "") {
+            _this.grid = new WayGridView(_this.element[0], null);
+            _this.grid.pagesize = 0;
+            _this.grid.datasource = datasource;
+            _this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
+            if (!_this.valueMember || _this.valueMember == "") {
             }
             else {
-                this.grid.dataMembers.push(this.valueMember + "->value");
+                _this.grid.dataMembers.push(_this.valueMember + "->value");
             }
-            if (!this.textMember || this.textMember == "") {
+            if (!_this.textMember || _this.textMember == "") {
             }
             else {
-                this.grid.dataMembers.push(this.textMember + "->text");
+                _this.grid.dataMembers.push(_this.textMember + "->text");
             }
-            this.grid.onAfterCreateItems = function () {
+            _this.grid.onAfterCreateItems = function () {
                 _this.checkGridItem();
             };
-            this.grid.databind();
+            _this.grid.databind();
         }
+        return _this;
     }
     Object.defineProperty(WayCheckboxList.prototype, "value", {
         get: function () {
@@ -3431,40 +3433,39 @@ var WayCheckboxList = (function (_super) {
 var WayRadioList = (function (_super) {
     __extends(WayRadioList, _super);
     function WayRadioList(elementid) {
-        var _this = this;
-        _super.call(this);
-        this.memberInChange = ["value"];
-        this.isMobile = false;
-        this.onchange = null;
-        this.windowObj = _windowObj;
+        var _this = _super.call(this) || this;
+        _this.memberInChange = ["value"];
+        _this.isMobile = false;
+        _this.onchange = null;
+        _this.windowObj = _windowObj;
         if (typeof elementid == "string")
-            this.element = $("#" + elementid);
+            _this.element = $("#" + elementid);
         else if (elementid.tagName)
-            this.element = $(elementid);
+            _this.element = $(elementid);
         else
-            this.element = elementid;
-        if (!this.element[0].WayControl) {
-            this.element[0].WayControl = this;
+            _this.element = elementid;
+        if (!_this.element[0].WayControl) {
+            _this.element[0].WayControl = _this;
         }
-        this.isMobile = "ontouchstart" in this.element[0];
-        var itemtemplate = this.element.find("script[for='item']")[0];
-        this.valueMember = this.element[0].getAttribute("valueMember");
-        this.textMember = this.element[0].getAttribute("textMember");
-        var datasource = this.element.attr("datasource");
+        _this.isMobile = "ontouchstart" in _this.element[0];
+        var itemtemplate = _this.element.find("script[for='item']")[0];
+        _this.valueMember = _this.element[0].getAttribute("valueMember");
+        _this.textMember = _this.element[0].getAttribute("textMember");
+        var datasource = _this.element.attr("datasource");
         if (datasource && datasource.length > 0 && datasource.substr(0, 1) == "[") {
             eval("datasource=" + datasource);
         }
-        if (!this.valueMember || this.valueMember.length == 0) {
+        if (!_this.valueMember || _this.valueMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("value" in datasource[0])
-                    this.valueMember = "value";
+                    _this.valueMember = "value";
                 else {
-                    this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
-                    if (!this.valueMember)
-                        this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
-                    if (this.valueMember) {
+                    _this.valueMember = WayHelper.getPropertyName(datasource[0], 1);
+                    if (!_this.valueMember)
+                        _this.valueMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (_this.valueMember) {
                         for (var i = 0; i < datasource.length; i++) {
-                            eval("datasource[i].value=datasource[i]." + this.valueMember);
+                            eval("datasource[i].value=datasource[i]." + _this.valueMember);
                         }
                     }
                 }
@@ -3472,18 +3473,18 @@ var WayRadioList = (function (_super) {
         }
         else if (datasource && datasource instanceof Array && datasource.length > 0 && !("value" in datasource[0])) {
             for (var i = 0; i < datasource.length; i++) {
-                eval("datasource[i].value=datasource[i]." + this.valueMember);
+                eval("datasource[i].value=datasource[i]." + _this.valueMember);
             }
         }
-        if (!this.textMember || this.textMember.length == 0) {
+        if (!_this.textMember || _this.textMember.length == 0) {
             if (datasource && datasource instanceof Array && datasource.length > 0) {
                 if ("text" in datasource[0])
-                    this.textMember = "text";
+                    _this.textMember = "text";
                 else {
-                    this.textMember = WayHelper.getPropertyName(datasource[0], 0);
-                    if (this.textMember) {
+                    _this.textMember = WayHelper.getPropertyName(datasource[0], 0);
+                    if (_this.textMember) {
                         for (var i = 0; i < datasource.length; i++) {
-                            eval("datasource[i].text=datasource[i]." + this.textMember);
+                            eval("datasource[i].text=datasource[i]." + _this.textMember);
                         }
                     }
                 }
@@ -3491,29 +3492,30 @@ var WayRadioList = (function (_super) {
         }
         else if (datasource && datasource instanceof Array && datasource.length > 0 && !("text" in datasource[0])) {
             for (var i = 0; i < datasource.length; i++) {
-                eval("datasource[i].text=datasource[i]." + this.textMember);
+                eval("datasource[i].text=datasource[i]." + _this.textMember);
             }
         }
         if (true) {
-            this.grid = new WayGridView(this.element[0], null);
-            this.grid.pagesize = 0;
-            this.grid.datasource = datasource;
-            this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
-            if (!this.valueMember || this.valueMember == "") {
+            _this.grid = new WayGridView(_this.element[0], null);
+            _this.grid.pagesize = 0;
+            _this.grid.datasource = datasource;
+            _this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
+            if (!_this.valueMember || _this.valueMember == "") {
             }
             else {
-                this.grid.dataMembers.push(this.valueMember + "->value");
+                _this.grid.dataMembers.push(_this.valueMember + "->value");
             }
-            if (!this.textMember || this.textMember == "") {
+            if (!_this.textMember || _this.textMember == "") {
             }
             else {
-                this.grid.dataMembers.push(this.textMember + "->text");
+                _this.grid.dataMembers.push(_this.textMember + "->text");
             }
-            this.grid.onAfterCreateItems = function () {
+            _this.grid.onAfterCreateItems = function () {
                 _this.checkGridItem();
             };
-            this.grid.databind();
+            _this.grid.databind();
         }
+        return _this;
     }
     Object.defineProperty(WayRadioList.prototype, "value", {
         get: function () {
@@ -3593,23 +3595,23 @@ var WayRelateListDatasource = (function () {
 var WayRelateList = (function (_super) {
     __extends(WayRelateList, _super);
     function WayRelateList(elementid, virtualEle) {
-        _super.call(this);
-        this.memberInChange = ["value"];
-        this.onchange = null;
-        this.configs = [];
-        this._value = [];
-        this.windowObj = _windowObj;
+        var _this = _super.call(this) || this;
+        _this.memberInChange = ["value"];
+        _this.onchange = null;
+        _this.configs = [];
+        _this._value = [];
+        _this.windowObj = _windowObj;
         if (typeof elementid == "string")
-            this.element = $("#" + elementid);
+            _this.element = $("#" + elementid);
         else if (elementid.tagName)
-            this.element = $(elementid);
+            _this.element = $(elementid);
         else
-            this.element = elementid;
-        if (!this.element[0].WayControl) {
-            this.element[0].WayControl = this;
+            _this.element = elementid;
+        if (!_this.element[0].WayControl) {
+            _this.element[0].WayControl = _this;
         }
-        this.isMobile = "ontouchstart" in this.element[0];
-        this.textElement = $(this.element.find("*[istext='true']")[0]);
+        _this.isMobile = "ontouchstart" in _this.element[0];
+        _this.textElement = $(_this.element.find("*[istext='true']")[0]);
         for (var i = 0; i < virtualEle.children.length; i++) {
             var configEle = virtualEle.children[i];
             if (configEle.tagName == "CONFIG") {
@@ -3619,10 +3621,11 @@ var WayRelateList = (function (_super) {
                 config.textMember = configEle.getAttribute("textMember");
                 config.valueMember = configEle.getAttribute("valueMember");
                 config.loop = configEle.getAttribute("loop") == "true";
-                this.configs.push(config);
+                _this.configs.push(config);
             }
         }
-        this.init();
+        _this.init();
+        return _this;
     }
     Object.defineProperty(WayRelateList.prototype, "text", {
         get: function () {
@@ -3973,42 +3976,42 @@ var WayRelateList = (function (_super) {
 var WayButton = (function (_super) {
     __extends(WayButton, _super);
     function WayButton(elementid) {
-        var _this = this;
-        _super.call(this);
-        this.memberInChange = ["text"];
-        this.internalModel = { text: null };
-        this.onchange = null;
+        var _this = _super.call(this) || this;
+        _this.memberInChange = ["text"];
+        _this.internalModel = { text: null };
+        _this.onchange = null;
         if (typeof elementid == "string")
-            this.element = $("#" + elementid);
+            _this.element = $("#" + elementid);
         else if (elementid.tagName)
-            this.element = $(elementid);
+            _this.element = $(elementid);
         else
-            this.element = elementid;
-        var _databind_internal = this.element.attr("_databind_internal");
-        var databind = this.element.attr("databind");
-        var _expression_internal = this.element.attr("_expression_internal");
-        var expression = this.element.attr("expression");
-        this.element.attr("databind", _databind_internal);
-        this.element.attr("expression", _expression_internal);
-        this.internalModel = WayDataBindHelper.dataBind(this.element[0], { text: this.element.attr("text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g, true);
-        this.element.attr("databind", databind);
-        this.element.attr("expression", expression);
-        if (!this.element[0].WayControl) {
-            this.element[0].WayControl = this;
+            _this.element = elementid;
+        var _databind_internal = _this.element.attr("_databind_internal");
+        var databind = _this.element.attr("databind");
+        var _expression_internal = _this.element.attr("_expression_internal");
+        var expression = _this.element.attr("expression");
+        _this.element.attr("databind", _databind_internal);
+        _this.element.attr("expression", _expression_internal);
+        _this.internalModel = WayDataBindHelper.dataBind(_this.element[0], { text: _this.element.attr("text") }, null, /(\w|\.)+( )?\=( )?\@(\w|\.)+/g, /\@(\w|\.)+/g, true);
+        _this.element.attr("databind", databind);
+        _this.element.attr("expression", expression);
+        if (!_this.element[0].WayControl) {
+            _this.element[0].WayControl = _this;
         }
-        this.onclickString = this.element.attr("onclick");
-        this.element.attr("onclick", null);
-        if (this.onclickString && this.onclickString.length > 0) {
-            var matches = this.onclickString.match(/[\W]?(this\.)/g);
+        _this.onclickString = _this.element.attr("onclick");
+        _this.element.attr("onclick", null);
+        if (_this.onclickString && _this.onclickString.length > 0) {
+            var matches = _this.onclickString.match(/[\W]?(this\.)/g);
             for (var i = 0; i < matches.length; i++) {
                 var r = matches[i].replace("this.", "___element.");
-                this.onclickString = this.onclickString.replace(matches[i], r);
+                _this.onclickString = _this.onclickString.replace(matches[i], r);
             }
-            this.element.click(function () {
+            _this.element.click(function () {
                 var ___element = _this;
                 eval(_this.onclickString);
             });
         }
+        return _this;
     }
     Object.defineProperty(WayButton.prototype, "text", {
         get: function () {

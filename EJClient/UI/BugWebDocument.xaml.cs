@@ -35,10 +35,10 @@ namespace EJClient.UI
 
     public class BugListControl : System.Windows.Forms.Control
     {
-        AppLib.WindowsControl.ExtendedWebBrowser web;
+        WindowsControl.ExtendedWebBrowser web;
         public BugListControl()
         {
-            web = new AppLib.WindowsControl.ExtendedWebBrowser();
+            web = new WindowsControl.ExtendedWebBrowser();
             web.Dock = DockStyle.Fill;
             this.Controls.Add(web);
             //string url = Helper.WebSite + "/WebForm/bug/mybuglist.aspx";
@@ -68,8 +68,8 @@ namespace EJClient.UI
         void 发起者_查看_Click(object sender, HtmlElementEventArgs e)
         {
             HtmlElement btn = sender as HtmlElement;
-            int id = btn.GetAttribute("_id").ToInt();
-            MyRole role = (MyRole)btn.GetAttribute("_MyRole").ToInt();
+            int id = Convert.ToInt32(btn.GetAttribute("_id"));
+            MyRole role = (MyRole)Convert.ToInt32(btn.GetAttribute("_MyRole"));
             BugView frm = new BugView(id, role);
             frm.WindowState = WindowState.Maximized;
             if (frm.ShowDialog() == true)

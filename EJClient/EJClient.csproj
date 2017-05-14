@@ -66,10 +66,6 @@
       <HintPath>..\packages\Microsoft.DotNet.PlatformAbstractions.1.1.1\lib\net451\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.1.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.1.1.0\lib\netstandard1.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
       <Private>True</Private>
@@ -233,8 +229,8 @@
       <HintPath>..\Way.EntityDB\bin\Debug\net46\Way.EntityDB.dll</HintPath>
     </Reference>
     <Reference Include="Way.Lib, Version=1.0.0.6, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Way.Lib.1.0.0.6\lib\net46\Way.Lib.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Way.Lib\bin\Debug\net46\Way.Lib.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -427,6 +423,7 @@
     <Compile Include="UI\Table.xaml.cs">
       <DependentUpon>Table.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\WebBrowser.cs" />
     <Compile Include="WebForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -592,7 +589,9 @@
     <EmbeddedResource Include="WebForm.resx">
       <DependentUpon>WebForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -639,10 +638,6 @@
     <Resource Include="imgs\dbmodule.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppLib\AppLib.csproj">
-      <Project>{14dc2fe1-93ef-409c-95f0-81fc2d738fe9}</Project>
-      <Name>AppLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Copy\Copy.csproj">
       <Project>{90f86d77-0178-46b5-bf34-9f80d14cc343}</Project>
       <Name>Copy</Name>

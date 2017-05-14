@@ -15,7 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-
+using Way.Lib;
 namespace EJClient.Forms
 {
     /// <summary>
@@ -122,89 +122,89 @@ namespace EJClient.Forms
         }
         void run()
         {
-            try
-            {
-                using (var dset = new System.Data.DataSet())
-                {
-                    dset.ReadXml(m_filePath);
+            //try
+            //{
+            //    using (var dset = new System.Data.DataSet())
+            //    {
+            //        dset.ReadXml(m_filePath);
 
-                    System.Data.DataTable dtable = dset.Tables[0];
-                    System.Web.Script.Serialization.JavaScriptSerializer jsonObj = new System.Web.Script.Serialization.JavaScriptSerializer();
-                    var db = Way.EntityDB.DBContext.CreateDatabaseService(m_conStr, (Way.EntityDB.DatabaseType)Enum.Parse(typeof(Way.EntityDB.DatabaseType), m_currentDBType));
+            //        System.Data.DataTable dtable = dset.Tables[0];
+            //        System.Web.Script.Serialization.JavaScriptSerializer jsonObj = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //        var db = Way.EntityDB.DBContext.CreateDatabaseService(m_conStr, (Way.EntityDB.DatabaseType)Enum.Parse(typeof(Way.EntityDB.DatabaseType), m_currentDBType));
 
-                    IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService(db.DBContext.DatabaseType);
+            //        IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService(db.DBContext.DatabaseType);
                    
-                    if (dbservice == null)
-                        throw new Exception("无法初始化IDatabaseService for " + m_currentDBType);
-                    dbservice.CreateEasyJobTable(db);
+            //        if (dbservice == null)
+            //            throw new Exception("无法初始化IDatabaseService for " + m_currentDBType);
+            //        dbservice.CreateEasyJobTable(db);
 
-                    var dbconfig = db.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
-                    if (dbconfig.DatabaseGuid.IsNullOrEmpty() == false && dbconfig.DatabaseGuid != dset.DataSetName)
-                        throw new Exception("此结构脚本并不是对应此数据库");
+            //        var dbconfig = db.ExecSqlString("select contentConfig from __WayEasyJob").ToString().ToJsonObject<DataBaseConfig>();
+            //        if (dbconfig.DatabaseGuid.IsNullOrEmpty() == false && dbconfig.DatabaseGuid != dset.DataSetName)
+            //            throw new Exception("此结构脚本并不是对应此数据库");
 
 
-                    db.DBContext.BeginTransaction();
-                    try
-                    {
-                        dtable.DefaultView.RowFilter = "id>" + dbconfig.LastUpdatedID;
-                        dtable.DefaultView.Sort = "id";
-                        int count = dtable.DefaultView.Count;
-                        int done = 0;
-                        int? lastid = null;
-                        foreach (System.Data.DataRowView datarow in dtable.DefaultView)
-                        {
-                            string actionType = datarow["type"].ToString();
-                            int id = Convert.ToInt32( datarow["id"]);
+            //        db.DBContext.BeginTransaction();
+            //        try
+            //        {
+            //            dtable.DefaultView.RowFilter = "id>" + dbconfig.LastUpdatedID;
+            //            dtable.DefaultView.Sort = "id";
+            //            int count = dtable.DefaultView.Count;
+            //            int done = 0;
+            //            int? lastid = null;
+            //            foreach (System.Data.DataRowView datarow in dtable.DefaultView)
+            //            {
+            //                string actionType = datarow["type"].ToString();
+            //                int id = Convert.ToInt32( datarow["id"]);
 
-                            string json = datarow["content"].ToString();
+            //                string json = datarow["content"].ToString();
                            
 
-                            Type type = typeof(Way.EntityDB.Design.Actions.Action).Assembly.GetType(actionType);
-                            var actionItem = (Way.EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
+            //                Type type = typeof(Way.EntityDB.Design.Actions.Action).Assembly.GetType(actionType);
+            //                var actionItem = (Way.EntityDB.Design.Actions.Action)jsonObj.Deserialize(json, type);
 
-                            setOutputText(string.Format("{0}、{1}", id, actionItem));
-                            actionItem.Invoke(db);
+            //                setOutputText(string.Format("{0}、{1}", id, actionItem));
+            //                actionItem.Invoke(db);
 
-                            done++;
-                            lastid = id;
-                            this.Dispatcher.Invoke(() =>
-                            {
+            //                done++;
+            //                lastid = id;
+            //                this.Dispatcher.Invoke(() =>
+            //                {
 
-                                progressBar.Maximum = count;
-                                progressBar.Value = Math.Min(done, count);
-                            });
-                        }
-                        if (lastid != null)
-                        {
-                            Way.EntityDB.Design.DBUpgrade.SetLastUpdateID(lastid.Value,  dset.DataSetName , db);
-                        }
-                        db.DBContext.CommitTransaction();
-                    }
-                    catch (Exception ex)
-                    {
-                        db.DBContext.RollbackTransaction();
-                        throw ex;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex.InnerException != null)
-                {
-                    setOutputText("Error:" + ex.Message + "\r\n" + ex.InnerException.Message);
-                }
-                else
-                {
-                    setOutputText("Error:" + ex.Message);
-                }
-            }
-            finally
-            {
-                this.Dispatcher.Invoke(new Action(() =>
-                {
-                    finish();
-                }));
-            }
+            //                    progressBar.Maximum = count;
+            //                    progressBar.Value = Math.Min(done, count);
+            //                });
+            //            }
+            //            if (lastid != null)
+            //            {
+            //                Way.EntityDB.Design.DBUpgrade.SetLastUpdateID(lastid.Value,  dset.DataSetName , db);
+            //            }
+            //            db.DBContext.CommitTransaction();
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            db.DBContext.RollbackTransaction();
+            //            throw ex;
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if (ex.InnerException != null)
+            //    {
+            //        setOutputText("Error:" + ex.Message + "\r\n" + ex.InnerException.Message);
+            //    }
+            //    else
+            //    {
+            //        setOutputText("Error:" + ex.Message);
+            //    }
+            //}
+            //finally
+            //{
+            //    this.Dispatcher.Invoke(new Action(() =>
+            //    {
+            //        finish();
+            //    }));
+            //}
         }
 
         private void btnOK_Click_1(object sender, RoutedEventArgs e)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -26,15 +27,6 @@ namespace Way.Lib
     /// </summary>
     public class NetStream : Stream
     {
-        class ReceiveState
-        {
-            public int Length;
-            public int Offset;
-            public byte[] Data;
-            public ReceivedHandler Callback;
-        }
-       
-
        
         private Socket m_ClientSocket;
         public Socket Socket
@@ -95,10 +87,24 @@ namespace Way.Lib
 
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SendTimeout = 10000;
-            socket.ReceiveTimeout = 10000;
+            socket.ReceiveTimeout = 0;
             System.Net.DnsEndPoint endPoint = new DnsEndPoint(Address , port);
             socket.Connect(endPoint);
             this.m_ClientSocket = socket;
+
+            try
+            {
+                //经典代码,再也不用写什么心跳包了，接收数据必须采用BeginReceive
+                byte[] inValue = new byte[] { 1, 0, 0, 0, 0x20, 0x4e, 0, 0, 0xd0, 0x07, 0, 0 }; //True, 20 秒, 2 秒
+                this.Socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
+            }
+            catch { return; }
+
+            /*原本是这样接收是可以得
+              var task = Socket.ReceiveAsync( new ArraySegment<byte>(buffer, offset, buffer.Length - offset) , SocketFlags.None );
+                    task.Wait();
+                    readed = task.Result;
+             */
         }
 
         /// <summary>
@@ -109,7 +115,7 @@ namespace Way.Lib
         {
             this.m_ClientSocket = SocketClient;
             this.Socket.SendTimeout = 10000;
-            this.Socket.ReceiveTimeout = 10000;
+            this.Socket.ReceiveTimeout = 0;
             this.Socket.ReceiveBufferSize = 1024 * 100;
 
             try
@@ -119,6 +125,12 @@ namespace Way.Lib
                 this.Socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
             }
             catch { return; }
+
+            /*原本是这样接收是可以得
+              var task = Socket.ReceiveAsync( new ArraySegment<byte>(buffer, offset, buffer.Length - offset) , SocketFlags.None );
+                    task.Wait();
+                    readed = task.Result;
+             */
 
         }
 
@@ -135,7 +147,6 @@ namespace Way.Lib
         /// </summary>
         public void Close()
         {
-          
             try
             {
                 Socket.Dispose();
@@ -169,70 +180,6 @@ namespace Way.Lib
             reader.Dispose();
         }
 
-        public delegate void ReceivedHandler(object sender ,NetStreamEventArgs e );
-        public void BeginReceiveDatas(byte[] buffer, int offset, int size , ReceivedHandler callback)
-        {
-           
-            ReceiveState state = new ReceiveState();
-            state.Data = buffer;
-            state.Offset = offset;
-            state.Length = size;
-            state.Callback = callback;
-            try
-            {
-                var task = Socket.ReceiveAsync(new ArraySegment<byte>(state.Data,state.Offset,state.Length), SocketFlags.None);
-                task.Wait();
-                receiveDataCallBack(task.Result, state);
-            }
-            catch
-            {
-                try
-                {
-                    Socket.Dispose();
-                }
-                catch
-                {
-                }
-                Socket = null;
-                NetStreamEventArgs arg = new NetStreamEventArgs();
-                arg.HasError = true;
-                state.Callback.Invoke(this, arg);
-            }
-        }
-        private void receiveDataCallBack(int length, ReceiveState state)
-        {
-            if (length == 0 )
-            {
-                try
-                {
-                    Socket.Dispose();
-                }
-                catch
-                {
-                }
-                Socket = null;
-                NetStreamEventArgs arg = new NetStreamEventArgs();
-                arg.HasError = true;
-                state.Callback.Invoke(this, arg);
-                return;
-            }
-
-           
-            state.Offset += length;
-            if (state.Offset < state.Length)
-            {
-                var task = Socket.ReceiveAsync(new ArraySegment<byte>(state.Data, state.Offset, state.Length - state.Offset), SocketFlags.None);
-                task.Wait();
-                receiveDataCallBack(task.Result, state);
-               
-            }
-            else
-            {
-                NetStreamEventArgs arg = new NetStreamEventArgs();
-                arg.Data = state.Data;
-                state.Callback.Invoke(this, arg);
-            }
-        }
 
         public byte[] ReceiveDatas(int length)
         {
@@ -241,21 +188,12 @@ namespace Way.Lib
             int readed;
             while (true)
             {
-                if (Socket.Available >= length)
+                readed = Socket.Receive(buffer, offset, buffer.Length - offset, SocketFlags.None);
+                if (readed == 0)
                 {
-                    readed = Socket.Receive(buffer, offset, buffer.Length - offset, SocketFlags.None);
+                    throw new Exception("Socket已经断开");
                 }
-                else
-                {
-                    var task = Socket.ReceiveAsync( new ArraySegment<byte>(buffer, offset, buffer.Length - offset) , SocketFlags.None );
-                    task.Wait();
-                    readed = task.Result;
 
-                    if (readed == 0)
-                    {
-                        throw new Exception("Socket已经断开");
-                    }
-                }
                 offset += readed;
                 if (offset >= buffer.Length)
                     break;
@@ -268,22 +206,11 @@ namespace Way.Lib
             int readed;
             while (true)
             {
-                if (Socket.Available >= length)
+                readed = Socket.Receive(buffer, offset, buffer.Length - offset, SocketFlags.None);
+                if (readed == 0)
                 {
-                    readed = Socket.Receive(buffer, offset, buffer.Length - offset, SocketFlags.None);
+                    throw new Exception("Socket已经断开");
                 }
-                else
-                {
-                    var task = Socket.ReceiveAsync(new ArraySegment<byte>(buffer, offset, buffer.Length - offset), SocketFlags.None);
-                    task.Wait();
-                    readed = task.Result;
-                    
-                    if (readed == 0)
-                    {
-                        throw new Exception("Socket已经断开");
-                    }
-                }
-                
 
                 offset += readed;
                 if (offset >= buffer.Length)
@@ -305,21 +232,10 @@ namespace Way.Lib
             int readed;
             while (true)
             {
-               
-                if(Socket.Available > 0)
+                readed = Socket.Receive(bs);
+                if (readed == 0)
                 {
-                    readed = Socket.Receive(bs);
-                }
-                else
-                {
-                    var task = Socket.ReceiveAsync(new ArraySegment<byte>(bs, 0, bs.Length), SocketFlags.None);
-                    task.Wait();
-                    readed = task.Result;
-
-                    if (readed == 0)
-                    {
-                        throw new Exception("Socket已经断开");
-                    }
+                    throw new Exception("Socket已经断开");
                 }
 
                 finallyReaded += readed;
@@ -354,19 +270,10 @@ namespace Way.Lib
             
             while(true)
             {
-                if (Socket.Available > 0)
+                int readed = Socket.Receive(bs);
+                if (readed == 0)
                 {
-                    Socket.Receive(bs);
-                }
-                else
-                {
-                    var task = Socket.ReceiveAsync(new ArraySegment<byte>(bs, 0, bs.Length), SocketFlags.None);
-                    task.Wait();
-                    
-                    if (task.Result == 0)
-                    {
-                        throw new Exception("Socket已经断开");
-                    }
+                    throw new Exception("Socket已经断开");
                 }
 
                 if (bs[0] == 0xa)
@@ -520,9 +427,8 @@ namespace Way.Lib
             if (count <= 0)
                 return 0;
 
-            var task = Socket.ReceiveAsync(new ArraySegment<byte>(buffer, offset, count), SocketFlags.None);
-            task.Wait();
-            var readed = task.Result;
+
+            var readed =  Socket.Receive(buffer, offset, count, SocketFlags.None);
 
             if (readed == 0)
             {

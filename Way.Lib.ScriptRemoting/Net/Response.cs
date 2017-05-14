@@ -267,7 +267,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
-            mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nConnection: Close\r\n\r\n"));
+            mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
             this.End();
         }
         internal void SendFileNotFound()
@@ -279,7 +279,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
-            mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + "\r\nConnection: Close\r\n\r\n"));
+            mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + "\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
             this.End();
         }
         internal void SendServerError()
@@ -291,7 +291,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
-            mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + "\r\nConnection: Close\r\n\r\n"));
+            mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + "\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
             this.End();
         }
         internal void CloseSocket()
@@ -314,7 +314,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
                 this.Write(bs , 0 , bs.Length);
             }
-           
+
             //wait for close
             while (true)
             {

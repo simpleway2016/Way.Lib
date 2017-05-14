@@ -285,7 +285,7 @@ namespace EJClient.Forms
                         }
                     }
 
-                    int rowcount = dt.TableName.ToInt();
+                    int rowcount = Convert.ToInt32( dt.TableName);
                     dt.AcceptChanges();
                     deletedIds.Clear();
                     dataGridView1.DataSource = dt;
