@@ -247,8 +247,21 @@ namespace Way.Lib
         /// <returns></returns>
         public string DecryptContentFromDEncrypt(string data)
         {
-            BigInteger e = new BigInteger(_parameter.Exponent);
-            BigInteger n = new BigInteger(_parameter.Modulus);
+            return DecryptContentFromDEncrypt(data , _parameter.Exponent, _parameter.Modulus);
+
+
+        }
+        /// <summary>
+        ///  解开D加密的内容
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="exponent"></param>
+        /// <param name="modulus"></param>
+        /// <returns></returns>
+        public static string DecryptContentFromDEncrypt(string data,byte[] exponent, byte[] modulus)
+        {
+            BigInteger e = new BigInteger(exponent);
+            BigInteger n = new BigInteger(modulus);
 
             StringBuilder result = new StringBuilder();
             for (int j = 0; j < data.Length; j += 256)
