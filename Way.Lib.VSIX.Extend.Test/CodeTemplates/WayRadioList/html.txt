@@ -1,0 +1,2 @@
+<WayRadioList id="{%ControlId}" {%Attributes}>
+</WayRadioList>

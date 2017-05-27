@@ -1,0 +1,1 @@
+{%Caption}:<input type="text" databind="value=@{%ColumnName}"/>

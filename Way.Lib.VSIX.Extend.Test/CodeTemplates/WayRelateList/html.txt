@@ -1,0 +1,3 @@
+   <WayRelateList id="{%ControlId}">
+       {%DataSource}
+   </WayRelateList>

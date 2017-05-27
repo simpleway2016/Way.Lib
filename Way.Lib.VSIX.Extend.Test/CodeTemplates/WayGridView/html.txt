@@ -1,0 +1,16 @@
+    <WayGridView id="{%ControlId}" datasource="{%ControlDatasource}" pagesize="{%PageSize}" searchid="{%SearchID}" allowedit="{%AllowEdit}">
+        <script for="body" type="text/html">
+            <table style="width:100%;border-collapse:collapse;"></table>
+        </script>
+        <script for="header" type="text/html">
+            <tr>
+                {%HeaderItems}
+            </tr>
+        </script>
+
+        <script for="item" type="text/html">
+            <tr>
+                {%Items}
+            </tr>
+        </script>
+    </WayGridView>

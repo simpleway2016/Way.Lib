@@ -1,0 +1,2 @@
+<WayCheckboxList id="{%ControlId}" {%Attributes}>
+</WayCheckboxList>

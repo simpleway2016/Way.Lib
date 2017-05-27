@@ -265,6 +265,18 @@
       <Name>Way.Lib.VSIX.Extend</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="CodeTemplates\WayCheckboxList\html.txt" />
+    <Content Include="CodeTemplates\WayDropDownList\html.txt" />
+    <Content Include="CodeTemplates\WayGridView\html.HeaderItem.txt" />
+    <Content Include="CodeTemplates\WayGridView\html.Item.txt" />
+    <Content Include="CodeTemplates\WayGridView\html.Search.Item.Selector.txt" />
+    <Content Include="CodeTemplates\WayGridView\html.Search.Item.Text.txt" />
+    <Content Include="CodeTemplates\WayGridView\html.Search.txt" />
+    <Content Include="CodeTemplates\WayGridView\html.txt" />
+    <Content Include="CodeTemplates\WayRadioList\html.txt" />
+    <Content Include="CodeTemplates\WayRelateList\html.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

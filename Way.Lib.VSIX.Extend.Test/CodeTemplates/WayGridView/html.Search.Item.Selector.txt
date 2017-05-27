@@ -1,0 +1,2 @@
+{%Caption}:<WayDropDownList databind="value=@{%ColumnName}" datasource="{%DataSource}" {%AttributeArea}>
+</WayDropDownList>

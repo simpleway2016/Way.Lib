@@ -1,0 +1,4 @@
+<div id="{%ElementId}">
+        {%SearchItems}
+	<input type="button" value="ËÑË÷" onclick="{%ControlId}.databind()">
+</div>
