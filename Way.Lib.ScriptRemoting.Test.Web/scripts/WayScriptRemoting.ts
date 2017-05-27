@@ -3324,6 +3324,7 @@ class WayDropDownList extends WayControlBase {
     element: JQuery;
     itemContainer: JQuery;
     selectonly: boolean;
+    datasource: any;
     private isMobile: boolean = false;
     private grid: WayGridView;
     private isBindedGrid: boolean = false;
@@ -3466,6 +3467,7 @@ class WayDropDownList extends WayControlBase {
             }
         }
 
+        this.datasource = datasource;
         if (this.actionElement) {
             this.init();
             this.itemContainer[0].appendChild(this.element.find("script[for='item']")[0]);
@@ -3509,6 +3511,14 @@ class WayDropDownList extends WayControlBase {
         if (valueattr) {
             this.value = valueattr;
         }
+    }
+
+    databind() {
+        if (this.grid) {
+            this.grid.datasource = this.datasource;
+            this.grid.databind();
+        }
+
     }
 
     addEventListener(eventName: string, func: any) {
@@ -3786,6 +3796,7 @@ class WayDropDownList extends WayControlBase {
 class WayCheckboxList extends WayControlBase {
     memberInChange: any[] = ["value"];
     element: JQuery;
+    datasource: any;
     private isMobile: boolean = false;
     private grid: WayGridView;
     private windowObj: JQuery;
@@ -3877,6 +3888,7 @@ class WayCheckboxList extends WayControlBase {
             }
         }
 
+        this.datasource = datasource;
         if (true) {
             this.grid = new WayGridView(<any>this.element[0],null);
             this.grid.pagesize = 0;
@@ -3899,6 +3911,14 @@ class WayCheckboxList extends WayControlBase {
             }
             this.grid.databind();
         }
+    }
+
+    databind() {
+        if (this.grid) {
+            this.grid.datasource = this.datasource;
+            this.grid.databind();
+        }
+
     }
 
     private checkGridItem() {
@@ -3984,6 +4004,7 @@ class WayCheckboxList extends WayControlBase {
 class WayRadioList extends WayControlBase {
     memberInChange: any[] = ["value"];
     element: JQuery;
+    datasource: any;
     private isMobile: boolean = false;
     private grid: WayGridView;
     private windowObj: JQuery;
@@ -4073,10 +4094,12 @@ class WayRadioList extends WayControlBase {
             }
         }
 
+        this.datasource = datasource;
+
         if (true) {
             this.grid = new WayGridView(<any>this.element[0],null);
             this.grid.pagesize = 0;
-            this.grid.datasource = datasource;
+            this.grid.datasource = this.datasource;
             this.grid.onCreateItem = (item) => this._onGridItemCreated(item);
 
             if (!this.valueMember || this.valueMember == "") {
@@ -4095,6 +4118,14 @@ class WayRadioList extends WayControlBase {
             }
             this.grid.databind();
         }
+    }
+
+    databind() {
+        if (this.grid) {
+            this.grid.datasource = this.datasource;
+            this.grid.databind();
+        }
+         
     }
 
     private checkGridItem() {
@@ -4214,6 +4245,7 @@ class WayRelateList extends WayControlBase {
             this.text = text;
         }
     }
+
 
     addEventListener(eventName: string, func: any) {
         if (eventName == "change") {

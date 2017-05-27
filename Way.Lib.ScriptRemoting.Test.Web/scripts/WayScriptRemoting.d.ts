@@ -312,6 +312,7 @@ declare class WayDropDownList extends WayControlBase {
     element: JQuery;
     itemContainer: JQuery;
     selectonly: boolean;
+    datasource: any;
     private isMobile;
     private grid;
     private isBindedGrid;
@@ -325,6 +326,7 @@ declare class WayDropDownList extends WayControlBase {
     text: string;
     onchange: any;
     constructor(elementid: string, configElement: HTMLElement);
+    databind(): void;
     addEventListener(eventName: string, func: any): void;
     fireEvent(eventName: string): void;
     getTextByValue(value: string): string;
@@ -339,6 +341,7 @@ declare class WayDropDownList extends WayControlBase {
 declare class WayCheckboxList extends WayControlBase {
     memberInChange: any[];
     element: JQuery;
+    datasource: any;
     private isMobile;
     private grid;
     private windowObj;
@@ -348,6 +351,7 @@ declare class WayCheckboxList extends WayControlBase {
     value: any[];
     onchange: any;
     constructor(elementid: string);
+    databind(): void;
     private checkGridItem();
     addEventListener(eventName: string, func: any): void;
     fireEvent(eventName: string): void;
@@ -357,6 +361,7 @@ declare class WayCheckboxList extends WayControlBase {
 declare class WayRadioList extends WayControlBase {
     memberInChange: any[];
     element: JQuery;
+    datasource: any;
     private isMobile;
     private grid;
     private windowObj;
@@ -366,6 +371,7 @@ declare class WayRadioList extends WayControlBase {
     value: string;
     onchange: any;
     constructor(elementid: string);
+    databind(): void;
     private checkGridItem();
     addEventListener(eventName: string, func: any): void;
     fireEvent(eventName: string): void;

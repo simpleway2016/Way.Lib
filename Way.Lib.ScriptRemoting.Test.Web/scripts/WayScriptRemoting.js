@@ -2923,6 +2923,7 @@ var WayDropDownList = (function (_super) {
                 eval("datasource[i].text=datasource[i]." + _this.textMember);
             }
         }
+        _this.datasource = datasource;
         if (_this.actionElement) {
             _this.init();
             _this.itemContainer[0].appendChild(_this.element.find("script[for='item']")[0]);
@@ -3017,6 +3018,12 @@ var WayDropDownList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    WayDropDownList.prototype.databind = function () {
+        if (this.grid) {
+            this.grid.datasource = this.datasource;
+            this.grid.databind();
+        }
+    };
     WayDropDownList.prototype.addEventListener = function (eventName, func) {
         if (eventName == "change") {
             if (!this.onchange) {
@@ -3322,6 +3329,7 @@ var WayCheckboxList = (function (_super) {
                 eval("datasource[i].text=datasource[i]." + _this.textMember);
             }
         }
+        _this.datasource = datasource;
         if (true) {
             _this.grid = new WayGridView(_this.element[0], null);
             _this.grid.pagesize = 0;
@@ -3360,6 +3368,12 @@ var WayCheckboxList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    WayCheckboxList.prototype.databind = function () {
+        if (this.grid) {
+            this.grid.datasource = this.datasource;
+            this.grid.databind();
+        }
+    };
     WayCheckboxList.prototype.checkGridItem = function () {
         for (var j = 0; j < this.grid.items.length; j++) {
             var status = this.grid.items[j].status;
@@ -3495,10 +3509,11 @@ var WayRadioList = (function (_super) {
                 eval("datasource[i].text=datasource[i]." + _this.textMember);
             }
         }
+        _this.datasource = datasource;
         if (true) {
             _this.grid = new WayGridView(_this.element[0], null);
             _this.grid.pagesize = 0;
-            _this.grid.datasource = datasource;
+            _this.grid.datasource = _this.datasource;
             _this.grid.onCreateItem = function (item) { return _this._onGridItemCreated(item); };
             if (!_this.valueMember || _this.valueMember == "") {
             }
@@ -3531,6 +3546,12 @@ var WayRadioList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    WayRadioList.prototype.databind = function () {
+        if (this.grid) {
+            this.grid.datasource = this.datasource;
+            this.grid.databind();
+        }
+    };
     WayRadioList.prototype.checkGridItem = function () {
         for (var j = 0; j < this.grid.items.length; j++) {
             var status = this.grid.items[j].status;
