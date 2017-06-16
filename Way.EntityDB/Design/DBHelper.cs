@@ -126,8 +126,15 @@ namespace Way.EntityDB.Design
 
         public static EntityDB.IDatabaseService CreateInvokeDatabase(EJ.Databases databaseConfig)
         {
-            string conStr = string.Format(databaseConfig.conStr, PlatformHelper.GetAppDirectory());
-            
+            string conStr;
+            if (databaseConfig.dbType == EJ.Databases_dbTypeEnum.Sqlite)
+            {
+                conStr = string.Format(databaseConfig.conStr, PlatformHelper.GetAppDirectory());
+            }
+            else
+            {
+                conStr = databaseConfig.conStr;
+            }
             return EntityDB.DBContext.CreateDatabaseService(conStr, (EntityDB.DatabaseType)Enum.Parse(typeof(EntityDB.DatabaseType), databaseConfig.dbType.ToString()));
         }
     }
