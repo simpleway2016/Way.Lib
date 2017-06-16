@@ -31,11 +31,18 @@ namespace Way.EntityDB
 
         public static string GetAppDirectory()
         {
-            if (System.Web.HttpRuntime.AppDomainAppPath != null)
+            try
             {
-                return System.Web.HttpRuntime.AppDomainAppPath;
+                if (System.Web.HttpRuntime.AppDomainAppPath != null)
+                {
+                    return System.Web.HttpRuntime.AppDomainAppPath;
+                }
+                else
+                {
+                    return AppDomain.CurrentDomain.BaseDirectory;
+                }
             }
-            else
+            catch
             {
                 return AppDomain.CurrentDomain.BaseDirectory;
             }
