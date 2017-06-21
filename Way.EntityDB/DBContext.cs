@@ -60,7 +60,7 @@ namespace Way.EntityDB
         #endregion
 
         #region 静态变量
-        static bool SetConfigurationed = false;
+
         static List<IActionCapture> TypeCaptures = new List<IActionCapture>();
 
         static Dictionary<EntityDB.DatabaseType, Type> _DatabaseServiceTypes;
@@ -109,24 +109,20 @@ namespace Way.EntityDB
 
         static DBContext()
         {
-            if (SetConfigurationed == false)
-            {
-                SetConfigurationed = true;
+            //在DBContext 静态构造函数中调用一下，进行初始化，防止多线程同时运行这里来，造成冲突
+            var t = DatabaseServiceTypes.Count;
 
-                //在DBContext 静态构造函数中调用一下，进行初始化，防止多线程同时运行这里来，造成冲突
-                var t = DatabaseServiceTypes.Count;
+            //防止有些dll版本不对，无法加载
+            Way.EntityDB.PlatformHelper.setAssemblyResolve();
 
-                //防止有些dll版本不对，无法加载
-                Way.EntityDB.PlatformHelper.setAssemblyResolve();
+            
+            BeforeDelete += Database_BeforeDelete;
+            BeforeInsert += Database_BeforeInsert;
+            BeforeUpdate += Database_BeforeUpdate;
 
-                BeforeDelete += Database_BeforeDelete;
-                BeforeInsert += Database_BeforeInsert;
-                BeforeUpdate += Database_BeforeUpdate;
-
-                AfterDelete += Database_AfterDelete;
-                AfterInsert += Database_AfterInsert;
-                AfterUpdate += Database_AfterUpdate;
-            }
+            AfterDelete += Database_AfterDelete;
+            AfterInsert += Database_AfterInsert;
+            AfterUpdate += Database_AfterUpdate;
         }
 
         /// <summary>
