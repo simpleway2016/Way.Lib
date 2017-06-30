@@ -67,6 +67,52 @@
                     <WindowsFormsHost x:Name="hostColumnPG" Grid.Column="2"></WindowsFormsHost>
                 </Grid>
             </TabItem>
+            <TabItem Header="导航属性">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="50"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="1">
+                        <Button x:Name="addProperty" Click="addProperty_Click" Margin="0,10,0,0" Width="30" Height="30" Content="+" FontWeight="Bold" FontSize="18"></Button>
+                        <Button x:Name="delProperty" Click="delProperty_Click" Margin="0,10,0,0" Width="30" Height="30" Content="-" FontWeight="Bold" FontSize="18"></Button>
+                    </StackPanel>
+                    <ListView x:Name="listProperties">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Name" Width="100">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding name,Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Type" Width="100">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding Columns}" SelectedValue="{Binding foreignkey_tableid , Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="IsCollection" Width="100">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding iscollection,Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="ForeignKey" Width="100">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding Columns}" SelectedValue="{Binding ColumnName , Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </TabItem>
             <TabItem Header="索引">
                 <Grid>
                     <Grid.ColumnDefinitions>

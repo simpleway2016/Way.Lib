@@ -456,6 +456,7 @@ namespace EJClient.Forms
 
         System.Collections.ObjectModel.ObservableCollection<索引> m_IDXConfigs = new System.Collections.ObjectModel.ObservableCollection<索引>();
         System.Collections.ObjectModel.ObservableCollection<数据列基本信息> m_columns = new System.Collections.ObjectModel.ObservableCollection<数据列基本信息>();
+        System.Collections.ObjectModel.ObservableCollection<EJ.classproperty> m_properties = new System.Collections.ObjectModel.ObservableCollection<EJ.classproperty>();
         internal DBTableEditor(DatabaseItemNode dbnode , EJ.DBTable currentTable)
         {
             m_DBNode = dbnode;
@@ -526,8 +527,9 @@ namespace EJClient.Forms
             m_deleteConfigs.CollectionChanged += m_deleteConfigs_CollectionChanged;
             listDelConfig.ItemsSource = m_deleteConfigs;
             treeColumns.ItemsSource = m_columns;
+            listProperties.ItemsSource = m_properties;
 
-            
+
         }
 
         void m_deleteConfigs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -722,6 +724,15 @@ namespace EJClient.Forms
             {
                 m_deleteConfigs.Remove( (级联删除信息)listDelConfig.SelectedItem );
             }
+        }
+        private void addProperty_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void delProperty_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
 
         private void btnMoveUp_Click_1(object sender, RoutedEventArgs e)
