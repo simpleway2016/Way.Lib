@@ -29,6 +29,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -124,6 +125,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -386,6 +388,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -515,6 +518,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -650,6 +654,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -852,6 +857,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -985,6 +991,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -1302,6 +1309,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -1389,6 +1397,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -1476,6 +1485,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -1609,6 +1619,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -1765,6 +1776,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -1944,6 +1956,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// id
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="id",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true)]
         public System.Nullable<Int32> id
         {
@@ -2077,6 +2090,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
@@ -2210,6 +2224,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
@@ -2320,6 +2335,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
@@ -2407,6 +2423,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
@@ -2563,6 +2580,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
@@ -2765,6 +2783,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {
@@ -2852,6 +2871,7 @@ System.Nullable<Int32> _id;
 /// <summary>
 /// 
 	/// </summary>
+[System.ComponentModel.DataAnnotations.Key]
 [Way.EntityDB.WayDBColumnAttribute(Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
         public System.Nullable<Int32> id
         {

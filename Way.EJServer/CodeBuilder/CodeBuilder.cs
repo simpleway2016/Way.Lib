@@ -407,11 +407,17 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                     }
                 }
 
+                string otherAttrs = "";
+                if(column.IsPKID == true)
+                {
+                    otherAttrs = "\r\n[System.ComponentModel.DataAnnotations.Key]";
+                }
+
                 result.Append(@"
 " + dataType + @" _" + column.Name + eqString  + @";
 /// <summary>
 /// " + column.caption + @"
-	/// </summary>
+	/// </summary>"+ otherAttrs + @"
 [Way.EntityDB.WayDBColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
         public " + dataType + @" " + column.Name + @"
         {
