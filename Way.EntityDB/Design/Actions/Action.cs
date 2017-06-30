@@ -10,7 +10,7 @@ namespace Way.EntityDB.Design.Actions
         public int ID { get; set; }
         public abstract void Invoke( EntityDB.IDatabaseService invokingDB);
         internal abstract void BeforeSave();
-        public object Save( EJ.DB.EasyJob db , int databaseid)
+        public object Save( EJ.DB.easyjob db , int databaseid)
         {
             BeforeSave();
 

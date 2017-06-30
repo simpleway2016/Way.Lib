@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Way.EJServer
 {
-    public class EJDB : EJ.DB.EasyJob
+    public class EJDB : EJ.DB.easyjob
     {
         public static EJ.User LoginUser
         {
@@ -22,7 +22,7 @@ namespace Way.EJServer
             if (ConnectionString != null)
                 return ConnectionString;
 
-            ConnectionString = $"Data Source=\"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}/EasyJob.db\"";
+            ConnectionString = $"Data Source=\"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}EasyJob.db\"";
             return ConnectionString;
         }
 

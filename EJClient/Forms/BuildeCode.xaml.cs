@@ -44,10 +44,7 @@ namespace EJClient.Forms
                         m_database = Helper.Client.InvokeSync<EJ.Databases>("GetDatabase", m_databaseID);
 
 
-                        string[] filenames = System.IO.Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "codes", "*.cs");
-                        foreach (string f in filenames)
-                            System.IO.File.Delete(f);
-
+                       
                        
 
                         BuildDatabase.Downloader.downloadFile(this.m_databaseID, m_outputFileName, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
