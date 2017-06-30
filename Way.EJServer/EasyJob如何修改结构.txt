@@ -1,0 +1,6 @@
+﻿1.先用新的端口，开启一个server，会在debug下，生成Port8080这样一个文件夹，
+把EasyJob.db拷贝到里面覆盖
+2.用EJClient登录http://localhost:8080
+3。修改easyjob的属性，修改里面连接字符串，如指向d:\easyjob.db文件，不要指向Port8080\easyjob.db，
+4.修改easyjob的数据库结构，导出数据库结构类，覆盖Way.EntityDB\Design\Models里面的类文件
+5，重新启动EJServer，它会把Port8080\easyjob.db更新到最新结构，把Port8080\easyjob.db拷贝回到工程里面，覆盖工程根目录的easyjob.db
