@@ -125,7 +125,7 @@ namespace EJClient.Forms
                 }
                 set
                 {
-                    table.Name = value.Trim().ToLower();
+                    table.Name = value.Trim();
                 }
             }
             EJ.DBTable table;
@@ -165,10 +165,10 @@ namespace EJClient.Forms
                 }
                 set
                 {
-                    value = value.Trim().ToLower();
+                    value = value.Trim();
                     if (m_column.Name != value)
                     {
-                        if (m_parentEditor.m_columns.Where(m => m != this && m.Name == value).Count() > 0)
+                        if (m_parentEditor.m_columns.Where(m => m != this && string.Equals(m.Name , value , StringComparison.CurrentCultureIgnoreCase) ).Count() > 0)
                         {
                             MessageBox.Show( m_parentEditor , "列名与其它列冲突！");
                             return;

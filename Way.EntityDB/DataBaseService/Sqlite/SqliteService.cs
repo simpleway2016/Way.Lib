@@ -157,7 +157,7 @@ namespace Way.EntityDB
                 this.Connection.Open();
             } 
           
-            string pkid = dataitem.PKIDField;
+            string pkid = dataitem.KeyName;
             var fieldValues = dataitem.GetFieldValues(true);
             if (fieldValues.Length == 0)
                 return;
@@ -243,7 +243,7 @@ namespace Way.EntityDB
         {
 
 
-            string pkid = dataitem.PKIDField;
+            string pkid = dataitem.KeyName;
             object pkvalue = dataitem.PKValue;
             if (pkvalue == null && pkid != null)
             {
@@ -307,7 +307,7 @@ namespace Way.EntityDB
                         parameter.Value = pkvalue;
                         command.Parameters.Add(parameter);
 
-                        command.CommandText = string.Format("update {0} set {1} where {2}=@pid", FormatObjectName(dataitem.TableName), str_fields, FormatObjectName(pkid));
+                        command.CommandText = string.Format("update {0} set {1} where {2}=@pid", FormatObjectName(dataitem.TableName), str_fields, FormatObjectName(pkid.ToLower()));
                     }
                     else
                     {
@@ -344,7 +344,7 @@ namespace Way.EntityDB
             {
                 using (var command = CreateCommand(null))
                 {
-                    command.CommandText = string.Format("delete from {0} where {1}=@p0", FormatObjectName(dataitem.TableName), FormatObjectName(dataitem.PKIDField));
+                    command.CommandText = string.Format("delete from {0} where {1}=@p0", FormatObjectName(dataitem.TableName), FormatObjectName(dataitem.KeyName.ToLower()));
                     var parameter = command.CreateParameter();
                     parameter.ParameterName = "@p0";
                     parameter.Value = dataitem.PKValue;

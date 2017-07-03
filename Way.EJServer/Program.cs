@@ -23,36 +23,19 @@ namespace Way.EJServer
                 IDatabaseService db;
                 string ip = "192.168.136.137";
 
-                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
-                //db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\test\\testingdb.db", EntityDB.DatabaseType.Sqlite);
-                //dbservice.GetCurrentTableNames(db);
-                //dbservice.GetCurrentColumns(db, "test3");
-                //dbservice.GetCurrentIndexes(db, "test3");
 
-                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.PostgreSql);
-                //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;", EntityDB.DatabaseType.PostgreSql);
-                //dbservice.GetCurrentTableNames(db);
-                //dbservice.GetCurrentColumns(db, "test3");
-                //dbservice.GetCurrentIndexes(db, "test3");
-
-                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
-                //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
-                //dbservice.GetCurrentTableNames(db);
-                //dbservice.GetCurrentColumns(db, "test3");
-                //dbservice.GetCurrentIndexes(db, "test3");
-
-                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.MySql);
-                //db = EntityDB.DBContext.CreateDatabaseService("server=" + ip + ";User Id=user1;password=User.123456;Database=testingdb", EntityDB.DatabaseType.MySql);
-                //dbservice.GetCurrentTableNames(db);
-                //dbservice.GetCurrentColumns(db, "test3");
-                //dbservice.GetCurrentIndexes(db, "test3");
 
                 //Test(new EJ.Databases()
                 //{
-                //    conStr = "data source=d:\\test.db",
+                //    conStr = "data source=d:\\test\\test.db",
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.Sqlite,
                 //});
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.Sqlite);
+                //db = EntityDB.DBContext.CreateDatabaseService("data source=d:\\test\\test.db", EntityDB.DatabaseType.Sqlite);
+                //dbservice.GetCurrentTableNames(db);
+                //dbservice.GetCurrentColumns(db, "test3");
+                //dbservice.GetCurrentIndexes(db, "test3");
 
                 //Test(new EJ.Databases()
                 //{
@@ -60,6 +43,11 @@ namespace Way.EJServer
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.SqlServer,
                 //});
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.SqlServer);
+                //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";uid=sa;pwd=Sql12345678;database=testingdb", EntityDB.DatabaseType.SqlServer);
+                //dbservice.GetCurrentTableNames(db);
+                //dbservice.GetCurrentColumns(db, "test3");
+                //dbservice.GetCurrentIndexes(db, "test3");
 
                 //Test(new EJ.Databases()
                 //{
@@ -67,6 +55,11 @@ namespace Way.EJServer
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.PostgreSql,
                 //});
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.PostgreSql);
+                //db = EntityDB.DBContext.CreateDatabaseService("Server=" + ip + ";Port=5432;UserId=postgres;Password=123456;Database=testingdb;", EntityDB.DatabaseType.PostgreSql);
+                //object result = dbservice.GetCurrentTableNames(db);
+                //result = dbservice.GetCurrentColumns(db, "test3");
+                //result = dbservice.GetCurrentIndexes(db, "test3");
 
                 //Test(new EJ.Databases()
                 //{
@@ -74,6 +67,11 @@ namespace Way.EJServer
                 //    Name = "testingdb",
                 //    dbType = EJ.Databases_dbTypeEnum.MySql,
                 //});
+                //dbservice = EntityDB.Design.DBHelper.CreateDatabaseDesignService(DatabaseType.MySql);
+                //db = EntityDB.DBContext.CreateDatabaseService("server=" + ip + ";User Id=user1;password=User.123456;Database=testingdb", EntityDB.DatabaseType.MySql);
+                //object result = dbservice.GetCurrentTableNames(db);
+                //result = dbservice.GetCurrentColumns(db, "test3");
+                //result = dbservice.GetCurrentIndexes(db, "test3");
             }
             catch (Exception ex)
             {
@@ -143,49 +141,49 @@ namespace Way.EJServer
                 {
                     IsPKID = true,
                     CanNull = false,
-                    Name = "id",
+                    Name = "Id",
                     dbType = "int",
                     IsAutoIncrement = true,
                 });
                 allColumns.Add(new EJ.DBColumn()
                 {
-                    Name = "c1",
+                    Name = "C1",
                     dbType = "varchar",
                     length = "50",
                     defaultValue = "a'b,c"
                 });
                 allColumns.Add(new EJ.DBColumn()
                 {
-                    Name = "c2",
+                    Name = "C2",
                     dbType = "varchar",
                     length = "50",
                     defaultValue = "abc"
                 });
                 allColumns.Add(new EJ.DBColumn()
                 {
-                    Name = "c3",
+                    Name = "C3",
                     dbType = "int",
                     defaultValue = "8"
                 });
                 allColumns.Add(new EJ.DBColumn()
                 {
-                    Name = "text1",
+                    Name = "Text1",
                     dbType = "text",
                 });
                 //索引
                 allindexes.Add(new EntityDB.Design.IndexInfo()
                 {
-                    ColumnNames = new string[] { "c1" },
+                    ColumnNames = new string[] { "C1" },
                     IsUnique = true,
                 });
                 allindexes.Add(new EntityDB.Design.IndexInfo()
                 {
-                    ColumnNames = new string[] { "c2", "c3" },
+                    ColumnNames = new string[] { "C2", "C3" },
                 });
 
 
                 EJ.DBTable table = new EJ.DBTable();
-                table.Name = "test";
+                table.Name = "Test";
 
                 #region CreateTable
                 if (true)
@@ -207,8 +205,8 @@ namespace Way.EJServer
                 if(true)
                 {
                     Way.EntityDB.CustomDataItem dataitem = new EntityDB.CustomDataItem("test", "id", null);
-                    dataitem.SetValue("c1","c1");
-                    dataitem.SetValue("c2", "c2");
+                    dataitem.SetValue("c1","C1");
+                    dataitem.SetValue("c2", "C2");
                     dataitem.SetValue("c3", 3);
                     db.Insert(dataitem);
                     if (dataitem.GetValue("id") == null)
@@ -223,29 +221,29 @@ namespace Way.EJServer
                     EJ.DBColumn[] newcolumns = new EJ.DBColumn[2];
                     newcolumns[0] = ( new EJ.DBColumn()
                     {
-                        Name = "n0",
+                        Name = "N0",
                         dbType = "varchar",
                         length = "30",
                         defaultValue = "t'b"
                     });
                     newcolumns[1] = (new EJ.DBColumn()
                     {
-                        Name = "n1",
+                        Name = "N1",
                         dbType = "int",
                         defaultValue = "18"
                     });
 
 
                     EJ.DBColumn[] changedColumns = new EJ.DBColumn[2];
-                    changedColumns[0] = allColumns.FirstOrDefault(m=>m.Name == "c3");
-                    changedColumns[0].Name = "c3_changed";
+                    changedColumns[0] = allColumns.FirstOrDefault(m=>m.Name == "C3");
+                    changedColumns[0].Name = "C3_changed";
                     changedColumns[0].dbType = "varchar";
                     changedColumns[0].defaultValue = "1'a";
                     changedColumns[0].CanNull = false;
                     changedColumns[0].length = "88";
 
                    
-                    changedColumns[1] = allColumns.FirstOrDefault(m => m.Name == "id");
+                    changedColumns[1] = allColumns.FirstOrDefault(m => m.Name == "Id");
                     changedColumns[1].IsAutoIncrement = false;
                     changedColumns[1].IsPKID = false;
                     changedColumns[1].CanNull = true;
@@ -253,14 +251,14 @@ namespace Way.EJServer
 
 
                     EJ.DBColumn[] deletecolumns = new EJ.DBColumn[1];
-                    deletecolumns[0] = allColumns.FirstOrDefault(m => m.Name == "c2");
+                    deletecolumns[0] = allColumns.FirstOrDefault(m => m.Name == "C2");
 
                     allColumns.Remove(deletecolumns[0]);
 
                     allindexes.Clear();
                     allindexes.Add( new EntityDB.Design.IndexInfo()
                     {
-                        ColumnNames = new string[] { "n0", "c3_changed" },
+                        ColumnNames = new string[] { "N0", "C3_changed" },
                         IsUnique = true,
                         IsClustered = true
                     });
@@ -269,9 +267,9 @@ namespace Way.EJServer
                                         where changedColumns.Contains(m) == false
                                         select m).ToArray();
                    
-                    new ChangeTableAction(table.Name, "test2", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
+                    new ChangeTableAction(table.Name, "Test2", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
                     .Invoke(db);
-                    table.Name = "test2";
+                    table.Name = "Test2";
                     allColumns.AddRange(newcolumns);
 
                     foreach (var c in allColumns)
@@ -288,7 +286,7 @@ namespace Way.EJServer
                 {
                     EJ.DBColumn[] newcolumns = new EJ.DBColumn[0];
                     EJ.DBColumn[] changedColumns = new EJ.DBColumn[1];
-                    changedColumns[0] = allColumns.FirstOrDefault(m => m.Name == "id");
+                    changedColumns[0] = allColumns.FirstOrDefault(m => m.Name == "Id");
                     changedColumns[0].IsAutoIncrement = true;
                     changedColumns[0].IsPKID = true;
                     changedColumns[0].CanNull = false;
@@ -300,9 +298,9 @@ namespace Way.EJServer
                                         where changedColumns.Contains(m) == false
                                         select m).ToArray();
                    
-                    new ChangeTableAction(table.Name, "test3", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
+                    new ChangeTableAction(table.Name, "Test3", newcolumns, changedColumns, deletecolumns, otherColumns, allindexes.ToArray())
                     .Invoke(db);
-                    table.Name = "test3";
+                    table.Name = "Test3";
                     allColumns.AddRange(newcolumns);
 
                     foreach (var c in allColumns)
@@ -332,8 +330,8 @@ namespace Way.EJServer
 
         static void checkColumns(IDatabaseDesignService design, IDatabaseService db ,string table, List<EJ.DBColumn> allcolumns,List<EntityDB.Design.IndexInfo> allindex)
         {
-            var columns = design.GetCurrentColumns(db, table);
-            var indexes = design.GetCurrentIndexes(db, table);
+            var columns = design.GetCurrentColumns(db, table.ToLower());
+            var indexes = design.GetCurrentIndexes(db, table.ToLower());
 
             if (allcolumns.Count != columns.Count)
             {
@@ -344,7 +342,7 @@ namespace Way.EJServer
                 if (column.defaultValue == null)
                     column.defaultValue = "";
 
-                var compareColumn = columns.FirstOrDefault(m => m.Name == column.Name);
+                var compareColumn = columns.FirstOrDefault(m => m.Name.ToLower() == column.Name.ToLower());
                 if(compareColumn == null)
                     throw new Exception("找不到字段" + column.Name);
 
@@ -374,9 +372,9 @@ namespace Way.EJServer
             }
             foreach (var index in allindex)
             {
-                if(indexes.Any(m=>m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == index.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",")) == false)
+                if(indexes.Any(m=>m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",").ToLower() == index.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",").ToLower()) == false)
                     throw new Exception($"index:{index.Name} ColumnNames 不一致");
-                if (indexes.Any(m => m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") == index.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",") && m.IsUnique == index.IsUnique) == false)
+                if (indexes.Any(m => m.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",").ToLower() == index.ColumnNames.OrderBy(n => n).ToArray().ToSplitString(",").ToLower() && m.IsUnique == index.IsUnique) == false)
                     throw new Exception($"index:{index.Name} IsUnique 不一致");
             }
         }

@@ -58,7 +58,7 @@ namespace Way.EntityDB.Design.Database.Sqlite
 
                 string sqlstr;
                 sqlstr = @"
-CREATE TABLE [" + table.Name + @"] (
+CREATE TABLE [" + table.Name.ToLower() + @"] (
 ";
 
                 for (int i = 0; i < columns.Length; i ++ )
@@ -67,7 +67,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (i > 0)
                         sqlstr += ",\r\n";
 
-                    sqlstr += "[" + column.Name + "] " + getSqliteType(column) + "";
+                    sqlstr += "[" + column.Name.ToLower() + "] " + getSqliteType(column) + "";
 
                     if (column.IsPKID == true)
                     {
@@ -101,7 +101,7 @@ CREATE TABLE [" + table.Name + @"] (
                 {
                     foreach (var config in indexInfos)
                     {
-                        string keyname = table.Name + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
+                        string keyname = table.Name.ToLower() + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_").ToLower();
                         string type = "";
                         if (config.IsUnique || config.IsClustered)
                         {
@@ -111,7 +111,7 @@ CREATE TABLE [" + table.Name + @"] (
                         //{
                         //    throw new Exception("sqlite暂不支持定义聚集索引");
                         //}
-                        db.ExecSqlString("CREATE " + type + " INDEX " + keyname + " ON [" + table.Name + "](" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString() + ")");
+                        db.ExecSqlString("CREATE " + type + " INDEX " + keyname + " ON [" + table.Name.ToLower() + "](" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString().ToLower() + ")");
                         //CREATE UNIQUE  INDEX index_t1 ON t1(a, b, c};
 
                        // 第二种：
@@ -125,14 +125,15 @@ CREATE TABLE [" + table.Name + @"] (
 
         List<string> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename,List<IndexInfo> indexInfos)
         {
+            tablename = tablename.ToLower();
             List<string> need2Dels = new List<string>();
             using (var dt = database.SelectTable("select * from sqlite_master WHERE type='index' and tbl_name='" + tablename + "'"))
                 {
                     foreach (var drow in dt.Rows)
                     {
                         bool isUnique = drow["sql"].ToString().Contains(" UNIQUE ");
-                        string name = drow["name"].ToString();
-                        var exitsItem = indexInfos.FirstOrDefault(m => tablename + "_ej_" + m.ColumnNames.OrderBy(p => p).ToArray().ToSplitString("_") == name && m.IsUnique == isUnique);
+                        string name = drow["name"].ToString().ToLower();
+                        var exitsItem = indexInfos.FirstOrDefault(m => tablename + "_ej_" + m.ColumnNames.OrderBy(p => p).ToArray().ToSplitString("_").ToLower() == name && m.IsUnique == isUnique);
                         if (exitsItem == null)
                         {
                             need2Dels.Add(name);
@@ -152,10 +153,13 @@ CREATE TABLE [" + table.Name + @"] (
         /// <param name="tableName"></param>
         void deleteIndex(EntityDB.IDatabaseService database, string tableName,string name)
         {
+            tableName = tableName.ToLower();
+               name = name.ToLower();
             database.ExecSqlString("DROP INDEX IF EXISTS [" + name + "]");
         }
         void deleteAllIndex(EntityDB.IDatabaseService database, string tableName )
         {
+            tableName = tableName.ToLower();
             using (var dtable = database.SelectTable("select * from sqlite_master where type='index' and tbl_name='" + tableName + "' "))
             {
                 foreach (var drow in dtable.Rows)
@@ -166,6 +170,9 @@ CREATE TABLE [" + table.Name + @"] (
         }
         public void ChangeTable(EntityDB.IDatabaseService database, string oldTableName, string newTableName, EJ.DBColumn[] addColumns, EJ.DBColumn[] changedColumns, EJ.DBColumn[] deletedColumns, EJ.DBColumn[] otherColumns, IndexInfo[] _indexInfos)
         {
+            oldTableName = oldTableName.ToLower();
+            newTableName = newTableName.ToLower();
+
             List<IndexInfo> indexInfos = new List<IndexInfo>(_indexInfos);
             bool needToDeleteTable = (deletedColumns.Length > 0 || changedColumns.Length > 0);
             if (needToDeleteTable)
@@ -203,11 +210,11 @@ CREATE TABLE [" + table.Name + @"] (
                         if (deletedColumns.Count(m => m.Name.ToLower() == c.ColumnName.ToLower()) == 0)
                         {
                             var newName = changedColumns.FirstOrDefault(m => m.BackupChangedProperties.Count(p => p.Key == "Name" && ((DataValueChangedItem)p.Value).OriginalValue.ToSafeString().ToLower() == c.ColumnName.ToLower()) > 0);
-                            oldColumnNames.Add("[" + c.ColumnName + "]");
+                            oldColumnNames.Add("[" + c.ColumnName.ToLower() + "]");
                             if (newName != null)
-                                newColumnNames.Add("[" + newName.Name + "]");
+                                newColumnNames.Add("[" + newName.Name.ToLower() + "]");
                             else
-                                newColumnNames.Add("[" + c.ColumnName + "]");
+                                newColumnNames.Add("[" + c.ColumnName.ToLower() + "]");
                         }
                     }
                 }
@@ -216,25 +223,25 @@ CREATE TABLE [" + table.Name + @"] (
                 if (oldColumnNames.Count > 0)
                 {
                     //把旧表数据拷贝到新表
-                    database.ExecSqlString("insert into [" + newTableName + "] (" + newfields + ") select " + oldfields + " from [" + oldTableName + "]");
+                    database.ExecSqlString("insert into [" + newTableName.ToLower() + "] (" + newfields + ") select " + oldfields + " from [" + oldTableName.ToLower() + "]");
                 }
 
-                database.ExecSqlString("DROP TABLE [" + oldTableName + "]");
+                database.ExecSqlString("DROP TABLE [" + oldTableName.ToLower() + "]");
             }
             else
             {
                 
-               var need2dels =  checkIfIdxChanged(database, oldTableName, indexInfos);
+               var need2dels =  checkIfIdxChanged(database, oldTableName.ToLower(), indexInfos);
                foreach( string delName in need2dels )
-                   deleteIndex(database, oldTableName, delName);
+                   deleteIndex(database, oldTableName.ToLower(), delName.ToLower());
 
-                if(oldTableName != newTableName)
-                database.ExecSqlString("ALTER TABLE [" + oldTableName + "] RENAME TO [" + newTableName + "]");
+                if(oldTableName.ToLower() != newTableName.ToLower())
+                database.ExecSqlString("ALTER TABLE [" + oldTableName.ToLower() + "] RENAME TO [" + newTableName.ToLower() + "]");
 
                 foreach (var column in addColumns)
                 {
                     #region 新增字段
-                    string sql = "alter table [" + newTableName + "] add [" + column.Name + "] " + getSqliteType( column) ;
+                    string sql = "alter table [" + newTableName.ToLower() + "] add [" + column.Name.ToLower() + "] " + getSqliteType( column) ;
 
                     if (column.IsPKID == true)
                     {
@@ -262,7 +269,7 @@ CREATE TABLE [" + table.Name + @"] (
 
                 foreach (var config in indexInfos)
                 {
-                    string keyname = newTableName + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_");
+                    string keyname = newTableName.ToLower() + "_ej_" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString("_").ToLower();
                     string type = "";
                     if (config.IsUnique || config.IsClustered)
                     {
@@ -273,14 +280,14 @@ CREATE TABLE [" + table.Name + @"] (
                     //    throw new Exception("sqlite暂不支持定义聚集索引");
                     //}
 
-                    database.ExecSqlString("CREATE " + type + " INDEX " + keyname + " ON [" + newTableName + "](" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString() + ")");
+                    database.ExecSqlString("CREATE " + type + " INDEX " + keyname + " ON [" + newTableName.ToLower() + "](" + config.ColumnNames.OrderBy(m => m).ToArray().ToSplitString().ToLower() + ")");
                 }
             }
         }
 
         public void DeleteTable(EntityDB.IDatabaseService database, string tableName)
         {
-            database.ExecSqlString("DROP TABLE [" + tableName + "]");
+            database.ExecSqlString("DROP TABLE [" + tableName.ToLower() + "]");
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Way.EntityDB
     {
         List<FieldValue> _fields = new List<FieldValue>();
         string _pkid;
-        internal override string PKIDField
+        internal override string KeyName
         {
             get
             {

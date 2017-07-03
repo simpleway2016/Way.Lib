@@ -90,10 +90,10 @@ namespace EJClient.Forms
                             {
                                 if (fieldString.Length > 0)
                                     fieldString.Append(',');
-                                fieldString.Append(string.Format(formatString, column.Name));
+                                fieldString.Append(string.Format(formatString, column.Name.ToLower()));
                             }
 
-                            richTextBox1.Text = string.Format("select {1} from {0}", string.Format(formatString, m_Table.Name), fieldString);
+                            richTextBox1.Text = string.Format("select {1} from {0}", string.Format(formatString, m_Table.Name.ToLower()), fieldString);
                             bindData();
                         }
                       
@@ -399,7 +399,7 @@ namespace EJClient.Forms
                 dt.TableName = oldsource.TableName;
                 foreach (DataColumn column in oldsource.Columns)
                 {
-                    dt.Columns.Add(column.ColumnName , column.DataType);
+                    dt.Columns.Add(column.ColumnName.ToLower() , column.DataType);
                 }
                 foreach (DataRow drow in oldsource.Rows)
                 {
@@ -408,7 +408,7 @@ namespace EJClient.Forms
                         DataRow newRow = dt.NewRow();
                         foreach (DataColumn column in oldsource.Columns)
                         {
-                            newRow[column.ColumnName] = drow[column.ColumnName];
+                            newRow[column.ColumnName.ToLower()] = drow[column.ColumnName.ToLower()];
                         }
                         dt.Rows.Add(newRow);
                         newRow.AcceptChanges();

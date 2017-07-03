@@ -7,20 +7,15 @@ namespace Way.EntityDB.Attributes
 {
     public class Table:Attribute
     {
-        public string TableName
+        public string KeyName
         {
             get;
             set;
         }
-        public string IDField
+        public Table( string keyname)
         {
-            get;
-            set;
-        }
-        public Table(string tableName , string idfield)
-        {
-            this.TableName = tableName;
-            this.IDField = idfield;
+
+            this.KeyName = keyname;
         }
     }
 }

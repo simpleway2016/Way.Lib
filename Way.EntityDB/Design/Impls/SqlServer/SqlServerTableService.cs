@@ -17,13 +17,12 @@ namespace Way.EntityDB.Design.Database.SqlServer
 
                 string sqlstr;
                 sqlstr = @"
-CREATE TABLE [" + table.Name + @"] (
+CREATE TABLE [" + table.Name.ToLower() + @"] (
 ";
 
-                string pkStr = "";
                 foreach (EJ.DBColumn column in columns)
                 {
-                    sqlstr += "[" + column.Name + "] [" + column.dbType + "]";
+                    sqlstr += "[" + column.Name.ToLower() + "] [" + column.dbType + "]";
                     if (column.dbType.IndexOf("char") >= 0)
                     {
                         if (!string.IsNullOrEmpty(column.length))
@@ -53,7 +52,7 @@ CREATE TABLE [" + table.Name + @"] (
                     if (!string.IsNullOrEmpty( column.defaultValue) )
                     {
                         string defaultValue = column.defaultValue.Trim();
-                        sqlstr += " CONSTRAINT [DF_" + table.Name + "_" + column.Name + "] DEFAULT ('" + defaultValue.Replace("'","''") + "')";
+                        sqlstr += " CONSTRAINT [DF_" + table.Name.ToLower() + "_" + column.Name.ToLower() + "] DEFAULT ('" + defaultValue.Replace("'","''") + "')";
                         
                     }
 
@@ -73,7 +72,7 @@ CREATE TABLE [" + table.Name + @"] (
                 if (column.IsPKID == true)
                 {
                     //设为主键
-                    db.ExecSqlString("alter table [" + table.Name + "] add constraint PK_" + table.Name + "_" + column.Name + " primary key ([" + column.Name + "])");
+                    db.ExecSqlString("alter table [" + table.Name.ToLower() + "] add constraint PK_" + table.Name.ToLower() + "_" + column.Name.ToLower() + " primary key ([" + column.Name.ToLower() + "])");
                     
                 }
             }
@@ -82,7 +81,7 @@ CREATE TABLE [" + table.Name + @"] (
                 {
                     foreach (var c in IDXConfigs)
                     {
-                        createIndex(db, table.Name, c);
+                        createIndex(db, table.Name.ToLower(), c);
                     }
                 }
             
@@ -95,7 +94,8 @@ CREATE TABLE [" + table.Name + @"] (
         /// <param name="indexInfo"></param>
         void createIndex(EntityDB.IDatabaseService database, string table, IndexInfo indexInfo)
         {
-            var columns = indexInfo.ColumnNames.OrderBy(m => m).ToArray();
+            table = table.ToLower();
+            var columns = indexInfo.ColumnNames.OrderBy(m => m).Select(m=>m.ToLower()).ToArray();
             string columnsStr = "";
             string name = table + "_";
             for (int i = 0; i < columns.Length; i++)
@@ -135,6 +135,7 @@ CREATE TABLE [" + table.Name + @"] (
         /// <param name="columnNames">包含的字段</param>
         void dropTableAllUniqueIndexWithColumns(EntityDB.IDatabaseService database, string table, List<string> columnNames)
         {
+            table = table.ToLower();
             List<string> toDelIndexes = new List<string>();
             using (var sp_helpResult = database.SelectDataSet("sp_help [" + table + "]"))
             {
@@ -175,6 +176,7 @@ CREATE TABLE [" + table.Name + @"] (
         /// <param name="table"></param>
         void dropTableIndex(EntityDB.IDatabaseService database, string table,IndexInfo[] dontDelIndexes)
         {
+            table = table.ToLower();
             List<string> toDelIndexes = new List<string>();
             using (var sp_helpResult = database.SelectDataSet("sp_help [" + table + "]"))
             {
@@ -190,7 +192,7 @@ CREATE TABLE [" + table.Name + @"] (
 
                             if (index_description.Contains("primary key") == false  )
                             {
-                                if (dontDelIndexes.Count(m => m.Name == indexName) == 0)
+                                if (dontDelIndexes.Count(m => string.Equals( m.Name , indexName , StringComparison.CurrentCultureIgnoreCase)) == 0)
                                 {
                                     toDelIndexes.Add(indexName);
                                 }
@@ -208,6 +210,9 @@ CREATE TABLE [" + table.Name + @"] (
         }
         void deletecolumn(EntityDB.IDatabaseService database, string table, string column)
         {
+            table = table.ToLower();
+            column = column.ToLower();
+
             #region delete
             using (var sp_helpResult = database.SelectDataSet("sp_help [" + table + "]"))
             {
@@ -255,6 +260,7 @@ CREATE TABLE [" + table.Name + @"] (
         /// <returns></returns>
         List<IndexInfo> checkIfIdxChanged(EntityDB.IDatabaseService database, string tablename, IndexInfo[] idxConfigs)
         {
+            tablename = tablename.ToLower();
             List<IndexInfo> result = new List<IndexInfo>();
             List<IndexInfo> existKeys = new List<IndexInfo>();
             using (var sp_helpResult = database.SelectDataSet("sp_help [" + tablename + "]"))
@@ -272,7 +278,7 @@ CREATE TABLE [" + table.Name + @"] (
                             {
                                 //去除空格
                                 string flag = existColumnString.Split(',').ToSplitString();
-                                string dbname = flag.Split(',').OrderBy(m => m).ToArray().ToSplitString();
+                                string dbname = flag.Split(',').OrderBy(m => m).ToArray().ToSplitString().ToLower();
                                 //再排序，不要在去除空格之前排序
                                 existKeys.Add(new IndexInfo
                                 {
@@ -290,7 +296,7 @@ CREATE TABLE [" + table.Name + @"] (
                                     database.ExecSqlString("alter  table  [" + tablename + "]  drop  constraint " + indexName);
                                     //设为主键
                                     string flag = existColumnString.Split(',').ToSplitString();
-                                    string ppname = flag.Split(',').OrderBy(m => m).ToArray().ToSplitString("," , "[{0}]");
+                                    string ppname = flag.Split(',').OrderBy(m => m).ToArray().ToSplitString("," , "[{0}]").ToLower();
                                     database.ExecSqlString("alter table [" + tablename + "] add constraint " + indexName + " primary key NONCLUSTERED (" + ppname + ")");
                                 }
                             }
@@ -304,8 +310,8 @@ CREATE TABLE [" + table.Name + @"] (
 
             foreach (var nowConfigItem in idxConfigs)
             {
-                string myname = nowConfigItem.ColumnNames.OrderBy(m => m).ToArray().ToSplitString();
-                var fined = existKeys.FirstOrDefault(m => m.IsUnique == nowConfigItem.IsUnique && m.IsClustered == nowConfigItem.IsClustered && m.ColumnNames[0] == myname);
+                string myname = nowConfigItem.ColumnNames.OrderBy(m => m).ToArray().ToSplitString().ToLower();
+                var fined = existKeys.FirstOrDefault(m => m.IsUnique == nowConfigItem.IsUnique && m.IsClustered == nowConfigItem.IsClustered && m.ColumnNames[0].ToLower() == myname);
                 if (fined != null)
                 {
                     nowConfigItem.Name = fined.Name;
@@ -320,6 +326,8 @@ CREATE TABLE [" + table.Name + @"] (
             EJ.DBColumn[] addColumns, EJ.DBColumn[] changedColumns, EJ.DBColumn[] deletedColumns,EJ.DBColumn[] otherColumns
             , IndexInfo[] indexInfos)
         {
+            oldTableName = oldTableName.ToLower();
+            newTableName = newTableName.ToLower();
 
             //先判断表明是否更改
             if (oldTableName != newTableName)
@@ -336,7 +344,7 @@ CREATE TABLE [" + table.Name + @"] (
 
             foreach (var column in deletedColumns)
             {
-                deletecolumn(database, newTableName, column.Name);
+                deletecolumn(database, newTableName.ToLower(), column.Name.ToLower());
             }
 
             foreach (var column in changedColumns)
@@ -347,7 +355,7 @@ CREATE TABLE [" + table.Name + @"] (
                 {
                     changeColumnCount++;
                     #region 改名
-                    database.ExecSqlString($"EXEC sp_rename '[{newTableName}].[{changeitem.OriginalValue}]', '{column.Name}', 'COLUMN'"); 
+                    database.ExecSqlString($"EXEC sp_rename '[{newTableName.ToLower()}].[{changeitem.OriginalValue}]', '{column.Name.ToLower()}', 'COLUMN'"); 
                     #endregion
                 }
 
@@ -366,25 +374,25 @@ CREATE TABLE [" + table.Name + @"] (
                     if (column.IsAutoIncrement == false)
                     {
                         //去掉自增长
-                        database.ExecSqlString($"alter table [{newTableName}] add {flagColumnName} {column.dbType}");
-                        database.ExecSqlString($"update [{newTableName}] set {flagColumnName}=[{column.Name}]");
-                        deletecolumn(database, newTableName, column.Name);
-                        database.ExecSqlString($"EXEC sp_rename '[{newTableName}].{flagColumnName}', '{column.Name}', 'COLUMN'");
+                        database.ExecSqlString($"alter table [{newTableName.ToLower()}] add {flagColumnName.ToLower()} {column.dbType}");
+                        database.ExecSqlString($"update [{newTableName.ToLower()}] set {flagColumnName.ToLower()}=[{column.Name.ToLower()}]");
+                        deletecolumn(database, newTableName.ToLower(), column.Name.ToLower());
+                        database.ExecSqlString($"EXEC sp_rename '[{newTableName.ToLower()}].{flagColumnName.ToLower()}', '{column.Name.ToLower()}', 'COLUMN'");
                        
                     }
                     else
                     {
                         //设为自增长
-                        database.ExecSqlString($"alter table [{newTableName}] add {flagColumnName} {column.dbType} IDENTITY (1, 1)");
-                        deletecolumn(database, newTableName, column.Name);
-                        database.ExecSqlString($"EXEC sp_rename '[{newTableName}].{flagColumnName}', '{column.Name}', 'COLUMN'");
+                        database.ExecSqlString($"alter table [{newTableName.ToLower()}] add {flagColumnName.ToLower()} {column.dbType} IDENTITY (1, 1)");
+                        deletecolumn(database, newTableName.ToLower(), column.Name.ToLower());
+                        database.ExecSqlString($"EXEC sp_rename '[{newTableName.ToLower()}].{flagColumnName.ToLower()}', '{column.Name.ToLower()}', 'COLUMN'");
                     }
 
                     //去掉自增长后，由于原来的列删除了，所以如果原来是主键，必须重新设置为主键
                     if (column.IsPKID == true)
                     {
                         //主键不允许为空
-                        database.ExecSqlString($"alter table [{newTableName}] alter column [{column.Name}] [{column.dbType}] not null");
+                        database.ExecSqlString($"alter table [{newTableName.ToLower()}] alter column [{column.Name.ToLower()}] [{column.dbType}] not null");
                         changeitem = column.BackupChangedProperties["IsPKID"];
                         if (changeitem == null)
                         {
@@ -425,13 +433,13 @@ SELECT @NAME
                         if(constraintName.IsNullOrEmpty() == false)
                         {
                             //如果constraintName没有值，那么就是变更自增长字段的时候，原来字段被删除了
-                            database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT {constraintName}");
+                            database.ExecSqlString($"ALTER TABLE {newTableName.ToLower()} DROP CONSTRAINT {constraintName}");
                         }
                      }
                      else
                      {
                          //设为主键
-                         database.ExecSqlString("alter table [" + newTableName + "] add constraint PK_" + newTableName + "_" + column.Name + " primary key ([" + column.Name + "])");
+                         database.ExecSqlString("alter table [" + newTableName.ToLower() + "] add constraint PK_" + newTableName.ToLower() + "_" + column.Name.ToLower() + " primary key ([" + column.Name.ToLower() + "])");
                      } 
                      #endregion
                  }
@@ -446,7 +454,7 @@ SELECT @NAME
 
                     #region 默认值
                     //获取默认值的id
-                    var defaultSettingID = database.ExecSqlString($"Select cdefault from syscolumns Where  ID=OBJECT_ID('{newTableName}') and name='{column.Name}'");
+                    var defaultSettingID = database.ExecSqlString($"Select cdefault from syscolumns Where  ID=OBJECT_ID('{newTableName.ToLower()}') and name='{column.Name.ToLower()}'");
                     if (defaultSettingID != null && Convert.ToInt32(defaultSettingID) != 0)
                     {
                         var defaultKeyName = database.ExecSqlString($"select name from sysObjects where type='D' and id={defaultSettingID}");
@@ -463,7 +471,7 @@ SELECT @NAME
                  if (column.BackupChangedProperties.Count > changeColumnCount)
                  {
                      #region 如果其他地方还有更改
-                     string sql = "alter table [" + newTableName + "] alter column [" + column.Name + "] [" + column.dbType + "]";
+                     string sql = "alter table [" + newTableName.ToLower() + "] alter column [" + column.Name.ToLower() + "] [" + column.dbType + "]";
 
                      if (column.dbType.IndexOf("char") >= 0)
                      {
@@ -495,7 +503,7 @@ SELECT @NAME
                      {
                          string defaultValue = column.defaultValue.Trim();
                         
-                         database.ExecSqlString("update [" + newTableName + "] set [" + column.Name + "]='" + defaultValue.Replace("'","''") + "' where [" + column.Name + "] is null");
+                         database.ExecSqlString("update [" + newTableName.ToLower() + "] set [" + column.Name.ToLower() + "]='" + defaultValue.Replace("'","''") + "' where [" + column.Name.ToLower() + "] is null");
                      }
 
 
@@ -511,14 +519,14 @@ SELECT @NAME
                  {
                      string sql = "";
                      string defaultValue = column.defaultValue.Trim();
-                     sql += "alter  table  [" + newTableName + "]  add  constraint DF_" + newTableName + "_" + column.Name + " default '" + defaultValue.Replace("'","''") + "' for [" + column.Name + "]";
+                     sql += "alter  table  [" + newTableName + "]  add  constraint DF_" + newTableName.ToLower() + "_" + column.Name.ToLower() + " default '" + defaultValue.Replace("'","''") + "' for [" + column.Name.ToLower() + "]";
                          
                      
                      if (sql.Length > 0)
                          database.ExecSqlString(sql);
                      
 
-                     database.ExecSqlString("update ["+newTableName+"] set ["+column.Name+"]='" + defaultValue.Replace("'","''") + "' where ["+column.Name+"] is null");
+                     database.ExecSqlString("update ["+newTableName.ToLower() + "] set ["+column.Name.ToLower() + "]='" + defaultValue.Replace("'","''") + "' where ["+column.Name.ToLower() + "] is null");
                  } 
                  #endregion
             }
@@ -526,7 +534,7 @@ SELECT @NAME
             foreach (var column in addColumns)
             {
                 #region 新增字段
-                string sql = "alter table [" + newTableName + "] add [" + column.Name + "] [" + column.dbType + "]";
+                string sql = "alter table [" + newTableName.ToLower() + "] add [" + column.Name.ToLower() + "] [" + column.dbType + "]";
 
                 if (column.dbType.IndexOf("char") >= 0)
                 {
@@ -562,7 +570,7 @@ SELECT @NAME
                 database.ExecSqlString(sql);
 
                 if (column.IsPKID == true)
-                    database.ExecSqlString("nalter table [" + newTableName + "] add constraint pk_" + newTableName + "_" + column.Name + " primary key ([" + column.Name + "])");
+                    database.ExecSqlString("nalter table [" + newTableName.ToLower() + "] add constraint pk_" + newTableName.ToLower() + "_" + column.Name.ToLower() + " primary key ([" + column.Name.ToLower() + "])");
                 
                 #endregion
             }
@@ -582,6 +590,7 @@ SELECT @NAME
 
         public void DeleteTable(EntityDB.IDatabaseService database, string tableName)
         {
+            tableName = tableName.ToLower();
             string sql = "if exists(select id from sysobjects where name='" + tableName + "' and xtype='U') drop table [" + tableName + "]";
             database.ExecSqlString(sql);
         }

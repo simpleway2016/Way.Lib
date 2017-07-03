@@ -14,6 +14,7 @@ namespace Way.EntityDB
         public WayDBColumnAttribute()
         {
         }
+        public string Name { get; set; }
         public string Comment { get; set; }
         public string Caption { get; set; }
         public string Storage { get; set; }

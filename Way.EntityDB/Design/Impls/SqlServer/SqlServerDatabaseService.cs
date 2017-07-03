@@ -21,7 +21,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
             //throw new Exception(constr);
             var db = EntityDB.DBContext.CreateDatabaseService(constr, EntityDB.DatabaseType.SqlServer);
 
-            db.ExecSqlString("if exists(select [dbid] from sysdatabases where [name]='" + database.Name + "') drop database " + database.Name );
+            db.ExecSqlString("if exists(select [dbid] from sysdatabases where [name]='" + database.Name.ToLower() + "') drop database " + database.Name.ToLower() );
 
         }
         public void Create(EJ.Databases database)
@@ -39,7 +39,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
                 AS指定区分重音，同样如果不需要区分重音，则改为AI
                 COLLATE可以针对整个数据库更改排序规则，也可以单独修改某一个表或者某一个字段的排序规则，指定排序规则很有用，比如用户管理表，需要验证输入的用户名和密码的正确性，一般是要区分大小写的。
              */
-            db.ExecSqlString("if not exists(select [dbid] from sysdatabases where [name]='" + database.Name + "') create database " + database.Name + " COLLATE Chinese_PRC_CI_AS");
+            db.ExecSqlString("if not exists(select [dbid] from sysdatabases where [name]='" + database.Name.ToLower() + "') create database " + database.Name.ToLower() + " COLLATE Chinese_PRC_CI_AS");
 
             db = EntityDB.DBContext.CreateDatabaseService(database.conStr, EntityDB.DatabaseType.SqlServer);
             CreateEasyJobTable(db);
@@ -171,7 +171,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
             //throw new Exception(constr);
             var db = EntityDB.DBContext.CreateDatabaseService(constr, EntityDB.DatabaseType.SqlServer);
             {
-                db.ExecSqlString("exec sp_renamedb '"+database.Name+"','"+newName+"'");
+                db.ExecSqlString("exec sp_renamedb '"+database.Name.ToLower()+"','"+newName.ToLower()+"'");
 
                 try
                 {
@@ -181,7 +181,7 @@ namespace Way.EntityDB.Design.Database.SqlServer
                 catch
                 {
                     //
-                    db.ExecSqlString("exec sp_renamedb '" + newName + "','" + database.Name + "'");
+                    db.ExecSqlString("exec sp_renamedb '" + newName.ToLower() + "','" + database.Name.ToLower() + "'");
                     throw new Exception("连接字符串错误");
                 }
             }

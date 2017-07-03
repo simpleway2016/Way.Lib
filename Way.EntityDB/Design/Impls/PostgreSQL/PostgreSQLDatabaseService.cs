@@ -20,7 +20,7 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             }
 
             var db = EntityDB.DBContext.CreateDatabaseService(newConnectString.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
-            db.ExecSqlString($"ALTER DATABASE {database.Name} RENAME TO {newName}");
+            db.ExecSqlString($"ALTER DATABASE {database.Name.ToLower()} RENAME TO {newName.ToLower()}");
         }
         public void Drop(Databases database)
         {
@@ -32,7 +32,7 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             }
 
             var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
-            db.ExecSqlString("DROP DATABASE if exists " + database.Name + "");
+            db.ExecSqlString("DROP DATABASE if exists " + database.Name.ToLower() + "");
             db.DBContext.Dispose();
         }
         public void Create(Databases database)
@@ -45,10 +45,10 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             }
 
             var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
-            object flag = db.ExecSqlString("select count(*) from pg_catalog.pg_database where datname=@p0", database.Name);
+            object flag = db.ExecSqlString("select count(*) from pg_catalog.pg_database where datname=@p0", database.Name.ToLower());
             if (Convert.ToInt32(flag)== 0)
             {
-                db.ExecSqlString("CREATE DATABASE " + database.Name + " ENCODING='UTF-8'");
+                db.ExecSqlString("CREATE DATABASE " + database.Name.ToLower() + " ENCODING='UTF-8'");
             }
 
             //创建必须表
@@ -165,7 +165,7 @@ and pg_constraint.contype='p'");
 
                 column.CanNull = row["is_nullable"].ToSafeString() == "YES";
                 column.IsAutoIncrement = row["column_default"].ToSafeString().StartsWith("nextval");
-                column.IsPKID = pkeyTable.Rows.Any(m => m["colname"].ToSafeString() == column.Name);
+                column.IsPKID = pkeyTable.Rows.Any(m => m["colname"].ToSafeString().ToLower() == column.Name.ToLower());
                 if (column.dbType.Contains("char"))
                 {
                     if (row["character_maximum_length"] != null)

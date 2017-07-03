@@ -736,7 +736,7 @@ namespace Way.Lib.ScriptRemoting
                         EntityDB.Attributes.Table tableatt = dataItemType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
                         if (tableatt != null)
                         {
-                            pkid = tableatt.IDField;
+                            pkid = tableatt.KeyName;
                             if (fields.Contains(pkid) == false)
                             {
                                 var list = new List<string>(fields);
@@ -1010,9 +1010,9 @@ namespace Way.Lib.ScriptRemoting
                 }
                 this.OnBeforeSavingData(dataitem);
                 dbContext.Update(dataitem);
-                if (myTableAttr.IDField.IsNullOrEmpty())
+                if (myTableAttr.KeyName.IsNullOrEmpty())
                     return null;
-                return dataitem.GetValue(myTableAttr.IDField);
+                return dataitem.GetValue(myTableAttr.KeyName);
             }
             catch (Exception ex)
             {

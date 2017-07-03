@@ -691,7 +691,7 @@ namespace Way.EntityDB
         /// <param name="dataitem"></param>
         public virtual void Update(DataItem dataitem)
         {
-            string pkid = dataitem.PKIDField;
+            string pkid = dataitem.KeyName;
             object pkvalue = dataitem.PKValue;
             if (pkvalue == null && pkid != null)
             {
@@ -836,7 +836,7 @@ namespace Way.EntityDB
                 {
                     var att = dataType.GetTypeInfo().GetCustomAttribute(typeof(Attributes.Table)) as Attributes.Table;
                     if(att != null)
-                        pkid = att.IDField;
+                        pkid = att.KeyName;
                 }
                 catch
                 {

@@ -14,8 +14,6 @@ namespace Way.EntityDB.Design.Database.MySql
 
         public void Drop(EJ.Databases database)
         {
-            if (database.Name.ToLower() != database.Name)
-                throw new Exception("MySql数据库名称必须是小写");
             var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             if (dbnameMatch == null)
             {
@@ -28,8 +26,6 @@ namespace Way.EntityDB.Design.Database.MySql
         }
         public void Create(EJ.Databases database)
         {
-            if (database.Name.ToLower() != database.Name)
-                throw new Exception("MySql数据库名称必须是小写");
             var dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             if (dbnameMatch == null)
             {

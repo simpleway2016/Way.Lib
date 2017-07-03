@@ -249,20 +249,20 @@ namespace Way.EntityDB
             }
         }
 
-        string _PKIDField;
+        string _KeyName;
         [NotMapped()]
-        internal virtual string PKIDField
+        internal virtual string KeyName
         {
             get
             {
-                if (_PKIDField == null)
+                if (_KeyName == null)
                 {
                     Attributes.Table myTableAttr = this.TableType.GetTypeInfo().GetCustomAttribute(typeof(Attributes.Table)) as Attributes.Table;
                     if (myTableAttr == null)
                         throw new Exception(this.TableType.FullName + "没有定义 Attributes.Table");
-                    _PKIDField = myTableAttr.IDField;
+                    _KeyName = myTableAttr.KeyName;
                 }
-                return _PKIDField;
+                return _KeyName;
             }
         }
 
@@ -274,10 +274,10 @@ namespace Way.EntityDB
             {
                 if (_tableName == null)
                 {
-                    Attributes.Table myTableAttr = this.TableType.GetTypeInfo().GetCustomAttribute(typeof(Attributes.Table)) as Attributes.Table;
+                   var myTableAttr = this.TableType.GetTypeInfo().GetCustomAttribute(typeof(System.ComponentModel.DataAnnotations.Schema.TableAttribute)) as System.ComponentModel.DataAnnotations.Schema.TableAttribute;
                     if (myTableAttr == null)
                         throw new Exception(this.TableType.FullName + "没有定义 Attributes.Table");
-                    _tableName = myTableAttr.TableName;
+                    _tableName = myTableAttr.Name;
                 }
                 return _tableName;
             }
@@ -291,7 +291,7 @@ namespace Way.EntityDB
             {
                 if (_pkvalue == null)
                 {
-                    _pkvalue = this.GetValue(this.PKIDField);
+                    _pkvalue = this.GetValue(this.KeyName);
                 }
                 return _pkvalue;
             }
@@ -318,7 +318,7 @@ namespace Way.EntityDB
 
                     fields.Add(new FieldValue()
                         {
-                            FieldName = pinfo.Name,
+                            FieldName = columnDefine.Name,
                             Value = value,
                         });
                 }
@@ -330,14 +330,15 @@ namespace Way.EntityDB
                 {
                     var pinfo = tableType.GetProperty(changeItem.Key);
 
-                    if (pinfo.GetCustomAttribute(typeof(WayDBColumnAttribute)) == null)
+                    var columnDefine = pinfo.GetCustomAttribute(typeof(WayDBColumnAttribute)) as WayDBColumnAttribute;
+                    if (columnDefine == null)
                         continue;
 
-                  
+
                     object value = pinfo.GetValue(this);
                     fields.Add(new FieldValue()
                     {
-                        FieldName = pinfo.Name,
+                        FieldName = columnDefine.Name,
                         Value = value,
                     });
                 }

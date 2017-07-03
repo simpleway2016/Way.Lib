@@ -284,7 +284,8 @@ namespace " + nameSpace + @"{
     /// <summary>
 	/// " + table.caption + @"
 	/// </summary>
-    [Way.EntityDB.Attributes.Table("""+ table.Name + @""",""" + (pkcolumn == null ? "" : pkcolumn.Name.Trim()) + @""")]
+    [System.ComponentModel.DataAnnotations.Schema.Table("""+ table.Name.ToLower() +@""")]
+    [Way.EntityDB.Attributes.Table(""" + (pkcolumn == null ? "" : pkcolumn.Name.Trim()) + @""")]
     public class " + table.Name + @" :Way.EntityDB.DataItem
     {
 
@@ -418,7 +419,8 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 /// <summary>
 /// " + column.caption + @"
 	/// </summary>"+ otherAttrs + @"
-[Way.EntityDB.WayDBColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
+[System.ComponentModel.DataAnnotations.Schema.Column("""+ column.Name.ToLower() + @""")]
+[Way.EntityDB.WayDBColumnAttribute(Name="""+column.Name.ToLower()+@""",Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
         public virtual " + dataType + @" " + column.Name + @"
         {
             get

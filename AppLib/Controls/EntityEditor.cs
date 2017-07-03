@@ -859,7 +859,7 @@ namespace AppLib.Controls
                         try
                         {
                             object[] atts = dataType.GetCustomAttributes(typeof(Way.EntityDB.Attributes.Table), true);
-                            pkid = ((Way.EntityDB.Attributes.Table)atts[0]).IDField;
+                            pkid = ((Way.EntityDB.Attributes.Table)atts[0]).KeyName;
                         }
                         catch
                         {
@@ -1105,7 +1105,7 @@ namespace AppLib.Controls
 
                 foreach (var pinfo in properies)
                 {
-                    if (pinfo.Name == tableAtt.IDField)
+                    if (pinfo.Name == tableAtt.KeyName)
                     {
                         bkcolumns.Add(pinfo);
                         continue;
@@ -1142,7 +1142,7 @@ namespace AppLib.Controls
             StringBuilder controlContents = new StringBuilder();
             foreach (var pinfo in bkcolumns)
             {
-                if (pinfo.Name == tableAtt.IDField)
+                if (pinfo.Name == tableAtt.KeyName)
                 {
                     continue;
                 }
