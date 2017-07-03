@@ -80,17 +80,17 @@
                     <ListView x:Name="listProperties">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Name" Width="100">
+                                <GridViewColumn Header="Name" Width="150">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBox Text="{Binding name,Mode=TwoWay}"/>
+                                            <TextBox Width="130" Text="{Binding name,Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Type" Width="100">
+                                <GridViewColumn Header="Type" Width="150">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ComboBox ItemsSource="{Binding Columns}" SelectedValue="{Binding foreignkey_tableid , Mode=TwoWay}"/>
+                                            <ComboBox ItemsSource="{DynamicResource AllDBTables}" DisplayMemberPath="Name" SelectedValuePath="id" SelectedValue="{Binding foreignkey_tableid , Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -101,10 +101,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="ForeignKey" Width="100">
+                                <GridViewColumn Header="ForeignKey" Width="200">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ComboBox ItemsSource="{Binding Columns}" SelectedValue="{Binding ColumnName , Mode=TwoWay}"/>
+                                            <ComboBox ItemsSource="{DynamicResource DBColumns}" DisplayMemberPath="Name" SelectedValuePath="id"  SelectedValue="{Binding foreignkey_columnid, Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

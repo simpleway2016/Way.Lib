@@ -419,7 +419,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 /// " + column.caption + @"
 	/// </summary>"+ otherAttrs + @"
 [Way.EntityDB.WayDBColumnAttribute(Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
-        public " + dataType + @" " + column.Name + @"
+        public virtual " + dataType + @" " + column.Name + @"
         {
             get
             {

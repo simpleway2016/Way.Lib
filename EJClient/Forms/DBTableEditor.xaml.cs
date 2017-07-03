@@ -22,8 +22,12 @@ namespace EJClient.Forms
     /// </summary>
     public partial class DBTableEditor : Window
     {
+       
+
         static string[] Tables;
         #region design class
+
+      
 
         internal class 索引 : INotifyPropertyChanged
         {
@@ -141,6 +145,15 @@ namespace EJClient.Forms
                 m_parentEditor = parentEditor;
                 m_pgGrid = parentEditor.pgridForColumn;
                 m_column = column;
+            }
+
+            [Browsable(false)]
+            public int? id
+            {
+                get
+                {
+                    return m_column.id;
+                }
             }
 
             [Category("字段属性"),DisplayName("1:Name")]
@@ -460,9 +473,18 @@ namespace EJClient.Forms
         internal DBTableEditor(DatabaseItemNode dbnode , EJ.DBTable currentTable)
         {
             m_DBNode = dbnode;
+
             InitializeComponent();
 
-
+            //把目前所有表信息，放入Resources["AllDBTables"]，便于页面绑定
+            var 数据表Node = dbnode.Children.FirstOrDefault(m => m is 数据表Node);
+            var alldbtables = new System.Collections.ObjectModel.ObservableCollection<EJ.DBTable>();
+            foreach (DBTableNode tablenode in 数据表Node.Children)
+            {
+                alldbtables.Add(tablenode.Table);
+            }
+            this.Resources["AllDBTables"] = alldbtables;
+            this.Resources["DBColumns"] = m_columns;
 
             pgridForTable = new System.Windows.Forms.PropertyGrid();
             pgridForTable.LineColor = System.Drawing.ColorTranslator.FromHtml("#cccccc");
@@ -500,6 +522,13 @@ namespace EJClient.Forms
                 {
                     m_columns.Add(new 数据列基本信息(c, this));
                 }
+
+                var existProperties = Helper.Client.InvokeSync<EJ.classproperty[]>("GetClassPropertyList", currentTable.id.Value);
+                foreach (var c in existProperties)
+                {
+                    m_properties.Add(c);
+                }
+
                 var delconfigs = Helper.Client.InvokeSync<EJ.DBDeleteConfig[]>("GetTableDeleteConfigList", currentTable.id.Value);
                 foreach (var delitem in delconfigs)
                 {
@@ -531,6 +560,7 @@ namespace EJClient.Forms
 
 
         }
+
 
         void m_deleteConfigs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -632,7 +662,7 @@ namespace EJClient.Forms
                 if (m_IsModify)
                 {
 
-                    Helper.Client.InvokeSync<string>("ModifyTable", m_table, columns, delconfigs, idsConfigs);
+                    Helper.Client.InvokeSync<string>("ModifyTable", m_table, columns, delconfigs, idsConfigs , m_properties.Where(m=>m.name.IsNullOrEmpty() == false).ToArray());
                     m_modifyingTable.Name = m_table.Name;
                     m_modifyingTable.caption = m_table.caption;
 
@@ -655,7 +685,7 @@ namespace EJClient.Forms
                 }
                 else
                 {
-                    m_table = Helper.Client.InvokeSync<EJ.DBTable>("CreateTable", m_table , columns , delconfigs , idsConfigs );
+                    m_table = Helper.Client.InvokeSync<EJ.DBTable>("CreateTable", m_table , columns , delconfigs , idsConfigs, m_properties.Where(m => m.name.IsNullOrEmpty() == false).ToArray());
                     //ChangedProperties本来是0，但ToJsonObject转换时，每个属性都进行set操作，又产生了ChangedProperties
                     m_table.ChangedProperties.Clear();
 
@@ -727,12 +757,15 @@ namespace EJClient.Forms
         }
         private void addProperty_Click(object sender, RoutedEventArgs e)
         {
-            
+            m_properties.Add(new EJ.classproperty());
         }
 
         private void delProperty_Click(object sender, RoutedEventArgs e)
         {
-            
+            if (listProperties.SelectedItem != null)
+            {
+                m_properties.Remove((EJ.classproperty)listProperties.SelectedItem);
+            }
         }
 
         private void btnMoveUp_Click_1(object sender, RoutedEventArgs e)

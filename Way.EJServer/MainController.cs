@@ -705,6 +705,22 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
+        public EJ.DBColumn[] GetColumnNameAndIds(int tableid)
+        {
+
+            using (EJDB db = new EJDB())
+            {
+                var result = from m in db.DBColumn
+                             where m.TableID == tableid
+                             orderby m.orderid
+                             select new EJ.DBColumn {
+                                 Name = m.Name,
+                                 id = m.id
+                             };
+                return result.ToArray();
+            }
+        }
+        [RemotingMethod]
         public EJ.DBColumn[] GetColumns(int tableid)
         {
 
@@ -795,7 +811,17 @@ namespace Way.EJServer
             return null;
         }
         [RemotingMethod]
-        public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs)
+        public EJ.classproperty[] GetClassPropertyList(int tableid)
+        {
+            using (EJDB db = new EJDB())
+            {
+                return db.classproperty.Where(m => m.tableid == tableid).ToArray();
+            }
+            return null;
+        }
+
+        [RemotingMethod]
+        public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs,EJ.classproperty[] classProperties)
         {
             using (EJDB db = new EJDB())
             {
@@ -920,6 +946,13 @@ namespace Way.EJServer
                         delconfig.RelaColumID = relacolumn.id;
                         delconfig.TableID = newtable.id;
                         db.Update(delconfig);
+                    }
+
+                    db.Delete(db.classproperty.Where(m => m.tableid == newtable.id));
+                    foreach (var p in classProperties)
+                    {
+                        p.tableid = newtable.id;
+                        db.Insert(p);
                     }
 
                     object actionid = action.Save(db, database.id.GetValueOrDefault());
@@ -1223,7 +1256,7 @@ namespace Way.EJServer
 
 
         [RemotingMethod]
-        public EJ.DBTable CreateTable(EJ.DBTable table, EJ.DBColumn[] columns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs)
+        public EJ.DBTable CreateTable(EJ.DBTable table, EJ.DBColumn[] columns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs, EJ.classproperty[] classProperties)
         {
            
             using (EJDB db = new EJDB())
@@ -1290,6 +1323,13 @@ namespace Way.EJServer
                         delconfig.RelaColumID = relacolumn.id;
                         delconfig.TableID = table.id;
                         db.Update(delconfig);
+                    }
+
+                    db.Delete(db.classproperty.Where(m=>m.tableid == table.id));
+                    foreach( var p in classProperties )
+                    {
+                        p.tableid = table.id;
+                        db.Insert(p);
                     }
 
                     object actionid = action.Save(db, database.id.GetValueOrDefault());
