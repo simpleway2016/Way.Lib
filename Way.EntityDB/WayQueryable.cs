@@ -1,9 +1,13 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Query.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using System.Linq.Expressions;
+using System.Threading;
 
 namespace Way.EntityDB
 {
@@ -104,6 +108,48 @@ namespace Way.EntityDB
             }
         }
 
+        class MyEntityQueryProvider : EntityQueryProvider
+        {
+            public MyEntityQueryProvider(IQueryCompiler queryCompiler) : base(queryCompiler)
+            {
+            }
+            public override IQueryable CreateQuery(Expression expression)
+            {
+                return base.CreateQuery(expression);
+            }
+            public override IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+            {
+                return base.CreateQuery<TElement>(expression);
+            }
+            public override object Execute(Expression expression)
+            {
+                var item = base.Execute(expression);
+                EntityDB.DataItem dataitem = item as EntityDB.DataItem;
+                if (dataitem != null)
+                    dataitem.ChangedProperties.Clear();
+                return item;
+            }
+
+            public override TResult Execute<TResult>(Expression expression)
+            {
+                var item = base.Execute<TResult>(expression);
+                EntityDB.DataItem dataitem = item as EntityDB.DataItem;
+                if (dataitem != null)
+                    dataitem.ChangedProperties.Clear();
+                return item;
+            }
+
+            public override IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
+            {
+                return base.ExecuteAsync<TResult>(expression);
+            }
+
+            public override Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+            {
+                return base.ExecuteAsync<TResult>(expression, cancellationToken);
+            }
+        }
+
         IQueryable<T> m_source;
 
         IEnumerator<T> _MyEnumerator = null;
@@ -159,7 +205,14 @@ namespace Way.EntityDB
             get
             {
                 if (_Provider == null)
-                    _Provider = new MyQueryProvider(m_source.Provider);
+                {
+                    //_Provider = new MyQueryProvider(m_source.Provider);
+                    //必须继承EntityQueryProvider，才能兼容Include导航属性，否则导航属性都是null
+                    var field = m_source.Provider.GetType().GetField("_queryCompiler", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var queryCompiler = field.GetValue(m_source.Provider) as IQueryCompiler;
+                    _Provider = new MyEntityQueryProvider(queryCompiler);
+                }
+
                 return _Provider;
             }
         }

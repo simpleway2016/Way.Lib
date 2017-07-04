@@ -141,7 +141,7 @@ System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
             {
                 if (_" + t.Name + @" == null)
                 {
-                    _" + t.Name + @" = new Way.EntityDB.WayQueryable<" + nameSpace + @"." + t.Name + @">(this.Set<" + nameSpace + @"." + t.Name + @">());
+                    _" + t.Name + @" = this.Set<" + nameSpace + @"." + t.Name + @">();
                 }
                 return _" + t.Name + @";
             }
@@ -350,7 +350,7 @@ public  " + table.Name + @"()
                     enumDefines.Append(@"
 /// <summary>
 /// 
-	/// </summary>
+/// </summary>
 public enum " + table.Name + "_" + column.Name + @"Enum:int
 {
     
@@ -362,7 +362,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                         enumDefines.Append(@"
 /// <summary>
 /// 
-	/// </summary>
+/// </summary>
 ");
                         enumDefines.Append(enumitem);
                         enumDefines.Append(",\r\n");
@@ -418,7 +418,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 " + dataType + @" _" + column.Name + eqString  + @";
 /// <summary>
 /// " + column.caption + @"
-	/// </summary>"+ otherAttrs + @"
+/// </summary>"+ otherAttrs + @"
 [System.ComponentModel.DataAnnotations.Schema.Column("""+ column.Name.ToLower() + @""")]
 [Way.EntityDB.WayDBColumnAttribute(Name="""+column.Name.ToLower()+@""",Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
         public virtual " + dataType + @" " + column.Name + @"

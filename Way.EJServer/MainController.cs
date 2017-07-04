@@ -10,6 +10,7 @@ using Way.EntityDB.Design.Actions;
 using Way.EntityDB.Design.Services;
 using Way.Lib;
 using Way.Lib.ScriptRemoting;
+using Microsoft.EntityFrameworkCore;
 
 namespace Way.EJServer
 {
@@ -41,6 +42,7 @@ namespace Way.EJServer
         {
             using (EJDB db = new EJDB())
             {
+                
                 if (db.User.Any() == false)
                 {
                     //如果没有任何用户，需要添加一个sa用户
