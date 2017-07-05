@@ -306,7 +306,7 @@ namespace Way.Lib.ScriptRemoting
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
                 currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
-                RemotingController.ThreadControllers[Thread.CurrentThread] = currentPage;
+                RemotingContext.CurrentController = currentPage;
 
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
@@ -318,13 +318,7 @@ namespace Way.Lib.ScriptRemoting
                 var baseException = ex.GetBaseException();
                 SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message , "");
             }
-            finally
-            {
-                if (RemotingController.ThreadControllers.ContainsKey(Thread.CurrentThread))
-                {
-                    RemotingController.ThreadControllers.Remove(Thread.CurrentThread);
-                }
-            }
+
         }
 
        void handleMethodInvoke(MessageBag msgBag)
@@ -339,7 +333,7 @@ namespace Way.Lib.ScriptRemoting
                 currentPage.Session = this.Session;
                 currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
 
-                RemotingController.ThreadControllers[Thread.CurrentThread] = currentPage;
+                RemotingContext.CurrentController = currentPage;
 
                 currentPage.onLoad();
 

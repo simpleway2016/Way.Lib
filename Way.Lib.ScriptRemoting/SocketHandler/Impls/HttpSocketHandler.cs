@@ -137,7 +137,7 @@ namespace Way.Lib.ScriptRemoting
                     {
                         _currentHttpConnectInformation = new HttpConnectInformation(Request, Response);
                         //先设一个默认controller，后面具体controller可以替换
-                        RemotingController.ThreadControllers[Thread.CurrentThread] = new RemotingController() { Session = _currentHttpConnectInformation.Session };
+                        RemotingContext.CurrentController = new RemotingController() { Session = _currentHttpConnectInformation.Session };
                     }
 
                     url = getUrl(url);
@@ -169,13 +169,7 @@ namespace Way.Lib.ScriptRemoting
             catch(Exception ex)
             {
             }
-            finally
-            {
-                if (RemotingController.ThreadControllers.ContainsKey(Thread.CurrentThread))
-                {
-                    RemotingController.ThreadControllers.Remove(Thread.CurrentThread);
-                }
-            }
+            
 
             this.Response.End();
         }

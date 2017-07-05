@@ -70,7 +70,7 @@ namespace Way.Lib.ScriptRemoting
                 }
             }
         }
-        internal static System.Collections.Hashtable ThreadControllers = Hashtable.Synchronized(new Hashtable());
+
         static List<string> SafeDomains = new List<string>();
         internal static List<ParseHtmlInfo> ParsedHtmls = new List<ParseHtmlInfo>();
         internal string SocketID;
@@ -90,18 +90,7 @@ namespace Way.Lib.ScriptRemoting
                 return true;
             return OnMessageReceiverConnect(session, groupName);
         }
-        /// <summary>
-        /// 获取当前上下文对应的Session
-        /// </summary>
-        /// <returns></returns>
-        public static RemotingController GetCurrentController()
-        {
-            var thread = System.Threading.Thread.CurrentThread;
-            if (ThreadControllers.ContainsKey(thread))
-                return (RemotingController)ThreadControllers[thread];
-            else
-                return null;
-        }
+
 
         /// <summary>
         /// 获取web所在文件夹
