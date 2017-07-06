@@ -19,20 +19,11 @@ namespace Way.Lib.ScriptRemoting
 
         //static List<string> compiledTSFiles = new List<string>();
 
-        public Net.Request Request
-        {
-            get;
-            private set;
-        }
-        public Net.Response Response
-        {
-            get;
-            private set;
-        }
+       
         public HttpSocketHandler(Net.Request request)
         {
-            this.Request = request;
-            this.Response = new Net.Response(request.mClient);
+            RemotingContext.Current.Request = request;
+            RemotingContext.Current.Response = new Net.Response(request.mClient);
            
         }
         public void Handle()
@@ -41,58 +32,58 @@ namespace Way.Lib.ScriptRemoting
             try
             {
                 //访问ts脚本
-                if (this.Request.Headers["GET"].ToSafeString().EndsWith("/SERVERID"))
+                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("/SERVERID"))
                 {
-                    this.Response.WriteStringBody(ScriptRemotingServer.SERVERID);
+                    RemotingContext.Current.Response.WriteStringBody(ScriptRemotingServer.SERVERID);
                 }
-                else if (this.Request.Headers["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
+                else if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
                 {
-                    var since = this.Request.Headers["If-Modified-Since"].ToSafeString();
+                    var since = RemotingContext.Current.Request.Headers["If-Modified-Since"].ToSafeString();
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
                     if (lastWriteTime == since)
                     {
-                        this.Response.SendFileNoChanged();
+                        RemotingContext.Current.Response.SendFileNoChanged();
                     }
                     else
                     {
                         outputFile(ScriptRemotingServer.ScriptFilePath, lastWriteTime);
                     }
                 }
-                else if (this.Request.Headers["POST"].ToSafeString().ToLower().StartsWith("/wayscriptremoting_invoke?a="))
+                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().ToLower().StartsWith("/wayscriptremoting_invoke?a="))
                 {
-                    Request.urlRequestHandler();
-                    string json = Request.Form["m"];
+                    RemotingContext.Current.Request.urlRequestHandler();
+                    string json = RemotingContext.Current.Request.Form["m"];
                     RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
                     {
-                        this.Response.WriteStringBody(data);
-                    }, null, this.Request.RemoteEndPoint.ToString().Split(':')[0], (string)this.Request.Headers["Referer"],
+                        RemotingContext.Current.Response.WriteStringBody(data);
+                    }, null, RemotingContext.Current.Request.RemoteEndPoint.ToString().Split(':')[0], (string)RemotingContext.Current.Request.Headers["Referer"],
                     (key) =>
                     {
-                        return this.Request.Headers[key];
+                        return RemotingContext.Current.Request.Headers[key];
                     });
                     rs.OnReceived(json);
 
                 }
-                else if (this.Request.Headers["POST"].ToSafeString().EndsWith("?WayVirtualWebSocket=1")
-                    || this.Request.Headers["POST"].ToSafeString().EndsWith("&WayVirtualWebSocket=1"))
+                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().EndsWith("?WayVirtualWebSocket=1")
+                    || RemotingContext.Current.Request.Headers["POST"].ToSafeString().EndsWith("&WayVirtualWebSocket=1"))
                 {
-                    Request.urlRequestHandler();
-                    new VirtualWebSocketHandler(Request.Form, (data) =>
+                    RemotingContext.Current.Request.urlRequestHandler();
+                    new VirtualWebSocketHandler(RemotingContext.Current.Request.Form, (data) =>
                    {
-                       Response.WriteStringBody(data);
+                       RemotingContext.Current.Response.WriteStringBody(data);
                    }, () =>
                      {
-                         Response.End();
+                         RemotingContext.Current.Response.End();
 
                          return 0;
                      }, () =>
                       {
-                          this.Response.CloseSocket();
+                          RemotingContext.Current.Response.CloseSocket();
                           return 0;
-                      }, this.Request.RemoteEndPoint.ToString().Split(':')[0],(string)this.Request.Headers["Referer"],
+                      }, RemotingContext.Current.Request.RemoteEndPoint.ToString().Split(':')[0],(string)RemotingContext.Current.Request.Headers["Referer"],
                       (key) =>
                       {
-                          return this.Request.Headers[key];
+                          return RemotingContext.Current.Request.Headers[key];
                       }
 
                     ).Handle();
@@ -102,14 +93,14 @@ namespace Way.Lib.ScriptRemoting
                 else
                 {
                    
-                    string url = (this.Request.Headers["GET"] == null ? this.Request.Headers["POST"] : this.Request.Headers["GET"]).ToSafeString();
+                    string url = (RemotingContext.Current.Request.Headers["GET"] == null ? RemotingContext.Current.Request.Headers["POST"] : RemotingContext.Current.Request.Headers["GET"]).ToSafeString();
                    
                      if (url.Contains("?"))
                     {
                         MatchCollection matches = Regex.Matches(url, @"(?<n>(\w)+)\=(?<v>([^\=\&])+)");
                         foreach( Match m in matches )
                         {
-                            Request.Query[m.Groups["n"].Value] = WebUtility.UrlDecode(m.Groups["v"].Value);
+                            RemotingContext.Current.Request.Query[m.Groups["n"].Value] = WebUtility.UrlDecode(m.Groups["v"].Value);
                         }
                         url = url.Substring(0, url.IndexOf("?"));
                     }
@@ -125,7 +116,7 @@ namespace Way.Lib.ScriptRemoting
 
                     try
                     {
-                        Request.urlRequestHandler();
+                        RemotingContext.Current.Request.urlRequestHandler();
 
                     }
                     catch (Exception ex)
@@ -135,9 +126,9 @@ namespace Way.Lib.ScriptRemoting
 
                     if ((ScriptRemotingServer.Routers.Count > 0 || ScriptRemotingServer.Handlers.Count > 0) && _currentHttpConnectInformation == null)
                     {
-                        _currentHttpConnectInformation = new HttpConnectInformation(Request, Response);
+                        _currentHttpConnectInformation = new HttpConnectInformation(RemotingContext.Current.Request, RemotingContext.Current.Response);
                         //先设一个默认controller，后面具体controller可以替换
-                        RemotingContext.CurrentController = new RemotingController() { Session = _currentHttpConnectInformation.Session };
+                        RemotingContext.Current.Controller = new RemotingController() { Session = _currentHttpConnectInformation.Session };
                     }
 
                     url = getUrl(url);
@@ -156,7 +147,7 @@ namespace Way.Lib.ScriptRemoting
 
                     checkHandlers(url);
                     
-                    if (Response.mClient != null)
+                    if (RemotingContext.Current.Response.mClient != null)
                     {
                         string filepath = url;
                         if (filepath.StartsWith("/"))
@@ -169,9 +160,9 @@ namespace Way.Lib.ScriptRemoting
             catch(Exception ex)
             {
             }
-            
 
-            this.Response.End();
+
+            RemotingContext.Current.Response.End();
         }
         void checkHandlers(string visitingUrl)
         {
@@ -202,7 +193,7 @@ namespace Way.Lib.ScriptRemoting
 
             foreach (var router in ScriptRemotingServer.Routers)
             {
-                var url = router.GetUrl(visitingUrl, (string)this.Request.Headers["Referer"], _currentHttpConnectInformation);
+                var url = router.GetUrl(visitingUrl, (string)RemotingContext.Current.Request.Headers["Referer"], _currentHttpConnectInformation);
                 if (url != null)
                 {
                     visitingUrl = url;
@@ -243,14 +234,14 @@ namespace Way.Lib.ScriptRemoting
         {
             if (File.Exists(filePath) == false)
             {
-                this.Response.SendFileNotFound();
+                RemotingContext.Current.Response.SendFileNotFound();
                 return;
             }
-            var since = this.Request.Headers["If-Modified-Since"].ToSafeString();
+            var since = RemotingContext.Current.Request.Headers["If-Modified-Since"].ToSafeString();
             var lastWriteTime = new System.IO.FileInfo(filePath).LastWriteTime.ToString("R");
             if (lastWriteTime == since)
             {
-                this.Response.SendFileNoChanged();
+                RemotingContext.Current.Response.SendFileNoChanged();
             }
             else
             {
@@ -355,8 +346,8 @@ namespace Way.Lib.ScriptRemoting
                         }
                         catch
                         { }
-                        this.Response.MakeResponseHeaders(bs.Length, false, -1, 0, lastModifyTime, null, true);
-                        this.Response.Write(bs);
+                        RemotingContext.Current.Response.MakeResponseHeaders(bs.Length, false, -1, 0, lastModifyTime, null, true);
+                        RemotingContext.Current.Response.Write(bs);
                         return;
                     }
                 }
@@ -385,7 +376,7 @@ namespace Way.Lib.ScriptRemoting
                 }
             }
 
-            Response.MakeResponseHeaders(fs.Length, false, -1, 0, lastModifyTime, null, true);
+            RemotingContext.Current.Response.MakeResponseHeaders(fs.Length, false, -1, 0, lastModifyTime, null, true);
             
             bs = new byte[4096];
             while (true)
@@ -393,7 +384,7 @@ namespace Way.Lib.ScriptRemoting
                 int count = fs.Read(bs, 0, bs.Length);
                 if (count == 0)
                     break;
-                Response.Write(bs ,0 , count  );
+                RemotingContext.Current.Response.Write(bs ,0 , count  );
             }
             fs.Dispose();
                 

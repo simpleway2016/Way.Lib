@@ -306,7 +306,7 @@ namespace Way.Lib.ScriptRemoting
                 RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;
                 currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
-                RemotingContext.CurrentController = currentPage;
+                RemotingContext.Current.Controller = currentPage;
 
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
@@ -333,7 +333,7 @@ namespace Way.Lib.ScriptRemoting
                 currentPage.Session = this.Session;
                 currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
 
-                RemotingContext.CurrentController = currentPage;
+                RemotingContext.Current.Controller = currentPage;
 
                 currentPage.onLoad();
 
