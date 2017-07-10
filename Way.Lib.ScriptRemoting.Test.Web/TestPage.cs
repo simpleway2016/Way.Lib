@@ -17,7 +17,7 @@ namespace Way.Lib.ScriptRemoting.Test
         {
             EJ.DBColumn column = dataitem as EJ.DBColumn;
             column.TableID = 3;
-            SendGroupMessage( "Newtonsoft.Json.JsonConvert.SerializeObject(dataitem)");
+            SendGroupMessage("g1", "Newtonsoft.Json.JsonConvert.SerializeObject(dataitem)");
         }
 
 
@@ -86,8 +86,9 @@ namespace Way.Lib.ScriptRemoting.Test
             return DateTime.Now.ToString();
         }
 
+
         FileStream fs;
-        public override IUploadFileHandler OnBeginUploadFile(string fileName, int fileSize,int offset)
+        public override IUploadFileHandler OnBeginUploadFile(string fileName, string state, int fileSize, int offset)
         {
             if (File.Exists("d:\\aa\\" + fileName))
             {
@@ -100,14 +101,7 @@ namespace Way.Lib.ScriptRemoting.Test
             }
             return this;
         }
-        protected override void OnLoad()
-        {
-            this.SetOnKeepAliveClose(()=>
-            {
-                Debug.WriteLine("KeepAlive Closed");
-            });
-            base.OnLoad();
-        }
+       
 
         int l = 0;
         void IUploadFileHandler.OnGettingFileData(byte[] data)

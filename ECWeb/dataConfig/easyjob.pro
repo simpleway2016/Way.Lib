@@ -1,1 +1,0 @@
-﻿{"NameSpace":"EJ","ClassFileFolder":"D:\\代码\\EasyJob\\dataconfig","DataBaseName":"EasyJob","DataServerName":".\\sqlexpress","DataUserName":"sa","DataPassword":"1"}
