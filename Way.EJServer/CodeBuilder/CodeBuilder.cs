@@ -39,31 +39,31 @@ namespace Way.EJServer
                         if (rela_pkcolumn == null)
                             throw new Exception("关联表" + delDBTable.Name + "没有定义主键");
                         codestrs.Append(@"
-    var items" + i + @" = (from m in db."+delDBTable.Name+@"
+                    var items" + i + @" = (from m in db."+delDBTable.Name+@"
                     where m." + relaColumn.Name + @" == deletingItem.id
                     select new " + nameSpace + @"." + delDBTable.Name + @"
                     {
                         " + rela_pkcolumn.Name + @" = m." + rela_pkcolumn.Name + @"
                     });
-while(true)
-{
-    var data2del = items" + i + @".Take(100).ToList();
-if(data2del.Count() ==0)
-break;
-            foreach (var t in data2del)
-            {
-                db.Delete(t);
-            }
-}
+                    while(true)
+                    {
+                        var data2del = items" + i + @".Take(100).ToList();
+                        if(data2del.Count() ==0)
+                            break;
+                        foreach (var t in data2del)
+                        {
+                            db.Delete(t);
+                        }
+                    }
 ");
                     }
 
                     _Database_deleteCodes.Append(@"
-                if (e.DataItem is " + nameSpace + @"." + t.Name + @")
-                {
-                    var deletingItem = (" + nameSpace + @"." + t.Name + @")e.DataItem;
-                    " + codestrs + @"
-                }
+                    if (e.DataItem is " + nameSpace + @"." + t.Name + @")
+                    {
+                        var deletingItem = (" + nameSpace + @"." + t.Name + @")e.DataItem;
+                        " + codestrs + @"
+                    }
 ");
                 }
             }
@@ -98,7 +98,7 @@ namespace "+nameSpace+@".DB{
             }
         }
 
-static object lockObj = new object();
+        static object lockObj = new object();
         static bool setEvented = false;
  
 
@@ -111,10 +111,10 @@ static object lockObj = new object();
 " + _Database_deleteCodes + @"
         }
 
-/// <summary>
-	/// 
-	/// </summary>
- /// <param name=""modelBuilder""></param>
+        /// <summary>
+	    /// 
+	    /// </summary>
+        /// <param name=""modelBuilder""></param>
          protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
    ");
@@ -131,8 +131,8 @@ static object lockObj = new object();
             foreach (var t in tables)
             {
                 result.Append(@"
-System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
- /// <summary>
+        System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
+        /// <summary>
         /// " + t.caption + @"
         /// </summary>
         public virtual System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> " + t.Name + @"
@@ -242,7 +242,7 @@ System.Linq.IQueryable<" + nameSpace + @"." + t.Name + @"> _" + t.Name + @";
     public class " + table.Name + @"
     {
 
-public  " + table.Name + @"()
+        public  " + table.Name + @"()
         {
         }
 
@@ -289,10 +289,10 @@ namespace " + nameSpace + @"{
     public class " + table.Name + @" :Way.EntityDB.DataItem
     {
 
-/// <summary>
-	/// 
-	/// </summary>
-public  " + table.Name + @"()
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  " + table.Name + @"()
         {
         }
 
@@ -415,12 +415,12 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                 }
 
                 result.Append(@"
-" + dataType + @" _" + column.Name + eqString  + @";
-/// <summary>
-/// " + column.caption + @"
-/// </summary>"+ otherAttrs + @"
-[System.ComponentModel.DataAnnotations.Schema.Column("""+ column.Name.ToLower() + @""")]
-[Way.EntityDB.WayDBColumnAttribute(Name="""+column.Name.ToLower()+@""",Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
+        " + dataType + @" _" + column.Name + eqString  + @";
+        /// <summary>
+        /// " + column.caption + @"
+        /// </summary>"+ otherAttrs + @"
+        [System.ComponentModel.DataAnnotations.Schema.Column("""+ column.Name.ToLower() + @""")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="""+column.Name.ToLower()+@""",Comment="""",Caption=""" + caption + @""",Storage = ""_" + column.Name.Trim() + @"""" + att + @")]
         public virtual " + dataType + @" " + column.Name + @"
         {
             get
