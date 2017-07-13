@@ -1,4 +1,9 @@
 ﻿(function () {
+    if (window._configTouchHandlered)
+        return;
+    //防止js被两次引用
+    window._configTouchHandlered = true;
+
     window.lowAndroidCustomScrolls = [];
     var lastClickEvent = null;
     var lastLongTouchEvent = null;
@@ -228,7 +233,7 @@
 
     function parseTouchHandler() {
         var func = function (container) {
-            if (!container.getAttribute)
+            if (container != document && !container.getAttribute)
                 return;
             if (container != document && container.nodeType == 3)//3表示#text类型，不是htmlElement
                 return;
