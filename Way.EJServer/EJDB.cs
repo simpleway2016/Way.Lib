@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Way.Lib.ScriptRemoting;
 
 namespace Way.EJServer
 {
@@ -11,7 +12,7 @@ namespace Way.EJServer
         {
             get
             {
-                var session = Way.Lib.ScriptRemoting.RemotingController.GetCurrentController().Session;
+                var session = RemotingContext.Current.Controller.Session;
                 return session["user"] as EJ.User;
             }
         }

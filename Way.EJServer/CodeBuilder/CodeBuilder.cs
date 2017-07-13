@@ -222,7 +222,6 @@ namespace "+nameSpace+@".DB{
                     return type;
 
             }
-            return "";
         }
 
         class TempAssembly
@@ -230,47 +229,7 @@ namespace "+nameSpace+@".DB{
             public string ClassFullName;
             public Type TableType;
         }
-    
-
-         static string BuildTableForSelectData(  string nameSpace, EJ.DBTable table, EJ.DBColumn[] columns)
-        {
-            var pkcolumn = columns.FirstOrDefault(m => m.IsPKID == true);
-            StringBuilder result = new StringBuilder();
-            StringBuilder enumDefines = new StringBuilder();
-
-            result.Append(@"
-    public class " + table.Name + @"
-    {
-
-        public  " + table.Name + @"()
-        {
-        }
-
-");
-
-            foreach (var column in columns)
-            {
-             
-                string dataType = GetLinqTypeString(column.dbType);
-
-                result.Append(@"
-        public " + dataType + @" " + column.Name + @"
-        {
-            get;
-            set;
-        }
-");
-            }
-
-            result.Append("}}");
-
-            result.Insert(0, @"
-using System;
-namespace " + nameSpace + @"{
-" + enumDefines);
-
-            return result.ToString();
-        }
+          
 
         static string BuildTable(EJDB db, string nameSpace, EJ.DBTable table, List<EJ.DBColumn> columns)
         {
@@ -533,58 +492,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
             }
             return "";
         }
-        public string BuildOldClassCode(EJDB db, string nameSpace, EJ.DBTable table, List<EJ.DBColumn> columns)
-        {
-            return null;
-        }
-    
-        static string BuildLinq(EJDB db, string nameSpace, EJ.DBTable table, List<EJ.DBColumn> columns)
-        {
-            var pkcolumn = columns.FirstOrDefault(m => m.IsPKID == true);
-
-
-            StringBuilder result = new StringBuilder();
-            result.Append(@"
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration;
-");
-
-            result.Append(@"
-namespace " + nameSpace + @".Linq
-{
-
-        internal class " + table.Name.Trim() + @"_Configuration : EntityTypeConfiguration<" + nameSpace + @".Linq." + table.Name.Trim() + @">
-    {
-        internal " + table.Name.Trim() + @"_Configuration()
-        {
-           " + (pkcolumn == null ? "HasKey(c => c." + columns[0].Name.Trim() + ");" : " HasKey(c => c." + pkcolumn.Name.Trim() + ");") + @"
-            
-        }
-    }
-
-    /// <summary>
-	/// " + table.caption + @"
-	/// </summary>
-    [Serializable]
-    [System.ComponentModel.DataAnnotations.Schema.Table(""" + table.Name.Trim() + @""")]
-    [EntityDB.Attributes.Table(""" + (pkcolumn == null ? "" : pkcolumn.Name.Trim()) + @""")]
-    [System.Data.Linq.Mapping.TableAttribute(Name = @""" + table.Name.Trim() + @""")]
-    public class " + table.Name + @" : " + nameSpace + @"." + table.Name + @"
-    {
-       }
-}");
-            return result.ToString();
-        }
-        static string BuildInterface(EJDB db, string nameSpace, EJ.DBTable table, List<EJ.DBColumn> columns)
-        {
-            return null;
-        }
+                 
+       
     }
 }
