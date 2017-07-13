@@ -61,7 +61,7 @@ namespace EJClient
 
               
 
-                Helper.Client.Invoke<int[]>("Login", (result, error) =>
+                Helper.Client.Invoke<int[]>("Login", Way.Lib.ScriptRemoting.RSAApplyScene.EncryptResultAndParameters, (result, error) =>
                {
                    this.Cursor = null;
                    if (error != null)

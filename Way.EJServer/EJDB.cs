@@ -17,14 +17,14 @@ namespace Way.EJServer
             }
         }
       
-        static string ConnectionString = null;
+        static string _ConnectionString = null;
         static string GetConnectionString()
         {
-            if (ConnectionString != null)
-                return ConnectionString;
+            if (_ConnectionString != null)
+                return _ConnectionString;
 
-            ConnectionString = $"Data Source=\"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}EasyJob.db\"";
-            return ConnectionString;
+            _ConnectionString = $"Data Source=\"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}EasyJob.db\"";
+            return _ConnectionString;
         }
 
         static bool setted = false;

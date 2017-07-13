@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Way.Lib;
+using Way.Lib.ScriptRemoting;
 
 namespace EJClient.Net
 {
@@ -90,8 +91,11 @@ namespace EJClient.Net
             modulus = Way.Lib.RSA.HexStringToBytes( initInfo.rsa.Modulus);
             exponent = Way.Lib.RSA.HexStringToBytes(initInfo.rsa.Exponent);
         }
-
-        public async void Invoke<T>(string name, CallbackHandler<T> callback , params object[] methodParams)
+        public async void Invoke<T>(string name,  CallbackHandler<T> callback, params object[] methodParams)
+        {
+            Invoke<T>(name, RSAApplyScene.None, callback, methodParams);
+        }
+        public async void Invoke<T>(string name, RSAApplyScene rsaScene, CallbackHandler<T> callback , params object[] methodParams )
         {
             
             try
@@ -123,7 +127,7 @@ namespace EJClient.Net
                     for (int i = 0; i < methodParams.Length; i++)
                     {
                         ps[i] = methodParams[i].ToJsonString();
-                        if (name == "Login" || name == "ChangePassword")
+                        if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
                         {
                             ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(ps[i]), Helper.Exponent, Helper.Modulus);
                         }
@@ -170,6 +174,11 @@ namespace EJClient.Net
                     return;
                 }
                 var responseString = await result.Content.ReadAsStringAsync();
+                if(responseString.StartsWith("{") == false)
+                {
+                    responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
+                    responseString = System.Net.WebUtility.UrlDecode(responseString);
+                }
                 try
                 {
                     var response = responseString.ToJsonObject<ResultInfo<T>>();
@@ -246,8 +255,11 @@ namespace EJClient.Net
            
         }
 
-
         public T InvokeSync<T>(string name, params object[] methodParams)
+        {
+            return InvokeSync<T>(name, RSAApplyScene.None, methodParams);
+        }
+         public T InvokeSync<T>(string name,RSAApplyScene rsaScene, params object[] methodParams)
         {
             Dictionary<string, string> values = new Dictionary<string, string>();
             string[] ps;
@@ -257,7 +269,7 @@ namespace EJClient.Net
                 for (int i = 0; i < methodParams.Length; i++)
                 {
                     ps[i] = methodParams[i].ToJsonString();
-                    if (name == "Login" || name == "ChangePassword")
+                    if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
                     {
                         ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(ps[i]), Helper.Exponent, Helper.Modulus);
                     }
@@ -287,6 +299,12 @@ namespace EJClient.Net
             var responseStringTask = result.Content.ReadAsStringAsync();
             responseStringTask.Wait();
             var responseString = responseStringTask.Result;
+            if (responseString.StartsWith("{") == false)
+            {
+                responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
+                responseString = System.Net.WebUtility.UrlDecode(responseString);
+            }
+
             try
             {
                 var response = responseString.ToJsonObject<ResultInfo<T>>();
