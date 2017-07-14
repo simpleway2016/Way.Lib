@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="aa.html" />
+    <Content Include="controlTest.html" />
     <Content Include="css\flex.css" />
     <Content Include="Global.asax" />
     <Content Include="GridViewPageTest.html" />
@@ -49,6 +50,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="GridViewTest.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
+    <TypeScriptCompile Include="scripts\JControls.ts" />
     <TypeScriptCompile Include="scripts\WayScriptRemoting.ts" />
   </ItemGroup>
   <ItemGroup>
