@@ -70,7 +70,6 @@ class JObserveObject implements INotifyPropertyChanged {
     __parent: JObserveObject;
     __parentName: string;
     private __onchanges = [];
-    private __objects = {};
 
     constructor(data, parent: JObserveObject = null, parentname: string = null) {
 
@@ -92,40 +91,6 @@ class JObserveObject implements INotifyPropertyChanged {
         }
     }
 
-    addNewProperty(proName, value) {
-        this.__data[proName] = value;
-
-        var type = typeof value;
-        if (value == null || value instanceof Array || type != "object") {
-            Object.defineProperty(this, proName, {
-                get: function () {
-                    return this.__data[proName];
-                },
-                set: function (value) {
-                    if (this.__data[proName] != value) {
-                        this.__data[proName] = value;
-                        this.__changed(proName, value);
-                        if (this.__parent) {
-                            var curparent = this.__parent;
-                            var pname = this.__parentName;
-                            while (curparent) {
-                                proName = pname + "." + proName;
-                                curparent.__changed(proName, value);
-                                pname = curparent.__parentName;
-                                curparent = curparent.__parent;
-
-                            }
-                        }
-
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-        }
-    }
-
-
     private __addProperty(proName) {
         var type = typeof this.__data[proName];
         if (type == "object" && !(this.__data[proName] instanceof Array)) {
@@ -140,13 +105,13 @@ class JObserveObject implements INotifyPropertyChanged {
                 set: function (value) {
                     if (this.__data[proName] != value) {
                         this.__data[proName] = value;
-                        this.__changed(proName, value);
+                        this.onPropertyChanged(proName, value);
                         if (this.__parent) {
                             var curparent = this.__parent;
                             var pname = this.__parentName;
                             while (curparent) {
                                 proName = pname + "." + proName;
-                                curparent.__changed(proName, value);
+                                curparent.onPropertyChanged(proName, value);
                                 pname = curparent.__parentName;
                                 curparent = curparent.__parent;
 
@@ -253,7 +218,13 @@ class JDataBinder
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             try {//防止属性是style.width这样的格式
-                eval("this.element." + config.elementPropertyName + " = this.dataContext." + config.dataPropertyName);
+                var value;
+                eval("value=this.dataContext." + config.dataPropertyName);
+                if (value)
+                {
+                    eval("this.element." + config.elementPropertyName + " = value");
+                }
+                
             }
             catch (e) {
             }
@@ -320,6 +291,11 @@ class JControl implements INotifyPropertyChanged {
                 return;
             }
         }
+
+        if (!value.addPropertyChangedListener) {
+            value = new JObserveObject(value);
+        }
+
         if (this._dataContext != value)
         {
             this._dataContext = value;
@@ -332,7 +308,11 @@ class JControl implements INotifyPropertyChanged {
                 {
                     this.dataBinder = new JDataBinder(value, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
                 }
-                
+            }
+
+            if (value && this.element)
+            {
+                this.setChildrenDataContext(this.element, value);
             }
         }
     }
@@ -386,13 +366,43 @@ class JControl implements INotifyPropertyChanged {
             JElementHelper.replaceElement(this.element, element);
             (<any>this.element)._JControl = this;
             this.element.addEventListener("click", this.onclick, false);
-            
+
+            if (!this.dataContext)
+            {
+                var parent = this.element.parentElement;
+                while (parent && !this.dataContext)
+                {
+                    if ((<any>parent)._JControl)
+                    {
+                        this.dataContext = (<JControl>(<any>parent)._JControl).dataContext;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+            }
+
             //把this.element里面的JControl初始化
             JElementHelper.initElements(this.element);
 
             this.templateBinder = new JDataBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
             if (this.dataContext) {
+                
                 this.dataBinder = new JDataBinder(this.dataContext, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
+            }
+        }
+    }
+
+    protected setChildrenDataContext(element: HTMLElement, dataContext) {
+        for (var i = 0; i < element.children.length; i++) {
+            var child = element.children[i];
+            if ((<any>child)._JControl) {
+                if (!(<JControl>(<any>child)._JControl).dataContext) {
+                    (<JControl>(<any>child)._JControl).dataContext = dataContext;
+                }
+            }
+            else {
+                this.setChildrenDataContext(<HTMLElement>child, dataContext);
             }
         }
     }

@@ -17,9 +17,7 @@ declare class JObserveObject implements INotifyPropertyChanged {
     __parent: JObserveObject;
     __parentName: string;
     private __onchanges;
-    private __objects;
     constructor(data: any, parent?: JObserveObject, parentname?: string);
-    addNewProperty(proName: any, value: any): void;
     private __addProperty(proName);
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): void;
     onPropertyChanged(proName: string, originalValue: any): void;
@@ -48,6 +46,7 @@ declare class JControl implements INotifyPropertyChanged {
     private _onclick;
     onclick: any;
     constructor(element: HTMLElement);
+    protected setChildrenDataContext(element: HTMLElement, dataContext: any): void;
     protected getTemplate(element: HTMLElement, forwhat: string): HTMLElement;
 }
 declare class JButton extends JControl {

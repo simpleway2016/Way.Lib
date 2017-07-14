@@ -63,7 +63,6 @@ var JObserveObject = (function () {
         if (parent === void 0) { parent = null; }
         if (parentname === void 0) { parentname = null; }
         this.__onchanges = [];
-        this.__objects = {};
         if (data instanceof JObserveObject) {
             var old = data;
             this.addPropertyChangedListener(function (_model, _name, _value) {
@@ -78,35 +77,6 @@ var JObserveObject = (function () {
             this.__addProperty(p);
         }
     }
-    JObserveObject.prototype.addNewProperty = function (proName, value) {
-        this.__data[proName] = value;
-        var type = typeof value;
-        if (value == null || value instanceof Array || type != "object") {
-            Object.defineProperty(this, proName, {
-                get: function () {
-                    return this.__data[proName];
-                },
-                set: function (value) {
-                    if (this.__data[proName] != value) {
-                        this.__data[proName] = value;
-                        this.__changed(proName, value);
-                        if (this.__parent) {
-                            var curparent = this.__parent;
-                            var pname = this.__parentName;
-                            while (curparent) {
-                                proName = pname + "." + proName;
-                                curparent.__changed(proName, value);
-                                pname = curparent.__parentName;
-                                curparent = curparent.__parent;
-                            }
-                        }
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-        }
-    };
     JObserveObject.prototype.__addProperty = function (proName) {
         var type = typeof this.__data[proName];
         if (type == "object" && !(this.__data[proName] instanceof Array)) {
@@ -120,13 +90,13 @@ var JObserveObject = (function () {
                 set: function (value) {
                     if (this.__data[proName] != value) {
                         this.__data[proName] = value;
-                        this.__changed(proName, value);
+                        this.onPropertyChanged(proName, value);
                         if (this.__parent) {
                             var curparent = this.__parent;
                             var pname = this.__parentName;
                             while (curparent) {
                                 proName = pname + "." + proName;
-                                curparent.__changed(proName, value);
+                                curparent.onPropertyChanged(proName, value);
                                 pname = curparent.__parentName;
                                 curparent = curparent.__parent;
                             }
@@ -211,7 +181,11 @@ var JDataBinder = (function () {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             try {
-                eval("this.element." + config.elementPropertyName + " = this.dataContext." + config.dataPropertyName);
+                var value;
+                eval("value=this.dataContext." + config.dataPropertyName);
+                if (value) {
+                    eval("this.element." + config.elementPropertyName + " = value");
+                }
             }
             catch (e) {
             }
@@ -267,6 +241,17 @@ var JControl = (function () {
             JElementHelper.replaceElement(this.element, element);
             this.element._JControl = this;
             this.element.addEventListener("click", this.onclick, false);
+            if (!this.dataContext) {
+                var parent = this.element.parentElement;
+                while (parent && !this.dataContext) {
+                    if (parent._JControl) {
+                        this.dataContext = parent._JControl.dataContext;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+            }
             JElementHelper.initElements(this.element);
             this.templateBinder = new JDataBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
             if (this.dataContext) {
@@ -297,6 +282,9 @@ var JControl = (function () {
                     return;
                 }
             }
+            if (!value.addPropertyChangedListener) {
+                value = new JObserveObject(value);
+            }
             if (this._dataContext != value) {
                 this._dataContext = value;
                 if (this.dataBinder) {
@@ -307,6 +295,9 @@ var JControl = (function () {
                     if (this.element) {
                         this.dataBinder = new JDataBinder(value, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
                     }
+                }
+                if (value && this.element) {
+                    this.setChildrenDataContext(this.element, value);
                 }
             }
         },
@@ -336,6 +327,19 @@ var JControl = (function () {
         enumerable: true,
         configurable: true
     });
+    JControl.prototype.setChildrenDataContext = function (element, dataContext) {
+        for (var i = 0; i < element.children.length; i++) {
+            var child = element.children[i];
+            if (child._JControl) {
+                if (!child._JControl.dataContext) {
+                    child._JControl.dataContext = dataContext;
+                }
+            }
+            else {
+                this.setChildrenDataContext(child, dataContext);
+            }
+        }
+    };
     JControl.prototype.getTemplate = function (element, forwhat) {
         var template = element.querySelector("script[for='" + forwhat + "']");
         return template;
