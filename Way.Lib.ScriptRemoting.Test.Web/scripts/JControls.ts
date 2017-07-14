@@ -139,9 +139,97 @@ class JObserveObject implements INotifyPropertyChanged {
     }
 }
 
+class JControlDataBinder
+{
+    control: JControl;
+    dataContext: INotifyPropertyChanged;
+    expression: RegExp = /(\w+)( )?=( )?\$(\w+)/;
+    configs: JBindConfig[] = [];
+
+    constructor(data: INotifyPropertyChanged, jcontrol: JControl, expression: RegExp) {
+        this.dataContext = data;
+        this.control = jcontrol;
+        this.expression = expression;
+
+        var databind: string = jcontrol.databind;
+        if (databind) {
+            while (true) {
+                var result = this.expression.exec(databind);
+                if (!result)
+                    break;
+                var elementPropertyName = result[1];
+                var dataPropertyName = result[4];
+                this.configs.push(new JBindConfig(dataPropertyName, elementPropertyName));
+                databind = databind.substr(result.index + result[0].length);
+            }
+        }
+
+        this.dataContext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
+        this.control.addPropertyChangedListener((s, n: string, o) => this.onControlPropertyChanged(s, n, o));
+        this.updateValue();
+
+    }
+
+    protected getConfigByDataProName(proname: string) {
+        for (var i = 0; i < this.configs.length; i++) {
+            var config = this.configs[i];
+            if (config.dataPropertyName == proname)
+                return config;
+        }
+        return null;
+    }
+
+    protected getConfigByElementProName(proname: string) {
+        for (var i = 0; i < this.configs.length; i++) {
+            var config = this.configs[i];
+            if (config.elementPropertyName == proname)
+                return config;
+        }
+        return null;
+    }
+
+    private onPropertyChanged(sender, name: string, originalValue) {
+        try {
+            var config = this.getConfigByDataProName(name);
+            if (config) {
+                eval("this.control." + config.elementPropertyName + " = this.dataContext." + config.dataPropertyName);
+            }
+        }
+        catch (e) {
+        }
+    }
+    private onControlPropertyChanged(sender, name: string, originalValue) {
+        try {
+            var config = this.getConfigByElementProName(name);
+            if (config) {
+                eval("this.dataContext." + config.dataPropertyName + " = this.control." + name);
+            }
+        }
+        catch (e) {
+        }
+    }
+
+    updateValue() {
+        for (var i = 0; i < this.configs.length; i++) {
+            var config = this.configs[i];
+            try {//防止属性是style.width这样的格式
+                var value;
+                eval("value=this.dataContext." + config.dataPropertyName);
+                if (value) {
+                    eval("this.control." + config.elementPropertyName + " = value");
+                }
+
+            }
+            catch (e) {
+            }
+        }
+    }
+
+   
+}
 
 //处理如 value=$text 为模板内元素绑定使用
-class JDataBinder
+class JChildrenElementBinder
 {
     element: HTMLElement;
     dataContext: INotifyPropertyChanged;
@@ -177,7 +265,7 @@ class JDataBinder
                 var child: any = element.children[i];
                 if (child.tagName != "SCRIPT")
                 {
-                    child._templateBinder = new JDataBinder(data, child, expression, false);
+                    child._templateBinder = new JChildrenElementBinder(data, child, expression, false);
                 }
                 
             }
@@ -272,8 +360,10 @@ class JControl implements INotifyPropertyChanged {
 
     element: HTMLElement;
     onPropertyChangeds = [];
-    protected templateBinder: JDataBinder;
-    protected dataBinder: JDataBinder;
+    databind: string;
+    protected templateBinder: JChildrenElementBinder;
+    protected dataBinder: JChildrenElementBinder;
+    protected controlDataBinder: JControlDataBinder;
 
     private _dataContext: any;
     get dataContext()
@@ -306,10 +396,16 @@ class JControl implements INotifyPropertyChanged {
             else {
                 if (this.element)
                 {
-                    this.dataBinder = new JDataBinder(value, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
+                    //JChildrenElementBinder用于把模板里所有子元素和dataContext绑定
+                    this.dataBinder = new JChildrenElementBinder(value, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
                 }
             }
 
+            if (value)
+            {
+                //JControlDataBinder用于把<JControl>标签和dataContext绑定
+                this.controlDataBinder = new JControlDataBinder(value, this, /(\w+)( )?=( )?\@(\w+)/ );
+            }
             if (value && this.element)
             {
                 this.setChildrenDataContext(this.element, value);
@@ -340,12 +436,15 @@ class JControl implements INotifyPropertyChanged {
     }
 
     constructor(element: HTMLElement) {
+        this.databind = element.getAttribute("databind");
 
         for (var i = 0; i < element.attributes.length; i++)
         {
             var attName = element.attributes[i].name;
             if (attName == "id") {
                 eval("window." + element.attributes[i].value + "=this");
+            }
+            else if (attName == "databind") {
             }
             else {
                 for (var myproname in this) {
@@ -385,10 +484,10 @@ class JControl implements INotifyPropertyChanged {
             //把this.element里面的JControl初始化
             JElementHelper.initElements(this.element);
 
-            this.templateBinder = new JDataBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
+            this.templateBinder = new JChildrenElementBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
             if (this.dataContext) {
                 
-                this.dataBinder = new JDataBinder(this.dataContext, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
+                this.dataBinder = new JChildrenElementBinder(this.dataContext, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
             }
         }
     }

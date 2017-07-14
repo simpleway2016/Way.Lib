@@ -17,6 +17,12 @@
             </div>
         </script>
     </JButton>
+
+    <JButton id="btn2" dataContext="{name:'hello22'}" databind="text=@name">
+        <script for="Template" type="text/html">
+            <input type="button" databind="value =$text" />
+        </script>
+    </JButton>
     <input type="button" value="waefwef" onclick="btn1.text = new Date(); btn1.dataContext.name = 'bbb';"/>
    
 </body>

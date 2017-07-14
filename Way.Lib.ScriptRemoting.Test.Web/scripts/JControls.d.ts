@@ -22,7 +22,19 @@ declare class JObserveObject implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): void;
     onPropertyChanged(proName: string, originalValue: any): void;
 }
-declare class JDataBinder {
+declare class JControlDataBinder {
+    control: JControl;
+    dataContext: INotifyPropertyChanged;
+    expression: RegExp;
+    configs: JBindConfig[];
+    constructor(data: INotifyPropertyChanged, jcontrol: JControl, expression: RegExp);
+    protected getConfigByDataProName(proname: string): JBindConfig;
+    protected getConfigByElementProName(proname: string): JBindConfig;
+    private onPropertyChanged(sender, name, originalValue);
+    private onControlPropertyChanged(sender, name, originalValue);
+    updateValue(): void;
+}
+declare class JChildrenElementBinder {
     element: HTMLElement;
     dataContext: INotifyPropertyChanged;
     expression: RegExp;
@@ -39,8 +51,10 @@ declare class JControl implements INotifyPropertyChanged {
     protected onPropertyChanged(proName: string, originalValue: any): void;
     element: HTMLElement;
     onPropertyChangeds: any[];
-    protected templateBinder: JDataBinder;
-    protected dataBinder: JDataBinder;
+    databind: string;
+    protected templateBinder: JChildrenElementBinder;
+    protected dataBinder: JChildrenElementBinder;
+    protected controlDataBinder: JControlDataBinder;
     private _dataContext;
     dataContext: any;
     private _onclick;
