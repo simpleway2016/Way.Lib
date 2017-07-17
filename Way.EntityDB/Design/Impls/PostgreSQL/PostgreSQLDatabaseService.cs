@@ -43,7 +43,10 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
             {
                 throw new Exception("连接字符串必须采用以下形式Server=;Port=5432;UserId=;Password=;Database=;");
             }
-
+            else
+            {
+                database.conStr = database.conStr.Replace(dbnameMatch.Value, "database=" + dbnameMatch.Groups["dname"].Value.ToLower());
+            }
             var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
             object flag = db.ExecSqlString("select count(*) from pg_catalog.pg_database where datname=@p0", database.Name.ToLower());
             if (Convert.ToInt32(flag)== 0)

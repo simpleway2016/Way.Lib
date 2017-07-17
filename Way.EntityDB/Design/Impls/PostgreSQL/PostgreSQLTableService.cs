@@ -49,7 +49,7 @@ namespace Way.EntityDB.Design.Database.PostgreSQL
 
                 string sqlstr;
                 sqlstr = @"
-CREATE TABLE " + table.Name.ToLower() + @" (
+CREATE TABLE """ + table.Name.ToLower() + @""" (
 ";
 
                 for (int i = 0; i < columns.Length; i++)
@@ -64,7 +64,7 @@ CREATE TABLE " + table.Name.ToLower() + @" (
                             sqltype = sqltype.Substring(0,sqltype.IndexOf("("));
                         sqltype += "(" + column.length + ")";
                     }
-                    sqlstr += "" + column.Name.ToLower() + " " + sqltype;
+                    sqlstr += "\"" + column.Name.ToLower() + "\" " + sqltype;
                    
                     if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
                         sqlstr += " NOT";
@@ -118,6 +118,8 @@ CREATE TABLE " + table.Name.ToLower() + @" (
              */
             if (isAutoIncrement)
             {
+                db.ExecSqlString($"DROP SEQUENCE IF EXISTS {table}_{column.Name.ToLower()}_seq");
+
                 db.ExecSqlString($@"
 CREATE SEQUENCE {table}_{column.Name.ToLower()}_seq
     START WITH 1
@@ -125,7 +127,7 @@ CREATE SEQUENCE {table}_{column.Name.ToLower()}_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-alter table {table} alter column {column.Name.ToLower()} set default nextval('{table}_{column.Name.ToLower()}_seq');
+alter table ""{table}"" alter column ""{column.Name.ToLower()}"" set default nextval('{table}_{column.Name.ToLower()}_seq');
 ");
             }
             else
@@ -137,7 +139,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
                 if (m != null && m.Length > 0)
                 {
                     seqName = m.Groups["n"].Value;
-                    db.ExecSqlString($"alter table {table} ALTER COLUMN {column.Name.ToLower()} DROP DEFAULT");
+                    db.ExecSqlString($"alter table \"{table}\" ALTER COLUMN \"{column.Name.ToLower()}\" DROP DEFAULT");
                     db.ExecSqlString($"DROP SEQUENCE IF EXISTS  {seqName}");
                 }
             }
@@ -145,7 +147,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
 
         public void DeleteTable(EntityDB.IDatabaseService database, string tableName)
         {
-            database.ExecSqlString(string.Format("DROP TABLE IF EXISTS {0}", tableName.ToLower()));
+            database.ExecSqlString(string.Format("DROP TABLE IF EXISTS \"{0}\"", tableName.ToLower()));
         }
                
 
@@ -183,12 +185,12 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
         {
             table = table.ToLower();
             column = column.ToLower();
-            database.ExecSqlString(string.Format("alter table {0} drop column {1}" , table , column));
+            database.ExecSqlString(string.Format("alter table \"{0}\" drop column \"{1}\"" , table , column));
         }
         void dropTableIndex(EntityDB.IDatabaseService database, string table, string indexName)
         {
             table = table.ToLower();
-            database.ExecSqlString("ALTER TABLE " + table.ToLower() + " DROP CONSTRAINT IF EXISTS " + indexName.ToLower() + "");
+            database.ExecSqlString("ALTER TABLE \"" + table.ToLower() + "\" DROP CONSTRAINT IF EXISTS " + indexName.ToLower() + "");
             database.ExecSqlString("DROP INDEX IF EXISTS " + indexName.ToLower() + "");
         }
         public void ChangeTable(EntityDB.IDatabaseService database, string oldTableName, string newTableName, EJ.DBColumn[] addColumns, EJ.DBColumn[] changedColumns, EJ.DBColumn[] deletedColumns, EJ.DBColumn[] otherColumns, IndexInfo[] _indexInfos)
@@ -201,7 +203,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
             if (oldTableName  != newTableName )
             {
                 //更改表名
-                database.ExecSqlString($"alter table {oldTableName} RENAME TO {newTableName}");
+                database.ExecSqlString($"alter table \"{oldTableName}\" RENAME TO \"{newTableName}\"");
             }
           
             var needToDels = checkIfIdxChanged(database, newTableName, indexInfos);
@@ -231,7 +233,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
                     changeColumnCount++;
 
                     #region 改名
-                    database.ExecSqlString($"alter table {newTableName} rename {changeitem.OriginalValue} to {column.Name.ToLower()}");
+                    database.ExecSqlString($"alter table \"{newTableName}\" rename \"{changeitem.OriginalValue}\" to \"{column.Name.ToLower()}\"");
                     #endregion
                 }
 
@@ -262,13 +264,13 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
                         //    database.ExecSqlString($"DROP INDEX IF EXISTS {oldTableName}_pkey");
                         //}
 
-                        database.ExecSqlString($"ALTER TABLE {newTableName} DROP CONSTRAINT IF EXISTS {oldTableName}_pkey");
+                        database.ExecSqlString($"ALTER TABLE \"{newTableName}\" DROP CONSTRAINT IF EXISTS {oldTableName}_pkey");
                         database.ExecSqlString($"DROP INDEX IF EXISTS {oldTableName}_pkey");
                     }
                     else
                     {
                         //设为主键;
-                        database.ExecSqlString($"ALTER TABLE {newTableName} ADD PRIMARY KEY ({column.Name.ToLower()})");
+                        database.ExecSqlString($"ALTER TABLE \"{newTableName}\" ADD PRIMARY KEY (\"{column.Name.ToLower()}\")");
                     }
                     #endregion
                 }
@@ -283,7 +285,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
 
                     #region 默认值
                     //删除默认值
-                    database.ExecSqlString($"alter table {newTableName} ALTER COLUMN {column.Name.ToLower()} DROP DEFAULT");
+                    database.ExecSqlString($"alter table \"{newTableName}\" ALTER COLUMN \"{column.Name.ToLower()}\" DROP DEFAULT");
 
                     #endregion
                 }
@@ -294,7 +296,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
 
                     #region 变更类型
                     sqltype = getSqlType(column);
-                    string sql = $"alter table {newTableName} ALTER COLUMN {column.Name.ToLower()} TYPE {(sqltype + (column.length.IsNullOrEmpty()?"":$"({column.length})"))} using {column.Name.ToLower()}::{sqltype}";
+                    string sql = $"alter table \"{newTableName}\" ALTER COLUMN \"{column.Name.ToLower()}\" TYPE {(sqltype + (column.length.IsNullOrEmpty()?"":$"({column.length})"))} using \"{column.Name.ToLower()}\"::{sqltype}";
                     database.ExecSqlString(sql);
 
                     #endregion
@@ -308,11 +310,11 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
 
                        
 
-                        database.ExecSqlString($"update {newTableName} set {column.Name.ToLower()}='{defaultValue.Replace("'","''")}' where {column.Name.ToLower()} is null");
+                        database.ExecSqlString($"update \"{newTableName}\" set \"{column.Name.ToLower()}\"='{defaultValue.Replace("'","''")}' where \"{column.Name.ToLower()}\" is null");
                     }
 
                     
-                    string sql = $"alter table {newTableName} ALTER COLUMN {column.Name.ToLower()} {(column.CanNull.Value ? "drop not null" : "set not null")}";
+                    string sql = $"alter table \"{newTableName}\" ALTER COLUMN \"{column.Name.ToLower()}\" {(column.CanNull.Value ? "drop not null" : "set not null")}";
                     database.ExecSqlString(sql);
                     #endregion
                 }
@@ -323,12 +325,12 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
                 {
                     string sql = "";
                     string defaultValue = column.defaultValue.Trim();
-                    sql += $"alter table {newTableName} ALTER COLUMN {column.Name.ToLower()} SET DEFAULT '{defaultValue.Replace("'","''")}'";
+                    sql += $"alter table \"{newTableName}\" ALTER COLUMN \"{column.Name.ToLower()}\" SET DEFAULT '{defaultValue.Replace("'","''")}'";
 
 
                     database.ExecSqlString(sql);
 
-                    database.ExecSqlString($"update {newTableName} set {column.Name.ToLower()}='{defaultValue.Replace("'","''")}' where {column.Name.ToLower()} is null");
+                    database.ExecSqlString($"update \"{newTableName}\" set \"{column.Name.ToLower()}\"='{defaultValue.Replace("'","''")}' where \"{column.Name.ToLower()}\" is null");
                 }
                 #endregion
             }
@@ -343,7 +345,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
                     sqltype += "(" + column.length + ")";
                 }
                 #region 新增字段
-                string sql = "alter table " + newTableName + " add COLUMN " + column.Name.ToLower() + " " + sqltype;
+                string sql = "alter table \"" + newTableName + "\" add COLUMN \"" + column.Name.ToLower() + "\" " + sqltype;
 
 
                 if (column.CanNull == false || column.IsPKID == true || column.IsAutoIncrement == true)
@@ -360,7 +362,7 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
 
                 if (column.IsPKID == true)
                 {
-                    database.ExecSqlString($"ALTER TABLE {newTableName} ADD CONSTRAINT {newTableName}_pkey PRIMARY KEY({column.Name.ToLower()})");
+                    database.ExecSqlString($"ALTER TABLE \"{newTableName}\" ADD CONSTRAINT {newTableName}_pkey PRIMARY KEY(\"{column.Name.ToLower()}\")");
                 }
                 #endregion
             }
@@ -385,11 +387,11 @@ alter table {table} alter column {column.Name.ToLower()} set default nextval('{t
             }
             if (indexinfo.IsClustered)
             {
-                sql += $"INDEX ON {table} ({columns.ToSplitString(" ASC NULLS FIRST,")} ASC NULLS FIRST)";
+                sql += $"INDEX ON \"{table}\" ({columns.ToSplitString(" ASC NULLS FIRST,")} ASC NULLS FIRST)";
             }
             else
             {
-                sql += $"INDEX ON {table} ({columns.ToSplitString(",")})";
+                sql += $"INDEX ON \"{table}\" ({columns.ToSplitString(",")})";
             }
             database.ExecSqlString(sql);
         }

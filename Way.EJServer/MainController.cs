@@ -1426,6 +1426,8 @@ namespace Way.EJServer
                         db.Insert(dataitem);
                         IDatabaseDesignService dbservice = DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
                         dbservice.Create(dataitem);
+
+                        db.Update(dataitem);
                     }
                     else
                     {
@@ -1436,6 +1438,8 @@ namespace Way.EJServer
                             //变更数据库类型
                             IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)dataitem.dbType);
                             dbservice.Create(dataitem);
+                            db.Update(dataitem);
+
                             //更新到现在的数据结构
                             var invokeDB = Way.EntityDB.Design.DBHelper.CreateInvokeDatabase(dataitem);
                             var dbconfig = invokeDB.ExecSqlString("select contentConfig from __wayeasyjob").ToString().ToJsonObject<DataBaseConfig>();

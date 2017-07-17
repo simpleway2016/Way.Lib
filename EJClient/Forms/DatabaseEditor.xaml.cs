@@ -68,7 +68,6 @@ namespace EJClient.Forms
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
             this.Cursor = Cursors.Wait;
-            _currentData.Name = _currentData.Name.ToLower();//统一用小写
             Helper.Client.Invoke<int>("UpdateDatabase", (id,err)=> {
                 this.Cursor = null;
                 if (err != null)
