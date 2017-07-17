@@ -435,21 +435,21 @@ namespace Way.EJServer
                     {
                         if (drow.RowState == DataRowState.Added)
                         {
-                            var dataitem = new Way.EntityDB.CustomDataItem(table.Name, null, null);
+                            var dataitem = new Way.EntityDB.CustomDataItem(table.Name.ToLower(), null, null);
                             foreach (var column in columns)
                             {
                                 if (column.IsAutoIncrement == false && drow[column.Name] != null)
-                                    dataitem.SetValue(column.Name, drow[column.Name]);
+                                    dataitem.SetValue(column.Name.ToLower(), drow[column.Name]);
                             }
                             invokingDB.Insert(dataitem);
                         }
                         else if (drow.RowState == DataRowState.Modified)
                         {
-                            var dataitem = new Way.EntityDB.CustomDataItem(table.Name, pkcolumn.Name, drow[pkcolumn.Name]);
+                            var dataitem = new Way.EntityDB.CustomDataItem(table.Name.ToLower(), pkcolumn.Name.ToLower(), drow[pkcolumn.Name]);
                             foreach (var column in columns)
                             {
                                 if (column.IsAutoIncrement == false && column.IsPKID == false)
-                                    dataitem.SetValue(column.Name, drow[column.Name]);
+                                    dataitem.SetValue(column.Name.ToLower(), drow[column.Name]);
                             }
                             invokingDB.Update(dataitem);
                         }

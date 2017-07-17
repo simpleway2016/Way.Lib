@@ -154,7 +154,7 @@ namespace Way.EntityDB
         {
             get
             {
-                var item = _items.FirstOrDefault(m => m.Name == name);
+                var item = _items.FirstOrDefault(m => string.Equals(m.Name , name , StringComparison.CurrentCultureIgnoreCase));
                 if (item == null)
                 {
                     return null;
@@ -168,7 +168,7 @@ namespace Way.EntityDB
             {
                 if (value == DBNull.Value)
                     value = null;
-                var item = _items.FirstOrDefault(m => m.Name == name);
+                var item = _items.FirstOrDefault(m => string.Equals(m.Name, name, StringComparison.CurrentCultureIgnoreCase));
                 if (item==null)
                 {
                     _items.Add(new ItemPair() {Name = name,Value=value });

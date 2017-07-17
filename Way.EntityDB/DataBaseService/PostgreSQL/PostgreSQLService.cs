@@ -42,7 +42,7 @@ namespace Way.EntityDB
 
         public override string FormatObjectName(string name)
         {
-            return name;
+            return $"\"{name}\"";
         }
         protected override bool GetInsertIDValueSqlStringInOneSql()
         {

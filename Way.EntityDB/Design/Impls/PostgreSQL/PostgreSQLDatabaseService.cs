@@ -208,7 +208,7 @@ and pg_constraint.contype='p'");
 
         public string GetObjectFormat()
         {
-            return "{0}";
+            return "\"{0}\"";
         }
     }
 }
