@@ -666,6 +666,10 @@ namespace Way.EntityDB
             return context.Database;
         }
 
+        ~DBContext()
+        {
+            this.Dispose();
+        }
         public DBContext(string connectionString, DatabaseType dbType = DatabaseType.SqlServer)
         {
             this.DatabaseType = dbType;
