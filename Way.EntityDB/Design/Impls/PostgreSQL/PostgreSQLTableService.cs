@@ -233,7 +233,7 @@ alter table ""{table}"" alter column ""{column.Name.ToLower()}"" set default nex
                     changeColumnCount++;
 
                     #region 改名
-                    database.ExecSqlString($"alter table \"{newTableName}\" rename \"{changeitem.OriginalValue}\" to \"{column.Name.ToLower()}\"");
+                    database.ExecSqlString($"alter table \"{newTableName}\" rename \"{changeitem.OriginalValue.ToString().ToLower()}\" to \"{column.Name.ToLower()}\"");
                     #endregion
                 }
 

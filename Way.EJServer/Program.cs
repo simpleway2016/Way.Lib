@@ -137,6 +137,41 @@ namespace Way.EJServer
                 List<EJ.DBColumn> allColumns = new List<EJ.DBColumn>();
                 List<EntityDB.Design.IndexInfo> allindexes = new List<EntityDB.Design.IndexInfo>();
 
+                #region CreateTable
+                if (true)
+                {
+                    EJ.DBTable tableUser = new EJ.DBTable();
+                    tableUser.Name = "User";
+
+                    allColumns.Add(new EJ.DBColumn()
+                    {
+                        IsPKID = true,
+                        CanNull = false,
+                        Name = "Id",
+                        dbType = "int",
+                        IsAutoIncrement = true,
+                    });
+                    allColumns.Add(new EJ.DBColumn()
+                    {
+                        Name = "Name",
+                        dbType = "varchar",
+                        length = "50",
+                        defaultValue = "a'b,c"
+                    });
+
+                    CreateTableAction _CreateTableAction = new CreateTableAction(tableUser, allColumns.ToArray(), allindexes.ToArray());
+                    _CreateTableAction.Invoke(db);
+
+                    DeleteTableAction _delaction = new DeleteTableAction(tableUser.Name);
+                    _delaction.Invoke(db);
+
+                    //再次创建
+                    _CreateTableAction.Invoke(db);
+                }
+                #endregion
+
+                allColumns.Clear();
+                allindexes.Clear();
                 allColumns.Add(new EJ.DBColumn()
                 {
                     IsPKID = true,
