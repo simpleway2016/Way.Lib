@@ -1,6 +1,8 @@
 ﻿//throw new Error('Method not implemented.');
 //obj instanceof JControl
 //属性的定义必须全小写，因为element.attribute[0].name就是全小写
+//属性绑定<input databind="value=@name;className=$class;">
+//属性直接替换<div>{@name}  {$text}</div>
 
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
@@ -609,7 +611,33 @@ class JControl implements INotifyPropertyChanged {
         var template = this.getTemplate();
         if (template != this.currentTemplate) {
             this.currentTemplate = template;
-            this.element = JElementHelper.getElement(template.innerHTML);
+            var html = template.innerHTML;
+            //替换变量
+            var reg = /\{\@(\w+)\}/;
+            if (reg) {
+                var result;
+                while (result = reg.exec(html)) {
+                    var name = result[1];
+                    var value = "";
+                    if (this.datacontext && this.datacontext[name])
+                    {
+                        value = this.datacontext[name];
+                    }
+                    html = html.replace(result[0], value);
+                }
+
+                reg = /\{\$(\w+)\}/;
+                while (result = reg.exec(html)) {
+                    var name = result[1];
+                    var value = "";
+                    if (this[name]) {
+                        value = this[name];
+                    }
+                    html = html.replace(result[0], value);
+                }
+            }
+
+            this.element = JElementHelper.getElement(html);
             if (JElementHelper.getJControlTypeName(this.element.tagName)) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }

@@ -505,7 +505,29 @@ var JControl = (function () {
         var template = this.getTemplate();
         if (template != this.currentTemplate) {
             this.currentTemplate = template;
-            this.element = JElementHelper.getElement(template.innerHTML);
+            var html = template.innerHTML;
+            var reg = /\{\@(\w+)\}/;
+            if (reg) {
+                var result;
+                while (result = reg.exec(html)) {
+                    var name = result[1];
+                    var value = "";
+                    if (this.datacontext && this.datacontext[name]) {
+                        value = this.datacontext[name];
+                    }
+                    html = html.replace(result[0], value);
+                }
+                reg = /\{\$(\w+)\}/;
+                while (result = reg.exec(html)) {
+                    var name = result[1];
+                    var value = "";
+                    if (this[name]) {
+                        value = this[name];
+                    }
+                    html = html.replace(result[0], value);
+                }
+            }
+            this.element = JElementHelper.getElement(html);
             if (JElementHelper.getJControlTypeName(this.element.tagName)) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }

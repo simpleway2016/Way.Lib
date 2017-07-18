@@ -17,7 +17,7 @@
                 <input type="text" style="color:blue;" databind="value =$text;className=$class;" />
                 <div>
                     <div databind="innerHTML=$text"></div>
-                    <div databind="innerHTML=@name"></div>
+                    <div>text:{$text}</div>
                 </div>
             </div>
         </script>
@@ -27,7 +27,7 @@
                 <input type="text" style="color:red;" databind="value =$text;" />
                 <div>
                     <div databind="innerHTML=$text"></div>
-                    <div databind="innerHTML=@name"></div>
+                    <div>name:{@name}</div>
                 </div>
             </div>
         </script>
@@ -42,7 +42,7 @@
    
     <JList id="list1" itemsource="[{name:'aa'},{name:'bb'}]">
         <script type="text/html">
-            <div id="itemsContainer">list</div>
+            <div id="itemsContainer">list {$id}</div>
         </script>
 
         <script for="item" type="text/html">
