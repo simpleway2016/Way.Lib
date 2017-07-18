@@ -35,6 +35,8 @@ var JElementHelper = (function () {
     JElementHelper.getJControlTypeName = function (tagName) {
         if (tagName == "JBUTTON")
             return "JButton";
+        else if (tagName == "JLIST")
+            return "JList";
         return false;
     };
     JElementHelper.initElements = function (container) {
@@ -110,6 +112,10 @@ var JObserveObject = (function () {
     };
     JObserveObject.prototype.addPropertyChangedListener = function (func) {
         this.__onchanges.push(func);
+        return this.__onchanges.length - 1;
+    };
+    JObserveObject.prototype.removeListener = function (index) {
+        this.__onchanges[index] = null;
     };
     JObserveObject.prototype.onPropertyChanged = function (proName, originalValue) {
         for (var i = 0; i < this.__onchanges.length; i++) {
@@ -125,7 +131,7 @@ var JControlDataBinder = (function () {
         var _this = this;
         this.expression = /(\w+)( )?=( )?\$(\w+)/;
         this.configs = [];
-        this.dataContext = data;
+        this.datacontext = data;
         this.control = jcontrol;
         this.expression = expression;
         var databind = jcontrol.databind;
@@ -140,10 +146,14 @@ var JControlDataBinder = (function () {
                 databind = databind.substr(result.index + result[0].length);
             }
         }
-        this.dataContext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
+        this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
         this.control.addPropertyChangedListener(function (s, n, o) { return _this.onControlPropertyChanged(s, n, o); });
         this.updateValue();
     }
+    JControlDataBinder.prototype.dispose = function () {
+        this.datacontext.removeListener(this.propertyChangedListenerIndex);
+        this.configs = [];
+    };
     JControlDataBinder.prototype.getConfigByDataProName = function (proname) {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
@@ -161,10 +171,16 @@ var JControlDataBinder = (function () {
         return null;
     };
     JControlDataBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
+        if (this.configs.length == 0)
+            return;
+        if (!this.control.element.parentElement) {
+            this.dispose();
+            return;
+        }
         try {
             var config = this.getConfigByDataProName(name);
             if (config) {
-                eval("this.control." + config.elementPropertyName + " = this.dataContext." + config.dataPropertyName);
+                eval("this.control." + config.elementPropertyName + " = this.datacontext." + config.dataPropertyName);
             }
         }
         catch (e) {
@@ -174,7 +190,7 @@ var JControlDataBinder = (function () {
         try {
             var config = this.getConfigByElementProName(name);
             if (config) {
-                eval("this.dataContext." + config.dataPropertyName + " = this.control." + name);
+                eval("this.datacontext." + config.dataPropertyName + " = this.control." + name);
             }
         }
         catch (e) {
@@ -185,7 +201,7 @@ var JControlDataBinder = (function () {
             var config = this.configs[i];
             try {
                 var value;
-                eval("value=this.dataContext." + config.dataPropertyName);
+                eval("value=this.datacontext." + config.dataPropertyName);
                 if (value) {
                     eval("this.control." + config.elementPropertyName + " = value");
                 }
@@ -201,7 +217,9 @@ var JChildrenElementBinder = (function () {
         var _this = this;
         this.expression = /(\w+)( )?=( )?\$(\w+)/;
         this.configs = [];
-        this.dataContext = data;
+        this.children = [];
+        this.disposed = false;
+        this.datacontext = data;
         this.element = element;
         this.expression = expression;
         var databind = element.getAttribute("databind");
@@ -216,17 +234,28 @@ var JChildrenElementBinder = (function () {
                 databind = databind.substr(result.index + result[0].length);
             }
         }
-        this.dataContext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
+        if (this.configs.length > 0) {
+            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
+        }
         this.init();
-        if (bindmyselft || !element._JControl) {
+        if (bindmyselft || !element.JControl) {
             for (var i = 0; i < element.children.length; i++) {
                 var child = element.children[i];
                 if (child.tagName != "SCRIPT") {
                     child._templateBinder = new JChildrenElementBinder(data, child, expression, false);
+                    this.children.push(child._templateBinder);
                 }
             }
         }
     }
+    JChildrenElementBinder.prototype.dispose = function () {
+        this.disposed = true;
+        this.datacontext.removeListener(this.propertyChangedListenerIndex);
+        this.configs = [];
+        for (var i = 0; i < this.children.length; i++) {
+            this.children[i].dispose();
+        }
+    };
     JChildrenElementBinder.prototype.getConfigByDataProName = function (proname) {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
@@ -244,10 +273,12 @@ var JChildrenElementBinder = (function () {
         return null;
     };
     JChildrenElementBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
+        if (this.disposed)
+            return;
         try {
             var config = this.getConfigByDataProName(name);
             if (config) {
-                eval("this.element." + config.elementPropertyName + " = this.dataContext." + config.dataPropertyName);
+                eval("this.element." + config.elementPropertyName + " = this.datacontext." + config.dataPropertyName);
             }
         }
         catch (e) {
@@ -258,7 +289,7 @@ var JChildrenElementBinder = (function () {
             var config = this.configs[i];
             try {
                 var value;
-                eval("value=this.dataContext." + config.dataPropertyName);
+                eval("value=this.datacontext." + config.dataPropertyName);
                 if (value) {
                     eval("this.element." + config.elementPropertyName + " = value");
                 }
@@ -278,7 +309,7 @@ var JChildrenElementBinder = (function () {
                         try {
                             var config = _this.getConfigByElementProName("value");
                             if (config) {
-                                _this.dataContext[config.dataPropertyName] = _this.element[config.elementPropertyName];
+                                _this.datacontext[config.dataPropertyName] = _this.element[config.elementPropertyName];
                             }
                         }
                         catch (e) {
@@ -294,52 +325,63 @@ var JChildrenElementBinder = (function () {
 }());
 var JControl = (function () {
     function JControl(element) {
+        var _this = this;
         this.onPropertyChangeds = [];
-        this.databind = element.getAttribute("databind");
-        for (var i = 0; i < element.attributes.length; i++) {
-            var attName = element.attributes[i].name;
+        this.templates = [];
+        this.templateMatchProNames = [];
+        this.originalElement = element;
+        this.loadTemplates();
+        this.databind = this.originalElement.getAttribute("databind");
+        for (var i = 0; i < this.originalElement.attributes.length; i++) {
+            var attName = this.originalElement.attributes[i].name;
             if (attName == "id") {
-                eval("window." + element.attributes[i].value + "=this");
+                eval("window." + this.originalElement.attributes[i].value + "=this");
             }
             else if (attName == "databind") {
             }
             else {
+                var finded = false;
                 for (var myproname in this) {
                     if (myproname.toLowerCase() == attName) {
-                        this[myproname] = element.attributes[i].value;
+                        finded = true;
+                        this[myproname] = this.originalElement.attributes[i].value;
                     }
+                }
+                if (!finded) {
+                    eval("this._" + attName + "=this.originalElement.attributes[i].value");
+                    Object.defineProperty(this, attName, {
+                        get: function () {
+                            return this["_" + attName];
+                        },
+                        set: function (value) {
+                            if (this["_" + attName] != value) {
+                                var oldvalue = this["_" + attName];
+                                this["_" + attName] = value;
+                                this.onPropertyChanged(attName, oldvalue);
+                            }
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                 }
             }
         }
-        var template = this.getTemplate(element, "Template");
-        if (template) {
-            this.element = JElementHelper.getElement(template.innerHTML);
-            if (JElementHelper.getJControlTypeName(this.element.tagName)) {
-                throw new Error("不能把JControl作为模板的首个元素");
-            }
-            JElementHelper.replaceElement(this.element, element);
-            this.element._JControl = this;
-            this.element.addEventListener("click", this.onclick, false);
-            if (!this.dataContext) {
-                var parent = this.element.parentElement;
-                while (parent && !this.dataContext) {
-                    if (parent._JControl) {
-                        this.dataContext = parent._JControl.dataContext;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
+        this.reApplyTemplate(this.originalElement);
+        this.addPropertyChangedListener(function (s, name, value) {
+            for (var i = 0; i < _this.templateMatchProNames.length; i++) {
+                if (_this.templateMatchProNames[i] == "$" + name) {
+                    _this.reApplyTemplate(_this.element);
+                    break;
                 }
             }
-            JElementHelper.initElements(this.element);
-            this.templateBinder = new JChildrenElementBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
-            if (this.dataContext) {
-                this.dataBinder = new JChildrenElementBinder(this.dataContext, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
-            }
-        }
+        });
     }
     JControl.prototype.addPropertyChangedListener = function (func) {
         this.onPropertyChangeds.push(func);
+        return this.onPropertyChangeds.length - 1;
+    };
+    JControl.prototype.removeListener = function (index) {
+        this.onPropertyChangeds[index] = null;
     };
     JControl.prototype.onPropertyChanged = function (proName, originalValue) {
         for (var i = 0; i < this.onPropertyChangeds.length; i++) {
@@ -348,11 +390,12 @@ var JControl = (function () {
             }
         }
     };
-    Object.defineProperty(JControl.prototype, "dataContext", {
+    Object.defineProperty(JControl.prototype, "datacontext", {
         get: function () {
-            return this._dataContext;
+            return this._datacontext;
         },
         set: function (value) {
+            var _this = this;
             if (value && typeof value == "string") {
                 try {
                     eval("value=" + value);
@@ -363,11 +406,19 @@ var JControl = (function () {
             }
             if (!value.addPropertyChangedListener) {
                 value = new JObserveObject(value);
+                value.addPropertyChangedListener(function (s, name, value) {
+                    for (var i = 0; i < _this.templateMatchProNames.length; i++) {
+                        if (_this.templateMatchProNames[i] == "@" + name) {
+                            _this.reApplyTemplate(_this.element);
+                            break;
+                        }
+                    }
+                });
             }
-            if (this._dataContext != value) {
-                this._dataContext = value;
+            if (this._datacontext != value) {
+                this._datacontext = value;
                 if (this.dataBinder) {
-                    this.dataBinder.dataContext = value;
+                    this.dataBinder.datacontext = value;
                     this.dataBinder.updateValue();
                 }
                 else {
@@ -393,7 +444,12 @@ var JControl = (function () {
         set: function (_value) {
             var value;
             if (_value && typeof _value == "string") {
-                value = function () { eval(_value); };
+                if (_value.length > 0) {
+                    value = function () { eval(_value); };
+                }
+                else {
+                    value = null;
+                }
             }
             else {
                 value = _value;
@@ -401,30 +457,141 @@ var JControl = (function () {
             if (value != this._onclick) {
                 var originalValue = this._onclick;
                 this._onclick = value;
-                if (this.element) {
-                    this.element.addEventListener("click", value, false);
-                }
+                this.addEventListener("click", value, false);
             }
         },
         enumerable: true,
         configurable: true
     });
-    JControl.prototype.setChildrenDataContext = function (element, dataContext) {
-        for (var i = 0; i < element.children.length; i++) {
-            var child = element.children[i];
-            if (child._JControl) {
-                if (!child._JControl.dataContext) {
-                    child._JControl.dataContext = dataContext;
+    JControl.prototype.addEventListener = function (type, listener, useCapture) {
+        if (this.element && listener) {
+            this.element.addEventListener(type, listener, useCapture);
+        }
+    };
+    JControl.prototype.removeEventListener = function (type, listener) {
+        if (this.element && listener) {
+            this.element.removeEventListener(type, listener);
+        }
+    };
+    JControl.prototype.loadTemplates = function () {
+        var alltemplates = this.originalElement.querySelectorAll("script");
+        for (var i = 0; i < alltemplates.length; i++) {
+            this.templates.push(alltemplates[i]);
+            var match = alltemplates[i].getAttribute("match");
+            if (match) {
+                var reg = /\@\w+/;
+                while (true) {
+                    var result = reg.exec(match);
+                    if (!result)
+                        break;
+                    var name = result[0];
+                    this.templateMatchProNames.push(name);
+                    match = match.substr(result.index + result[0].length);
                 }
-            }
-            else {
-                this.setChildrenDataContext(child, dataContext);
+                match = alltemplates[i].getAttribute("match");
+                reg = /\$\w+/;
+                while (true) {
+                    var result = reg.exec(match);
+                    if (!result)
+                        break;
+                    var name = result[0];
+                    this.templateMatchProNames.push(name);
+                    match = match.substr(result.index + result[0].length);
+                }
             }
         }
     };
-    JControl.prototype.getTemplate = function (element, forwhat) {
-        var template = element.querySelector("script[for='" + forwhat + "']");
-        return template;
+    JControl.prototype.reApplyTemplate = function (rootElement) {
+        var template = this.getTemplate();
+        if (template != this.currentTemplate) {
+            this.currentTemplate = template;
+            this.element = JElementHelper.getElement(template.innerHTML);
+            if (JElementHelper.getJControlTypeName(this.element.tagName)) {
+                throw new Error("不能把JControl作为模板的首个元素");
+            }
+            JElementHelper.replaceElement(this.element, rootElement);
+            this.element.JControl = this;
+            if (this.onclick) {
+                this.addEventListener("click", this.onclick, false);
+            }
+            if (!this.datacontext) {
+                var parent = this.element.parentElement;
+                while (parent && !this.datacontext) {
+                    if (parent.JControl) {
+                        this.datacontext = parent.JControl.datacontext;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+            }
+            if (this.templateBinder) {
+                this.templateBinder.dispose();
+                this.templateBinder = null;
+            }
+            if (this.dataBinder) {
+                this.dataBinder.dispose();
+                this.dataBinder = null;
+            }
+            JElementHelper.initElements(this.element);
+            this.templateBinder = new JChildrenElementBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
+            if (this.datacontext) {
+                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
+            }
+        }
+    };
+    JControl.prototype.setChildrenDataContext = function (element, datacontext) {
+        for (var i = 0; i < element.children.length; i++) {
+            var child = element.children[i];
+            if (child.JControl) {
+                if (!child.JControl.datacontext) {
+                    child.JControl.datacontext = datacontext;
+                }
+            }
+            else {
+                this.setChildrenDataContext(child, datacontext);
+            }
+        }
+    };
+    JControl.prototype.getTemplate = function () {
+        if (this.templates.length == 0)
+            return null;
+        var result = null;
+        for (var i = 0; i < this.templates.length; i++) {
+            if (this.templates[i]) {
+                var match = this.templates[i].getAttribute("match");
+                if (!match || match.length == 0) {
+                    result = this.templates[i];
+                }
+                else {
+                    var reg = /\@(\w+)/;
+                    while (true) {
+                        var r = reg.exec(match);
+                        if (!r)
+                            break;
+                        var name = r[1];
+                        match = match.replace(r[0], "this.datacontext." + name);
+                    }
+                    reg = /\$(\w+)/;
+                    while (true) {
+                        var r = reg.exec(match);
+                        if (!r)
+                            break;
+                        var name = r[1];
+                        match = match.replace(r[0], "this." + name);
+                    }
+                    var execResult = false;
+                    try {
+                        eval("execResult=(" + match + ")");
+                    }
+                    catch (e) { }
+                    if (execResult) {
+                        return this.templates[i];
+                    }
+                }
+            }
+        }
+        return result;
     };
     return JControl;
 }());
@@ -450,6 +617,121 @@ var JButton = (function (_super) {
         configurable: true
     });
     return JButton;
+}(JControl));
+var JDataSource = (function () {
+    function JDataSource(data) {
+        this.source = data;
+    }
+    JDataSource.prototype.addEventListener = function (type, listener) {
+        if (listener) {
+            if (type == "add") {
+                this.onAddFuncs.push(listener);
+            }
+            else if (type == "remove") {
+                this.onRemoveFuncs.push(listener);
+            }
+        }
+    };
+    JDataSource.prototype.removeEventListener = function (type, listener) {
+        if (listener) {
+            if (type == "add") {
+                for (var i = 0; i < this.onAddFuncs.length; i++) {
+                    if (this.onAddFuncs[i] == listener) {
+                        this.onAddFuncs[i] = null;
+                    }
+                }
+            }
+            else if (type == "remove") {
+                for (var i = 0; i < this.onRemoveFuncs.length; i++) {
+                    if (this.onRemoveFuncs[i] == listener) {
+                        this.onRemoveFuncs[i] = null;
+                    }
+                }
+            }
+        }
+    };
+    JDataSource.prototype.add = function (data) {
+        this.source.push(data);
+        for (var i = 0; i < this.onAddFuncs.length; i++) {
+            this.onAddFuncs[i](this, data, this.source.length - 1);
+        }
+    };
+    JDataSource.prototype.insert = function (index, data) {
+        var len = this.source.length;
+        for (var i = len - 1; i >= index; i--) {
+            this.source[i + 1] = this.source[i];
+        }
+        this.source[index] = data;
+        for (var i = 0; i < this.onAddFuncs.length; i++) {
+            this.onAddFuncs[i](this, data, index);
+        }
+    };
+    JDataSource.prototype.remove = function (data) {
+        for (var i = 0; i < this.source.length; i++) {
+            if (this.source[i] == data) {
+                this.removeAt(i);
+                break;
+            }
+        }
+    };
+    JDataSource.prototype.removeAt = function (index) {
+        var data = this.source[index];
+        for (var i = index; i < this.source.length - 1; i++) {
+            this.source[i] = this.source[i + 1];
+        }
+        this.source.length--;
+        for (var j = 0; j < this.onRemoveFuncs.length; j++) {
+            this.onRemoveFuncs[j](this, data, index);
+        }
+    };
+    return JDataSource;
+}());
+var JList = (function (_super) {
+    __extends(JList, _super);
+    function JList(element) {
+        return _super.call(this, element) || this;
+    }
+    Object.defineProperty(JList.prototype, "itemsource", {
+        get: function () {
+            return this._itemsource;
+        },
+        set: function (value) {
+            if (value && typeof value == "string") {
+                try {
+                    eval("value=" + value);
+                }
+                catch (e) {
+                    return;
+                }
+            }
+            if (value instanceof Array) {
+                for (var i = 0; i < value.length; i++) {
+                    if (value[i] && !(value[i] instanceof JObserveObject)) {
+                        value[i] = new JObserveObject(value[i]);
+                    }
+                }
+            }
+            else if (value instanceof JDataSource) {
+                this._itemsource = value;
+                return;
+            }
+            else {
+                throw new Error("itemsource必须是数组或者JDataSource");
+            }
+            this._itemsource = new JDataSource(value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    JList.prototype.loadTemplates = function () {
+        _super.prototype.loadTemplates.call(this);
+        for (var i = 0; i < this.templates.length; i++) {
+            if (this.templates[i].getAttribute("for") == "item") {
+                this.templates[i] = null;
+            }
+        }
+    };
+    return JList;
 }(JControl));
 if (document.addEventListener) {
     document.addEventListener('DOMContentLoaded', function () { JElementHelper.initElements(document.body); }, false);
