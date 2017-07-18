@@ -810,14 +810,16 @@ class JDataSource
         }
     }
     removeAt(index: number) {
-        var data = this.source[index];
-        for (var i = index; i < this.source.length - 1; i++)
+        if (index < this.source.length && index >= 0)
         {
-            this.source[i] = this.source[i + 1];
-        }
-        this.source.length--;
-        for (var j = 0; j < this.onRemoveFuncs.length; j++) {
-            this.onRemoveFuncs[j](this, data, index);
+            var data = this.source[index];
+            for (var i = index; i < this.source.length - 1; i++) {
+                this.source[i] = this.source[i + 1];
+            }
+            this.source.length--;
+            for (var j = 0; j < this.onRemoveFuncs.length; j++) {
+                this.onRemoveFuncs[j](this, data, index);
+            }
         }
     }
 }
