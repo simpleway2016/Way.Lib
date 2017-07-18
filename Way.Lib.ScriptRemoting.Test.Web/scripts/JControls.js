@@ -624,36 +624,26 @@ var JDataSource = (function () {
     }
     JDataSource.prototype.addEventListener = function (type, listener) {
         if (listener) {
-            if (type == "add") {
-                this.onAddFuncs.push(listener);
-            }
-            else if (type == "remove") {
-                this.onRemoveFuncs.push(listener);
-            }
+            var funcs;
+            eval("funcs=this." + type + "Funcs");
+            funcs.push(listener);
         }
     };
     JDataSource.prototype.removeEventListener = function (type, listener) {
         if (listener) {
-            if (type == "add") {
-                for (var i = 0; i < this.onAddFuncs.length; i++) {
-                    if (this.onAddFuncs[i] == listener) {
-                        this.onAddFuncs[i] = null;
-                    }
-                }
-            }
-            else if (type == "remove") {
-                for (var i = 0; i < this.onRemoveFuncs.length; i++) {
-                    if (this.onRemoveFuncs[i] == listener) {
-                        this.onRemoveFuncs[i] = null;
-                    }
+            var funcs;
+            eval("funcs=this." + type + "Funcs");
+            for (var i = 0; i < funcs.length; i++) {
+                if (funcs[i] == listener) {
+                    funcs[i] = null;
                 }
             }
         }
     };
     JDataSource.prototype.add = function (data) {
         this.source.push(data);
-        for (var i = 0; i < this.onAddFuncs.length; i++) {
-            this.onAddFuncs[i](this, data, this.source.length - 1);
+        for (var i = 0; i < this.addFuncs.length; i++) {
+            this.addFuncs[i](this, data, this.source.length - 1);
         }
     };
     JDataSource.prototype.insert = function (index, data) {
@@ -662,8 +652,8 @@ var JDataSource = (function () {
             this.source[i + 1] = this.source[i];
         }
         this.source[index] = data;
-        for (var i = 0; i < this.onAddFuncs.length; i++) {
-            this.onAddFuncs[i](this, data, index);
+        for (var i = 0; i < this.addFuncs.length; i++) {
+            this.addFuncs[i](this, data, index);
         }
     };
     JDataSource.prototype.remove = function (data) {
@@ -681,8 +671,8 @@ var JDataSource = (function () {
                 this.source[i] = this.source[i + 1];
             }
             this.source.length--;
-            for (var j = 0; j < this.onRemoveFuncs.length; j++) {
-                this.onRemoveFuncs[j](this, data, index);
+            for (var j = 0; j < this.removeFuncs.length; j++) {
+                this.removeFuncs[j](this, data, index);
             }
         }
     };

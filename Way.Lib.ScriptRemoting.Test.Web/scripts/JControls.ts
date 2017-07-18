@@ -736,8 +736,8 @@ class JButton extends JControl{
 class JDataSource
 {
     source: JObserveObject[];
-    private onAddFuncs: ((sender, data, index: number)=>any)[];
-    private onRemoveFuncs: ((sender, data,index:number) => any)[];
+    private addFuncs: ((sender, data, index: number)=>any)[];
+    private removeFuncs: ((sender, data,index:number) => any)[];
 
     constructor(data: JObserveObject[])
     {
@@ -746,32 +746,19 @@ class JDataSource
 
     addEventListener(type: string, listener: (sender, data, index: number) => any) {
         if (listener) {
-            if (type == "add")
-            {
-                this.onAddFuncs.push(listener);
-            }
-            else if (type == "remove") {
-                this.onRemoveFuncs.push(listener);
-            }
+            var funcs;
+            eval("funcs=this." + type + "Funcs");
+            funcs.push(listener);
         }
     }
 
     removeEventListener(type: string, listener: (sender, data, index: number) => any) {
         if (listener) {
-            if (type == "add") {
-                for (var i = 0; i < this.onAddFuncs.length; i++)
-                {
-                    if (this.onAddFuncs[i] == listener)
-                    {
-                        this.onAddFuncs[i] = null;
-                    }
-                }
-            }
-            else if (type == "remove") {
-                for (var i = 0; i < this.onRemoveFuncs.length; i++) {
-                    if (this.onRemoveFuncs[i] == listener) {
-                        this.onRemoveFuncs[i] = null;
-                    }
+            var funcs;
+            eval("funcs=this." + type + "Funcs");
+            for (var i = 0; i < funcs.length; i++) {
+                if (funcs[i] == listener) {
+                    funcs[i] = null;
                 }
             }
         }
@@ -780,9 +767,9 @@ class JDataSource
     add(data: JObserveObject)
     {
         this.source.push(data);
-        for (var i = 0; i < this.onAddFuncs.length; i++)
+        for (var i = 0; i < this.addFuncs.length; i++)
         {
-            this.onAddFuncs[i](this, data, this.source.length - 1);
+            this.addFuncs[i](this, data, this.source.length - 1);
         }
     }
 
@@ -794,8 +781,8 @@ class JDataSource
         }
         this.source[index] = data;
 
-        for (var i = 0; i < this.onAddFuncs.length; i++) {
-            this.onAddFuncs[i](this, data, index);
+        for (var i = 0; i < this.addFuncs.length; i++) {
+            this.addFuncs[i](this, data, index);
         }
     }
 
@@ -817,8 +804,8 @@ class JDataSource
                 this.source[i] = this.source[i + 1];
             }
             this.source.length--;
-            for (var j = 0; j < this.onRemoveFuncs.length; j++) {
-                this.onRemoveFuncs[j](this, data, index);
+            for (var j = 0; j < this.removeFuncs.length; j++) {
+                this.removeFuncs[j](this, data, index);
             }
         }
     }

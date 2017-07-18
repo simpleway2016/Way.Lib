@@ -87,8 +87,8 @@ declare class JButton extends JControl {
 }
 declare class JDataSource {
     source: JObserveObject[];
-    private onAddFuncs;
-    private onRemoveFuncs;
+    private addFuncs;
+    private removeFuncs;
     constructor(data: JObserveObject[]);
     addEventListener(type: string, listener: (sender, data, index: number) => any): void;
     removeEventListener(type: string, listener: (sender, data, index: number) => any): void;
