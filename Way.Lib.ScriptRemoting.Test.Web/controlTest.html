@@ -40,13 +40,13 @@
     </JButton>
     <input type="button" value="waefwef" onclick="btn1.text = 't1';"/>
    
-    <JList id="list1" itemsource="[{name:'aa'},{name:'bb'}]">
+    <JList id="list1" itemsource="[{name:'aa',value:1},{name:'bb',value:2}]">
         <script type="text/html">
-            <div id="itemsContainer">list {$id}</div>
+            <select id="itemContainer"></select>
         </script>
 
         <script for="item" type="text/html">
-            <div>item name here</div>
+            <option value="{@value}">{@name}</option>
         </script>
     </JList>
 </body>

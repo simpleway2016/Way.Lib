@@ -72,11 +72,13 @@ declare class JControl implements INotifyPropertyChanged {
     datacontext: any;
     private _onclick;
     onclick: any;
-    constructor(element: HTMLElement);
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    dispose(): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture?: boolean): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
     protected loadTemplates(): void;
-    protected reApplyTemplate(rootElement: HTMLElement): void;
+    private reApplyTemplate(rootElement);
+    protected onTemplateApply(): void;
     protected setChildrenDataContext(element: HTMLElement, datacontext: any): void;
     protected getTemplate(): HTMLElement;
 }
@@ -90,16 +92,22 @@ declare class JDataSource {
     private addFuncs;
     private removeFuncs;
     constructor(data: JObserveObject[]);
-    addEventListener(type: string, listener: (sender, data, index: number) => any): void;
-    removeEventListener(type: string, listener: (sender, data, index: number) => any): void;
+    addEventListener(_type: string, listener: (sender, data, index: number) => any): void;
+    removeEventListener(_type: string, listener: (sender, data, index: number) => any): void;
     add(data: JObserveObject): void;
     insert(index: number, data: JObserveObject): void;
     remove(data: JObserveObject): void;
     removeAt(index: number): void;
 }
 declare class JList extends JControl {
+    itemContainer: HTMLElement;
+    private itemControls;
+    private itemTemplates;
     private _itemsource;
     itemsource: JDataSource;
     constructor(element: HTMLElement);
     protected loadTemplates(): void;
+    protected onTemplateApply(): void;
+    protected bindItems(): void;
+    private addItem(data);
 }
