@@ -401,7 +401,7 @@ var JChildrenElementBinder = (function () {
                     var value;
                     eval("value=this.datacontext." + config.dataPropertyName);
                     if (value) {
-                        eval("this.element." + config.elementPropertyName + " = value");
+                        eval("this.element." + config.elementPropertyName + "=value");
                     }
                 }
                 catch (e) {
@@ -625,6 +625,12 @@ var JControl = (function () {
     };
     JControl.prototype.loadTemplates = function () {
         var alltemplates = this.originalElement.querySelectorAll("script");
+        if (alltemplates.length > 0) {
+        }
+        else {
+            var typename = this.constructor.name;
+            alltemplates = JElementHelper.SystemTemplateContainer.querySelector(typename).children;
+        }
         for (var i = 0; i < alltemplates.length; i++) {
             this.templates.push(alltemplates[i]);
             var match = alltemplates[i].getAttribute("match");
@@ -970,6 +976,13 @@ var JList = (function (_super) {
     return JList;
 }(JControl));
 if (document.addEventListener) {
+    var templateHtml = JHttpHelper.downloadUrl("/templates/system.html");
+    JElementHelper.SystemTemplateContainer = document.createElement("DIV");
+    JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
+    var style = JElementHelper.SystemTemplateContainer.querySelector("style");
+    if (style) {
+        document.head.appendChild(style);
+    }
     document.addEventListener('DOMContentLoaded', function () { JElementHelper.initElements(document.body); }, false);
 }
 //# sourceMappingURL=JControls.js.map

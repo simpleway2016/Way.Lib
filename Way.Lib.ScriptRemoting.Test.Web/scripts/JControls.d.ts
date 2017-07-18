@@ -3,6 +3,7 @@ interface INotifyPropertyChanged {
     removeListener(index: number): any;
 }
 declare class JElementHelper {
+    static SystemTemplateContainer: HTMLElement;
     static replaceElement(source: HTMLElement, dst: HTMLElement): void;
     static getElement(html: string): HTMLElement;
     static getJControlTypeName(tagName: string): false | "JButton" | "JList";

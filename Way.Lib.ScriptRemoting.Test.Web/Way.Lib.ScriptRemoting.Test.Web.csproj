@@ -44,6 +44,7 @@
     </Content>
     <Content Include="socketTest.html" />
     <Content Include="swipe_2.jpg" />
+    <Content Include="templates\system.html" />
     <Content Include="templates\main.html" />
     <Content Include="test.html" />
   </ItemGroup>
@@ -51,6 +52,7 @@
     <TypeScriptCompile Include="GridViewTest.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
     <TypeScriptCompile Include="scripts\JControls.ts" />
+    <TypeScriptCompile Include="scripts\JScriptInvoker.ts" />
     <TypeScriptCompile Include="scripts\WayScriptRemoting.ts" />
   </ItemGroup>
   <ItemGroup>

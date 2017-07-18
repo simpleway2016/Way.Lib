@@ -15,6 +15,8 @@ interface INotifyPropertyChanged {
 }
 
 class JElementHelper {
+    static SystemTemplateContainer: HTMLElement;
+
     //把dst换成source
     static replaceElement(source: HTMLElement, dst: HTMLElement) {
         if (dst == dst.parentElement.children[dst.parentElement.children.length - 1]) {
@@ -499,7 +501,7 @@ class JChildrenElementBinder
                     var value;
                     eval("value=this.datacontext." + config.dataPropertyName);
                     if (value) {
-                        eval("this.element." + config.elementPropertyName + " = value");
+                        eval("this.element." + config.elementPropertyName + "=value");
                     }
 
                 }
@@ -764,8 +766,18 @@ class JControl implements INotifyPropertyChanged {
     protected loadTemplates()
     {
         var alltemplates = this.originalElement.querySelectorAll("script");
-        for (var i = 0; i < alltemplates.length; i++)
+        if (alltemplates.length > 0)
         {
+            
+        }
+        else {
+            //获取当前类名
+            var typename = (<any>this).constructor.name;
+            //use system templates
+            alltemplates = <any>JElementHelper.SystemTemplateContainer.querySelector(typename).children;
+        }
+
+        for (var i = 0; i < alltemplates.length; i++) {
             this.templates.push(alltemplates[i]);
 
             var match = alltemplates[i].getAttribute("match");
@@ -792,7 +804,6 @@ class JControl implements INotifyPropertyChanged {
                 }
             }
         }
-        
     }
 
     //检查模板里的match变量，是否在datacontext已经定义，没有定义要添加定义
@@ -1185,5 +1196,13 @@ class JList extends JControl {
 }
 
 if (document.addEventListener) {
+    var templateHtml = JHttpHelper.downloadUrl("/templates/system.html");
+    JElementHelper.SystemTemplateContainer = document.createElement("DIV");
+    JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
+    var style = JElementHelper.SystemTemplateContainer.querySelector("style");
+    if (style)
+    {
+        document.head.appendChild(style);
+    }
     document.addEventListener('DOMContentLoaded', function () { JElementHelper.initElements(document.body);}, false);
 }
