@@ -14,7 +14,7 @@
     <JButton id="btn1" dataContext="{name:'hello'}" text="my button" class="btn">
         <script match="$text=='t1'" type="text/html">
             <div>
-                <input type="text" style="color:blue;" databind="value =$text;className=$class;" />
+                <input type="button" style="color:blue;" databind="value =$text;className=$class;" />
                 <div>
                     <div databind="innerHTML=$text"></div>
                     <div>text:{$text}</div>
@@ -53,12 +53,12 @@
     <script lang="ja">
         window.onload = function ()
         {
-            var ob = window.list1.itemsource.source[0];
-            ob.addPropertyChangedListener(function (s, name, value) {
-                alert(name + " changed oldvalue:" + value);
-            });
-            ob.item.child.name = "test aaa";
-            window.list1.itemsource.source[1].item.child.name = "bb2";
+            //var ob = window.list1.itemsource.source[0];
+            //ob.addPropertyChangedListener(function (s, name, value) {
+            //    alert(name + " changed oldvalue:" + value);
+            //});
+            //ob.item.child.name = "test aaa";
+            //window.list1.itemsource.source[1].item.child.name = "bb2";
         }
     </script>
 </body>
