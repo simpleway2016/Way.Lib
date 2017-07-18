@@ -27,6 +27,7 @@
                 <input type="text" style="color:red;" databind="value =$text;" />
                 <div>
                     <div databind="innerHTML=$text"></div>
+                    <div expression="{0}.innerHTML={1}.name"></div>
                     <div>name:{@name}</div>
                 </div>
             </div>
@@ -38,8 +39,9 @@
             <input type="button" databind="value =$text" />
         </script>
     </JButton>
-    <input type="button" value="waefwef" onclick="btn1.text = 't1';"/>
-   
+    <input type="button" value="change text" onclick="btn1.text = 't1';"/>
+    <input type="button" value="change name" onclick="btn1.datacontext.name = 'new name';" />
+
     <JList id="list1" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
         <script type="text/html">
             <div id="itemContainer"></div>

@@ -13,6 +13,11 @@ declare class JBindConfig {
     elementPropertyName: string;
     constructor(dataPropertyName: string, elementPropertyName: string);
 }
+declare class JBindExpression {
+    dataPropertyName: string;
+    expression: string;
+    constructor(dataPropertyName: string, expression: string);
+}
 declare class JObserveObject implements INotifyPropertyChanged {
     __data: any;
     __parent: JObserveObject;
@@ -45,16 +50,19 @@ declare class JControlDataBinder {
 declare class JChildrenElementBinder {
     element: HTMLElement;
     datacontext: INotifyPropertyChanged;
-    expression: RegExp;
     configs: JBindConfig[];
+    expressionConfigs: JBindExpression[];
     children: JChildrenElementBinder[];
     private disposed;
     private propertyChangedListenerIndex;
-    constructor(data: INotifyPropertyChanged, element: HTMLElement, expression: RegExp, bindmyselft: boolean);
+    private propertyExpressionChangedListenerIndex;
+    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp, bindmyselft: boolean);
     static addPropertyIfNotExist(data: any, propertyName: any): void;
     dispose(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
+    protected getExpressionConfigByDataProName(proname: string): JBindExpression;
     protected getConfigByElementProName(proname: string): JBindConfig;
+    private onExpressionPropertyChanged(sender, name, originalValue);
     private onPropertyChanged(sender, name, originalValue);
     updateValue(): void;
     init(): void;
