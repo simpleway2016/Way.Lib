@@ -19,6 +19,10 @@ declare class JObserveObject implements INotifyPropertyChanged {
     __parentName: string;
     private __onchanges;
     constructor(data: any, parent?: JObserveObject, parentname?: string);
+    hasProperty(proname: string): boolean;
+    addProperty(proName: string): void;
+    private getFunc(name);
+    private setFunc(checkname);
     private __addProperty(proName);
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number;
     removeListener(index: number): void;
@@ -47,6 +51,7 @@ declare class JChildrenElementBinder {
     private disposed;
     private propertyChangedListenerIndex;
     constructor(data: INotifyPropertyChanged, element: HTMLElement, expression: RegExp, bindmyselft: boolean);
+    static addPropertyIfNotExist(data: any, propertyName: any): void;
     dispose(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
     protected getConfigByElementProName(proname: string): JBindConfig;
@@ -63,7 +68,7 @@ declare class JControl implements INotifyPropertyChanged {
     onPropertyChangeds: any[];
     databind: string;
     protected templates: HTMLElement[];
-    protected templateMatchProNames: any[];
+    protected templateMatchProNames: string[];
     protected currentTemplate: HTMLElement;
     protected templateBinder: JChildrenElementBinder;
     protected dataBinder: JChildrenElementBinder;
@@ -77,6 +82,7 @@ declare class JControl implements INotifyPropertyChanged {
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture?: boolean): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
     protected loadTemplates(): void;
+    private checkDataContextPropertyExist();
     private reApplyTemplate(rootElement);
     protected onTemplateApply(): void;
     protected setChildrenDataContext(element: HTMLElement, datacontext: any): void;

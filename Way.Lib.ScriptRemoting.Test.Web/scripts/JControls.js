@@ -79,6 +79,77 @@ var JObserveObject = (function () {
             this.__addProperty(p);
         }
     }
+    JObserveObject.prototype.hasProperty = function (proname) {
+        var checkname = proname;
+        var index = proname.indexOf(".");
+        if (index >= 0) {
+            checkname = proname.substr(0, index);
+        }
+        var result = Object.getOwnPropertyDescriptor(this, checkname);
+        if (result)
+            result = true;
+        else
+            result = false;
+        if (result && index >= 0) {
+            if (this[checkname] instanceof JObserveObject) {
+                result = this[checkname].hasProperty(proname.substr(index + 1));
+            }
+        }
+        return result;
+    };
+    JObserveObject.prototype.addProperty = function (proName) {
+        var checkname = proName;
+        if (proName.indexOf(".") < 0) {
+            if (Object.getOwnPropertyDescriptor(this, proName))
+                return;
+            this.__data[proName] = null;
+        }
+        else {
+            var index = proName.indexOf(".");
+            checkname = proName.substr(0, index);
+            if (Object.getOwnPropertyDescriptor(this, checkname)) {
+                if (this[checkname] instanceof JObserveObject) {
+                    this[checkname].addProperty(proName.substr(index + 1));
+                }
+                return;
+            }
+            this.__data[checkname] = new JObserveObject({}, this, checkname);
+            this.__data[checkname].addProperty(proName.substr(index + 1));
+        }
+        Object.defineProperty(this, checkname, {
+            get: this.getFunc(checkname),
+            set: this.setFunc(checkname),
+            enumerable: true,
+            configurable: true
+        });
+    };
+    JObserveObject.prototype.getFunc = function (name) {
+        return function () {
+            return this.__data[name];
+        };
+    };
+    JObserveObject.prototype.setFunc = function (checkname) {
+        return function (value) {
+            if (!Object.getOwnPropertyDescriptor(this.__data, checkname))
+                throw new Error("不包含成员" + checkname);
+            if (this.__data[checkname] != value) {
+                var original = this.__data[checkname];
+                this.__data[checkname] = value;
+                this.onPropertyChanged(checkname, value);
+                if (this.__parent) {
+                    var curparent = this.__parent;
+                    var pname = this.__parentName;
+                    var path = checkname;
+                    while (curparent) {
+                        path = pname + "." + path;
+                        curparent.onPropertyChanged(path, original);
+                        pname = curparent.__parentName;
+                        curparent = curparent.__parent;
+                    }
+                }
+            }
+        };
+    };
     JObserveObject.prototype.__addProperty = function (proName) {
         var type = typeof this.__data[proName];
         if (type == "object" && !(this.__data[proName] instanceof Array)) {
@@ -86,25 +157,8 @@ var JObserveObject = (function () {
         }
         else if (type != "function") {
             Object.defineProperty(this, proName, {
-                get: function () {
-                    return this.__data[proName];
-                },
-                set: function (value) {
-                    if (this.__data[proName] != value) {
-                        this.__data[proName] = value;
-                        this.onPropertyChanged(proName, value);
-                        if (this.__parent) {
-                            var curparent = this.__parent;
-                            var pname = this.__parentName;
-                            while (curparent) {
-                                proName = pname + "." + proName;
-                                curparent.onPropertyChanged(proName, value);
-                                pname = curparent.__parentName;
-                                curparent = curparent.__parent;
-                            }
-                        }
-                    }
-                },
+                get: this.getFunc(proName),
+                set: this.setFunc(proName),
                 enumerable: true,
                 configurable: true
             });
@@ -129,7 +183,6 @@ var JObserveObject = (function () {
 var JControlDataBinder = (function () {
     function JControlDataBinder(data, jcontrol, expression) {
         var _this = this;
-        this.expression = /(\w+)( )?=( )?\$(\w+)/;
         this.configs = [];
         this.datacontext = data;
         this.control = jcontrol;
@@ -143,6 +196,7 @@ var JControlDataBinder = (function () {
                 var elementPropertyName = result[1];
                 var dataPropertyName = result[4];
                 this.configs.push(new JBindConfig(dataPropertyName, elementPropertyName));
+                JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
                 databind = databind.substr(result.index + result[0].length);
             }
         }
@@ -215,7 +269,6 @@ var JControlDataBinder = (function () {
 var JChildrenElementBinder = (function () {
     function JChildrenElementBinder(data, element, expression, bindmyselft) {
         var _this = this;
-        this.expression = /(\w+)( )?=( )?\$(\w+)/;
         this.configs = [];
         this.children = [];
         this.disposed = false;
@@ -231,6 +284,7 @@ var JChildrenElementBinder = (function () {
                 var elementPropertyName = result[1];
                 var dataPropertyName = result[4];
                 this.configs.push(new JBindConfig(dataPropertyName, elementPropertyName));
+                JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
                 databind = databind.substr(result.index + result[0].length);
             }
         }
@@ -248,6 +302,14 @@ var JChildrenElementBinder = (function () {
             }
         }
     }
+    JChildrenElementBinder.addPropertyIfNotExist = function (data, propertyName) {
+        if (data instanceof JObserveObject) {
+            var observeData = data;
+            if (observeData.hasProperty(propertyName) == false) {
+                observeData.addProperty(propertyName);
+            }
+        }
+    };
     JChildrenElementBinder.prototype.dispose = function () {
         this.disposed = true;
         this.datacontext.removeListener(this.propertyChangedListenerIndex);
@@ -305,11 +367,12 @@ var JChildrenElementBinder = (function () {
             var config = this.configs[i];
             try {
                 if (config.elementPropertyName == "value") {
+                    var src = this;
                     this.element.addEventListener("change", function () {
                         try {
                             var config = _this.getConfigByElementProName("value");
                             if (config) {
-                                _this.datacontext[config.dataPropertyName] = _this.element[config.elementPropertyName];
+                                eval("src.datacontext." + config.dataPropertyName + " = src.element." + config.elementPropertyName);
                             }
                         }
                         catch (e) {
@@ -340,6 +403,7 @@ var JControl = (function () {
         }
         else {
             this.loadTemplates();
+            this.checkDataContextPropertyExist();
         }
         this.databind = this.originalElement.getAttribute("databind");
         for (var i = 0; i < this.originalElement.attributes.length; i++) {
@@ -437,14 +501,15 @@ var JControl = (function () {
                 }
                 if (value) {
                     if (this.element) {
-                        this.dataBinder = new JChildrenElementBinder(value, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
+                        this.dataBinder = new JChildrenElementBinder(value, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, true);
                     }
                     if (value) {
-                        this.controlDataBinder = new JControlDataBinder(value, this, /(\w+)( )?=( )?\@(\w+)/);
+                        this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/);
                     }
                     if (this.element) {
                         this.setChildrenDataContext(this.element, value);
                     }
+                    this.checkDataContextPropertyExist();
                 }
             }
         },
@@ -507,7 +572,7 @@ var JControl = (function () {
             this.templates.push(alltemplates[i]);
             var match = alltemplates[i].getAttribute("match");
             if (match) {
-                var reg = /\@\w+/;
+                var reg = /\@[\w|\.]+/;
                 while (true) {
                     var result = reg.exec(match);
                     if (!result)
@@ -517,7 +582,7 @@ var JControl = (function () {
                     match = match.substr(result.index + result[0].length);
                 }
                 match = alltemplates[i].getAttribute("match");
-                reg = /\$\w+/;
+                reg = /\$[\w|\.]+/;
                 while (true) {
                     var result = reg.exec(match);
                     if (!result)
@@ -529,29 +594,50 @@ var JControl = (function () {
             }
         }
     };
+    JControl.prototype.checkDataContextPropertyExist = function () {
+        if (this.datacontext && this.datacontext instanceof JObserveObject) {
+            var ob = this.datacontext;
+            for (var i = 0; i < this.templateMatchProNames.length; i++) {
+                if (this.templateMatchProNames[i].indexOf("@") == 0) {
+                    var name = this.templateMatchProNames[i].substr(1);
+                    if (!ob.hasProperty(name)) {
+                        ob.addProperty(name);
+                    }
+                }
+            }
+        }
+    };
     JControl.prototype.reApplyTemplate = function (rootElement) {
         var template = this.getTemplate();
         if (template != this.currentTemplate) {
             this.currentTemplate = template;
             var html = template.innerHTML;
-            var reg = /\{\@(\w+)\}/;
+            var reg = /\{\@([\w|\.]+)\}/;
             if (reg) {
                 var result;
                 while (result = reg.exec(html)) {
                     var name = result[1];
                     var value = "";
-                    if (this.datacontext && this.datacontext[name]) {
-                        value = this.datacontext[name];
+                    if (this.datacontext) {
+                        try {
+                            eval("value=this.datacontext." + name);
+                        }
+                        catch (e) { }
+                        if (typeof (value) == "undefined")
+                            value = "";
                     }
                     html = html.replace(result[0], value);
                 }
-                reg = /\{\$(\w+)\}/;
+                reg = /\{\$([\w|\.]+)\}/;
                 while (result = reg.exec(html)) {
                     var name = result[1];
                     var value = "";
-                    if (this[name]) {
-                        value = this[name];
+                    try {
+                        eval("value=this." + name);
                     }
+                    catch (e) { }
+                    if (typeof (value) == "undefined")
+                        value = "";
                     html = html.replace(result[0], value);
                 }
             }
@@ -585,9 +671,9 @@ var JControl = (function () {
                 this.dataBinder = null;
             }
             JElementHelper.initElements(this.element);
-            this.templateBinder = new JChildrenElementBinder(this, this.element, /(\w+)( )?=( )?\$(\w+)/, true);
+            this.templateBinder = new JChildrenElementBinder(this, this.element, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/, true);
             if (this.datacontext) {
-                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /(\w+)( )?=( )?\@(\w+)/, true);
+                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, true);
             }
             this.onTemplateApply();
         }
