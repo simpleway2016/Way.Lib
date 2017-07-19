@@ -539,12 +539,12 @@ class JChildrenElementBinder
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             try {
-                if (config.elementPropertyName == "value" )
+                if (config.elementPropertyName == "value" || config.elementPropertyName == "checked")
                 {
                     var src = this;
                     this.element.addEventListener("change", () => {
                         try {
-                            var config = this.getConfigByElementProName("value");
+                            var config = this.getConfigByElementProName(config.elementPropertyName);
                             if (config) {
                                 eval("src.datacontext." + config.dataPropertyName + " = src.element." + config.elementPropertyName);
                             }

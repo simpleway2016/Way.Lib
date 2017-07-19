@@ -420,11 +420,11 @@ var JChildrenElementBinder = (function () {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             try {
-                if (config.elementPropertyName == "value") {
+                if (config.elementPropertyName == "value" || config.elementPropertyName == "checked") {
                     var src = this;
                     this.element.addEventListener("change", function () {
                         try {
-                            var config = _this.getConfigByElementProName("value");
+                            var config = _this.getConfigByElementProName(config.elementPropertyName);
                             if (config) {
                                 eval("src.datacontext." + config.dataPropertyName + " = src.element." + config.elementPropertyName);
                             }
