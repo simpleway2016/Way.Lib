@@ -11,7 +11,7 @@
 
 <JCheckboxList>
     <script type="text/html">
-        <div id="itemContainer" expression="if({1}.$height) { {0}.style.height = {1}.$height+'px'; {0}.style.overflowY = 'auto'; } else { {0}.style.height = ''; {0}.style.overflowY = ''; }"></div>
+        <div id="itemContainer" databind="className=$class"></div>
     </script>
 
     <script for="item" type="text/html">
@@ -20,3 +20,15 @@
         </div>
     </script>
 </JCheckboxList>
+
+<JRadioList>
+    <script type="text/html">
+        <div id="itemContainer" databind="className=$class"></div>
+    </script>
+
+    <script for="item" type="text/html">
+        <div>
+            <input type="radio" databind="checked=@checked" expression="{0}.id={1}.$id;{0}.name={1}.$name;"><label expression="{0}.setAttribute('for' ,{1}.$id);" expression1="{0}.innerHTML={1}.$text"></label>
+        </div>
+    </script>
+</JRadioList>

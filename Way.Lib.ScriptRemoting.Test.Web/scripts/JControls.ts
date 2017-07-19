@@ -753,16 +753,8 @@ class JControl implements INotifyPropertyChanged {
                     //如果属性没有定义，动态添加一个属性
                     eval("this._" + attName + "=this.originalElement.attributes[i].value");
                     Object.defineProperty(this, attName, {
-                        get: function () {
-                            return this["_" + attName];
-                        },
-                        set: function (value) {
-                            if (this["_" + attName] != value) {
-                                var oldvalue = this["_" + attName];
-                                this["_" + attName] = value;
-                                this.onPropertyChanged(attName, oldvalue);
-                            }
-                        },
+                        get: this.getFunc(attName),
+                        set: this.setFunc(attName),
                         enumerable: true,
                         configurable: true
                     });
@@ -781,6 +773,21 @@ class JControl implements INotifyPropertyChanged {
                 }
             }
         });
+    }
+
+    private getFunc(name) {
+        return function () {
+            return this["_" + name];
+        }
+    }
+    private setFunc(attName: string) {
+        return function (value) {
+            if (this["_" + attName] != value) {
+                var oldvalue = this["_" + attName];
+                this["_" + attName] = value;
+                this.onPropertyChanged(attName, oldvalue);
+            }
+        }
     }
 
     dispose()
@@ -1136,6 +1143,7 @@ class JListItem extends JControl
     static StaticString: string = "JListItem_";
 
     id: string;
+    name: string;
 
     private _valueMember: string;
     get valuemember(): string {
@@ -1267,19 +1275,6 @@ class JList extends JControl {
         }
         this._itemsource = new JDataSource(value);
         this.bindItems();
-    }
-
-
-    private _height: number;
-    get height(): number {
-        return this._height;
-    }
-    set height(value: number) {
-        if (value != this._height) {
-            var original = this._height;
-            this._height = value;
-            this.onPropertyChanged("height", original);
-        }
     }
 
 
@@ -1421,6 +1416,21 @@ class JCheckboxList extends JList
         if (value != this._checkedvalue) {
             var original = this._checkedvalue;
             this._checkedvalue = value;
+
+            if (this.valuemember && this.valuemember.length > 0)
+            {
+                this.itemControls.forEach((control: JListItem, index: number, array) => {
+                    var itemvalue;
+                    eval("itemvalue=control.datacontext." + this.valuemember);
+                    if (this._checkedvalue.indexOf(itemvalue) >= 0) {
+                        control.datacontext.checked = true;
+                    }
+                    else {
+                        control.datacontext.checked = false;
+                    }
+                });
+            }
+
             this.onPropertyChanged("checkedvalue", original);
         }
     }
@@ -1431,6 +1441,9 @@ class JCheckboxList extends JList
 
     protected addItem(data): JListItem {
         var item = super.addItem(data);
+        if (typeof data.checked == "undefined")
+            data.checked = false;
+
         if (data instanceof JObserveObject)
         {
             (<JObserveObject>data).addPropertyChangedListener((s, name, o) => { this.onItemDataChanged(s, name, o); });
@@ -1438,7 +1451,7 @@ class JCheckboxList extends JList
         return item;
     }
 
-    private onItemDataChanged(sender, name: string, originalvalue) {
+    protected onItemDataChanged(sender, name: string, originalvalue) {
         if (name == "checked" && this.valuemember && this.valuemember.length > 0)
         {
            //先确定sender目前还属于item里面
@@ -1465,6 +1478,78 @@ class JCheckboxList extends JList
                 }
             }
             
+        }
+    }
+}
+
+class JRadioList extends JList
+{
+    static StaticID: number = 1;
+
+    private itemid: number;
+
+    private _checkedvalue = null;
+    get checkedvalue() {
+        return this._checkedvalue;
+    }
+    set checkedvalue(value) {
+        if (value != this._checkedvalue) {
+            var original = this._checkedvalue;
+            this._checkedvalue = value;
+
+            if (this.valuemember && this.valuemember.length > 0) {
+                this.itemControls.forEach((control: JListItem, index: number, array) => {
+                    var itemvalue;
+                    eval("itemvalue=control.datacontext." + this.valuemember);
+                    if (itemvalue == value) {
+                        control.datacontext.checked = true;
+                    }
+                    else {
+                        control.datacontext.checked = false;
+                    }
+                });
+            }
+
+            this.onPropertyChanged("checkedvalue", original);
+        }
+    }
+
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
+    }
+
+    protected addItem(data): JListItem {
+        if (!this.itemid)
+            this.itemid = (JRadioList.StaticID++);
+
+        var item = super.addItem(data);
+        item.name = "JRadioListItem_" + this.itemid;
+        if (typeof data.checked == "undefined")
+            data.checked = false;
+
+        if (data instanceof JObserveObject) {
+            (<JObserveObject>data).addPropertyChangedListener((s, name, o) => { this.onItemDataChanged(s, name, o); });
+        }
+        return item;
+    }
+
+    protected onItemDataChanged(sender, name: string, originalvalue) {
+        if (name == "checked" && this.valuemember && this.valuemember.length > 0) {
+            //先确定sender目前还属于item里面
+            for (var i = 0; i < this.itemControls.length; i++) {
+                if (this.itemControls[i]) {
+                    if (this.itemControls[i].datacontext["checked"]) {
+                        var value;
+                        var data = this.itemControls[i].datacontext;
+                        eval("value = data." + this.valuemember);
+                        this.checkedvalue = value;
+                        return;
+                    }
+                }
+            }
+
+            //如果都没有checked
+            this.checkedvalue = null;
         }
     }
 }

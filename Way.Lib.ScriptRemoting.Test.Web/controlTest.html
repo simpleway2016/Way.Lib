@@ -37,14 +37,17 @@
         </script>
     </JButton>
 
-    <JButton id="btn2" datacontext="{name:'hello22'}" template="btntemplate" onclick="alert(2)" databind="text=@name">
+    <JButton id="btn2" datacontext="{name:'hello22'}" class="btn" template="btntemplate" onclick="alert(2)" databind="text=@name">
     </JButton>
 
     <input type="button" value="change text" onclick="btn1.text = 't1';"/>
     <input type="button" value="change name" onclick="btn1.datacontext.name = 'new name';" />
 
-    <JCheckboxList id="list1" height="120" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+    <JCheckboxList id="list1" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
     </JCheckboxList>
+
+    <JRadioList id="list2" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+    </JRadioList>
 
     <script lang="ja">
         window.onload = function ()

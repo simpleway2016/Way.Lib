@@ -89,6 +89,8 @@ declare class JControl implements INotifyPropertyChanged {
     private _onclick;
     onclick: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    private getFunc(name);
+    private setFunc(attName);
     dispose(): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture?: boolean): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
@@ -120,6 +122,7 @@ declare class JListItem extends JControl {
     static StaticID: number;
     static StaticString: string;
     id: string;
+    name: string;
     private _valueMember;
     valuemember: string;
     private _textMember;
@@ -138,8 +141,6 @@ declare class JList extends JControl {
     protected itemTemplates: any[];
     private _itemsource;
     itemsource: JDataSource;
-    private _height;
-    height: number;
     private _valueMember;
     valuemember: string;
     private _textMember;
@@ -156,5 +157,14 @@ declare class JCheckboxList extends JList {
     checkedvalue: any[];
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     protected addItem(data: any): JListItem;
-    private onItemDataChanged(sender, name, originalvalue);
+    protected onItemDataChanged(sender: any, name: string, originalvalue: any): void;
+}
+declare class JRadioList extends JList {
+    static StaticID: number;
+    private itemid;
+    private _checkedvalue;
+    checkedvalue: any;
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    protected addItem(data: any): JListItem;
+    protected onItemDataChanged(sender: any, name: string, originalvalue: any): void;
 }

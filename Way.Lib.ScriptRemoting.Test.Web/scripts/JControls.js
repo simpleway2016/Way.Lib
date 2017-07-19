@@ -497,16 +497,8 @@ var JControl = (function () {
                 if (!finded) {
                     eval("this._" + attName + "=this.originalElement.attributes[i].value");
                     Object.defineProperty(this, attName, {
-                        get: function () {
-                            return this["_" + attName];
-                        },
-                        set: function (value) {
-                            if (this["_" + attName] != value) {
-                                var oldvalue = this["_" + attName];
-                                this["_" + attName] = value;
-                                this.onPropertyChanged(attName, oldvalue);
-                            }
-                        },
+                        get: this.getFunc(attName),
+                        set: this.setFunc(attName),
                         enumerable: true,
                         configurable: true
                     });
@@ -617,6 +609,20 @@ var JControl = (function () {
         enumerable: true,
         configurable: true
     });
+    JControl.prototype.getFunc = function (name) {
+        return function () {
+            return this["_" + name];
+        };
+    };
+    JControl.prototype.setFunc = function (attName) {
+        return function (value) {
+            if (this["_" + attName] != value) {
+                var oldvalue = this["_" + attName];
+                this["_" + attName] = value;
+                this.onPropertyChanged(attName, oldvalue);
+            }
+        };
+    };
     JControl.prototype.dispose = function () {
         if (this.controlDataBinder) {
             this.controlDataBinder.dispose();
@@ -1040,20 +1046,6 @@ var JList = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(JList.prototype, "height", {
-        get: function () {
-            return this._height;
-        },
-        set: function (value) {
-            if (value != this._height) {
-                var original = this._height;
-                this._height = value;
-                this.onPropertyChanged("height", original);
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(JList.prototype, "valuemember", {
         get: function () {
             return this._valueMember;
@@ -1172,9 +1164,22 @@ var JCheckboxList = (function (_super) {
             return this._checkedvalue;
         },
         set: function (value) {
+            var _this = this;
             if (value != this._checkedvalue) {
                 var original = this._checkedvalue;
                 this._checkedvalue = value;
+                if (this.valuemember && this.valuemember.length > 0) {
+                    this.itemControls.forEach(function (control, index, array) {
+                        var itemvalue;
+                        eval("itemvalue=control.datacontext." + _this.valuemember);
+                        if (_this._checkedvalue.indexOf(itemvalue) >= 0) {
+                            control.datacontext.checked = true;
+                        }
+                        else {
+                            control.datacontext.checked = false;
+                        }
+                    });
+                }
                 this.onPropertyChanged("checkedvalue", original);
             }
         },
@@ -1184,6 +1189,8 @@ var JCheckboxList = (function (_super) {
     JCheckboxList.prototype.addItem = function (data) {
         var _this = this;
         var item = _super.prototype.addItem.call(this, data);
+        if (typeof data.checked == "undefined")
+            data.checked = false;
         if (data instanceof JObserveObject) {
             data.addPropertyChangedListener(function (s, name, o) { _this.onItemDataChanged(s, name, o); });
         }
@@ -1214,6 +1221,74 @@ var JCheckboxList = (function (_super) {
     };
     return JCheckboxList;
 }(JList));
+var JRadioList = (function (_super) {
+    __extends(JRadioList, _super);
+    function JRadioList(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        _this._checkedvalue = null;
+        return _this;
+    }
+    Object.defineProperty(JRadioList.prototype, "checkedvalue", {
+        get: function () {
+            return this._checkedvalue;
+        },
+        set: function (value) {
+            var _this = this;
+            if (value != this._checkedvalue) {
+                var original = this._checkedvalue;
+                this._checkedvalue = value;
+                if (this.valuemember && this.valuemember.length > 0) {
+                    this.itemControls.forEach(function (control, index, array) {
+                        var itemvalue;
+                        eval("itemvalue=control.datacontext." + _this.valuemember);
+                        if (itemvalue == value) {
+                            control.datacontext.checked = true;
+                        }
+                        else {
+                            control.datacontext.checked = false;
+                        }
+                    });
+                }
+                this.onPropertyChanged("checkedvalue", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    JRadioList.prototype.addItem = function (data) {
+        var _this = this;
+        if (!this.itemid)
+            this.itemid = (JRadioList.StaticID++);
+        var item = _super.prototype.addItem.call(this, data);
+        item.name = "JRadioListItem_" + this.itemid;
+        if (typeof data.checked == "undefined")
+            data.checked = false;
+        if (data instanceof JObserveObject) {
+            data.addPropertyChangedListener(function (s, name, o) { _this.onItemDataChanged(s, name, o); });
+        }
+        return item;
+    };
+    JRadioList.prototype.onItemDataChanged = function (sender, name, originalvalue) {
+        if (name == "checked" && this.valuemember && this.valuemember.length > 0) {
+            for (var i = 0; i < this.itemControls.length; i++) {
+                if (this.itemControls[i]) {
+                    if (this.itemControls[i].datacontext["checked"]) {
+                        var value;
+                        var data = this.itemControls[i].datacontext;
+                        eval("value = data." + this.valuemember);
+                        this.checkedvalue = value;
+                        return;
+                    }
+                }
+            }
+            this.checkedvalue = null;
+        }
+    };
+    return JRadioList;
+}(JList));
+JRadioList.StaticID = 1;
 if (document.addEventListener) {
     document.addEventListener('DOMContentLoaded', function () {
         var bodytemplate = document.body.getAttribute("template");
