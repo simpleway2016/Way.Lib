@@ -877,30 +877,19 @@ var JDataSource = (function () {
         }
     };
     JDataSource.prototype.insert = function (index, data) {
-        var len = this.source.length;
-        for (var i = len - 1; i >= index; i--) {
-            this.source[i + 1] = this.source[i];
-        }
-        this.source[index] = data;
+        this.source.splice(index, 0, data);
         for (var i = 0; i < this.addFuncs.length; i++) {
             this.addFuncs[i](this, data, index);
         }
     };
     JDataSource.prototype.remove = function (data) {
-        for (var i = 0; i < this.source.length; i++) {
-            if (this.source[i] == data) {
-                this.removeAt(i);
-                break;
-            }
-        }
+        var index = this.source.indexOf(data);
+        this.removeAt(index);
     };
     JDataSource.prototype.removeAt = function (index) {
         if (index < this.source.length && index >= 0) {
             var data = this.source[index];
-            for (var i = index; i < this.source.length - 1; i++) {
-                this.source[i] = this.source[i + 1];
-            }
-            this.source.length--;
+            this.source.splice(index, 1);
             for (var j = 0; j < this.removeFuncs.length; j++) {
                 this.removeFuncs[j](this, data, index);
             }
@@ -1144,7 +1133,7 @@ var JList = (function (_super) {
                 if (_this.itemControls[i] && _this.itemControls[i].datacontext == data) {
                     _this.itemContainer.removeChild(_this.itemControls[i].element);
                     _this.itemControls[i].dispose();
-                    _this.itemControls[i] = null;
+                    _this.itemControls.splice(i, 1);
                     break;
                 }
             }
@@ -1174,8 +1163,55 @@ var JCheckboxList = (function (_super) {
     function JCheckboxList(element, templates, datacontext) {
         if (templates === void 0) { templates = null; }
         if (datacontext === void 0) { datacontext = null; }
-        return _super.call(this, element, templates, datacontext) || this;
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        _this._checkedvalue = [];
+        return _this;
     }
+    Object.defineProperty(JCheckboxList.prototype, "checkedvalue", {
+        get: function () {
+            return this._checkedvalue;
+        },
+        set: function (value) {
+            if (value != this._checkedvalue) {
+                var original = this._checkedvalue;
+                this._checkedvalue = value;
+                this.onPropertyChanged("checkedvalue", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    JCheckboxList.prototype.addItem = function (data) {
+        var _this = this;
+        var item = _super.prototype.addItem.call(this, data);
+        if (data instanceof JObserveObject) {
+            data.addPropertyChangedListener(function (s, name, o) { _this.onItemDataChanged(s, name, o); });
+        }
+        return item;
+    };
+    JCheckboxList.prototype.onItemDataChanged = function (sender, name, originalvalue) {
+        if (name == "checked" && this.valuemember && this.valuemember.length > 0) {
+            for (var i = 0; i < this.itemControls.length; i++) {
+                if (this.itemControls[i] && this.itemControls[i].datacontext == sender) {
+                    var original = this.checkedvalue;
+                    if (sender[name]) {
+                        var self = this;
+                        eval("self.checkedvalue.push(sender." + this.valuemember + ")");
+                    }
+                    else {
+                        var value;
+                        eval("value = sender." + this.valuemember);
+                        var index = this.checkedvalue.indexOf(value);
+                        if (index >= 0) {
+                            this.checkedvalue.splice(index, 1);
+                        }
+                    }
+                    this.onPropertyChanged("checkedvalue", original);
+                    break;
+                }
+            }
+        }
+    };
     return JCheckboxList;
 }(JList));
 if (document.addEventListener) {

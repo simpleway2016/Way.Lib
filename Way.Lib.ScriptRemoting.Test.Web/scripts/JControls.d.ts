@@ -152,5 +152,9 @@ declare class JList extends JControl {
     protected addItem(data: any): JListItem;
 }
 declare class JCheckboxList extends JList {
+    private _checkedvalue;
+    checkedvalue: any[];
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    protected addItem(data: any): JListItem;
+    private onItemDataChanged(sender, name, originalvalue);
 }
