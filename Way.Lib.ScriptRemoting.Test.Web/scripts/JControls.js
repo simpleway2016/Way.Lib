@@ -572,7 +572,6 @@ var JControl = (function () {
         }
         else {
             this.loadTemplates();
-            this.checkDataContextPropertyExist();
         }
         this.databind = this.originalElement.getAttribute("databind");
         for (var i = 0; i < this.originalElement.attributes.length; i++) {
@@ -623,6 +622,7 @@ var JControl = (function () {
         else {
             this.datacontext = datacontext;
         }
+        this.checkDataContextPropertyExist();
         this.reApplyTemplate(this.originalElement);
         this.addPropertyChangedListener(function (s, name, value) {
             for (var i = 0; i < _this.templateMatchProNames.length; i++) {

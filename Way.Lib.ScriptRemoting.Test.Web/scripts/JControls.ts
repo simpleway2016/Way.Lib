@@ -875,7 +875,7 @@ class JControl implements INotifyPropertyChanged {
         }
         else {
             this.loadTemplates();
-            this.checkDataContextPropertyExist();
+           
         }
 
         this.databind = this.originalElement.getAttribute("databind");
@@ -935,6 +935,7 @@ class JControl implements INotifyPropertyChanged {
         else {
             this.datacontext = datacontext;
         }
+        this.checkDataContextPropertyExist();
 
         this.reApplyTemplate(this.originalElement);
 
