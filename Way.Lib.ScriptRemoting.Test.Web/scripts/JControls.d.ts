@@ -120,8 +120,16 @@ declare class JListItem extends JControl {
     static StaticID: number;
     static StaticString: string;
     id: string;
+    private _valueMember;
+    valuemember: string;
+    private _textMember;
+    textmember: string;
     private _index;
     index: number;
+    private _text;
+    text: any;
+    private _value;
+    value: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JList extends JControl {
@@ -132,12 +140,16 @@ declare class JList extends JControl {
     itemsource: JDataSource;
     private _height;
     height: number;
+    private _valueMember;
+    valuemember: string;
+    private _textMember;
+    textmember: string;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     protected loadTemplates(): void;
     protected onTemplateApply(): void;
     protected bindItems(): void;
     private resetItemIndex();
-    protected addItem(data: any): void;
+    protected addItem(data: any): JListItem;
 }
 declare class JCheckboxList extends JList {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);

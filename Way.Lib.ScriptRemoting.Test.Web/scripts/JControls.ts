@@ -1138,6 +1138,39 @@ class JListItem extends JControl
 
     id: string;
 
+    private _valueMember: string;
+    get valuemember(): string {
+        return this._valueMember;
+    }
+    set valuemember(value: string) {
+        if (value != this._valueMember) {
+            var original = this._valueMember;
+            this._valueMember = value;
+            if (this.datacontext) {
+                var self = this;
+                eval("self.value=self.datacontext." + value);
+            }
+            this.onPropertyChanged("valuemember", original);
+        }
+    }
+
+    private _textMember: string;
+    get textmember(): string {
+        return this._textMember;
+    }
+    set textmember(value: string) {
+        if (value != this._textMember) {
+            var original = this._textMember;
+            this._textMember = value;
+            if (this.datacontext)
+            {
+                var self = this;
+                eval("self.text=self.datacontext." + value);
+            }
+            this.onPropertyChanged("textmember", original);
+        }
+    }
+
     private _index: number;
     get index(): number {
         return this._index;
@@ -1148,6 +1181,30 @@ class JListItem extends JControl
             var original = this._index;
             this._index = value;
             this.onPropertyChanged("index", original);
+        }
+    }
+
+    private _text;
+    get text() {
+        return this._text;
+    }
+    set text(value) {
+        if (value != this._text) {
+            var original = this._text;
+            this._text = value;
+            this.onPropertyChanged("text", original);
+        }
+    }
+
+    private _value;
+    get value() {
+        return this._value;
+    }
+    set value(value) {
+        if (value != this._value) {
+            var original = this._value;
+            this._value = value;
+            this.onPropertyChanged("value", original);
         }
     }
 
@@ -1226,6 +1283,47 @@ class JList extends JControl {
         }
     }
 
+
+    private _valueMember: string;
+    get valuemember(): string {
+        return this._valueMember;
+    }
+    set valuemember(value: string) {
+        if (value != this._valueMember) {
+            var original = this._valueMember;
+            this._valueMember = value;
+            if (this.itemControls) {
+                for (var i = 0; i < this.itemControls.length; i++)
+                {
+                    if (this.itemControls[i])
+                    {
+                        this.itemControls[i].valuemember = value;
+                    }
+                }
+            }
+            this.onPropertyChanged("valuemember", original);
+        }
+    }
+
+    private _textMember: string;
+    get textmember(): string {
+        return this._textMember;
+    }
+    set textmember(value: string) {
+        if (value != this._textMember) {
+            var original = this._textMember;
+            this._textMember = value;
+            if (this.itemControls) {
+                for (var i = 0; i < this.itemControls.length; i++) {
+                    if (this.itemControls[i]) {
+                        this.itemControls[i].textmember = value;
+                    }
+                }
+            }
+            this.onPropertyChanged("textmember", original);
+        }
+    }
+
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
     }
@@ -1260,12 +1358,16 @@ class JList extends JControl {
         this.itemControls = [];
         for (var i = 0; i < this.itemsource.source.length; i++)
         {
-            this.addItem(this.itemsource.source[i]);
+            var item = this.addItem(this.itemsource.source[i]);
+            item.textmember = this.textmember;
+            item.valuemember = this.valuemember;
         }
         this.resetItemIndex();
 
         this.itemsource.addEventListener("add", (sender, data, index) => {
-            this.addItem(data);
+            var item = this.addItem(data);
+            item.textmember = this.textmember;
+            item.valuemember = this.valuemember;
             this.resetItemIndex();
         });
 
@@ -1297,13 +1399,14 @@ class JList extends JControl {
         }
     }
 
-    protected addItem(data)
+    protected addItem(data): JListItem
     {
         var div = document.createElement("DIV");
         this.itemContainer.appendChild(div);
 
         var jcontrol = new JListItem(div, this.itemTemplates, data);
         this.itemControls.push(jcontrol);
+        return jcontrol;
     }
 }
 

@@ -922,6 +922,42 @@ var JListItem = (function (_super) {
         _this.onPropertyChanged("id", undefined);
         return _this;
     }
+    Object.defineProperty(JListItem.prototype, "valuemember", {
+        get: function () {
+            return this._valueMember;
+        },
+        set: function (value) {
+            if (value != this._valueMember) {
+                var original = this._valueMember;
+                this._valueMember = value;
+                if (this.datacontext) {
+                    var self = this;
+                    eval("self.value=self.datacontext." + value);
+                }
+                this.onPropertyChanged("valuemember", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JListItem.prototype, "textmember", {
+        get: function () {
+            return this._textMember;
+        },
+        set: function (value) {
+            if (value != this._textMember) {
+                var original = this._textMember;
+                this._textMember = value;
+                if (this.datacontext) {
+                    var self = this;
+                    eval("self.text=self.datacontext." + value);
+                }
+                this.onPropertyChanged("textmember", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(JListItem.prototype, "index", {
         get: function () {
             return this._index;
@@ -931,6 +967,34 @@ var JListItem = (function (_super) {
                 var original = this._index;
                 this._index = value;
                 this.onPropertyChanged("index", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JListItem.prototype, "text", {
+        get: function () {
+            return this._text;
+        },
+        set: function (value) {
+            if (value != this._text) {
+                var original = this._text;
+                this._text = value;
+                this.onPropertyChanged("text", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JListItem.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (value) {
+            if (value != this._value) {
+                var original = this._value;
+                this._value = value;
+                this.onPropertyChanged("value", original);
             }
         },
         enumerable: true,
@@ -1001,6 +1065,48 @@ var JList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(JList.prototype, "valuemember", {
+        get: function () {
+            return this._valueMember;
+        },
+        set: function (value) {
+            if (value != this._valueMember) {
+                var original = this._valueMember;
+                this._valueMember = value;
+                if (this.itemControls) {
+                    for (var i = 0; i < this.itemControls.length; i++) {
+                        if (this.itemControls[i]) {
+                            this.itemControls[i].valuemember = value;
+                        }
+                    }
+                }
+                this.onPropertyChanged("valuemember", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JList.prototype, "textmember", {
+        get: function () {
+            return this._textMember;
+        },
+        set: function (value) {
+            if (value != this._textMember) {
+                var original = this._textMember;
+                this._textMember = value;
+                if (this.itemControls) {
+                    for (var i = 0; i < this.itemControls.length; i++) {
+                        if (this.itemControls[i]) {
+                            this.itemControls[i].textmember = value;
+                        }
+                    }
+                }
+                this.onPropertyChanged("textmember", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     JList.prototype.loadTemplates = function () {
         _super.prototype.loadTemplates.call(this);
         this.itemTemplates = [];
@@ -1022,11 +1128,15 @@ var JList = (function (_super) {
             return;
         this.itemControls = [];
         for (var i = 0; i < this.itemsource.source.length; i++) {
-            this.addItem(this.itemsource.source[i]);
+            var item = this.addItem(this.itemsource.source[i]);
+            item.textmember = this.textmember;
+            item.valuemember = this.valuemember;
         }
         this.resetItemIndex();
         this.itemsource.addEventListener("add", function (sender, data, index) {
-            _this.addItem(data);
+            var item = _this.addItem(data);
+            item.textmember = _this.textmember;
+            item.valuemember = _this.valuemember;
             _this.resetItemIndex();
         });
         this.itemsource.addEventListener("remove", function (sender, data, index) {
@@ -1055,6 +1165,7 @@ var JList = (function (_super) {
         this.itemContainer.appendChild(div);
         var jcontrol = new JListItem(div, this.itemTemplates, data);
         this.itemControls.push(jcontrol);
+        return jcontrol;
     };
     return JList;
 }(JControl));
