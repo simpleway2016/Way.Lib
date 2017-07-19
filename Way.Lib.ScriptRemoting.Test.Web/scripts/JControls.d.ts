@@ -57,7 +57,8 @@ declare class JChildrenElementBinder {
     private disposed;
     private propertyChangedListenerIndex;
     private propertyExpressionChangedListenerIndex;
-    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp, bindmyselft: boolean);
+    private expresion_replace_reg;
+    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp, expression_exp: RegExp, bindmyselft: boolean);
     static addPropertyIfNotExist(data: any, propertyName: any): void;
     dispose(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
@@ -67,6 +68,7 @@ declare class JChildrenElementBinder {
     private onPropertyChanged(sender, name, originalValue);
     updateValue(): void;
     init(): void;
+    private listenElementEvent(self, config);
 }
 declare class JControl implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number;
@@ -115,14 +117,17 @@ declare class JDataSource {
     removeAt(index: number): void;
 }
 declare class JListItem extends JControl {
+    static StaticID: number;
+    static StaticString: string;
+    id: string;
     private _index;
     index: number;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JList extends JControl {
     itemContainer: HTMLElement;
-    private itemControls;
-    private itemTemplates;
+    protected itemControls: JListItem[];
+    protected itemTemplates: any[];
     private _itemsource;
     itemsource: JDataSource;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
@@ -130,7 +135,7 @@ declare class JList extends JControl {
     protected onTemplateApply(): void;
     protected bindItems(): void;
     private resetItemIndex();
-    private addItem(data);
+    protected addItem(data: any): void;
 }
 declare class JCheckboxList extends JList {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);

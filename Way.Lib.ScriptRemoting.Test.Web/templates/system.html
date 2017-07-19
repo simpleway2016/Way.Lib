@@ -15,6 +15,8 @@
     </script>
 
     <script for="item" type="text/html">
-        <input type="checkbox" />
+        <div>
+            <input type="checkbox" databind="checked=@checked" expression="{0}.id={1}.$id;"><label expression="{0}.setAttribute('for' ,{1}.$id);">item</label>
+        </div>
     </script>
 </JCheckboxList>

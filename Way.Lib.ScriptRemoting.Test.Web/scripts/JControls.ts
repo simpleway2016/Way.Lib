@@ -3,7 +3,8 @@
 //属性的定义必须全小写，因为element.attribute[0].name就是全小写
 //属性绑定<input databind="value=@name;className=$class;">
 //属性直接替换<div>{@name}  {$text}</div>
-//表达式,expression="{0}.style.color={1}.isSelected?'red':'black'"  {1}表示datacontext
+//表达式,expression="{0}.style.color={1}.@isSelected?'red':'black'"  {1}表示datacontext {1}.$是指向JControl属性的形式
+//定义多个表达式 expression="***" expression1="**" expression2="***"，不要把 {1}.@isSelected {1}.$index 两种变量写在同一个表达式里面
 
 //页面定义模板文件
 //<body template="/templates/system.html">
@@ -200,7 +201,7 @@ class JObserveObject implements INotifyPropertyChanged {
                 var original = this.__data[checkname];
 
                 this.__data[checkname] = value;
-                this.onPropertyChanged(checkname, value);
+                this.onPropertyChanged(checkname, original);
                 if (this.__parent) {
                     var curparent = this.__parent;
                     var pname = this.__parentName;
@@ -373,11 +374,12 @@ class JChildrenElementBinder
     private disposed: boolean = false;
     private propertyChangedListenerIndex: number;
     private propertyExpressionChangedListenerIndex: number;
+    private expresion_replace_reg: RegExp;
 
-    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp,  bindmyselft:boolean) {
+    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp, expression_exp: RegExp, bindmyselft:boolean) {
         this.datacontext = data;
+        this.expresion_replace_reg = expression_exp;
         this.element = element;
-        var expression_exp: RegExp = /\{1\}\.([\w|\.]+)/;
         var databind: string =  element.getAttribute("databind");
         if (databind)
         {
@@ -395,19 +397,27 @@ class JChildrenElementBinder
             }           
         }
 
-        var expressionStr: string = element.getAttribute("expression");
-        if (expressionStr) {
-            while (true) {
-                var result = expression_exp.exec(expressionStr);
-                if (!result)
-                    break;
-                var dataPropertyName = result[1];
-                this.expressionConfigs.push(new JBindExpression(dataPropertyName, element.getAttribute("expression")));
-                JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
+        var allattributes = element.attributes;
+        for (var i = 0; i < allattributes.length; i++)
+        {
+            if (allattributes[i].name == "expression" || /expression([0-9]+)/.exec(allattributes[i].name))
+            {
+                var expressionStr: string = allattributes[i].value;
+                if (expressionStr) {
+                    while (true) {
+                        var result = expression_exp.exec(expressionStr);
+                        if (!result)
+                            break;
+                        var dataPropertyName = result[1];
+                        this.expressionConfigs.push(new JBindExpression(dataPropertyName, allattributes[i].value));
+                        JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
 
-                expressionStr = expressionStr.substr(result.index + result[0].length);
+                        expressionStr = expressionStr.substr(result.index + result[0].length);
+                    }
+                }
             }
         }
+        
 
         if (this.configs.length > 0) {
             this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
@@ -424,7 +434,7 @@ class JChildrenElementBinder
                 var child: any = element.children[i];
                 if (child.tagName != "SCRIPT")
                 {
-                    child._templateBinder = new JChildrenElementBinder(data, child, databind_exp,  false);
+                    child._templateBinder = new JChildrenElementBinder(data, child, databind_exp, this.expresion_replace_reg,  false);
                     this.children.push(child._templateBinder);
                 }
                 
@@ -493,7 +503,13 @@ class JChildrenElementBinder
             if (config) {
                 var element = this.element;
                 var data = this.datacontext;
-                eval(config.expression.replace(/\{0\}/g, "element").replace(/\{1\}/g, "data"));
+                var r;
+                var expression = config.expression.replace(/\{0\}\./g, "element.");
+                while (r = this.expresion_replace_reg.exec(expression))
+                {
+                    expression = expression.replace(r[0], "data." + r[1]);
+                }
+                eval(expression);
             }
         }
         catch (e) {
@@ -538,7 +554,12 @@ class JChildrenElementBinder
             if (exconfig) {
                 var element = this.element;
                 var data = this.datacontext;
-                eval(exconfig.expression.replace(/\{0\}/g, "element").replace(/\{1\}/g, "data"));
+                var r;
+                var expression = exconfig.expression.replace(/\{0\}\./g, "element.");
+                while (r = this.expresion_replace_reg.exec(expression)) {
+                    expression = expression.replace(r[0], "data." + r[1]);
+                }
+                eval(expression);
             }
         }
     }
@@ -550,21 +571,23 @@ class JChildrenElementBinder
             try {
                 if (config.elementPropertyName == "value" || config.elementPropertyName == "checked")
                 {
-                    var src = this;
-                    this.element.addEventListener("change", () => {
-                        try {
-                            var config = this.getConfigByElementProName(config.elementPropertyName);
-                            if (config) {
-                                eval("src.datacontext." + config.dataPropertyName + " = src.element." + config.elementPropertyName);
-                            }
-                        }
-                        catch (e) {
-                        }
-                    }, false);
+                    this.element.addEventListener("change", this.listenElementEvent(this , config), false);
                 }
             }
             catch (e)
             {
+            }
+        }
+    }
+
+    private listenElementEvent(self, config: JBindConfig)
+    {
+        return function ()
+        {
+            try {
+                eval("self.datacontext." + config.dataPropertyName + " = self.element." + config.elementPropertyName);
+            }
+            catch (e) {
             }
         }
     }
@@ -651,7 +674,7 @@ class JControl implements INotifyPropertyChanged {
             {
                 if (this.element) {
                     //JChildrenElementBinder用于把模板里所有子元素和datacontext绑定
-                    this.dataBinder = new JChildrenElementBinder(value, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/,true);
+                    this.dataBinder = new JChildrenElementBinder(value, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/ ,true);
                 }
 
                 if (value) {
@@ -932,9 +955,9 @@ class JControl implements INotifyPropertyChanged {
             //把this.element里面的JControl初始化
             JElementHelper.initElements(this.element);
 
-            this.templateBinder = new JChildrenElementBinder(this, this.element, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/,  true);
+            this.templateBinder = new JChildrenElementBinder(this, this.element, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/,  /\{1\}.\$([\w|\.]+)/ , true);
             if (this.datacontext) {
-                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/,true);
+                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/ ,true);
             }
 
             this.onTemplateApply();
@@ -1109,6 +1132,10 @@ class JDataSource
 
 class JListItem extends JControl
 {
+    static StaticID: number = 1;
+    static StaticString: string = "JListItem_";
+
+    id: string;
     private _index: number;
     get index(): number {
         return this._index;
@@ -1124,14 +1151,21 @@ class JListItem extends JControl
 
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
+        this.id = JListItem.StaticString + JListItem.StaticID++;
+        if (JListItem.StaticID >= 100000)
+        {
+            JListItem.StaticString += "E_";
+            JListItem.StaticID = 1;
+        }
+        this.onPropertyChanged("id", undefined);
     }
 }
 
 class JList extends JControl {
 
     itemContainer: HTMLElement;
-    private itemControls: JListItem[];
-    private itemTemplates: any[];
+    protected itemControls: JListItem[];
+    protected itemTemplates: any[];
 
     private _itemsource: JDataSource;
     get itemsource() {
@@ -1248,7 +1282,7 @@ class JList extends JControl {
         }
     }
 
-    private addItem(data)
+    protected addItem(data)
     {
         var div = document.createElement("DIV");
         this.itemContainer.appendChild(div);
@@ -1257,6 +1291,7 @@ class JList extends JControl {
         this.itemControls.push(jcontrol);
     }
 }
+
 
 class JCheckboxList extends JList
 {

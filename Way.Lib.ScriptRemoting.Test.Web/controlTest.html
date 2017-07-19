@@ -30,7 +30,7 @@
                 <input type="text" style="color:red;" databind="value =$text;" />
                 <div>
                     <div databind="innerHTML=$text"></div>
-                    <div expression="{0}.innerHTML={1}.name"></div>
+                    <div expression="{0}.innerHTML={1}.@name"></div>
                     <div>name:{@name}</div>
                 </div>
             </div>
@@ -49,18 +49,24 @@
         </script>
 
         <script for="item" type="text/html">
-            <input databind="value=@item.child.name" />
+            <div>
+                <input type="checkbox" databind="checked=@checked" expression="{0}.id={1}.$id;"><label expression="{0}.setAttribute('for' ,{1}.$id);">item</label>
+            </div>
+            
         </script>
     </JList>
 
-    <input type="checkbox" onchange="alert(this.checked)" />
+    <input type="checkbox" id="tt" a1="1" a1="2" onchange="alert(this.checked)" />
     <script lang="ja">
         window.onload = function ()
         {
-            //var ob = window.list1.itemsource.source[0];
-            //ob.addPropertyChangedListener(function (s, name, value) {
-            //    alert(name + " changed oldvalue:" + value);
-            //});
+            var ob = window.list1.itemsource.source[0];
+            ob.addPropertyChangedListener(function (s, name, value) {
+                alert(name + " changed oldvalue:" + value + " nowvalue:" + s[name]);
+            });
+            window.list1.itemsource.source[1].addPropertyChangedListener(function (s, name, value) {
+                alert(name + " changed oldvalue:" + value + " nowvalue:" + s[name]);
+            });
             //ob.item.child.name = "test aaa";
             //window.list1.itemsource.source[1].item.child.name = "bb2";
         }
