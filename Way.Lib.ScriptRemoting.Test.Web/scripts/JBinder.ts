@@ -19,6 +19,7 @@ class JBinder
 {
     datacontext: INotifyPropertyChanged;
     control: any;
+    disposed: boolean = false;
 
     constructor(data: INotifyPropertyChanged,control)
     {
@@ -27,6 +28,7 @@ class JBinder
     }
 
     dispose() {
+        this.disposed = true;
     }
 
     static addPropertyIfNotExist(data, propertyName) {
@@ -73,7 +75,6 @@ class JBinder
 class JDatacontextBinder extends JBinder
 {
     configs: JBindConfig[] = [];
-    protected disposed: boolean = false;
     protected propertyChangedListenerIndex: number = 0;
     protected controlPropertyChangedListenerIndex: number = 0;
 
@@ -160,8 +161,11 @@ class JDatacontextBinder extends JBinder
         return null;
     }
 
-    private listenElementEvent(self, config: JBindConfig) {
+    private listenElementEvent(self: JBinder, config: JBindConfig) {
         return function () {
+            if (self.disposed)
+                return;
+
             try {
                 eval("self.datacontext." + config.dataPropertyName + " = self.element." + config.elementPropertyName);
             }
@@ -186,6 +190,9 @@ class JDatacontextBinder extends JBinder
 
     private onControlPropertyChanged(sender, name: string, originalValue) {
         try {
+            if (this.disposed)
+                return;
+
             var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {

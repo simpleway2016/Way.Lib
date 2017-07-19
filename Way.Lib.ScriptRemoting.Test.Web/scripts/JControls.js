@@ -689,7 +689,7 @@ var JControl = (function () {
                 var original = this._datacontext;
                 this._datacontext = value;
                 for (var i = 0; i < AllJBinders.length; i++) {
-                    if (AllJBinders[i] && AllJBinders[i] instanceof JDatacontextBinder && AllJBinders[i].datacontext == original && AllJBinders[i].control == this) {
+                    if (AllJBinders[i] && AllJBinders[i].constructor.name == "JDatacontextBinder" && AllJBinders[i].datacontext == original && AllJBinders[i].control == this) {
                         AllJBinders[i].dispose();
                         AllJBinders[i] = null;
                     }
@@ -716,7 +716,7 @@ var JControl = (function () {
         set: function (value) {
             if (this._parentJControl != value) {
                 for (var i = 0; i < AllJBinders.length; i++) {
-                    if (AllJBinders[i] && AllJBinders[i] instanceof JControlBinder && AllJBinders[i].datacontext == this._parentJControl && AllJBinders[i].control == this) {
+                    if (AllJBinders[i] && AllJBinders[i].constructor.name == "JControlBinder" && AllJBinders[i].datacontext == this._parentJControl && AllJBinders[i].control == this) {
                         AllJBinders[i].dispose();
                         AllJBinders[i] = null;
                     }

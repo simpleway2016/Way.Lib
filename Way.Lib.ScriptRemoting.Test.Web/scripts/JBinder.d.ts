@@ -11,6 +11,7 @@ declare class JBindExpression {
 declare class JBinder {
     datacontext: INotifyPropertyChanged;
     control: any;
+    disposed: boolean;
     constructor(data: INotifyPropertyChanged, control: any);
     dispose(): void;
     static addPropertyIfNotExist(data: any, propertyName: any): void;
@@ -18,7 +19,6 @@ declare class JBinder {
 }
 declare class JDatacontextBinder extends JBinder {
     configs: JBindConfig[];
-    protected disposed: boolean;
     protected propertyChangedListenerIndex: number;
     protected controlPropertyChangedListenerIndex: number;
     constructor(data: INotifyPropertyChanged, control: any);

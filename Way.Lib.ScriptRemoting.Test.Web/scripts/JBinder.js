@@ -24,10 +24,12 @@ var JBindExpression = (function () {
 }());
 var JBinder = (function () {
     function JBinder(data, control) {
+        this.disposed = false;
         this.datacontext = data;
         this.control = control;
     }
     JBinder.prototype.dispose = function () {
+        this.disposed = true;
     };
     JBinder.addPropertyIfNotExist = function (data, propertyName) {
         if (data instanceof JObserveObject) {
@@ -66,7 +68,6 @@ var JDatacontextBinder = (function (_super) {
     function JDatacontextBinder(data, control) {
         var _this = _super.call(this, data, control) || this;
         _this.configs = [];
-        _this.disposed = false;
         _this.propertyChangedListenerIndex = 0;
         _this.controlPropertyChangedListenerIndex = 0;
         var databind;
@@ -138,6 +139,8 @@ var JDatacontextBinder = (function (_super) {
     };
     JDatacontextBinder.prototype.listenElementEvent = function (self, config) {
         return function () {
+            if (self.disposed)
+                return;
             try {
                 eval("self.datacontext." + config.dataPropertyName + " = self.element." + config.elementPropertyName);
             }
@@ -159,6 +162,8 @@ var JDatacontextBinder = (function (_super) {
     };
     JDatacontextBinder.prototype.onControlPropertyChanged = function (sender, name, originalValue) {
         try {
+            if (this.disposed)
+                return;
             var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {
