@@ -1,3 +1,7 @@
+declare var JControlTagConfigs: {
+    "JBUTTON": string;
+    "JLIST": string;
+};
 interface INotifyPropertyChanged {
     addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
     removeListener(index: number): any;
@@ -6,7 +10,6 @@ declare class JElementHelper {
     static SystemTemplateContainer: HTMLElement;
     static replaceElement(source: HTMLElement, dst: HTMLElement): void;
     static getElement(html: string): HTMLElement;
-    static getJControlTypeName(tagName: string): false | "JButton" | "JList";
     static initElements(container: HTMLElement): void;
 }
 declare class JBindConfig {

@@ -8,6 +8,10 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var JControlTagConfigs = {
+    "JBUTTON": "JButton",
+    "JLIST": "JList",
+};
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
@@ -32,17 +36,10 @@ var JElementHelper = (function () {
         div.innerHTML = html;
         return div.children[0];
     };
-    JElementHelper.getJControlTypeName = function (tagName) {
-        if (tagName == "JBUTTON")
-            return "JButton";
-        else if (tagName == "JLIST")
-            return "JList";
-        return false;
-    };
     JElementHelper.initElements = function (container) {
         for (var i = 0; i < container.children.length; i++) {
             var child = container.children[i];
-            var classType = JElementHelper.getJControlTypeName(child.tagName);
+            var classType = JControlTagConfigs[child.tagName];
             if (classType) {
                 eval("new " + classType + "(child)");
             }
@@ -625,7 +622,12 @@ var JControl = (function () {
     };
     JControl.prototype.loadTemplates = function () {
         var alltemplates = this.originalElement.querySelectorAll("script");
+        var keyTemplate;
         if (alltemplates.length > 0) {
+        }
+        else if (this.originalElement.getAttribute("template") && this.originalElement.getAttribute("template").length > 0
+            && (keyTemplate = document.querySelector("#" + this.originalElement.getAttribute("template")))) {
+            alltemplates = keyTemplate.querySelectorAll("script");
         }
         else {
             var typename = this.constructor.name;
@@ -705,7 +707,7 @@ var JControl = (function () {
                 }
             }
             this.element = JElementHelper.getElement(html);
-            if (JElementHelper.getJControlTypeName(this.element.tagName)) {
+            if (JControlTagConfigs[this.element.tagName]) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
             JElementHelper.replaceElement(this.element, rootElement);

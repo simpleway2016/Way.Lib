@@ -5,6 +5,26 @@
 //属性直接替换<div>{@name}  {$text}</div>
 //表达式,expression="{0}.style.color={1}.isSelected?'red':'black'"  {1}表示datacontext
 
+//页面定义公用模板
+/**
+<header>
+    <Key id="btntemplate">
+        <script type="text/html">
+            <input type="button" class="btn" databind="value=$text;className=$class" />
+        </script>
+    </Key>
+</header>
+
+<JButton template="btntemplate">
+</JButton>
+ */
+
+//定义标签对应的类名
+var JControlTagConfigs = {
+    "JBUTTON": "JButton",
+    "JLIST": "JList",
+};
+
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -39,18 +59,11 @@ class JElementHelper {
         return <HTMLElement>div.children[0];
     }
 
-    static getJControlTypeName(tagName: string) {
-        if (tagName == "JBUTTON")
-            return "JButton";
-        else if (tagName == "JLIST")
-            return "JList";
-        return false;
-    }
 
     static initElements(container: HTMLElement) {
         for (var i = 0; i < container.children.length; i++) {
             var child = container.children[i];
-            var classType = JElementHelper.getJControlTypeName(child.tagName);
+            var classType = JControlTagConfigs[child.tagName];
             if (classType) {
                 eval("new " + classType + "(child)");
             }
@@ -766,9 +779,15 @@ class JControl implements INotifyPropertyChanged {
     protected loadTemplates()
     {
         var alltemplates = this.originalElement.querySelectorAll("script");
+        var keyTemplate;
         if (alltemplates.length > 0)
         {
             
+        }
+        else if (this.originalElement.getAttribute("template") && this.originalElement.getAttribute("template").length > 0
+            && (keyTemplate = document.querySelector("#" + this.originalElement.getAttribute("template"))))
+        {
+            alltemplates = keyTemplate.querySelectorAll("script");
         }
         else {
             //获取当前类名
@@ -868,7 +887,7 @@ class JControl implements INotifyPropertyChanged {
             }
 
             this.element = JElementHelper.getElement(html);
-            if (JElementHelper.getJControlTypeName(this.element.tagName)) {
+            if (JControlTagConfigs[this.element.tagName]) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
             JElementHelper.replaceElement(this.element, rootElement);

@@ -9,9 +9,11 @@
         .btn{
             border:3px solid black;
         }
-    </style>
+    </style>    
 </head>
 <body>
+    
+
     <JButton id="btn1" datacontext="{name:'hello'}" text="my button" class="btn">
         <script match="$text=='t1'" type="text/html">
             <div>
@@ -35,7 +37,7 @@
         </script>
     </JButton>
 
-    <JButton id="btn2" datacontext="{name:'hello22'}" onclick="alert(2)" databind="text=@name">
+    <JButton id="btn2" datacontext="{name:'hello22'}" template="btntemplate" onclick="alert(2)" databind="text=@name">
     </JButton>
 
     <input type="button" value="change text" onclick="btn1.text = 't1';"/>
