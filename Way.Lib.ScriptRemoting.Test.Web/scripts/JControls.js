@@ -1337,6 +1337,30 @@ if (document.addEventListener) {
             document.head.appendChild(style);
         }
         JElementHelper.initElements(document.body);
+        var MutationObserver = window.MutationObserver ||
+            window.WebKitMutationObserver ||
+            window.MozMutationObserver;
+        var mutationObserverSupport = !!MutationObserver;
+        if (mutationObserverSupport) {
+            try {
+                var options = {
+                    'childList': true,
+                    subtree: true,
+                };
+                var callback = function (records) {
+                    records.map(function (record) {
+                        for (var i = 0; i < record.addedNodes.length; i++) {
+                            JElementHelper.initElements(record.addedNodes[i].parentElement);
+                        }
+                    });
+                };
+                var observer = new MutationObserver(callback);
+                observer.observe(document.body, options);
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
     }, false);
 }
 //# sourceMappingURL=JControls.js.map

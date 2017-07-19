@@ -1,5 +1,6 @@
 ﻿//throw new Error('Method not implemented.');
 //obj instanceof JControl
+//模板里，首个元素不能是JControl
 //属性的定义必须全小写，因为element.attribute[0].name就是全小写
 //属性绑定<input databind="value=@name;className=$class;">
 //属性直接替换<div>{@name}  {$text}</div>
@@ -1602,5 +1603,36 @@ if (document.addEventListener) {
         }
 
         JElementHelper.initElements(document.body);
+
+
+        //监视document.body子元素变动事件，新加入的element，转换JControl，这个监听是个异步事件模式
+        var MutationObserver = (<any>window).MutationObserver ||
+            (<any>window).WebKitMutationObserver ||
+            (<any>window).MozMutationObserver;
+
+        var mutationObserverSupport = !!MutationObserver;
+        if (mutationObserverSupport) {
+            try {
+                var options = {
+                    'childList': true,
+                    subtree: true,
+                };
+                var callback = function (records) {//MutationRecord
+                    records.map(function (record) {
+                        for (var i = 0; i < record.addedNodes.length; i++) {
+                            //转换JControl
+                            JElementHelper.initElements(record.addedNodes[i].parentElement);
+                        }
+                    });
+                };
+
+                var observer = new MutationObserver(callback);
+                observer.observe(document.body, options);
+
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
     }, false);
 }

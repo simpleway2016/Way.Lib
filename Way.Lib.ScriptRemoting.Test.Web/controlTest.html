@@ -37,7 +37,7 @@
         </script>
     </JButton>
 
-    <JButton id="btn2" datacontext="{name:'hello22'}" class="btn" template="btntemplate" onclick="alert(2)" databind="text=@name">
+    <JButton id="btn2" datacontext="{name:'add element'}" class="btn" template="btntemplate" onclick="addelement()" databind="text=@name">
     </JButton>
 
     <input type="button" value="change text" onclick="btn1.text = 't1';"/>
@@ -52,17 +52,25 @@
     <JDropdownList id="list3" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
     </JDropdownList>
     <script lang="ja">
+        function addelement()
+        {
+            var div = document.createElement("JBUTTON");
+            div.setAttribute("text", "new button");
+            document.body.appendChild(div);
+            alert(22);
+        }
         window.onload = function ()
         {
-            var ob = window.list1.itemsource.source[0];
-            ob.addPropertyChangedListener(function (s, name, value) {
-                alert(name + " changed oldvalue:" + value + " nowvalue:" + s[name]);
-            });
-            window.list1.itemsource.source[1].addPropertyChangedListener(function (s, name, value) {
-                alert(name + " changed oldvalue:" + value + " nowvalue:" + s[name]);
-            });
+            //var ob = window.list1.itemsource.source[0];
+            //ob.addPropertyChangedListener(function (s, name, value) {
+            //    alert(name + " changed oldvalue:" + value + " nowvalue:" + s[name]);
+            //});
+            //window.list1.itemsource.source[1].addPropertyChangedListener(function (s, name, value) {
+            //    alert(name + " changed oldvalue:" + value + " nowvalue:" + s[name]);
+            //});
             //ob.item.child.name = "test aaa";
             //window.list1.itemsource.source[1].item.child.name = "bb2";
+
         }
     </script>
 </body>
