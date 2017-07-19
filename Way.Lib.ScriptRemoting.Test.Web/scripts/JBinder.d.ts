@@ -36,3 +36,18 @@ declare class JControlBinder extends JDatacontextBinder {
     protected bindChildren(): void;
     protected getRegexp(): RegExp;
 }
+declare class JDatacontextExpressionBinder extends JBinder {
+    configs: JBindExpression[];
+    protected propertyChangedListenerIndex: number;
+    constructor(data: INotifyPropertyChanged, control: any);
+    private handleExpression(expressionStr);
+    protected bindChildren(): void;
+    protected getConfigByDataProName(proname: string): JBindExpression;
+    private onPropertyChanged(sender, name, originalValue);
+    dispose(): void;
+    protected getRegexp(): RegExp;
+}
+declare class JControlExpressionBinder extends JDatacontextExpressionBinder {
+    constructor(data: INotifyPropertyChanged, control: any);
+    protected getRegexp(): RegExp;
+}

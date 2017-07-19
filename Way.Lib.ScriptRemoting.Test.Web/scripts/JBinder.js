@@ -213,4 +213,106 @@ var JControlBinder = (function (_super) {
     };
     return JControlBinder;
 }(JDatacontextBinder));
+var JDatacontextExpressionBinder = (function (_super) {
+    __extends(JDatacontextExpressionBinder, _super);
+    function JDatacontextExpressionBinder(data, control) {
+        var _this = _super.call(this, data, control) || this;
+        _this.configs = [];
+        _this.propertyChangedListenerIndex = 0;
+        var expressionStr;
+        if (control instanceof JControl) {
+            for (var pro in control) {
+                if (pro == "expression" || /expression([0-9]+)/.exec(pro)) {
+                    _this.handleExpression(control[pro]);
+                }
+            }
+        }
+        else {
+            var element = control;
+            var allattributes = element.attributes;
+            for (var i = 0; i < allattributes.length; i++) {
+                if (allattributes[i].name == "expression" || /expression([0-9]+)/.exec(allattributes[i].name)) {
+                    _this.handleExpression(allattributes[i].value);
+                }
+            }
+        }
+        if (_this.configs.length > 0) {
+            _this.propertyChangedListenerIndex = _this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
+        }
+        _this.bindChildren();
+        return _this;
+    }
+    JDatacontextExpressionBinder.prototype.handleExpression = function (expressionStr) {
+        var original;
+        var expression_exp = this.getRegexp();
+        expressionStr = expressionStr.replace(/\{0\}\./g, "element.");
+        if (expressionStr) {
+            while (true) {
+                var result = expression_exp.exec(expressionStr);
+                if (!result)
+                    break;
+                var dataPropertyName = result[1];
+                this.configs.push(new JBindExpression(dataPropertyName, null));
+                JBinder.addPropertyIfNotExist(this.datacontext, dataPropertyName);
+                expressionStr = expressionStr.replace(result[0], "data." + dataPropertyName);
+            }
+            for (var i = 0; i < this.configs.length; i++) {
+                this.configs[i].expression = expressionStr;
+            }
+        }
+    };
+    JDatacontextExpressionBinder.prototype.bindChildren = function () {
+        if (this.control instanceof JControl) {
+            var jcontrol = this.control;
+            AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, jcontrol.element));
+        }
+        else {
+            var element = this.control;
+            for (var i = 0; i < element.children.length; i++) {
+                AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, element.children[i]));
+            }
+        }
+    };
+    JDatacontextExpressionBinder.prototype.getConfigByDataProName = function (proname) {
+        for (var i = 0; i < this.configs.length; i++) {
+            var config = this.configs[i];
+            if (config.dataPropertyName == proname)
+                return config;
+        }
+        return null;
+    };
+    JDatacontextExpressionBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
+        if (this.disposed)
+            return;
+        var config = this.getConfigByDataProName(name);
+        if (config) {
+            var element = this.control;
+            var data = this.datacontext;
+            eval(config.expression);
+        }
+    };
+    JDatacontextExpressionBinder.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this.disposed = true;
+        if (this.propertyChangedListenerIndex) {
+            this.datacontext.removeListener(this.propertyChangedListenerIndex);
+            this.propertyChangedListenerIndex = 0;
+        }
+        this.configs = [];
+    };
+    JDatacontextExpressionBinder.prototype.getRegexp = function () {
+        return /\{1\}\.\@([\w|\.]+)/;
+    };
+    return JDatacontextExpressionBinder;
+}(JBinder));
+var JControlExpressionBinder = (function (_super) {
+    __extends(JControlExpressionBinder, _super);
+    function JControlExpressionBinder(data, control) {
+        return _super.call(this, data, control) || this;
+    }
+    JControlExpressionBinder.prototype.getRegexp = function () {
+        return /\{1\}\.\$([\w|\.]+)/;
+    };
+    return JControlExpressionBinder;
+}(JDatacontextExpressionBinder));
 //# sourceMappingURL=JBinder.js.map

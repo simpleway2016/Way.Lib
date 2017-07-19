@@ -75,53 +75,41 @@ class JElementHelper {
         if (!container || !container.children)//防止#text
             return;
 
-        if (true)
-        {
-            var classType = JElementHelper.getControlTypeName(container.tagName);
-            if (classType) {
-                eval("new " + classType + "(container)");
-                return;
-            }
+        var classType = JElementHelper.getControlTypeName(container.tagName);
+        if (classType) {
+            eval("new " + classType + "(container)");
+            return;
+        }
 
-            //如果是htmlelement
-            if ((<any>container).JControl)
-            {
-                var jcontrol = <JControl>(<any>container).JControl;
-                if (jcontrol.datacontext)
-                {
+        //如果是htmlelement
+        if ((<any>container).JControl) {
+            var jcontrol = <JControl>(<any>container).JControl;
+            if (jcontrol.datacontext) {
+                AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
+            }
+            AllJBinders.push(new JControlBinder(jcontrol, container));
+        }
+        else {
+            //查找parent
+            var parent = container.parentElement;
+            var jcontrol: JControl;
+            while (parent) {
+                if ((<any>parent).JControl) {
+                    jcontrol = <JControl>(<any>parent).JControl;
+                    break;
+                }
+                else {
+                    parent = parent.parentElement;
+                }
+            }
+            if (jcontrol) {
+                if (jcontrol.datacontext) {
                     AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
                 }
                 AllJBinders.push(new JControlBinder(jcontrol, container));
             }
-            else {
-                //查找parent
-                var parent = container.parentElement;
-                var jcontrol: JControl;
-                while (parent)
-                {
-                    if ((<any>parent).JControl)
-                    {
-                        jcontrol = <JControl>(<any>parent).JControl;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-                if (jcontrol)
-                {
-                    if (jcontrol.datacontext) {
-                        AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
-                    }
-                    AllJBinders.push(new JControlBinder(jcontrol, container));
-                }
-            }
         }
-
-        for (var i = 0; i < container.children.length; i++) {
-            var child = container.children[i];
-            JElementHelper.initElements(<HTMLElement>child);
-        }
+        //JBinder会自动绑定子元素，这里不用循环绑定子元素
     }
 }
 

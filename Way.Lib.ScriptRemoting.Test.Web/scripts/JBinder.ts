@@ -250,3 +250,125 @@ class JControlBinder extends JDatacontextBinder {
         return /([\w|\.]+)[ ]?=[ ]?\$([\w|\.]+)/;
     }
 }
+
+
+class JDatacontextExpressionBinder extends JBinder {
+    configs: JBindExpression[] = [];
+    protected propertyChangedListenerIndex: number = 0;
+
+    constructor(data: INotifyPropertyChanged, control) {
+        super(data, control);
+
+        var expressionStr;
+        if (control instanceof JControl) {
+            for (var pro in control) {
+                if (pro == "expression" || /expression([0-9]+)/.exec(pro)) {
+                    this.handleExpression( control[pro] );
+                }
+            }
+        }
+        else {
+            var element = <HTMLElement>control;
+            var allattributes = element.attributes;
+            for (var i = 0; i < allattributes.length; i++) {
+                if (allattributes[i].name == "expression" || /expression([0-9]+)/.exec(allattributes[i].name)) {
+                    this.handleExpression(allattributes[i].value);
+
+                }
+            }
+        }
+        if (this.configs.length > 0) {
+            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o))
+        }
+
+        this.bindChildren();
+    }
+
+    private handleExpression(expressionStr: string)
+    {
+        var original
+        var expression_exp = this.getRegexp();
+
+        expressionStr = expressionStr.replace(/\{0\}\./g, "element.");
+        if (expressionStr) {
+            while (true) {
+                var result = expression_exp.exec(expressionStr);
+                if (!result)
+                    break;
+                var dataPropertyName = result[1];
+                this.configs.push(new JBindExpression(dataPropertyName, null));
+                JBinder.addPropertyIfNotExist(this.datacontext, dataPropertyName);
+
+                expressionStr = expressionStr.replace(result[0], "data." + dataPropertyName);
+            }
+
+            for (var i = 0; i < this.configs.length; i++)
+            {
+                this.configs[i].expression = expressionStr;
+            }
+        }
+    }
+
+    protected bindChildren() {
+        if (this.control instanceof JControl) {
+            var jcontrol = <JControl>this.control;
+            AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, jcontrol.element));
+        }
+        else {
+            var element = <HTMLElement>this.control;
+            for (var i = 0; i < element.children.length; i++) {
+                AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, element.children[i]));
+            }
+        }
+    }
+
+    protected getConfigByDataProName(proname: string) {
+        for (var i = 0; i < this.configs.length; i++) {
+            var config = this.configs[i];
+            if (config.dataPropertyName == proname)
+                return config;
+        }
+        return null;
+    }
+    
+    
+    private onPropertyChanged(sender, name: string, originalValue) {
+        if (this.disposed)
+            return;
+
+        var config = this.getConfigByDataProName(name);
+        if (config)
+        {
+            var element = this.control;
+            var data = this.datacontext;
+            eval(config.expression);
+        }
+        
+    }
+    
+
+    dispose() {
+        super.dispose();
+        this.disposed = true;
+        if (this.propertyChangedListenerIndex) {
+            this.datacontext.removeListener(this.propertyChangedListenerIndex);
+            this.propertyChangedListenerIndex = 0;
+        }
+
+        this.configs = [];
+    }
+
+    protected getRegexp(): RegExp {
+        return /\{1\}\.\@([\w|\.]+)/;
+    }
+}
+
+class JControlExpressionBinder extends JDatacontextExpressionBinder {
+    constructor(data: INotifyPropertyChanged, control) {
+        super(data, control);
+    }
+
+    protected getRegexp(): RegExp {
+        return /\{1\}\.\$([\w|\.]+)/;
+    }
+}

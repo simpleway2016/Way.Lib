@@ -44,42 +44,36 @@ var JElementHelper = (function () {
     JElementHelper.initElements = function (container) {
         if (!container || !container.children)
             return;
-        if (true) {
-            var classType = JElementHelper.getControlTypeName(container.tagName);
-            if (classType) {
-                eval("new " + classType + "(container)");
-                return;
+        var classType = JElementHelper.getControlTypeName(container.tagName);
+        if (classType) {
+            eval("new " + classType + "(container)");
+            return;
+        }
+        if (container.JControl) {
+            var jcontrol = container.JControl;
+            if (jcontrol.datacontext) {
+                AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
             }
-            if (container.JControl) {
-                var jcontrol = container.JControl;
+            AllJBinders.push(new JControlBinder(jcontrol, container));
+        }
+        else {
+            var parent = container.parentElement;
+            var jcontrol;
+            while (parent) {
+                if (parent.JControl) {
+                    jcontrol = parent.JControl;
+                    break;
+                }
+                else {
+                    parent = parent.parentElement;
+                }
+            }
+            if (jcontrol) {
                 if (jcontrol.datacontext) {
                     AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
                 }
                 AllJBinders.push(new JControlBinder(jcontrol, container));
             }
-            else {
-                var parent = container.parentElement;
-                var jcontrol;
-                while (parent) {
-                    if (parent.JControl) {
-                        jcontrol = parent.JControl;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-                if (jcontrol) {
-                    if (jcontrol.datacontext) {
-                        AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
-                    }
-                    AllJBinders.push(new JControlBinder(jcontrol, container));
-                }
-            }
-        }
-        for (var i = 0; i < container.children.length; i++) {
-            var child = container.children[i];
-            JElementHelper.initElements(child);
         }
     };
     return JElementHelper;
