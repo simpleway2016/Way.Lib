@@ -1,3 +1,4 @@
+declare var AllJBinders: JBinder[];
 interface INotifyPropertyChanged {
     addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
     removeListener(index: number): any;
@@ -8,16 +9,6 @@ declare class JElementHelper {
     static getControlTypeName(tagname: string): string;
     static getElement(html: string): HTMLElement;
     static initElements(container: HTMLElement): void;
-}
-declare class JBindConfig {
-    dataPropertyName: string;
-    elementPropertyName: string;
-    constructor(dataPropertyName: string, elementPropertyName: string);
-}
-declare class JBindExpression {
-    dataPropertyName: string;
-    expression: string;
-    constructor(dataPropertyName: string, expression: string);
 }
 declare class JObserveObject implements INotifyPropertyChanged {
     __data: any;
@@ -86,10 +77,6 @@ declare class JControl implements INotifyPropertyChanged {
     protected templates: HTMLElement[];
     protected templateMatchProNames: string[];
     protected currentTemplate: HTMLElement;
-    protected templateBinder: JChildrenElementBinder;
-    protected dataBinder: JChildrenElementBinder;
-    protected controlDataBinder: JControlDataBinder;
-    protected containerDataBinder: JControlDataBinder;
     private _datacontext;
     datacontext: any;
     private _parentJControl;

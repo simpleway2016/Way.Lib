@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
+var AllJBinders = [];
 var JElementHelper = (function () {
     function JElementHelper() {
     }
@@ -43,32 +44,45 @@ var JElementHelper = (function () {
     JElementHelper.initElements = function (container) {
         if (!container || !container.children)
             return;
-        for (var i = 0; i < container.children.length; i++) {
-            var child = container.children[i];
-            var classType = JElementHelper.getControlTypeName(child.tagName);
+        if (true) {
+            var classType = JElementHelper.getControlTypeName(container.tagName);
             if (classType) {
-                eval("new " + classType + "(child)");
+                eval("new " + classType + "(container)");
+                return;
+            }
+            if (container.JControl) {
+                var jcontrol = container.JControl;
+                if (jcontrol.datacontext) {
+                    AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
+                }
+                AllJBinders.push(new JControlBinder(jcontrol, container));
             }
             else {
-                JElementHelper.initElements(child);
+                var parent = container.parentElement;
+                var jcontrol;
+                while (parent) {
+                    if (parent.JControl) {
+                        jcontrol = parent.JControl;
+                        break;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+                if (jcontrol) {
+                    if (jcontrol.datacontext) {
+                        AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
+                    }
+                    AllJBinders.push(new JControlBinder(jcontrol, container));
+                }
             }
+        }
+        for (var i = 0; i < container.children.length; i++) {
+            var child = container.children[i];
+            JElementHelper.initElements(child);
         }
     };
     return JElementHelper;
-}());
-var JBindConfig = (function () {
-    function JBindConfig(dataPropertyName, elementPropertyName) {
-        this.dataPropertyName = dataPropertyName;
-        this.elementPropertyName = elementPropertyName;
-    }
-    return JBindConfig;
-}());
-var JBindExpression = (function () {
-    function JBindExpression(dataPropertyName, expression) {
-        this.dataPropertyName = dataPropertyName;
-        this.expression = expression;
-    }
-    return JBindExpression;
 }());
 var JObserveObject = (function () {
     function JObserveObject(data, parent, parentname) {
@@ -674,20 +688,15 @@ var JControl = (function () {
             if (this._datacontext != value) {
                 var original = this._datacontext;
                 this._datacontext = value;
-                if (this.controlDataBinder) {
-                    this.controlDataBinder.dispose();
-                    this.controlDataBinder = null;
-                }
-                if (this.dataBinder) {
-                    this.dataBinder.dispose();
-                    this.dataBinder = null;
+                for (var i = 0; i < AllJBinders.length; i++) {
+                    if (AllJBinders[i] && AllJBinders[i] instanceof JDatacontextBinder && AllJBinders[i].datacontext == original && AllJBinders[i].control == this) {
+                        AllJBinders[i].dispose();
+                        AllJBinders[i] = null;
+                    }
                 }
                 if (value) {
-                    if (this.element) {
-                        this.dataBinder = new JChildrenElementBinder(value, this.element, true, true);
-                    }
                     if (value) {
-                        this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/);
+                        AllJBinders.push(new JDatacontextBinder(value, this));
                     }
                     if (this.element) {
                         this.setChildrenDataContext(this.element, value);
@@ -706,12 +715,16 @@ var JControl = (function () {
         },
         set: function (value) {
             if (this._parentJControl != value) {
-                this._parentJControl = value;
-                if (this.containerDataBinder) {
-                    this.containerDataBinder.dispose();
-                    this.containerDataBinder = null;
+                for (var i = 0; i < AllJBinders.length; i++) {
+                    if (AllJBinders[i] && AllJBinders[i] instanceof JControlBinder && AllJBinders[i].datacontext == this._parentJControl && AllJBinders[i].control == this) {
+                        AllJBinders[i].dispose();
+                        AllJBinders[i] = null;
+                    }
                 }
-                this.containerDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/, /\{1\}.\$([\w|\.]+)/);
+                this._parentJControl = value;
+                if (value) {
+                    AllJBinders.push(new JControlBinder(value, this));
+                }
             }
         },
         enumerable: true,
@@ -776,21 +789,11 @@ var JControl = (function () {
         };
     };
     JControl.prototype.dispose = function () {
-        if (this.controlDataBinder) {
-            this.controlDataBinder.dispose();
-            this.controlDataBinder = null;
-        }
-        if (this.containerDataBinder) {
-            this.containerDataBinder.dispose();
-            this.containerDataBinder = null;
-        }
-        if (this.dataBinder) {
-            this.dataBinder.dispose();
-            this.dataBinder = null;
-        }
-        if (this.templateBinder) {
-            this.templateBinder.dispose();
-            this.templateBinder = null;
+        for (var i = 0; i < AllJBinders.length; i++) {
+            if (AllJBinders[i] && AllJBinders[i].control == this) {
+                AllJBinders[i].dispose();
+                AllJBinders[i] = null;
+            }
         }
     };
     JControl.prototype.addEventListener = function (type, listener, useCapture) {
@@ -921,19 +924,6 @@ var JControl = (function () {
                         parent = parent.parentElement;
                     }
                 }
-            }
-            if (this.templateBinder) {
-                this.templateBinder.dispose();
-                this.templateBinder = null;
-            }
-            if (this.dataBinder) {
-                this.dataBinder.dispose();
-                this.dataBinder = null;
-            }
-            JElementHelper.initElements(this.element);
-            this.templateBinder = new JChildrenElementBinder(this, this.element, false, true);
-            if (this.datacontext) {
-                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, true, true);
             }
             this.onTemplateApply();
         }
@@ -1509,6 +1499,12 @@ if (document.addEventListener) {
         if (element.JControl) {
             element.JControl.dispose();
         }
+        for (var i = 0; i < AllJBinders.length; i++) {
+            if (AllJBinders[i] && AllJBinders[i].control == element) {
+                AllJBinders[i].dispose();
+                AllJBinders[i] = null;
+            }
+        }
         for (var i = 0; i < element.children.length; i++) {
             removeElement(element.children[i]);
         }
@@ -1541,7 +1537,7 @@ if (document.addEventListener) {
                         if (record.addedNodes) {
                             for (var i = 0; i < record.addedNodes.length; i++) {
                                 if (!record.addedNodes[i].JControl) {
-                                    JElementHelper.initElements(record.addedNodes[i].parentElement);
+                                    JElementHelper.initElements(record.addedNodes[i]);
                                 }
                             }
                         }

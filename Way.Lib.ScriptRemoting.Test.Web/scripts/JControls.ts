@@ -29,6 +29,8 @@ window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
 
+var AllJBinders: JBinder[] = [];
+
 interface INotifyPropertyChanged {
     addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
     removeListener(index: number);
@@ -73,36 +75,57 @@ class JElementHelper {
         if (!container || !container.children)//防止#text
             return;
 
-        for (var i = 0; i < container.children.length; i++) {
-            var child = container.children[i];
-            var classType = JElementHelper.getControlTypeName(child.tagName);
+        if (true)
+        {
+            var classType = JElementHelper.getControlTypeName(container.tagName);
             if (classType) {
-                eval("new " + classType + "(child)");
+                eval("new " + classType + "(container)");
+                return;
+            }
+
+            //如果是htmlelement
+            if ((<any>container).JControl)
+            {
+                var jcontrol = <JControl>(<any>container).JControl;
+                if (jcontrol.datacontext)
+                {
+                    AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
+                }
+                AllJBinders.push(new JControlBinder(jcontrol, container));
             }
             else {
-                JElementHelper.initElements(<HTMLElement>child);
+                //查找parent
+                var parent = container.parentElement;
+                var jcontrol: JControl;
+                while (parent)
+                {
+                    if ((<any>parent).JControl)
+                    {
+                        jcontrol = <JControl>(<any>parent).JControl;
+                        break;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+                if (jcontrol)
+                {
+                    if (jcontrol.datacontext) {
+                        AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
+                    }
+                    AllJBinders.push(new JControlBinder(jcontrol, container));
+                }
             }
+        }
+
+        for (var i = 0; i < container.children.length; i++) {
+            var child = container.children[i];
+            JElementHelper.initElements(<HTMLElement>child);
         }
     }
 }
 
-class JBindConfig
-{
-    dataPropertyName: string;
-    elementPropertyName: string;
-    constructor(dataPropertyName: string, elementPropertyName: string) {
-        this.dataPropertyName = dataPropertyName;
-        this.elementPropertyName = elementPropertyName;
-    }
-}
-class JBindExpression {
-    dataPropertyName: string;
-    expression: string;
-    constructor(dataPropertyName: string, expression: string) {
-        this.dataPropertyName = dataPropertyName;
-        this.expression = expression;
-    }
-}
+
 
 class JObserveObject implements INotifyPropertyChanged {
 
@@ -748,12 +771,8 @@ class JControl implements INotifyPropertyChanged {
     protected templateMatchProNames :string[] = [];
 
     protected currentTemplate: HTMLElement;
-    protected templateBinder: JChildrenElementBinder;
-    protected dataBinder: JChildrenElementBinder;
-    //for自己的@属性
-    protected controlDataBinder: JControlDataBinder;
-    //for上级$属性
-    protected containerDataBinder: JControlDataBinder;
+    
+    
 
     private _datacontext: any;
     get datacontext()
@@ -762,7 +781,6 @@ class JControl implements INotifyPropertyChanged {
     }
     set datacontext(value)
     {
-
         if (value && typeof value == "string")
         {
             try {
@@ -792,26 +810,19 @@ class JControl implements INotifyPropertyChanged {
         {
             var original = this._datacontext;
             this._datacontext = value;
-            if (this.controlDataBinder)
-            {
-                this.controlDataBinder.dispose();
-                this.controlDataBinder = null;
-            }
-            if (this.dataBinder) {
-                this.dataBinder.dispose();
-                this.dataBinder = null;
+
+            for (var i = 0; i < AllJBinders.length; i++) {
+                if (AllJBinders[i] && AllJBinders[i] instanceof JDatacontextBinder && AllJBinders[i].datacontext == original && AllJBinders[i].control == this) {
+                    AllJBinders[i].dispose();
+                    AllJBinders[i] = null;
+                }
             }
 
             if (value)
             {
-                if (this.element) {
-                    //JChildrenElementBinder用于把模板里所有子元素和datacontext绑定
-                    this.dataBinder = new JChildrenElementBinder(value, this.element,true,true);
-                }
-
                 if (value) {
                     //JControlDataBinder用于把<JControl>标签和datacontext绑定
-                    this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/);
+                    AllJBinders.push(new JDatacontextBinder(value, this));
                 }
                 if (this.element) {
                     this.setChildrenDataContext(this.element, value);
@@ -832,13 +843,19 @@ class JControl implements INotifyPropertyChanged {
     {
         if (this._parentJControl != value)
         {
-            this._parentJControl = value;
-            if (this.containerDataBinder)
-            {
-                this.containerDataBinder.dispose();
-                this.containerDataBinder = null;
+            for (var i = 0; i < AllJBinders.length; i++) {
+                if (AllJBinders[i] && AllJBinders[i] instanceof JControlBinder && AllJBinders[i].datacontext == this._parentJControl && AllJBinders[i].control == this) {
+                    AllJBinders[i].dispose();
+                    AllJBinders[i] = null;
+                }
             }
-            this.containerDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/, /\{1\}.\$([\w|\.]+)/);
+
+            this._parentJControl = value;
+            
+
+            if (value) {
+                AllJBinders.push( new JControlBinder(value, this) );
+            }
         }
     }
 
@@ -986,21 +1003,11 @@ class JControl implements INotifyPropertyChanged {
 
     dispose()
     {
-        if (this.controlDataBinder) {
-            this.controlDataBinder.dispose();
-            this.controlDataBinder = null;
-        }
-        if (this.containerDataBinder) {
-            this.containerDataBinder.dispose();
-            this.containerDataBinder = null;
-        }
-        if (this.dataBinder) {
-            this.dataBinder.dispose();
-            this.dataBinder = null;
-        }
-        if (this.templateBinder) {
-            this.templateBinder.dispose();
-            this.templateBinder = null;
+        for (var i = 0; i < AllJBinders.length; i++) {
+            if (AllJBinders[i] && AllJBinders[i].control == this) {
+                AllJBinders[i].dispose();
+                AllJBinders[i] = null;
+            }
         }
     }
 
@@ -1162,25 +1169,7 @@ class JControl implements INotifyPropertyChanged {
                     }
                 }
             }
-
-            if (this.templateBinder)
-            {
-                this.templateBinder.dispose();
-                this.templateBinder = null;
-            }
-            if (this.dataBinder) {
-                this.dataBinder.dispose();
-                this.dataBinder = null;
-            }
-
-            //把this.element里面的JControl初始化
-            JElementHelper.initElements(this.element);
-
-            this.templateBinder = new JChildrenElementBinder(this, this.element, false , true);
-            if (this.datacontext) {
-                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element,true,true);
-            }
-
+             
             this.onTemplateApply();
         }
     }
@@ -1814,6 +1803,13 @@ if (document.addEventListener) {
             (<JControl>element.JControl).dispose();
         }
 
+        for (var i = 0; i < AllJBinders.length; i++) {
+            if (AllJBinders[i] && AllJBinders[i].control == element) {
+                AllJBinders[i].dispose();
+                AllJBinders[i] = null;
+            }
+        }
+
         for (var i = 0; i < element.children.length; i++) {
             removeElement(element.children[i]);
         }
@@ -1853,7 +1849,7 @@ if (document.addEventListener) {
                             for (var i = 0; i < record.addedNodes.length; i++) {
                                 //转换JControl
                                 if (!record.addedNodes[i].JControl) {
-                                    JElementHelper.initElements(record.addedNodes[i].parentElement);
+                                    JElementHelper.initElements(record.addedNodes[i]);
                                 }
                             }
                         }
