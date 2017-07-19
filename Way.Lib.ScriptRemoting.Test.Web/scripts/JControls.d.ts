@@ -114,15 +114,24 @@ declare class JDataSource {
     remove(data: JObserveObject): void;
     removeAt(index: number): void;
 }
+declare class JListItem extends JControl {
+    private _index;
+    index: number;
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+}
 declare class JList extends JControl {
     itemContainer: HTMLElement;
     private itemControls;
     private itemTemplates;
     private _itemsource;
     itemsource: JDataSource;
-    constructor(element: HTMLElement);
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     protected loadTemplates(): void;
     protected onTemplateApply(): void;
     protected bindItems(): void;
+    private resetItemIndex();
     private addItem(data);
+}
+declare class JCheckboxList extends JList {
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }

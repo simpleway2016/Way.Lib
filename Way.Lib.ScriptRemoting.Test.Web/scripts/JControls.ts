@@ -1107,10 +1107,30 @@ class JDataSource
     }
 }
 
+class JListItem extends JControl
+{
+    private _index: number;
+    get index(): number {
+        return this._index;
+    }
+    set index(value: number) {
+        if (value != this._index)
+        {
+            var original = this._index;
+            this._index = value;
+            this.onPropertyChanged("index", original);
+        }
+    }
+
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
+    }
+}
+
 class JList extends JControl {
 
     itemContainer: HTMLElement;
-    private itemControls: JControl[];
+    private itemControls: JListItem[];
     private itemTemplates: any[];
 
     private _itemsource: JDataSource;
@@ -1157,9 +1177,8 @@ class JList extends JControl {
         this.bindItems();
     }
 
-    constructor(element: HTMLElement) {
-        super(element);
-
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
     }
 
     protected loadTemplates()
@@ -1194,9 +1213,11 @@ class JList extends JControl {
         {
             this.addItem(this.itemsource.source[i]);
         }
+        this.resetItemIndex();
 
         this.itemsource.addEventListener("add", (sender, data, index) => {
             this.addItem(data);
+            this.resetItemIndex();
         });
 
         this.itemsource.addEventListener("remove", (sender, data, index) => {
@@ -1210,7 +1231,21 @@ class JList extends JControl {
                     break;
                 }
             }
+            this.resetItemIndex();
         });
+    }
+
+    private resetItemIndex()
+    {
+        var index = 0;
+        for (var i = 0; i < this.itemControls.length; i++)
+        {
+            if (this.itemControls[i])
+            {
+                this.itemControls[i].index = index;
+                index++;
+            }
+        }
     }
 
     private addItem(data)
@@ -1218,8 +1253,15 @@ class JList extends JControl {
         var div = document.createElement("DIV");
         this.itemContainer.appendChild(div);
 
-        var jcontrol = new JControl(div, this.itemTemplates, data);
+        var jcontrol = new JListItem(div, this.itemTemplates, data);
         this.itemControls.push(jcontrol);
+    }
+}
+
+class JCheckboxList extends JList
+{
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
     }
 }
 

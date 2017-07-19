@@ -893,10 +893,35 @@ var JDataSource = (function () {
     };
     return JDataSource;
 }());
+var JListItem = (function (_super) {
+    __extends(JListItem, _super);
+    function JListItem(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        return _super.call(this, element, templates, datacontext) || this;
+    }
+    Object.defineProperty(JListItem.prototype, "index", {
+        get: function () {
+            return this._index;
+        },
+        set: function (value) {
+            if (value != this._index) {
+                var original = this._index;
+                this._index = value;
+                this.onPropertyChanged("index", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return JListItem;
+}(JControl));
 var JList = (function (_super) {
     __extends(JList, _super);
-    function JList(element) {
-        return _super.call(this, element) || this;
+    function JList(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        return _super.call(this, element, templates, datacontext) || this;
     }
     Object.defineProperty(JList.prototype, "itemsource", {
         get: function () {
@@ -961,8 +986,10 @@ var JList = (function (_super) {
         for (var i = 0; i < this.itemsource.source.length; i++) {
             this.addItem(this.itemsource.source[i]);
         }
+        this.resetItemIndex();
         this.itemsource.addEventListener("add", function (sender, data, index) {
             _this.addItem(data);
+            _this.resetItemIndex();
         });
         this.itemsource.addEventListener("remove", function (sender, data, index) {
             for (var i = 0; i < _this.itemControls.length; i++) {
@@ -973,16 +1000,35 @@ var JList = (function (_super) {
                     break;
                 }
             }
+            _this.resetItemIndex();
         });
+    };
+    JList.prototype.resetItemIndex = function () {
+        var index = 0;
+        for (var i = 0; i < this.itemControls.length; i++) {
+            if (this.itemControls[i]) {
+                this.itemControls[i].index = index;
+                index++;
+            }
+        }
     };
     JList.prototype.addItem = function (data) {
         var div = document.createElement("DIV");
         this.itemContainer.appendChild(div);
-        var jcontrol = new JControl(div, this.itemTemplates, data);
+        var jcontrol = new JListItem(div, this.itemTemplates, data);
         this.itemControls.push(jcontrol);
     };
     return JList;
 }(JControl));
+var JCheckboxList = (function (_super) {
+    __extends(JCheckboxList, _super);
+    function JCheckboxList(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        return _super.call(this, element, templates, datacontext) || this;
+    }
+    return JCheckboxList;
+}(JList));
 if (document.addEventListener) {
     document.addEventListener('DOMContentLoaded', function () {
         var bodytemplate = document.body.getAttribute("template");
