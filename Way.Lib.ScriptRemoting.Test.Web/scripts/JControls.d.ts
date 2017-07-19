@@ -168,3 +168,9 @@ declare class JRadioList extends JList {
     protected addItem(data: any): JListItem;
     protected onItemDataChanged(sender: any, name: string, originalvalue: any): void;
 }
+declare class JDropdownList extends JList {
+    private _selectedvalue;
+    selectedvalue: any;
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    protected bindItems(): void;
+}

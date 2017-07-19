@@ -32,3 +32,13 @@
         </div>
     </script>
 </JRadioList>
+
+<JDropdownList>
+    <script type="text/html">
+        <select id="itemContainer" databind="className=$class;value=$selectedvalue"></select>
+    </script>
+
+    <script for="item" type="text/html">
+        <option expression="{0}.value={1}.$value" expression1="{0}.innerHTML={1}.$text"></option>
+    </script>
+</JDropdownList>

@@ -1289,6 +1289,40 @@ var JRadioList = (function (_super) {
     return JRadioList;
 }(JList));
 JRadioList.StaticID = 1;
+var JDropdownList = (function (_super) {
+    __extends(JDropdownList, _super);
+    function JDropdownList(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        _this._selectedvalue = null;
+        return _this;
+    }
+    Object.defineProperty(JDropdownList.prototype, "selectedvalue", {
+        get: function () {
+            return this._selectedvalue;
+        },
+        set: function (value) {
+            if (value != this._selectedvalue) {
+                var original = this._selectedvalue;
+                this._selectedvalue = value;
+                this.onPropertyChanged("selectedvalue", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    JDropdownList.prototype.bindItems = function () {
+        this.selectedvalue = null;
+        _super.prototype.bindItems.call(this);
+        if (this.itemControls && this.valuemember && this.valuemember.length > 0 && this.itemControls.length > 0) {
+            var data = this.itemControls[0].datacontext;
+            var src = this;
+            eval("src.selectedvalue = data." + this.valuemember);
+        }
+    };
+    return JDropdownList;
+}(JList));
 if (document.addEventListener) {
     document.addEventListener('DOMContentLoaded', function () {
         var bodytemplate = document.body.getAttribute("template");

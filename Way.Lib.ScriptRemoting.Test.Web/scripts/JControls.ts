@@ -1554,6 +1554,38 @@ class JRadioList extends JList
     }
 }
 
+class JDropdownList extends JList {
+
+    private _selectedvalue = null;
+    get selectedvalue() {
+        return this._selectedvalue;
+    }
+    set selectedvalue(value) {
+        if (value != this._selectedvalue) {
+            var original = this._selectedvalue;
+            this._selectedvalue = value;            
+            this.onPropertyChanged("selectedvalue", original);
+        }
+    }
+
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
+    }
+
+    protected bindItems()
+    {
+        this.selectedvalue = null;
+        super.bindItems();
+        if (this.itemControls && this.valuemember && this.valuemember.length > 0 && this.itemControls.length > 0)
+        {
+            var data = this.itemControls[0].datacontext;
+            var src = this;
+            eval("src.selectedvalue = data." + this.valuemember);
+            
+        }
+    }
+}
+
 if (document.addEventListener) {
     
     document.addEventListener('DOMContentLoaded', function () {
