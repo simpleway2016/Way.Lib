@@ -5,9 +5,15 @@
 </style>
 <JButton>
     <script type="text/html">
-        <input type="button" class="jbutton" databind="value=$text;className=$class" />
+        <input type="button" class="jbutton" value="{bind $text}" databind="className=$class" />
     </script>
 </JButton>
+
+<JTextbox>
+    <script type="text/html">
+        <input type="text" value="{bind $text}" databind="className=$class" />
+    </script>
+</JTextbox>
 
 <JCheckboxList>
     <script type="text/html">

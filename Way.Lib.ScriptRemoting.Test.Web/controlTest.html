@@ -37,7 +37,14 @@
         </script>
     </JButton>
 
-    <JButton id="btn2" datacontext="{name:'add element'}" class="btn" template="btntemplate" onclick="addelement()" databind="text=@name">
+    <JButton id="btn2" datacontext="{name:'add element'}" class="btn" template="btntemplate" onclick="addelement()" text="{bind @name}">
+        <script type="text/html">
+            <div>
+                <input type="button" class="jbutton" value="{bind $text}" databind="className=$class" />
+                <JTextbox expression="{0}.text={1}.$text+' aa';"/>
+            </div>
+            
+        </script>
     </JButton>
 
     <input type="button" value="change text" onclick="btn1.text = 't1';"/>
@@ -57,7 +64,6 @@
             var div = document.createElement("JBUTTON");
             div.setAttribute("text", "new button");
             document.body.appendChild(div);
-            alert(22);
         }
         window.onload = function ()
         {

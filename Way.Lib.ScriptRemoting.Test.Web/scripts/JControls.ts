@@ -258,19 +258,22 @@ class JControlDataBinder
 {
     control: JControl;
     datacontext: INotifyPropertyChanged;
-    expression: RegExp;
-    configs: JBindConfig[] = [];
-    private propertyChangedListenerIndex: number;
 
-    constructor(data: INotifyPropertyChanged, jcontrol: JControl, expression: RegExp) {
+    configs: JBindConfig[] = [];
+    expressionConfigs: JBindExpression[] = [];
+    expresion_replace_reg: RegExp;
+    private propertyChangedListenerIndex: number;
+    private expressionPropertyChangedListenerIndex: number;
+
+    constructor(data: INotifyPropertyChanged, jcontrol: JControl, databind_exp: RegExp, expression_exp: RegExp) {
         this.datacontext = data;
         this.control = jcontrol;
-        this.expression = expression;
+        this.expresion_replace_reg = expression_exp;
 
         var databind: string = jcontrol.databind;
         if (databind) {
             while (true) {
-                var result = this.expression.exec(databind);
+                var result = databind_exp.exec(databind);
                 if (!result)
                     break;
                 var elementPropertyName = result[1];
@@ -282,15 +285,57 @@ class JControlDataBinder
             }
         }
 
-        this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
-        this.control.addPropertyChangedListener((s, n: string, o) => this.onControlPropertyChanged(s, n, o));
+        for (var attname in jcontrol)
+        {
+            if (attname == "expression" || /expression[0-9]+/.exec(attname))
+            {
+                var expressionStr: string = jcontrol[attname];
+                if (expressionStr) {
+                    while (true) {
+                        var result = expression_exp.exec(expressionStr);
+                        if (!result)
+                            break;
+                        var dataPropertyName = result[1];
+                        this.expressionConfigs.push(new JBindExpression(dataPropertyName, jcontrol[attname]));
+                        JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
+
+                        expressionStr = expressionStr.substr(result.index + result[0].length);
+                    }
+                }
+            }
+        }
+
+
+        if (this.expressionConfigs.length > 0) {
+            this.expressionPropertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onExpressionPropertyChanged(s, n, o));
+            this.control.addPropertyChangedListener((s, n: string, o) => this.onExpressionPropertyChanged(s, n, o));
+        }
+
+        if (this.configs.length > 0)
+        {
+            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
+            this.control.addPropertyChangedListener((s, n: string, o) => this.onControlPropertyChanged(s, n, o));
+        }
+        
         this.updateValue();
 
     }
 
     dispose()
     {
-        this.datacontext.removeListener(this.propertyChangedListenerIndex);
+        if (this.propertyChangedListenerIndex)
+        {
+            this.datacontext.removeListener(this.propertyChangedListenerIndex);
+            this.propertyChangedListenerIndex = 0;
+        }
+           
+
+        if (this.expressionPropertyChangedListenerIndex)
+        {
+            this.datacontext.removeListener(this.expressionPropertyChangedListenerIndex);
+            this.expressionPropertyChangedListenerIndex = 0;
+        }
+        
         this.configs = [];
     }
 
@@ -307,6 +352,15 @@ class JControlDataBinder
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             if (config.elementPropertyName == proname)
+                return config;
+        }
+        return null;
+    }
+
+    protected getExpressionConfigByDataProName(proname: string) {
+        for (var i = 0; i < this.expressionConfigs.length; i++) {
+            var config = this.expressionConfigs[i];
+            if (config.dataPropertyName == proname)
                 return config;
         }
         return null;
@@ -343,6 +397,25 @@ class JControlDataBinder
         }
     }
 
+    private onExpressionPropertyChanged(sender, name: string, originalValue) {
+
+        try {
+            var config = this.getExpressionConfigByDataProName(name);
+            if (config) {
+                var element = this.control;
+                var data = this.datacontext;
+                var r;
+                var expression = config.expression.replace(/\{0\}\./g, "element.");
+                while (r = this.expresion_replace_reg.exec(expression)) {
+                    expression = expression.replace(r[0], "data." + r[1]);
+                }
+                eval(expression);
+            }
+        }
+        catch (e) {
+        }
+    }
+
     updateValue() {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
@@ -355,6 +428,20 @@ class JControlDataBinder
 
             }
             catch (e) {
+            }
+        }
+
+        for (var i = 0; i < this.expressionConfigs.length; i++) {
+            var exconfig = this.expressionConfigs[i];
+            if (exconfig) {
+                var element = this.control;
+                var data = this.datacontext;
+                var r;
+                var expression = exconfig.expression.replace(/\{0\}\./g, "element.");
+                while (r = this.expresion_replace_reg.exec(expression)) {
+                    expression = expression.replace(r[0], "data." + r[1]);
+                }
+                eval(expression);
             }
         }
     }
@@ -377,11 +464,44 @@ class JChildrenElementBinder
     private propertyExpressionChangedListenerIndex: number;
     private expresion_replace_reg: RegExp;
 
-    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp, expression_exp: RegExp, bindmyselft:boolean) {
+    constructor(data: INotifyPropertyChanged, element: HTMLElement, forDataContext: boolean, bindmyselft: boolean) {
+        var databind_exp = /([\w|\.]+)( )?=( )?\@([\w|\.]+)/;
+        var expression_exp = /\{1\}.\@([\w|\.]+)/;
+        if (!forDataContext)
+        {
+            databind_exp = /([\w|\.]+)( )?=( )?\$([\w|\.]+)/;
+            expression_exp = /\{1\}.\$([\w|\.]+)/;
+        }
+
         this.datacontext = data;
         this.expresion_replace_reg = expression_exp;
         this.element = element;
-        var databind: string =  element.getAttribute("databind");
+        var databind: string = element.getAttribute("databind");
+        for (var i = 0; i < element.attributes.length; i++)
+        {
+            var r;
+            if (!forDataContext && (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(element.attributes[i].value))) {
+                if (!databind)
+                    databind = "";
+
+                var attname = element.attributes[i].name;
+                if (attname == "class")
+                    attname = "className";
+                element.attributes[i].value = "";
+                databind += ";" + attname + "=$" + r[1];
+            }
+            else if (forDataContext && (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(element.attributes[i].value))) {
+                if (!databind)
+                    databind = "";
+
+                var attname = element.attributes[i].name;
+                if (attname == "class")
+                    attname = "className";
+                element.attributes[i].value = "";
+                databind += ";" + attname + "=@" + r[1];
+            }
+        }
+
         if (databind)
         {
             while (true)
@@ -435,8 +555,10 @@ class JChildrenElementBinder
                 var child: any = element.children[i];
                 if (child.tagName != "SCRIPT")
                 {
-                    child._templateBinder = new JChildrenElementBinder(data, child, databind_exp, this.expresion_replace_reg,  false);
-                    this.children.push(child._templateBinder);
+                    if (!child.JControl) {
+                        child._templateBinder = new JChildrenElementBinder(data, child, forDataContext, false);
+                        this.children.push(child._templateBinder);
+                    }
                 }
                 
             }
@@ -616,6 +738,8 @@ class JControl implements INotifyPropertyChanged {
     element: HTMLElement;
     onPropertyChangeds = [];
     databind: string;
+    expression: string;
+
     protected templates: HTMLElement[] = [];
     //Template模板里面，match包含的属性名
     protected templateMatchProNames :string[] = [];
@@ -623,7 +747,10 @@ class JControl implements INotifyPropertyChanged {
     protected currentTemplate: HTMLElement;
     protected templateBinder: JChildrenElementBinder;
     protected dataBinder: JChildrenElementBinder;
+    //for自己的@属性
     protected controlDataBinder: JControlDataBinder;
+    //for上级$属性
+    protected containerDataBinder: JControlDataBinder;
 
     private _datacontext: any;
     get datacontext()
@@ -676,12 +803,12 @@ class JControl implements INotifyPropertyChanged {
             {
                 if (this.element) {
                     //JChildrenElementBinder用于把模板里所有子元素和datacontext绑定
-                    this.dataBinder = new JChildrenElementBinder(value, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/ ,true);
+                    this.dataBinder = new JChildrenElementBinder(value, this.element,true,true);
                 }
 
                 if (value) {
                     //JControlDataBinder用于把<JControl>标签和datacontext绑定
-                    this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/);
+                    this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/);
                 }
                 if (this.element) {
                     this.setChildrenDataContext(this.element, value);
@@ -690,6 +817,25 @@ class JControl implements INotifyPropertyChanged {
                 this.checkDataContextPropertyExist();
             }
             this.onPropertyChanged("datacontext", original);
+        }
+    }
+
+    private _parentJControl: JControl;
+    get parentJControl(): JControl
+    {
+        return this._parentJControl;
+    }
+    set parentJControl(value: JControl)
+    {
+        if (this._parentJControl != value)
+        {
+            this._parentJControl = value;
+            if (this.containerDataBinder)
+            {
+                this.containerDataBinder.dispose();
+                this.containerDataBinder = null;
+            }
+            this.containerDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/, /\{1\}.\$([\w|\.]+)/);
         }
     }
 
@@ -719,7 +865,7 @@ class JControl implements INotifyPropertyChanged {
     
     constructor(element: HTMLElement,templates:any[] = null,datacontext = null) {
         this.originalElement = element;
-        this.datacontext = datacontext;
+        
 
         //加载所有模板
         if (templates) {
@@ -733,7 +879,7 @@ class JControl implements INotifyPropertyChanged {
         }
 
         this.databind = this.originalElement.getAttribute("databind");
-
+        
         for (var i = 0; i < this.originalElement.attributes.length; i++) {
             var attName = this.originalElement.attributes[i].name;
             if (attName == "id") {
@@ -741,12 +887,30 @@ class JControl implements INotifyPropertyChanged {
             }
             else if (attName == "databind") {
             }
+            else if (attName == "datacontext") {
+            }
             else {
                 var finded = false;
                 for (var myproname in this) {
                     if (myproname.toLowerCase() == attName) {
                         finded = true;
-                        this[<string>myproname] = this.originalElement.attributes[i].value;
+                        var r;
+                        if (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(this.originalElement.attributes[i].value)) {
+                            if (!this.databind)
+                                this.databind = "";
+
+                            this.databind += ";" + myproname + "=$" + r[1];
+                        }
+                        else if (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(this.originalElement.attributes[i].value)) {
+                            if (!this.databind)
+                                this.databind = "";
+
+                            this.databind += ";" + myproname + "=@" + r[1];
+                        }
+                        else {
+                            this[<string>myproname] = this.originalElement.attributes[i].value;
+                        }
+                        break;
                     }
                 }
                 if (!finded)
@@ -761,6 +925,15 @@ class JControl implements INotifyPropertyChanged {
                     });
                 }
             }
+        }
+
+     
+        if (this.originalElement.getAttribute("datacontext") && this.originalElement.getAttribute("datacontext").length > 0)
+        {
+            this.datacontext = this.originalElement.getAttribute("datacontext");
+        }
+        else {
+            this.datacontext = datacontext;
         }
 
         this.reApplyTemplate(this.originalElement);
@@ -931,14 +1104,29 @@ class JControl implements INotifyPropertyChanged {
             if (JElementHelper.getControlTypeName(this.element.tagName)) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
-            JElementHelper.replaceElement(this.element, rootElement);
             (<any>this.element).JControl = this;
+            JElementHelper.replaceElement(this.element, rootElement);
+            //查找上级JControl
+            if (true)
+            {
+                var parent = this.element.parentElement;
+                while (parent) {
+                    if ((<any>parent).JControl) {
+                        this.parentJControl = (<any>parent).JControl;
+                        break;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+            }
 
             if (this.onclick) {
                 this.addEventListener("click", this.onclick, false);
             }
 
             if (!this.datacontext) {
+                //如果自己没有数据源，查看parent的数据源
                 var parent = this.element.parentElement;
                 while (parent && !this.datacontext) {
                     if ((<any>parent).JControl) {
@@ -964,9 +1152,9 @@ class JControl implements INotifyPropertyChanged {
             //把this.element里面的JControl初始化
             JElementHelper.initElements(this.element);
 
-            this.templateBinder = new JChildrenElementBinder(this, this.element, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/,  /\{1\}.\$([\w|\.]+)/ , true);
+            this.templateBinder = new JChildrenElementBinder(this, this.element, false , true);
             if (this.datacontext) {
-                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/ ,true);
+                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element,true,true);
             }
 
             this.onTemplateApply();
@@ -1054,8 +1242,13 @@ class JButton extends JControl{
         }
     }
     
-    constructor(element: HTMLElement) {
-        super(element);
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
+    }
+}
+class JTextbox extends JButton {
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
     }
 }
 
@@ -1621,7 +1814,10 @@ if (document.addEventListener) {
                     records.map(function (record) {
                         for (var i = 0; i < record.addedNodes.length; i++) {
                             //转换JControl
-                            JElementHelper.initElements(record.addedNodes[i].parentElement);
+                            if (!record.addedNodes[i].JControl)
+                            {
+                                JElementHelper.initElements(record.addedNodes[i].parentElement);
+                            }
                         }
                     });
                 };

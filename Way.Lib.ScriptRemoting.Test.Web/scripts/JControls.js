@@ -189,16 +189,17 @@ var JObserveObject = (function () {
     return JObserveObject;
 }());
 var JControlDataBinder = (function () {
-    function JControlDataBinder(data, jcontrol, expression) {
+    function JControlDataBinder(data, jcontrol, databind_exp, expression_exp) {
         var _this = this;
         this.configs = [];
+        this.expressionConfigs = [];
         this.datacontext = data;
         this.control = jcontrol;
-        this.expression = expression;
+        this.expresion_replace_reg = expression_exp;
         var databind = jcontrol.databind;
         if (databind) {
             while (true) {
-                var result = this.expression.exec(databind);
+                var result = databind_exp.exec(databind);
                 if (!result)
                     break;
                 var elementPropertyName = result[1];
@@ -208,12 +209,41 @@ var JControlDataBinder = (function () {
                 databind = databind.substr(result.index + result[0].length);
             }
         }
-        this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
-        this.control.addPropertyChangedListener(function (s, n, o) { return _this.onControlPropertyChanged(s, n, o); });
+        for (var attname in jcontrol) {
+            if (attname == "expression" || /expression[0-9]+/.exec(attname)) {
+                var expressionStr = jcontrol[attname];
+                if (expressionStr) {
+                    while (true) {
+                        var result = expression_exp.exec(expressionStr);
+                        if (!result)
+                            break;
+                        var dataPropertyName = result[1];
+                        this.expressionConfigs.push(new JBindExpression(dataPropertyName, jcontrol[attname]));
+                        JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
+                        expressionStr = expressionStr.substr(result.index + result[0].length);
+                    }
+                }
+            }
+        }
+        if (this.expressionConfigs.length > 0) {
+            this.expressionPropertyChangedListenerIndex = this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onExpressionPropertyChanged(s, n, o); });
+            this.control.addPropertyChangedListener(function (s, n, o) { return _this.onExpressionPropertyChanged(s, n, o); });
+        }
+        if (this.configs.length > 0) {
+            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
+            this.control.addPropertyChangedListener(function (s, n, o) { return _this.onControlPropertyChanged(s, n, o); });
+        }
         this.updateValue();
     }
     JControlDataBinder.prototype.dispose = function () {
-        this.datacontext.removeListener(this.propertyChangedListenerIndex);
+        if (this.propertyChangedListenerIndex) {
+            this.datacontext.removeListener(this.propertyChangedListenerIndex);
+            this.propertyChangedListenerIndex = 0;
+        }
+        if (this.expressionPropertyChangedListenerIndex) {
+            this.datacontext.removeListener(this.expressionPropertyChangedListenerIndex);
+            this.expressionPropertyChangedListenerIndex = 0;
+        }
         this.configs = [];
     };
     JControlDataBinder.prototype.getConfigByDataProName = function (proname) {
@@ -228,6 +258,14 @@ var JControlDataBinder = (function () {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             if (config.elementPropertyName == proname)
+                return config;
+        }
+        return null;
+    };
+    JControlDataBinder.prototype.getExpressionConfigByDataProName = function (proname) {
+        for (var i = 0; i < this.expressionConfigs.length; i++) {
+            var config = this.expressionConfigs[i];
+            if (config.dataPropertyName == proname)
                 return config;
         }
         return null;
@@ -260,6 +298,23 @@ var JControlDataBinder = (function () {
         catch (e) {
         }
     };
+    JControlDataBinder.prototype.onExpressionPropertyChanged = function (sender, name, originalValue) {
+        try {
+            var config = this.getExpressionConfigByDataProName(name);
+            if (config) {
+                var element = this.control;
+                var data = this.datacontext;
+                var r;
+                var expression = config.expression.replace(/\{0\}\./g, "element.");
+                while (r = this.expresion_replace_reg.exec(expression)) {
+                    expression = expression.replace(r[0], "data." + r[1]);
+                }
+                eval(expression);
+            }
+        }
+        catch (e) {
+        }
+    };
     JControlDataBinder.prototype.updateValue = function () {
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
@@ -273,20 +328,60 @@ var JControlDataBinder = (function () {
             catch (e) {
             }
         }
+        for (var i = 0; i < this.expressionConfigs.length; i++) {
+            var exconfig = this.expressionConfigs[i];
+            if (exconfig) {
+                var element = this.control;
+                var data = this.datacontext;
+                var r;
+                var expression = exconfig.expression.replace(/\{0\}\./g, "element.");
+                while (r = this.expresion_replace_reg.exec(expression)) {
+                    expression = expression.replace(r[0], "data." + r[1]);
+                }
+                eval(expression);
+            }
+        }
     };
     return JControlDataBinder;
 }());
 var JChildrenElementBinder = (function () {
-    function JChildrenElementBinder(data, element, databind_exp, expression_exp, bindmyselft) {
+    function JChildrenElementBinder(data, element, forDataContext, bindmyselft) {
         var _this = this;
         this.configs = [];
         this.expressionConfigs = [];
         this.children = [];
         this.disposed = false;
+        var databind_exp = /([\w|\.]+)( )?=( )?\@([\w|\.]+)/;
+        var expression_exp = /\{1\}.\@([\w|\.]+)/;
+        if (!forDataContext) {
+            databind_exp = /([\w|\.]+)( )?=( )?\$([\w|\.]+)/;
+            expression_exp = /\{1\}.\$([\w|\.]+)/;
+        }
         this.datacontext = data;
         this.expresion_replace_reg = expression_exp;
         this.element = element;
         var databind = element.getAttribute("databind");
+        for (var i = 0; i < element.attributes.length; i++) {
+            var r;
+            if (!forDataContext && (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(element.attributes[i].value))) {
+                if (!databind)
+                    databind = "";
+                var attname = element.attributes[i].name;
+                if (attname == "class")
+                    attname = "className";
+                element.attributes[i].value = "";
+                databind += ";" + attname + "=$" + r[1];
+            }
+            else if (forDataContext && (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(element.attributes[i].value))) {
+                if (!databind)
+                    databind = "";
+                var attname = element.attributes[i].name;
+                if (attname == "class")
+                    attname = "className";
+                element.attributes[i].value = "";
+                databind += ";" + attname + "=@" + r[1];
+            }
+        }
         if (databind) {
             while (true) {
                 var result = databind_exp.exec(databind);
@@ -327,8 +422,10 @@ var JChildrenElementBinder = (function () {
             for (var i = 0; i < element.children.length; i++) {
                 var child = element.children[i];
                 if (child.tagName != "SCRIPT") {
-                    child._templateBinder = new JChildrenElementBinder(data, child, databind_exp, this.expresion_replace_reg, false);
-                    this.children.push(child._templateBinder);
+                    if (!child.JControl) {
+                        child._templateBinder = new JChildrenElementBinder(data, child, forDataContext, false);
+                        this.children.push(child._templateBinder);
+                    }
                 }
             }
         }
@@ -468,7 +565,6 @@ var JControl = (function () {
         this.templates = [];
         this.templateMatchProNames = [];
         this.originalElement = element;
-        this.datacontext = datacontext;
         if (templates) {
             for (var i = 0; i < templates.length; i++) {
                 this.templates.push(templates[i]);
@@ -486,12 +582,28 @@ var JControl = (function () {
             }
             else if (attName == "databind") {
             }
+            else if (attName == "datacontext") {
+            }
             else {
                 var finded = false;
                 for (var myproname in this) {
                     if (myproname.toLowerCase() == attName) {
                         finded = true;
-                        this[myproname] = this.originalElement.attributes[i].value;
+                        var r;
+                        if (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(this.originalElement.attributes[i].value)) {
+                            if (!this.databind)
+                                this.databind = "";
+                            this.databind += ";" + myproname + "=$" + r[1];
+                        }
+                        else if (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(this.originalElement.attributes[i].value)) {
+                            if (!this.databind)
+                                this.databind = "";
+                            this.databind += ";" + myproname + "=@" + r[1];
+                        }
+                        else {
+                            this[myproname] = this.originalElement.attributes[i].value;
+                        }
+                        break;
                     }
                 }
                 if (!finded) {
@@ -504,6 +616,12 @@ var JControl = (function () {
                     });
                 }
             }
+        }
+        if (this.originalElement.getAttribute("datacontext") && this.originalElement.getAttribute("datacontext").length > 0) {
+            this.datacontext = this.originalElement.getAttribute("datacontext");
+        }
+        else {
+            this.datacontext = datacontext;
         }
         this.reApplyTemplate(this.originalElement);
         this.addPropertyChangedListener(function (s, name, value) {
@@ -567,10 +685,10 @@ var JControl = (function () {
                 }
                 if (value) {
                     if (this.element) {
-                        this.dataBinder = new JChildrenElementBinder(value, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/, true);
+                        this.dataBinder = new JChildrenElementBinder(value, this.element, true, true);
                     }
                     if (value) {
-                        this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/);
+                        this.controlDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/);
                     }
                     if (this.element) {
                         this.setChildrenDataContext(this.element, value);
@@ -578,6 +696,23 @@ var JControl = (function () {
                     this.checkDataContextPropertyExist();
                 }
                 this.onPropertyChanged("datacontext", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JControl.prototype, "parentJControl", {
+        get: function () {
+            return this._parentJControl;
+        },
+        set: function (value) {
+            if (this._parentJControl != value) {
+                this._parentJControl = value;
+                if (this.containerDataBinder) {
+                    this.containerDataBinder.dispose();
+                    this.containerDataBinder = null;
+                }
+                this.containerDataBinder = new JControlDataBinder(value, this, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/, /\{1\}.\$([\w|\.]+)/);
             }
         },
         enumerable: true,
@@ -737,8 +872,20 @@ var JControl = (function () {
             if (JElementHelper.getControlTypeName(this.element.tagName)) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
-            JElementHelper.replaceElement(this.element, rootElement);
             this.element.JControl = this;
+            JElementHelper.replaceElement(this.element, rootElement);
+            if (true) {
+                var parent = this.element.parentElement;
+                while (parent) {
+                    if (parent.JControl) {
+                        this.parentJControl = parent.JControl;
+                        break;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+            }
             if (this.onclick) {
                 this.addEventListener("click", this.onclick, false);
             }
@@ -763,9 +910,9 @@ var JControl = (function () {
                 this.dataBinder = null;
             }
             JElementHelper.initElements(this.element);
-            this.templateBinder = new JChildrenElementBinder(this, this.element, /([\w|\.]+)( )?=( )?\$([\w|\.]+)/, /\{1\}.\$([\w|\.]+)/, true);
+            this.templateBinder = new JChildrenElementBinder(this, this.element, false, true);
             if (this.datacontext) {
-                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, /([\w|\.]+)( )?=( )?\@([\w|\.]+)/, /\{1\}.\@([\w|\.]+)/, true);
+                this.dataBinder = new JChildrenElementBinder(this.datacontext, this.element, true, true);
             }
             this.onTemplateApply();
         }
@@ -829,8 +976,10 @@ var JControl = (function () {
 }());
 var JButton = (function (_super) {
     __extends(JButton, _super);
-    function JButton(element) {
-        var _this = _super.call(this, element) || this;
+    function JButton(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        var _this = _super.call(this, element, templates, datacontext) || this;
         _this._text = "";
         return _this;
     }
@@ -850,6 +999,15 @@ var JButton = (function (_super) {
     });
     return JButton;
 }(JControl));
+var JTextbox = (function (_super) {
+    __extends(JTextbox, _super);
+    function JTextbox(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        return _super.call(this, element, templates, datacontext) || this;
+    }
+    return JTextbox;
+}(JButton));
 var JDataSource = (function () {
     function JDataSource(data) {
         this.addFuncs = [];
@@ -1350,7 +1508,9 @@ if (document.addEventListener) {
                 var callback = function (records) {
                     records.map(function (record) {
                         for (var i = 0; i < record.addedNodes.length; i++) {
-                            JElementHelper.initElements(record.addedNodes[i].parentElement);
+                            if (!record.addedNodes[i].JControl) {
+                                JElementHelper.initElements(record.addedNodes[i].parentElement);
+                            }
                         }
                     });
                 };

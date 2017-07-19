@@ -37,15 +37,19 @@ declare class JObserveObject implements INotifyPropertyChanged {
 declare class JControlDataBinder {
     control: JControl;
     datacontext: INotifyPropertyChanged;
-    expression: RegExp;
     configs: JBindConfig[];
+    expressionConfigs: JBindExpression[];
+    expresion_replace_reg: RegExp;
     private propertyChangedListenerIndex;
-    constructor(data: INotifyPropertyChanged, jcontrol: JControl, expression: RegExp);
+    private expressionPropertyChangedListenerIndex;
+    constructor(data: INotifyPropertyChanged, jcontrol: JControl, databind_exp: RegExp, expression_exp: RegExp);
     dispose(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
     protected getConfigByElementProName(proname: string): JBindConfig;
+    protected getExpressionConfigByDataProName(proname: string): JBindExpression;
     private onPropertyChanged(sender, name, originalValue);
     private onControlPropertyChanged(sender, name, originalValue);
+    private onExpressionPropertyChanged(sender, name, originalValue);
     updateValue(): void;
 }
 declare class JChildrenElementBinder {
@@ -58,7 +62,7 @@ declare class JChildrenElementBinder {
     private propertyChangedListenerIndex;
     private propertyExpressionChangedListenerIndex;
     private expresion_replace_reg;
-    constructor(data: INotifyPropertyChanged, element: HTMLElement, databind_exp: RegExp, expression_exp: RegExp, bindmyselft: boolean);
+    constructor(data: INotifyPropertyChanged, element: HTMLElement, forDataContext: boolean, bindmyselft: boolean);
     static addPropertyIfNotExist(data: any, propertyName: any): void;
     dispose(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
@@ -78,14 +82,18 @@ declare class JControl implements INotifyPropertyChanged {
     element: HTMLElement;
     onPropertyChangeds: any[];
     databind: string;
+    expression: string;
     protected templates: HTMLElement[];
     protected templateMatchProNames: string[];
     protected currentTemplate: HTMLElement;
     protected templateBinder: JChildrenElementBinder;
     protected dataBinder: JChildrenElementBinder;
     protected controlDataBinder: JControlDataBinder;
+    protected containerDataBinder: JControlDataBinder;
     private _datacontext;
     datacontext: any;
+    private _parentJControl;
+    parentJControl: JControl;
     private _onclick;
     onclick: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
@@ -104,7 +112,10 @@ declare class JControl implements INotifyPropertyChanged {
 declare class JButton extends JControl {
     private _text;
     text: string;
-    constructor(element: HTMLElement);
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+}
+declare class JTextbox extends JButton {
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JDataSource {
     source: JObserveObject[];
