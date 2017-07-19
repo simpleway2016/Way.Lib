@@ -576,10 +576,7 @@ var JControl = (function () {
         this.databind = this.originalElement.getAttribute("databind");
         for (var i = 0; i < this.originalElement.attributes.length; i++) {
             var attName = this.originalElement.attributes[i].name;
-            if (attName == "id") {
-                eval("window." + this.originalElement.attributes[i].value + "=this");
-            }
-            else if (attName == "databind") {
+            if (attName == "databind") {
             }
             else if (attName == "datacontext") {
             }
@@ -718,6 +715,24 @@ var JControl = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(JControl.prototype, "id", {
+        get: function () {
+            return this._id;
+        },
+        set: function (value) {
+            if (this._id != value) {
+                var original = this._id;
+                if (original) {
+                    eval("if(window." + original + "==this) {window." + original + "=undefined;}");
+                }
+                this._id = value;
+                eval("window." + value + "=this");
+                this.onPropertyChanged("id", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(JControl.prototype, "onclick", {
         get: function () {
             return this._onclick;
@@ -762,6 +777,10 @@ var JControl = (function () {
         if (this.controlDataBinder) {
             this.controlDataBinder.dispose();
             this.controlDataBinder = null;
+        }
+        if (this.containerDataBinder) {
+            this.containerDataBinder.dispose();
+            this.containerDataBinder = null;
         }
         if (this.dataBinder) {
             this.dataBinder.dispose();
@@ -1482,6 +1501,14 @@ var JDropdownList = (function (_super) {
     return JDropdownList;
 }(JList));
 if (document.addEventListener) {
+    function removeElement(element) {
+        if (element.JControl) {
+            element.JControl.dispose();
+        }
+        for (var i = 0; i < element.children.length; i++) {
+            removeElement(element.children[i]);
+        }
+    }
     document.addEventListener('DOMContentLoaded', function () {
         var bodytemplate = document.body.getAttribute("template");
         if (!bodytemplate || bodytemplate.length == 0) {
@@ -1507,9 +1534,16 @@ if (document.addEventListener) {
                 };
                 var callback = function (records) {
                     records.map(function (record) {
-                        for (var i = 0; i < record.addedNodes.length; i++) {
-                            if (!record.addedNodes[i].JControl) {
-                                JElementHelper.initElements(record.addedNodes[i].parentElement);
+                        if (record.addedNodes) {
+                            for (var i = 0; i < record.addedNodes.length; i++) {
+                                if (!record.addedNodes[i].JControl) {
+                                    JElementHelper.initElements(record.addedNodes[i].parentElement);
+                                }
+                            }
+                        }
+                        if (record.removedNodes) {
+                            for (var i = 0; i < record.removedNodes.length; i++) {
+                                removeElement(record.removedNodes[i]);
                             }
                         }
                     });

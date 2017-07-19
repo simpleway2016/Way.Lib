@@ -94,6 +94,8 @@ declare class JControl implements INotifyPropertyChanged {
     datacontext: any;
     private _parentJControl;
     parentJControl: JControl;
+    private _id;
+    id: string;
     private _onclick;
     onclick: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);

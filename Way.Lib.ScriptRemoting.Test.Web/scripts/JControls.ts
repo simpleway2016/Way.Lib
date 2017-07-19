@@ -839,6 +839,25 @@ class JControl implements INotifyPropertyChanged {
         }
     }
 
+    private _id: string;
+    get id(): string {
+        return this._id;
+    }
+    set id(value: string)
+    {
+        if (this._id != value)
+        {
+            var original = this._id;
+            if (original)
+            {
+                eval("if(window." + original + "==this) {window." + original + "=undefined;}"); 
+            }
+            this._id = value;
+            eval("window." + value + "=this");
+            this.onPropertyChanged("id", original);
+        }
+    }
+
     private _onclick;
     get onclick() {
         return this._onclick;
@@ -882,10 +901,7 @@ class JControl implements INotifyPropertyChanged {
         
         for (var i = 0; i < this.originalElement.attributes.length; i++) {
             var attName = this.originalElement.attributes[i].name;
-            if (attName == "id") {
-                eval("window." + this.originalElement.attributes[i].value + "=this");
-            }
-            else if (attName == "databind") {
+            if (attName == "databind") {
             }
             else if (attName == "datacontext") {
             }
@@ -970,6 +986,10 @@ class JControl implements INotifyPropertyChanged {
         if (this.controlDataBinder) {
             this.controlDataBinder.dispose();
             this.controlDataBinder = null;
+        }
+        if (this.containerDataBinder) {
+            this.containerDataBinder.dispose();
+            this.containerDataBinder = null;
         }
         if (this.dataBinder) {
             this.dataBinder.dispose();
@@ -1782,7 +1802,17 @@ class JDropdownList extends JList {
 }
 
 if (document.addEventListener) {
-    
+    function removeElement(element) {
+        if (element.JControl)
+        {
+            (<JControl>element.JControl).dispose();
+        }
+
+        for (var i = 0; i < element.children.length; i++) {
+            removeElement(element.children[i]);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         var bodytemplate = document.body.getAttribute("template");
         if (!bodytemplate || bodytemplate.length == 0) {
@@ -1813,13 +1843,22 @@ if (document.addEventListener) {
                 };
                 var callback = function (records) {//MutationRecord
                     records.map(function (record) {
-                        for (var i = 0; i < record.addedNodes.length; i++) {
-                            //转换JControl
-                            if (!record.addedNodes[i].JControl)
-                            {
-                                JElementHelper.initElements(record.addedNodes[i].parentElement);
+                        if (record.addedNodes) {
+                            for (var i = 0; i < record.addedNodes.length; i++) {
+                                //转换JControl
+                                if (!record.addedNodes[i].JControl) {
+                                    JElementHelper.initElements(record.addedNodes[i].parentElement);
+                                }
                             }
                         }
+
+                        if (record.removedNodes) {
+                            for (var i = 0; i < record.removedNodes.length; i++) {
+                                //dispose相关JControl
+                                removeElement(record.removedNodes[i]);
+                            }
+                        }
+                        
                     });
                 };
 

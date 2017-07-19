@@ -63,7 +63,11 @@
         {
             var div = document.createElement("JBUTTON");
             div.setAttribute("text", "new button");
+            div.setAttribute("id", "newbtn1");
             document.body.appendChild(div);
+            setTimeout(function () {
+                document.body.removeChild(window.newbtn1.element);
+            },3000);
         }
         window.onload = function ()
         {
