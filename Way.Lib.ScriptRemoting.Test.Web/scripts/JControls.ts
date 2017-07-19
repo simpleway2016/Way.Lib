@@ -70,7 +70,7 @@ class JElementHelper {
 
 
     static initElements(container: HTMLElement) {
-        if (!container || !container.children)
+        if (!container || !container.children)//防止#text
             return;
 
         for (var i = 0; i < container.children.length; i++) {
