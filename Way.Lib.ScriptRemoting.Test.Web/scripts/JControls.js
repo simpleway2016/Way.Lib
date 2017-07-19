@@ -8,10 +8,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var JControlTagConfigs = {
-    "JBUTTON": "JButton",
-    "JLIST": "JList",
-};
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
@@ -31,6 +27,14 @@ var JElementHelper = (function () {
             parent.insertBefore(source, nextlib);
         }
     };
+    JElementHelper.getControlTypeName = function (tagname) {
+        for (var name in window) {
+            if (name.toUpperCase() == tagname) {
+                return name;
+            }
+        }
+        return null;
+    };
     JElementHelper.getElement = function (html) {
         var div = document.createElement("DIV");
         div.innerHTML = html;
@@ -39,7 +43,7 @@ var JElementHelper = (function () {
     JElementHelper.initElements = function (container) {
         for (var i = 0; i < container.children.length; i++) {
             var child = container.children[i];
-            var classType = JControlTagConfigs[child.tagName];
+            var classType = JElementHelper.getControlTypeName(child.tagName);
             if (classType) {
                 eval("new " + classType + "(child)");
             }
@@ -236,9 +240,10 @@ var JControlDataBinder = (function () {
             return;
         }
         try {
+            var self = this;
             var config = this.getConfigByDataProName(name);
             if (config) {
-                eval("this.control." + config.elementPropertyName + " = this.datacontext." + config.dataPropertyName);
+                eval("self.control." + config.elementPropertyName + " = self.datacontext." + config.dataPropertyName);
             }
         }
         catch (e) {
@@ -246,9 +251,10 @@ var JControlDataBinder = (function () {
     };
     JControlDataBinder.prototype.onControlPropertyChanged = function (sender, name, originalValue) {
         try {
+            var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {
-                eval("this.datacontext." + config.dataPropertyName + " = this.control." + name);
+                eval("self.datacontext." + config.dataPropertyName + " = self.control." + name);
             }
         }
         catch (e) {
@@ -707,7 +713,7 @@ var JControl = (function () {
                 }
             }
             this.element = JElementHelper.getElement(html);
-            if (JControlTagConfigs[this.element.tagName]) {
+            if (JElementHelper.getControlTypeName(this.element.tagName)) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
             JElementHelper.replaceElement(this.element, rootElement);
@@ -978,13 +984,19 @@ var JList = (function (_super) {
     return JList;
 }(JControl));
 if (document.addEventListener) {
-    var templateHtml = JHttpHelper.downloadUrl("/templates/system.html");
-    JElementHelper.SystemTemplateContainer = document.createElement("DIV");
-    JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
-    var style = JElementHelper.SystemTemplateContainer.querySelector("style");
-    if (style) {
-        document.head.appendChild(style);
-    }
-    document.addEventListener('DOMContentLoaded', function () { JElementHelper.initElements(document.body); }, false);
+    document.addEventListener('DOMContentLoaded', function () {
+        var bodytemplate = document.body.getAttribute("template");
+        if (!bodytemplate || bodytemplate.length == 0) {
+            bodytemplate = "/templates/system.html";
+        }
+        var templateHtml = JHttpHelper.downloadUrl(bodytemplate);
+        JElementHelper.SystemTemplateContainer = document.createElement("DIV");
+        JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
+        var style = JElementHelper.SystemTemplateContainer.querySelector("style");
+        if (style) {
+            document.head.appendChild(style);
+        }
+        JElementHelper.initElements(document.body);
+    }, false);
 }
 //# sourceMappingURL=JControls.js.map

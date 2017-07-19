@@ -5,6 +5,9 @@
 //属性直接替换<div>{@name}  {$text}</div>
 //表达式,expression="{0}.style.color={1}.isSelected?'red':'black'"  {1}表示datacontext
 
+//页面定义模板文件
+//<body template="/templates/system.html">
+
 //页面定义公用模板
 /**
 <header>
@@ -19,11 +22,6 @@
 </JButton>
  */
 
-//定义标签对应的类名
-var JControlTagConfigs = {
-    "JBUTTON": "JButton",
-    "JLIST": "JList",
-};
 
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
@@ -53,6 +51,15 @@ class JElementHelper {
         }
     }
 
+    static getControlTypeName(tagname: string): string {
+        for (var name in window) {
+            if (name.toUpperCase() == tagname) {
+                return name;
+            }
+        }
+        return null;
+    }
+
     static getElement(html: string): HTMLElement {
         var div = document.createElement("DIV");
         div.innerHTML = html;
@@ -63,7 +70,7 @@ class JElementHelper {
     static initElements(container: HTMLElement) {
         for (var i = 0; i < container.children.length; i++) {
             var child = container.children[i];
-            var classType = JControlTagConfigs[child.tagName];
+            var classType = JElementHelper.getControlTypeName(child.tagName);
             if (classType) {
                 eval("new " + classType + "(child)");
             }
@@ -313,9 +320,10 @@ class JControlDataBinder
             return;
         }
         try {
+            var self = this;
             var config = this.getConfigByDataProName(name);
             if (config) {
-                eval("this.control." + config.elementPropertyName + " = this.datacontext." + config.dataPropertyName);
+                eval("self.control." + config.elementPropertyName + " = self.datacontext." + config.dataPropertyName);
             }
         }
         catch (e) {
@@ -323,9 +331,10 @@ class JControlDataBinder
     }
     private onControlPropertyChanged(sender, name: string, originalValue) {
         try {
+            var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {
-                eval("this.datacontext." + config.dataPropertyName + " = this.control." + name);
+                eval("self.datacontext." + config.dataPropertyName + " = self.control." + name);
             }
         }
         catch (e) {
@@ -887,7 +896,7 @@ class JControl implements INotifyPropertyChanged {
             }
 
             this.element = JElementHelper.getElement(html);
-            if (JControlTagConfigs[this.element.tagName]) {
+            if (JElementHelper.getControlTypeName(this.element.tagName)) {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
             JElementHelper.replaceElement(this.element, rootElement);
@@ -1215,13 +1224,20 @@ class JList extends JControl {
 }
 
 if (document.addEventListener) {
-    var templateHtml = JHttpHelper.downloadUrl("/templates/system.html");
-    JElementHelper.SystemTemplateContainer = document.createElement("DIV");
-    JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
-    var style = JElementHelper.SystemTemplateContainer.querySelector("style");
-    if (style)
-    {
-        document.head.appendChild(style);
-    }
-    document.addEventListener('DOMContentLoaded', function () { JElementHelper.initElements(document.body);}, false);
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        var bodytemplate = document.body.getAttribute("template");
+        if (!bodytemplate || bodytemplate.length == 0) {
+            bodytemplate = "/templates/system.html";
+        }
+        var templateHtml = JHttpHelper.downloadUrl(bodytemplate);
+        JElementHelper.SystemTemplateContainer = document.createElement("DIV");
+        JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
+        var style = JElementHelper.SystemTemplateContainer.querySelector("style");
+        if (style) {
+            document.head.appendChild(style);
+        }
+
+        JElementHelper.initElements(document.body);
+    }, false);
 }
