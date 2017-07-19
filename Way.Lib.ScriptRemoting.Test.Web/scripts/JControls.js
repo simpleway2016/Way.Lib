@@ -41,6 +41,8 @@ var JElementHelper = (function () {
         return div.children[0];
     };
     JElementHelper.initElements = function (container) {
+        if (!container || !container.children)
+            return;
         for (var i = 0; i < container.children.length; i++) {
             var child = container.children[i];
             var classType = JElementHelper.getControlTypeName(child.tagName);
@@ -1502,6 +1504,8 @@ var JDropdownList = (function (_super) {
 }(JList));
 if (document.addEventListener) {
     function removeElement(element) {
+        if (!element.children)
+            return;
         if (element.JControl) {
             element.JControl.dispose();
         }

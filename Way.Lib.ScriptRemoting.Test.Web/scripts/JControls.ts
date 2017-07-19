@@ -70,6 +70,9 @@ class JElementHelper {
 
 
     static initElements(container: HTMLElement) {
+        if (!container || !container.children)
+            return;
+
         for (var i = 0; i < container.children.length; i++) {
             var child = container.children[i];
             var classType = JElementHelper.getControlTypeName(child.tagName);
@@ -1803,6 +1806,9 @@ class JDropdownList extends JList {
 
 if (document.addEventListener) {
     function removeElement(element) {
+        if (!element.children)
+            return;//可能是#text
+
         if (element.JControl)
         {
             (<JControl>element.JControl).dispose();
