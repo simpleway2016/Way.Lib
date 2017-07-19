@@ -659,6 +659,7 @@ class JControl implements INotifyPropertyChanged {
 
         if (this._datacontext != value)
         {
+            var original = this._datacontext;
             this._datacontext = value;
             if (this.controlDataBinder)
             {
@@ -687,7 +688,7 @@ class JControl implements INotifyPropertyChanged {
 
                 this.checkDataContextPropertyExist();
             }
-            
+            this.onPropertyChanged("datacontext", original);
         }
     }
 
@@ -1136,6 +1137,7 @@ class JListItem extends JControl
     static StaticString: string = "JListItem_";
 
     id: string;
+
     private _index: number;
     get index(): number {
         return this._index;
@@ -1209,6 +1211,19 @@ class JList extends JControl {
         }
         this._itemsource = new JDataSource(value);
         this.bindItems();
+    }
+
+
+    private _height: number;
+    get height(): number {
+        return this._height;
+    }
+    set height(value: number) {
+        if (value != this._height) {
+            var original = this._height;
+            this._height = value;
+            this.onPropertyChanged("height", original);
+        }
     }
 
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {

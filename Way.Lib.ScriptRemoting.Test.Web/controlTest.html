@@ -43,20 +43,9 @@
     <input type="button" value="change text" onclick="btn1.text = 't1';"/>
     <input type="button" value="change name" onclick="btn1.datacontext.name = 'new name';" />
 
-    <JList id="list1" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
-        <script type="text/html">
-            <div id="itemContainer"></div>
-        </script>
+    <JCheckboxList id="list1" height="120" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+    </JCheckboxList>
 
-        <script for="item" type="text/html">
-            <div>
-                <input type="checkbox" databind="checked=@checked" expression="{0}.id={1}.$id;"><label expression="{0}.setAttribute('for' ,{1}.$id);">item</label>
-            </div>
-            
-        </script>
-    </JList>
-
-    <input type="checkbox" id="tt" a1="1" a1="2" onchange="alert(this.checked)" />
     <script lang="ja">
         window.onload = function ()
         {

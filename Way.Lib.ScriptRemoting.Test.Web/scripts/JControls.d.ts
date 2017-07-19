@@ -130,6 +130,8 @@ declare class JList extends JControl {
     protected itemTemplates: any[];
     private _itemsource;
     itemsource: JDataSource;
+    private _height;
+    height: number;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     protected loadTemplates(): void;
     protected onTemplateApply(): void;

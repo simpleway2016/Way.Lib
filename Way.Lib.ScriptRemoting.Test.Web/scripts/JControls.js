@@ -563,6 +563,7 @@ var JControl = (function () {
                 });
             }
             if (this._datacontext != value) {
+                var original = this._datacontext;
                 this._datacontext = value;
                 if (this.controlDataBinder) {
                     this.controlDataBinder.dispose();
@@ -584,6 +585,7 @@ var JControl = (function () {
                     }
                     this.checkDataContextPropertyExist();
                 }
+                this.onPropertyChanged("datacontext", original);
             }
         },
         enumerable: true,
@@ -981,6 +983,20 @@ var JList = (function (_super) {
             }
             this._itemsource = new JDataSource(value);
             this.bindItems();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JList.prototype, "height", {
+        get: function () {
+            return this._height;
+        },
+        set: function (value) {
+            if (value != this._height) {
+                var original = this._height;
+                this._height = value;
+                this.onPropertyChanged("height", original);
+            }
         },
         enumerable: true,
         configurable: true
