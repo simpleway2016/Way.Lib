@@ -424,13 +424,13 @@ var JControlExpressionBinder = (function (_super) {
     JControlExpressionBinder.prototype.getDatacontext = function () {
         var element;
         if (this.control instanceof JControl) {
-            element = this.control.element;
+            element = this.control.element.parentElement;
         }
         else {
             element = this.control;
         }
         var data;
-        var parent = this.control.parentElement;
+        var parent = this.control;
         while (parent) {
             if (parent.JControl) {
                 data = parent.JControl;

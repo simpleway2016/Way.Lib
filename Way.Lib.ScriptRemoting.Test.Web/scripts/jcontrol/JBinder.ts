@@ -513,14 +513,14 @@ class JControlExpressionBinder extends JDatacontextExpressionBinder {
     getDatacontext(): INotifyPropertyChanged {
         var element: HTMLElement;
         if (this.control instanceof JControl) {
-            element = (<JControl>this.control).element;
+            element = (<JControl>this.control).element.parentElement;
         }
         else {
             element = <HTMLElement>this.control;
         }
 
         var data;
-        var parent = (<HTMLElement>this.control).parentElement;
+        var parent = <HTMLElement>this.control;
         while (parent) {
             if ((<any>parent).JControl) {
                 data = (<any>parent).JControl;

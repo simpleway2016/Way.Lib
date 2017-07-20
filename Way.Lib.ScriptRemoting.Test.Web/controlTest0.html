@@ -20,7 +20,7 @@
 <body>
     
 
-    <JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
+    <!--<JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
         <script type="text/html">
             <div>
                 <input type="button" class="{bind $class}" value="{bind $text}" />
@@ -75,6 +75,12 @@
         radio:
         <JRadioList id="list2" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
         </JRadioList>
+    </div>-->
+
+    <div style="margin-top:20px;">
+        dropdownlist:
+        <JDropdownList id="list3" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+        </JDropdownList>
     </div>
     <script lang="ja">
         function removeitem()
@@ -102,6 +108,11 @@
             if (window.list2) {
                 list2.addPropertyChangedListener(function (sender, name, oldvalue) {
                     alert("radio " + name + " changed to " + sender[name]);
+                });
+            }
+            if (window.list3) {
+                list3.addPropertyChangedListener(function (sender, name, oldvalue) {
+                    alert("dropdownlist " + name + " changed to " + sender[name]);
                 });
             }
         }
