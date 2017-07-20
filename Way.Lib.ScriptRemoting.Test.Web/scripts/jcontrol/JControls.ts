@@ -279,7 +279,8 @@ class JControl implements INotifyPropertyChanged {
         else {
             this.datacontext = datacontext;
         }
-
+        //这里要手动绑定一次，虽然this.datacontext变化后会调用this.reApplyTemplate，但如果一开始是null，就不会调用了，所有这里要调用一次
+        this.reApplyTemplate(this.element ? this.element : this.originalElement);
 
         this.addPropertyChangedListener((s, name: string, value) => {
             for (var i = 0; i < this.templateMatchProNames.length; i++) {
@@ -880,7 +881,9 @@ class JCheckboxList extends JList
 
     protected addItem(data): JListItem {
         var item = super.addItem(data);
-        if (typeof data.checked == "undefined")
+
+        JBinder.addPropertyIfNotExist(data, "checked");
+        if (typeof data.checked == "undefined" || data.checked == null)
             data.checked = false;
 
         if (data instanceof JObserveObject)

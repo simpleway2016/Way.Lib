@@ -25,6 +25,18 @@ class JBinder
     constructor(control)
     {
         this.control = control;
+
+        var existed = false;
+        AllJBinders.every((binder: JBinder) => {
+            if (binder && binder.control == control && (<any>binder).constructor.name == (<any>this).constructor.name) {
+                existed = true;
+                return false;
+            }
+            return true;
+        });
+        if (existed)
+            return;
+
         this.bindingDataContext = this.getDatacontext();
     }
 
@@ -138,7 +150,8 @@ class JDatacontextBinder extends JBinder
     constructor( control) {
         super(control);
 
-        
+       
+
         if (!this.bindingDataContext)
             return;
 
@@ -447,7 +460,10 @@ class JDatacontextExpressionBinder extends JBinder {
 
             for (var i = 0; i < this.configs.length; i++)
             {
-                this.configs[i].expression = expressionStr;
+                if (!this.configs[i].expression)
+                {
+                    this.configs[i].expression = expressionStr;
+                }
             }
         }
     }
@@ -508,6 +524,7 @@ class JControlExpressionBinder extends JDatacontextExpressionBinder {
         while (parent) {
             if ((<any>parent).JControl) {
                 data = (<any>parent).JControl;
+                this.rootControl = data;
                 break;
             }
             else {

@@ -53,7 +53,7 @@ class JElementHelper {
 
         for (var i = 0; i < container.children.length; i++) {
             //子元素不用绑定，binder自动绑定子元素
-            JElementHelper.initElements(<HTMLElement>container.children[i], false);
+            JElementHelper.initElements(<HTMLElement>container.children[i], bind);
         }
 
         if (bind)
@@ -62,9 +62,12 @@ class JElementHelper {
             if ((<any>container).JControl) {
                 var jcontrol = <JControl>(<any>container).JControl;
                 if (jcontrol.datacontext) {
+                   
                     new JDatacontextBinder(container);
+                    new JDatacontextExpressionBinder(container);
                 }
                 new JControlBinder(container);
+                new JControlExpressionBinder(container);
             }
             else {
                 //查找parent
@@ -82,8 +85,10 @@ class JElementHelper {
                 if (jcontrol) {
                     if (jcontrol.datacontext) {
                         new JDatacontextBinder(container);
+                        new JDatacontextExpressionBinder(container);
                     }
                     new JControlBinder(container);
+                    new JControlExpressionBinder(container);
                 }
             }
         }

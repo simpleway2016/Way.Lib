@@ -71,6 +71,7 @@ var JControl = (function () {
         else {
             this.datacontext = datacontext;
         }
+        this.reApplyTemplate(this.element ? this.element : this.originalElement);
         this.addPropertyChangedListener(function (s, name, value) {
             for (var i = 0; i < _this.templateMatchProNames.length; i++) {
                 if (_this.templateMatchProNames[i] == "$" + name) {
@@ -760,7 +761,8 @@ var JCheckboxList = (function (_super) {
     JCheckboxList.prototype.addItem = function (data) {
         var _this = this;
         var item = _super.prototype.addItem.call(this, data);
-        if (typeof data.checked == "undefined")
+        JBinder.addPropertyIfNotExist(data, "checked");
+        if (typeof data.checked == "undefined" || data.checked == null)
             data.checked = false;
         if (data instanceof JObserveObject) {
             data.addPropertyChangedListener(function (s, name, o) { _this.onItemDataChanged(s, name, o); });

@@ -64,6 +64,12 @@
             </script>
         </JPanel>
     </div>
+
+    <div style="margin-top:20px;">
+        checkbox:
+        <JCheckboxList id="list1" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+        </JCheckboxList>
+    </div>
     <script lang="ja">
         function removeitem()
         {
@@ -71,10 +77,22 @@
         }
 
         window.onload = function () {
-            txt1.datacontext = {
-                name : "Jack",
-            };
-            panel1.datacontext = txt1.datacontext;
+            if (window.txt1)
+            {
+                txt1.datacontext = {
+                    name: "Jack",
+                };
+            }
+
+            if (window.panel1 && window.txt1) {
+                panel1.datacontext = txt1.datacontext;
+            }
+            
+            if (window.list1) {
+                list1.addPropertyChangedListener(function (sender, name, oldvalue) {
+                    alert("checkbox " + name + " changed to " + sender[name]);
+                });
+            }
 
         }
     </script>

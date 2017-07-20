@@ -24,8 +24,19 @@ var JBindExpression = (function () {
 }());
 var JBinder = (function () {
     function JBinder(control) {
+        var _this = this;
         this.disposed = false;
         this.control = control;
+        var existed = false;
+        AllJBinders.every(function (binder) {
+            if (binder && binder.control == control && binder.constructor.name == _this.constructor.name) {
+                existed = true;
+                return false;
+            }
+            return true;
+        });
+        if (existed)
+            return;
         this.bindingDataContext = this.getDatacontext();
     }
     JBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
@@ -371,7 +382,9 @@ var JDatacontextExpressionBinder = (function (_super) {
                 expressionStr = expressionStr.replace(result[0], "data." + dataPropertyName);
             }
             for (var i = 0; i < this.configs.length; i++) {
-                this.configs[i].expression = expressionStr;
+                if (!this.configs[i].expression) {
+                    this.configs[i].expression = expressionStr;
+                }
             }
         }
     };
@@ -421,6 +434,7 @@ var JControlExpressionBinder = (function (_super) {
         while (parent) {
             if (parent.JControl) {
                 data = parent.JControl;
+                this.rootControl = data;
                 break;
             }
             else {

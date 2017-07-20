@@ -40,15 +40,17 @@ var JElementHelper = (function () {
             return;
         }
         for (var i = 0; i < container.children.length; i++) {
-            JElementHelper.initElements(container.children[i], false);
+            JElementHelper.initElements(container.children[i], bind);
         }
         if (bind) {
             if (container.JControl) {
                 var jcontrol = container.JControl;
                 if (jcontrol.datacontext) {
                     new JDatacontextBinder(container);
+                    new JDatacontextExpressionBinder(container);
                 }
                 new JControlBinder(container);
+                new JControlExpressionBinder(container);
             }
             else {
                 var parent = container.parentElement;
@@ -65,8 +67,10 @@ var JElementHelper = (function () {
                 if (jcontrol) {
                     if (jcontrol.datacontext) {
                         new JDatacontextBinder(container);
+                        new JDatacontextExpressionBinder(container);
                     }
                     new JControlBinder(container);
+                    new JControlExpressionBinder(container);
                 }
             }
         }
