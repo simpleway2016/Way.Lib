@@ -52,6 +52,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="GridViewTest.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JBinder.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JInit.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JObserveObject.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />

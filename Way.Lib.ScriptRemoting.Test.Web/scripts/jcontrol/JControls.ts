@@ -24,103 +24,6 @@
 </JButton>
  */
 
-
-window.onerror = (errorMessage, scriptURI, lineNumber) => {
-    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
-}
-
-var AllJBinders: JBinder[] = [];
-
-interface INotifyPropertyChanged {
-    addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
-    removeListener(index: number);
-}
-
-class JElementHelper {
-    static SystemTemplateContainer: HTMLElement;
-
-    //把dst换成source
-    static replaceElement(source: HTMLElement, dst: HTMLElement) {
-        if (dst == dst.parentElement.children[dst.parentElement.children.length - 1]) {
-            var parent = dst.parentElement;
-            parent.removeChild(dst);
-            parent.appendChild(source);
-        }
-        else {
-            var nextlib = dst.nextElementSibling;
-            var parent = dst.parentElement;
-
-            parent.removeChild(dst);
-            parent.insertBefore(source, nextlib);
-        }
-    }
-
-    static getControlTypeName(tagname: string): string {
-        for (var name in window) {
-            if (name.toUpperCase() == tagname) {
-                return name;
-            }
-        }
-        return null;
-    }
-
-    static getElement(html: string): HTMLElement {
-        var div = document.createElement("DIV");
-        div.innerHTML = html;
-        return <HTMLElement>div.children[0];
-    }
-
-
-    static initElements(container: HTMLElement, bind: boolean) {
-        if (!container || !container.children)//防止#text
-            return;
-
-        var classType = JElementHelper.getControlTypeName(container.tagName);
-        if (classType) {
-            eval("new " + classType + "(container)");
-            return;
-        }
-
-        for (var i = 0; i < container.children.length; i++) {
-            JElementHelper.initElements(<HTMLElement>container.children[i], bind);
-        }
-
-
-        if (bind)
-        {
-            //如果是htmlelement
-            if ((<any>container).JControl) {
-                var jcontrol = <JControl>(<any>container).JControl;
-                if (jcontrol.datacontext) {
-                    new JDatacontextBinder(jcontrol.datacontext, container);
-                }
-                new JControlBinder(jcontrol, container);
-            }
-            else {
-                //查找parent
-                var parent = container.parentElement;
-                var jcontrol: JControl;
-                while (parent) {
-                    if ((<any>parent).JControl) {
-                        jcontrol = <JControl>(<any>parent).JControl;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-                if (jcontrol) {
-                    if (jcontrol.datacontext) {
-                        new JDatacontextBinder(jcontrol.datacontext, container);
-                    }
-                    new JControlBinder(jcontrol, container);
-                }
-            }
-        }
-    }
-}
-
-
 class JControl implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number {
         this.onPropertyChangeds.push(func);
@@ -137,8 +40,22 @@ class JControl implements INotifyPropertyChanged {
                 this.onPropertyChangeds[i](this, proName, originalValue);
             }
         }
-    }
 
+        AllJBinders.forEach((binder: JBinder) => {
+            if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Control") >= 0) {
+                binder.onPropertyChanged(this, proName, originalValue);
+            }
+        });
+    }
+    protected onDatacontextPropertyChanged(datacontext, proName: string, originalValue: any) {
+        AllJBinders.forEach((binder: JBinder) => {
+            if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
+                binder.onPropertyChanged(datacontext, proName, originalValue);
+            }
+        });
+       
+    }
+    
     originalElement: HTMLElement;
     element: HTMLElement;
     onPropertyChangeds = [];
@@ -150,9 +67,8 @@ class JControl implements INotifyPropertyChanged {
     protected templateMatchProNames :string[] = [];
 
     protected currentTemplate: HTMLElement;
-    
 
-    private isParentDataContext: boolean = false;
+    private _datacontext_listen_index: number;
     private _datacontext: any;
     get datacontext()
     {
@@ -187,32 +103,40 @@ class JControl implements INotifyPropertyChanged {
 
         if (this._datacontext != value)
         {
+            if (this._datacontext_listen_index)
+            {
+                (<INotifyPropertyChanged>this._datacontext).removeListener(this._datacontext_listen_index);
+                this._datacontext_listen_index = 0;
+            }
+           
             var original = this._datacontext;
             this._datacontext = value;
 
-            for (var i = 0; i < AllJBinders.length; i++) {
-                if (AllJBinders[i] && AllJBinders[i].datacontext == original && AllJBinders[i].control == this
-                    && (<any>AllJBinders[i]).constructor.name == "JDatacontextBinder" ) {
-                    AllJBinders[i].dispose();
-                    AllJBinders[i] = null;
+            AllJBinders.forEach((binder: JBinder, index: number) => {
+                if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
+                    AllJBinders[index].dispose();
+                    delete AllJBinders[index];
+                    AllJBinders[index] = null;
                 }
-            }
+            });
 
             if (value)
             {
                 if (value) {
                     //JControlDataBinder用于把<JControl>标签和datacontext绑定
-                    new JDatacontextBinder(value, this);
+                    new JDatacontextBinder(this);
 
-                    new JDatacontextExpressionBinder(value, this);
-                }
-                if (this.element) {
-                    this.setChildrenDataContext(this.element, value);
+                    new JDatacontextExpressionBinder(this);
                 }
 
                 this.checkDataContextPropertyExist();
+
+                this._datacontext_listen_index = (<INotifyPropertyChanged>value).addPropertyChangedListener((sender, name, oldvalue) => this.onDatacontextPropertyChanged(sender, name, oldvalue));
             }
             this.onPropertyChanged("datacontext", original);
+
+            this.checkDataContextPropertyExist();
+            this.reApplyTemplate(this.element ? this.element : this.originalElement);
         }
     }
 
@@ -225,20 +149,21 @@ class JControl implements INotifyPropertyChanged {
     {
         if (this._parentJControl != value)
         {
-            for (var i = 0; i < AllJBinders.length; i++) {
-                if (AllJBinders[i] && AllJBinders[i].datacontext == this._parentJControl && AllJBinders[i].control == this
-                    && (<any>AllJBinders[i]).constructor.name == "JControlBinder") {
-                    AllJBinders[i].dispose();
-                    AllJBinders[i] = null;
+
+            AllJBinders.forEach((binder: JBinder, index: number) => {
+                if (binder && binder.control == this && (<any>binder).constructor.name.indexOf("Control") >= 0) {
+                    AllJBinders[index].dispose();
+                    delete AllJBinders[index];
+                    AllJBinders[index] = null;
                 }
-            }
+            });
 
             this._parentJControl = value;
             
 
             if (value) {
-                new JControlBinder(value, this);
-                new JControlExpressionBinder(value, this);
+                new JControlBinder(this);
+                new JControlExpressionBinder(this);
             }
         }
     }
@@ -347,7 +272,6 @@ class JControl implements INotifyPropertyChanged {
             }
         }
 
-        this.isParentDataContext = false;
         if (this.originalElement.getAttribute("datacontext") && this.originalElement.getAttribute("datacontext").length > 0)
         {
             this.datacontext = this.originalElement.getAttribute("datacontext");
@@ -355,24 +279,7 @@ class JControl implements INotifyPropertyChanged {
         else {
             this.datacontext = datacontext;
         }
-        if (!this.datacontext) {
-            //如果自己没有数据源，查看parent的数据源
-            var parent = this.element.parentElement;
-            while (parent && !this.datacontext) {
-                if ((<any>parent).JControl) {
-                    this.isParentDataContext = true;
-                    this.datacontext = (<JControl>(<any>parent).JControl).datacontext;
-                    break;
-                }
-                else {
-                    parent = parent.parentElement;
-                }
-            }
-        }
 
-        this.checkDataContextPropertyExist();
-
-        this.reApplyTemplate(this.originalElement);
 
         this.addPropertyChangedListener((s, name: string, value) => {
             for (var i = 0; i < this.templateMatchProNames.length; i++) {
@@ -410,17 +317,7 @@ class JControl implements INotifyPropertyChanged {
 
     dispose()
     {
-        if (this.isParentDataContext)
-        {
-            this.datacontext = null;
-        }
-        for (var i = 0; i < AllJBinders.length; i++) {
-            if (AllJBinders[i] && AllJBinders[i].control == this) {
-                AllJBinders[i].dispose();
-                delete AllJBinders[i];
-                AllJBinders[i] = null;
-            }
-        }
+
     }
 
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture?: boolean) {
@@ -580,22 +477,6 @@ class JControl implements INotifyPropertyChanged {
 
     }
 
-    protected setChildrenDataContext(element: HTMLElement, datacontext) {
-        for (var i = 0; i < element.children.length; i++) {
-            var child = element.children[i];
-            if ((<any>child).JControl) {
-                if (!(<JControl>(<any>child).JControl).datacontext) {
-                    (<JControl>(<any>child).JControl).datacontext = datacontext;
-                }
-            }
-            else {
-                new JDatacontextBinder(datacontext, <HTMLElement>child);
-                new JDatacontextExpressionBinder(datacontext, <HTMLElement>child);
-
-                this.setChildrenDataContext(<HTMLElement>child, datacontext);
-            }
-        }
-    }
 
     protected getTemplate(): HTMLElement {
         if (this.templates.length == 0)
@@ -663,6 +544,25 @@ class JButton extends JControl{
         super(element, templates, datacontext);
     }
 }
+
+class JPanel extends JControl {
+    private _content;
+    get content(): string {
+        return this._content;
+    }
+    set content(value: string) {
+        if (value != this._content) {
+            var originalValue = this._content;
+            this._content = value;
+            this.onPropertyChanged("content", originalValue);
+        }
+    }
+
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
+    }
+}
+
 class JTextbox extends JButton {
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
@@ -1122,87 +1022,3 @@ class JDropdownList extends JList {
     }
 }
 
-if (document.addEventListener) {
-    function removeElement(element) {
-        if (!element.children)
-            return;//可能是#text
-
-        if (element.JControl)
-        {
-            (<JControl>element.JControl).dispose();
-            
-        }
-
-        for (var i = 0; i < AllJBinders.length; i++) {
-            if (AllJBinders[i] && AllJBinders[i].control == element) {
-                AllJBinders[i].dispose();
-                delete AllJBinders[i];
-                AllJBinders[i] = null;
-            }
-        }
-
-        for (var i = 0; i < element.children.length; i++) {
-            removeElement(element.children[i]);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var bodytemplate = document.body.getAttribute("template");
-        if (!bodytemplate || bodytemplate.length == 0) {
-            bodytemplate = "/templates/system.html";
-        }
-        var templateHtml = JHttpHelper.downloadUrl(bodytemplate);
-        JElementHelper.SystemTemplateContainer = document.createElement("DIV");
-        JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
-        var style = JElementHelper.SystemTemplateContainer.querySelector("style");
-        if (style) {
-            document.head.appendChild(style);
-        }
-
-      
-
-        //监视document.body子元素变动事件，新加入的element，转换JControl，这个监听是个异步事件模式
-        var MutationObserver = (<any>window).MutationObserver ||
-            (<any>window).WebKitMutationObserver ||
-            (<any>window).MozMutationObserver;
-
-        var mutationObserverSupport = !!MutationObserver;
-        if (mutationObserverSupport) {
-            try {
-                var options = {
-                    'childList': true,
-                    subtree: true,
-                };
-                var callback = function (records) {//MutationRecord
-                    records.map(function (record) {
-                        if (record.addedNodes) {
-                            for (var i = 0; i < record.addedNodes.length; i++) {
-                                //转换JControl
-                                JElementHelper.initElements(record.addedNodes[i], true);
-                            }
-                        }
-
-                        if (record.removedNodes) {
-                            for (var i = 0; i < record.removedNodes.length; i++) {
-                                //dispose相关JControl
-                                removeElement(record.removedNodes[i]);
-                            }
-                        }
-                        
-                    });
-                };
-
-                var observer = new MutationObserver(callback);
-                observer.observe(document.body, options);
-
-            }
-            catch (e) {
-                alert(e.message);
-            }
-        }
-
-
-        JElementHelper.initElements(document.body, false);
-
-    }, false);
-}

@@ -1,19 +1,8 @@
-declare var AllJBinders: JBinder[];
-interface INotifyPropertyChanged {
-    addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
-    removeListener(index: number): any;
-}
-declare class JElementHelper {
-    static SystemTemplateContainer: HTMLElement;
-    static replaceElement(source: HTMLElement, dst: HTMLElement): void;
-    static getControlTypeName(tagname: string): string;
-    static getElement(html: string): HTMLElement;
-    static initElements(container: HTMLElement, bind: boolean): void;
-}
 declare class JControl implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number;
     removeListener(index: number): void;
     protected onPropertyChanged(proName: string, originalValue: any): void;
+    protected onDatacontextPropertyChanged(datacontext: any, proName: string, originalValue: any): void;
     originalElement: HTMLElement;
     element: HTMLElement;
     onPropertyChangeds: any[];
@@ -22,7 +11,7 @@ declare class JControl implements INotifyPropertyChanged {
     protected templates: HTMLElement[];
     protected templateMatchProNames: string[];
     protected currentTemplate: HTMLElement;
-    private isParentDataContext;
+    private _datacontext_listen_index;
     private _datacontext;
     datacontext: any;
     private _parentJControl;
@@ -42,12 +31,16 @@ declare class JControl implements INotifyPropertyChanged {
     private checkDataContextPropertyExist();
     private reApplyTemplate(rootElement);
     protected onTemplateApply(): void;
-    protected setChildrenDataContext(element: HTMLElement, datacontext: any): void;
     protected getTemplate(): HTMLElement;
 }
 declare class JButton extends JControl {
     private _text;
     text: string;
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+}
+declare class JPanel extends JControl {
+    private _content;
+    content: string;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JTextbox extends JButton {

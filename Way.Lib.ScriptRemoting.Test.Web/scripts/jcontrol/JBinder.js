@@ -23,13 +23,53 @@ var JBindExpression = (function () {
     return JBindExpression;
 }());
 var JBinder = (function () {
-    function JBinder(data, control) {
+    function JBinder(control) {
         this.disposed = false;
-        this.datacontext = data;
         this.control = control;
+        this.bindingDataContext = this.getDatacontext();
     }
+    JBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
+    };
+    JBinder.prototype.getDatacontext = function () {
+        if (this.control instanceof JControl) {
+            this.rootControl = this.control;
+            var data = this.control.datacontext;
+            if (data == null && this.control.element) {
+                var parent = this.control.element.parentElement;
+                while (parent) {
+                    if (parent.JControl) {
+                        this.rootControl = parent.JControl;
+                        data = this.rootControl.datacontext;
+                        if (data)
+                            break;
+                    }
+                    else {
+                        parent = parent.parentElement;
+                    }
+                }
+            }
+            return data;
+        }
+        else {
+            var data;
+            var parent = this.control;
+            while (parent) {
+                if (parent.JControl) {
+                    this.rootControl = parent.JControl;
+                    data = this.rootControl.datacontext;
+                    if (data)
+                        break;
+                }
+                else {
+                    parent = parent.parentElement;
+                }
+            }
+            return data;
+        }
+    };
     JBinder.prototype.dispose = function () {
         this.disposed = true;
+        this.rootControl = null;
     };
     JBinder.addPropertyIfNotExist = function (data, propertyName) {
         if (data instanceof JObserveObject) {
@@ -72,11 +112,11 @@ var JBinder = (function () {
 }());
 var JDatacontextBinder = (function (_super) {
     __extends(JDatacontextBinder, _super);
-    function JDatacontextBinder(data, control) {
-        var _this = _super.call(this, data, control) || this;
+    function JDatacontextBinder(control) {
+        var _this = _super.call(this, control) || this;
         _this.configs = [];
-        _this.propertyChangedListenerIndex = 0;
-        _this.controlPropertyChangedListenerIndex = 0;
+        if (!_this.bindingDataContext)
+            return _this;
         var databind;
         if (control instanceof JControl) {
             databind = control.databind;
@@ -85,8 +125,6 @@ var JDatacontextBinder = (function (_super) {
             JBinder.moveAttributeBindToDatabind(control);
             databind = control.getAttribute("databind");
         }
-        if (!databind)
-            return _this;
         var regexp = _this.getRegexp();
         while (true) {
             var result = regexp.exec(databind);
@@ -95,15 +133,12 @@ var JDatacontextBinder = (function (_super) {
             var elementPropertyName = result[1];
             var dataPropertyName = result[2];
             _this.configs.push(new JBindConfig(dataPropertyName, elementPropertyName));
-            JBinder.addPropertyIfNotExist(data, dataPropertyName);
+            JBinder.addPropertyIfNotExist(_this.bindingDataContext, dataPropertyName);
             databind = databind.substr(result.index + result[0].length);
         }
-        if (_this.configs.length > 0) {
-            _this.propertyChangedListenerIndex = _this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
-        }
-        else if (control instanceof JControl) {
-            _this.controlPropertyChangedListenerIndex =
-                control.addPropertyChangedListener(function (s, n, o) { return _this.onControlPropertyChanged(s, n, o); });
+        if (control instanceof JControl) {
+            var jcontrol = control;
+            _this.controlListenIndex = jcontrol.addPropertyChangedListener(function (s, n, o) { _this.onControlPropertyChanged(s, n, o); });
         }
         else {
             var element = control;
@@ -115,17 +150,37 @@ var JDatacontextBinder = (function (_super) {
         }
         if (_this.configs.length > 0) {
             AllJBinders.push(_this);
+            _this.updateValue();
         }
-        _this.updateValue();
-        _this.bindChildren();
+        _this.bindChildren(_this.control instanceof JControl ? _this.control.element : _this.control);
         return _this;
     }
+    JDatacontextBinder.prototype.bindChildren = function (element) {
+        var _this = this;
+        if (!element)
+            return;
+        for (var i = 0; i < element.children.length; i++) {
+            var existed = false;
+            AllJBinders.every(function (binder) {
+                if (binder && binder.control == element.children[i] && binder.constructor.name == _this.constructor.name) {
+                    existed = true;
+                    return false;
+                }
+                return true;
+            });
+            if (!existed) {
+                var ele = element.children[i];
+                var typename = this.constructor.name;
+                eval("new " + typename + "(ele)");
+            }
+        }
+    };
     JDatacontextBinder.prototype.updateValue = function () {
+        var data = this.getDatacontext();
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
             try {
                 var value;
-                var data = this.datacontext;
                 var control = this.control;
                 eval("value=data." + config.dataPropertyName);
                 if (value) {
@@ -133,20 +188,6 @@ var JDatacontextBinder = (function (_super) {
                 }
             }
             catch (e) {
-            }
-        }
-    };
-    JDatacontextBinder.prototype.bindChildren = function () {
-        if (this.control instanceof JControl) {
-            var jcontrol = this.control;
-            if (jcontrol.element) {
-                AllJBinders.push(new JDatacontextBinder(this.datacontext, jcontrol.element));
-            }
-        }
-        else {
-            var element = this.control;
-            for (var i = 0; i < element.children.length; i++) {
-                AllJBinders.push(new JDatacontextBinder(this.datacontext, element.children[i]));
             }
         }
     };
@@ -170,7 +211,7 @@ var JDatacontextBinder = (function (_super) {
         return function () {
             if (self.disposed)
                 return;
-            var data = self.datacontext;
+            var data = self.getDatacontext();
             var control = self.control;
             try {
                 eval("data." + config.dataPropertyName + " = control." + config.elementPropertyName);
@@ -183,11 +224,10 @@ var JDatacontextBinder = (function (_super) {
         if (this.disposed)
             return;
         try {
-            var src = this;
             var config = this.getConfigByDataProName(name);
             if (config) {
-                var data = src.datacontext;
-                var control = src.control;
+                var data = sender;
+                var control = this.control;
                 eval("control." + config.elementPropertyName + " = data." + config.dataPropertyName);
             }
         }
@@ -198,11 +238,10 @@ var JDatacontextBinder = (function (_super) {
         try {
             if (this.disposed)
                 return;
-            var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {
-                var data = self.datacontext;
-                var control = self.control;
+                var data = this.getDatacontext();
+                var control = this.control;
                 eval("data." + config.dataPropertyName + " = control." + name);
             }
         }
@@ -212,13 +251,9 @@ var JDatacontextBinder = (function (_super) {
     JDatacontextBinder.prototype.dispose = function () {
         _super.prototype.dispose.call(this);
         this.disposed = true;
-        if (this.propertyChangedListenerIndex) {
-            this.datacontext.removeListener(this.propertyChangedListenerIndex);
-            this.propertyChangedListenerIndex = 0;
-        }
-        if (this.control instanceof JControl && this.controlPropertyChangedListenerIndex) {
-            this.control.removeListener(this.controlPropertyChangedListenerIndex);
-            this.controlPropertyChangedListenerIndex = 0;
+        if (this.controlListenIndex) {
+            this.control.removeListener(this.controlListenIndex);
+            this.controlListenIndex = 0;
         }
         this.configs = [];
     };
@@ -229,22 +264,30 @@ var JDatacontextBinder = (function (_super) {
 }(JBinder));
 var JControlBinder = (function (_super) {
     __extends(JControlBinder, _super);
-    function JControlBinder(data, control) {
-        return _super.call(this, data, control) || this;
+    function JControlBinder(control) {
+        return _super.call(this, control) || this;
     }
-    JControlBinder.prototype.bindChildren = function () {
+    JControlBinder.prototype.getDatacontext = function () {
+        var element;
         if (this.control instanceof JControl) {
-            var jcontrol = this.control;
-            if (jcontrol.element) {
-                AllJBinders.push(new JControlBinder(jcontrol, jcontrol.element));
-            }
+            element = this.control.element.parentElement;
         }
         else {
-            var element = this.control;
-            for (var i = 0; i < element.children.length; i++) {
-                AllJBinders.push(new JControlBinder(this.datacontext, element.children[i]));
+            element = this.control;
+        }
+        var data;
+        var parent = element;
+        while (parent) {
+            if (parent.JControl) {
+                data = parent.JControl;
+                this.rootControl = data;
+                break;
+            }
+            else {
+                parent = parent.parentElement;
             }
         }
+        return data;
     };
     JControlBinder.prototype.getRegexp = function () {
         return /([\w|\.]+)[ ]?=[ ]?\$([\w|\.]+)/;
@@ -253,10 +296,11 @@ var JControlBinder = (function (_super) {
 }(JDatacontextBinder));
 var JDatacontextExpressionBinder = (function (_super) {
     __extends(JDatacontextExpressionBinder, _super);
-    function JDatacontextExpressionBinder(data, control) {
-        var _this = _super.call(this, data, control) || this;
+    function JDatacontextExpressionBinder(control) {
+        var _this = _super.call(this, control) || this;
         _this.configs = [];
-        _this.propertyChangedListenerIndex = 0;
+        if (!_this.bindingDataContext)
+            return _this;
         var expressionStr;
         if (control instanceof JControl) {
             for (var pro in control) {
@@ -275,19 +319,38 @@ var JDatacontextExpressionBinder = (function (_super) {
             }
         }
         if (_this.configs.length > 0) {
-            _this.propertyChangedListenerIndex = _this.datacontext.addPropertyChangedListener(function (s, n, o) { return _this.onPropertyChanged(s, n, o); });
             AllJBinders.push(_this);
         }
         _this.updateValue();
-        _this.bindChildren();
+        _this.bindChildren(_this.control instanceof JControl ? _this.control.element : _this.control);
         return _this;
     }
+    JDatacontextExpressionBinder.prototype.bindChildren = function (element) {
+        var _this = this;
+        if (!element)
+            return;
+        for (var i = 0; i < element.children.length; i++) {
+            var existed = false;
+            AllJBinders.every(function (binder) {
+                if (binder && binder.control == element.children[i] && binder.constructor.name == _this.constructor.name) {
+                    existed = true;
+                    return false;
+                }
+                return true;
+            });
+            if (!existed) {
+                var ele = element.children[i];
+                var typename = this.constructor.name;
+                eval("new " + typename + "(ele)");
+            }
+        }
+    };
     JDatacontextExpressionBinder.prototype.updateValue = function () {
         for (var i = 0; i < this.configs.length; i++) {
             var exconfig = this.configs[i];
             if (exconfig) {
                 var element = this.control;
-                var data = this.datacontext;
+                var data = this.getDatacontext();
                 eval(exconfig.expression);
             }
         }
@@ -295,6 +358,7 @@ var JDatacontextExpressionBinder = (function (_super) {
     JDatacontextExpressionBinder.prototype.handleExpression = function (expressionStr) {
         var original;
         var expression_exp = this.getRegexp();
+        var datacontext = this.getDatacontext();
         expressionStr = expressionStr.replace(/\{0\}\./g, "element.");
         if (expressionStr) {
             while (true) {
@@ -303,24 +367,11 @@ var JDatacontextExpressionBinder = (function (_super) {
                     break;
                 var dataPropertyName = result[1];
                 this.configs.push(new JBindExpression(dataPropertyName, null));
-                JBinder.addPropertyIfNotExist(this.datacontext, dataPropertyName);
+                JBinder.addPropertyIfNotExist(datacontext, dataPropertyName);
                 expressionStr = expressionStr.replace(result[0], "data." + dataPropertyName);
             }
             for (var i = 0; i < this.configs.length; i++) {
                 this.configs[i].expression = expressionStr;
-            }
-        }
-    };
-    JDatacontextExpressionBinder.prototype.bindChildren = function () {
-        if (this.control instanceof JControl) {
-            var jcontrol = this.control;
-            if (jcontrol.element)
-                AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, jcontrol.element));
-        }
-        else {
-            var element = this.control;
-            for (var i = 0; i < element.children.length; i++) {
-                AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, element.children[i]));
             }
         }
     };
@@ -338,17 +389,13 @@ var JDatacontextExpressionBinder = (function (_super) {
         var config = this.getConfigByDataProName(name);
         if (config) {
             var element = this.control;
-            var data = this.datacontext;
+            var data = sender;
             eval(config.expression);
         }
     };
     JDatacontextExpressionBinder.prototype.dispose = function () {
         _super.prototype.dispose.call(this);
         this.disposed = true;
-        if (this.propertyChangedListenerIndex) {
-            this.datacontext.removeListener(this.propertyChangedListenerIndex);
-            this.propertyChangedListenerIndex = 0;
-        }
         this.configs = [];
     };
     JDatacontextExpressionBinder.prototype.getRegexp = function () {
@@ -358,9 +405,30 @@ var JDatacontextExpressionBinder = (function (_super) {
 }(JBinder));
 var JControlExpressionBinder = (function (_super) {
     __extends(JControlExpressionBinder, _super);
-    function JControlExpressionBinder(data, control) {
-        return _super.call(this, data, control) || this;
+    function JControlExpressionBinder(control) {
+        return _super.call(this, control) || this;
     }
+    JControlExpressionBinder.prototype.getDatacontext = function () {
+        var element;
+        if (this.control instanceof JControl) {
+            element = this.control.element;
+        }
+        else {
+            element = this.control;
+        }
+        var data;
+        var parent = this.control.parentElement;
+        while (parent) {
+            if (parent.JControl) {
+                data = parent.JControl;
+                break;
+            }
+            else {
+                parent = parent.parentElement;
+            }
+        }
+        return data;
+    };
     JControlExpressionBinder.prototype.getRegexp = function () {
         return /\{1\}\.\$([\w|\.]+)/;
     };

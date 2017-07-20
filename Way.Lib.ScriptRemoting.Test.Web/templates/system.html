@@ -9,6 +9,12 @@
     </script>
 </JButton>
 
+<JPanel>
+    <script type="text/html">
+        <div databind="className=$class;innerHTML=$content" />
+    </script>
+</JPanel>
+
 <JTextbox>
     <script type="text/html">
         <input type="text" value="{bind $text}" databind="className=$class" />

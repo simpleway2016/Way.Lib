@@ -8,81 +8,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-window.onerror = function (errorMessage, scriptURI, lineNumber) {
-    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
-};
-var AllJBinders = [];
-var JElementHelper = (function () {
-    function JElementHelper() {
-    }
-    JElementHelper.replaceElement = function (source, dst) {
-        if (dst == dst.parentElement.children[dst.parentElement.children.length - 1]) {
-            var parent = dst.parentElement;
-            parent.removeChild(dst);
-            parent.appendChild(source);
-        }
-        else {
-            var nextlib = dst.nextElementSibling;
-            var parent = dst.parentElement;
-            parent.removeChild(dst);
-            parent.insertBefore(source, nextlib);
-        }
-    };
-    JElementHelper.getControlTypeName = function (tagname) {
-        for (var name in window) {
-            if (name.toUpperCase() == tagname) {
-                return name;
-            }
-        }
-        return null;
-    };
-    JElementHelper.getElement = function (html) {
-        var div = document.createElement("DIV");
-        div.innerHTML = html;
-        return div.children[0];
-    };
-    JElementHelper.initElements = function (container, bind) {
-        if (!container || !container.children)
-            return;
-        var classType = JElementHelper.getControlTypeName(container.tagName);
-        if (classType) {
-            eval("new " + classType + "(container)");
-            return;
-        }
-        for (var i = 0; i < container.children.length; i++) {
-            JElementHelper.initElements(container.children[i], bind);
-        }
-        if (bind) {
-            if (container.JControl) {
-                var jcontrol = container.JControl;
-                if (jcontrol.datacontext) {
-                    new JDatacontextBinder(jcontrol.datacontext, container);
-                }
-                new JControlBinder(jcontrol, container);
-            }
-            else {
-                var parent = container.parentElement;
-                var jcontrol;
-                while (parent) {
-                    if (parent.JControl) {
-                        jcontrol = parent.JControl;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-                if (jcontrol) {
-                    if (jcontrol.datacontext) {
-                        new JDatacontextBinder(jcontrol.datacontext, container);
-                    }
-                    new JControlBinder(jcontrol, container);
-                }
-            }
-        }
-    };
-    return JElementHelper;
-}());
 var JControl = (function () {
     function JControl(element, templates, datacontext) {
         if (templates === void 0) { templates = null; }
@@ -91,7 +16,6 @@ var JControl = (function () {
         this.onPropertyChangeds = [];
         this.templates = [];
         this.templateMatchProNames = [];
-        this.isParentDataContext = false;
         this.originalElement = element;
         if (templates) {
             for (var i = 0; i < templates.length; i++) {
@@ -141,28 +65,12 @@ var JControl = (function () {
                 }
             }
         }
-        this.isParentDataContext = false;
         if (this.originalElement.getAttribute("datacontext") && this.originalElement.getAttribute("datacontext").length > 0) {
             this.datacontext = this.originalElement.getAttribute("datacontext");
         }
         else {
             this.datacontext = datacontext;
         }
-        if (!this.datacontext) {
-            var parent = this.element.parentElement;
-            while (parent && !this.datacontext) {
-                if (parent.JControl) {
-                    this.isParentDataContext = true;
-                    this.datacontext = parent.JControl.datacontext;
-                    break;
-                }
-                else {
-                    parent = parent.parentElement;
-                }
-            }
-        }
-        this.checkDataContextPropertyExist();
-        this.reApplyTemplate(this.originalElement);
         this.addPropertyChangedListener(function (s, name, value) {
             for (var i = 0; i < _this.templateMatchProNames.length; i++) {
                 if (_this.templateMatchProNames[i] == "$" + name) {
@@ -180,11 +88,25 @@ var JControl = (function () {
         this.onPropertyChangeds[index] = null;
     };
     JControl.prototype.onPropertyChanged = function (proName, originalValue) {
+        var _this = this;
         for (var i = 0; i < this.onPropertyChangeds.length; i++) {
             if (this.onPropertyChangeds[i]) {
                 this.onPropertyChangeds[i](this, proName, originalValue);
             }
         }
+        AllJBinders.forEach(function (binder) {
+            if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Control") >= 0) {
+                binder.onPropertyChanged(_this, proName, originalValue);
+            }
+        });
+    };
+    JControl.prototype.onDatacontextPropertyChanged = function (datacontext, proName, originalValue) {
+        var _this = this;
+        AllJBinders.forEach(function (binder) {
+            if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Datacontext") >= 0) {
+                binder.onPropertyChanged(datacontext, proName, originalValue);
+            }
+        });
     };
     Object.defineProperty(JControl.prototype, "datacontext", {
         get: function () {
@@ -212,26 +134,30 @@ var JControl = (function () {
                 });
             }
             if (this._datacontext != value) {
+                if (this._datacontext_listen_index) {
+                    this._datacontext.removeListener(this._datacontext_listen_index);
+                    this._datacontext_listen_index = 0;
+                }
                 var original = this._datacontext;
                 this._datacontext = value;
-                for (var i = 0; i < AllJBinders.length; i++) {
-                    if (AllJBinders[i] && AllJBinders[i].datacontext == original && AllJBinders[i].control == this
-                        && AllJBinders[i].constructor.name == "JDatacontextBinder") {
-                        AllJBinders[i].dispose();
-                        AllJBinders[i] = null;
+                AllJBinders.forEach(function (binder, index) {
+                    if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Datacontext") >= 0) {
+                        AllJBinders[index].dispose();
+                        delete AllJBinders[index];
+                        AllJBinders[index] = null;
                     }
-                }
+                });
                 if (value) {
                     if (value) {
-                        new JDatacontextBinder(value, this);
-                        new JDatacontextExpressionBinder(value, this);
-                    }
-                    if (this.element) {
-                        this.setChildrenDataContext(this.element, value);
+                        new JDatacontextBinder(this);
+                        new JDatacontextExpressionBinder(this);
                     }
                     this.checkDataContextPropertyExist();
+                    this._datacontext_listen_index = value.addPropertyChangedListener(function (sender, name, oldvalue) { return _this.onDatacontextPropertyChanged(sender, name, oldvalue); });
                 }
                 this.onPropertyChanged("datacontext", original);
+                this.checkDataContextPropertyExist();
+                this.reApplyTemplate(this.element ? this.element : this.originalElement);
             }
         },
         enumerable: true,
@@ -242,18 +168,19 @@ var JControl = (function () {
             return this._parentJControl;
         },
         set: function (value) {
+            var _this = this;
             if (this._parentJControl != value) {
-                for (var i = 0; i < AllJBinders.length; i++) {
-                    if (AllJBinders[i] && AllJBinders[i].datacontext == this._parentJControl && AllJBinders[i].control == this
-                        && AllJBinders[i].constructor.name == "JControlBinder") {
-                        AllJBinders[i].dispose();
-                        AllJBinders[i] = null;
+                AllJBinders.forEach(function (binder, index) {
+                    if (binder && binder.control == _this && binder.constructor.name.indexOf("Control") >= 0) {
+                        AllJBinders[index].dispose();
+                        delete AllJBinders[index];
+                        AllJBinders[index] = null;
                     }
-                }
+                });
                 this._parentJControl = value;
                 if (value) {
-                    new JControlBinder(value, this);
-                    new JControlExpressionBinder(value, this);
+                    new JControlBinder(this);
+                    new JControlExpressionBinder(this);
                 }
             }
         },
@@ -324,16 +251,6 @@ var JControl = (function () {
         }
     };
     JControl.prototype.dispose = function () {
-        if (this.isParentDataContext) {
-            this.datacontext = null;
-        }
-        for (var i = 0; i < AllJBinders.length; i++) {
-            if (AllJBinders[i] && AllJBinders[i].control == this) {
-                AllJBinders[i].dispose();
-                delete AllJBinders[i];
-                AllJBinders[i] = null;
-            }
-        }
     };
     JControl.prototype.addEventListener = function (type, listener, useCapture) {
         if (this.element && listener) {
@@ -457,21 +374,6 @@ var JControl = (function () {
     };
     JControl.prototype.onTemplateApply = function () {
     };
-    JControl.prototype.setChildrenDataContext = function (element, datacontext) {
-        for (var i = 0; i < element.children.length; i++) {
-            var child = element.children[i];
-            if (child.JControl) {
-                if (!child.JControl.datacontext) {
-                    child.JControl.datacontext = datacontext;
-                }
-            }
-            else {
-                new JDatacontextBinder(datacontext, child);
-                new JDatacontextExpressionBinder(datacontext, child);
-                this.setChildrenDataContext(child, datacontext);
-            }
-        }
-    };
     JControl.prototype.getTemplate = function () {
         if (this.templates.length == 0)
             return null;
@@ -536,6 +438,29 @@ var JButton = (function (_super) {
         configurable: true
     });
     return JButton;
+}(JControl));
+var JPanel = (function (_super) {
+    __extends(JPanel, _super);
+    function JPanel(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        return _super.call(this, element, templates, datacontext) || this;
+    }
+    Object.defineProperty(JPanel.prototype, "content", {
+        get: function () {
+            return this._content;
+        },
+        set: function (value) {
+            if (value != this._content) {
+                var originalValue = this._content;
+                this._content = value;
+                this.onPropertyChanged("content", originalValue);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return JPanel;
 }(JControl));
 var JTextbox = (function (_super) {
     __extends(JTextbox, _super);
@@ -967,68 +892,4 @@ var JDropdownList = (function (_super) {
     };
     return JDropdownList;
 }(JList));
-if (document.addEventListener) {
-    function removeElement(element) {
-        if (!element.children)
-            return;
-        if (element.JControl) {
-            element.JControl.dispose();
-        }
-        for (var i = 0; i < AllJBinders.length; i++) {
-            if (AllJBinders[i] && AllJBinders[i].control == element) {
-                AllJBinders[i].dispose();
-                delete AllJBinders[i];
-                AllJBinders[i] = null;
-            }
-        }
-        for (var i = 0; i < element.children.length; i++) {
-            removeElement(element.children[i]);
-        }
-    }
-    document.addEventListener('DOMContentLoaded', function () {
-        var bodytemplate = document.body.getAttribute("template");
-        if (!bodytemplate || bodytemplate.length == 0) {
-            bodytemplate = "/templates/system.html";
-        }
-        var templateHtml = JHttpHelper.downloadUrl(bodytemplate);
-        JElementHelper.SystemTemplateContainer = document.createElement("DIV");
-        JElementHelper.SystemTemplateContainer.innerHTML = templateHtml;
-        var style = JElementHelper.SystemTemplateContainer.querySelector("style");
-        if (style) {
-            document.head.appendChild(style);
-        }
-        var MutationObserver = window.MutationObserver ||
-            window.WebKitMutationObserver ||
-            window.MozMutationObserver;
-        var mutationObserverSupport = !!MutationObserver;
-        if (mutationObserverSupport) {
-            try {
-                var options = {
-                    'childList': true,
-                    subtree: true,
-                };
-                var callback = function (records) {
-                    records.map(function (record) {
-                        if (record.addedNodes) {
-                            for (var i = 0; i < record.addedNodes.length; i++) {
-                                JElementHelper.initElements(record.addedNodes[i], true);
-                            }
-                        }
-                        if (record.removedNodes) {
-                            for (var i = 0; i < record.removedNodes.length; i++) {
-                                removeElement(record.removedNodes[i]);
-                            }
-                        }
-                    });
-                };
-                var observer = new MutationObserver(callback);
-                observer.observe(document.body, options);
-            }
-            catch (e) {
-                alert(e.message);
-            }
-        }
-        JElementHelper.initElements(document.body, false);
-    }, false);
-}
 //# sourceMappingURL=JControls.js.map

@@ -1,3 +1,7 @@
+interface INotifyPropertyChanged {
+    addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
+    removeListener(index: number): any;
+}
 declare class JObserveObject implements INotifyPropertyChanged {
     __data: any;
     __parent: JObserveObject;

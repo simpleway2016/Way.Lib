@@ -9,47 +9,49 @@ declare class JBindExpression {
     constructor(dataPropertyName: string, expression: string);
 }
 declare class JBinder {
-    datacontext: INotifyPropertyChanged;
+    protected bindingDataContext: any;
     control: any;
     disposed: boolean;
-    constructor(data: INotifyPropertyChanged, control: any);
+    rootControl: JControl;
+    constructor(control: any);
+    onPropertyChanged(sender: any, name: string, originalValue: any): void;
+    getDatacontext(): INotifyPropertyChanged;
     dispose(): void;
     static addPropertyIfNotExist(data: any, propertyName: any): void;
     static moveAttributeBindToDatabind(element: HTMLElement): void;
 }
 declare class JDatacontextBinder extends JBinder {
     configs: JBindConfig[];
-    protected propertyChangedListenerIndex: number;
-    protected controlPropertyChangedListenerIndex: number;
-    constructor(data: INotifyPropertyChanged, control: any);
+    private controlListenIndex;
+    constructor(control: any);
+    bindChildren(element: HTMLElement): void;
     updateValue(): void;
-    protected bindChildren(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
     protected getConfigByElementProName(proname: string): JBindConfig;
     private listenElementEvent(self, config);
-    private onPropertyChanged(sender, name, originalValue);
+    onPropertyChanged(sender: any, name: string, originalValue: any): void;
     private onControlPropertyChanged(sender, name, originalValue);
     dispose(): void;
     protected getRegexp(): RegExp;
 }
 declare class JControlBinder extends JDatacontextBinder {
-    constructor(data: INotifyPropertyChanged, control: any);
-    protected bindChildren(): void;
+    constructor(control: any);
+    getDatacontext(): INotifyPropertyChanged;
     protected getRegexp(): RegExp;
 }
 declare class JDatacontextExpressionBinder extends JBinder {
     configs: JBindExpression[];
-    protected propertyChangedListenerIndex: number;
-    constructor(data: INotifyPropertyChanged, control: any);
+    constructor(control: any);
+    bindChildren(element: HTMLElement): void;
     updateValue(): void;
     private handleExpression(expressionStr);
-    protected bindChildren(): void;
     protected getConfigByDataProName(proname: string): JBindExpression;
-    private onPropertyChanged(sender, name, originalValue);
+    onPropertyChanged(sender: any, name: string, originalValue: any): void;
     dispose(): void;
     protected getRegexp(): RegExp;
 }
 declare class JControlExpressionBinder extends JDatacontextExpressionBinder {
-    constructor(data: INotifyPropertyChanged, control: any);
+    constructor(control: any);
+    getDatacontext(): INotifyPropertyChanged;
     protected getRegexp(): RegExp;
 }
