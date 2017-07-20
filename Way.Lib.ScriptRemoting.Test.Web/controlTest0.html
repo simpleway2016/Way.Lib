@@ -70,6 +70,12 @@
         <JCheckboxList id="list1" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
         </JCheckboxList>
     </div>
+
+    <div style="margin-top:20px;">
+        radio:
+        <JRadioList id="list2" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+        </JRadioList>
+    </div>
     <script lang="ja">
         function removeitem()
         {
@@ -93,7 +99,11 @@
                     alert("checkbox " + name + " changed to " + sender[name]);
                 });
             }
-
+            if (window.list2) {
+                list2.addPropertyChangedListener(function (sender, name, oldvalue) {
+                    alert("radio " + name + " changed to " + sender[name]);
+                });
+            }
         }
     </script>
 </body>

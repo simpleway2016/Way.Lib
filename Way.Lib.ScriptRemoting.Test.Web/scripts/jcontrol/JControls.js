@@ -801,6 +801,7 @@ var JRadioList = (function (_super) {
         if (datacontext === void 0) { datacontext = null; }
         var _this = _super.call(this, element, templates, datacontext) || this;
         _this._checkedvalue = null;
+        _this._onItemDataChangedHanding = false;
         return _this;
     }
     Object.defineProperty(JRadioList.prototype, "checkedvalue", {
@@ -812,17 +813,19 @@ var JRadioList = (function (_super) {
             if (value != this._checkedvalue) {
                 var original = this._checkedvalue;
                 this._checkedvalue = value;
-                if (this.valuemember && this.valuemember.length > 0) {
-                    this.itemControls.forEach(function (control, index, array) {
-                        var itemvalue;
-                        eval("itemvalue=control.datacontext." + _this.valuemember);
-                        if (itemvalue == value) {
-                            control.datacontext.checked = true;
-                        }
-                        else {
-                            control.datacontext.checked = false;
-                        }
-                    });
+                if (!this._onItemDataChangedHanding) {
+                    if (this.valuemember && this.valuemember.length > 0) {
+                        this.itemControls.forEach(function (control, index, array) {
+                            var itemvalue;
+                            eval("itemvalue=control.datacontext." + _this.valuemember);
+                            if (itemvalue == value) {
+                                control.datacontext.checked = true;
+                            }
+                            else {
+                                control.datacontext.checked = false;
+                            }
+                        });
+                    }
                 }
                 this.onPropertyChanged("checkedvalue", original);
             }
@@ -835,8 +838,8 @@ var JRadioList = (function (_super) {
         if (!this.itemid)
             this.itemid = (JRadioList.StaticID++);
         var item = _super.prototype.addItem.call(this, data);
-        item.name = "JRadioListItem_" + this.itemid;
-        if (typeof data.checked == "undefined")
+        JBinder.addPropertyIfNotExist(data, "checked");
+        if (typeof data.checked == "undefined" || data.checked == null)
             data.checked = false;
         if (data instanceof JObserveObject) {
             data.addPropertyChangedListener(function (s, name, o) { _this.onItemDataChanged(s, name, o); });
@@ -845,18 +848,35 @@ var JRadioList = (function (_super) {
     };
     JRadioList.prototype.onItemDataChanged = function (sender, name, originalvalue) {
         if (name == "checked" && this.valuemember && this.valuemember.length > 0) {
-            for (var i = 0; i < this.itemControls.length; i++) {
-                if (this.itemControls[i]) {
-                    if (this.itemControls[i].datacontext["checked"]) {
+            if (this._onItemDataChangedHanding)
+                return;
+            this._onItemDataChangedHanding = true;
+            if (sender[name]) {
+                for (var i = 0; i < this.itemControls.length; i++) {
+                    if (this.itemControls[i] && this.itemControls[i].datacontext == sender) {
                         var value;
                         var data = this.itemControls[i].datacontext;
                         eval("value = data." + this.valuemember);
                         this.checkedvalue = value;
+                    }
+                    else if (this.itemControls[i]) {
+                        this.itemControls[i].datacontext["checked"] = false;
+                    }
+                }
+            }
+            else {
+                for (var i = 0; i < this.itemControls.length; i++) {
+                    if (this.itemControls[i] && this.itemControls[i].datacontext["checked"]) {
+                        var value;
+                        var data = this.itemControls[i].datacontext;
+                        eval("value = data." + this.valuemember);
+                        this.checkedvalue = value;
+                        this._onItemDataChangedHanding = false;
                         return;
                     }
                 }
             }
-            this.checkedvalue = null;
+            this._onItemDataChangedHanding = false;
         }
     };
     return JRadioList;

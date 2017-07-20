@@ -95,6 +95,7 @@ declare class JRadioList extends JList {
     checkedvalue: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     protected addItem(data: any): JListItem;
+    private _onItemDataChangedHanding;
     protected onItemDataChanged(sender: any, name: string, originalvalue: any): void;
 }
 declare class JDropdownList extends JList {

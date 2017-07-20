@@ -939,17 +939,20 @@ class JRadioList extends JList
             var original = this._checkedvalue;
             this._checkedvalue = value;
 
-            if (this.valuemember && this.valuemember.length > 0) {
-                this.itemControls.forEach((control: JListItem, index: number, array) => {
-                    var itemvalue;
-                    eval("itemvalue=control.datacontext." + this.valuemember);
-                    if (itemvalue == value) {
-                        control.datacontext.checked = true;
-                    }
-                    else {
-                        control.datacontext.checked = false;
-                    }
-                });
+            if (!this._onItemDataChangedHanding)
+            {
+                if (this.valuemember && this.valuemember.length > 0) {
+                    this.itemControls.forEach((control: JListItem, index: number, array) => {
+                        var itemvalue;
+                        eval("itemvalue=control.datacontext." + this.valuemember);
+                        if (itemvalue == value) {
+                            control.datacontext.checked = true;
+                        }
+                        else {
+                            control.datacontext.checked = false;
+                        }
+                    });
+                }
             }
 
             this.onPropertyChanged("checkedvalue", original);
@@ -965,8 +968,9 @@ class JRadioList extends JList
             this.itemid = (JRadioList.StaticID++);
 
         var item = super.addItem(data);
-        item.name = "JRadioListItem_" + this.itemid;
-        if (typeof data.checked == "undefined")
+
+        JBinder.addPropertyIfNotExist(data, "checked");
+        if (typeof data.checked == "undefined" || data.checked == null)
             data.checked = false;
 
         if (data instanceof JObserveObject) {
@@ -975,23 +979,41 @@ class JRadioList extends JList
         return item;
     }
 
+    private _onItemDataChangedHanding = false;
     protected onItemDataChanged(sender, name: string, originalvalue) {
         if (name == "checked" && this.valuemember && this.valuemember.length > 0) {
+
+            if (this._onItemDataChangedHanding)
+                return;
+
+            this._onItemDataChangedHanding = true;
             //先确定sender目前还属于item里面
-            for (var i = 0; i < this.itemControls.length; i++) {
-                if (this.itemControls[i]) {
-                    if (this.itemControls[i].datacontext["checked"]) {
+            if (sender[name]) {
+                for (var i = 0; i < this.itemControls.length; i++) {
+                    if (this.itemControls[i] && this.itemControls[i].datacontext == sender) {
                         var value;
                         var data = this.itemControls[i].datacontext;
                         eval("value = data." + this.valuemember);
                         this.checkedvalue = value;
+                    }
+                    else if (this.itemControls[i]) {
+                        this.itemControls[i].datacontext["checked"] = false;
+                    }
+                }
+            }
+            else {
+                for (var i = 0; i < this.itemControls.length; i++) {
+                    if (this.itemControls[i] && this.itemControls[i].datacontext["checked"]) {
+                        var value;
+                        var data = this.itemControls[i].datacontext;
+                        eval("value = data." + this.valuemember);
+                        this.checkedvalue = value;
+                        this._onItemDataChangedHanding = false;
                         return;
                     }
                 }
             }
-
-            //如果都没有checked
-            this.checkedvalue = null;
+            this._onItemDataChangedHanding = false;
         }
     }
 }
