@@ -125,9 +125,11 @@ var JDatacontextBinder = (function (_super) {
             var config = this.configs[i];
             try {
                 var value;
-                eval("value=this.datacontext." + config.dataPropertyName);
+                var data = this.datacontext;
+                var control = this.control;
+                eval("value=data." + config.dataPropertyName);
                 if (value) {
-                    eval("this.control." + config.elementPropertyName + " = value");
+                    eval("control." + config.elementPropertyName + " = value");
                 }
             }
             catch (e) {
@@ -168,8 +170,10 @@ var JDatacontextBinder = (function (_super) {
         return function () {
             if (self.disposed)
                 return;
+            var data = self.datacontext;
+            var control = self.control;
             try {
-                eval("self.datacontext." + config.dataPropertyName + " = self.element." + config.elementPropertyName);
+                eval("data." + config.dataPropertyName + " = control." + config.elementPropertyName);
             }
             catch (e) {
             }
@@ -182,7 +186,9 @@ var JDatacontextBinder = (function (_super) {
             var src = this;
             var config = this.getConfigByDataProName(name);
             if (config) {
-                eval("src.control." + config.elementPropertyName + " = src.datacontext." + config.dataPropertyName);
+                var data = src.datacontext;
+                var control = src.control;
+                eval("control." + config.elementPropertyName + " = data." + config.dataPropertyName);
             }
         }
         catch (e) {
@@ -195,7 +201,9 @@ var JDatacontextBinder = (function (_super) {
             var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {
-                eval("self.datacontext." + config.dataPropertyName + " = self.control." + name);
+                var data = self.datacontext;
+                var control = self.control;
+                eval("data." + config.dataPropertyName + " = control." + name);
             }
         }
         catch (e) {

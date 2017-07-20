@@ -55,15 +55,24 @@ class JBinder
             if (att.name == "databind")
                 continue;
 
+            var name = att.name;
+            //console.log(name);
+            if (name == "class")
+                name = "className";
+            else if (name == "innerhtml")
+                name = "innerHTML";
+
             var r;
             if (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(att.value))
             {
-                att.value = "";
-                databind += ";" + att.name + "=$" + r[1];
+                element.attributes.removeNamedItem(att.name);
+                i--;
+                databind += ";" + name + "=$" + r[1];
             }
             else if (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(att.value)) {
-                att.value = "";
-                databind += ";" + att.name + "=@" + r[1];
+                element.attributes.removeNamedItem(att.name);
+                i--;
+                databind += ";" + name + "=@" + r[1];
             }
         }
 
@@ -84,6 +93,7 @@ class JDatacontextBinder extends JBinder
         var databind;
         if (control instanceof JControl)
         {
+            //JControl在构造函数实现了 moveAttributeBindToDatabind功能
             databind = (<JControl>control).databind;
         }
         else 
@@ -127,14 +137,43 @@ class JDatacontextBinder extends JBinder
             });
         }
 
+        if (this.configs.length > 0)
+        {
+            AllJBinders.push(this);
+        }
+
+        this.updateValue();
         this.bindChildren();
+    }
+
+    updateValue() {
+        for (var i = 0; i < this.configs.length; i++) {
+            var config = this.configs[i];
+            try {//防止属性是style.width这样的格式
+                var value;
+                var data = this.datacontext;
+                var control = this.control;
+
+                eval("value=data." + config.dataPropertyName);
+                if (value) {
+                    eval("control." + config.elementPropertyName + " = value");
+                }
+
+            }
+            catch (e) {
+            }
+        }
     }
 
     protected bindChildren()
     {
         if (this.control instanceof JControl) {
             var jcontrol = <JControl>this.control;
-            AllJBinders.push(new JDatacontextBinder(this.datacontext, jcontrol.element));
+            if (jcontrol.element)
+            {
+                AllJBinders.push(new JDatacontextBinder(this.datacontext, jcontrol.element));
+            }
+            
         }
         else {
             var element = <HTMLElement>this.control;
@@ -165,9 +204,10 @@ class JDatacontextBinder extends JBinder
         return function () {
             if (self.disposed)
                 return;
-
+            var data = self.datacontext;
+            var control = self.control;
             try {
-                eval("self.datacontext." + config.dataPropertyName + " = self.element." + config.elementPropertyName);
+                eval("data." + config.dataPropertyName + " = control." + config.elementPropertyName);
             }
             catch (e) {
             }
@@ -179,9 +219,13 @@ class JDatacontextBinder extends JBinder
             return;
 
         try {
+            var src = this;
             var config = this.getConfigByDataProName(name);
             if (config) {
-                eval("this.element." + config.elementPropertyName + " = this.datacontext." + config.dataPropertyName);
+                var data = src.datacontext;
+                var control = src.control;
+
+                eval("control." + config.elementPropertyName + " = data." + config.dataPropertyName);
             }
         }
         catch (e) {
@@ -196,7 +240,10 @@ class JDatacontextBinder extends JBinder
             var self = this;
             var config = this.getConfigByElementProName(name);
             if (config) {
-                eval("self.datacontext." + config.dataPropertyName + " = self.control." + name);
+                var data = self.datacontext;
+                var control = self.control;
+
+                eval("data." + config.dataPropertyName + " = control." + name);
             }
         }
         catch (e) {
@@ -236,7 +283,9 @@ class JControlBinder extends JDatacontextBinder {
     protected bindChildren() {
         if (this.control instanceof JControl) {
             var jcontrol = <JControl>this.control;
-            AllJBinders.push(new JControlBinder(jcontrol, jcontrol.element));
+            if (jcontrol.element) {
+                AllJBinders.push(new JControlBinder(jcontrol, jcontrol.element));
+            }
         }
         else {
             var element = <HTMLElement>this.control;
@@ -278,10 +327,25 @@ class JDatacontextExpressionBinder extends JBinder {
             }
         }
         if (this.configs.length > 0) {
-            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o))
+            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
+
+            AllJBinders.push(this);
         }
 
+        this.updateValue();
         this.bindChildren();
+    }
+
+    updateValue() {
+
+        for (var i = 0; i < this.configs.length; i++) {
+            var exconfig = this.configs[i];
+            if (exconfig) {
+                var element = this.control;
+                var data = this.datacontext;
+                eval(exconfig.expression);
+            }
+        }
     }
 
     private handleExpression(expressionStr: string)
@@ -312,7 +376,8 @@ class JDatacontextExpressionBinder extends JBinder {
     protected bindChildren() {
         if (this.control instanceof JControl) {
             var jcontrol = <JControl>this.control;
-            AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, jcontrol.element));
+            if (jcontrol.element)
+                AllJBinders.push(new JDatacontextExpressionBinder(this.datacontext, jcontrol.element));
         }
         else {
             var element = <HTMLElement>this.control;

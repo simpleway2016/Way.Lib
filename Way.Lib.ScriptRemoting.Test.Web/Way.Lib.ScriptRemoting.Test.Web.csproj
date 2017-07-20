@@ -51,10 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="GridViewTest.ts" />
-    <TypeScriptCompile Include="scripts\JBinder.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JBinder.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JObserveObject.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
-    <TypeScriptCompile Include="scripts\JControls.ts" />
-    <TypeScriptCompile Include="scripts\JScriptInvoker.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JScriptInvoker.ts" />
     <TypeScriptCompile Include="scripts\WayScriptRemoting.ts" />
   </ItemGroup>
   <ItemGroup>

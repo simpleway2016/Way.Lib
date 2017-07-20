@@ -71,7 +71,7 @@ class JElementHelper {
     }
 
 
-    static initElements(container: HTMLElement) {
+    static initElements(container: HTMLElement, bind: boolean) {
         if (!container || !container.children)//防止#text
             return;
 
@@ -81,654 +81,45 @@ class JElementHelper {
             return;
         }
 
-        //如果是htmlelement
-        if ((<any>container).JControl) {
-            var jcontrol = <JControl>(<any>container).JControl;
-            if (jcontrol.datacontext) {
-                AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
-            }
-            AllJBinders.push(new JControlBinder(jcontrol, container));
+        for (var i = 0; i < container.children.length; i++) {
+            JElementHelper.initElements(<HTMLElement>container.children[i], bind);
         }
-        else {
-            //查找parent
-            var parent = container.parentElement;
-            var jcontrol: JControl;
-            while (parent) {
-                if ((<any>parent).JControl) {
-                    jcontrol = <JControl>(<any>parent).JControl;
-                    break;
-                }
-                else {
-                    parent = parent.parentElement;
-                }
-            }
-            if (jcontrol) {
+
+
+        if (bind)
+        {
+            //如果是htmlelement
+            if ((<any>container).JControl) {
+                var jcontrol = <JControl>(<any>container).JControl;
                 if (jcontrol.datacontext) {
-                    AllJBinders.push(new JDatacontextBinder(jcontrol.datacontext, container));
+                    new JDatacontextBinder(jcontrol.datacontext, container);
                 }
-                AllJBinders.push(new JControlBinder(jcontrol, container));
+                new JControlBinder(jcontrol, container);
             }
-        }
-        //JBinder会自动绑定子元素，这里不用循环绑定子元素
-    }
-}
-
-
-
-class JObserveObject implements INotifyPropertyChanged {
-
-    __data;
-    __parent: JObserveObject;
-    __parentName: string;
-    private __onchanges = [];
-
-    constructor(data, parent: JObserveObject = null, parentname: string = null) {
-
-        if (data instanceof JObserveObject) {
-            var old: JObserveObject = data;
-            this.addPropertyChangedListener((_model, _name, _value) => {
-                old.onPropertyChanged(_name, _value);
-            });
-            //old发生变化，无法通知newModel，否则就进入死循环了
-            data = old.__data;
-        }
-
-        this.__data = data;
-        this.__parent = parent;
-        this.__parentName = parentname;
-
-        for (var p in data) {
-            this.__addProperty(p);
-        }
-    }
-
-    hasProperty(proname: string): boolean
-    {
-        var checkname = proname;
-        var index = proname.indexOf(".");
-        if (index >= 0)
-        {
-            checkname = proname.substr(0, index);
-        }
-
-        var result : any = Object.getOwnPropertyDescriptor(this, checkname);
-        if (result)
-            result = true;
-        else
-            result = false;
-
-        if (result && index >= 0)
-        {
-            if (this[checkname] instanceof JObserveObject) {
-                result = this[checkname].hasProperty(proname.substr(index + 1));
-            }
-        }
-        return result;
-    }
-    addProperty(proName: string)
-    {
-        var checkname = proName;
-        if (proName.indexOf(".") < 0) {
-
-            if (Object.getOwnPropertyDescriptor(this, proName))//已经有这个属性
-                return;
-
-            this.__data[proName] = null;
-        }
-        else {
-            var index = proName.indexOf(".");
-            checkname = proName.substr(0, index);
-
-            if (Object.getOwnPropertyDescriptor(this, checkname))
-            {
-                if (this[checkname] instanceof JObserveObject)
-                {
-                    (<JObserveObject>this[checkname]).addProperty(proName.substr(index + 1));
-                }
-                
-                return;
-            }
-            this.__data[checkname] = new JObserveObject({}, this, checkname);
-            (<JObserveObject>this.__data[checkname]).addProperty(proName.substr(index + 1));
-        }
-
-        
-        Object.defineProperty(this, checkname, {
-            get: this.getFunc(checkname),
-            set: this.setFunc(checkname),
-            enumerable: true,
-            configurable: true
-        });
-       
-    }
-
-    private getFunc(name)
-    {
-        return function () {
-            return this.__data[name];
-        }
-    }
-    private setFunc(checkname:string) {
-        return function (value) {
-            if (!Object.getOwnPropertyDescriptor(this.__data, checkname))
-                throw new Error("不包含成员" + checkname);
-            if (this.__data[checkname] != value) {
-                var original = this.__data[checkname];
-
-                this.__data[checkname] = value;
-                this.onPropertyChanged(checkname, original);
-                if (this.__parent) {
-                    var curparent = this.__parent;
-                    var pname = this.__parentName;
-
-                    var path = checkname;
-                    while (curparent) {
-                        path = pname + "." + path;
-                        curparent.onPropertyChanged(path, original);
-                        pname = curparent.__parentName;
-                        curparent = curparent.__parent;
-
+            else {
+                //查找parent
+                var parent = container.parentElement;
+                var jcontrol: JControl;
+                while (parent) {
+                    if ((<any>parent).JControl) {
+                        jcontrol = <JControl>(<any>parent).JControl;
+                        break;
+                    }
+                    else {
+                        parent = parent.parentElement;
                     }
                 }
-
-            }
-        }
-    }
-    private __addProperty(proName) {
-        var type = typeof this.__data[proName];
-        if (type == "object" && !(this.__data[proName] instanceof Array)) {
-            this[proName] = new JObserveObject(this.__data[proName], this, proName);
-        }
-        else if (type != "function") {
-
-            Object.defineProperty(this, proName, {
-                get: this.getFunc(proName),
-                set: this.setFunc(proName),
-                enumerable: true,
-                configurable: true
-            });
-        }
-    }
-
-    addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number {
-        this.__onchanges.push(func);
-        return this.__onchanges.length - 1;
-    }
-
-    removeListener(index: number) {
-        this.__onchanges[index] = null;
-    }
-
-    onPropertyChanged( proName: string, originalValue: any) {
-        for (var i = 0; i < this.__onchanges.length; i++) {
-            if (this.__onchanges[i]) {
-                this.__onchanges[i](this, proName, originalValue);
+                if (jcontrol) {
+                    if (jcontrol.datacontext) {
+                        new JDatacontextBinder(jcontrol.datacontext, container);
+                    }
+                    new JControlBinder(jcontrol, container);
+                }
             }
         }
     }
 }
 
-class JControlDataBinder
-{
-    control: JControl;
-    datacontext: INotifyPropertyChanged;
-
-    configs: JBindConfig[] = [];
-    expressionConfigs: JBindExpression[] = [];
-    expresion_replace_reg: RegExp;
-    private propertyChangedListenerIndex: number;
-    private expressionPropertyChangedListenerIndex: number;
-
-    constructor(data: INotifyPropertyChanged, jcontrol: JControl, databind_exp: RegExp, expression_exp: RegExp) {
-        this.datacontext = data;
-        this.control = jcontrol;
-        this.expresion_replace_reg = expression_exp;
-
-        var databind: string = jcontrol.databind;
-        if (databind) {
-            while (true) {
-                var result = databind_exp.exec(databind);
-                if (!result)
-                    break;
-                var elementPropertyName = result[1];
-                var dataPropertyName = result[4];
-                this.configs.push(new JBindConfig(dataPropertyName, elementPropertyName));
-                JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
-
-                databind = databind.substr(result.index + result[0].length);
-            }
-        }
-
-        for (var attname in jcontrol)
-        {
-            if (attname == "expression" || /expression[0-9]+/.exec(attname))
-            {
-                var expressionStr: string = jcontrol[attname];
-                if (expressionStr) {
-                    while (true) {
-                        var result = expression_exp.exec(expressionStr);
-                        if (!result)
-                            break;
-                        var dataPropertyName = result[1];
-                        this.expressionConfigs.push(new JBindExpression(dataPropertyName, jcontrol[attname]));
-                        JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
-
-                        expressionStr = expressionStr.substr(result.index + result[0].length);
-                    }
-                }
-            }
-        }
-
-
-        if (this.expressionConfigs.length > 0) {
-            this.expressionPropertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onExpressionPropertyChanged(s, n, o));
-            this.control.addPropertyChangedListener((s, n: string, o) => this.onExpressionPropertyChanged(s, n, o));
-        }
-
-        if (this.configs.length > 0)
-        {
-            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
-            this.control.addPropertyChangedListener((s, n: string, o) => this.onControlPropertyChanged(s, n, o));
-        }
-        
-        this.updateValue();
-
-    }
-
-    dispose()
-    {
-        if (this.propertyChangedListenerIndex)
-        {
-            this.datacontext.removeListener(this.propertyChangedListenerIndex);
-            this.propertyChangedListenerIndex = 0;
-        }
-           
-
-        if (this.expressionPropertyChangedListenerIndex)
-        {
-            this.datacontext.removeListener(this.expressionPropertyChangedListenerIndex);
-            this.expressionPropertyChangedListenerIndex = 0;
-        }
-        
-        this.configs = [];
-    }
-
-    protected getConfigByDataProName(proname: string) {
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            if (config.dataPropertyName == proname)
-                return config;
-        }
-        return null;
-    }
-
-    protected getConfigByElementProName(proname: string) {
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            if (config.elementPropertyName == proname)
-                return config;
-        }
-        return null;
-    }
-
-    protected getExpressionConfigByDataProName(proname: string) {
-        for (var i = 0; i < this.expressionConfigs.length; i++) {
-            var config = this.expressionConfigs[i];
-            if (config.dataPropertyName == proname)
-                return config;
-        }
-        return null;
-    }
-
-    private onPropertyChanged(sender, name: string, originalValue) {
-        if (this.configs.length == 0)
-            return;
-
-        if (!this.control.element.parentElement)
-        {
-            this.dispose();
-            return;
-        }
-        try {
-            var self = this;
-            var config = this.getConfigByDataProName(name);
-            if (config) {
-                eval("self.control." + config.elementPropertyName + " = self.datacontext." + config.dataPropertyName);
-            }
-        }
-        catch (e) {
-        }
-    }
-    private onControlPropertyChanged(sender, name: string, originalValue) {
-        try {
-            var self = this;
-            var config = this.getConfigByElementProName(name);
-            if (config) {
-                eval("self.datacontext." + config.dataPropertyName + " = self.control." + name);
-            }
-        }
-        catch (e) {
-        }
-    }
-
-    private onExpressionPropertyChanged(sender, name: string, originalValue) {
-
-        try {
-            var config = this.getExpressionConfigByDataProName(name);
-            if (config) {
-                var element = this.control;
-                var data = this.datacontext;
-                var r;
-                var expression = config.expression.replace(/\{0\}\./g, "element.");
-                while (r = this.expresion_replace_reg.exec(expression)) {
-                    expression = expression.replace(r[0], "data." + r[1]);
-                }
-                eval(expression);
-            }
-        }
-        catch (e) {
-        }
-    }
-
-    updateValue() {
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            try {//防止属性是style.width这样的格式
-                var value;
-                eval("value=this.datacontext." + config.dataPropertyName);
-                if (value) {
-                    eval("this.control." + config.elementPropertyName + " = value");
-                }
-
-            }
-            catch (e) {
-            }
-        }
-
-        for (var i = 0; i < this.expressionConfigs.length; i++) {
-            var exconfig = this.expressionConfigs[i];
-            if (exconfig) {
-                var element = this.control;
-                var data = this.datacontext;
-                var r;
-                var expression = exconfig.expression.replace(/\{0\}\./g, "element.");
-                while (r = this.expresion_replace_reg.exec(expression)) {
-                    expression = expression.replace(r[0], "data." + r[1]);
-                }
-                eval(expression);
-            }
-        }
-    }
-
-   
-}
-
-//处理如 value=$text 为模板内元素绑定使用
-class JChildrenElementBinder
-{
-    element: HTMLElement;
-    datacontext: INotifyPropertyChanged;
-
-    configs: JBindConfig[] = [];
-    expressionConfigs: JBindExpression[] = [];
-    children: JChildrenElementBinder[] = [];
-
-    private disposed: boolean = false;
-    private propertyChangedListenerIndex: number;
-    private propertyExpressionChangedListenerIndex: number;
-    private expresion_replace_reg: RegExp;
-
-    constructor(data: INotifyPropertyChanged, element: HTMLElement, forDataContext: boolean, bindmyselft: boolean) {
-        var databind_exp = /([\w|\.]+)( )?=( )?\@([\w|\.]+)/;
-        var expression_exp = /\{1\}.\@([\w|\.]+)/;
-        if (!forDataContext)
-        {
-            databind_exp = /([\w|\.]+)( )?=( )?\$([\w|\.]+)/;
-            expression_exp = /\{1\}.\$([\w|\.]+)/;
-        }
-
-        this.datacontext = data;
-        this.expresion_replace_reg = expression_exp;
-        this.element = element;
-        var databind: string = element.getAttribute("databind");
-        for (var i = 0; i < element.attributes.length; i++)
-        {
-            var r;
-            if (!forDataContext && (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(element.attributes[i].value))) {
-                if (!databind)
-                    databind = "";
-
-                var attname = element.attributes[i].name;
-                if (attname == "class")
-                    attname = "className";
-                element.attributes[i].value = "";
-                databind += ";" + attname + "=$" + r[1];
-            }
-            else if (forDataContext && (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(element.attributes[i].value))) {
-                if (!databind)
-                    databind = "";
-
-                var attname = element.attributes[i].name;
-                if (attname == "class")
-                    attname = "className";
-                element.attributes[i].value = "";
-                databind += ";" + attname + "=@" + r[1];
-            }
-        }
-
-        if (databind)
-        {
-            while (true)
-            {
-                var result = databind_exp.exec(databind);
-                if (!result)
-                    break;
-                var elementPropertyName = result[1];
-                var dataPropertyName = result[4];
-                this.configs.push(new JBindConfig(dataPropertyName, elementPropertyName));
-                JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
-
-                databind = databind.substr(result.index + result[0].length);
-            }           
-        }
-
-        var allattributes = element.attributes;
-        for (var i = 0; i < allattributes.length; i++)
-        {
-            if (allattributes[i].name == "expression" || /expression([0-9]+)/.exec(allattributes[i].name))
-            {
-                var expressionStr: string = allattributes[i].value;
-                if (expressionStr) {
-                    while (true) {
-                        var result = expression_exp.exec(expressionStr);
-                        if (!result)
-                            break;
-                        var dataPropertyName = result[1];
-                        this.expressionConfigs.push(new JBindExpression(dataPropertyName, allattributes[i].value));
-                        JChildrenElementBinder.addPropertyIfNotExist(data, dataPropertyName);
-
-                        expressionStr = expressionStr.substr(result.index + result[0].length);
-                    }
-                }
-            }
-        }
-        
-
-        if (this.configs.length > 0) {
-            this.propertyChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onPropertyChanged(s, n, o));
-        }
-        if (this.expressionConfigs.length > 0) {
-            this.propertyExpressionChangedListenerIndex = this.datacontext.addPropertyChangedListener((s, n: string, o) => this.onExpressionPropertyChanged(s, n, o));
-        }
-
-        this.init();
-
-        if (bindmyselft || !(<any>element).JControl) {
-            //如果不是JControl，则继续把子元素绑定
-            for (var i = 0; i < element.children.length; i++) {
-                var child: any = element.children[i];
-                if (child.tagName != "SCRIPT")
-                {
-                    if (!child.JControl) {
-                        child._templateBinder = new JChildrenElementBinder(data, child, forDataContext, false);
-                        this.children.push(child._templateBinder);
-                    }
-                }
-                
-            }
-        }
-    }
-
-    static addPropertyIfNotExist(data, propertyName)
-    {
-        if (data instanceof JObserveObject)
-        {
-            var observeData = <JObserveObject>data;
-            if (observeData.hasProperty(propertyName) == false)
-            {
-                observeData.addProperty(propertyName);
-            }
-        }
-    }
-
-    dispose()
-    {
-        this.disposed = true;
-        this.datacontext.removeListener(this.propertyChangedListenerIndex);
-        this.datacontext.removeListener(this.propertyExpressionChangedListenerIndex);
-        this.configs = [];
-        this.expressionConfigs = [];
-        for (var i = 0; i < this.children.length; i++)
-        {
-            this.children[i].dispose();
-        }
-    }
-
-    protected getConfigByDataProName(proname: string)
-    {
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            if (config.dataPropertyName == proname)
-                return config;
-        }
-        return null;
-    }
-    protected getExpressionConfigByDataProName(proname: string) {
-        for (var i = 0; i < this.expressionConfigs.length; i++) {
-            var config = this.expressionConfigs[i];
-            if (config.dataPropertyName == proname)
-                return config;
-        }
-        return null;
-    }
-
-    protected getConfigByElementProName(proname: string) {
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            if (config.elementPropertyName == proname)
-                return config;
-        }
-        return null;
-    }
-
-    private onExpressionPropertyChanged(sender, name: string, originalValue) {
-        if (this.disposed)
-            return;
-
-        try {
-            var config = this.getExpressionConfigByDataProName(name);
-            if (config) {
-                var element = this.element;
-                var data = this.datacontext;
-                var r;
-                var expression = config.expression.replace(/\{0\}\./g, "element.");
-                while (r = this.expresion_replace_reg.exec(expression))
-                {
-                    expression = expression.replace(r[0], "data." + r[1]);
-                }
-                eval(expression);
-            }
-        }
-        catch (e) {
-        }
-    }
-
-    private onPropertyChanged(sender, name: string, originalValue) {
-        if (this.disposed)
-            return;
-
-        try {
-            var config = this.getConfigByDataProName(name);
-            if (config) {
-                eval("this.element." + config.elementPropertyName + " = this.datacontext." + config.dataPropertyName);
-            }
-        }
-        catch (e) {
-        }
-    }
-
-    updateValue() {
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            if (config) {
-                try {
-                    //防止属性是style.width这样的格式
-                    var value;
-                    eval("value=this.datacontext." + config.dataPropertyName);
-                    if (value) {
-                        eval("this.element." + config.elementPropertyName + "=value");
-                    }
-
-                }
-                catch (e) {
-                }
-            }
-        }
-
-        for (var i = 0; i < this.expressionConfigs.length; i++)
-        {
-            var exconfig = this.expressionConfigs[i];
-            if (exconfig) {
-                var element = this.element;
-                var data = this.datacontext;
-                var r;
-                var expression = exconfig.expression.replace(/\{0\}\./g, "element.");
-                while (r = this.expresion_replace_reg.exec(expression)) {
-                    expression = expression.replace(r[0], "data." + r[1]);
-                }
-                eval(expression);
-            }
-        }
-    }
-
-    init() {
-        this.updateValue();
-        for (var i = 0; i < this.configs.length; i++) {
-            var config = this.configs[i];
-            try {
-                if (config.elementPropertyName == "value" || config.elementPropertyName == "checked")
-                {
-                    this.element.addEventListener("change", this.listenElementEvent(this , config), false);
-                }
-            }
-            catch (e)
-            {
-            }
-        }
-    }
-
-    private listenElementEvent(self, config: JBindConfig)
-    {
-        return function ()
-        {
-            try {
-                eval("self.datacontext." + config.dataPropertyName + " = self.element." + config.elementPropertyName);
-            }
-            catch (e) {
-            }
-        }
-    }
-}
 
 class JControl implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number {
@@ -760,8 +151,8 @@ class JControl implements INotifyPropertyChanged {
 
     protected currentTemplate: HTMLElement;
     
-    
 
+    private isParentDataContext: boolean = false;
     private _datacontext: any;
     get datacontext()
     {
@@ -811,7 +202,9 @@ class JControl implements INotifyPropertyChanged {
             {
                 if (value) {
                     //JControlDataBinder用于把<JControl>标签和datacontext绑定
-                    AllJBinders.push(new JDatacontextBinder(value, this));
+                    new JDatacontextBinder(value, this);
+
+                    new JDatacontextExpressionBinder(value, this);
                 }
                 if (this.element) {
                     this.setChildrenDataContext(this.element, value);
@@ -844,7 +237,8 @@ class JControl implements INotifyPropertyChanged {
             
 
             if (value) {
-                AllJBinders.push( new JControlBinder(value, this) );
+                new JControlBinder(value, this);
+                new JControlExpressionBinder(value, this);
             }
         }
     }
@@ -953,7 +347,7 @@ class JControl implements INotifyPropertyChanged {
             }
         }
 
-     
+        this.isParentDataContext = false;
         if (this.originalElement.getAttribute("datacontext") && this.originalElement.getAttribute("datacontext").length > 0)
         {
             this.datacontext = this.originalElement.getAttribute("datacontext");
@@ -961,6 +355,21 @@ class JControl implements INotifyPropertyChanged {
         else {
             this.datacontext = datacontext;
         }
+        if (!this.datacontext) {
+            //如果自己没有数据源，查看parent的数据源
+            var parent = this.element.parentElement;
+            while (parent && !this.datacontext) {
+                if ((<any>parent).JControl) {
+                    this.isParentDataContext = true;
+                    this.datacontext = (<JControl>(<any>parent).JControl).datacontext;
+                    break;
+                }
+                else {
+                    parent = parent.parentElement;
+                }
+            }
+        }
+
         this.checkDataContextPropertyExist();
 
         this.reApplyTemplate(this.originalElement);
@@ -991,11 +400,24 @@ class JControl implements INotifyPropertyChanged {
         }
     }
 
+    removeFromParent()
+    {
+        if (this.element)
+        {
+            this.element.parentElement.removeChild(this.element);
+        }
+    }
+
     dispose()
     {
+        if (this.isParentDataContext)
+        {
+            this.datacontext = null;
+        }
         for (var i = 0; i < AllJBinders.length; i++) {
             if (AllJBinders[i] && AllJBinders[i].control == this) {
                 AllJBinders[i].dispose();
+                delete AllJBinders[i];
                 AllJBinders[i] = null;
             }
         }
@@ -1126,10 +548,8 @@ class JControl implements INotifyPropertyChanged {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
             (<any>this.element).JControl = this;
-            JElementHelper.replaceElement(this.element, rootElement);
             //查找上级JControl
-            if (true)
-            {
+            if (true) {
                 var parent = this.element.parentElement;
                 while (parent) {
                     if ((<any>parent).JControl) {
@@ -1142,23 +562,14 @@ class JControl implements INotifyPropertyChanged {
                 }
             }
 
+            JElementHelper.replaceElement(this.element, rootElement);
+            
+
             if (this.onclick) {
                 this.addEventListener("click", this.onclick, false);
             }
 
-            if (!this.datacontext) {
-                //如果自己没有数据源，查看parent的数据源
-                var parent = this.element.parentElement;
-                while (parent && !this.datacontext) {
-                    if ((<any>parent).JControl) {
-                        this.datacontext = (<JControl>(<any>parent).JControl).datacontext;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-            }
+            
              
             this.onTemplateApply();
         }
@@ -1178,6 +589,9 @@ class JControl implements INotifyPropertyChanged {
                 }
             }
             else {
+                new JDatacontextBinder(datacontext, <HTMLElement>child);
+                new JDatacontextExpressionBinder(datacontext, <HTMLElement>child);
+
                 this.setChildrenDataContext(<HTMLElement>child, datacontext);
             }
         }
@@ -1232,8 +646,8 @@ class JControl implements INotifyPropertyChanged {
 }
 
 class JButton extends JControl{
-    private _text: string = "";
-    get text():string {
+    private _text;
+    get text(): string {
         return this._text;
     }
     set text(value: string) {
@@ -1252,85 +666,6 @@ class JButton extends JControl{
 class JTextbox extends JButton {
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
-    }
-}
-
-class JDataSource
-{
-    source: JObserveObject[];
-    private addFuncs: ((sender, data, index: number)=>any)[] = [];
-    private removeFuncs: ((sender, data,index:number) => any)[] = [];
-
-    constructor(data: JObserveObject[])
-    {
-        this.source = data;
-    }
-
-    addEventListener(_type: string, listener: (sender, data, index: number) => any) {
-        if (listener) {
-            var funcs;
-            var src = this;
-            eval("funcs=src." + _type + "Funcs");
-            funcs.push(listener);
-        }
-    }
-
-    removeEventListener(_type: string, listener: (sender, data, index: number) => any) {
-        if (listener) {
-            var funcs;
-            var src = this;
-            eval("funcs=src." + _type + "Funcs");
-            for (var i = 0; i < funcs.length; i++) {
-                if (funcs[i] == listener) {
-                    funcs[i] = null;
-                }
-            }
-        }
-    }
-
-    add(data: JObserveObject)
-    {
-        this.source.push(data);
-        for (var i = 0; i < this.addFuncs.length; i++)
-        {
-            this.addFuncs[i](this, data, this.source.length - 1);
-        }
-    }
-
-    insert(index: number, data: JObserveObject) {
-        this.source.splice(index, 0, data);
-
-        for (var i = 0; i < this.addFuncs.length; i++) {
-            this.addFuncs[i](this, data, index);
-        }
-    }
-
-    remove(data: JObserveObject) {
-        //for (var i = 0; i < this.source.length; i++)
-        //{
-        //    if (this.source[i] == data)
-        //    {
-        //        this.removeAt(i);
-        //        break;
-        //    }
-        //}
-        var index = this.source.indexOf(data);
-        this.removeAt(index);
-    }
-    removeAt(index: number) {
-        if (index < this.source.length && index >= 0)
-        {
-            var data = this.source[index];
-            //for (var i = index; i < this.source.length - 1; i++) {
-            //    this.source[i] = this.source[i + 1];
-            //}
-            //this.source.length--;
-            
-            this.source.splice(index, 1);
-            for (var j = 0; j < this.removeFuncs.length; j++) {
-                this.removeFuncs[j](this, data, index);
-            }
-        }
     }
 }
 
@@ -1605,8 +940,12 @@ class JList extends JControl {
 
 class JCheckboxList extends JList
 {
-    private _checkedvalue: any[]=[];
+    private _checkedvalue: any[];
     get checkedvalue(): any[] {
+        if (!this._checkedvalue)
+        {
+            this._checkedvalue = [];
+        }
         return this._checkedvalue;
     }
     set checkedvalue(value: any[]) {
@@ -1791,11 +1130,13 @@ if (document.addEventListener) {
         if (element.JControl)
         {
             (<JControl>element.JControl).dispose();
+            
         }
 
         for (var i = 0; i < AllJBinders.length; i++) {
             if (AllJBinders[i] && AllJBinders[i].control == element) {
                 AllJBinders[i].dispose();
+                delete AllJBinders[i];
                 AllJBinders[i] = null;
             }
         }
@@ -1818,8 +1159,7 @@ if (document.addEventListener) {
             document.head.appendChild(style);
         }
 
-        JElementHelper.initElements(document.body);
-
+      
 
         //监视document.body子元素变动事件，新加入的element，转换JControl，这个监听是个异步事件模式
         var MutationObserver = (<any>window).MutationObserver ||
@@ -1838,9 +1178,7 @@ if (document.addEventListener) {
                         if (record.addedNodes) {
                             for (var i = 0; i < record.addedNodes.length; i++) {
                                 //转换JControl
-                                if (!record.addedNodes[i].JControl) {
-                                    JElementHelper.initElements(record.addedNodes[i]);
-                                }
+                                JElementHelper.initElements(record.addedNodes[i], true);
                             }
                         }
 
@@ -1862,5 +1200,9 @@ if (document.addEventListener) {
                 alert(e.message);
             }
         }
+
+
+        JElementHelper.initElements(document.body, false);
+
     }, false);
 }
