@@ -251,6 +251,7 @@ var JControl = (function () {
         }
     };
     JControl.prototype.dispose = function () {
+        this.parentJControl = null;
     };
     JControl.prototype.addEventListener = function (type, listener, useCapture) {
         if (this.element && listener) {
@@ -353,23 +354,24 @@ var JControl = (function () {
                 throw new Error("不能把JControl作为模板的首个元素");
             }
             this.element.JControl = this;
-            if (true) {
-                var parent = this.element.parentElement;
-                while (parent) {
-                    if (parent.JControl) {
-                        this.parentJControl = parent.JControl;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-            }
+            this.resetParentJControl();
             JElementHelper.replaceElement(this.element, rootElement);
             if (this.onclick) {
                 this.addEventListener("click", this.onclick, false);
             }
             this.onTemplateApply();
+        }
+    };
+    JControl.prototype.resetParentJControl = function () {
+        var parent = this.element.parentElement;
+        while (parent) {
+            if (parent.JControl) {
+                this.parentJControl = parent.JControl;
+                break;
+            }
+            else {
+                parent = parent.parentElement;
+            }
         }
     };
     JControl.prototype.onTemplateApply = function () {

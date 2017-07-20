@@ -317,7 +317,7 @@ class JControl implements INotifyPropertyChanged {
 
     dispose()
     {
-
+        this.parentJControl = null;
     }
 
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture?: boolean) {
@@ -446,18 +446,7 @@ class JControl implements INotifyPropertyChanged {
             }
             (<any>this.element).JControl = this;
             //查找上级JControl
-            if (true) {
-                var parent = this.element.parentElement;
-                while (parent) {
-                    if ((<any>parent).JControl) {
-                        this.parentJControl = (<any>parent).JControl;
-                        break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
-                }
-            }
+            this.resetParentJControl();
 
             JElementHelper.replaceElement(this.element, rootElement);
             
@@ -469,6 +458,20 @@ class JControl implements INotifyPropertyChanged {
             
              
             this.onTemplateApply();
+        }
+    }
+
+    resetParentJControl()
+    {
+        var parent = this.element.parentElement;
+        while (parent) {
+            if ((<any>parent).JControl) {
+                this.parentJControl = (<any>parent).JControl;
+                break;
+            }
+            else {
+                parent = parent.parentElement;
+            }
         }
     }
 

@@ -70,6 +70,12 @@ var JElementHelper = (function () {
                 }
             }
         }
+        else {
+            if (container.JControl) {
+                var jcontrol = container.JControl;
+                jcontrol.resetParentJControl();
+            }
+        }
     };
     return JElementHelper;
 }());

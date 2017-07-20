@@ -30,6 +30,7 @@ declare class JControl implements INotifyPropertyChanged {
     protected loadTemplates(): void;
     private checkDataContextPropertyExist();
     private reApplyTemplate(rootElement);
+    resetParentJControl(): void;
     protected onTemplateApply(): void;
     protected getTemplate(): HTMLElement;
 }

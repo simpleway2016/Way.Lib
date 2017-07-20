@@ -87,6 +87,13 @@ class JElementHelper {
                 }
             }
         }
+        else {
+            if ((<any>container).JControl)
+            {
+                var jcontrol = <JControl>(<any>container).JControl;
+                jcontrol.resetParentJControl();
+            }
+        }
     }
 }
 
