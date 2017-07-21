@@ -318,22 +318,7 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else
                     {
-                        //文件更新，解析过需要清除，重新解析
-                        for(int i = 0; i < RemotingController.ParsedHtmls.Count; i ++)
-                        {
-                            var info = RemotingController.ParsedHtmls[i];
-                            if (info != null)
-                            {
-                                string infourl = info.Url;
-                                Match m = Regex.Match(infourl, @"http(s)?://(\w|\:|\.)+(?<u>/(.)+)");
-                                infourl = m.Groups["u"].Value;
-                                if (infourl.StartsWith(url , StringComparison.CurrentCultureIgnoreCase))
-                                {
-                                    RemotingController.ParsedHtmls.RemoveAt(i);
-                                    i--;
-                                }
-                            }
-                        }
+
                         var content = outputWithMaster(url, filePath);
                         content = Regex.Replace(content, @"\{\%(\w)+\%\}", "");
                         bs = System.Text.Encoding.UTF8.GetBytes(content);
@@ -349,29 +334,6 @@ namespace Way.Lib.ScriptRemoting
                         RemotingContext.Current.Response.MakeResponseHeaders(bs.Length, false, -1, 0, lastModifyTime, null, true);
                         RemotingContext.Current.Response.Write(bs);
                         return;
-                    }
-                }
-                else
-                {
-                    DateTime lastModified = DateTime.Parse(lastModifyTime);
-                    //文件更新，解析过需要清除，重新解析
-                    for (int i = 0; i < RemotingController.ParsedHtmls.Count; i++)
-                    {
-                        var info = RemotingController.ParsedHtmls[i];
-                        if (info != null)
-                        {
-                            string infourl = info.Url;
-                            Match m = Regex.Match(infourl, @"http(s)?://(\w|\:|\.)+(?<u>/(.)+)");
-                            infourl = m.Groups["u"].Value;
-                            if (infourl.StartsWith(url, StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                if (lastModified != info.LastModified)
-                                {
-                                    RemotingController.ParsedHtmls.RemoveAt(i);
-                                    i--;
-                                }
-                            }
-                        }
                     }
                 }
             }

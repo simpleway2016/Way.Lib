@@ -72,7 +72,6 @@ namespace Way.Lib.ScriptRemoting
         }
 
         static List<string> SafeDomains = new List<string>();
-        internal static List<ParseHtmlInfo> ParsedHtmls = new List<ParseHtmlInfo>();
         internal string SocketID;
         public SessionState Session
         {
@@ -107,80 +106,7 @@ namespace Way.Lib.ScriptRemoting
             get;
             internal set;
         }
-        internal static void CheckHtmlFile(string url)
-        {
-            if (url == null)
-                return;
 
-            for (int i = 0; i < ParsedHtmls.Count; i++)
-            {
-                var info = ParsedHtmls[i];
-                if (info != null && String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return;
-                }
-            }
-            lock (ParsedHtmls)
-            {
-                //再检查一遍
-                for (int i = 0; i < ParsedHtmls.Count; i++)
-                {
-                    var info = ParsedHtmls[i];
-                    if (info != null && String.Equals(info.Url, url, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        return;
-                    }
-                }
-
-                var match = Regex.Match(url, @"(?<h>http(s)?\:\/\/)(?<g>(\w|\:|\.)+)\/");
-                string domain = match.Groups["g"].Value;
-
-
-                HttpClient client = new HttpClient();
-                if (SafeDomains.Contains(domain) == false)
-                {
-                    //这里要确定一下域名是属于本机的，防止别人利用这里放假域名骗取数据
-                    var task = client.GetStringAsync(match.Groups["h"].Value + domain + "/SERVERID");
-                    task.Wait();
-                    if (task.Result != ScriptRemotingServer.SERVERID)
-                        throw new Exception("not allow domain");
-
-                    SafeDomains.Add(domain);
-                }
-                //继续检查页面上定义的waycontrols，如果访问没有定义的datasource，则应该是属于黑客攻击
-                if (true)
-                {
-                    var task = client.GetAsync(url);
-                    task.Wait();
-
-                    DateTime lastModifiedTime = DateTime.MinValue;
-                    try
-                    {
-                        lastModifiedTime = task.Result.Content.Headers.LastModified.Value.DateTime;
-                    }
-                    catch
-                    {
-
-                    }
-
-                    var taskStream = task.Result.Content.ReadAsStreamAsync();
-                    taskStream.Wait();
-
-                    Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
-                    var stream = new System.IO.StreamReader(taskStream.Result);
-                    parser.Parse(stream);
-                    stream.Dispose();
-                    ParseHtmlInfo htmlinfo = new ScriptRemoting.RemotingController.ParseHtmlInfo();
-                    htmlinfo.Url = url;
-                    htmlinfo.LastModified = lastModifiedTime;
-                    CheckHtmlFile(htmlinfo, parser.Nodes,
-                        match.Groups["h"].Value + domain + "/",
-                        url.Substring(0, url.LastIndexOf("/") + 1));
-                    ParsedHtmls.Add(htmlinfo);
-                }
-            }
-
-        }
         static void CheckHtmlFile(ParseHtmlInfo info,List<HtmlUtil.HtmlNode> nodes,string webroot, string weburl)
         {
             try
@@ -588,17 +514,17 @@ namespace Way.Lib.ScriptRemoting
         {
             string fullname = this.GetType().FullName;
 
-            if (isForEditing)
-            {
+            //if (isForEditing)
+            //{
                
-                if (ParsedHtmls.Any(m=> m.Controller == fullname && m.AllowEditDatasources.Contains(datasourceName)) == false)
-                    throw new Exception("无权编辑" + datasourceName);
-            }
-            else
-            {
-                if (ParsedHtmls.Any(m => m.Controller == fullname && m.Datasources.Contains(datasourceName)) == false)
-                    throw new Exception("此html没有在任何地方定义使用" + datasourceName);
-            }
+            //    if (ParsedHtmls.Any(m=> m.Controller == fullname && m.AllowEditDatasources.Contains(datasourceName)) == false)
+            //        throw new Exception("无权编辑" + datasourceName);
+            //}
+            //else
+            //{
+            //    if (ParsedHtmls.Any(m => m.Controller == fullname && m.Datasources.Contains(datasourceName)) == false)
+            //        throw new Exception("此html没有在任何地方定义使用" + datasourceName);
+            //}
            
             int index = datasourceName.LastIndexOf(".");
             fullname = datasourceName.Substring(0 , index);

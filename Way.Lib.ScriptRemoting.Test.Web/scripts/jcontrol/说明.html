@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <script lang="ja">
+        var controller = "Way.Lib.ScriptRemoting.Test.TestPage".controller();
+        //执行方法
+            controller.server.Test(23, function (ret, err) {
+                if (err)
+                    alert(err);
+                else
+                    alert(ret);
+        });
+
+
+
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
@@ -9,6 +9,15 @@
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;portable-net45+win8</PackageTargetFallback>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\scripts\WayScriptRemoting.js">
+      <DependentUpon>WayScriptRemoting.old</DependentUpon>
+    </Content>
+    <Content Include="wwwroot\scripts\WayScriptRemoting.js.map">
+      <DependentUpon>WayScriptRemoting.js</DependentUpon>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="wwwroot\**\*">
@@ -47,6 +56,10 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.2.301" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\scripts\WayScriptRemoting.ts" />
   </ItemGroup>
 
 </Project>

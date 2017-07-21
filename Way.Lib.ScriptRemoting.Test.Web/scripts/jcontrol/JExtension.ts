@@ -21,3 +21,8 @@
     }
     return null;
 };
+
+(<any>String).prototype.controller = function ()
+{
+    return WayScriptRemoting.createRemotingController(this);
+}

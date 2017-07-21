@@ -35,17 +35,12 @@
     <Content Include="master3.html" />
     <Content Include="scripts\Barrett.js" />
     <Content Include="scripts\BigInt.js" />
+    <Content Include="scripts\jcontrol\说明.html" />
     <Content Include="scripts\jquery.js" />
     <Content Include="scripts\remConfig.js" />
     <Content Include="scripts\RSA.js" />
     <Content Include="scripts\sonic.js" />
     <Content Include="scripts\touchHandler.js" />
-    <Content Include="scripts\jcontrol\WayScriptRemoting.js">
-      <DependentUpon>WayScriptRemoting.ts</DependentUpon>
-    </Content>
-    <Content Include="scripts\WayScriptRemoting.js">
-      <DependentUpon>WayScriptRemoting.old</DependentUpon>
-    </Content>
     <Content Include="socketTest.html" />
     <Content Include="swipe_2.jpg" />
     <Content Include="templates\system.html" />
@@ -60,9 +55,8 @@
     <TypeScriptCompile Include="scripts\jcontrol\JObserveObject.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />
-    <TypeScriptCompile Include="scripts\jcontrol\JScriptInvoker.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JHttpHelper.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.ts" />
-    <None Include="scripts\WayScriptRemoting.old" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -93,13 +87,7 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="scripts\jcontrol\WayScriptRemoting.js.map">
-      <DependentUpon>WayScriptRemoting.js</DependentUpon>
-    </Content>
     <Content Include="hosts" />
-    <Content Include="scripts\WayScriptRemoting.js.map">
-      <DependentUpon>WayScriptRemoting.js</DependentUpon>
-    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -134,9 +122,20 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
-    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
-    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptRemoveComments>True</TypeScriptRemoveComments>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile>
+    </TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

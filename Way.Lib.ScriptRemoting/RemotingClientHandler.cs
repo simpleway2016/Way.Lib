@@ -89,7 +89,6 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else if (msgBag.MethodName.IsNullOrEmpty() == false)
                 {
-                    RemotingController.CheckHtmlFile(this._Referer);
                     handleMethodInvoke(msgBag);
                 }
                 else if (msgBag.GroupName.IsNullOrEmpty() == false)
@@ -326,8 +325,7 @@ namespace Way.Lib.ScriptRemoting
             RemotingController currentPage = null;
             try
             {
-                string remoteName = (from m in RemotingController.ParsedHtmls where string.Equals(this._Referer, m.Url, StringComparison.CurrentCultureIgnoreCase) select m.Controller).FirstOrDefault();
-                var pageDefine = checkRemotingName(remoteName);
+                var pageDefine = checkRemotingName(msgBag.ClassFullName);
 
                 currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
                 currentPage.Session = this.Session;

@@ -3,7 +3,6 @@ declare class RSAKeyPair { constructor(e: string,n:string, m: string); };
 declare var encryptedString: (key: RSAKeyPair, value: string) => string;
 declare var decryptedString: (key: RSAKeyPair, value: string) => string;
 
-
 enum WayScriptRemotingMessageType {
     Result = 1,
     Notify = 2,
@@ -41,7 +40,6 @@ class WayCookie {
     }
 }
 
-
 class WayScriptRemotingUploadHandler {
     abort: boolean = false;
     offset: number = 0;
@@ -50,6 +48,7 @@ class RSAInfo {
     Exponent: string;
     Modulus: string;
 }
+
 class WayScriptRemoting {
     static onBeforeInvoke: (name: string, parameters: any[]) => any;
     static onInvokeFinish: (name: string, parameters: any[]) => any;
@@ -170,16 +169,18 @@ class WayScriptRemoting {
 
     static getClassDefineScript(methods: any[]): string {
         var text: string = "";
-        text += ("(function (_super) {__extends(func, _super);function func() {_super.apply(this, arguments);}");
+        text += ("(function (_super) {__extends(func, _super);function func() {_super.apply(this, arguments);");
+        text += "this.server = {};";
+        text += "var self = this;";
         for (var i = 0; i < methods.length; i++) {
             var m = methods[i];
            
-            text += "func.prototype." + m.Method + " = function (";
+            text += "this.server." + m.Method + " = function (";
             for (var j = 0; j < m.ParameterLength; j++)
             {
                 text += "p" + j + ",";
             }
-            text += "callback){_super.prototype.pageInvoke.call(this,'" + methods[i].Method + "',[";
+            text += "callback){_super.prototype.pageInvoke.call(self,'" + methods[i].Method + "',[";
             for (var j = 0; j < m.ParameterLength; j++)
             {
                 text += "p" + j;
@@ -195,6 +196,7 @@ class WayScriptRemoting {
                 text += "] , callback );};";
             }
         }
+        text += "}";
         text += "return func;}(WayScriptRemoting));";
        return text;
     }
@@ -614,7 +616,6 @@ class WayScriptRemoting {
 }
 
 class WayScriptRemotingChild extends WayScriptRemoting {
-
 }
 
 enum WayVirtualWebSocketStatus {
@@ -823,7 +824,6 @@ class WayVirtualWebSocket {
     }
 }
 
-
 class WayScriptInvoker {
     url: string;
     async: boolean = true;
@@ -979,41 +979,7 @@ class WayScriptInvoker {
     }
 }
 
-class WayTemplate {
-    content: string;
-    match: string;
-    //匹配当前行的当前状态模式
-    mode: string;
-    constructor(_content: string, _match: string = null, mode: string = "") {
-        this.content = _content;
-        this.match = _match;
-        this.mode = mode ? mode : "";
-    }
-}
-
-
-
 class WayHelper {
-    //判断数组是否包含某个值
-    static contains(arr, value): boolean {
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i] == value)
-                return true;
-        }
-        return false;
-    }
-
-    static getPropertyName(obj, index: number): string {
-        var i = 0;
-        for (var p in obj) {
-            if (i == index)
-                return p;
-
-            i++;
-        }
-        return null;
-    }
-
     static createWebSocket(url: string): WebSocket {
         if ((<any>window).WebSocket) {
             return new WebSocket(url);
@@ -1021,48 +987,6 @@ class WayHelper {
         else {
             return <any>new WayVirtualWebSocket(url);
         }
-    }
-
-    //用touch触发click
-    static setTouchFireClickEvent(element: any, handler: any) {
-        if (!("ontouchstart" in element))
-            return;
-
-        var touchPoint;
-        var canBeClick;
-        element.addEventListener("touchstart", function (e) {
-            canBeClick = true;
-            touchPoint = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY,
-                time: new Date().getTime()
-            };
-        });
-
-        element.addEventListener("touchmove", function (e) {
-            var x = e.touches[0].clientX;
-            var y = e.touches[0].clientY;
-            if (Math.abs(x - touchPoint.x) > window.innerWidth / 15 || Math.abs(y - touchPoint.y) > window.innerHeight / 15) {
-                canBeClick = false;
-            }
-        });
-
-        element.addEventListener("touchend", function (e) {
-            if (canBeClick && (new Date().getTime() - touchPoint.time) < 300) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (handler) {
-                    handler();
-                }
-                else {
-                    if (element.fireEvent)
-                        element.fireEvent("click");
-                    else
-                        element.click();
-                }
-            }
-            canBeClick = false;
-        });
     }
 
     static writePage(url: string): void {
@@ -1092,30 +1016,6 @@ class WayHelper {
         return result;
     }
 
-    static findBindingElements(element: HTMLElement): any[] {
-        var result = [];
-        WayHelper.findInnerBindingElements(result, element);
-        return result;
-    }
-
-    static findInnerBindingElements(result: any[], element: HTMLElement) {
-        var attr = element.getAttribute("databind");
-        if (attr && attr.length > 0) {
-            result.push(element);
-        }
-        else {
-            attr = element.getAttribute("expression");
-            if (attr && attr.length > 0) {
-                result.push(element);
-            }
-        }
-        if (element.tagName.indexOf("Way") == 0 || (<any>element).WayControl) {
-            return;
-        }
-        for (var i = 0; i < element.children.length; i++) {
-            WayHelper.findInnerBindingElements(result, <any>element.children[i]);
-        }
-    }
 
     static addEventListener(element: HTMLElement, eventName: string, listener: any, useCapture: any): void {
         if (element.addEventListener) {
@@ -1149,37 +1049,7 @@ class WayHelper {
             (<any>el).fireEvent('on' + eventName);
         }
     }
-
-    static getDataForDiffent(originalData: any, currentData: any): any {
-        var result = null;
-        for (var p in originalData) {
-            var mydata = originalData[p];
-            var curdata = currentData[p];
-            if (mydata != null && typeof mydata == "object") {
-                var dif = WayHelper.getDataForDiffent(mydata, curdata);
-                if (dif) {
-                    if (!result) {
-                        result = {};
-                    }
-                    eval("result." + p + "=dif;");
-                }
-            }
-            else if (mydata != curdata) {
-                if (!result) {
-                    result = {};
-                }
-                eval("result." + p + "=curdata;");
-            }
-        }
-        return result;
-    }
-
-    static replace(content: string, find: string, replace: string): string {
-        while (content.indexOf(find) >= 0) {
-            content = content.replace(find, replace);
-        }
-        return content;
-    }
+    
     static copyValue(target: any, source: any): void {
         for (var pro in target) {
             var originalvalue = target[pro];
