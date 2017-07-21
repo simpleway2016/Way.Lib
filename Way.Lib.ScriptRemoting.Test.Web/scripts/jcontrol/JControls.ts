@@ -1,6 +1,8 @@
 ﻿//throw new Error('Method not implemented.');
 //obj instanceof JControl
+//获取类名  obj.constructor.name
 //模板里，首个元素不能是JControl
+//htmlElement.getContainer() 可以获取所属JControl
 //属性的定义必须全小写，因为element.attribute[0].name就是全小写
 //属性绑定<input databind="value=@name;className=$class;">
 //属性直接替换<div>{@name}  {$text}</div>

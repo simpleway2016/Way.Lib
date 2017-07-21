@@ -13,6 +13,8 @@ declare class JBinder {
     control: any;
     disposed: boolean;
     rootControl: JControl;
+    private _datacontext;
+    readonly datacontext: any;
     constructor(control: any);
     onPropertyChanged(sender: any, name: string, originalValue: any): void;
     getDatacontext(): INotifyPropertyChanged;

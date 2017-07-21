@@ -22,6 +22,16 @@ class JBinder
     disposed: boolean = false;
     rootControl: JControl;
 
+    private _datacontext;
+    get datacontext()
+    {
+        if (!this._datacontext)
+        {
+            this._datacontext = this.getDatacontext();
+        }
+        return this._datacontext;
+    }
+
     constructor(control)
     {
         this.control = control;
@@ -37,7 +47,7 @@ class JBinder
         if (existed)
             return;
 
-        this.bindingDataContext = this.getDatacontext();
+        this.bindingDataContext = this.datacontext;
     }
 
     onPropertyChanged(sender, name: string, originalValue) {
@@ -49,45 +59,30 @@ class JBinder
         {
             this.rootControl = this.control;
             var data = (<JControl>this.control).datacontext;
-            if (data == null && (<JControl>this.control).element)
+            if (!data && (<JControl>this.control).element)
             {
-                var parent = (<JControl>this.control).element.parentElement;
-                while (parent)
-                {
-                    if ((<any>parent).JControl)
-                    {
-                        this.rootControl = (<any>parent).JControl;
-                        data = this.rootControl.datacontext;
-                        if (data)
-                            break;
-                    }
-                    else {
-                        parent = parent.parentElement;
-                    }
+                this.rootControl = (<any>this.control.element).getDataContextControl();
+                if (this.rootControl) {
+                    data = this.rootControl.datacontext;
                 }
             }
 
             return data;
         }
         else {
+            this.rootControl = (<any>this.control).getDataContextControl(); 
             var data;
-            var parent = <HTMLElement>this.control;
-            while (parent) {
-                if ((<any>parent).JControl) {
-                    this.rootControl = (<any>parent).JControl;
-                    data = this.rootControl.datacontext;
-                    if (data)
-                        break;
-                }
-                else {
-                    parent = parent.parentElement;
-                }
+            if (this.rootControl)
+            {
+                data = this.rootControl.datacontext;
             }
+            
             return data;
         }
     }
 
     dispose() {
+        this._datacontext = null;
         this.disposed = true;
         this.rootControl = null;
     }
@@ -231,7 +226,7 @@ class JDatacontextBinder extends JBinder
     }
 
     updateValue() {
-        var data = this.getDatacontext();
+        var data = this.datacontext;
 
         for (var i = 0; i < this.configs.length; i++) {
             var config = this.configs[i];
@@ -272,7 +267,7 @@ class JDatacontextBinder extends JBinder
         return function () {
             if (self.disposed)
                 return;
-            var data = self.getDatacontext();
+            var data = self.datacontext;
             var control = self.control;
             try {
                 eval("data." + config.dataPropertyName + " = control." + config.elementPropertyName);
@@ -306,7 +301,7 @@ class JDatacontextBinder extends JBinder
 
             var config = this.getConfigByElementProName(name);
             if (config) {
-                var data = this.getDatacontext();
+                var data = this.datacontext;
                 var control = this.control;
 
                 eval("data." + config.dataPropertyName + " = control." + name);
@@ -351,19 +346,8 @@ class JControlBinder extends JDatacontextBinder {
             element = <HTMLElement>this.control;
         }
 
-        var data;
-        var parent = element;
-        while (parent) {
-            if ((<any>parent).JControl) {
-                data = (<any>parent).JControl;
-                this.rootControl = data;
-                break;
-            }
-            else {
-                parent = parent.parentElement;
-            }
-        }
-        return data;
+        this.rootControl = (<any>element).getContainer();
+        return this.rootControl;
     }
 
     protected getRegexp(): RegExp {
@@ -433,7 +417,7 @@ class JDatacontextExpressionBinder extends JBinder {
             var exconfig = this.configs[i];
             if (exconfig) {
                 var element = this.control;
-                var data = this.getDatacontext();
+                var data = this.datacontext;
                 eval(exconfig.expression);
             }
         }
@@ -444,7 +428,7 @@ class JDatacontextExpressionBinder extends JBinder {
         var original
         var expression_exp = this.getRegexp();
 
-        var datacontext = this.getDatacontext();
+        var datacontext = this.datacontext;
         expressionStr = expressionStr.replace(/\{0\}\./g, "element.");
         if (expressionStr) {
             while (true) {
