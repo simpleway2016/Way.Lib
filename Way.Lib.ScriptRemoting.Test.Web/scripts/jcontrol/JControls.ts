@@ -6,9 +6,10 @@
 //属性的定义必须全小写，因为element.attribute[0].name就是全小写
 //属性绑定<input databind="value=@name;className=$class;">
 //属性直接替换<div>{@name}  {$text}</div>
+//@表示datacontext里面的属性，如果当前元素是htmlElement，则表示该htmlElement所属JControl的datacontext
+//$表示上级JControl的属性
 //表达式,expression="{0}.style.color={1}.@isSelected?'red':'black'"  {1}表示datacontext {1}.$是指向JControl属性的形式
-//定义多个表达式 expression="***" expression1="**" expression2="***"，不要把 {1}.@isSelected {1}.$index 两种变量写在同一个表达式里面
-
+//定义多个表达式 expression="{0}.value={1}.@count + '(个)'" expression1="{0}.style.color={1}.$color" expression2="***"，@$符号不能同时出现在一个expression当中
 //页面定义模板文件
 //<body template="/templates/system.html">
 
