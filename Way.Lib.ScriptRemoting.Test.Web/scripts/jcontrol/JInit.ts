@@ -3,6 +3,24 @@ window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
 
+if (true) {
+    try {
+        var obj = {};
+        Object.defineProperty(obj, "test", {
+            get: function () {
+                return null;
+            },
+            set: function (value) {
+            },
+            enumerable: true,
+            configurable: true
+        });
+    }
+    catch (e) {
+        throw "浏览器不支持defineProperty";
+    }
+}
+
 var AllJBinders: JBinder[] = [];
 
 

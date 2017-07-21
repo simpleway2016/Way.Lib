@@ -40,8 +40,11 @@
     <Content Include="scripts\RSA.js" />
     <Content Include="scripts\sonic.js" />
     <Content Include="scripts\touchHandler.js" />
-    <Content Include="scripts\WayScriptRemoting.js">
+    <Content Include="scripts\jcontrol\WayScriptRemoting.js">
       <DependentUpon>WayScriptRemoting.ts</DependentUpon>
+    </Content>
+    <Content Include="scripts\WayScriptRemoting.js">
+      <DependentUpon>WayScriptRemoting.old</DependentUpon>
     </Content>
     <Content Include="socketTest.html" />
     <Content Include="swipe_2.jpg" />
@@ -58,7 +61,8 @@
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JScriptInvoker.ts" />
-    <TypeScriptCompile Include="scripts\WayScriptRemoting.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.ts" />
+    <None Include="scripts\WayScriptRemoting.old" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -89,10 +93,13 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="scripts\WayScriptRemoting.js.map">
+    <Content Include="scripts\jcontrol\WayScriptRemoting.js.map">
       <DependentUpon>WayScriptRemoting.js</DependentUpon>
     </Content>
     <Content Include="hosts" />
+    <Content Include="scripts\WayScriptRemoting.js.map">
+      <DependentUpon>WayScriptRemoting.js</DependentUpon>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
