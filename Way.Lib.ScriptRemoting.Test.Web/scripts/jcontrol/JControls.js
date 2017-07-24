@@ -16,6 +16,11 @@ var JControl = (function () {
         this.onPropertyChangeds = [];
         this.templates = [];
         this.templateMatchProNames = [];
+        this.cid = JControl.StaticString + JControl.StaticID++;
+        if (JControl.StaticID >= 100000) {
+            JControl.StaticString += "E_";
+            JControl.StaticID = 1;
+        }
         this.originalElement = element;
         if (templates) {
             for (var i = 0; i < templates.length; i++) {
@@ -201,6 +206,20 @@ var JControl = (function () {
                 this._id = value;
                 eval("window." + value + "=this");
                 this.onPropertyChanged("id", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JControl.prototype, "cid", {
+        get: function () {
+            return this._cid;
+        },
+        set: function (value) {
+            if (this._cid != value) {
+                var original = this._cid;
+                this._cid = value;
+                this.onPropertyChanged("cid", original);
             }
         },
         enumerable: true,
@@ -419,6 +438,8 @@ var JControl = (function () {
     };
     return JControl;
 }());
+JControl.StaticID = 1;
+JControl.StaticString = "JC_";
 var JButton = (function (_super) {
     __extends(JButton, _super);
     function JButton(element, templates, datacontext) {
@@ -479,14 +500,7 @@ var JListItem = (function (_super) {
     function JListItem(element, templates, datacontext) {
         if (templates === void 0) { templates = null; }
         if (datacontext === void 0) { datacontext = null; }
-        var _this = _super.call(this, element, templates, datacontext) || this;
-        _this.id = JListItem.StaticString + JListItem.StaticID++;
-        if (JListItem.StaticID >= 100000) {
-            JListItem.StaticString += "E_";
-            JListItem.StaticID = 1;
-        }
-        _this.onPropertyChanged("id", undefined);
-        return _this;
+        return _super.call(this, element, templates, datacontext) || this;
     }
     Object.defineProperty(JListItem.prototype, "valuemember", {
         get: function () {
@@ -568,8 +582,6 @@ var JListItem = (function (_super) {
     });
     return JListItem;
 }(JControl));
-JListItem.StaticID = 1;
-JListItem.StaticString = "JListItem_";
 var JList = (function (_super) {
     __extends(JList, _super);
     function JList(element, templates, datacontext) {
@@ -916,4 +928,29 @@ var JDropdownList = (function (_super) {
     };
     return JDropdownList;
 }(JList));
+var JCheckbox = (function (_super) {
+    __extends(JCheckbox, _super);
+    function JCheckbox(element, templates, datacontext) {
+        if (templates === void 0) { templates = null; }
+        if (datacontext === void 0) { datacontext = null; }
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        _this._checked = false;
+        return _this;
+    }
+    Object.defineProperty(JCheckbox.prototype, "checked", {
+        get: function () {
+            return this._checked;
+        },
+        set: function (value) {
+            if (this._checked != value) {
+                var original = this._checked;
+                this._checked = value;
+                this.onPropertyChanged("checked", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return JCheckbox;
+}(JListItem));
 //# sourceMappingURL=JControls.js.map

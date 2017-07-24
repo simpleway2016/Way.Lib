@@ -3,6 +3,8 @@ declare class JControl implements INotifyPropertyChanged {
     removeListener(index: number): void;
     protected onPropertyChanged(proName: string, originalValue: any): void;
     protected onDatacontextPropertyChanged(datacontext: any, proName: string, originalValue: any): void;
+    static StaticID: number;
+    static StaticString: string;
     originalElement: HTMLElement;
     element: HTMLElement;
     onPropertyChangeds: any[];
@@ -18,6 +20,8 @@ declare class JControl implements INotifyPropertyChanged {
     parentJControl: JControl;
     private _id;
     id: string;
+    private _cid;
+    cid: string;
     private _onclick;
     onclick: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
@@ -48,8 +52,6 @@ declare class JTextbox extends JButton {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JListItem extends JControl {
-    static StaticID: number;
-    static StaticString: string;
     id: string;
     name: string;
     private _valueMember;
@@ -103,4 +105,9 @@ declare class JDropdownList extends JList {
     selectedvalue: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     protected bindItems(): void;
+}
+declare class JCheckbox extends JListItem {
+    private _checked;
+    checked: boolean;
+    constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }

@@ -526,7 +526,14 @@ class WayScriptRemoting {
                     if (returnUseRsa && ret.indexOf("{") != 0) {
                         setMaxDigits(129);
                         var rsakey = new RSAKeyPair("", this.rsa.Exponent, this.rsa.Modulus);
-                        ret = decodeURIComponent(decryptedString(rsakey, ret));
+                        try {
+                            ret = decryptedString(rsakey, ret);
+                        }
+                        catch (e)
+                        {
+                            throw "RSA decrypted error，" + e.messsage;
+                        }
+                        ret = decodeURIComponent(ret);
                     }
                     eval("resultObj=" + ret);
                     if (resultObj.sessionid && resultObj.sessionid.length > 0) {

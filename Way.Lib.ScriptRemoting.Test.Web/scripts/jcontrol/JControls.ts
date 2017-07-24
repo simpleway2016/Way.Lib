@@ -58,6 +58,9 @@ class JControl implements INotifyPropertyChanged {
         });
        
     }
+
+    static StaticID: number = 1;
+    static StaticString: string = "JC_";
     
     originalElement: HTMLElement;
     element: HTMLElement;
@@ -190,6 +193,19 @@ class JControl implements INotifyPropertyChanged {
         }
     }
 
+    private _cid: string;
+    //页面唯一id
+    get cid(): string {
+        return this._cid;
+    }
+    set cid(value: string) {
+        if (this._cid != value) {
+            var original = this._cid;
+            this._cid = value;
+            this.onPropertyChanged("cid", original);
+        }
+    }
+
     private _onclick;
     get onclick() {
         return this._onclick;
@@ -214,7 +230,13 @@ class JControl implements INotifyPropertyChanged {
         }
     }
     
-    constructor(element: HTMLElement,templates:any[] = null,datacontext = null) {
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        this.cid = JControl.StaticString + JControl.StaticID++;
+        if (JControl.StaticID >= 100000) {
+            JControl.StaticString += "E_";
+            JControl.StaticID = 1;
+        }
+
         this.originalElement = element;
         
 
@@ -577,9 +599,7 @@ class JTextbox extends JButton {
 }
 
 class JListItem extends JControl
-{
-    static StaticID: number = 1;
-    static StaticString: string = "JListItem_";
+{   
 
     id: string;
     name: string;
@@ -656,13 +676,7 @@ class JListItem extends JControl
 
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
-        this.id = JListItem.StaticString + JListItem.StaticID++;
-        if (JListItem.StaticID >= 100000)
-        {
-            JListItem.StaticString += "E_";
-            JListItem.StaticID = 1;
-        }
-        this.onPropertyChanged("id", undefined);
+        
     }
 }
 
@@ -1053,3 +1067,23 @@ class JDropdownList extends JList {
     }
 }
 
+class JCheckbox extends JListItem {
+    private _checked: boolean = false;
+    get checked()
+    {
+        return this._checked;
+    }
+    set checked(value: boolean)
+    {
+        if (this._checked != value)
+        {
+            var original = this._checked;
+            this._checked = value;
+            this.onPropertyChanged("checked", original);
+        }
+    }
+
+    constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
+        super(element, templates, datacontext);
+    }
+}

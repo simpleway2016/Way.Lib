@@ -606,8 +606,7 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="fields">需要绑定的字段</param>
         /// <param name="searchJsonStr">搜索条件的model</param>
         /// <returns></returns>
-        [RemotingMethod]
-        public object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
+        protected object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
         {
             List<string> changeNewNames = new List<string>(fields.Length);
             for (int i = 0; i < fields.Length; i++)
