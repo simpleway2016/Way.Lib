@@ -106,20 +106,7 @@ namespace Way.Lib.ScriptRemoting.Net
                     break;
                 else
                 {
-                    int flag = line.IndexOf(":");
-                    if (flag > 0)
-                    {
-                        try
-                        {
-                            string name = line.Substring(0, flag);
-                            string value = line.Substring(flag + 1);
-                            _Headers[name] = value.Trim();
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    else if (line.StartsWith("GET"))
+                    if (line.StartsWith("GET"))
                     {
                         try
                         {
@@ -137,6 +124,22 @@ namespace Way.Lib.ScriptRemoting.Net
                         }
                         catch
                         {
+                        }
+                    }
+                    else
+                    {
+                        int flag = line.IndexOf(":");
+                        if (flag > 0)
+                        {
+                            try
+                            {
+                                string name = line.Substring(0, flag);
+                                string value = line.Substring(flag + 1);
+                                _Headers[name] = value.Trim();
+                            }
+                            catch
+                            {
+                            }
                         }
                     }
                 }
