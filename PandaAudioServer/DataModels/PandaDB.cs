@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PandaAudioServer.DataModels
+namespace PandaAudioServer
 {
     class PandaDB : db.DB.PandaAudio
     {
