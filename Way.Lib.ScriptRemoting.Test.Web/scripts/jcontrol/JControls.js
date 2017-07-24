@@ -77,6 +77,10 @@ var JControl = (function () {
             this.datacontext = datacontext;
         }
         this.reApplyTemplate(this.element ? this.element : this.originalElement);
+        if (!this.datacontext) {
+            new JDatacontextBinder(this);
+            new JDatacontextExpressionBinder(this);
+        }
         this.addPropertyChangedListener(function (s, name, value) {
             for (var i = 0; i < _this.templateMatchProNames.length; i++) {
                 if (_this.templateMatchProNames[i] == "$" + name) {
@@ -153,11 +157,9 @@ var JControl = (function () {
                         AllJBinders[index] = null;
                     }
                 });
+                new JDatacontextBinder(this);
+                new JDatacontextExpressionBinder(this);
                 if (value) {
-                    if (value) {
-                        new JDatacontextBinder(this);
-                        new JDatacontextExpressionBinder(this);
-                    }
                     this.checkDataContextPropertyExist();
                     this._datacontext_listen_index = value.addPropertyChangedListener(function (sender, name, oldvalue) { return _this.onDatacontextPropertyChanged(sender, name, oldvalue); });
                 }

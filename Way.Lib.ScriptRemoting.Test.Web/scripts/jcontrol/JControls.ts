@@ -126,15 +126,11 @@ class JControl implements INotifyPropertyChanged {
                 }
             });
 
+            new JDatacontextBinder(this);
+            new JDatacontextExpressionBinder(this);
+
             if (value)
             {
-                if (value) {
-                    //JControlDataBinder用于把<JControl>标签和datacontext绑定
-                    new JDatacontextBinder(this);
-
-                    new JDatacontextExpressionBinder(this);
-                }
-
                 this.checkDataContextPropertyExist();
 
                 this._datacontext_listen_index = (<INotifyPropertyChanged>value).addPropertyChangedListener((sender, name, oldvalue) => this.onDatacontextPropertyChanged(sender, name, oldvalue));
@@ -306,6 +302,14 @@ class JControl implements INotifyPropertyChanged {
         }
         //这里要手动绑定一次，虽然this.datacontext变化后会调用this.reApplyTemplate，但如果一开始是null，就不会调用了，所有这里要调用一次
         this.reApplyTemplate(this.element ? this.element : this.originalElement);
+
+        if (!this.datacontext)
+        {
+            //如果this.datacontext == null，表示一开始datacontext虽然new JDatacontextBinder(this);，但因为this.element==null，这个绑定动作没有意义，
+            //所以这里再次绑定
+            new JDatacontextBinder(this);
+            new JDatacontextExpressionBinder(this);
+        }
 
         this.addPropertyChangedListener((s, name: string, value) => {
             for (var i = 0; i < this.templateMatchProNames.length; i++) {

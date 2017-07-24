@@ -27,16 +27,13 @@ var JBinder = (function () {
         var _this = this;
         this.disposed = false;
         this.control = control;
-        var existed = false;
-        AllJBinders.every(function (binder) {
+        AllJBinders.forEach(function (binder, index) {
             if (binder && binder.control == control && binder.constructor.name == _this.constructor.name) {
-                existed = true;
-                return false;
+                AllJBinders[index].dispose();
+                delete AllJBinders[index];
+                AllJBinders[index] = null;
             }
-            return true;
         });
-        if (existed)
-            return;
         this.bindingDataContext = this.datacontext;
     }
     Object.defineProperty(JBinder.prototype, "datacontext", {
@@ -49,6 +46,15 @@ var JBinder = (function () {
         enumerable: true,
         configurable: true
     });
+    JBinder.pushBinder = function (binder) {
+        for (var i = 0; i < AllJBinders.length; i++) {
+            if (!AllJBinders[i]) {
+                AllJBinders[i] = binder;
+                return;
+            }
+        }
+        AllJBinders.push(binder);
+    };
     JBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
     };
     JBinder.prototype.getDatacontext = function () {
@@ -155,7 +161,7 @@ var JDatacontextBinder = (function (_super) {
             });
         }
         if (_this.configs.length > 0) {
-            AllJBinders.push(_this);
+            JBinder.pushBinder(_this);
             _this.updateValue();
         }
         _this.bindChildren(_this.control instanceof JControl ? _this.control.element : _this.control);
@@ -177,7 +183,12 @@ var JDatacontextBinder = (function (_super) {
             if (!existed) {
                 var ele = element.children[i];
                 var typename = this.constructor.name;
-                eval("new " + typename + "(ele)");
+                if (ele.JControl) {
+                    eval("new " + typename + "(ele.JControl)");
+                }
+                else {
+                    eval("new " + typename + "(ele)");
+                }
             }
         }
     };
@@ -314,7 +325,7 @@ var JDatacontextExpressionBinder = (function (_super) {
             }
         }
         if (_this.configs.length > 0) {
-            AllJBinders.push(_this);
+            JBinder.pushBinder(_this);
         }
         _this.updateValue();
         _this.bindChildren(_this.control instanceof JControl ? _this.control.element : _this.control);
@@ -336,7 +347,12 @@ var JDatacontextExpressionBinder = (function (_super) {
             if (!existed) {
                 var ele = element.children[i];
                 var typename = this.constructor.name;
-                eval("new " + typename + "(ele)");
+                if (ele.JControl) {
+                    eval("new " + typename + "(ele.JControl)");
+                }
+                else {
+                    eval("new " + typename + "(ele)");
+                }
             }
         }
     };

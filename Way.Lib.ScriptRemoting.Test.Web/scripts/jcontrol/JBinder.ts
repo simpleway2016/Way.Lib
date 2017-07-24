@@ -36,18 +36,29 @@ class JBinder
     {
         this.control = control;
 
-        var existed = false;
-        AllJBinders.every((binder: JBinder) => {
+        //删除已存在的绑定
+        AllJBinders.forEach((binder: JBinder, index: number) => {
             if (binder && binder.control == control && (<any>binder).constructor.name == (<any>this).constructor.name) {
-                existed = true;
-                return false;
+                AllJBinders[index].dispose();
+                delete AllJBinders[index];
+                AllJBinders[index] = null;
             }
-            return true;
         });
-        if (existed)
-            return;
 
         this.bindingDataContext = this.datacontext;
+    }
+
+    static pushBinder(binder)
+    {
+        for (var i = 0; i < AllJBinders.length; i++)
+        {
+            if (!AllJBinders[i])
+            {
+                AllJBinders[i] = binder;
+                return;
+            }
+        }
+        AllJBinders.push(binder);
     }
 
     onPropertyChanged(sender, name: string, originalValue) {
@@ -193,7 +204,7 @@ class JDatacontextBinder extends JBinder
 
         if (this.configs.length > 0)
         {
-            AllJBinders.push(this);
+            JBinder.pushBinder(this);
             this.updateValue();
         }
         
@@ -218,9 +229,14 @@ class JDatacontextBinder extends JBinder
             });
             if (!existed)
             {
-                var ele = <HTMLElement>element.children[i];
+                var ele: any = <HTMLElement>element.children[i];
                 var typename = (<any>this).constructor.name;
-                eval("new " + typename + "(ele)");
+                if (ele.JControl) {
+                    eval("new " + typename + "(ele.JControl)");
+                }
+                else {
+                    eval("new " + typename + "(ele)");
+                }
             }
         }
     }
@@ -384,7 +400,7 @@ class JDatacontextExpressionBinder extends JBinder {
             }
         }
         if (this.configs.length > 0) {
-            AllJBinders.push(this);
+            JBinder.pushBinder(this);
         }
 
         this.updateValue();
@@ -404,9 +420,14 @@ class JDatacontextExpressionBinder extends JBinder {
                 return true;
             });
             if (!existed) {
-                var ele = <HTMLElement>element.children[i];
+                var ele : any = <HTMLElement>element.children[i];
                 var typename = (<any>this).constructor.name;
-                eval("new " + typename + "(ele)");
+                if (ele.JControl) {
+                    eval("new " + typename + "(ele.JControl)");
+                }
+                else {
+                    eval("new " + typename + "(ele)");
+                }
             }
         }
     }

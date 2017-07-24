@@ -30,7 +30,7 @@
         <script type="text/html">
             <div>
                 <input type="button" onclick="alert(this.getDataContextControl().constructor.name)" class="{bind $class}" value="{bind $text}" />
-                <div innerHTML="{bind @name}"></div>
+                <JTextbox text="{bind @name}"></JTextbox>
             </div>
         </script>
     </JButton>
@@ -70,6 +70,7 @@
                     <div>
                         <div databind="className=$class;innerHTML=$content"></div>
                         <div innerhtml="{bind @name}"></div>
+                        <JTextbox text="{bind @name}"></JTextbox>
                     </div>
                 </div>
             </script>

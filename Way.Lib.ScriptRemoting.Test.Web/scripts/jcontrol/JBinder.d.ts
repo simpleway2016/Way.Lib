@@ -16,6 +16,7 @@ declare class JBinder {
     private _datacontext;
     readonly datacontext: any;
     constructor(control: any);
+    static pushBinder(binder: any): void;
     onPropertyChanged(sender: any, name: string, originalValue: any): void;
     getDatacontext(): INotifyPropertyChanged;
     dispose(): void;
