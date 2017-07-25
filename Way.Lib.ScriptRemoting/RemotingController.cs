@@ -198,10 +198,16 @@ namespace Way.Lib.ScriptRemoting
         {
             this.OnLoad();
         }
+        internal void unLoad()
+        {
+            this.OnUnLoad();
+        }
         protected virtual void OnLoad()
         {
         }
-
+        protected virtual void OnUnLoad()
+        {
+        }
         internal void _OnBeforeInvokeMethod(MethodInfo method)
         {
             OnBeforeInvokeMethod(method);
@@ -503,39 +509,6 @@ namespace Way.Lib.ScriptRemoting
         }
 
         static Dictionary<string, Type> DataSourceTypes = new Dictionary<string, Type>();
-
-        /// <summary>
-        /// 根据数据源名称，返回数据源路径
-        /// </summary>
-        /// <param name="datasourceName">数据源名称</param>
-        /// <param name="isForEditing">此数据源是否要被编辑</param>
-        /// <returns></returns>
-        protected virtual DatasourceDefine OnGetDataSourcePath(string datasourceName,bool isForEditing)
-        {
-            string fullname = this.GetType().FullName;
-
-            //if (isForEditing)
-            //{
-               
-            //    if (ParsedHtmls.Any(m=> m.Controller == fullname && m.AllowEditDatasources.Contains(datasourceName)) == false)
-            //        throw new Exception("无权编辑" + datasourceName);
-            //}
-            //else
-            //{
-            //    if (ParsedHtmls.Any(m => m.Controller == fullname && m.Datasources.Contains(datasourceName)) == false)
-            //        throw new Exception("此html没有在任何地方定义使用" + datasourceName);
-            //}
-           
-            int index = datasourceName.LastIndexOf(".");
-            fullname = datasourceName.Substring(0 , index);
-            string propertyName = datasourceName.Substring(index + 1);
-            return new DatasourceDefine()
-            {
-                TargetType = getTypeDefine(fullname),
-                PropertyOrMethodName = propertyName,
-            };
-        }
-
         static Dictionary<string, Type> ExistTypes = new Dictionary<string, Type>();
         static Type getTypeDefine(string remoteName)
         {
@@ -599,6 +572,108 @@ namespace Way.Lib.ScriptRemoting
         }
 
         /// <summary>
+        /// 获取数据总量
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="searchJsonStr"></param>
+        /// <returns></returns>
+        [RemotingMethod]
+        public object GetDataLength(string propertyName, string searchJsonStr)
+        {
+            Type classtype = this.GetType();
+            var pro = classtype.GetProperty(propertyName);
+            if (pro == null)
+                throw new Exception($"找不到属性{propertyName}");
+
+
+            object result = pro.GetValue(this);
+            Type dataItemType = result.GetType();
+            if (dataItemType.IsArray)
+            {
+                dataItemType = dataItemType.GetElementType();
+            }
+            else if (dataItemType.GetTypeInfo().IsGenericType)
+            {
+                dataItemType = dataItemType.GetGenericArguments()[0];
+            }
+
+            if (searchJsonStr.IsNullOrEmpty() == false)
+            {
+                var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
+                result = search(result, dataItemType, searchModel);
+            }
+
+
+            return ResultHelper.InvokeCount(result);
+        }
+
+        /// <summary>
+        /// 加载属性里的数据，属性应该是IQueryable<>类型
+        /// </summary>
+        /// <param name="propertyName">属性名称</param>
+        /// <param name="skip">跳过几条数据</param>
+        /// <param name="take">读取几条数据</param>
+        /// <param name="searchJsonStr"></param>
+        /// <returns></returns>
+        [RemotingMethod]
+        public object LoadData(string propertyName , int skip ,int take, string searchJsonStr)
+        {
+            Type classtype = this.GetType();
+            var pro = classtype.GetProperty(propertyName);
+            if (pro == null)
+                throw new Exception($"找不到属性{propertyName}");
+
+
+            object result = pro.GetValue(this);
+
+            string pkid;
+
+            Type dataItemType = result.GetType();
+            if (dataItemType.IsArray)
+            {
+                dataItemType = dataItemType.GetElementType();
+            }
+            else if (dataItemType.GetTypeInfo().IsGenericType)
+            {
+                dataItemType = dataItemType.GetGenericArguments()[0];
+            }
+
+            if (result is IQueryable && !(result is IOrderedQueryable))
+            {
+                //获取主键名
+                if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
+                {
+                    EntityDB.Attributes.Table tableatt = dataItemType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+                    if (tableatt != null)
+                    {
+                        pkid = tableatt.KeyName;
+
+                        if (result is IQueryable && !(result is IOrderedQueryable))
+                        {
+                            result = ResultHelper.GetQueryForOrderBy(result, pkid);
+                        }
+                    }
+                }
+            }
+            if (searchJsonStr.IsNullOrEmpty() == false)
+            {
+                var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
+                result = search(result, dataItemType, searchModel);
+            }
+           
+            if(skip > 0)
+            {
+                result = ResultHelper.InvokeSkip(result, skip);
+            }
+            if (take > 0)
+            {
+                result = ResultHelper.InvokeTake(result, take);
+            }
+            return ResultHelper.InvokeToArray(result);
+
+        }
+
+        /// <summary>
         /// 通用获取数据的函数
         /// </summary>
         /// <param name="pagerInfo">分页信息</param>
@@ -606,7 +681,7 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="fields">需要绑定的字段</param>
         /// <param name="searchJsonStr">搜索条件的model</param>
         /// <returns></returns>
-        protected object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
+        object GetDataSource( PagerInfo pagerInfo ,  string target, string[] fields,string searchJsonStr)
         {
             List<string> changeNewNames = new List<string>(fields.Length);
             for (int i = 0; i < fields.Length; i++)
@@ -621,7 +696,7 @@ namespace Way.Lib.ScriptRemoting
             {
                 fields = (from m in fields where changeNewNames.Contains(m) == false select m).ToArray();
             }
-            var datasourceDefine = this.OnGetDataSourcePath(target,false);
+            DatasourceDefine datasourceDefine = null;
          
             string pkid = null;//主键值
 
@@ -709,7 +784,7 @@ namespace Way.Lib.ScriptRemoting
 
                             string otherTarget = fieldInfo[1].Substring(0, fieldInfo[1].LastIndexOf("."));
 
-                            object query = GetDataSource(OnGetDataSourcePath(otherTarget,false), activeObjs);
+                            object query = null;
 
                             string compareProName = fieldInfo[1].Substring(fieldInfo[1].LastIndexOf(".") + 1);
 
@@ -791,10 +866,9 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="target"></param>
         /// <param name="searchJsonStr">查询条件model</param>
         /// <returns></returns>
-        [RemotingMethod]
-        public int Count(string target,string searchJsonStr)
+        int Count(string target,string searchJsonStr)
         {
-            var datasourceDefine = this.OnGetDataSourcePath(target,false);
+            DatasourceDefine datasourceDefine = null;
             Dictionary<Type, object> dbcontexts = new Dictionary<Type, object>();
             object result = GetDataSource(datasourceDefine, dbcontexts);
             try
@@ -840,10 +914,9 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="fields"></param>
         /// <param name="searchJsonStr"></param>
         /// <returns></returns>
-        [RemotingMethod]
-        public object Sum(string target, string[] fields, string searchJsonStr)
+        object Sum(string target, string[] fields, string searchJsonStr)
         {
-            var datasourceDefine = OnGetDataSourcePath(target,false);
+            DatasourceDefine datasourceDefine = null;
             var dbcontexts = new Dictionary<Type, object>();
             object result = GetDataSource(datasourceDefine, dbcontexts);
             try
@@ -893,50 +966,7 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        protected virtual void OnBeforeSavingData(object dataitem)
-        {
-        }
 
-        /// <summary>
-        /// 把对象保存到数据库
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="dataJson"></param>
-        /// <returns>返回主键值</returns>
-        [RemotingMethod]
-        public object SaveData(string target,string dataJson)
-        {
-            var datasourceDefine = OnGetDataSourcePath(target,true);
-           
-            var dbContext = Activator.CreateInstance(datasourceDefine.TargetType) as EntityDB.DBContext;
-            if (dbContext == null)
-            {
-                throw new Exception(datasourceDefine.TargetType.FullName + " is not " + typeof(EntityDB.DBContext).FullName);
-            }
-            try
-            {
-                var tableType = datasourceDefine.TargetType.GetProperty(datasourceDefine.PropertyOrMethodName).PropertyType.GetGenericArguments()[0];
-                EntityDB.Attributes.Table myTableAttr = tableType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
-                var dataitem = Newtonsoft.Json.JsonConvert.DeserializeObject(dataJson, tableType) as EntityDB.DataItem;
-                if (dataitem == null)
-                {
-                    throw new Exception("dataitem is not EntityDB.DataItem");
-                }
-                this.OnBeforeSavingData(dataitem);
-                dbContext.Update(dataitem);
-                if (myTableAttr.KeyName.IsNullOrEmpty())
-                    return null;
-                return dataitem.GetValue(myTableAttr.KeyName);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                dbContext.Dispose();
-            }
-        }
         /// <summary>
         /// 文件开始传输
         /// </summary>

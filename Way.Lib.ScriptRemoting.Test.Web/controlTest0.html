@@ -120,6 +120,9 @@
                     alert(ret);
             });
 
+            var datasource = new JServerControllerSource(controller, "Columns");
+            datasource.loadMore(5);
+
             if (window.txt1)
             {
                 txt1.datacontext = {

@@ -5,21 +5,22 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Way.Lib.ScriptRemoting.WinTest;
 
 namespace Way.Lib.ScriptRemoting.Test
 {
     [RemotingMethod]
     public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
-
-       
-        protected override void OnBeforeSavingData(object dataitem)
+        public IQueryable<EJ.DBColumn> Columns
         {
-            EJ.DBColumn column = dataitem as EJ.DBColumn;
-            column.TableID = 3;
-            SendGroupMessage("g1" , Newtonsoft.Json.JsonConvert.SerializeObject(dataitem));
+            get
+            {
+                MyDB db = new MyDB();
+                return db.DBColumn;
+            }
         }
+
 
 
         public object[] TestData

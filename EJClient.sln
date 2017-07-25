@@ -37,7 +37,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.EJServer", "Way.EJServe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PandaAudioServer", "PandaAudioServer\PandaAudioServer.csproj", "{5B71FF0E-ED43-43EA-AD75-D9AFFBE16122}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PandaAudioServerUnitTest", "PandaAudioServerUnitTest\PandaAudioServerUnitTest.csproj", "{BAC10FAA-B2B9-4A43-A807-857AA1C0C616}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PandaAudioServerUnitTest", "PandaAudioServerUnitTest\PandaAudioServerUnitTest.csproj", "{BAC10FAA-B2B9-4A43-A807-857AA1C0C616}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.ScriptRemotingUnitTest", "Way.Lib.ScriptRemotingUnitTest\Way.Lib.ScriptRemotingUnitTest.csproj", "{09E21982-D028-497A-8990-633BAD8332F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +115,10 @@ Global
 		{BAC10FAA-B2B9-4A43-A807-857AA1C0C616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAC10FAA-B2B9-4A43-A807-857AA1C0C616}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAC10FAA-B2B9-4A43-A807-857AA1C0C616}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09E21982-D028-497A-8990-633BAD8332F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09E21982-D028-497A-8990-633BAD8332F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09E21982-D028-497A-8990-633BAD8332F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09E21982-D028-497A-8990-633BAD8332F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

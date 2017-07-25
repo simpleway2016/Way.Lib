@@ -33,8 +33,11 @@ var JDataSource = (function () {
             }
         }
     };
-    JDataSource.prototype.loadMore = function (length) {
-        return 0;
+    JDataSource.prototype.loadMore = function (length, callback) {
+        if (callback === void 0) { callback = null; }
+    };
+    JDataSource.prototype.loadData = function (skip, take, callback) {
+        if (callback === void 0) { callback = null; }
     };
     JDataSource.prototype.loadAll = function () {
     };
@@ -84,19 +87,33 @@ var JArraySource = (function (_super) {
         _this.length = data.length;
         return _this;
     }
-    JArraySource.prototype.loadMore = function (length) {
+    JArraySource.prototype.loadData = function (skip, take, callback) {
+        if (callback === void 0) { callback = null; }
+        this.clear();
+        this._currentPosition = skip;
+        this.loadMore(take, callback);
+    };
+    JArraySource.prototype.loadMore = function (length, callback) {
+        if (callback === void 0) { callback = null; }
         if (length <= 0)
             return 0;
         var count = 0;
         for (var i = this._currentPosition; i < this._array.length; i++) {
             var data = this._array[i];
-            this.add(data);
+            if (data instanceof JObserveObject) {
+                this.add(data);
+            }
+            else {
+                this.add(new JObserveObject(data));
+            }
             count++;
             if (count == length)
                 break;
         }
         this._currentPosition += count;
-        return count;
+        if (callback) {
+            callback(count, null);
+        }
     };
     JArraySource.prototype.loadAll = function () {
         var count = 0;
@@ -112,5 +129,84 @@ var JArraySource = (function (_super) {
         this._currentPosition = 0;
     };
     return JArraySource;
+}(JDataSource));
+var JServerControllerSource = (function (_super) {
+    __extends(JServerControllerSource, _super);
+    function JServerControllerSource(controller, propertyName) {
+        var _this = _super.call(this) || this;
+        _this._skip = 0;
+        _this._tranid = 0;
+        _this.length = -1;
+        _this._controller = controller;
+        _this._propertyName = propertyName;
+        return _this;
+    }
+    JServerControllerSource.prototype.loadData = function (skip, take, callback) {
+        if (callback === void 0) { callback = null; }
+        this.clear();
+        this._skip = skip;
+        this.loadMore(take, callback);
+    };
+    JServerControllerSource.prototype.loadMore = function (length, cb) {
+        if (cb === void 0) { cb = null; }
+        if (length <= 0)
+            return 0;
+        this._tranid++;
+        this.loadDataFromServer(this._tranid, length, cb);
+    };
+    JServerControllerSource.prototype.getDatasourceLength = function (tranid, length, callback) {
+        var _this = this;
+        if (callback === void 0) { callback = null; }
+        this._controller.server.GetDataLength(this._propertyName, "", function (ret, err) {
+            if (err) {
+                if (callback) {
+                    callback(0, err);
+                }
+            }
+            else {
+                if (tranid == _this._tranid) {
+                    _this.length = ret;
+                    _this.loadDataFromServer(tranid, length, callback);
+                }
+            }
+        });
+    };
+    JServerControllerSource.prototype.loadDataFromServer = function (tranid, length, callback) {
+        var _this = this;
+        if (callback === void 0) { callback = null; }
+        if (this.length == -1) {
+            this.getDatasourceLength(tranid, length, callback);
+            return;
+        }
+        this._controller.server.LoadData(this._propertyName, this._skip, length, "", function (ret, err) {
+            if (err) {
+                if (callback) {
+                    callback(0, err);
+                }
+            }
+            else {
+                if (tranid == _this._tranid) {
+                    var count = 0;
+                    for (var i = 0; i < ret.length; i++) {
+                        var data = ret[i];
+                        _this.add(new JObserveObject(data));
+                        count++;
+                    }
+                    _this._skip += count;
+                    if (callback) {
+                        callback(count, null);
+                    }
+                }
+            }
+        });
+    };
+    JServerControllerSource.prototype.loadAll = function () {
+        throw "不支持此方法";
+    };
+    JServerControllerSource.prototype.clear = function () {
+        _super.prototype.clear.call(this);
+        this._skip = 0;
+    };
+    return JServerControllerSource;
 }(JDataSource));
 //# sourceMappingURL=JDataSource.js.map

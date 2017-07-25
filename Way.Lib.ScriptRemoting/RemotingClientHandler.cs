@@ -248,9 +248,9 @@ namespace Way.Lib.ScriptRemoting
                     methodDefineForOutput.Add(mItem);
                 }
 
-                RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
-                currentPage.Session = this.Session;
-                currentPage.onLoad();
+                //RemotingController currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
+                //currentPage.Session = this.Session;
+                //currentPage.onLoad();
                 if (outputRSAKey)
                 {
                     CreateRSAKey(this.Session);
@@ -309,7 +309,20 @@ namespace Way.Lib.ScriptRemoting
 
                 currentPage.onLoad();
                 mFileGettedSize = msgBag.Offset;
-                mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName,msgBag.State, msgBag.FileSize , msgBag.Offset);
+                try
+                {
+                    mUploadFileHandler = currentPage.OnBeginUploadFile(msgBag.FileName, msgBag.State, msgBag.FileSize, msgBag.Offset);
+                   
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    currentPage.unLoad();
+                }
+               
                 SendData(MessageType.UploadFileBegined,"ok" , "");
             }
             catch (Exception ex)
@@ -367,7 +380,20 @@ namespace Way.Lib.ScriptRemoting
                         parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
                     }
                 }
-                var result = methodinfo.Invoke(currentPage, parameters);
+                object result = null;
+                try
+                {
+                    result = methodinfo.Invoke(currentPage, parameters);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    currentPage.unLoad();
+                }
+              
                 if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
                 {
                     SendData(MessageType.Result, result,Session.SessionID, encryptToReturn );
