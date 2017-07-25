@@ -5,8 +5,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
-
-
+using System.Xml.XPath;
 namespace PandaAudioServer.Services
 {
     public class Sms_MeiSheng : ISms
@@ -43,10 +42,14 @@ namespace PandaAudioServer.Services
             url.Append("&code=utf-8");
 
             var result = GetUrltoHtml(url.ToString());
-
+          
             XDocument xmldoc = XDocument.Parse(result);
             XElement xroot = xmldoc.Root;
-            var status = xroot.Elements().FirstOrDefault(m => m.Name == "mt").Elements().FirstOrDefault(m => m.Name == "status").Value;
+            var statusElement = xroot.XPathSelectElement("//status");
+            if (statusElement == null)
+                throw new Exception("返回结果没有status节点");
+
+            var status = statusElement.Value;
             if (status != "0")
             {
                 switch (status)

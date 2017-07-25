@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<r>
+  <db connectionString="Server=192.168.50.128;Port=5432;UserId=postgres;Password=123456;database=pandaaudio;"></db>
+</r>

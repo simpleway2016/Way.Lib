@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Xml.Linq;
+using System.Xml.XPath;
 namespace PandaAudioServer
 {
-    class PandaDB : db.DB.PandaAudio
+    public class PandaDB : db.DB.PandaAudio
     {
-        public PandaDB():base("Server=192.168.50.128;Port=5432;UserId=postgres;Password=123456;database=pandaaudio;", Way.EntityDB.DatabaseType.PostgreSql)
+        static string ConSTR;
+        static PandaDB()
+        {
+            XDocument doc = XDocument.Load($"{Way.Lib.PlatformHelper.GetAppDirectory()}config.xml");
+            ConSTR = doc.XPathSelectElement("//db").Attribute("connectionString").Value;
+        }
+        public PandaDB():base(ConSTR, Way.EntityDB.DatabaseType.PostgreSql)
         {
 
         }
