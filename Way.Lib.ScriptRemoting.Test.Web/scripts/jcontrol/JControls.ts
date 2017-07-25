@@ -686,16 +686,28 @@ class JListItem extends JControl
 
 class JList extends JControl {
 
+    //每次执行loadMoreData，加载多少条数据，Array类型的数据源，不受此属性影响，一次性加载所有数据
+    bufferSize: number = 20;
     itemContainer: HTMLElement;
     protected itemControls: JListItem[];
     protected itemTemplates: any[];
 
+    private _addEventIndex: number;
+    private _removeEventIndex: number;
     private _itemsource: JDataSource;
     get itemsource() {
         return this._itemsource;
     }
     set itemsource(value) {
-        if (value && typeof value == "string") {
+        if (this._addEventIndex && this._itemsource && this._itemsource instanceof JDataSource)
+        {
+            this._itemsource.removeEventListener("add", this._addEventIndex);
+            this._itemsource.removeEventListener("remove", this._removeEventIndex);
+        }
+        this._addEventIndex = 0;
+        this._removeEventIndex = 0;
+
+        if (value && typeof value == "string" && (<string>value).indexOf("[")==0) {
             try {
                 eval("value=" + value);
             }
@@ -715,10 +727,7 @@ class JList extends JControl {
         }
         else if (value instanceof JDataSource)
         {
-            if (this.itemContainer)
-            {
-                this.itemContainer.innerHTML = "";
-            }
+            this.clearItems();
             this._itemsource = value;
             this.bindItems();
             return;
@@ -727,10 +736,8 @@ class JList extends JControl {
             throw new Error("itemsource必须是数组或者JDataSource");
         }
 
-        if (this.itemContainer) {
-            this.itemContainer.innerHTML = "";
-        }
-        this._itemsource = new JDataSource(value);
+        this.clearItems();
+        this._itemsource = new JArraySource(value);
         this.bindItems();
     }
 
@@ -779,6 +786,18 @@ class JList extends JControl {
         super(element, templates, datacontext);
     }
 
+    private clearItems()
+    {
+        if (this.itemControls) {
+            for (var i = 0; i < this.itemControls.length; i++) {
+                if (this.itemControls[i]) {
+                    this.itemControls[i].dispose();
+                }
+            }
+            this.itemControls.length = 0;
+        }
+    }
+
     protected loadTemplates()
     {
         super.loadTemplates();
@@ -800,29 +819,45 @@ class JList extends JControl {
         this.bindItems();
     }
 
+    //加载更多数据
+    loadMoreData()
+    {
+        if (this.itemsource)
+        {
+            if (this.itemsource instanceof JArraySource) {
+                this.itemsource.loadAll();
+            }
+            else {
+                this.itemsource.loadMore(this.bufferSize);
+            }
+        }
+    }
+
     protected bindItems()
     {
 
         if (!this.itemContainer)
             return;
 
+        this.loadMoreData();
+
         this.itemControls = [];
-        for (var i = 0; i < this.itemsource.source.length; i++)
+        for (var i = 0; i < this.itemsource.buffer.length; i++)
         {
-            var item = this.addItem(this.itemsource.source[i]);
+            var item = this.addItem(this.itemsource.buffer[i]);
             item.textmember = this.textmember;
             item.valuemember = this.valuemember;
         }
         this.resetItemIndex();
 
-        this.itemsource.addEventListener("add", (sender, data, index) => {
+        this._addEventIndex = this.itemsource.addEventListener("add", (sender, data, index) => {
             var item = this.addItem(data);
             item.textmember = this.textmember;
             item.valuemember = this.valuemember;
             this.resetItemIndex();
         });
 
-        this.itemsource.addEventListener("remove", (sender, data, index) => {
+        this._removeEventIndex = this.itemsource.addEventListener("remove", (sender, data, index) => {
             for (var i = 0; i < this.itemControls.length; i++)
             {
                 if (this.itemControls[i] && this.itemControls[i].datacontext == data)

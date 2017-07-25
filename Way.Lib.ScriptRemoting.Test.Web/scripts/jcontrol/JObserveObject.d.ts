@@ -17,15 +17,3 @@ declare class JObserveObject implements INotifyPropertyChanged {
     removeListener(index: number): void;
     onPropertyChanged(proName: string, originalValue: any): void;
 }
-declare class JDataSource {
-    source: JObserveObject[];
-    private addFuncs;
-    private removeFuncs;
-    constructor(data: JObserveObject[]);
-    addEventListener(_type: string, listener: (sender, data, index: number) => any): void;
-    removeEventListener(_type: string, listener: (sender, data, index: number) => any): void;
-    add(data: JObserveObject): void;
-    insert(index: number, data: JObserveObject): void;
-    remove(data: JObserveObject): void;
-    removeAt(index: number): void;
-}

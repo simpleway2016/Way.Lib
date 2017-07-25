@@ -589,14 +589,22 @@ var JList = (function (_super) {
     function JList(element, templates, datacontext) {
         if (templates === void 0) { templates = null; }
         if (datacontext === void 0) { datacontext = null; }
-        return _super.call(this, element, templates, datacontext) || this;
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        _this.bufferSize = 20;
+        return _this;
     }
     Object.defineProperty(JList.prototype, "itemsource", {
         get: function () {
             return this._itemsource;
         },
         set: function (value) {
-            if (value && typeof value == "string") {
+            if (this._addEventIndex && this._itemsource && this._itemsource instanceof JDataSource) {
+                this._itemsource.removeEventListener("add", this._addEventIndex);
+                this._itemsource.removeEventListener("remove", this._removeEventIndex);
+            }
+            this._addEventIndex = 0;
+            this._removeEventIndex = 0;
+            if (value && typeof value == "string" && value.indexOf("[") == 0) {
                 try {
                     eval("value=" + value);
                 }
@@ -612,9 +620,7 @@ var JList = (function (_super) {
                 }
             }
             else if (value instanceof JDataSource) {
-                if (this.itemContainer) {
-                    this.itemContainer.innerHTML = "";
-                }
+                this.clearItems();
                 this._itemsource = value;
                 this.bindItems();
                 return;
@@ -622,10 +628,8 @@ var JList = (function (_super) {
             else {
                 throw new Error("itemsource必须是数组或者JDataSource");
             }
-            if (this.itemContainer) {
-                this.itemContainer.innerHTML = "";
-            }
-            this._itemsource = new JDataSource(value);
+            this.clearItems();
+            this._itemsource = new JArraySource(value);
             this.bindItems();
         },
         enumerable: true,
@@ -673,6 +677,16 @@ var JList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    JList.prototype.clearItems = function () {
+        if (this.itemControls) {
+            for (var i = 0; i < this.itemControls.length; i++) {
+                if (this.itemControls[i]) {
+                    this.itemControls[i].dispose();
+                }
+            }
+            this.itemControls.length = 0;
+        }
+    };
     JList.prototype.loadTemplates = function () {
         _super.prototype.loadTemplates.call(this);
         this.itemTemplates = [];
@@ -688,24 +702,35 @@ var JList = (function (_super) {
         this.itemContainer = this.element.id == "itemContainer" ? this.element : this.element.querySelector("*[id='itemContainer']");
         this.bindItems();
     };
+    JList.prototype.loadMoreData = function () {
+        if (this.itemsource) {
+            if (this.itemsource instanceof JArraySource) {
+                this.itemsource.loadAll();
+            }
+            else {
+                this.itemsource.loadMore(this.bufferSize);
+            }
+        }
+    };
     JList.prototype.bindItems = function () {
         var _this = this;
         if (!this.itemContainer)
             return;
+        this.loadMoreData();
         this.itemControls = [];
-        for (var i = 0; i < this.itemsource.source.length; i++) {
-            var item = this.addItem(this.itemsource.source[i]);
+        for (var i = 0; i < this.itemsource.buffer.length; i++) {
+            var item = this.addItem(this.itemsource.buffer[i]);
             item.textmember = this.textmember;
             item.valuemember = this.valuemember;
         }
         this.resetItemIndex();
-        this.itemsource.addEventListener("add", function (sender, data, index) {
+        this._addEventIndex = this.itemsource.addEventListener("add", function (sender, data, index) {
             var item = _this.addItem(data);
             item.textmember = _this.textmember;
             item.valuemember = _this.valuemember;
             _this.resetItemIndex();
         });
-        this.itemsource.addEventListener("remove", function (sender, data, index) {
+        this._removeEventIndex = this.itemsource.addEventListener("remove", function (sender, data, index) {
             for (var i = 0; i < _this.itemControls.length; i++) {
                 if (_this.itemControls[i] && _this.itemControls[i].datacontext == data) {
                     _this.itemContainer.removeChild(_this.itemControls[i].element);

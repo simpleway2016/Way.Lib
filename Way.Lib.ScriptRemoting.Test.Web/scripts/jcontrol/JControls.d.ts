@@ -67,9 +67,12 @@ declare class JListItem extends JControl {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JList extends JControl {
+    bufferSize: number;
     itemContainer: HTMLElement;
     protected itemControls: JListItem[];
     protected itemTemplates: any[];
+    private _addEventIndex;
+    private _removeEventIndex;
     private _itemsource;
     itemsource: JDataSource;
     private _valueMember;
@@ -77,8 +80,10 @@ declare class JList extends JControl {
     private _textMember;
     textmember: string;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    private clearItems();
     protected loadTemplates(): void;
     protected onTemplateApply(): void;
+    loadMoreData(): void;
     protected bindItems(): void;
     private resetItemIndex();
     protected addItem(data: any): JListItem;
