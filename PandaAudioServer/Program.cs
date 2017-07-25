@@ -12,8 +12,10 @@ namespace PandaAudioServer
             Factory.RegisterService<ISms>(meisheng);
         }
 
+
         static void Main(string[] args)
         {
+
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             int port = 8988;
