@@ -8,12 +8,15 @@ namespace PandaAudioServer
     public class PandaDB : db.DB.PandaAudio
     {
         static string ConSTR;
+        static Way.EntityDB.DatabaseType DBType;
         static PandaDB()
         {
             XDocument doc = XDocument.Load($"{Way.Lib.PlatformHelper.GetAppDirectory()}config.xml");
-            ConSTR = doc.XPathSelectElement("//db").Attribute("connectionString").Value;
+            var ele = doc.XPathSelectElement("//db");
+            ConSTR = ele.Attribute("connectionString").Value;
+            DBType = (Way.EntityDB.DatabaseType)Enum.Parse(typeof(Way.EntityDB.DatabaseType), ele.Attribute("type").Value);
         }
-        public PandaDB():base(ConSTR, Way.EntityDB.DatabaseType.PostgreSql)
+        public PandaDB():base(ConSTR, DBType)
         {
 
         }
