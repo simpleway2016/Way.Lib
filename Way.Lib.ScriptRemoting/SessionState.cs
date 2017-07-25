@@ -66,6 +66,7 @@ namespace Way.Lib.ScriptRemoting
         /// 
         /// </summary>
         /// <param name="sessionid"></param>
+        /// <param name="clientIP"></param>
         /// <returns></returns>
         internal static SessionState GetSession(string sessionid , string clientIP)
         {
