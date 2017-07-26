@@ -31,15 +31,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.VSIX.Extend.Test", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.Pay", "Way.Lib.Pay\Way.Lib.Pay.csproj", "{436D2EE6-3EBB-455E-8ACC-934071C4A385}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.Lib.Restaurant.OrderPlatform", "Way.Lib.Restaurant.OrderPlatform\Way.Lib.Restaurant.OrderPlatform.csproj", "{D7A9228C-21C0-4DC1-8674-5D800F7955C5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.EJServer", "Way.EJServer\Way.EJServer.csproj", "{E0F8AC82-91DD-4F6D-A15F-BAD003667C15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PandaAudioServer", "PandaAudioServer\PandaAudioServer.csproj", "{5B71FF0E-ED43-43EA-AD75-D9AFFBE16122}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PandaAudioServerUnitTest", "PandaAudioServerUnitTest\PandaAudioServerUnitTest.csproj", "{BAC10FAA-B2B9-4A43-A807-857AA1C0C616}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.ScriptRemotingUnitTest", "Way.Lib.ScriptRemotingUnitTest\Way.Lib.ScriptRemotingUnitTest.csproj", "{09E21982-D028-497A-8990-633BAD8332F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.Lib.ScriptRemotingUnitTest", "Way.Lib.ScriptRemotingUnitTest\Way.Lib.ScriptRemotingUnitTest.csproj", "{09E21982-D028-497A-8990-633BAD8332F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,10 +97,6 @@ Global
 		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{436D2EE6-3EBB-455E-8ACC-934071C4A385}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D7A9228C-21C0-4DC1-8674-5D800F7955C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7A9228C-21C0-4DC1-8674-5D800F7955C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7A9228C-21C0-4DC1-8674-5D800F7955C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7A9228C-21C0-4DC1-8674-5D800F7955C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E0F8AC82-91DD-4F6D-A15F-BAD003667C15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E0F8AC82-91DD-4F6D-A15F-BAD003667C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0F8AC82-91DD-4F6D-A15F-BAD003667C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
