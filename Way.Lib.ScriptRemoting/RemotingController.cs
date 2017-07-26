@@ -101,6 +101,12 @@ namespace Way.Lib.ScriptRemoting
                 return ScriptRemotingServer.Root;
             }
         }
+        public Net.Request Request
+        {
+            get {
+                return RemotingContext.Current.Request;
+            }
+        }
         public RequestHeaderCollection RequestHeaders
         {
             get;
