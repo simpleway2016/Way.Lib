@@ -290,10 +290,22 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
+        static object changeValue(object value,Type type)
+        {
+            if (type.GetTypeInfo().IsEnum)
+            {
+                return Enum.Parse(type, value.ToSafeString().Trim());
+            }
+            else
+            {
+                return Convert.ChangeType(value , type);
+            }
+        }
+
         static object search(object result, Type dataItemType, Newtonsoft.Json.Linq.JObject searchModel)
         {
             Dictionary<string, object> dic = new Dictionary<string, object>();
-            getSearchingDictionary(dic,"", searchModel);
+            getSearchingDictionary(dic, "", searchModel);
             if (dic.Count == 0)
                 return result;
 
@@ -326,41 +338,65 @@ namespace Way.Lib.ScriptRemoting
                             Expression.Constant(searchKeyPair.Value)));
                     }
                 }
-                else if (ptype == typeof(int) || ptype == typeof(double) || ptype == typeof(decimal) || ptype == typeof(float) || ptype == typeof(short) || ptype == typeof(long))
+                else if (ptype.GetTypeInfo().IsEnum || ptype == typeof(int) || ptype == typeof(double) || ptype == typeof(decimal) || ptype == typeof(float) || ptype == typeof(short) || ptype == typeof(long))
                 {
                     string[] pairValues = searchKeyPair.Value.ToString().Split(' ');
                     for(int i = 0; i < pairValues.Length; i ++)
                     {
-                        string value = pairValues[i];
+                        string value = pairValues[i].Trim();
+
+                        __checkagain:
                         if (value.Length == 0)
                             continue;
                         if (value.StartsWith(">="))
                         {
                             value = value.Replace(">=", "");
                             //等式右边的值
-                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            Expression right = Expression.Constant(changeValue(value, ptype));
                             doneExpressions.Add(Expression.GreaterThanOrEqual(paramExpression, right));
                         }
                         else if (value.StartsWith(">"))
                         {
                             value = value.Replace(">", "");
                             //等式右边的值
-                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            Expression right = Expression.Constant(changeValue(value, ptype));
                             doneExpressions.Add(Expression.GreaterThan(paramExpression, right));
                         }
                         else if (value.StartsWith("<="))
                         {
                             value = value.Replace("<=", "");
                             //等式右边的值
-                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            Expression right = Expression.Constant(changeValue(value, ptype));
                             doneExpressions.Add(Expression.LessThanOrEqual(paramExpression, right));
                         }
                         else if (value.StartsWith("<"))
                         {
                             value = value.Replace("<", "");
                             //等式右边的值
-                            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                            Expression right = Expression.Constant(changeValue(value, ptype));
                             doneExpressions.Add(Expression.LessThan(paramExpression, right));
+                        }
+                        else if (value.StartsWith("&"))
+                        {
+                            value = value.Substring(1);
+                            var m = Regex.Match(value, @"(\w)+");
+                            value = value.Substring(m.Length);
+                            //等式右边的值
+                            Expression right = Expression.Constant(changeValue(m.Value, ptype));
+                            paramExpression = Expression.And(paramExpression, right);
+
+                            goto __checkagain;
+                        }
+                        else if (value.StartsWith("|"))
+                        {
+                            value = value.Substring(1);
+                            var m = Regex.Match(value, @"(\w)+");
+                            value = value.Substring(m.Length);
+                            //等式右边的值
+                            Expression right = Expression.Constant(changeValue(m.Value, ptype));
+                            paramExpression = Expression.Or(paramExpression, right);
+
+                            goto __checkagain;
                         }
                         else
                         {
@@ -368,7 +404,7 @@ namespace Way.Lib.ScriptRemoting
                             try
                             {
                                 value = value.Replace("=", "");
-                                Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
+                                Expression right = Expression.Constant(changeValue(value, ptype));
                                 doneExpressions.Add(Expression.Equal(paramExpression, right));
                             }
                             catch

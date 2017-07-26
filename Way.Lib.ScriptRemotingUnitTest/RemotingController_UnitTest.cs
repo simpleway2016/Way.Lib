@@ -1,6 +1,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Way.Lib.ScriptRemotingUnitTest
 {
@@ -26,10 +27,16 @@ namespace Way.Lib.ScriptRemotingUnitTest
             }
         }
 
+        enum TestEnum
+        {
+            e1 = 0,
+            e2 = 1,
+        }
+
         [TestMethod]
         public void LoadData_Test()
         {
-            var result = new TestController().LoadData("Columns",2,3, null);
+            var result = new TestController().LoadData("Columns",2,3, "{id:'&3>=1'}");
         }
         [TestMethod]
         public void GetDataLength_Test()
