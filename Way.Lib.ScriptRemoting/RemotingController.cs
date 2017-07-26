@@ -400,10 +400,11 @@ namespace Way.Lib.ScriptRemoting
                         }
                         else
                         {
-                            //等式右边的值
+                            //=号，
                             try
                             {
-                                value = value.Replace("=", "");
+                                //替换开头的n个=号
+                                value = Regex.Replace(value, @"^(\=| )+" , "");
                                 Expression right = Expression.Constant(changeValue(value, ptype));
                                 doneExpressions.Add(Expression.Equal(paramExpression, right));
                             }
