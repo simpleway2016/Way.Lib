@@ -12,6 +12,7 @@ class JObserveObject implements INotifyPropertyChanged {
     __data;
     __parent: JObserveObject;
     __parentName: string;
+    private _histories = [];
     private __onchanges = [];
 
     constructor(data, parent: JObserveObject = null, parentname: string = null) {
@@ -104,13 +105,15 @@ class JObserveObject implements INotifyPropertyChanged {
         return function (value) {
             if (!Object.getOwnPropertyDescriptor(this.__data, checkname))
                 throw new Error("不包含成员" + checkname);
-            if (this.__data[checkname] != value) {
+            if (this.__data[checkname] !== value) {
                 var original = this.__data[checkname];
+                this.setHistory(checkname, original , value);
 
                 this.__data[checkname] = value;
                 this.onPropertyChanged(checkname, original);
                 if (this.__parent) {
                     var curparent = this.__parent;
+                   
                     var pname = this.__parentName;
 
                     var path = checkname;
@@ -126,6 +129,44 @@ class JObserveObject implements INotifyPropertyChanged {
             }
         }
     }
+
+    //获取值发生变化的对象，并清除当前对象的变化状态
+    getChange()
+    {
+        var data: any = {};
+        for (var i = 0; i < this._histories.length; i++) {
+            var item = this._histories[i];
+            data[item.name] = item.value;
+        }
+        this._histories = [];
+        return data;
+    }
+
+    private setHistory(name: string, original, value)
+    {
+        for (var i = 0; i < this._histories.length; i++)
+        {
+            var item = this._histories[i];
+            if (item.name == name)
+            {
+                if (item.original == value)
+                {
+                    this._histories.splice(i, 1);
+                }
+                else {
+                    item.value = value;
+                }
+                return;
+            }
+        }
+
+        var newitem : any = {};
+        newitem.original = original;
+        newitem.value = value;
+        newitem.name = name;
+        this._histories.push(newitem);
+    }
+
     private __addProperty(proName) {
         var type = typeof this.__data[proName];
         if (type == "object" && !(this.__data[proName] instanceof Array)) {
