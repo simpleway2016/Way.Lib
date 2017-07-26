@@ -92,7 +92,7 @@
 
     <div style="margin-top:20px;">
         dropdownlist:
-        <JDropdownList id="list3" valuemember="item.value" textmember="item.name" itemsource="[{item:{name:'aa',value:1}},{item:{name:'bb',value:2}}]">
+        <JDropdownList id="list3" bufferSize="5" valuemember="id" textmember="Name" itemsource="Way.Lib.ScriptRemoting.Test.TestPage,Columns">
         </JDropdownList>
     </div>
 
@@ -120,8 +120,6 @@
                     alert(ret);
             });
 
-            var datasource = new JServerControllerSource(controller, "Columns");
-            datasource.loadMore(5);
 
             if (window.txt1)
             {

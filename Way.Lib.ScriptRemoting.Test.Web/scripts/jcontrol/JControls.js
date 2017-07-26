@@ -590,7 +590,12 @@ var JList = (function (_super) {
         if (templates === void 0) { templates = null; }
         if (datacontext === void 0) { datacontext = null; }
         var _this = _super.call(this, element, templates, datacontext) || this;
-        _this.bufferSize = 20;
+        if (!_this.buffersize) {
+            _this.buffersize = 20;
+        }
+        if (_this.buffersize && _this.itemsource) {
+            _this.bindItems();
+        }
         return _this;
     }
     Object.defineProperty(JList.prototype, "itemsource", {
@@ -604,11 +609,21 @@ var JList = (function (_super) {
             }
             this._addEventIndex = 0;
             this._removeEventIndex = 0;
-            if (value && typeof value == "string" && value.indexOf("[") == 0) {
-                try {
-                    eval("value=" + value);
+            if (value && typeof value == "string") {
+                if (value.indexOf("[") == 0) {
+                    try {
+                        eval("value=" + value);
+                    }
+                    catch (e) {
+                        return;
+                    }
                 }
-                catch (e) {
+                else {
+                    var typeConfig = value.split(',');
+                    this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                    if (this.buffersize) {
+                        this.bindItems();
+                    }
                     return;
                 }
             }
@@ -622,7 +637,9 @@ var JList = (function (_super) {
             else if (value instanceof JDataSource) {
                 this.clearItems();
                 this._itemsource = value;
-                this.bindItems();
+                if (this.buffersize) {
+                    this.bindItems();
+                }
                 return;
             }
             else {
@@ -630,7 +647,9 @@ var JList = (function (_super) {
             }
             this.clearItems();
             this._itemsource = new JArraySource(value);
-            this.bindItems();
+            if (this.buffersize) {
+                this.bindItems();
+            }
         },
         enumerable: true,
         configurable: true
@@ -700,15 +719,22 @@ var JList = (function (_super) {
     JList.prototype.onTemplateApply = function () {
         _super.prototype.onTemplateApply.call(this);
         this.itemContainer = this.element.id == "itemContainer" ? this.element : this.element.querySelector("*[id='itemContainer']");
-        this.bindItems();
     };
     JList.prototype.loadMoreData = function () {
+        var _this = this;
         if (this.itemsource) {
             if (this.itemsource instanceof JArraySource) {
                 this.itemsource.loadAll();
             }
             else {
-                this.itemsource.loadMore(this.bufferSize);
+                if (this.onLoading)
+                    this.onLoading();
+                this.itemsource.loadMore(this.buffersize, function (count, err) {
+                    if (err) {
+                        if (_this.onError)
+                            _this.onError(err);
+                    }
+                });
             }
         }
     };

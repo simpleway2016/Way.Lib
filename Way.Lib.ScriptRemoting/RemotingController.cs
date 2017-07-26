@@ -584,10 +584,10 @@ namespace Way.Lib.ScriptRemoting
             var pro = classtype.GetProperty(propertyName);
             if (pro == null)
                 throw new Exception($"找不到属性{propertyName}");
+            
+            object query = pro.GetValue(this);
 
-
-            object result = pro.GetValue(this);
-            Type dataItemType = result.GetType();
+            Type dataItemType = query.GetType();
             if (dataItemType.IsArray)
             {
                 dataItemType = dataItemType.GetElementType();
@@ -600,11 +600,11 @@ namespace Way.Lib.ScriptRemoting
             if (searchJsonStr.IsNullOrEmpty() == false)
             {
                 var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
-                result = search(result, dataItemType, searchModel);
+                query = search(query, dataItemType, searchModel);
             }
 
 
-            return ResultHelper.InvokeCount(result);
+            return ResultHelper.InvokeCount(query);
         }
 
         /// <summary>
@@ -624,11 +624,11 @@ namespace Way.Lib.ScriptRemoting
                 throw new Exception($"找不到属性{propertyName}");
 
 
-            object result = pro.GetValue(this);
+            object query = pro.GetValue(this);
 
             string pkid;
 
-            Type dataItemType = result.GetType();
+            Type dataItemType = query.GetType();
             if (dataItemType.IsArray)
             {
                 dataItemType = dataItemType.GetElementType();
@@ -638,7 +638,7 @@ namespace Way.Lib.ScriptRemoting
                 dataItemType = dataItemType.GetGenericArguments()[0];
             }
 
-            if (result is IQueryable && !(result is IOrderedQueryable))
+            if (query is IQueryable && !(query is IOrderedQueryable))
             {
                 //获取主键名
                 if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
@@ -648,9 +648,9 @@ namespace Way.Lib.ScriptRemoting
                     {
                         pkid = tableatt.KeyName;
 
-                        if (result is IQueryable && !(result is IOrderedQueryable))
+                        if (query is IQueryable && !(query is IOrderedQueryable))
                         {
-                            result = ResultHelper.GetQueryForOrderBy(result, pkid);
+                            query = ResultHelper.GetQueryForOrderBy(query, pkid);
                         }
                     }
                 }
@@ -658,18 +658,18 @@ namespace Way.Lib.ScriptRemoting
             if (searchJsonStr.IsNullOrEmpty() == false)
             {
                 var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
-                result = search(result, dataItemType, searchModel);
+                query = search(query, dataItemType, searchModel);
             }
            
             if(skip > 0)
             {
-                result = ResultHelper.InvokeSkip(result, skip);
+                query = ResultHelper.InvokeSkip(query, skip);
             }
             if (take > 0)
             {
-                result = ResultHelper.InvokeTake(result, take);
+                query = ResultHelper.InvokeTake(query, take);
             }
-            return ResultHelper.InvokeToArray(result);
+            return ResultHelper.InvokeToArray(query);
 
         }
 

@@ -687,8 +687,11 @@ class JListItem extends JControl
 class JList extends JControl {
 
     //每次执行loadMoreData，加载多少条数据，Array类型的数据源，不受此属性影响，一次性加载所有数据
-    bufferSize: number = 20;
+    buffersize: number;
     itemContainer: HTMLElement;
+    onLoading: () => any;
+    onError: (err: string) => any;
+
     protected itemControls: JListItem[];
     protected itemTemplates: any[];
 
@@ -707,11 +710,22 @@ class JList extends JControl {
         this._addEventIndex = 0;
         this._removeEventIndex = 0;
 
-        if (value && typeof value == "string" && (<string>value).indexOf("[")==0) {
-            try {
-                eval("value=" + value);
+        if (value && typeof value == "string") {
+            // var datasource = new JServerControllerSource(controller, "Columns");
+            if ((<string>value).indexOf("[") == 0) {
+                try {
+                    eval("value=" + value);
+                }
+                catch (e) {
+                    return;
+                }
             }
-            catch (e) {
+            else {
+                var typeConfig : any = (<string>value).split(',');
+                this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                if (this.buffersize) {
+                    this.bindItems();
+                }
                 return;
             }
         }
@@ -729,7 +743,9 @@ class JList extends JControl {
         {
             this.clearItems();
             this._itemsource = value;
-            this.bindItems();
+            if (this.buffersize) {
+                this.bindItems();
+            }
             return;
         }
         else {
@@ -738,7 +754,9 @@ class JList extends JControl {
 
         this.clearItems();
         this._itemsource = new JArraySource(value);
-        this.bindItems();
+        if (this.buffersize) {
+            this.bindItems();
+        }
     }
 
 
@@ -784,6 +802,15 @@ class JList extends JControl {
 
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
+
+        if (!this.buffersize)
+        {
+            this.buffersize = 20;
+        }
+
+        if (this.buffersize && this.itemsource) {
+            this.bindItems();
+        }
     }
 
     private clearItems()
@@ -816,19 +843,26 @@ class JList extends JControl {
     {
         super.onTemplateApply();
         this.itemContainer = this.element.id == "itemContainer" ? this.element : <HTMLElement>this.element.querySelector("*[id='itemContainer']");
-        this.bindItems();
     }
 
     //加载更多数据
     loadMoreData()
     {
+
         if (this.itemsource)
         {
             if (this.itemsource instanceof JArraySource) {
                 this.itemsource.loadAll();
             }
             else {
-                this.itemsource.loadMore(this.bufferSize);
+                if (this.onLoading) this.onLoading();
+
+                this.itemsource.loadMore(this.buffersize, (count, err) => {
+                    if (err)
+                    {
+                        if (this.onError) this.onError(err);
+                    }
+                });
             }
         }
     }

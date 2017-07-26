@@ -67,8 +67,10 @@ declare class JListItem extends JControl {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JList extends JControl {
-    bufferSize: number;
+    buffersize: number;
     itemContainer: HTMLElement;
+    onLoading: () => any;
+    onError: (err: string) => any;
     protected itemControls: JListItem[];
     protected itemTemplates: any[];
     private _addEventIndex;

@@ -14,13 +14,14 @@ namespace Way.Lib.ScriptRemotingUnitTest
                 get
                 {
                     MyDB db = new MyDB();
-                    return from m in db.DBColumn
-                           select new EJ.DBColumn
-                           {
-                               Name = m.Name,
-                               id = m.id,
-                               caption = m.caption,
-                           };
+                    var query = from m in db.DBColumn
+                                join c in db.DBTable on m.TableID equals c.id
+                                select new EJ.DBColumn
+                                {
+                                    Name = c.Name + "-" + m.Name,
+                                    id = m.id
+                                };
+                    return query;
                 }
             }
         }

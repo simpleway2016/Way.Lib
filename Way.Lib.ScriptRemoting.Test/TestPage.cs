@@ -17,7 +17,14 @@ namespace Way.Lib.ScriptRemoting.Test
             get
             {
                 MyDB db = new MyDB();
-                return db.DBColumn;
+                var query = from m in db.DBColumn
+                            join c in db.DBTable on m.TableID equals c.id
+                            select new EJ.DBColumn
+                            {
+                                Name = c.Name + "-" + m.Name,
+                                id = m.id
+                            };
+                return query;
             }
         }
 
