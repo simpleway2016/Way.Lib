@@ -329,7 +329,7 @@ class JControl implements INotifyPropertyChanged {
     }
     private setFunc(attName: string) {
         return function (value) {
-            if (this["_" + attName] != value) {
+            if (this["_" + attName] !== value) {
                 var oldvalue = this["_" + attName];
                 this["_" + attName] = value;
                 this.onPropertyChanged(attName, oldvalue);
@@ -806,6 +806,11 @@ class JList extends JControl {
         if (!this.buffersize)
         {
             this.buffersize = 20;
+        }
+        else {
+            //如果标签设置了buffersize="5"，因为JControl执行构造函数时，buffersize属性不存在，会自动创建一个构造函数，而且是string类型，
+            //所以，这里重新赋值成int类型
+            this.buffersize = parseInt(<any>this.buffersize);
         }
 
         if (this.buffersize && this.itemsource) {

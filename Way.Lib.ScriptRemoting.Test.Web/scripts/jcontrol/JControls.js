@@ -260,7 +260,7 @@ var JControl = (function () {
     };
     JControl.prototype.setFunc = function (attName) {
         return function (value) {
-            if (this["_" + attName] != value) {
+            if (this["_" + attName] !== value) {
                 var oldvalue = this["_" + attName];
                 this["_" + attName] = value;
                 this.onPropertyChanged(attName, oldvalue);
@@ -592,6 +592,9 @@ var JList = (function (_super) {
         var _this = _super.call(this, element, templates, datacontext) || this;
         if (!_this.buffersize) {
             _this.buffersize = 20;
+        }
+        else {
+            _this.buffersize = parseInt(_this.buffersize);
         }
         if (_this.buffersize && _this.itemsource) {
             _this.bindItems();
