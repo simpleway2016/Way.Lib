@@ -332,9 +332,9 @@ namespace Way.Lib.ScriptRemoting
                 List<Expression> doneExpressions = new List<Expression>();
                 if (ptype == typeof(string))
                 {
-                    if (searchKeyPair.Value.ToSafeString().StartsWith("equal:"))
+                    if (searchKeyPair.Value.ToSafeString().StartsWith("="))
                     {
-                        Expression right = Expression.Constant(searchKeyPair.Value.ToString().Substring(6));
+                        Expression right = Expression.Constant(searchKeyPair.Value.ToString().Substring(1));
                         doneExpressions.Add(Expression.Equal(paramExpression, right));
                     }
                     else
