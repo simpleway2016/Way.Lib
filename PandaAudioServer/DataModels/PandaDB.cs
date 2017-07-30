@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 namespace PandaAudioServer
 {
-    public class PandaDB : db.DB.PandaAudio
+    public class PandaDB : SysDB.DB.PandaAudio
     {
         static string ConSTR;
         static Way.EntityDB.DatabaseType DBType;

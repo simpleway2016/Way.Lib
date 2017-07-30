@@ -429,7 +429,7 @@ namespace Way.EJServer
                         throw new Exception(string.Format("表{0}缺少主键", table.Name));
                     foreach (string id in delIds)
                     {
-                        invokingDB.ExecSqlString("delete from " + string.Format(service.GetObjectFormat(), table.Name) + " where " + string.Format(service.GetObjectFormat(), pkcolumn.Name) + "='" + id + "'");
+                        invokingDB.ExecSqlString("delete from " + string.Format(service.GetObjectFormat(), table.Name.ToLower()) + " where " + string.Format(service.GetObjectFormat(), pkcolumn.Name) + "='" + id + "'");
                     }
                     foreach (var drow in dt.Rows)
                     {

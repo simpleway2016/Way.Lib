@@ -77,11 +77,11 @@ namespace PandaAudioServer
                 _LockTime = DateTime.Now;
             }
         }
-        public void Clear(string ip)
+        public void Clear()
         {
             for (int i = 0; i < Errors.Count; i++)
             {
-                if (Errors[i].IP == ip)
+                if (Errors[i] == this)
                 {
                     lock(Errors)
                     {

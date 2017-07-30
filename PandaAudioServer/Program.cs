@@ -10,6 +10,9 @@ namespace PandaAudioServer
         {
             var meisheng = new Sms_MeiSheng();
             Factory.RegisterService<ISms>(meisheng);
+
+            //register captures;
+            Way.EntityDB.DBContext.RegisterActionCapture(new ActionCaptures.UserEffect_Capture());
         }
 
 

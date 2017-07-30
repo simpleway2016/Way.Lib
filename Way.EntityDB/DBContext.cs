@@ -126,12 +126,20 @@ namespace Way.EntityDB
         }
 
         /// <summary>
-        /// 添加触发器
+        /// 注册触发器
         /// </summary>
         /// <param name="actionCapture"></param>
-        public static void AddActionCapture(IActionCapture actionCapture)
+        public static void RegisterActionCapture(IActionCapture actionCapture)
         {
             TypeCaptures.Add(actionCapture);
+        }
+        /// <summary>
+        /// 取消触发器
+        /// </summary>
+        /// <param name="actionCapture"></param>
+        public static void UnRegisterActionCapture(IActionCapture actionCapture)
+        {
+            TypeCaptures.Remove(actionCapture);
         }
 
         #region 关联事件

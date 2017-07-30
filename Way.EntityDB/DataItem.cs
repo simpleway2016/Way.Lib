@@ -316,6 +316,13 @@ namespace Way.EntityDB
                     if (value == null)
                         continue;
 
+                    var typeinfo = pinfo.PropertyType.GetTypeInfo();
+                    if (typeinfo.IsEnum)
+                        value = Convert.ToInt32(value);
+                    else if(typeinfo.IsGenericType && typeinfo.GetGenericArguments()[0].GetTypeInfo().IsEnum)
+                        value = Convert.ToInt32(value);
+
+
                     fields.Add(new FieldValue()
                         {
                             FieldName = columnDefine.Name,
@@ -336,6 +343,13 @@ namespace Way.EntityDB
 
 
                     object value = pinfo.GetValue(this);
+
+                    var typeinfo = pinfo.PropertyType.GetTypeInfo();
+                    if (typeinfo.IsEnum)
+                        value = Convert.ToInt32(value);
+                    else if (typeinfo.IsGenericType && typeinfo.GetGenericArguments()[0].GetTypeInfo().IsEnum)
+                        value = Convert.ToInt32(value);
+
                     fields.Add(new FieldValue()
                     {
                         FieldName = columnDefine.Name,
