@@ -78,33 +78,39 @@ namespace Way.EJServer
                 return;
             }
 
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-
-            int port = 6060;
-            if(args != null && args.Length > 0)
+            try
             {
-                port = Convert.ToInt32(args[0]);
+                Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+                int port = 6060;
+                if (args != null && args.Length > 0)
+                {
+                    port = Convert.ToInt32(args[0]);
+                }
+
+                ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
+                ScriptRemotingServer.RegisterHandler(new DownloadTableDataHandler());
+                ScriptRemotingServer.RegisterHandler(new ImportDataHandler());
+
+                Console.WriteLine($"server starting at port:{port}...");
+                var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}Port{port}";
+
+                if (!System.IO.Directory.Exists(webroot))
+                {
+                    System.IO.Directory.CreateDirectory(webroot);
+                }
+
+                if (System.IO.File.Exists($"{webroot}/main.html") == false)
+                {
+                    System.IO.File.WriteAllText($"{webroot}/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
+                }
+                Console.WriteLine($"path:{webroot}");
+                ScriptRemotingServer.Start(port, webroot, 1);
             }
-
-            ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
-            ScriptRemotingServer.RegisterHandler(new DownloadTableDataHandler());
-            ScriptRemotingServer.RegisterHandler(new ImportDataHandler());
-
-            Console.WriteLine($"server starting at port:{port}...");
-            var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}Port{port}";
-
-            if (!System.IO.Directory.Exists(webroot))
+            catch(Exception ex)
             {
-                System.IO.Directory.CreateDirectory(webroot);
+                Console.WriteLine(ex.Message);
             }
-
-            if (System.IO.File.Exists($"{webroot}/main.html") == false)
-            {
-                System.IO.File.WriteAllText($"{webroot}/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
-            }
-            Console.WriteLine($"path:{webroot}");
-            ScriptRemotingServer.Start(port, webroot, 1);
- 
             while (true)
             {
                 Console.Write("Web>");
