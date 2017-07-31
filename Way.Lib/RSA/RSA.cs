@@ -34,6 +34,20 @@ namespace Way.Lib
                 return _parameter.D;
             }
         }
+        public byte[] Exponent
+        {
+            get
+            {
+                return _parameter.Exponent;
+            }
+        }
+        public byte[] Modulus
+        {
+            get
+            {
+                return _parameter.Modulus;
+            }
+        }
         public RSA()
         {
             _rsa = System.Security.Cryptography.RSA.Create();
@@ -195,6 +209,16 @@ namespace Way.Lib
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
+        public byte[] Decrypt(byte[] content)
+        {
+            return _rsa.Decrypt(content, System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
+        }
+
+            /// <summary>
+            /// 解开Exponent加密的内容
+            /// </summary>
+            /// <param name="content"></param>
+            /// <returns></returns>
         public string Decrypt(string content)
         {
             StringBuilder result = new StringBuilder();

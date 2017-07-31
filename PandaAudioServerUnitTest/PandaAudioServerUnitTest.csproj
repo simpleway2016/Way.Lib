@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PandaAudioServer\PandaAudioServer.csproj" />
+    <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

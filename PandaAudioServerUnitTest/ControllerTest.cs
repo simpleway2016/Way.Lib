@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PandaAudioServer.Services;
 using SysDB;
 using PandaAudioServer.ActionCaptures;
+using System.Security.Cryptography;
 
 namespace PandaAudioServerUnitTest
 {
@@ -56,6 +57,31 @@ namespace PandaAudioServerUnitTest
             finally
             {
                 db.RollbackTransaction();
+            }
+        }
+
+        [TestMethod]
+        public void RSATest()
+        {
+            Way.Lib.RSA rsa = new Way.Lib.RSA();
+
+            RSAParameters rsaparam = new RSAParameters();
+            rsaparam.Exponent = rsa.Exponent;
+            rsaparam.Modulus = rsa.Modulus;
+
+            using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+            {
+                RSA.KeySize = 1024;
+                //Import the RSA Key information. This only needs
+                //toinclude the public key information.
+                RSA.ImportParameters(rsaparam);
+
+                //Encrypt the passed byte array and specify OAEP padding.  
+                //OAEP padding is only available on Microsoft Windows XP or
+                //later.  
+                var c = RSA.Encrypt(new byte[] { 0x1 }, false);
+
+                var result = rsa.Decrypt(c);
             }
         }
     }
