@@ -348,42 +348,51 @@ namespace Way.Lib.ScriptRemoting
 
                 currentPage.onLoad();
 
-
-                MethodInfo methodinfo = pageDefine.Methods.SingleOrDefault(m => m.Name == msgBag.MethodName);
-                if (methodinfo == null)
-                    throw new Exception($"没有找到方法{msgBag.MethodName},可能因为此方法没有定义[RemotingMethod]");
-                currentPage._OnBeforeInvokeMethod(methodinfo);
-                RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
-                var pInfos = methodinfo.GetParameters();
-
-                if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters))
+                try
                 {
-                    for(var i = 0; i < msgBag.Parameters.Length; i ++)
+                    MethodInfo methodinfo = pageDefine.Methods.SingleOrDefault(m => m.Name == msgBag.MethodName);
+                    if (methodinfo == null)
+                        throw new Exception($"没有找到方法{msgBag.MethodName},可能因为此方法没有定义[RemotingMethod]");
+                    currentPage._OnBeforeInvokeMethod(methodinfo);
+                    RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
+                    var pInfos = methodinfo.GetParameters();
+
+                    if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters))
                     {
-                        msgBag.Parameters[i] = DecrptRSA(this.Session, msgBag.Parameters[i]);
+                        for (var i = 0; i < msgBag.Parameters.Length; i++)
+                        {
+                            msgBag.Parameters[i] = DecrptRSA(this.Session, msgBag.Parameters[i]);
+                        }
                     }
-                }
 
-                if (pInfos.Length != msgBag.Parameters.Length)
-                    throw new Exception($"{msgBag.MethodName}参数个数不相符");
-                object[] parameters = new object[pInfos.Length];
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    Type pType = pInfos[i].ParameterType;
-
-                    if (pType.GetTypeInfo().IsValueType)
+                    if (pInfos.Length != msgBag.Parameters.Length)
+                        throw new Exception($"{msgBag.MethodName}参数个数不相符");
+                    object[] parameters = new object[pInfos.Length];
+                    for (int i = 0; i < parameters.Length; i++)
                     {
-                        parameters[i] = Convert.ChangeType(msgBag.Parameters[i], pType);
+                        Type pType = pInfos[i].ParameterType;
+
+                        if (pType.GetTypeInfo().IsValueType)
+                        {
+                            parameters[i] = Convert.ChangeType(msgBag.Parameters[i], pType);
+                        }
+                        else
+                        {
+                            parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
+                        }
+                    }
+                    object result = null;
+
+                    result = methodinfo.Invoke(currentPage, parameters);
+
+                    if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
+                    {
+                        SendData(MessageType.Result, result, Session.SessionID, encryptToReturn);
                     }
                     else
                     {
-                        parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
+                        SendData(MessageType.Result, result, Session.SessionID);
                     }
-                }
-                object result = null;
-                try
-                {
-                    result = methodinfo.Invoke(currentPage, parameters);
                 }
                 catch
                 {
@@ -394,14 +403,6 @@ namespace Way.Lib.ScriptRemoting
                     currentPage.unLoad();
                 }
               
-                if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
-                {
-                    SendData(MessageType.Result, result,Session.SessionID, encryptToReturn );
-                }
-                else
-                {
-                    SendData(MessageType.Result, result, Session.SessionID);
-                }
             }
             catch (RSADecrptException)
             {
