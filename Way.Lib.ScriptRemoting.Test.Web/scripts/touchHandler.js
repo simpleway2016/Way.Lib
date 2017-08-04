@@ -284,6 +284,14 @@
                     alert(e.message);
                 }
             }
+            else {
+                //throw "浏览器不支持MutationObserver";
+
+                function nodeAddedCallback(e) {
+                    func(e.target);
+                }
+                document.body.addEventListener("DOMNodeInserted", nodeAddedCallback, false);
+            }
         }
 
         func(document);

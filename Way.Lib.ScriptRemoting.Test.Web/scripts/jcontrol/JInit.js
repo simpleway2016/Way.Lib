@@ -156,7 +156,14 @@ if (document.addEventListener) {
             }
         }
         else {
-            throw "浏览器不支持MutationObserver";
+            function nodeAddedCallback(e) {
+                JElementHelper.initElements(e.target, true);
+            }
+            function nodeRemovedCallback(e) {
+                removeElement(e.target);
+            }
+            document.body.addEventListener("DOMNodeInserted", nodeAddedCallback, false);
+            document.body.addEventListener("DOMNodeRemoved", nodeRemovedCallback, false);
         }
         JElementHelper.initElements(document.body, false);
     }, false);

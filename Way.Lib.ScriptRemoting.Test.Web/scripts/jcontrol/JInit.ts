@@ -193,7 +193,18 @@ if (document.addEventListener) {
             }
         }
         else {
-            throw "浏览器不支持MutationObserver";
+            //throw "浏览器不支持MutationObserver";
+
+            function nodeAddedCallback(e) {
+                //转换JControl
+                JElementHelper.initElements(e.target, true);
+            }
+            function nodeRemovedCallback(e) {
+                //dispose相关JControl
+                removeElement(e.target);
+            }
+            document.body.addEventListener("DOMNodeInserted", nodeAddedCallback, false);
+            document.body.addEventListener("DOMNodeRemoved", nodeRemovedCallback, false);
         }
 
 
