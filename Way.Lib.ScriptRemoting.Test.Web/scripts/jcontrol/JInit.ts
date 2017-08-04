@@ -159,8 +159,7 @@ if (document.addEventListener) {
             (<any>window).WebKitMutationObserver ||
             (<any>window).MozMutationObserver;
 
-        var mutationObserverSupport = !!MutationObserver;
-        if (mutationObserverSupport) {
+        if (MutationObserver) {
             try {
                 var options = {
                     'childList': true,
@@ -192,6 +191,9 @@ if (document.addEventListener) {
             catch (e) {
                 alert(e.message);
             }
+        }
+        else {
+            throw "浏览器不支持MutationObserver";
         }
 
 
