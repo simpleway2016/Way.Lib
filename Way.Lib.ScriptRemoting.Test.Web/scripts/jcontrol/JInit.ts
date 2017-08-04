@@ -44,6 +44,8 @@ class JElementHelper {
     }
 
     static getControlTypeName(tagname: string): string {
+        if (tagname == "OPTION")
+            return null;
         for (var name in window) {
             if (name.toUpperCase() == tagname) {
                 return name;

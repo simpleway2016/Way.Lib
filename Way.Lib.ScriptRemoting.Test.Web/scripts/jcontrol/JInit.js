@@ -36,6 +36,8 @@ var JElementHelper = (function () {
         }
     };
     JElementHelper.getControlTypeName = function (tagname) {
+        if (tagname == "OPTION")
+            return null;
         for (var name in window) {
             if (name.toUpperCase() == tagname) {
                 return name;
