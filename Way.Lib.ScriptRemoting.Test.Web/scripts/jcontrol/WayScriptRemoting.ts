@@ -552,17 +552,17 @@ class WayScriptRemoting {
                 }
             };
 
-            for (var i = 0; i < parameters.length; i++) {
-                parameters[i] = JSON.stringify(parameters[i]);
-                if (useRsa) {
-                    parameters[i] = this.encrypt(parameters[i]);
-                }
-            }
+            var parameJson;
+            if (!parameters)
+                parameJson = "[]";
+            else
+                parameJson = useRsa ? this.encrypt(JSON.stringify(parameters)) : JSON.stringify(parameters)
+
             invoker.Post({
                 m: JSON.stringify({
                     ClassFullName: this.classFullName,
                     MethodName: name,
-                    Parameters: parameters,
+                    ParameterJson: parameJson,
                     SessionID: WayCookie.getCookie("WayScriptRemoting")
                 })
             });

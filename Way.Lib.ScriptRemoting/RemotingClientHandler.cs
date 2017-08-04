@@ -357,28 +357,30 @@ namespace Way.Lib.ScriptRemoting
                     RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                     var pInfos = methodinfo.GetParameters();
 
+                    object[] jsParameters = null;
                     if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters))
                     {
-                        for (var i = 0; i < msgBag.Parameters.Length; i++)
-                        {
-                            msgBag.Parameters[i] = DecrptRSA(this.Session, msgBag.Parameters[i]);
-                        }
+                        jsParameters = DecrptRSA(this.Session, msgBag.ParameterJson).FromJson<object[]>();
+                    }
+                    else
+                    {
+                        jsParameters = msgBag.ParameterJson.FromJson<object[]>();
                     }
 
-                    if (pInfos.Length != msgBag.Parameters.Length)
+                    if (pInfos.Length != jsParameters.Length)
                         throw new Exception($"{msgBag.MethodName}参数个数不相符");
                     object[] parameters = new object[pInfos.Length];
                     for (int i = 0; i < parameters.Length; i++)
                     {
                         Type pType = pInfos[i].ParameterType;
 
-                        if (pType.GetTypeInfo().IsValueType)
+                        if(jsParameters[i] is Newtonsoft.Json.Linq.JToken)
                         {
-                            parameters[i] = Convert.ChangeType(msgBag.Parameters[i], pType);
+                            parameters[i] = (jsParameters[i] as Newtonsoft.Json.Linq.JToken).ToObject(pType);
                         }
                         else
                         {
-                            parameters[i] = Newtonsoft.Json.JsonConvert.DeserializeObject(msgBag.Parameters[i], pType);
+                            parameters[i] = Convert.ChangeType(jsParameters[i], pType);
                         }
                     }
                     object result = null;
@@ -495,7 +497,7 @@ namespace Way.Lib.ScriptRemoting
         public string State;
         public int FileSize;
         public int Offset;
-        public string[] Parameters;
+        public string ParameterJson;
     }
 
     enum MessageType

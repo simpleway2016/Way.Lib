@@ -41,7 +41,7 @@ namespace EJClient.Net
         {
             public string ClassFullName;
             public string MethodName;
-            public string[] Parameters;
+            public string ParameterJson;
             public string SessionID;
         }
         static string _sessionid = "";
@@ -120,22 +120,21 @@ namespace EJClient.Net
                     }
                 }
                 Dictionary<string, string> values = new Dictionary<string, string>();
-                string[] ps;
+                string parameterJson;
                 if (methodParams != null)
                 {
-                    ps = new string[methodParams.Length];
-                    for (int i = 0; i < methodParams.Length; i++)
+                    if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
                     {
-                        ps[i] = methodParams[i].ToJsonString();
-                        if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
-                        {
-                            ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(ps[i]), Helper.Exponent, Helper.Modulus);
-                        }
+                        parameterJson = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode( methodParams.ToJsonString() ), Helper.Exponent, Helper.Modulus);
+                    }
+                    else
+                    {
+                        parameterJson = methodParams.ToJsonString();
                     }
                 }
                 else
                 {
-                    ps = new string[0];
+                    parameterJson = "[]";
                 }
 
                 //System.Net.WebClient web = new System.Net.WebClient();
@@ -163,7 +162,7 @@ namespace EJClient.Net
                 {
                     ClassFullName = "Way.EJServer.MainController",
                     MethodName = name,
-                    Parameters = ps,
+                    ParameterJson = parameterJson,
                     SessionID = SessionID
                 }).ToJsonString();
 
@@ -262,31 +261,30 @@ namespace EJClient.Net
          public T InvokeSync<T>(string name,RSAApplyScene rsaScene, params object[] methodParams)
         {
             Dictionary<string, string> values = new Dictionary<string, string>();
-            string[] ps;
+            string parameterJson;
             if (methodParams != null)
             {
-                ps = new string[methodParams.Length];
-                for (int i = 0; i < methodParams.Length; i++)
+                if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
                 {
-                    ps[i] = methodParams[i].ToJsonString();
-                    if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
-                    {
-                        ps[i] = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(ps[i]), Helper.Exponent, Helper.Modulus);
-                    }
+                    parameterJson = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(methodParams.ToJsonString()), Helper.Exponent, Helper.Modulus);
+                }
+                else
+                {
+                    parameterJson = methodParams.ToJsonString();
                 }
             }
             else
             {
-                ps = new string[0];
+                parameterJson = "[]";
             }
-            
+
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Referer", _Referer);
             values["m"] = (new InvokeArg
             {
                 ClassFullName = "Way.EJServer.MainController",
                 MethodName = name,
-                Parameters = ps,
+                ParameterJson = parameterJson,
                 SessionID = SessionID
             }).ToJsonString();
             var resultTask = client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
