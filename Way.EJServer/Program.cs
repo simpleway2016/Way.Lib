@@ -105,6 +105,9 @@ namespace Way.EJServer
                     System.IO.File.WriteAllText($"{webroot}/main.html", "<html><body controller=\"Way.EJServer.MainController\"></body></html>");
                 }
                 Console.WriteLine($"path:{webroot}");
+
+                SessionState.Timeout = 60 * 24;
+
                 ScriptRemotingServer.Start(port, webroot, 1);
             }
             catch(Exception ex)

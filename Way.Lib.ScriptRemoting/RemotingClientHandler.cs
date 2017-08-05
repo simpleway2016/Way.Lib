@@ -372,11 +372,23 @@ namespace Way.Lib.ScriptRemoting
                     object[] parameters = new object[pInfos.Length];
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        Type pType = pInfos[i].ParameterType;
+                        if (jsParameters[i] == null)
+                            continue;
 
+                        Type pType = pInfos[i].ParameterType;
+                        
                         if(jsParameters[i] is Newtonsoft.Json.Linq.JToken)
                         {
                             parameters[i] = (jsParameters[i] as Newtonsoft.Json.Linq.JToken).ToObject(pType);
+                        }
+                        else if(pType.GetTypeInfo().IsEnum || (pType.GetTypeInfo().IsGenericType && pType.GetGenericTypeDefinition() == typeof(Nullable<>) && pType.GetGenericArguments()[0].GetTypeInfo().IsEnum))
+                        {
+                            Type enumType = pType;
+                            if(pType.GetTypeInfo().IsGenericType)
+                            {
+                                enumType = pType.GetGenericArguments()[0];
+                            }
+                            parameters[i] = Enum.Parse(enumType, jsParameters[i].ToSafeString());
                         }
                         else
                         {

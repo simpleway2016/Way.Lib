@@ -77,6 +77,10 @@ namespace PandaAudioServer
                 _LockTime = DateTime.Now;
             }
         }
+        public int GetChance()
+        {
+            return 10 - this.ErrorCount;
+        }
         public void Clear()
         {
             for (int i = 0; i < Errors.Count; i++)

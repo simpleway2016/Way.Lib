@@ -87,7 +87,7 @@ namespace Way.Lib
                 {
                     var text = content.Substring(i, Math.Min(110, total));
                     total -= text.Length;
-                    var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
+                    var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(text), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                     result.Append( BytesToHexString(data));
                 }
                 return result.ToString();

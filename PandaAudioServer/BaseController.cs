@@ -16,7 +16,7 @@ namespace PandaAudioServer
             }
         }
 
-        public int UserId
+        public virtual int UserId
         {
             get
             {
