@@ -70,6 +70,17 @@ namespace PandaAudioServer
         }
 
         [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        public bool ChangePassword(string oldpassword, string password)
+        {
+            var user = this.db.UserInfo.FirstOrDefault(m=>m.id == this.UserId);
+            if (user.Password != oldpassword)
+                throw new Exception("旧密码不正确");
+            user.Password = password;
+            this.db.Update(user);
+            return true;
+        }
+
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
         public bool Register(UserInfo user,string phonecode)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
