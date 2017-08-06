@@ -98,31 +98,19 @@ var JControl = (function () {
         this.onPropertyChangeds[index] = null;
     };
     JControl.prototype.onPropertyChanged = function (proName, originalValue) {
-        var _this = this;
         for (var i = 0; i < this.onPropertyChangeds.length; i++) {
             if (this.onPropertyChangeds[i]) {
                 this.onPropertyChangeds[i](this, proName, originalValue);
             }
         }
-        AllJBinders.forEach(function (binder) {
-            if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Control") >= 0) {
-                binder.onPropertyChanged(_this, proName, originalValue);
-            }
-        });
     };
-    JControl.prototype.onDatacontextPropertyChanged = function (datacontext, proName, originalValue) {
-        var _this = this;
+    JControl.prototype.notifyDatacontextPropertyChanged = function (datacontext, proName, originalValue) {
         for (var i = 0; i < this.templateMatchProNames.length; i++) {
             if (this.templateMatchProNames[i] == "@" + proName) {
                 this.reApplyTemplate(this.element);
                 break;
             }
         }
-        AllJBinders.forEach(function (binder) {
-            if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Datacontext") >= 0) {
-                binder.onPropertyChanged(datacontext, proName, originalValue);
-            }
-        });
     };
     Object.defineProperty(JControl.prototype, "datacontext", {
         get: function () {
@@ -142,10 +130,6 @@ var JControl = (function () {
                 value = new JObserveObject(value);
             }
             if (this._datacontext != value) {
-                if (this._datacontext_listen_index) {
-                    this._datacontext.removeListener(this._datacontext_listen_index);
-                    this._datacontext_listen_index = 0;
-                }
                 var original = this._datacontext;
                 this._datacontext = value;
                 AllJBinders.forEach(function (binder, index) {
@@ -157,10 +141,6 @@ var JControl = (function () {
                 });
                 new JDatacontextBinder(this);
                 new JDatacontextExpressionBinder(this);
-                if (value) {
-                    this.checkDataContextPropertyExist();
-                    this._datacontext_listen_index = value.addPropertyChangedListener(function (sender, name, oldvalue) { return _this.onDatacontextPropertyChanged(sender, name, oldvalue); });
-                }
                 this.onPropertyChanged("datacontext", original);
                 this.checkDataContextPropertyExist();
                 this.reApplyTemplate(this.element ? this.element : this.originalElement);

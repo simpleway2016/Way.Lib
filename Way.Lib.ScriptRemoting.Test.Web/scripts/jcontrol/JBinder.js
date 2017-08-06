@@ -35,6 +35,10 @@ var JBinder = (function () {
             }
         });
         this.bindingDataContext = this.datacontext;
+        if (this.bindingDataContext) {
+            this._datacontext_listen_index =
+                this.bindingDataContext.addPropertyChangedListener(function (sender, name, oldvalue) { return _this.onPropertyChanged(sender, name, oldvalue); });
+        }
     }
     Object.defineProperty(JBinder.prototype, "datacontext", {
         get: function () {
@@ -79,6 +83,7 @@ var JBinder = (function () {
         }
     };
     JBinder.prototype.dispose = function () {
+        this._datacontext.removeListener(this._datacontext_listen_index);
         this._datacontext = null;
         this.disposed = true;
         this.rootControl = null;
@@ -240,6 +245,9 @@ var JDatacontextBinder = (function (_super) {
     JDatacontextBinder.prototype.onPropertyChanged = function (sender, name, originalValue) {
         if (this.disposed)
             return;
+        if (this.control instanceof JControl) {
+            this.control.notifyDatacontextPropertyChanged(sender, name, originalValue);
+        }
         try {
             var config = this.getConfigByDataProName(name);
             if (config) {

@@ -44,13 +44,13 @@ class JControl implements INotifyPropertyChanged {
             }
         }
 
-        AllJBinders.forEach((binder: JBinder) => {
-            if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Control") >= 0) {
-                binder.onPropertyChanged(this, proName, originalValue);
-            }
-        });
+        //AllJBinders.forEach((binder: JBinder) => {
+        //    if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Control") >= 0) {
+        //        binder.onPropertyChanged(this, proName, originalValue);
+        //    }
+        //});
     }
-    protected onDatacontextPropertyChanged(datacontext, proName: string, originalValue: any) {
+    notifyDatacontextPropertyChanged(datacontext, proName: string, originalValue: any) {
         for (var i = 0; i < this.templateMatchProNames.length; i++) {
             if (this.templateMatchProNames[i] == "@" + proName) {
                 //需要重新加载模板
@@ -59,11 +59,11 @@ class JControl implements INotifyPropertyChanged {
             }
         }
 
-        AllJBinders.forEach((binder: JBinder) => {
-            if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
-                binder.onPropertyChanged(datacontext, proName, originalValue);
-            }
-        });
+        //AllJBinders.forEach((binder: JBinder) => {
+        //    if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
+        //        binder.onPropertyChanged(datacontext, proName, originalValue);
+        //    }
+        //});
        
     }
 
@@ -82,7 +82,6 @@ class JControl implements INotifyPropertyChanged {
 
     protected currentTemplate: HTMLElement;
 
-    private _datacontext_listen_index: number;
     private _datacontext: any;
     get datacontext()
     {
@@ -106,11 +105,6 @@ class JControl implements INotifyPropertyChanged {
 
         if (this._datacontext != value)
         {
-            if (this._datacontext_listen_index)
-            {
-                (<INotifyPropertyChanged>this._datacontext).removeListener(this._datacontext_listen_index);
-                this._datacontext_listen_index = 0;
-            }
            
             var original = this._datacontext;
             this._datacontext = value;
@@ -126,12 +120,7 @@ class JControl implements INotifyPropertyChanged {
             new JDatacontextBinder(this);
             new JDatacontextExpressionBinder(this);
 
-            if (value)
-            {
-                this.checkDataContextPropertyExist();
 
-                this._datacontext_listen_index = (<INotifyPropertyChanged>value).addPropertyChangedListener((sender, name, oldvalue) => this.onDatacontextPropertyChanged(sender, name, oldvalue));
-            }
             this.onPropertyChanged("datacontext", original);
 
             this.checkDataContextPropertyExist();

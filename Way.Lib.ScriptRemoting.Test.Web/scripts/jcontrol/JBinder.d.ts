@@ -13,6 +13,7 @@ declare class JBinder {
     control: any;
     disposed: boolean;
     rootControl: JControl;
+    private _datacontext_listen_index;
     private _datacontext;
     readonly datacontext: any;
     constructor(control: any);

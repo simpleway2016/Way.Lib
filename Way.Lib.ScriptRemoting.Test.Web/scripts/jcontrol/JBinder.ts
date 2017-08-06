@@ -21,6 +21,7 @@ class JBinder
     control: any;
     disposed: boolean = false;
     rootControl: JControl;
+    private _datacontext_listen_index: number;
 
     private _datacontext;
     get datacontext()
@@ -46,6 +47,11 @@ class JBinder
         });
 
         this.bindingDataContext = this.datacontext;
+        if (this.bindingDataContext)
+        {
+            this._datacontext_listen_index =
+                (<INotifyPropertyChanged>this.bindingDataContext).addPropertyChangedListener((sender, name, oldvalue) => this.onPropertyChanged(sender, name, oldvalue));
+        }
     }
 
     static pushBinder(binder)
@@ -62,6 +68,7 @@ class JBinder
     }
 
     onPropertyChanged(sender, name: string, originalValue) {
+        
     }
 
     getDatacontext(): INotifyPropertyChanged
@@ -93,6 +100,7 @@ class JBinder
     }
 
     dispose() {
+        (<INotifyPropertyChanged>this._datacontext).removeListener(this._datacontext_listen_index);
         this._datacontext = null;
         this.disposed = true;
         this.rootControl = null;
@@ -296,6 +304,10 @@ class JDatacontextBinder extends JBinder
     onPropertyChanged(  sender, name: string, originalValue) {
         if (this.disposed)
             return;
+
+        if (this.control instanceof JControl) {
+            (<JControl>this.control).notifyDatacontextPropertyChanged(sender, name, originalValue);
+        }
 
         try {
             var config = this.getConfigByDataProName(name);

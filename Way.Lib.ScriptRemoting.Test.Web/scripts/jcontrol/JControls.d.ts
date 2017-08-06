@@ -2,7 +2,7 @@ declare class JControl implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number;
     removeListener(index: number): void;
     protected onPropertyChanged(proName: string, originalValue: any): void;
-    protected onDatacontextPropertyChanged(datacontext: any, proName: string, originalValue: any): void;
+    notifyDatacontextPropertyChanged(datacontext: any, proName: string, originalValue: any): void;
     static StaticID: number;
     static StaticString: string;
     originalElement: HTMLElement;
@@ -13,7 +13,6 @@ declare class JControl implements INotifyPropertyChanged {
     protected templates: HTMLElement[];
     protected templateMatchProNames: string[];
     protected currentTemplate: HTMLElement;
-    private _datacontext_listen_index;
     private _datacontext;
     datacontext: any;
     private _parentJControl;
