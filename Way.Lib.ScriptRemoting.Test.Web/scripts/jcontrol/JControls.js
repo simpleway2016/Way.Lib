@@ -112,6 +112,12 @@ var JControl = (function () {
     };
     JControl.prototype.onDatacontextPropertyChanged = function (datacontext, proName, originalValue) {
         var _this = this;
+        for (var i = 0; i < this.templateMatchProNames.length; i++) {
+            if (this.templateMatchProNames[i] == "@" + proName) {
+                this.reApplyTemplate(this.element);
+                break;
+            }
+        }
         AllJBinders.forEach(function (binder) {
             if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Datacontext") >= 0) {
                 binder.onPropertyChanged(datacontext, proName, originalValue);
@@ -134,14 +140,6 @@ var JControl = (function () {
             }
             if (value && !value.addPropertyChangedListener) {
                 value = new JObserveObject(value);
-                value.addPropertyChangedListener(function (s, name, value) {
-                    for (var i = 0; i < _this.templateMatchProNames.length; i++) {
-                        if (_this.templateMatchProNames[i] == "@" + name) {
-                            _this.reApplyTemplate(_this.element);
-                            break;
-                        }
-                    }
-                });
             }
             if (this._datacontext != value) {
                 if (this._datacontext_listen_index) {

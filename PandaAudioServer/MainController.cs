@@ -165,6 +165,81 @@ namespace PandaAudioServer
             return true;
         }
 
+
+        #region 忘记密码
+        /// <summary>
+        /// 发送手机验证码
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        public bool SendForgetPwdVerifyCode(string phoneNumber)
+        {
+            string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
+            if (IPError.IsIPLocked(ip))
+                throw new Exception("禁止访问");
+
+            if (this.db.UserInfo.Any(m => m.PhoneNumber == phoneNumber) == false)
+            {
+                var iperror = IPError.GetInstance(ip);
+                this.Session["iperror"] = iperror;
+                iperror.MarkError();
+                if (iperror.ErrorCount < 7)
+                    throw new Exception("手机号错误");
+                else
+                    throw new Exception($"手机号错误，剩余{iperror.GetChance()}次机会！");
+            }
+            else
+            {
+                if (this.Session["iperror"] != null)
+                {
+                    ((IPError)this.Session["iperror"]).Clear();
+                    this.Session.Remove("iperror");
+                }
+                var sms = Factory.GetService<ISms>();
+                this.Session["phoneCode_forgetPwd"] = new Random().Next(1000, 9999).ToString();
+                this.Session["phoneNumber"] = phoneNumber;
+                var msg = sms.Format("{0}", this.Session["phoneCode_forgetPwd"].ToString());
+                sms.Send(phoneNumber, msg);
+            }
+            return true;
+        }
+
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        public bool ResetPasswordByPhone(string verifyCode,string pwd)
+        {
+            string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
+            if (IPError.IsIPLocked(ip))
+                throw new Exception("禁止访问");
+
+            if ((string)this.Session["phoneCode_forgetPwd"] != verifyCode)
+            {
+                var iperror = IPError.GetInstance(ip);
+                this.Session["iperror"] = iperror;
+                iperror.MarkError();
+                if (iperror.ErrorCount < 7)
+                    throw new Exception("验证码错误");
+                else
+                    throw new Exception($"验证码错误，剩余{iperror.GetChance()}次机会！");
+            }
+
+            if (this.Session["iperror"] != null)
+            {
+                ((IPError)this.Session["iperror"]).Clear();
+                this.Session.Remove("iperror");
+            }
+            this.Session.Remove("phoneCode_forgetPwd");
+
+            string phoneNumber = this.Session["phoneNumber"].ToString();
+            var users = this.db.UserInfo.Where(m=>m.PhoneNumber == phoneNumber).ToArray();
+            foreach (var user in users)
+            {
+                user.Password = pwd;
+                this.db.Update(user);
+            }
+            return true;
+        }
+        #endregion
+
         [RemotingMethod]
         public string DownloadEffect(string name, UserEffect_TypeEnum type)
         {

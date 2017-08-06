@@ -448,4 +448,18 @@ var JControlExpressionBinder = (function (_super) {
     };
     return JControlExpressionBinder;
 }(JDatacontextExpressionBinder));
+window.bindElement = function (element, datacontext) {
+    for (var i = 0; i < element.children.length; i++) {
+        var node = element.children[i];
+        if (node.JControl) {
+            if (!node.JControl.datacontext) {
+                node.JControl.datacontext = datacontext;
+            }
+            continue;
+        }
+        else {
+            window.bindElement(node, datacontext);
+        }
+    }
+};
 //# sourceMappingURL=JBinder.js.map

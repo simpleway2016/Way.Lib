@@ -543,3 +543,21 @@ class JControlExpressionBinder extends JDatacontextExpressionBinder {
         return /\{1\}\.\$([\w|\.]+)/;
     }
 }
+
+(<any>window).bindElement = function (element: HTMLElement, datacontext)
+{
+    for (var i = 0; i < element.children.length; i++)
+    {
+        var node = element.children[i];
+        if ((<any>node).JControl)
+        {
+            if (!(<any>node).JControl.datacontext) {
+                (<any>node).JControl.datacontext = datacontext;
+            }
+            continue;
+        }
+        else {
+            (<any>window).bindElement(node, datacontext);
+        }
+    }
+}

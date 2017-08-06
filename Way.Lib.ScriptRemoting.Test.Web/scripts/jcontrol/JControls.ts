@@ -51,6 +51,14 @@ class JControl implements INotifyPropertyChanged {
         });
     }
     protected onDatacontextPropertyChanged(datacontext, proName: string, originalValue: any) {
+        for (var i = 0; i < this.templateMatchProNames.length; i++) {
+            if (this.templateMatchProNames[i] == "@" + proName) {
+                //需要重新加载模板
+                this.reApplyTemplate(this.element);
+                break;
+            }
+        }
+
         AllJBinders.forEach((binder: JBinder) => {
             if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
                 binder.onPropertyChanged(datacontext, proName, originalValue);
@@ -94,17 +102,6 @@ class JControl implements INotifyPropertyChanged {
 
         if (value && !value.addPropertyChangedListener) {
             value = new JObserveObject(value);
-            (<JObserveObject>value).addPropertyChangedListener((s, name: string, value) => {
-                for (var i = 0; i < this.templateMatchProNames.length; i++)
-                {
-                    if (this.templateMatchProNames[i] == "@" + name)
-                    {
-                        //需要重新加载模板
-                        this.reApplyTemplate(this.element);
-                        break;
-                    }
-                }
-            });
         }
 
         if (this._datacontext != value)
