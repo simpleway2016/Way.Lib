@@ -130,6 +130,15 @@ namespace Way.Lib
             binr.BaseStream.Seek(-1, SeekOrigin.Current);		//last ReadByte wasn't a removed zero, so back up a byte
             return count;
         }
+        /// <summary>
+        /// 根据字符串类型的private Key获取RSAParameters，如果是public key，可以使用Chilkat
+        /// </summary>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
+        public static RSAParameters GetRSAParameters(string  privateKey)
+        {
+            return getRSAPrivateKey( Convert.FromBase64String(privateKey) );
+        }
         static RSAParameters getRSAPrivateKey(byte[] privkey)
         {
             byte[] MODULUS, E, D, P, Q, DP, DQ, IQ;
