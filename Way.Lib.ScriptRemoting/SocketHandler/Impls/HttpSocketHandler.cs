@@ -154,7 +154,7 @@ namespace Way.Lib.ScriptRemoting
                     var controllerConfig = ControllerUrlConfig.FirstOrDefault(m => url.StartsWith(m.Key, StringComparison.CurrentCultureIgnoreCase) && url.Substring(m.Key.Length).Contains("/") == false);
                     if (controllerConfig.Value != null)
                     {
-                        RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler(null, null, null, null, null);
+                        RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler(null, null, RemotingContext.Current.Request.RemoteEndPoint.ToString().Split(':')[0], null, null);
                         rs.handleMethod(controllerConfig.Value , url.Substring(controllerConfig.Key.Length));
                     }
                     else

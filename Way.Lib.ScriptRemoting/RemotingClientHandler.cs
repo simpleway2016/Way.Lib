@@ -343,6 +343,19 @@ namespace Way.Lib.ScriptRemoting
             if (methodinfo == null)
                 throw new Exception($"没有找到方法{methodName},可能因为此方法没有定义[RemotingMethod]");
 
+            if (RemotingContext.Current.Request.Headers.ContainsKey("Cookie"))
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(RemotingContext.Current.Request.Headers["Cookie"], @"WayScriptRemoting\=([\w|\-]+)");
+                if (match.Length > 0)
+                {
+                    this.Session = SessionState.GetSession(match.Groups[1].Value, this.mClientIP);
+                }
+            }
+            if (this.Session == null)
+            {
+                this.Session = SessionState.GetSession(Guid.NewGuid().ToString(), this.mClientIP);
+            }
+
             var  currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
             currentPage.Session = this.Session;
             currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
@@ -399,14 +412,17 @@ namespace Way.Lib.ScriptRemoting
                 object result = null;
 
                 result = methodinfo.Invoke(currentPage, parameters);
+                RemotingContext.Current.Response.Headers["Cookie"] = "WayScriptRemoting=" + this.Session.SessionID;
 
-                if(result is FileContent)
+                if (result is FileContent)
                 {
                     ((FileContent)result).Output();
                 }
-                else if(result is string)
+                else if (result is string)
+                {
                     RemotingContext.Current.Response.Write(result.ToSafeString());
-                else if(result != null)
+                }
+                else if (result != null)
                 {
                     RemotingContext.Current.Response.Write(result.ToJsonString());
                 }

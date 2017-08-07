@@ -75,9 +75,9 @@ namespace Way.Lib.ScriptRemoting.Test
             return new FileContent(AppContext.BaseDirectory + "/a.jpg" , "image/jpeg");
         }
         [RemotingMethod]
-        public FileContent Img2()
+        public object Img2()
         {
-            return null;
+            return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body>" + this.Session["name"] + "</body></html>";
         }
         [RemotingMethod]
         public int Test(int count)
@@ -117,6 +117,7 @@ namespace Way.Lib.ScriptRemoting.Test
         [RemotingMethod( UseRSA = RSAApplyScene.EncryptResultAndParameters )]
         public string TestRSA(string content, NameInfo number)
         {
+            this.Session["name"] = content;
             return content + ",age:" + number.age;
         }
 
