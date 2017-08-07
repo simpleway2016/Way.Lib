@@ -412,7 +412,7 @@ namespace Way.Lib.ScriptRemoting
                 object result = null;
 
                 result = methodinfo.Invoke(currentPage, parameters);
-                RemotingContext.Current.Response.Headers["Cookie"] = "WayScriptRemoting=" + this.Session.SessionID;
+                RemotingContext.Current.Response.Headers["Set-Cookie"] = "WayScriptRemoting=" + this.Session.SessionID;
 
                 if (result is FileContent)
                 {

@@ -77,7 +77,8 @@ namespace Way.Lib.ScriptRemoting.Test
         [RemotingMethod]
         public object Img2()
         {
-            return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body>" + this.Session["name"] + "</body></html>";
+            this.Session["name"] = "img2 name";
+            return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body onclick=\"location.href='/controltest0'\">" + this.Session["name"] + "</body></html>";
         }
         [RemotingMethod]
         public int Test(int count)
@@ -117,8 +118,8 @@ namespace Way.Lib.ScriptRemoting.Test
         [RemotingMethod( UseRSA = RSAApplyScene.EncryptResultAndParameters )]
         public string TestRSA(string content, NameInfo number)
         {
-            this.Session["name"] = content;
-            return content + ",age:" + number.age;
+
+            return content + ",age:" + number.age + " " + this.Session["name"];
         }
 
         FileStream fs;
