@@ -118,8 +118,7 @@ var JBinder = (function () {
                 databind += ";" + name + "=$" + r[1];
             }
             else if (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(att.value)) {
-                element.attributes.removeNamedItem(att.name);
-                i--;
+                element.setAttribute(att.name, "");
                 databind += ";" + name + "=@" + r[1];
             }
         }
