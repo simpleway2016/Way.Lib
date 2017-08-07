@@ -258,6 +258,7 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             mClient.Socket.Send(content , offset , count , System.Net.Sockets.SocketFlags.None);
         }
+       
         internal void SendFileNoChanged()
         {
             if (mClient == null)
@@ -313,6 +314,12 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer.Dispose();
                 _buffer = null;
                 this.Write(bs , 0 , bs.Length);
+            }
+
+            if(!_sendedHeader)
+            {
+                _sendedHeader = true;
+                mClient.Socket.Send(getBytes("HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
             }
 
             //wait for close

@@ -14,11 +14,34 @@ namespace Way.Lib.ScriptRemoting
 {
     class HttpSocketHandler : ISocketHandler
     {
+        static HttpSocketHandler()
+        {
+            ControllerUrlConfig = new Dictionary<string, string>();
+               Type basetype = typeof(RemotingController);
+            Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
+            foreach( Assembly assembly in assemblies )
+            {
+                var types = assembly.GetTypes();
+                foreach( var type in types )
+                {
+                    if(type.GetTypeInfo().IsSubclassOf(basetype))
+                    {
+                        var attr = type.GetTypeInfo().GetCustomAttribute(typeof(RemotingUrlAttribute), true) as RemotingUrlAttribute;
+                        if(attr != null)
+                        {
+                            if(ControllerUrlConfig.ContainsKey(attr.Url) == false)
+                            {
+                                ControllerUrlConfig[attr.Url] = type.FullName;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         HttpConnectInformation _currentHttpConnectInformation;
         static string[] NotAllowDownloadFiles = new string[] { ".dll", ".exe", ".config",".db" };
 
-        //static List<string> compiledTSFiles = new List<string>();
-
+        internal static Dictionary<string, string> ControllerUrlConfig;
        
         public HttpSocketHandler(Net.Request request)
         {
@@ -32,11 +55,7 @@ namespace Way.Lib.ScriptRemoting
             try
             {
                 //访问ts脚本
-                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("/SERVERID"))
-                {
-                    RemotingContext.Current.Response.WriteStringBody(ScriptRemotingServer.SERVERID);
-                }
-                else if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
+                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
                 {
                     var since = RemotingContext.Current.Request.Headers["If-Modified-Since"].ToSafeString();
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
@@ -132,28 +151,37 @@ namespace Way.Lib.ScriptRemoting
                     }
 
                     url = getUrl(url);
-                    if (url.Length == 0 || url == "/")
+                    var controllerConfig = ControllerUrlConfig.FirstOrDefault(m => url.StartsWith(m.Key, StringComparison.CurrentCultureIgnoreCase) && url.Substring(m.Key.Length).Contains("/") == false);
+                    if (controllerConfig.Value != null)
                     {
-                        url = WebPathManger.getFileUrl("/index.html");
-                    }
-                    if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
-                    {
-                        url = WebPathManger.getFileUrl($"{url}.html");
+                        RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler(null, null, null, null, null);
+                        rs.handleMethod(controllerConfig.Value , url.Substring(controllerConfig.Key.Length));
                     }
                     else
                     {
-                        url = WebPathManger.getFileUrl(url);
-                    }
+                        if (url.Length == 0 || url == "/")
+                        {
+                            url = WebPathManger.getFileUrl("/index.html");
+                        }
+                        if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
+                        {
+                            url = WebPathManger.getFileUrl($"{url}.html");
+                        }
+                        else
+                        {
+                            url = WebPathManger.getFileUrl(url);
+                        }
 
-                    checkHandlers(url);
-                    
-                    if (RemotingContext.Current.Response.mClient != null)
-                    {
-                        string filepath = url;
-                        if (filepath.StartsWith("/"))
-                            filepath = filepath.Substring(1);
-                        filepath = ScriptRemotingServer.Root + filepath;
-                        outputFile(url, filepath);
+                        checkHandlers(url);
+
+                        if (RemotingContext.Current.Response.mClient != null)
+                        {
+                            string filepath = url;
+                            if (filepath.StartsWith("/"))
+                                filepath = filepath.Substring(1);
+                            filepath = ScriptRemotingServer.Root + filepath;
+                            outputFile(url, filepath);
+                        }
                     }
                 }
             }

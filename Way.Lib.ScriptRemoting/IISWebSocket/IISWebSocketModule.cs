@@ -90,11 +90,6 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                 //     IHttpHandler handler = routeData.RouteHandler.GetHttpHandler(requestContext);
                 context.RemapHandler(this);
             }
-            else if (context.Request.RawUrl.EndsWith("/SERVERID"))
-            {
-                context.Response.Write(ScriptRemotingServer.SERVERID);
-                context.Response.End();
-            }
             else if (context.Request.RawUrl.ToLower().StartsWith("/wayscriptremoting_invoke?a="))
             {
                 string json = context.Request.Form["m"];

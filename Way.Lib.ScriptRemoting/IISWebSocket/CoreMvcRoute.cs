@@ -136,10 +136,6 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                         return context.Response.WriteAsync(content);
                     }
                 }
-                else if (context.Request.Path.Value.EndsWith("/SERVERID"))
-                {
-                    return context.Response.WriteAsync(ScriptRemotingServer.SERVERID);
-                }
                 else if (context.Request.Path.Value.ToLower().StartsWith("/wayscriptremoting_invoke"))
                 {
                     string json = context.Request.Form["m"];

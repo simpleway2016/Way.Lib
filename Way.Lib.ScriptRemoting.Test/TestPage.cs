@@ -9,7 +9,7 @@ using Way.Lib.ScriptRemoting.WinTest;
 
 namespace Way.Lib.ScriptRemoting.Test
 {
-    [RemotingMethod]
+    [RemotingUrl("Test")]
     public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
         public IQueryable<EJ.DBColumn> Columns
@@ -64,6 +64,21 @@ namespace Way.Lib.ScriptRemoting.Test
             return arrs.ToArray();
         }
 
+        [RemotingMethod]
+        public string GetInfo(string name,int age)
+        {
+            return "hello " + name + " " + age;
+        }
+        [RemotingMethod]
+        public FileContent Img()
+        {
+            return new FileContent(AppContext.BaseDirectory + "/a.jpg" , "image/jpeg");
+        }
+        [RemotingMethod]
+        public FileContent Img2()
+        {
+            return null;
+        }
         [RemotingMethod]
         public int Test(int count)
         {

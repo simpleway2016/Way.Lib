@@ -25,7 +25,6 @@ namespace Way.Lib.ScriptRemoting
     /// </summary>
     public static class ScriptRemotingServer
     {
-        internal static string SERVERID = Guid.NewGuid().ToString();
         internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal static List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
         internal static string ScriptFilePath;

@@ -8,7 +8,6 @@ using System.IO;
 
 namespace PandaAudioServer
 {
-    [RemotingMethod]
     public class MainController : BaseController
     {
         public MainController()

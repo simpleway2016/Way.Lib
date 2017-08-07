@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace PandaAudioServer
 {
-    [RemotingMethod]
     public class AdminController : BaseController
     {
         public class RegInfo:SysDB.SystemRegCode

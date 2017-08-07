@@ -194,7 +194,10 @@ namespace Way.Lib.ScriptRemoting
                 {
                     throw new Exception(remoteName + "不是RemotingPage的子类");
                 }
-
+                if (pageDefine.ControllerType.GetTypeInfo().IsPublic == false)
+                {
+                    throw new Exception($"{pageDefine.ControllerType.FullName}不是public");
+                }
                 MethodInfo[] methods = pageDefine.ControllerType.GetMethods( BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                 foreach (MethodInfo m in methods)
                 {
@@ -331,6 +334,95 @@ namespace Way.Lib.ScriptRemoting
                 SendData(MessageType.InvokeError, baseException != null ? baseException.Message : ex.Message , "");
             }
 
+        }
+
+        internal void handleMethod(string fullname , string methodName)
+        {
+            var pageDefine = checkRemotingName(fullname);
+            MethodInfo methodinfo = pageDefine.Methods.SingleOrDefault(m =>string.Equals(m.Name , methodName, StringComparison.CurrentCultureIgnoreCase));
+            if (methodinfo == null)
+                throw new Exception($"没有找到方法{methodName},可能因为此方法没有定义[RemotingMethod]");
+
+            var  currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);
+            currentPage.Session = this.Session;
+            currentPage.RequestHeaders = new RemotingController.RequestHeaderCollection(_GetHeaderValueHandler);
+
+            RemotingContext.Current.Controller = currentPage;
+
+            currentPage.onLoad();
+
+            try
+            {
+                currentPage._OnBeforeInvokeMethod(methodinfo);
+                RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
+                var pInfos = methodinfo.GetParameters();
+
+                object[] parameters = new object[pInfos.Length];
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    
+                    Type pType = pInfos[i].ParameterType;
+                    string name = pInfos[i].Name;
+                    string value = null;
+                    if(RemotingContext.Current.Request.Query.ContainsKey(name))
+                    {
+                        value = RemotingContext.Current.Request.Query[name];
+                    }
+                    else if (RemotingContext.Current.Request.Form.ContainsKey(name))
+                    {
+                        value = RemotingContext.Current.Request.Form[name];
+                    }
+                    if (value == null)
+                        continue;
+                    try
+                    {
+                        if (pType.GetTypeInfo().IsEnum || (pType.GetTypeInfo().IsGenericType && pType.GetGenericTypeDefinition() == typeof(Nullable<>) && pType.GetGenericArguments()[0].GetTypeInfo().IsEnum))
+                        {
+                            Type enumType = pType;
+                            if (pType.GetTypeInfo().IsGenericType)
+                            {
+                                enumType = pType.GetGenericArguments()[0];
+                            }
+                            parameters[i] = Enum.Parse(enumType, value);
+                        }
+                        else if (pType == typeof(string))
+                        {
+                            parameters[i] = value;
+                        }
+                        else
+                        {
+                            parameters[i] = Convert.ChangeType(value, pType);
+                        }
+                    }
+                    catch { }
+                }
+                object result = null;
+
+                result = methodinfo.Invoke(currentPage, parameters);
+
+                if(result is FileContent)
+                {
+                    ((FileContent)result).Output();
+                }
+                else if(result is string)
+                    RemotingContext.Current.Response.Write(result.ToSafeString());
+                else if(result != null)
+                {
+                    RemotingContext.Current.Response.Write(result.ToJsonString());
+                }
+                else
+                {
+                    RemotingContext.Current.Response.Write(new byte[0]);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                currentPage.unLoad();
+            }
         }
 
        void handleMethodInvoke(MessageBag msgBag)
