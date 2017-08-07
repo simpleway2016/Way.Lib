@@ -124,6 +124,8 @@ class JBinder
         if (!databind)
             databind = "";
 
+        var attributeLength = element.attributes.length;
+
         for (var i = 0; i < element.attributes.length; i++)
         {
             var att = element.attributes[i];
@@ -140,8 +142,8 @@ class JBinder
             var r;
             if (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(att.value))
             {
-                element.attributes.removeNamedItem(att.name);
-                i--;
+                //不要删除属性，如value删除不了，所以还是设置空吧
+                element.setAttribute(att.name, "");
                 databind += ";" + name + "=$" + r[1];
             }
             else if (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(att.value)) {

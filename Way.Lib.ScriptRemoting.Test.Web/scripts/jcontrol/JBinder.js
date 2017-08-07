@@ -102,6 +102,7 @@ var JBinder = (function () {
         var databind = element.getAttribute("databind");
         if (!databind)
             databind = "";
+        var attributeLength = element.attributes.length;
         for (var i = 0; i < element.attributes.length; i++) {
             var att = element.attributes[i];
             if (att.name == "databind")
@@ -113,8 +114,7 @@ var JBinder = (function () {
                 name = "innerHTML";
             var r;
             if (r = /\{bind[ ]+\$([\w|\.]+)\}/.exec(att.value)) {
-                element.attributes.removeNamedItem(att.name);
-                i--;
+                element.setAttribute(att.name, "");
                 databind += ";" + name + "=$" + r[1];
             }
             else if (r = /\{bind[ ]+\@([\w|\.]+)\}/.exec(att.value)) {
