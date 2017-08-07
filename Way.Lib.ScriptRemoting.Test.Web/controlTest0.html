@@ -25,7 +25,7 @@
     </style>    
 </head>
 <body>
-    
+    <div id="aaa" class="panel">awfeawfawfeawf</div>
 
     <JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
         <script type="text/html">
@@ -109,6 +109,8 @@
         }
 
         window.onload = function () {
+            document.querySelector("#aaa").removeAttribute("class");
+
             var controller = "Way.Lib.ScriptRemoting.Test.TestPage".controller();
             var c = "看到这个，证明成功了。";
             for (var i = 0; i < 8; i++)
