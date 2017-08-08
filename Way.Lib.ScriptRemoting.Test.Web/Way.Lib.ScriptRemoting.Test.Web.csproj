@@ -36,6 +36,7 @@
     <Content Include="master3.html" />
     <Content Include="scripts\Barrett.js" />
     <Content Include="scripts\BigInt.js" />
+    <Content Include="scripts\jcontrol\jsencrypt.min.js" />
     <Content Include="scripts\jcontrol\说明.html" />
     <Content Include="scripts\jquery.js" />
     <Content Include="scripts\remConfig.js" />
