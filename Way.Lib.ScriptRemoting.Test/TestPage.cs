@@ -78,7 +78,7 @@ namespace Way.Lib.ScriptRemoting.Test
         public object Img2()
         {
             this.Session["name"] = "img2 name";
-            return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body onclick=\"location.href='/controltest0'\">" + this.Session["name"] + "</body></html>";
+            return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body onclick=\"alert(document.cookie);location.href='/test.html'\">" + this.Session["name"] + "</body></html>";
         }
         [RemotingMethod]
         public int Test(int count)

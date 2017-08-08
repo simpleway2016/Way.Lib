@@ -48,6 +48,7 @@ namespace Way.Lib
                 return _parameter.Modulus;
             }
         }
+        const int MAXLENGTH = 110;
         public RSA()
         {
             _rsa = System.Security.Cryptography.RSA.Create();
@@ -74,7 +75,7 @@ namespace Way.Lib
             var rsa = System.Security.Cryptography.RSA.Create();
             rsa.ImportParameters(rp);
 
-            if (content.Length <= 110)
+            if (content.Length <= MAXLENGTH)
             {
                 var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                 return BytesToHexString(data);
@@ -83,9 +84,9 @@ namespace Way.Lib
             {
                 var result = new StringBuilder();
                 var total = content.Length;
-                for (var i = 0; i < content.Length; i += 110)
+                for (var i = 0; i < content.Length; i += MAXLENGTH)
                 {
-                    var text = content.Substring(i, Math.Min(110, total));
+                    var text = content.Substring(i, Math.Min(MAXLENGTH, total));
                     total -= text.Length;
                     var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(text), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                     result.Append( BytesToHexString(data));
@@ -409,9 +410,9 @@ namespace Way.Lib
             BigInteger n = new BigInteger(_parameter.Modulus);
 
             StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += 110)
+            for (int j = 0; j < data.Length; j += MAXLENGTH)
             {
-                string content = data.Substring(j, Math.Min(110, data.Length - j));
+                string content = data.Substring(j, Math.Min(MAXLENGTH, data.Length - j));
                 byte[] source = System.Text.Encoding.ASCII.GetBytes(content);
 
                 BigInteger biText = new BigInteger(source);

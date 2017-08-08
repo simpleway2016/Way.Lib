@@ -55,7 +55,7 @@ namespace Way.Lib.ScriptRemoting
             try
             {
                 //访问ts脚本
-                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().ToLower().EndsWith("wayscriptremoting"))
+                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("wayscriptremoting", StringComparison.CurrentCultureIgnoreCase))
                 {
                     var since = RemotingContext.Current.Request.Headers["If-Modified-Since"].ToSafeString();
                     var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
@@ -68,7 +68,7 @@ namespace Way.Lib.ScriptRemoting
                         outputFile(ScriptRemotingServer.ScriptFilePath, lastWriteTime);
                     }
                 }
-                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().ToLower().StartsWith("/wayscriptremoting_invoke?a="))
+                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().StartsWith("/wayscriptremoting_invoke?a=", StringComparison.CurrentCultureIgnoreCase))
                 {
                     RemotingContext.Current.Request.urlRequestHandler();
                     string json = RemotingContext.Current.Request.Form["m"];
@@ -83,8 +83,23 @@ namespace Way.Lib.ScriptRemoting
                     rs.OnReceived(json);
 
                 }
-                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().EndsWith("?WayVirtualWebSocket=1")
-                    || RemotingContext.Current.Request.Headers["POST"].ToSafeString().EndsWith("&WayVirtualWebSocket=1"))
+                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().StartsWith("/wayscriptremoting_recreatersa?a=" , StringComparison.CurrentCultureIgnoreCase))
+                {
+                    RemotingContext.Current.Request.urlRequestHandler();
+                    string json = RemotingContext.Current.Request.Form["m"];
+                    RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler((string data) =>
+                    {
+                        RemotingContext.Current.Response.WriteStringBody(data);
+                    }, null, RemotingContext.Current.Request.RemoteEndPoint.ToString().Split(':')[0], (string)RemotingContext.Current.Request.Headers["Referer"],
+                    (key) =>
+                    {
+                        return RemotingContext.Current.Request.Headers[key];
+                    });
+                    rs.handleReCreateRSA(json.FromJson<MessageBag>());
+
+                }
+                else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().EndsWith("?WayVirtualWebSocket=1", StringComparison.CurrentCultureIgnoreCase)
+                    || RemotingContext.Current.Request.Headers["POST"].ToSafeString().EndsWith("&WayVirtualWebSocket=1", StringComparison.CurrentCultureIgnoreCase))
                 {
                     RemotingContext.Current.Request.urlRequestHandler();
                     new VirtualWebSocketHandler(RemotingContext.Current.Request.Form, (data) =>
@@ -155,7 +170,7 @@ namespace Way.Lib.ScriptRemoting
                     if (controllerConfig.Value != null)
                     {
                         RemotingClientHandler rs = new ScriptRemoting.RemotingClientHandler(null, null, RemotingContext.Current.Request.RemoteEndPoint.ToString().Split(':')[0], null, null);
-                        rs.handleMethod(controllerConfig.Value , url.Substring(controllerConfig.Key.Length));
+                        rs.handleUrlMethod(controllerConfig.Value , url.Substring(controllerConfig.Key.Length));
                     }
                     else
                     {

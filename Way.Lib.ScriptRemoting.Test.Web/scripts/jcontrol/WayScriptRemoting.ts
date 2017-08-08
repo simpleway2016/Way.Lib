@@ -3,6 +3,7 @@ declare class RSAKeyPair { constructor(e: string,n:string, m: string); };
 declare var encryptedString: (key: RSAKeyPair, value: string) => string;
 declare var decryptedString: (key: RSAKeyPair, value: string) => string;
 
+var RSAMAXLENGTH = 110;
 enum WayScriptRemotingMessageType {
     Result = 1,
     Notify = 2,
@@ -234,6 +235,27 @@ class WayScriptRemoting {
         ws.onerror = (evt: any) => {
             callback(null, "无法连接服务器");
         };
+    }
+
+    private reCreateRSA(callback:(ret,err)=>any)
+    {
+        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_recreatersa?a=" + (new Date().getTime()));
+        invoker.onCompleted = (ret, err) => {
+            if (err) {
+                callback(null, err);
+            }
+            else {
+                var resultObj;
+                eval("resultObj=" + ret);             
+                callback(resultObj, null);
+            }
+        };
+        
+        invoker.Post({
+            m: JSON.stringify({
+                SessionID: WayCookie.getCookie("WayScriptRemoting")
+            })
+        });
     }
 
     private _uploadFileWithHTTP(fileElement: any, state: any, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler {
@@ -485,19 +507,44 @@ class WayScriptRemoting {
         }
     }
 
+    str2UTF8(str) {
+        var bytes = new Array();
+        var len, c;
+        len = str.length;
+        for (var i = 0; i < len; i++) {
+            c = str.charCodeAt(i);
+            if (c >= 0x010000 && c <= 0x10FFFF) {
+                bytes.push(((c >> 18) & 0x07) | 0xF0);
+                bytes.push(((c >> 12) & 0x3F) | 0x80);
+                bytes.push(((c >> 6) & 0x3F) | 0x80);
+                bytes.push((c & 0x3F) | 0x80);
+            } else if (c >= 0x000800 && c <= 0x00FFFF) {
+                bytes.push(((c >> 12) & 0x0F) | 0xE0);
+                bytes.push(((c >> 6) & 0x3F) | 0x80);
+                bytes.push((c & 0x3F) | 0x80);
+            } else if (c >= 0x000080 && c <= 0x0007FF) {
+                bytes.push(((c >> 6) & 0x1F) | 0xC0);
+                bytes.push((c & 0x3F) | 0x80);
+            } else {
+                bytes.push(c & 0xFF);
+            }
+        }
+        return bytes;
+    }  
+
     private encrypt(value: string): string {
         setMaxDigits(129);
-        value = (<any>window).encodeURIComponent(value, "utf-8");
+        value = JSON.stringify(this.str2UTF8(value));//(<any>window).encodeURIComponent(value, "utf-8");
 
         var key = new RSAKeyPair(this.rsa.Exponent, "", this.rsa.Modulus);
-        if (value.length <= 110) {//只有110是正常，试过120都发生异常，但是c#里面的算法，128都可以
+        if (value.length <= RSAMAXLENGTH) {//只有RSAMAXLENGTH是正常，试过120都发生异常，但是c#里面的算法，128都可以
             return encryptedString(key, value);
         }
         else {
             var result = "";
             var total = value.length;
-            for (var i = 0; i < value.length; i += 110) {
-                var text = value.substr(i, Math.min(110, total));
+            for (var i = 0; i < value.length; i += RSAMAXLENGTH) {
+                var text = value.substr(i, Math.min(RSAMAXLENGTH, total));
                 total -= text.length;
                 result += encryptedString(key, text);
             }
@@ -512,7 +559,7 @@ class WayScriptRemoting {
             }
 
             
-            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
+            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
             invoker.async = async;
             invoker.onCompleted = (ret, err) => {
                 if (WayScriptRemoting.onInvokeFinish) {
@@ -522,18 +569,32 @@ class WayScriptRemoting {
                     callback(null, err);
                 }
                 else {
+                    var originalRet = ret;
                     var resultObj;
                     if (returnUseRsa && ret.indexOf("{") != 0) {
                         setMaxDigits(129);
                         var rsakey = new RSAKeyPair("", this.rsa.Exponent, this.rsa.Modulus);
                         try {
                             ret = decryptedString(rsakey, ret);
+                            eval("ret=\"" + ret + "\"");
                         }
                         catch (e)
                         {
-                            throw "RSA decrypted error，" + e.messsage;
+                            //throw "RSA decrypted error，" + e.messsage;
+                            
+                            //解码结果有问题，重新申请密钥
+                            this.reCreateRSA((ret2, err) => {
+                                if (err)
+                                    callback(null, err);
+                                else {
+                                    this.rsa = ret2.rsa;
+                                    //this.pageInvoke(name, parameters, callback, async, useRsa, returnUseRsa);
+                                    callback(null, "服务器已处理完毕，因网络原因，无法正确显示结果");
+                                }
+                            });
+                            return;
                         }
-                        ret = decodeURIComponent(ret);
+   
                     }
                     eval("resultObj=" + ret);
                     if (resultObj.sessionid && resultObj.sessionid.length > 0) {

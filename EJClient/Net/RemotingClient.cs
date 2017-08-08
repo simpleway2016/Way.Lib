@@ -125,7 +125,7 @@ namespace EJClient.Net
                 {
                     if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
                     {
-                        parameterJson = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode( methodParams.ToJsonString() ), Helper.Exponent, Helper.Modulus);
+                        parameterJson = Way.Lib.RSA.EncryptByKey(System.Text.Encoding.UTF8.GetBytes(methodParams.ToJsonString()).ToJsonString(), Helper.Exponent, Helper.Modulus);
                     }
                     else
                     {
@@ -176,7 +176,14 @@ namespace EJClient.Net
                 if(responseString.StartsWith("{") == false)
                 {
                     responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
-                    responseString = System.Net.WebUtility.UrlDecode(responseString);
+                    responseString = responseString.Replace("\\u", "");
+                    byte[] bs = new byte[responseString.Length / 2];
+                    for (int i = 0; i < bs.Length; i += 2)
+                    {
+                        bs[i + 1] = (byte)Convert.ToInt32(responseString.Substring(i * 2, 2), 16);
+                        bs[i] = (byte)Convert.ToInt32(responseString.Substring(i * 2 + 2, 2), 16);
+                    }
+                    responseString = System.Text.Encoding.Unicode.GetString(bs);
                 }
                 try
                 {
@@ -266,7 +273,7 @@ namespace EJClient.Net
             {
                 if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
                 {
-                    parameterJson = Way.Lib.RSA.EncryptByKey(System.Net.WebUtility.UrlEncode(methodParams.ToJsonString()), Helper.Exponent, Helper.Modulus);
+                    parameterJson = Way.Lib.RSA.EncryptByKey(System.Text.Encoding.UTF8.GetBytes(methodParams.ToJsonString()).ToJsonString(), Helper.Exponent, Helper.Modulus);
                 }
                 else
                 {
@@ -299,8 +306,16 @@ namespace EJClient.Net
             var responseString = responseStringTask.Result;
             if (responseString.StartsWith("{") == false)
             {
+                
                 responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
-                responseString = System.Net.WebUtility.UrlDecode(responseString);
+                responseString = responseString.Replace("\\u", "");
+                byte[] bs = new byte[responseString.Length / 2];
+                for (int i = 0; i < bs.Length; i += 2)
+                {
+                    bs[i + 1] = (byte)Convert.ToInt32(responseString.Substring(i * 2, 2), 16);
+                    bs[i] = (byte)Convert.ToInt32(responseString.Substring(i * 2 + 2, 2), 16);
+                }
+                responseString = System.Text.Encoding.Unicode.GetString(bs);
             }
 
             try

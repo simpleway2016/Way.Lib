@@ -4,6 +4,7 @@ declare class RSAKeyPair {
 }
 declare var encryptedString: (key: RSAKeyPair, value: string) => string;
 declare var decryptedString: (key: RSAKeyPair, value: string) => string;
+declare var RSAMAXLENGTH: number;
 declare enum WayScriptRemotingMessageType {
     Result = 1,
     Notify = 2,
@@ -44,11 +45,13 @@ declare class WayScriptRemoting {
     static createRemotingController(remoteName: string): WayScriptRemoting;
     static getClassDefineScript(methods: any[]): string;
     private static createRemotingControllerAsync(remoteName, callback);
+    private reCreateRSA(callback);
     private _uploadFileWithHTTP(fileElement, state, callback, handler);
     private arrayBufferToString(data);
     private sendFileWithHttp(tranid, state, file, reader, size, start, len, callback, handler);
     private sendFile(ws, file, reader, size, start, len, callback, handler);
     uploadFile(fileElement: any, state: any, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler;
+    str2UTF8(str: any): any[];
     private encrypt(value);
     pageInvoke(name: string, parameters: any[], callback: any, async?: boolean, useRsa?: boolean, returnUseRsa?: boolean): void;
     private connect();

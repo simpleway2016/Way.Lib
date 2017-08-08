@@ -225,6 +225,36 @@ namespace Way.Lib.ScriptRemoting
             public bool EncryptParameters;
             public bool EncryptResult;
         }
+        internal void handleReCreateRSA(MessageBag msgBag)
+        {
+            try
+            {
+                //上一次没解码的内容
+                if (!msgBag.SessionID.IsNullOrEmpty())
+                {
+                    this.Session = SessionState.GetSession(msgBag.SessionID, this.mClientIP);
+                }
+                if (this.Session == null)
+                {
+                    this.Session = SessionState.GetSession(Guid.NewGuid().ToString(), this.mClientIP);
+                }
+
+
+                this.Session["$$_RSACryptoServiceProvider"] = null;
+                CreateRSAKey(this.Session);
+                mSendDataFunc(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    rsa = new { Exponent = this.Session["$$_rsa_PublicKeyExponent"], Modulus = this.Session["$$_rsa_PublicKeyModulus"] },
+                }));
+            }
+            catch (Exception ex)
+            {
+                mSendDataFunc(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    err = ex.ToString(),
+                }));
+            }
+        }
         void handleInit(MessageBag msgBag)
         {
             try
@@ -278,7 +308,6 @@ namespace Way.Lib.ScriptRemoting
         {
             if (session["$$_RSACryptoServiceProvider"] == null)
             {
-
                 Way.Lib.RSA rsa = new RSA();
 
                 session["$$_RSACryptoServiceProvider"] = rsa;
@@ -294,7 +323,8 @@ namespace Way.Lib.ScriptRemoting
             {
                 throw new RSADecrptException();
             }
-            return System.Net.WebUtility.UrlDecode(rsa.Decrypt(content)) ;
+            var bs = rsa.Decrypt(content).FromJson<byte[]>();
+            return System.Text.Encoding.UTF8.GetString(bs);
         }
 
         void handleUploadFile(MessageBag msgBag)
@@ -336,7 +366,12 @@ namespace Way.Lib.ScriptRemoting
 
         }
 
-        internal void handleMethod(string fullname , string methodName)
+        /// <summary>
+        /// 处理 http://host/controller/method类型的函数
+        /// </summary>
+        /// <param name="fullname"></param>
+        /// <param name="methodName"></param>
+        internal void handleUrlMethod(string fullname , string methodName)
         {
             var pageDefine = checkRemotingName(fullname);
             MethodInfo methodinfo = pageDefine.Methods.SingleOrDefault(m =>string.Equals(m.Name , methodName, StringComparison.CurrentCultureIgnoreCase));
@@ -412,7 +447,7 @@ namespace Way.Lib.ScriptRemoting
                 object result = null;
 
                 result = methodinfo.Invoke(currentPage, parameters);
-                RemotingContext.Current.Response.Headers["Set-Cookie"] = "WayScriptRemoting=" + this.Session.SessionID;
+                RemotingContext.Current.Response.Headers["Set-Cookie"] = $"WayScriptRemoting={this.Session.SessionID};path=/";
 
                 if (result is FileContent)
                 {
@@ -544,7 +579,15 @@ namespace Way.Lib.ScriptRemoting
             if (ret == null)
                 return null;
             RSA rsa = this.Session["$$_RSACryptoServiceProvider"] as RSA;
-            return rsa.EncryptByD(System.Net.WebUtility.UrlEncode(ret) );
+            var bs = System.Text.Encoding.Unicode.GetBytes(ret);
+            StringBuilder buffer = new StringBuilder();
+            for (int i = 0; i < bs.Length; i += 2)
+            {
+                buffer.Append("\\u");
+                buffer.Append(Convert.ToString((int)bs[i + 1] , 16).PadLeft(2 , '0'));
+                buffer.Append(Convert.ToString((int)bs[i], 16).PadLeft(2, '0'));
+            }
+            return rsa.EncryptByD(buffer.ToString());
         }
 
         public void SendData(MessageType msgType, object resultObj,string sessionid)
@@ -557,18 +600,24 @@ namespace Way.Lib.ScriptRemoting
             {
                 lock (this)
                 {
-                    string objstr;
-                    if (resultObj is Dictionary<string, object>[])
-                    {
+                    //string objstr;
+                    //if (resultObj is Dictionary<string, object>[])
+                    //{
 
-                        objstr = ResultHelper.ToJson((Dictionary<string, object>[])resultObj);
-                    }
-                    else
-                    {
-                        objstr = Newtonsoft.Json.JsonConvert.SerializeObject(resultObj);
-                    }
+                    //    objstr = ResultHelper.ToJson((Dictionary<string, object>[])resultObj);
+                    //}
+                    //else
+                    //{
+                    //    objstr = Newtonsoft.Json.JsonConvert.SerializeObject(resultObj);
+                    //}
                    
-                    var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + ",sessionid:'"+ sessionid + "'}";
+                    //var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + ",sessionid:'"+ sessionid + "'}";
+
+                    var dataStr = Newtonsoft.Json.JsonConvert.SerializeObject(new {
+                        result = resultObj,
+                        type = ((int)msgType),
+                        sessionid = sessionid,
+                    });
                     if (rsaFunc != null)
                         dataStr = rsaFunc(dataStr);
                     mSendDataFunc(dataStr);
