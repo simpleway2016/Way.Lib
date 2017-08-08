@@ -23,7 +23,7 @@ namespace PandaAudioServer
             {
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-                int port = 8988;
+                int port = 80;
                 if (args != null && args.Length > 0)
                 {
                     port = Convert.ToInt32(args[0]);
@@ -31,6 +31,10 @@ namespace PandaAudioServer
 
                 Console.WriteLine($"server starting at port:{port}...");
                 var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}Port{port}";
+
+#if DEBUG
+                webroot = @"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web";
+#endif
 
                 if (!System.IO.Directory.Exists(webroot))
                 {
