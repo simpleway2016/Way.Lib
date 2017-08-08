@@ -13,6 +13,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Scripts\Barrett.js" />
+    <None Remove="Scripts\BigInt.js" />
+    <None Remove="Scripts\JBinder.js" />
+    <None Remove="Scripts\JControls.js" />
+    <None Remove="Scripts\JDataSource.js" />
+    <None Remove="Scripts\JExtension.js" />
+    <None Remove="Scripts\JHttpHelper.js" />
+    <None Remove="Scripts\JInit.js" />
+    <None Remove="Scripts\JObserveObject.js" />
+    <None Remove="Scripts\RSA.js" />
+    <None Remove="Scripts\WayScriptRemoting.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Barrett.js" />
+    <EmbeddedResource Include="Scripts\BigInt.js" />
+    <EmbeddedResource Include="Scripts\JBinder.js" />
+    <EmbeddedResource Include="Scripts\JControls.js" />
+    <EmbeddedResource Include="Scripts\JDataSource.js" />
+    <EmbeddedResource Include="Scripts\JExtension.js" />
+    <EmbeddedResource Include="Scripts\JHttpHelper.js" />
+    <EmbeddedResource Include="Scripts\JInit.js" />
+    <EmbeddedResource Include="Scripts\JObserveObject.js" />
+    <EmbeddedResource Include="Scripts\RSA.js" />
+    <EmbeddedResource Include="Scripts\WayScriptRemoting.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Way.EntityDB\Way.EntityDB.csproj" />
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
   </ItemGroup>

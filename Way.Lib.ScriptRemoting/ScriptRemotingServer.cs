@@ -34,39 +34,54 @@ namespace Way.Lib.ScriptRemoting
     
         static void makeTscFiles(string root)
         {
-            return;
+
+          
 
             try
             {
                
-                Stream stream;
-                byte[] fileData;
-                
 
-                ScriptFilePath = root + "_WayScriptRemoting/tsc/WayScriptRemoting.js";
-
-                //合并入jquery.js
-                string[] jsFiles = new string[] { "BigInt.js", "RSA.js", "Barrett.js","jquery.js", "sonic.js" };
-                FileStream fs = File.Create(ScriptFilePath + ".tmp");
-                foreach (string jsfile in jsFiles)
+                ScriptFilePath = Way.Lib.PlatformHelper.GetAppDirectory() + "WayScriptRemoting.js";
+                FileStream fs = File.Create(ScriptFilePath);
+                var assembly = typeof(ScriptRemotingServer).GetTypeInfo().Assembly;
+                var allNames = assembly.GetManifestResourceNames();
+                foreach( var filename in allNames )
                 {
-                    stream = typeof(ScriptRemotingServer).GetTypeInfo().Assembly.GetManifestResourceStream($"Way.Lib.ScriptRemoting.{jsfile}");
-                    fileData = new byte[stream.Length];
-                    stream.Read(fileData, 0, fileData.Length);
-                    stream.Dispose();
-                    fs.Write(fileData, 0, fileData.Length);
+                    if(filename.EndsWith(".js") && filename.Contains(".Scripts."))
+                    {
+                        var stream = assembly.GetManifestResourceStream(filename);
+                        byte[] bs = new byte[stream.Length];
+                        stream.Read(bs, 0, bs.Length);
+                        stream.Dispose();
+                        fs.Write(bs, 0, bs.Length);
+                    }
                 }
-               
-                fileData = File.ReadAllBytes(ScriptFilePath);
-                fs.Write(fileData, 0, fileData.Length);
                 fs.Dispose();
+                //return;
 
-                File.Delete(ScriptFilePath);
-                File.Move(ScriptFilePath + ".tmp", ScriptFilePath);
+                ////合并入jquery.js
+                //string[] jsFiles = new string[] { "BigInt.js", "RSA.js", "Barrett.js","jquery.js", "sonic.js" };
+                //FileStream fs = File.Create(ScriptFilePath + ".tmp");
+                //foreach (string jsfile in jsFiles)
+                //{
+                //    stream = typeof(ScriptRemotingServer).GetTypeInfo().Assembly.GetManifestResourceStream($"Way.Lib.ScriptRemoting.{jsfile}");
+                //    fileData = new byte[stream.Length];
+                //    stream.Read(fileData, 0, fileData.Length);
+                //    stream.Dispose();
+                //    fs.Write(fileData, 0, fileData.Length);
+                //}
+               
+                //fileData = File.ReadAllBytes(ScriptFilePath);
+                //fs.Write(fileData, 0, fileData.Length);
+                //fs.Dispose();
+
+                //File.Delete(ScriptFilePath);
+                //File.Move(ScriptFilePath + ".tmp", ScriptFilePath);
             }
-            catch(Exception ex)
+            catch
             {
-                throw new Exception(string.Format("解压typescript编译工具时发生错误，" + ex.Message));
+                throw;
+                //throw new Exception(string.Format("解压typescript编译工具时发生错误，" + ex.Message));
             }
         }
 

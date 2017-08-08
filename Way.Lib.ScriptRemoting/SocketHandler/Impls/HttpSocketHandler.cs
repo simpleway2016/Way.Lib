@@ -55,18 +55,9 @@ namespace Way.Lib.ScriptRemoting
             try
             {
                 //访问ts脚本
-                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("wayscriptremoting", StringComparison.CurrentCultureIgnoreCase))
+                if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("/WayScriptRemoting", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    var since = RemotingContext.Current.Request.Headers["If-Modified-Since"].ToSafeString();
-                    var lastWriteTime = new System.IO.FileInfo(ScriptRemotingServer.ScriptFilePath).LastWriteTime.ToString("R");
-                    if (lastWriteTime == since)
-                    {
-                        RemotingContext.Current.Response.SendFileNoChanged();
-                    }
-                    else
-                    {
-                        outputFile(ScriptRemotingServer.ScriptFilePath, lastWriteTime);
-                    }
+                    outputFile(null, ScriptRemotingServer.ScriptFilePath);
                 }
                 else if (RemotingContext.Current.Request.Headers["POST"].ToSafeString().StartsWith("/wayscriptremoting_invoke?a=", StringComparison.CurrentCultureIgnoreCase))
                 {
