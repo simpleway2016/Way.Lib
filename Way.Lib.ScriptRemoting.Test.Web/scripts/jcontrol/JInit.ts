@@ -140,6 +140,12 @@ if (document.addEventListener) {
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        var windowController = <any>document.body.getAttribute("controller");
+        if (windowController && windowController.length > 0) {
+            (<any>window).controller = windowController.controller();
+        }
+
+
         var bodytemplate = document.body.getAttribute("template");
         if (!bodytemplate || bodytemplate.length == 0) {
             bodytemplate = "/templates/system.html";
@@ -209,6 +215,7 @@ if (document.addEventListener) {
 
 
         JElementHelper.initElements(document.body, false);
+        
 
     }, false);
 }
