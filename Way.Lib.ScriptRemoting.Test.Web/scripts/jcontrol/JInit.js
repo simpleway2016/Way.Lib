@@ -114,6 +114,10 @@ if (document.addEventListener) {
         }
     }
     document.addEventListener('DOMContentLoaded', function () {
+        var windowController = document.body.getAttribute("controller");
+        if (windowController && windowController.length > 0) {
+            window.controller = windowController.controller();
+        }
         var bodytemplate = document.body.getAttribute("template");
         if (!bodytemplate || bodytemplate.length == 0) {
             bodytemplate = "/templates/system.html";

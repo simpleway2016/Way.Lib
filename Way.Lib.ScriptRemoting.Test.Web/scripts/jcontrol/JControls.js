@@ -600,8 +600,13 @@ var JList = (function (_super) {
                     }
                 }
                 else {
-                    var typeConfig = value.split(',');
-                    this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                    if (value.indexOf(",") >= 0) {
+                        var typeConfig = value.split(',');
+                        this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                    }
+                    else {
+                        this._itemsource = new JServerControllerSource(window.controller, value);
+                    }
                     if (this.buffersize) {
                         this.bindItems();
                     }

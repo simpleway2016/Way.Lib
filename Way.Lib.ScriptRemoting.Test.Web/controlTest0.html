@@ -24,7 +24,7 @@
         }
     </style>    
 </head>
-<body>
+<body controller="Way.Lib.ScriptRemoting.Test.TestPage">
     <div id="aaa" class="panel">awfeawfawfeawf</div>
 
     <JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
@@ -92,7 +92,7 @@
 
     <div style="margin-top:20px;">
         dropdownlist:
-        <JDropdownList id="list3" buffersize="5" valuemember="id" textmember="Name" itemsource="Way.Lib.ScriptRemoting.Test.TestPage,Columns">
+        <JDropdownList id="list3" buffersize="15" valuemember="id" textmember="Name" itemsource="Columns">
         </JDropdownList>
     </div>
 
@@ -111,11 +111,10 @@
         window.onload = function () {
             document.querySelector("#aaa").removeAttribute("class");
 
-            var controller = "Way.Lib.ScriptRemoting.Test.TestPage".controller();
             var c = "看到这个，证明成功了。";
             for (var i = 0; i < 8; i++)
                 c += "看到这个，证明成功了。";
-            controller.server.TestRSA(c, { name: "way", age: 18 }, function (ret, err) {
+            window.controller.server.TestRSA(c, { name: "way", age: 18 }, function (ret, err) {
                 if (err)
                     alert(err);
                 else

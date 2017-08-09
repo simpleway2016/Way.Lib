@@ -697,7 +697,6 @@ class JList extends JControl {
         this._removeEventIndex = 0;
 
         if (value && typeof value == "string") {
-            // var datasource = new JServerControllerSource(controller, "Columns");
             if ((<string>value).indexOf("[") == 0) {
                 try {
                     eval("value=" + value);
@@ -707,8 +706,13 @@ class JList extends JControl {
                 }
             }
             else {
-                var typeConfig : any = (<string>value).split(',');
-                this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                if ((<string>value).indexOf(",") >= 0) {
+                    var typeConfig: any = (<string>value).split(',');
+                    this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                }
+                else {
+                    this._itemsource = new JServerControllerSource((<any>window).controller, <string>value);
+                }
                 if (this.buffersize) {
                     this.bindItems();
                 }
