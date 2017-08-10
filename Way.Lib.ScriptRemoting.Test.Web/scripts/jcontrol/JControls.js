@@ -744,7 +744,7 @@ var JList = (function (_super) {
         this.itemContainer = this.element.id == "itemContainer" ? this.element : this.element.querySelector("*[id='itemContainer']");
         if (this.loadonscroll) {
             if (!this._scrollController) {
-                this._scrollController = new ScrollSourceManager(this.itemContainer, this);
+                this._scrollController = new ScrollSourceManager(this);
             }
         }
     };
@@ -1039,11 +1039,11 @@ var JCheckbox = (function (_super) {
     return JCheckbox;
 }(JListItem));
 var ScrollSourceManager = (function () {
-    function ScrollSourceManager(contentContainer, list) {
+    function ScrollSourceManager(list) {
         var _this = this;
         this.listener = function () { return _this.onScroll(); };
         this._checkBufferSize = false;
-        this.contentContainer = contentContainer;
+        this.contentContainer = list.itemContainer;
         this.list = list;
         this.contentContainer.addEventListener("scroll", this.listener, false);
     }

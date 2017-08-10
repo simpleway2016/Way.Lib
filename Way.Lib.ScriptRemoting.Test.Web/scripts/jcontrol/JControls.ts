@@ -881,7 +881,7 @@ class JList extends JControl {
         {
             if (!this._scrollController)
             {
-                this._scrollController = new ScrollSourceManager(this.itemContainer, this);
+                this._scrollController = new ScrollSourceManager(this);
             }
         }
     }
@@ -1212,9 +1212,9 @@ class ScrollSourceManager
     private listener = () => this.onScroll();
     private _checkBufferSize: boolean = false;
 
-    constructor(contentContainer: HTMLElement, list: JList)
+    constructor(list: JList)
     {
-        this.contentContainer = contentContainer;
+        this.contentContainer = list.itemContainer;
         this.list = list;
 
         this.contentContainer.addEventListener("scroll", this.listener, false);

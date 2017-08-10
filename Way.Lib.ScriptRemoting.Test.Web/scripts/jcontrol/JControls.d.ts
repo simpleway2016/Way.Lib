@@ -127,7 +127,7 @@ declare class ScrollSourceManager {
     list: JList;
     private listener;
     private _checkBufferSize;
-    constructor(contentContainer: HTMLElement, list: JList);
+    constructor(list: JList);
     dispose(): void;
     onListLoadData(): void;
     private onScroll();
