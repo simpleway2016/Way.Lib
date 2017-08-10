@@ -834,6 +834,19 @@ class JList extends JControl {
         }
     }
 
+    //重新绑定
+    rebind() {
+        for (var i = 0; i < this.itemControls.length; i++) {
+            if (this.itemControls[i]) {
+                this.itemContainer.removeChild(this.itemControls[i].element);
+                this.itemControls[i].dispose();
+            }
+        }
+        this.itemControls = [];
+        this.itemsource.clear();
+        this.loadMoreData();
+    }
+
     private clearItems()
     {
         if (this.itemControls) {
@@ -1222,6 +1235,12 @@ class ScrollSourceManager
             }
             if (contentHeight < this.contentContainer.offsetHeight) {
                 this.list.buffersize = this.list.buffersize / (contentHeight / this.contentContainer.offsetHeight);
+                this.list.loadMoreData();
+            }
+        }
+        else {
+            if (this.contentContainer.scrollHeight == this.contentContainer.offsetHeight)
+            {
                 this.list.loadMoreData();
             }
         }

@@ -708,6 +708,17 @@ var JList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    JList.prototype.rebind = function () {
+        for (var i = 0; i < this.itemControls.length; i++) {
+            if (this.itemControls[i]) {
+                this.itemContainer.removeChild(this.itemControls[i].element);
+                this.itemControls[i].dispose();
+            }
+        }
+        this.itemControls = [];
+        this.itemsource.clear();
+        this.loadMoreData();
+    };
     JList.prototype.clearItems = function () {
         if (this.itemControls) {
             for (var i = 0; i < this.itemControls.length; i++) {
@@ -1048,6 +1059,11 @@ var ScrollSourceManager = (function () {
             }
             if (contentHeight < this.contentContainer.offsetHeight) {
                 this.list.buffersize = this.list.buffersize / (contentHeight / this.contentContainer.offsetHeight);
+                this.list.loadMoreData();
+            }
+        }
+        else {
+            if (this.contentContainer.scrollHeight == this.contentContainer.offsetHeight) {
                 this.list.loadMoreData();
             }
         }

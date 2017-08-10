@@ -85,6 +85,7 @@ declare class JList extends JControl {
     private _textMember;
     textmember: string;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+    rebind(): void;
     private clearItems();
     protected loadTemplates(): void;
     protected onTemplateApply(): void;
