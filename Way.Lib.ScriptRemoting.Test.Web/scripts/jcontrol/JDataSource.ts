@@ -150,6 +150,7 @@ class JServerControllerSource extends JDataSource {
     private _controller: any;
     private _skip: number = 0;
     private _tranid: number = 0;
+    private _hasModeData: boolean = true;
 
     constructor(controller: WayScriptRemoting , propertyName:string) {
         super();
@@ -166,7 +167,14 @@ class JServerControllerSource extends JDataSource {
     loadMore(length: number, cb: ( count:number, err: string) => any = null) {
         if (length <= 0)
             return 0;
-
+        if (!this._hasModeData)
+        {
+            if (cb)
+            {
+                cb(0, null);
+            }
+            return;
+        }
         this._tranid++;
 
         this.loadDataFromServer(this._tranid, length, cb);
@@ -211,6 +219,10 @@ class JServerControllerSource extends JDataSource {
                         this.add(new JObserveObject(data));
                         count++;
                     }
+                    if (ret.length == 0)
+                    {
+                        this._hasModeData = false;
+                    }
                     this._skip += count;
                     if (callback) {
                         callback(count, null);
@@ -227,5 +239,6 @@ class JServerControllerSource extends JDataSource {
     clear() {
         super.clear();
         this._skip = 0;
+        this._hasModeData = true;
     }
 }

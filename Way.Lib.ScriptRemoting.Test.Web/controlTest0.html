@@ -22,12 +22,17 @@
         .panel{
             background:#dedada;
         }
+        .clist{
+            overflow-y:auto;
+            height:500px;
+            width:300px;
+        }
     </style>    
 </head>
 <body controller="Way.Lib.ScriptRemoting.Test.TestPage">
     <div id="aaa" class="panel">awfeawfawfeawf</div>
 
-    <JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
+    <!--<JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
         <script type="text/html">
             <div>
                 <input type="button" onclick="alert(this.getDataContextControl().constructor.name)" class="{bind $class}" value="{bind $text}" />
@@ -101,6 +106,21 @@
         checkbox:
         <JCheckbox id="chk1" text="mycheck">
         </JCheckbox>
+    </div>-->
+
+    <div style="margin-top:20px;">
+        dropdownlist:
+        <JList id="list4" buffersize="15" loadonscroll="true" class="clist" valuemember="id" textmember="Name" itemsource="Columns">
+            <script type="text/html">
+                <div id="itemContainer" databind="className=$class"></div>
+            </script>
+
+            <script for="item" type="text/html">
+                <div>
+                    {@Name}
+                </div>
+            </script>
+        </JList>
     </div>
     <script lang="ja">
         function removeitem()
@@ -109,6 +129,7 @@
         }
 
         window.onload = function () {
+            return;
             document.querySelector("#aaa").removeAttribute("class");
 
             var c = "看到这个，证明成功了。";

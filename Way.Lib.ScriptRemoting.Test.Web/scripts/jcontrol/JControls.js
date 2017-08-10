@@ -571,14 +571,40 @@ var JList = (function (_super) {
         if (!_this.buffersize) {
             _this.buffersize = 20;
         }
-        else {
-            _this.buffersize = parseInt(_this.buffersize);
-        }
         if (_this.buffersize && _this.itemsource) {
             _this.bindItems();
         }
         return _this;
     }
+    Object.defineProperty(JList.prototype, "buffersize", {
+        get: function () {
+            return this._buffersize;
+        },
+        set: function (value) {
+            if (this._buffersize !== value) {
+                this._buffersize = parseInt(value);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JList.prototype, "loadonscroll", {
+        get: function () {
+            return this._loadonscroll;
+        },
+        set: function (value) {
+            if (this._loadonscroll !== value) {
+                if (typeof value == "string") {
+                    this._loadonscroll = (value == "true");
+                }
+                else {
+                    this._loadonscroll = value;
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(JList.prototype, "itemsource", {
         get: function () {
             return this._itemsource;
@@ -705,6 +731,11 @@ var JList = (function (_super) {
     JList.prototype.onTemplateApply = function () {
         _super.prototype.onTemplateApply.call(this);
         this.itemContainer = this.element.id == "itemContainer" ? this.element : this.element.querySelector("*[id='itemContainer']");
+        if (this.loadonscroll) {
+            if (!this._scrollController) {
+                this._scrollController = new ScrollSourceManager(this.itemContainer, this);
+            }
+        }
     };
     JList.prototype.loadMoreData = function () {
         var _this = this;
@@ -719,6 +750,10 @@ var JList = (function (_super) {
                     if (err) {
                         if (_this.onError)
                             _this.onError(err);
+                    }
+                    else {
+                        if (_this._scrollController)
+                            _this._scrollController.onListLoadData();
                     }
                 });
             }
@@ -992,4 +1027,36 @@ var JCheckbox = (function (_super) {
     });
     return JCheckbox;
 }(JListItem));
+var ScrollSourceManager = (function () {
+    function ScrollSourceManager(contentContainer, list) {
+        var _this = this;
+        this.listener = function () { return _this.onScroll(); };
+        this._checkBufferSize = false;
+        this.contentContainer = contentContainer;
+        this.list = list;
+        this.contentContainer.addEventListener("scroll", this.listener, false);
+    }
+    ScrollSourceManager.prototype.dispose = function () {
+        this.contentContainer.removeEventListener("scroll", this.listener);
+    };
+    ScrollSourceManager.prototype.onListLoadData = function () {
+        if (!this._checkBufferSize) {
+            this._checkBufferSize = true;
+            var contentHeight = 0;
+            for (var i = 0; i < this.list.itemContainer.children.length; i++) {
+                contentHeight += this.list.itemContainer.children[i].offsetHeight;
+            }
+            if (contentHeight < this.contentContainer.offsetHeight) {
+                this.list.buffersize = this.list.buffersize / (contentHeight / this.contentContainer.offsetHeight);
+                this.list.loadMoreData();
+            }
+        }
+    };
+    ScrollSourceManager.prototype.onScroll = function () {
+        if (this.contentContainer.scrollHeight - (this.contentContainer.scrollTop + this.contentContainer.offsetHeight) <= this.contentContainer.offsetHeight * 0.5) {
+            this.list.loadMoreData();
+        }
+    };
+    return ScrollSourceManager;
+}());
 //# sourceMappingURL=JControls.js.map

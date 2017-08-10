@@ -673,7 +673,36 @@ class JListItem extends JControl
 class JList extends JControl {
 
     //每次执行loadMoreData，加载多少条数据，Array类型的数据源，不受此属性影响，一次性加载所有数据
-    buffersize: number;
+    private _buffersize: number;
+    get buffersize() {
+        return this._buffersize;
+    }
+    set buffersize(value:number)
+    {
+        if (this._buffersize !== value)
+        {
+            this._buffersize = parseInt(<any>value);
+        }
+    }
+
+    private _scrollController: ScrollSourceManager;
+
+    private _loadonscroll: boolean;
+    //是否在滚动过程中继续加载更多数据
+    get loadonscroll() {
+        return this._loadonscroll;
+    }
+    set loadonscroll(value: boolean) {
+        if (this._loadonscroll !== value) {
+            if (typeof value == "string") {
+                this._loadonscroll = (value == "true");
+            }
+            else {
+                this._loadonscroll = value;
+            }
+        }
+    }
+
     itemContainer: HTMLElement;
     onLoading: () => any;
     onError: (err: string) => any;
@@ -693,6 +722,7 @@ class JList extends JControl {
             this._itemsource.removeEventListener("add", this._addEventIndex);
             this._itemsource.removeEventListener("remove", this._removeEventIndex);
         }
+
         this._addEventIndex = 0;
         this._removeEventIndex = 0;
 
@@ -747,6 +777,7 @@ class JList extends JControl {
         if (this.buffersize) {
             this.bindItems();
         }
+
     }
 
 
@@ -797,11 +828,6 @@ class JList extends JControl {
         {
             this.buffersize = 20;
         }
-        else {
-            //如果标签设置了buffersize="5"，因为JControl执行构造函数时，buffersize属性不存在，会自动创建一个构造函数，而且是string类型，
-            //所以，这里重新赋值成int类型
-            this.buffersize = parseInt(<any>this.buffersize);
-        }
 
         if (this.buffersize && this.itemsource) {
             this.bindItems();
@@ -838,6 +864,13 @@ class JList extends JControl {
     {
         super.onTemplateApply();
         this.itemContainer = this.element.id == "itemContainer" ? this.element : <HTMLElement>this.element.querySelector("*[id='itemContainer']");
+        if (this.loadonscroll)
+        {
+            if (!this._scrollController)
+            {
+                this._scrollController = new ScrollSourceManager(this.itemContainer, this);
+            }
+        }
     }
 
     //加载更多数据
@@ -856,6 +889,9 @@ class JList extends JControl {
                     if (err)
                     {
                         if (this.onError) this.onError(err);
+                    }
+                    else {
+                        if (this._scrollController) this._scrollController.onListLoadData();
                     }
                 });
             }
@@ -1153,5 +1189,50 @@ class JCheckbox extends JListItem {
 
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
+    }
+}
+
+class ScrollSourceManager
+{
+    contentContainer: HTMLElement;
+    list: JList;
+    private listener = () => this.onScroll();
+    private _checkBufferSize: boolean = false;
+
+    constructor(contentContainer: HTMLElement, list: JList)
+    {
+        this.contentContainer = contentContainer;
+        this.list = list;
+
+        this.contentContainer.addEventListener("scroll", this.listener, false);
+    }
+
+    dispose()
+    {
+        this.contentContainer.removeEventListener("scroll", this.listener);
+    }
+
+    onListLoadData()
+    {
+        if (!this._checkBufferSize) {
+            this._checkBufferSize = true;
+            var contentHeight = 0;
+            for (var i = 0; i < this.list.itemContainer.children.length; i++) {
+                contentHeight += (<HTMLElement>this.list.itemContainer.children[i]).offsetHeight;
+            }
+            if (contentHeight < this.contentContainer.offsetHeight) {
+                this.list.buffersize = this.list.buffersize / (contentHeight / this.contentContainer.offsetHeight);
+                this.list.loadMoreData();
+            }
+        }
+    }
+
+    private onScroll()
+    {
+        if (this.contentContainer.scrollHeight - (this.contentContainer.scrollTop + this.contentContainer.offsetHeight) <= this.contentContainer.offsetHeight * 0.5)
+        {
+            this.list.loadMoreData();
+        }
+       
     }
 }

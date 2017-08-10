@@ -29,6 +29,7 @@ declare class JServerControllerSource extends JDataSource {
     private _controller;
     private _skip;
     private _tranid;
+    private _hasModeData;
     constructor(controller: WayScriptRemoting, propertyName: string);
     loadData(skip: number, take: number, callback?: (count: number, err: string) => any): void;
     loadMore(length: number, cb?: (count: number, err: string) => any): number;

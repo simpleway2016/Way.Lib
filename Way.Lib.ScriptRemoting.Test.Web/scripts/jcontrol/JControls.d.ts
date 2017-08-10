@@ -66,7 +66,11 @@ declare class JListItem extends JControl {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JList extends JControl {
+    private _buffersize;
     buffersize: number;
+    private _scrollController;
+    private _loadonscroll;
+    loadonscroll: boolean;
     itemContainer: HTMLElement;
     onLoading: () => any;
     onError: (err: string) => any;
@@ -116,4 +120,14 @@ declare class JCheckbox extends JListItem {
     private _checked;
     checked: boolean;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
+}
+declare class ScrollSourceManager {
+    contentContainer: HTMLElement;
+    list: JList;
+    private listener;
+    private _checkBufferSize;
+    constructor(contentContainer: HTMLElement, list: JList);
+    dispose(): void;
+    onListLoadData(): void;
+    private onScroll();
 }
