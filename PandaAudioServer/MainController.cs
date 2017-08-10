@@ -19,7 +19,7 @@ namespace PandaAudioServer
             }
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptResultAndParameters)]
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
         public bool CheckUser(string loginCode)
         {
             try
@@ -38,7 +38,7 @@ namespace PandaAudioServer
             }
         }
 
-        [RemotingMethod( UseRSA = RSAApplyScene.EncryptResultAndParameters)]
+        [RemotingMethod( UseRSA = RSAApplyScene.EncryptParameters)]
         public string Login(string username, string password)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
