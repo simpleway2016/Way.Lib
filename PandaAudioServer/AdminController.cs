@@ -60,14 +60,47 @@ namespace PandaAudioServer
         }
 
 
+        /// <summary>
+        /// 发送手机验证码
+        /// </summary>
+        /// <param name="phoneNumber"></param>
         [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
-        public bool Login(string username, string password)
+        public bool SendPhoneVerifyCode(string phoneNumber)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
             if (IPError.IsIPLocked(ip))
                 throw new Exception("禁止访问");
 
-            var user = this.db.AdminUser.FirstOrDefault(m => m.UserName == username && m.Password == password);
+            if (this.db.AdminUser.Any(m => m.PhoneNumber == phoneNumber) == false)
+            {
+                var iperror = IPError.GetInstance(ip);
+                this.Session["iperror"] = iperror;
+                iperror.MarkError();
+                throw new Exception("手机号错误");
+            }
+            else
+            {
+                if (this.Session["iperror"] != null)
+                {
+                    ((IPError)this.Session["iperror"]).Clear();
+                    this.Session.Remove("iperror");
+                }
+                var sms = Factory.GetService<ISms>();
+                this.Session["admin_phoneCode"] = new Random().Next(1000, 9999).ToString();
+                var msg = sms.Format("{0}", this.Session["admin_phoneCode"].ToString());
+                sms.Send(phoneNumber, msg);
+            }
+            return true;
+        }
+
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        public bool Login(string phoneNumber, string password,string verifyCode)
+        {
+            string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
+            if (IPError.IsIPLocked(ip))
+                throw new Exception("禁止访问");
+
+            var user = this.db.AdminUser.FirstOrDefault(m => m.PhoneNumber == phoneNumber && m.Password == password);
             if (user == null)
             {
                 var iperror = IPError.GetInstance(ip);

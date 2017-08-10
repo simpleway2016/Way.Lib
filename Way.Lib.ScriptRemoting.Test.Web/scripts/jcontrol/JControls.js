@@ -16,6 +16,7 @@ var JControl = (function () {
         this.onPropertyChangeds = [];
         this.templates = [];
         this.templateMatchProNames = [];
+        this._enable = true;
         this.cid = JControl.StaticString + JControl.StaticID++;
         if (JControl.StaticID >= 100000) {
             JControl.StaticString += "E_";
@@ -112,6 +113,31 @@ var JControl = (function () {
             }
         }
     };
+    Object.defineProperty(JControl.prototype, "enable", {
+        get: function () {
+            return this._enable;
+        },
+        set: function (value) {
+            if (this._enable !== value) {
+                var original = this._enable;
+                if (typeof value == "string") {
+                    this._enable = (value == "true");
+                }
+                else {
+                    this._enable = value;
+                }
+                if (this._enable) {
+                    this.element.disabled = false;
+                }
+                else {
+                    this.element.disabled = true;
+                }
+                this.onPropertyChanged("enable", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(JControl.prototype, "datacontext", {
         get: function () {
             return this._datacontext;
@@ -471,8 +497,26 @@ var JTextbox = (function (_super) {
     function JTextbox(element, templates, datacontext) {
         if (templates === void 0) { templates = null; }
         if (datacontext === void 0) { datacontext = null; }
-        return _super.call(this, element, templates, datacontext) || this;
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        if (!_this.type) {
+            _this.type = "text";
+        }
+        return _this;
     }
+    Object.defineProperty(JTextbox.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        set: function (value) {
+            if (this._type !== value) {
+                var originalValue = this._type;
+                this._type = value;
+                this.onPropertyChanged("type", originalValue);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     return JTextbox;
 }(JButton));
 var JListItem = (function (_super) {

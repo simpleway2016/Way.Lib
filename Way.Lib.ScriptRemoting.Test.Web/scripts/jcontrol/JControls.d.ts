@@ -13,6 +13,8 @@ declare class JControl implements INotifyPropertyChanged {
     protected templates: HTMLElement[];
     protected templateMatchProNames: string[];
     protected currentTemplate: HTMLElement;
+    private _enable;
+    enable: boolean;
     private _datacontext;
     datacontext: any;
     private _parentJControl;
@@ -48,6 +50,8 @@ declare class JPanel extends JControl {
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JTextbox extends JButton {
+    private _type;
+    type: string;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
 }
 declare class JListItem extends JControl {

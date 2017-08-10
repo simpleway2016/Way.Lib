@@ -24,19 +24,73 @@
         }
     </style>    
 </head>
-<body>
+<body controller="PandaAudioServer.AdminController">
     <div>
-        <span>用户名：</span><JTextBox text="{bind @username}"></JTextBox>&nbsp;&nbsp;&nbsp;&nbsp;
-        <span>密码：</span><JTextBox text="{bind @password}"></JTextBox>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span>手机号：</span><JTextBox text="{bind @phone}"></JTextBox><span>&nbsp;&nbsp;</span>
+        <span>密码：</span><JTextBox type="password" text="{bind @password}"></JTextBox><span>&nbsp;&nbsp;</span>
+        <span>手机验证码：</span><JTextBox text="{bind @verifyCode}"></JTextBox><span>&nbsp;&nbsp;</span>
+        <JButton id="btnSendCode" text="发送手机验证码" onclick="sendVerifyCode()"></JButton>
+        <JButton id="btnLogin" text="登录" onclick="login()"></JButton>
 </div>
     <script lang="ja">
         var controller;
-        window.onload = function () {
-            //controller = "Way.Lib.ScriptRemoting.Test.TestPage".controller();
-            bindElement(document.body, {
-                username : 'Jack',
-                password : '123',
+        var datacontext;
+
+        var seconds = 120;
+        function _setTime() {
+            if (seconds > 0) {
+                seconds--;
+                if (seconds <= 0) {
+                    btnSendCode.text = "发送手机验证码";
+                    btnSendCode.enable = true;
+                }
+                else {
+                    btnSendCode.text = seconds + "秒重发";
+                    setTimeout(_setTime, 1000);
+                }
+            }
+        }
+
+        function sendVerifyCode()
+        {
+            seconds = 120;
+            btnSendCode.text = seconds + "秒重发";
+            btnSendCode.enable = false;
+            setTimeout(_setTime, 1000);
+            window.controller.server.SendPhoneVerifyCode(datacontext.phone, function (ret, err) {
+                if (err)
+                {
+                    seconds = 1;
+                    alert(err);
+                }
+                else {
+
+                }
             });
+        }
+
+        function login()
+        {
+            btnLogin.enable = false;
+            btnLogin.text = "正在登录...";
+            window.controller.server.Login(datacontext.phone, datacontext.password, datacontext.verifyCode, function (ret, err) {
+                btnLogin.enable = true;
+                btnLogin.text = "登录";
+
+                if (err) alert(err);
+                else {
+                    alert("ok");
+                }
+            });
+        }
+
+        window.onload = function () {
+            datacontext = new JObserveObject({
+                phone: '132',
+                password: '123',
+                verifyCode:'',
+            });
+            bindElement(document.body, datacontext);
         }
     </script>
 </body>

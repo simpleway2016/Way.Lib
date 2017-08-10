@@ -1,11 +1,9 @@
 ﻿<style>
-    .jbutton{
-        color:blue;
-    }
+
 </style>
 <JButton>
     <script type="text/html">
-        <input type="button" class="jbutton" value="{bind $text}" databind="className=$class" />
+        <input type="button" value="{bind $text}" databind="className=$class" />
     </script>
 </JButton>
 
@@ -17,7 +15,7 @@
 
 <JTextbox>
     <script type="text/html">
-        <input type="text" value="{bind $text}" databind="className=$class" />
+        <input type="{bind $type}" value="{bind $text}" databind="className=$class" />
     </script>
 </JTextbox>
 
