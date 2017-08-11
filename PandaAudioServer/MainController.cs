@@ -41,6 +41,7 @@ namespace PandaAudioServer
         [RemotingMethod( UseRSA = RSAApplyScene.EncryptParameters)]
         public string Login(string username, string password)
         {
+            username = username.ToLower();
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
             if (IPError.IsIPLocked(ip))
                 throw new Exception("禁止访问");
@@ -111,6 +112,7 @@ namespace PandaAudioServer
             this.db.BeginTransaction();
             try
             {
+                user.UserName = user.UserName.ToLower();
                 this.db.Insert(user);
                 var sysRegCode = this.db.SystemRegCode.FirstOrDefault(m => m.RegGuid == user.RegGuid && m.UserId == null);
                 sysRegCode.UserId = user.id;
