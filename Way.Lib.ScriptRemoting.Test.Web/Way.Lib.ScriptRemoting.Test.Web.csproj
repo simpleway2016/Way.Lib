@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="aa.html" />
+    <Content Include="admin\regCodeMgr.html" />
     <Content Include="admin\login.html" />
     <Content Include="controlTest0.html" />
     <Content Include="controlTest.html" />

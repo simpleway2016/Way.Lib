@@ -82,6 +82,31 @@ class JControl implements INotifyPropertyChanged {
 
     protected currentTemplate: HTMLElement;
 
+    private _enable: boolean = true;
+    get enable(): boolean {
+        return this._enable;
+    }
+    set enable(value: boolean) {
+        if (this._enable !== value)
+        {
+            var original = this._enable;
+            if (typeof value == "string") {
+                this._enable = (value == "true");
+            }
+            else {
+                this._enable = value;
+            }
+            if (this._enable)
+            {
+                (<any>this.element).disabled = false;
+            }
+            else {
+                (<any>this.element).disabled = true;
+            }
+            this.onPropertyChanged("enable", original);
+        }
+    }
+
     private _datacontext: any;
     get datacontext()
     {
@@ -583,8 +608,26 @@ class JPanel extends JControl {
 }
 
 class JTextbox extends JButton {
+    private _type: string;
+    get type(): string {
+        return this._type;
+    }
+    set type(value: string)
+    {
+        if (this._type !== value)
+        {
+            var originalValue = this._type;
+            this._type = value;
+            this.onPropertyChanged("type", originalValue);
+        }
+    }
     constructor(element: HTMLElement, templates: any[] = null, datacontext = null) {
         super(element, templates, datacontext);
+
+        if (!this.type)
+        {
+            this.type = "text";
+        }
     }
 }
 
