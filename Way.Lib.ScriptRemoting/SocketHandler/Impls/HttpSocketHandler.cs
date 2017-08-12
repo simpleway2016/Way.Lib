@@ -16,6 +16,22 @@ namespace Way.Lib.ScriptRemoting
     {
         static HttpSocketHandler()
         {
+            ContentTypeDefines = new Dictionary<string, string>();
+            StreamReader sr = new StreamReader( typeof(RemotingController).GetTypeInfo().Assembly.GetManifestResourceStream("Way.Lib.ScriptRemoting.ContentTypes.txt"));
+            while(true)
+            {
+                string line = sr.ReadLine();
+                if (line == null)
+                    break;
+                string[] infos = Regex.Split(line, @"\t| ");
+                string key = infos[0].Trim();
+                var value = infos[1].Trim();
+                if (key.Length == 0 || value.Length == 0)
+                    continue;
+                ContentTypeDefines[key] = value;
+            }
+            sr.Dispose();
+
             ControllerUrlConfig = new Dictionary<string, string>();
                Type basetype = typeof(RemotingController);
             Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
@@ -40,6 +56,7 @@ namespace Way.Lib.ScriptRemoting
         }
         HttpConnectInformation _currentHttpConnectInformation;
         static string[] NotAllowDownloadFiles = new string[] { ".dll", ".exe", ".config",".db" };
+        static Dictionary<string, string> ContentTypeDefines;
 
         internal static Dictionary<string, string> ControllerUrlConfig;
        
@@ -222,9 +239,7 @@ namespace Way.Lib.ScriptRemoting
         }
         string getUrl(string visitingUrl)
         {
-
-           
-
+            
             foreach (var router in ScriptRemotingServer.Routers)
             {
                 var url = router.GetUrl(visitingUrl, (string)RemotingContext.Current.Request.Headers["Referer"], _currentHttpConnectInformation);
@@ -373,7 +388,11 @@ namespace Way.Lib.ScriptRemoting
             }
 
             string ext = System.IO.Path.GetExtension(filePath).ToLower();
-            if(ext == ".zip")
+            if(ContentTypeDefines.ContainsKey(ext))
+            {
+                RemotingContext.Current.Response.Headers["Content-Type"] = ContentTypeDefines[ext];
+            }
+            else
             {
                 RemotingContext.Current.Response.Headers["Content-Type"] = "application/octet-stream";
             }

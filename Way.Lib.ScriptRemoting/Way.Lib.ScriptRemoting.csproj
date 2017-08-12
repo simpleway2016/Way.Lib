@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ContentTypes.txt" />
     <None Remove="Scripts\Barrett.js" />
     <None Remove="Scripts\BigInt.js" />
     <None Remove="Scripts\JBinder.js" />
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ContentTypes.txt" />
     <EmbeddedResource Include="Scripts\Barrett.js" />
     <EmbeddedResource Include="Scripts\BigInt.js" />
     <EmbeddedResource Include="Scripts\JBinder.js" />
