@@ -372,6 +372,11 @@ namespace Way.Lib.ScriptRemoting
                 }
             }
 
+            string ext = System.IO.Path.GetExtension(filePath).ToLower();
+            if(ext == ".zip")
+            {
+                RemotingContext.Current.Response.Headers["Content-Type"] = "application/octet-stream";
+            }
             RemotingContext.Current.Response.MakeResponseHeaders(fs.Length, false, -1, 0, lastModifyTime, null, true);
             
             bs = new byte[4096];

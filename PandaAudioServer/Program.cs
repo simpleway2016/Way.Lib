@@ -33,7 +33,10 @@ namespace PandaAudioServer
                 var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}web";
 
 #if DEBUG
-                webroot = @"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web";
+                if (System.IO.Directory.Exists(@"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web"))
+                {
+                    webroot = @"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web";
+                }
 #endif
 
                 if (!System.IO.Directory.Exists(webroot))
