@@ -462,7 +462,7 @@ class JControl implements INotifyPropertyChanged {
                             eval("value=this.datacontext." + name);
                         } catch (e) { }
                        
-                        if (typeof (value) == "undefined")
+                        if (typeof (value) == "undefined" || value === null)
                             value = "";
                     }
                     html = html.replace(result[0], value);
@@ -947,7 +947,8 @@ class JList extends JControl {
                         if (this.onError) this.onError(err);
                     }
                     else {
-                        if (this._scrollController) this._scrollController.onListLoadData();
+                        if (this._scrollController && count > 0)
+                            this._scrollController.onListLoadData();
                     }
                 });
             }
