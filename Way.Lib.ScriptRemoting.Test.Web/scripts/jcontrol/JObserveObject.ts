@@ -169,7 +169,7 @@ class JObserveObject implements INotifyPropertyChanged {
 
     private __addProperty(proName) {
         var type = typeof this.__data[proName];
-        if (type == "object" && !(this.__data[proName] instanceof Array)) {
+        if (type == "object" && this.__data[proName] && !(this.__data[proName] instanceof Array)) {
             this[proName] = new JObserveObject(this.__data[proName], this, proName);
         }
         else if (type != "function") {

@@ -357,7 +357,7 @@ var JControl = (function () {
                             eval("value=this.datacontext." + name);
                         }
                         catch (e) { }
-                        if (typeof (value) == "undefined")
+                        if (typeof (value) == "undefined" || value === null)
                             value = "";
                     }
                     html = html.replace(result[0], value);
@@ -807,7 +807,7 @@ var JList = (function (_super) {
                             _this.onError(err);
                     }
                     else {
-                        if (_this._scrollController)
+                        if (_this._scrollController && count > 0)
                             _this._scrollController.onListLoadData();
                     }
                 });
