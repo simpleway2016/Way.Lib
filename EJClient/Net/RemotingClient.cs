@@ -6,12 +6,31 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Way.Lib;
-using Way.Lib.ScriptRemoting;
+
 
 namespace EJClient.Net
 {
     class RemotingClient
     {
+        public enum RSAApplyScene
+        {
+            /// <summary>
+            /// 不使用RSA加密
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// js提交的参数，使用RSA加密
+            /// </summary>
+            EncryptParameters = 1,
+            /// <summary>
+            /// 服务器返回的数据，使用RSA加密
+            /// </summary>
+            EncryptResult = EncryptParameters << 1,
+            /// <summary>
+            ///  js提交的参数，服务器返回的数据，都使用RSA加密
+            /// </summary>
+            EncryptResultAndParameters = EncryptParameters | EncryptResult,
+        }
         internal enum WayScriptRemotingMessageType
         {
             Result = 1,

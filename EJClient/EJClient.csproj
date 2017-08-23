@@ -642,10 +642,6 @@
       <Project>{90f86d77-0178-46b5-bf34-9f80d14cc343}</Project>
       <Name>Copy</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Way.Lib.ScriptRemoting\Way.Lib.ScriptRemoting.csproj">
-      <Project>{37444D21-CB0B-4AF2-A35A-9B78E1464361}</Project>
-      <Name>Way.Lib.ScriptRemoting</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Controls\images\aligncenter.gif" />

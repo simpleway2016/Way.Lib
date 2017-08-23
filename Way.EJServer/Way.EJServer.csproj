@@ -1,21 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
-    <AssemblyName>Way.EJServer</AssemblyName>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <ApplicationIcon />
     <OutputType>Exe</OutputType>
-    <PackageId>Way.EJServer</PackageId>
-    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Way.EntityDB\Way.EntityDB.csproj" />
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
     <ProjectReference Include="..\Way.Lib.ScriptRemoting\Way.Lib.ScriptRemoting.csproj" />
+    <ProjectReference Include="C:\Users\Jack\Documents\Visual Studio 2017\Projects\Way.EntityDB\Way.EntityDB\Way.EntityDB.csproj" />
   </ItemGroup>
 
   <ItemGroup>

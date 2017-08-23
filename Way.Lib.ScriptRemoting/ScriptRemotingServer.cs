@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
-using Microsoft.AspNetCore.Hosting;
+
 
 #if NET46
 #else
@@ -232,34 +232,34 @@ namespace Way.Lib.ScriptRemoting
             System.Web.HttpApplication.RegisterModule(typeof(IISWebSocket.IISWebSocketModule));
         }
 #else
-        /// <summary>
-        ///  在MVC Core中启用ScriptRemoting
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
-        public static void StartForMvc(IApplicationBuilder app, int gcCollectInterval)
-        {
-            if (gcCollectInterval > 0)
-            {
-                new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
-            }
-            var route = new IISWebSocket.CoreMvcRoute();
+        ///// <summary>
+        /////  在MVC Core中启用ScriptRemoting
+        ///// </summary>
+        ///// <param name="app"></param>
+        ///// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
+        //public static void StartForMvc(IApplicationBuilder app, int gcCollectInterval)
+        //{
+        //    if (gcCollectInterval > 0)
+        //    {
+        //        new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
+        //    }
+        //    var route = new IISWebSocket.CoreMvcRoute();
 
-            var environment = (IHostingEnvironment)app.ApplicationServices.GetService(typeof(IHostingEnvironment));
-            makeTscFiles(environment.WebRootPath + "/");
-            //    string filepath = he.WebRootPath + feature.Path.Replace("/", "\\");
+        //    var environment = (IHostingEnvironment)app.ApplicationServices.GetService(typeof(IHostingEnvironment));
+        //    makeTscFiles(environment.WebRootPath + "/");
+        //    //    string filepath = he.WebRootPath + feature.Path.Replace("/", "\\");
 
-            //var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
-            //routes.Routes.Add(new Route(route, "wayscriptremoting_invoke", resolver));
-            //routes.Routes.Add(new Route(route, "wayscriptremoting", resolver));
-            //routes.Routes.Add(new Route(route, "wayscriptremoting_socket", resolver));
-            app.UseWebSockets();
+        //    //var resolver = routes.ApplicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
+        //    //routes.Routes.Add(new Route(route, "wayscriptremoting_invoke", resolver));
+        //    //routes.Routes.Add(new Route(route, "wayscriptremoting", resolver));
+        //    //routes.Routes.Add(new Route(route, "wayscriptremoting_socket", resolver));
+        //    app.UseWebSockets();
 
-            app.Use(async (http, next) =>
-            {
-                await route.HandleRequest(http, next);
-            });
-        }
+        //    app.Use(async (http, next) =>
+        //    {
+        //        await route.HandleRequest(http, next);
+        //    });
+        //}
 #endif
         /// <summary>
         /// 注册路由器

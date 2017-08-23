@@ -15,14 +15,25 @@ namespace Way.Lib
         }
         public static string GetAppDirectory()
         {
-            if (System.Web.HttpRuntime.AppDomainAppPath != null)
+            string folder;
+            try
             {
-                return System.Web.HttpRuntime.AppDomainAppPath.Replace("\\" , "/");
+                if (System.Web.HttpRuntime.BinDirectory != null)
+                {
+                    folder = System.Web.HttpRuntime.BinDirectory.Replace("\\", "/");
+                }
+                else
+                {
+                    folder = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/");
+                }
             }
-            else
+            catch
             {
-                return AppDomain.CurrentDomain.BaseDirectory.Replace("\\" , "/");
+                folder = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/");
             }
+            if (folder.EndsWith("/") == false)
+                folder += "/";
+            return folder;
         }
     }
 }

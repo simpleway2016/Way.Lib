@@ -49,16 +49,19 @@ namespace Way.Lib
             }
         }
         const int MAXLENGTH = 110;
-        public RSA()
+        public RSA():this(1024)
+        {
+           
+        }
+        public RSA(int keysize)
         {
             _rsa = System.Security.Cryptography.RSA.Create();
-            _rsa.KeySize = 1024;//默认是2048，也就是_parameter.Modulus是256字节，但是js那边的算法会卡死
+            _rsa.KeySize = keysize;//默认是2048，也就是_parameter.Modulus是256字节，但是js那边的算法会卡死
             //把公钥适当转换，准备发往客户端
             _parameter = _rsa.ExportParameters(true);
             _KeyExponent = BytesToHexString(_parameter.Exponent);
             _KeyModulus = BytesToHexString(_parameter.Modulus);
         }
-
         /// <summary>
         /// 
         /// </summary>

@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Net.WebSockets;
 using System.Threading;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using System.Text.RegularExpressions;
 
 namespace Way.Lib.ScriptRemoting.IISWebSocket
@@ -127,7 +125,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                     {
                         //context.Response.StatusDescription = System.Web.HttpWorkerRequest.GetStatusDescription(304);
                         context.Response.StatusCode = 304;
-                        return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
+                        return Task.CompletedTask;
                     }
                     else
                     {
@@ -170,7 +168,7 @@ namespace Way.Lib.ScriptRemoting.IISWebSocket
                     //var ae = context.RequestServices.GetService(typeof(IApplicationEnvironment)) as IApplicationEnvironment;
 
                     if (next == null)
-                        return Microsoft.AspNetCore.Routing.Internal.TaskCache.CompletedTask;
+                        return Task.CompletedTask;
                     return next();
                 }
             }

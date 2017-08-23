@@ -113,7 +113,7 @@ namespace Way.EntityDB
             var t = DatabaseServiceTypes.Count;
 
             //防止有些dll版本不对，无法加载
-            Way.EntityDB.PlatformHelper.setAssemblyResolve();
+            //Way.EntityDB.PlatformHelper.setAssemblyResolve();
 
             
             BeforeDelete += Database_BeforeDelete;
