@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PandaAudioServerUnitTest", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.Lib.ScriptRemotingUnitTest", "Way.Lib.ScriptRemotingUnitTest\Way.Lib.ScriptRemotingUnitTest.csproj", "{09E21982-D028-497A-8990-633BAD8332F3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.EntityDB", "C:\Users\Jack\Documents\Visual Studio 2017\Projects\Way.EntityDB\Way.EntityDB\Way.EntityDB.csproj", "{6C04826C-DA81-4B76-A92A-E4E873E5915D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.EntityDB", "Way.EntityDB\Way.EntityDB.csproj", "{7ABF958A-1C73-40D5-B7A8-ECACF69C8637}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,10 +103,10 @@ Global
 		{09E21982-D028-497A-8990-633BAD8332F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09E21982-D028-497A-8990-633BAD8332F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09E21982-D028-497A-8990-633BAD8332F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6C04826C-DA81-4B76-A92A-E4E873E5915D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C04826C-DA81-4B76-A92A-E4E873E5915D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C04826C-DA81-4B76-A92A-E4E873E5915D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C04826C-DA81-4B76-A92A-E4E873E5915D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ABF958A-1C73-40D5-B7A8-ECACF69C8637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ABF958A-1C73-40D5-B7A8-ECACF69C8637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ABF958A-1C73-40D5-B7A8-ECACF69C8637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ABF958A-1C73-40D5-B7A8-ECACF69C8637}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

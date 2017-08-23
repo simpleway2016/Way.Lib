@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Way.EntityDB\Way.EntityDB.csproj" />
     <ProjectReference Include="..\Way.Lib.ScriptRemoting\Way.Lib.ScriptRemoting.csproj" />
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
   </ItemGroup>

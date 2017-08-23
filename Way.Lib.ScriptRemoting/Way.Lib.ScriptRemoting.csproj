@@ -40,8 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Way.EntityDB\Way.EntityDB.csproj" />
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
-    <ProjectReference Include="C:\Users\Jack\Documents\Visual Studio 2017\Projects\Way.EntityDB\Way.EntityDB\Way.EntityDB.csproj" />
   </ItemGroup>
 
 
