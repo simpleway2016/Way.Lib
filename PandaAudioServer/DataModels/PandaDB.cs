@@ -11,7 +11,10 @@ namespace PandaAudioServer
         static Way.EntityDB.DatabaseType DBType;
         static PandaDB()
         {
-            XDocument doc = XDocument.Load($"{Way.Lib.PlatformHelper.GetAppDirectory()}config.xml");
+            var path = $"{Way.Lib.PlatformHelper.GetAppDirectory()}config.xml";
+            var stream = System.IO.File.OpenRead(path);
+            XDocument doc = XDocument.Load(stream);
+            stream.Dispose();
             var ele = doc.XPathSelectElement("//db");
             ConSTR = ele.Attribute("connectionString").Value;
             DBType = (Way.EntityDB.DatabaseType)Enum.Parse(typeof(Way.EntityDB.DatabaseType), ele.Attribute("type").Value);

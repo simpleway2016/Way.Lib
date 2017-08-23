@@ -16,6 +16,7 @@ var JControl = (function () {
         this.onPropertyChangeds = [];
         this.templates = [];
         this.templateMatchProNames = [];
+        this._enable = true;
         this.cid = JControl.StaticString + JControl.StaticID++;
         if (JControl.StaticID >= 100000) {
             JControl.StaticString += "E_";
@@ -112,6 +113,31 @@ var JControl = (function () {
             }
         }
     };
+    Object.defineProperty(JControl.prototype, "enable", {
+        get: function () {
+            return this._enable;
+        },
+        set: function (value) {
+            if (this._enable !== value) {
+                var original = this._enable;
+                if (typeof value == "string") {
+                    this._enable = (value == "true");
+                }
+                else {
+                    this._enable = value;
+                }
+                if (this._enable) {
+                    this.element.disabled = false;
+                }
+                else {
+                    this.element.disabled = true;
+                }
+                this.onPropertyChanged("enable", original);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(JControl.prototype, "datacontext", {
         get: function () {
             return this._datacontext;
@@ -331,7 +357,7 @@ var JControl = (function () {
                             eval("value=this.datacontext." + name);
                         }
                         catch (e) { }
-                        if (typeof (value) == "undefined")
+                        if (typeof (value) == "undefined" || value === null)
                             value = "";
                     }
                     html = html.replace(result[0], value);
@@ -471,8 +497,26 @@ var JTextbox = (function (_super) {
     function JTextbox(element, templates, datacontext) {
         if (templates === void 0) { templates = null; }
         if (datacontext === void 0) { datacontext = null; }
-        return _super.call(this, element, templates, datacontext) || this;
+        var _this = _super.call(this, element, templates, datacontext) || this;
+        if (!_this.type) {
+            _this.type = "text";
+        }
+        return _this;
     }
+    Object.defineProperty(JTextbox.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        set: function (value) {
+            if (this._type !== value) {
+                var originalValue = this._type;
+                this._type = value;
+                this.onPropertyChanged("type", originalValue);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     return JTextbox;
 }(JButton));
 var JListItem = (function (_super) {
@@ -571,14 +615,40 @@ var JList = (function (_super) {
         if (!_this.buffersize) {
             _this.buffersize = 20;
         }
-        else {
-            _this.buffersize = parseInt(_this.buffersize);
-        }
         if (_this.buffersize && _this.itemsource) {
             _this.bindItems();
         }
         return _this;
     }
+    Object.defineProperty(JList.prototype, "buffersize", {
+        get: function () {
+            return this._buffersize;
+        },
+        set: function (value) {
+            if (this._buffersize !== value) {
+                this._buffersize = parseInt(value);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JList.prototype, "loadonscroll", {
+        get: function () {
+            return this._loadonscroll;
+        },
+        set: function (value) {
+            if (this._loadonscroll !== value) {
+                if (typeof value == "string") {
+                    this._loadonscroll = (value == "true");
+                }
+                else {
+                    this._loadonscroll = value;
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(JList.prototype, "itemsource", {
         get: function () {
             return this._itemsource;
@@ -600,8 +670,13 @@ var JList = (function (_super) {
                     }
                 }
                 else {
-                    var typeConfig = value.split(',');
-                    this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                    if (value.indexOf(",") >= 0) {
+                        var typeConfig = value.split(',');
+                        this._itemsource = new JServerControllerSource(typeConfig[0].controller(), typeConfig[1]);
+                    }
+                    else {
+                        this._itemsource = new JServerControllerSource(window.controller, value);
+                    }
                     if (this.buffersize) {
                         this.bindItems();
                     }
@@ -677,6 +752,17 @@ var JList = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    JList.prototype.rebind = function () {
+        for (var i = 0; i < this.itemControls.length; i++) {
+            if (this.itemControls[i]) {
+                this.itemContainer.removeChild(this.itemControls[i].element);
+                this.itemControls[i].dispose();
+            }
+        }
+        this.itemControls = [];
+        this.itemsource.clear();
+        this.loadMoreData();
+    };
     JList.prototype.clearItems = function () {
         if (this.itemControls) {
             for (var i = 0; i < this.itemControls.length; i++) {
@@ -700,6 +786,11 @@ var JList = (function (_super) {
     JList.prototype.onTemplateApply = function () {
         _super.prototype.onTemplateApply.call(this);
         this.itemContainer = this.element.id == "itemContainer" ? this.element : this.element.querySelector("*[id='itemContainer']");
+        if (this.loadonscroll) {
+            if (!this._scrollController) {
+                this._scrollController = new ScrollSourceManager(this);
+            }
+        }
     };
     JList.prototype.loadMoreData = function () {
         var _this = this;
@@ -714,6 +805,10 @@ var JList = (function (_super) {
                     if (err) {
                         if (_this.onError)
                             _this.onError(err);
+                    }
+                    else {
+                        if (_this._scrollController && count > 0)
+                            _this._scrollController.onListLoadData();
                     }
                 });
             }
@@ -987,4 +1082,41 @@ var JCheckbox = (function (_super) {
     });
     return JCheckbox;
 }(JListItem));
+var ScrollSourceManager = (function () {
+    function ScrollSourceManager(list) {
+        var _this = this;
+        this.listener = function () { return _this.onScroll(); };
+        this._checkBufferSize = false;
+        this.contentContainer = list.itemContainer;
+        this.list = list;
+        this.contentContainer.addEventListener("scroll", this.listener, false);
+    }
+    ScrollSourceManager.prototype.dispose = function () {
+        this.contentContainer.removeEventListener("scroll", this.listener);
+    };
+    ScrollSourceManager.prototype.onListLoadData = function () {
+        if (!this._checkBufferSize) {
+            this._checkBufferSize = true;
+            var contentHeight = 0;
+            for (var i = 0; i < this.list.itemContainer.children.length; i++) {
+                contentHeight += this.list.itemContainer.children[i].offsetHeight;
+            }
+            if (contentHeight < this.contentContainer.offsetHeight) {
+                this.list.buffersize = this.list.buffersize / (contentHeight / this.contentContainer.offsetHeight);
+                this.list.loadMoreData();
+            }
+        }
+        else {
+            if (this.contentContainer.scrollHeight == this.contentContainer.offsetHeight) {
+                this.list.loadMoreData();
+            }
+        }
+    };
+    ScrollSourceManager.prototype.onScroll = function () {
+        if (this.contentContainer.scrollHeight - (this.contentContainer.scrollTop + this.contentContainer.offsetHeight) <= this.contentContainer.offsetHeight * 0.5) {
+            this.list.loadMoreData();
+        }
+    };
+    return ScrollSourceManager;
+}());
 //# sourceMappingURL=JControls.js.map

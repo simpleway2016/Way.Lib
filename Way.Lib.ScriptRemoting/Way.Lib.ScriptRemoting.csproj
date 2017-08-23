@@ -44,6 +44,10 @@
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="copy $(ProjectDir)..\Way.Lib.ScriptRemoting.Test.Web\scripts\jcontrol\*.js $(ProjectDir)Scripts\" />
+  </Target>
+
 
 
 </Project>

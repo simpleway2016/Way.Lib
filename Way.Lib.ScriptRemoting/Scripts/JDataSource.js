@@ -136,6 +136,7 @@ var JServerControllerSource = (function (_super) {
         var _this = _super.call(this) || this;
         _this._skip = 0;
         _this._tranid = 0;
+        _this._hasModeData = true;
         _this.length = -1;
         _this._controller = controller;
         _this._propertyName = propertyName;
@@ -151,6 +152,12 @@ var JServerControllerSource = (function (_super) {
         if (cb === void 0) { cb = null; }
         if (length <= 0)
             return 0;
+        if (!this._hasModeData) {
+            if (cb) {
+                cb(0, null);
+            }
+            return;
+        }
         this._tranid++;
         this.loadDataFromServer(this._tranid, length, cb);
     };
@@ -192,6 +199,9 @@ var JServerControllerSource = (function (_super) {
                         _this.add(new JObserveObject(data));
                         count++;
                     }
+                    if (ret.length == 0) {
+                        _this._hasModeData = false;
+                    }
                     _this._skip += count;
                     if (callback) {
                         callback(count, null);
@@ -206,6 +216,7 @@ var JServerControllerSource = (function (_super) {
     JServerControllerSource.prototype.clear = function () {
         _super.prototype.clear.call(this);
         this._skip = 0;
+        this._hasModeData = true;
     };
     return JServerControllerSource;
 }(JDataSource));

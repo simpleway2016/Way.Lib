@@ -30,10 +30,11 @@ namespace PandaAudioServer
                 if (this.UserId == 0)
                     return null;
                 return from m in this.db.SystemRegCode
-                       select new {
+                       select new RegInfo
+                       {
                            id = m.id,
                            RegGuid = m.RegGuid,
-                           MakerName = m.MakerUserId == null ? "" : (from u in db.AdminUser where u.id == m.MakerUserId select u.UserName).FirstOrDefault(),
+                           MakerName = (from u in db.AdminUser where u.id == m.MakerUserId select u.UserName).FirstOrDefault(),
                            MakeTime = m.MakeTime
                        };
             }
