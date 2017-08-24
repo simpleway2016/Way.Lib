@@ -332,6 +332,7 @@ namespace Way.Lib.ScriptRemoting.Net
 
             if(Headers.ContainsKey("Connection") && string.Equals( Headers["Connection"] , "keep-alive" , StringComparison.CurrentCultureIgnoreCase))
             {
+                mClient.ReadTimeout = 5 * 1000;//5秒超时
                 SocketServer.HandleSocket(mClient);
                 return;
             }

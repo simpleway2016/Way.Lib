@@ -314,10 +314,8 @@ namespace Way.Lib.ScriptRemoting
             {
                 try
                 {
-                    var originalTimeout = client.ReadTimeout;
-                    client.ReadTimeout = 5 * 60 * 1000;
                     var Request = new Net.Request(client);
-                    client.ReadTimeout = originalTimeout;
+                    client.ReadTimeout = 0;
 
                     ISocketHandler handler = null;
                     if ("Upgrade".Equals(Request.Headers["Connection"]) == false)
