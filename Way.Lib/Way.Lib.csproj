@@ -6,6 +6,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Way.Lib</AssemblyName>
     <PackageId>Way.Lib</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description></Description>
   </PropertyGroup>
 
   <ItemGroup>
