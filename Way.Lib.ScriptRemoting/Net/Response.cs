@@ -334,6 +334,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 mClient.ReadTimeout = 5 * 1000;//5秒超时
                 SocketServer.HandleSocket(mClient);
+                mClient = null;
                 return;
             }
 

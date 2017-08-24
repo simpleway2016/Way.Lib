@@ -71,7 +71,11 @@ namespace Way.Lib.ScriptRemoting
            
             try
             {
-                if(RemotingContext.Current.Request.Headers.ContainsKey("Connection"))
+                if (RemotingContext.Current.Request.Headers.ContainsKey("Connection") == false)
+                {
+                    RemotingContext.Current.Response.Headers["Connection"] = "Keep-Alive";
+                }
+                else
                 {
                     RemotingContext.Current.Response.Headers["Connection"] = RemotingContext.Current.Request.Headers["Connection"];
                 }
