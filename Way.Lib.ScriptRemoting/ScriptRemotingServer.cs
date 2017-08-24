@@ -331,7 +331,7 @@ namespace Way.Lib.ScriptRemoting
                 }
                 catch
                 {
-
+                    client.Close();
                 }
             });
         }
