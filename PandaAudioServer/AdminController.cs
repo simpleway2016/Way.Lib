@@ -30,6 +30,7 @@ namespace PandaAudioServer
                 if (this.UserId == 0)
                     return null;
                 return from m in this.db.SystemRegCode
+                       orderby m.id descending
                        select new RegInfo
                        {
                            id = m.id,
@@ -53,6 +54,7 @@ namespace PandaAudioServer
                 var regitem = new SysDB.SystemRegCode()
                 {
                     MakerUserId = this.UserId,
+                    MakeTime = DateTime.Now,
                     RegGuid = Guid.NewGuid().ToString("N"),
                 };
                 this.db.Insert(regitem);
@@ -100,16 +102,19 @@ namespace PandaAudioServer
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
             if (IPError.IsIPLocked(ip))
                 throw new Exception("禁止访问");
-            //if( string.IsNullOrEmpty(verifyCode) || (string)this.Session["admin_phoneCode"] != verifyCode)
-            //{
-            //    var iperror = IPError.GetInstance(ip);
-            //    iperror.MarkError();
-            //    this.Session["iperror"] = iperror;
-            //    if (iperror.ErrorCount < 7)
-            //        throw new Exception("验证码不正确");
-            //    else
-            //        throw new Exception($"验证码不正确，剩余{iperror.GetChance()}次机会！");
-            //}
+#if DEBUG
+#else
+            if (string.IsNullOrEmpty(verifyCode) || (string)this.Session["admin_phoneCode"] != verifyCode)
+            {
+                var iperror = IPError.GetInstance(ip);
+                iperror.MarkError();
+                this.Session["iperror"] = iperror;
+                if (iperror.ErrorCount < 7)
+                    throw new Exception("验证码不正确");
+                else
+                    throw new Exception($"验证码不正确，剩余{iperror.GetChance()}次机会！");
+            }
+#endif
 
             var user = this.db.AdminUser.FirstOrDefault(m => m.PhoneNumber == phoneNumber && m.Password == password);
             if (user == null)

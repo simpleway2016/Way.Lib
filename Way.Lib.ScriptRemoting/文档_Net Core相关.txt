@@ -4,3 +4,5 @@ AppDomains是用作不同的目的。对于代码隔离来说，我们建议使�
 
 拥抱.NET Core，如何开发一个跨平台类库 (1)
 http://www.cnblogs.com/ants/p/5740473.html
+
+echo y|xcopy $(ProjectDir)..\Way.Lib.ScriptRemoting.Test.Web\scripts\jcontrol\*.js /d /e /r /k $(ProjectDir)Scripts\

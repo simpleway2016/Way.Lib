@@ -24,20 +24,40 @@
     </style>  
 </head>
 <body controller="PandaAudioServer.AdminController">
+    <div>
+        创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>
+    </div>
     <JList id="list" buffersize="15" loadonscroll="true" class="clist" itemsource="RegCodes">
         <script type="text/html">
-            <div id="itemContainer" databind="className=$class"></div>
+            <div id="itemContainer" style="display:table;">
+                <div style="display:table-row;">
+                    <div style="display:table-cell;width:350px;">RegGuid</div>
+                    <div style="display:table-cell;width:130px;">MakerName</div>
+                    <div style="display:table-cell;">MakeTime</div>
+                </div>
+            </div>
         </script>
 
         <script for="item" type="text/html">
-            <div>
-                RegGuid:{@RegGuid}&nbsp;MakerName:{@MakerName}&nbsp;MakeTime:{@MakeTime}
+            <div style="display:table-row;">
+                <div style="display:table-cell;">{@RegGuid}</div>
+                <div style="display:table-cell;">{@MakerName}</div>
+                <div style="display:table-cell;">{@MakeTime}</div>
             </div>
         </script>
     </JList>
 
     <script lang="ja">
-        
+        function btnMakeClick()
+        {
+            window.controller.server.MakeRegCode(txtMakeCount.text, function (ret, err) {
+                if (err) alert(err);
+                else {
+                    alert("成功创建！");
+                    list.rebind();
+                }
+            });
+        }
         window.onload = function () {
         }
     </script>

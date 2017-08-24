@@ -26,9 +26,9 @@
 </head>
 <body controller="PandaAudioServer.AdminController">
     <div>
-        <span>手机号：</span><JTextBox text="{bind @phone}"></JTextBox><span>&nbsp;&nbsp;</span>
-        <span>密码：</span><JTextBox type="password" text="{bind @password}"></JTextBox><span>&nbsp;&nbsp;</span>
-        <span>手机验证码：</span><JTextBox text="{bind @verifyCode}"></JTextBox><span>&nbsp;&nbsp;</span>
+        手机号：<JTextBox text="{bind @phone}"></JTextBox>&nbsp;&nbsp;
+        密码：<JTextBox type="password" text="{bind @password}"></JTextBox>&nbsp;&nbsp;
+        手机验证码：<JTextBox text="{bind @verifyCode}"></JTextBox>&nbsp;&nbsp;
         <JButton id="btnSendCode" text="发送手机验证码" onclick="sendVerifyCode()"></JButton>
         <JButton id="btnLogin" text="登录" onclick="login()"></JButton>
 </div>
@@ -86,8 +86,8 @@
 
         window.onload = function () {
             datacontext = new JObserveObject({
-                phone: '132',
-                password: '123',
+                phone: '13261952754',
+                password: '1',
                 verifyCode:'',
             });
             bindElement(document.body, datacontext);

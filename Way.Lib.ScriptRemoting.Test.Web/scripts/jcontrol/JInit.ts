@@ -29,14 +29,14 @@ class JElementHelper {
 
     //把dst换成source
     static replaceElement(source: HTMLElement, dst: HTMLElement) {
-        if (dst == dst.parentElement.children[dst.parentElement.children.length - 1]) {
-            var parent = dst.parentElement;
+        if (dst == dst.parentNode.childNodes[dst.parentNode.childNodes.length - 1]) {
+            var parent = dst.parentNode;
             parent.removeChild(dst);
             parent.appendChild(source);
         }
         else {
-            var nextlib = dst.nextElementSibling;
-            var parent = dst.parentElement;
+            var nextlib = dst.nextSibling;
+            var parent = dst.parentNode;
 
             parent.removeChild(dst);
             parent.insertBefore(source, nextlib);
