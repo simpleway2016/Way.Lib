@@ -384,7 +384,10 @@ namespace Way.Lib.ScriptRemoting.Net
             setHeaderIfNot("Server" , "WayServer");
             setHeaderIfNot("Set-Cookie", cookie);
             setHeaderIfNot("Date", DateTime.Now.ToUniversalTime().ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo));
-            setHeaderIfNot("Last-Modified", lastModifyDate);
+            if (!string.IsNullOrEmpty(lastModifyDate))
+            {
+                setHeaderIfNot("Last-Modified", lastModifyDate);
+            }
 
             if (contentLength >= 0)
             {
