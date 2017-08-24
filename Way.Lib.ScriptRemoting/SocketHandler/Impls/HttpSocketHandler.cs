@@ -71,14 +71,14 @@ namespace Way.Lib.ScriptRemoting
            
             try
             {
-                //if (RemotingContext.Current.Request.Headers.ContainsKey("Connection") == false)
-                //{
-                //    RemotingContext.Current.Response.Headers["Connection"] = "Keep-Alive";
-                //}
-                //else
-                //{
-                //    RemotingContext.Current.Response.Headers["Connection"] = RemotingContext.Current.Request.Headers["Connection"];
-                //}
+                if (RemotingContext.Current.Request.Headers.ContainsKey("Connection") == false)
+                {
+                    RemotingContext.Current.Response.Headers["Connection"] = "Keep-Alive";
+                }
+                else
+                {
+                    RemotingContext.Current.Response.Headers["Connection"] = RemotingContext.Current.Request.Headers["Connection"];
+                }
 
                 //访问ts脚本
                 if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("/WayScriptRemoting", StringComparison.CurrentCultureIgnoreCase))

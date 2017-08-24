@@ -268,6 +268,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
+            _sendedHeader = true;
             mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
@@ -288,6 +289,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
+            _sendedHeader = true;
             mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
@@ -300,6 +302,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
+            _sendedHeader = true;
             mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
