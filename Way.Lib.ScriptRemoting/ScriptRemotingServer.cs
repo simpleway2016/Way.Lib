@@ -308,6 +308,36 @@ namespace Way.Lib.ScriptRemoting
             m_listener = null;
         }
 
+        internal static void HandleSocket(NetStream client)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var originalTimeout = client.ReadTimeout;
+                    client.ReadTimeout = 5 * 60 * 1000;
+                    var Request = new Net.Request(client);
+                    client.ReadTimeout = originalTimeout;
+
+                    ISocketHandler handler = null;
+                    if ("Upgrade".Equals(Request.Headers["Connection"]) == false)
+                    {
+                        handler = new HttpSocketHandler(Request);
+                    }
+                    else
+                    {
+                        handler = new WebSocketHandler(Request);
+                    }
+                   
+                    handler.Handle();
+                }
+                catch
+                {
+
+                }
+            });
+        }
+
         void _start()
         {
             while (!m_stopped)
@@ -319,28 +349,7 @@ namespace Way.Lib.ScriptRemoting
                     //Debug.WriteLine("new socket in");
                     var socket = task.Result;
 
-                    Task.Run(() =>
-                    {
-                        try
-                        {
-                            var Request = new Net.Request(new NetStream(socket));
-
-                            ISocketHandler handler = null;
-                            if ("Upgrade".Equals(Request.Headers["Connection"]) == false)
-                            {
-                                handler = new HttpSocketHandler(Request);
-                            }
-                            else
-                            {
-                                handler = new WebSocketHandler(Request);
-                            }
-                            handler.Handle();
-                        }
-                        catch
-                        {
-
-                        }
-                    });
+                    HandleSocket(new NetStream(socket));
                 }
                 catch
                 {

@@ -268,8 +268,16 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
-            mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + "\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+            mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
+        }
+        string getConnectString()
+        {
+            if (Headers.ContainsKey("Connection"))
+            {
+                return $"Connection: {Headers["Connection"]}";
+            }
+            return "Connection: Close";
         }
         internal void SendFileNotFound()
         {
@@ -280,7 +288,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
-            mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + "\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+            mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         internal void SendServerError()
@@ -292,7 +300,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 _buffer = null;
             }
-            mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + "\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+            mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         internal void CloseSocket()
@@ -319,7 +327,13 @@ namespace Way.Lib.ScriptRemoting.Net
             if(!_sendedHeader)
             {
                 _sendedHeader = true;
-                mClient.Socket.Send(getBytes("HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+                mClient.Socket.Send(getBytes($"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            }
+
+            if(Headers.ContainsKey("Connection") && string.Equals( Headers["Connection"] , "keep-alive" , StringComparison.CurrentCultureIgnoreCase))
+            {
+                SocketServer.HandleSocket(mClient);
+                return;
             }
 
             //wait for close

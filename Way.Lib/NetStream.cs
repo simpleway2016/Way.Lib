@@ -71,6 +71,27 @@ namespace Way.Lib
             }
         }
 
+        public override int ReadTimeout {
+            get
+            {
+                return m_ClientSocket.ReceiveTimeout;
+            }
+            set
+            {
+                m_ClientSocket.ReceiveTimeout = value;
+            }
+        }
+
+        public override int WriteTimeout {
+            get
+            {
+                return m_ClientSocket.SendTimeout;
+            }
+            set
+            {
+                m_ClientSocket.SendTimeout = value;
+            }
+        }
         protected override void Dispose(bool disposing)
         {
             this.Close();
