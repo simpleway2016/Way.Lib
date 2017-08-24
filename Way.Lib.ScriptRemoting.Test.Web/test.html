@@ -2,7 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <script src="scripts/jcontrol/jsencrypt.min.js" type="text/javascript"></script>
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title></title>
     <style>
@@ -16,11 +16,7 @@
 
     <input id="txt" />
     <script lang="ja">
-        var encrypt = new JSEncrypt();
-        encrypt.setPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCa4KHNwDX44gGmmIAtRu4gjVYtGWZzcm4t+1wjUD4dn7fMLPvuK7ai4UrfDeEJE1RPwudJw+lJ6crql8wSIg7/DbTlG3ihsCT6dT9H5B9OoeR7K9VWUesaW/iyVL6HXiYOANabW14pvJATDmdq91Tfgp6PSQyvdfiRdV4r07crpQIDAQAB");
-        var encrypted = encrypt.encrypt("123");
-        alert(encrypted);
-        document.getElementById("txt").value = encrypted;
+      
     </script>
 </body>
 </html>
