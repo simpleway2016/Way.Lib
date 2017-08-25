@@ -1258,7 +1258,8 @@ class ScrollSourceManager
 
     constructor(list: JList)
     {
-        this.contentContainer = list.itemContainer;
+        //不用itemContainer，因为itemContainer可能是table里面的一个子元素，滚动的并不是它，而是最上层的JControl.element
+        this.contentContainer = list.element;
         this.list = list;
 
         this.contentContainer.addEventListener("scroll", this.listener, false);

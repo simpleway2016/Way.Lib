@@ -1087,7 +1087,7 @@ var ScrollSourceManager = (function () {
         var _this = this;
         this.listener = function () { return _this.onScroll(); };
         this._checkBufferSize = false;
-        this.contentContainer = list.itemContainer;
+        this.contentContainer = list.element;
         this.list = list;
         this.contentContainer.addEventListener("scroll", this.listener, false);
     }

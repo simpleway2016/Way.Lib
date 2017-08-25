@@ -112,12 +112,21 @@
         JList:<input type="button" value="重新绑定" onclick="list4.rebind();"/>
         <JList id="list4" buffersize="15" loadonscroll="true" class="clist" valuemember="id" textmember="Name" itemsource="Columns">
             <script type="text/html">
-                <div id="itemContainer" databind="className=$class"></div>
+                <div databind="className=$class">
+                    <div style="display:table;">
+                        <div style="display:table-header-group;">
+                            <div style="display:table-cell;">Name</div>
+                            <div style="display:table-cell;">id</div>
+                        </div>
+                        <div id="itemContainer" style="display:table-row-group;"></div>
+                    </div>
+                </div>
             </script>
 
             <script for="item" type="text/html">
-                <div>
-                    {@Name}
+                <div style="display:table-row;">
+                    <div style="display:table-cell;">{@Name}</div>
+                    <div style="display:table-cell;">{@id}</div>
                 </div>
             </script>
         </JList>
