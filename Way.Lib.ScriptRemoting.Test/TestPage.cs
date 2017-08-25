@@ -63,7 +63,11 @@ namespace Way.Lib.ScriptRemoting.Test
             }
             return arrs.ToArray();
         }
-
+        [RemotingMethod]
+        public void sendGroupMsg(string msg)
+        {
+            SendGroupMessage("group1", msg);
+        }
         [RemotingMethod]
         public string GetInfo(string name,int age)
         {

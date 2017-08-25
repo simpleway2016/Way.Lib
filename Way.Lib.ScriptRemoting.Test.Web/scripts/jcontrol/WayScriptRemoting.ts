@@ -81,6 +81,8 @@ class WayScriptRemoting {
     }
     set onmessage(func: (msg: any) => any) {
         this._onmessage = func;
+        if (!this._groupName)
+            throw "请先设置groupName";
         if (!this.mDoConnected && this._groupName && this._groupName.length > 0) {
             this.mDoConnected = true;
             this.connect();
@@ -566,6 +568,9 @@ class WayScriptRemoting {
                 if (WayScriptRemoting.onInvokeFinish) {
                     WayScriptRemoting.onInvokeFinish(name, parameters);
                 }
+                if (!callback)
+                    return;
+
                 if (err) {
                     callback(null, err);
                 }

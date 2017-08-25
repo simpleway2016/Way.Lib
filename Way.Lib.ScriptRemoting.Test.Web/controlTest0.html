@@ -109,7 +109,7 @@
     </div>-->
 
     <div style="margin-top:20px;">
-        JList:<input type="button" value="重新绑定" onclick="list4.rebind();"/>
+        JList:<input type="button" value="重新绑定" onclick="list4.rebind();"/><input type="button" value="sendGroupMsg" onclick=" window.controller.server.sendGroupMsg('hello')" />
         <JList id="list4" buffersize="15" loadonscroll="true" class="clist" valuemember="id" textmember="Name" itemsource="Columns">
             <script type="text/html">
                 <div databind="className=$class">
@@ -138,6 +138,11 @@
         }
 
         window.onload = function () {
+            window.controller.groupName = "group1";
+            window.controller.onmessage = function (msg) {
+                alert(msg);
+            }
+
             return;
             document.querySelector("#aaa").removeAttribute("class");
 
