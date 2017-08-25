@@ -38,6 +38,7 @@ declare class WayScriptRemoting {
     private _onmessage;
     onmessage: (msg: any) => any;
     private socket;
+    private socket_heart_timer;
     static ServerAddress: string;
     static ExistControllers: WayScriptRemoting[];
     constructor(remoteName: string);
@@ -54,6 +55,7 @@ declare class WayScriptRemoting {
     str2UTF8(str: any): any[];
     private encrypt(value);
     pageInvoke(name: string, parameters: any[], callback: any, async?: boolean, useRsa?: boolean, returnUseRsa?: boolean): void;
+    private sendHeart();
     private connect();
 }
 declare class WayScriptRemotingChild extends WayScriptRemoting {

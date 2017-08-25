@@ -58,6 +58,7 @@ namespace Way.Lib.ScriptRemoting
             {
                 MessageBag msgBag = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageBag>(data);
                 mCurrentBag = msgBag;
+
                 if (this.Session == null)
                 {
                     if (msgBag.SessionID.IsNullOrEmpty())
@@ -86,6 +87,11 @@ namespace Way.Lib.ScriptRemoting
                 {
                     this.StreamType = RemotingStreamType.Bytes;
                     handleUploadFile(msgBag);
+                }
+                else if (msgBag.Action == "w_heart")//websocket心跳包
+                {
+                    SendClientMessage("1", 2);
+                    return;
                 }
                 else if (msgBag.MethodName.IsNullOrEmpty() == false)
                 {
@@ -629,7 +635,7 @@ namespace Way.Lib.ScriptRemoting
                 throw ex;
             }
         }
-        public void SendClientMessage(string msg)
+        public void SendClientMessage(string msg,int type)
         {
             try
             {
@@ -637,6 +643,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     var data = Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
+                        type= type,
                         msg = msg
                     });
                     mSendDataFunc(data);

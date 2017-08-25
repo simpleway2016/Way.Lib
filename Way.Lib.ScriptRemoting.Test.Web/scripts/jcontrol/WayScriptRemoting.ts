@@ -88,6 +88,7 @@ class WayScriptRemoting {
     }
 
     private socket: WebSocket;
+    private socket_heart_timer: number;
 
     static ServerAddress: string = null;//"localhost:9090";
     static ExistControllers: WayScriptRemoting[] = [];
@@ -635,6 +636,10 @@ class WayScriptRemoting {
 
     }
 
+    private sendHeart() {
+        this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+    }
+
     private connect(): void {
         this.socket = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         this.socket.onopen = () => {
@@ -642,6 +647,7 @@ class WayScriptRemoting {
                 if (this.onconnect) {
                     this.onconnect();
                 }
+                this.socket_heart_timer = setTimeout(() => this.sendHeart() , 10000);
             }
             catch (e) {
             }
@@ -651,7 +657,10 @@ class WayScriptRemoting {
             var resultObj;
             eval("resultObj=" + evt.data);
 
-            if (this._onmessage) {
+            clearTimeout(this.socket_heart_timer);
+            this.socket_heart_timer = setTimeout(() => this.sendHeart(), 10000);
+
+            if (this._onmessage && resultObj.type == 1) {
                 this._onmessage(resultObj.msg);
             }
         }

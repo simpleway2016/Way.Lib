@@ -1118,7 +1118,7 @@ namespace Way.Lib.ScriptRemoting
                     {
                         try
                         {
-                            handler.SendClientMessage(msg);
+                            handler.SendClientMessage(msg , 1);
                         }
                         catch
                         {
