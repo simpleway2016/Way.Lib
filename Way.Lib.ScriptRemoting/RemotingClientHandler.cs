@@ -62,14 +62,14 @@ namespace Way.Lib.ScriptRemoting
                 {
                     if (msgBag.SessionID.IsNullOrEmpty())
                     {
-                        this.Session = SessionState.GetSession(Guid.NewGuid().ToString(), this.mClientIP);
+                        this.Session = SessionState.GetSession(Guid.NewGuid().ToString());
                     }
                     else
                     {
-                        this.Session = SessionState.GetSession(msgBag.SessionID, this.mClientIP);
+                        this.Session = SessionState.GetSession(msgBag.SessionID);
                         if (this.Session == null)
                         {
-                            this.Session = SessionState.GetSession(Guid.NewGuid().ToString(), this.mClientIP);
+                            this.Session = SessionState.GetSession(Guid.NewGuid().ToString());
                         }
                     }
                 }
@@ -232,11 +232,11 @@ namespace Way.Lib.ScriptRemoting
                 //上一次没解码的内容
                 if (!msgBag.SessionID.IsNullOrEmpty())
                 {
-                    this.Session = SessionState.GetSession(msgBag.SessionID, this.mClientIP);
+                    this.Session = SessionState.GetSession(msgBag.SessionID);
                 }
                 if (this.Session == null)
                 {
-                    this.Session = SessionState.GetSession(Guid.NewGuid().ToString(), this.mClientIP);
+                    this.Session = SessionState.GetSession(Guid.NewGuid().ToString());
                 }
 
 
@@ -383,12 +383,12 @@ namespace Way.Lib.ScriptRemoting
                 var match = System.Text.RegularExpressions.Regex.Match(RemotingContext.Current.Request.Headers["Cookie"], @"WayScriptRemoting\=([\w|\-]+)");
                 if (match.Length > 0)
                 {
-                    this.Session = SessionState.GetSession(match.Groups[1].Value, this.mClientIP);
+                    this.Session = SessionState.GetSession(match.Groups[1].Value);
                 }
             }
             if (this.Session == null)
             {
-                this.Session = SessionState.GetSession(Guid.NewGuid().ToString(), this.mClientIP);
+                this.Session = SessionState.GetSession(Guid.NewGuid().ToString());
             }
 
             var  currentPage = (RemotingController)Activator.CreateInstance(pageDefine.ControllerType);

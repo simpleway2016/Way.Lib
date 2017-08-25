@@ -66,10 +66,11 @@ namespace Way.Lib.ScriptRemoting
         /// 
         /// </summary>
         /// <param name="sessionid"></param>
-        /// <param name="clientIP"></param>
         /// <returns></returns>
-        internal static SessionState GetSession(string sessionid , string clientIP)
+        internal static SessionState GetSession(string sessionid)
         {
+            string clientIP = RemotingContext.Current.GetIPInformation();
+
             SessionState obj = null;
             lock (AllSessionsLock)
             {

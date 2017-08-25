@@ -44,6 +44,26 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
+        public string GetIPInformation()
+        {
+            if (Request == null)
+                throw new Exception("Request is null");
+            StringBuilder ip = new StringBuilder(Request.RemoteEndPoint.ToString().Split(':')[0]);
+            if (Request.Headers.ContainsKey("X-Real-IP"))
+            {
+                ip.Append(",");
+                ip.Append("X-Real-IP:");
+                ip.Append(Request.Headers["X-Real-IP"]);
+            }
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+            {
+                ip.Append(",");
+                ip.Append("X-Forwarded-For:");
+                ip.Append(Request.Headers["X-Forwarded-For"]);
+            }
+            return ip.ToString();
+        }
+
         public Net.Request Request
         {
             get;

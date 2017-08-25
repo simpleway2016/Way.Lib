@@ -11,7 +11,6 @@ namespace Way.Lib.ScriptRemoting
 {
     public class HttpConnectInformation
     {
-        string _ip;
         Net.Request _request;
         public Net.Request Request
         {
@@ -30,7 +29,6 @@ namespace Way.Lib.ScriptRemoting
         }
         internal HttpConnectInformation(Net.Request request,Net.Response response)
         {
-            _ip = request.RemoteEndPoint.ToString().Split(':')[0];
             _request = request;
             _response = response;
         }
@@ -48,7 +46,7 @@ namespace Way.Lib.ScriptRemoting
                         var match = System.Text.RegularExpressions.Regex.Match(cookie, @"WayScriptRemoting\=(?<g>(\w|\-)+)");
                         if (match != null)
                         {
-                            _Session = SessionState.GetSession(match.Groups["g"].Value, _ip);
+                            _Session = SessionState.GetSession(match.Groups["g"].Value);
                         }
                     }
                 }

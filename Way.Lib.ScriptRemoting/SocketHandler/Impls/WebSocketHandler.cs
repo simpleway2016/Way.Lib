@@ -56,6 +56,7 @@ namespace Way.Lib.ScriptRemoting
         public WebSocketHandler(Net.Request request)
         {
             this.Request = request;
+            RemotingContext.Current.Request = request;
             mClient = request.mClient;
             mRemotingHandler = new ScriptRemoting.RemotingClientHandler((string data) =>
             {
