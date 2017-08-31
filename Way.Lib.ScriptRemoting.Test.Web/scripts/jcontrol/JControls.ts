@@ -1,6 +1,6 @@
 ﻿//throw new Error('Method not implemented.');
 //obj instanceof JControl
-//获取类名  obj.constructor.name
+//获取类  obj.constructor
 //模板里，首个元素不能是JControl
 //htmlElement.getContainer() 可以获取所属JControl
 //属性的定义必须全小写，因为element.attribute[0].name就是全小写
@@ -44,11 +44,6 @@ class JControl implements INotifyPropertyChanged {
             }
         }
 
-        //AllJBinders.forEach((binder: JBinder) => {
-        //    if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Control") >= 0) {
-        //        binder.onPropertyChanged(this, proName, originalValue);
-        //    }
-        //});
     }
     notifyDatacontextPropertyChanged(datacontext, proName: string, originalValue: any) {
         for (var i = 0; i < this.templateMatchProNames.length; i++) {
@@ -59,11 +54,6 @@ class JControl implements INotifyPropertyChanged {
             }
         }
 
-        //AllJBinders.forEach((binder: JBinder) => {
-        //    if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
-        //        binder.onPropertyChanged(datacontext, proName, originalValue);
-        //    }
-        //});
        
     }
 
@@ -135,7 +125,7 @@ class JControl implements INotifyPropertyChanged {
             this._datacontext = value;
 
             AllJBinders.forEach((binder: JBinder, index: number) => {
-                if (binder && binder.rootControl == this && (<any>binder).constructor.name.indexOf("Datacontext") >= 0) {
+                if (binder && binder.rootControl == this && JElementHelper.getConstructorName((<any>binder).constructor).indexOf("Datacontext") >= 0) {
                     AllJBinders[index].dispose();
                     delete AllJBinders[index];
                     AllJBinders[index] = null;
@@ -164,7 +154,7 @@ class JControl implements INotifyPropertyChanged {
         {
 
             AllJBinders.forEach((binder: JBinder, index: number) => {
-                if (binder && binder.control == this && (<any>binder).constructor.name.indexOf("Control") >= 0) {
+                if (binder && binder.control == this && JElementHelper.getConstructorName((<any>binder).constructor).indexOf("Control") >= 0) {
                     AllJBinders[index].dispose();
                     delete AllJBinders[index];
                     AllJBinders[index] = null;
@@ -386,7 +376,7 @@ class JControl implements INotifyPropertyChanged {
         }
         else {
             //获取当前类名
-            var typename = (<any>this).constructor.name;
+            var typename = JElementHelper.getConstructorName((<any>this).constructor);
             //use system templates
             alltemplates = <any>JElementHelper.SystemTemplateContainer.querySelector(typename).children;
         }

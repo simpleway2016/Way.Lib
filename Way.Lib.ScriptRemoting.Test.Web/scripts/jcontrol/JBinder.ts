@@ -39,7 +39,7 @@ class JBinder
 
         //删除已存在的绑定
         AllJBinders.forEach((binder: JBinder, index: number) => {
-            if (binder && binder.control == control && (<any>binder).constructor.name == (<any>this).constructor.name) {
+            if (binder && binder.control == control && (<any>binder).constructor == (<any>this).constructor) {
                 AllJBinders[index].dispose();
                 delete AllJBinders[index];
                 AllJBinders[index] = null;
@@ -242,7 +242,7 @@ class JDatacontextBinder extends JBinder
         {
             var existed = false;
             AllJBinders.every((binder: JBinder) => {
-                if (binder && binder.control == element.children[i] && (<any>binder).constructor.name == (<any>this).constructor.name)
+                if (binder && binder.control == element.children[i] && (<any>binder).constructor == (<any>this).constructor)
                 {
                     existed = true;
                     return false;
@@ -252,12 +252,12 @@ class JDatacontextBinder extends JBinder
             if (!existed)
             {
                 var ele: any = <HTMLElement>element.children[i];
-                var typename = (<any>this).constructor.name;
+                var myconstructor = (<any>this).constructor;
                 if (ele.JControl) {
-                    eval("new " + typename + "(ele.JControl)");
+                    eval("new myconstructor(ele.JControl)");
                 }
                 else {
-                    eval("new " + typename + "(ele)");
+                    eval("new myconstructor(ele)");
                 }
             }
         }
@@ -439,7 +439,7 @@ class JDatacontextExpressionBinder extends JBinder {
         for (var i = 0; i < element.children.length; i++) {
             var existed = false;
             AllJBinders.every((binder: JBinder) => {
-                if (binder && binder.control == element.children[i] && (<any>binder).constructor.name == (<any>this).constructor.name) {
+                if (binder && binder.control == element.children[i] && (<any>binder).constructor == (<any>this).constructor) {
                     existed = true;
                     return false;
                 }
@@ -447,12 +447,12 @@ class JDatacontextExpressionBinder extends JBinder {
             });
             if (!existed) {
                 var ele : any = <HTMLElement>element.children[i];
-                var typename = (<any>this).constructor.name;
+                var myconstructor = (<any>this).constructor;
                 if (ele.JControl) {
-                    eval("new " + typename + "(ele.JControl)");
+                    eval("new myconstructor(ele.JControl)");
                 }
                 else {
-                    eval("new " + typename + "(ele)");
+                    eval("new myconstructor(ele)");
                 }
             }
         }

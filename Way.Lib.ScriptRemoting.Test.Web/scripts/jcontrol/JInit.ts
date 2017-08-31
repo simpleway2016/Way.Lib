@@ -43,6 +43,18 @@ class JElementHelper {
         }
     }
 
+    static getConstructorName(_constructor): string {
+        var str = _constructor.toString();
+        if (str.indexOf("function ") >= 0) {
+            var result = /function ([\w]+)\(/.exec(str);
+            return result[1];
+        }
+        else {
+            var result = /\[object ([\w]+)/.exec(str);
+            return result[1];
+        }
+    }
+
     static getControlTypeName(tagname: string): string {
         if (tagname == "OPTION")
             return null;
