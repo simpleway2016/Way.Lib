@@ -196,19 +196,21 @@ namespace Way.Lib
                 {
                     if (SaveFolder != null)
                     {
-                        if (SaveFolder.Contains("\\"))
+                        _SavePath = SaveFolder;
+                        if (_SavePath.Contains("\\"))
                         {
-                            SaveFolder = SaveFolder.Replace("\\", "/");
+                            _SavePath = _SavePath.Replace("\\", "/");
                         }
-                        if (SaveFolder.EndsWith("/") == false)
-                            SaveFolder += "/";
+
+                        while (_SavePath.EndsWith("/"))
+                            _SavePath = _SavePath.Substring(0, _SavePath.Length - 1);
+
                     }
                     else
                     {
-                        SaveFolder = PlatformHelper.GetAppDirectory();
+                        _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
                     }
                     
-                    _SavePath = SaveFolder + "CLog";
                     if (_mSavePath == null)
                     {
                         _mSavePath = _SavePath;
