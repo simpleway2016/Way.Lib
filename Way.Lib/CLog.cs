@@ -174,6 +174,7 @@ namespace Way.Lib
 
     public class CLog : CodeLog
     {
+        public static string SaveFolder = null;
         static bool setedEnabled = false;
         static string _SavePath;
         public override string SavePath
@@ -193,7 +194,21 @@ namespace Way.Lib
                 }
                 if (_SavePath == null)
                 {
-                    _SavePath = PlatformHelper.GetAppDirectory() + "/CLog";
+                    if (SaveFolder != null)
+                    {
+                        if (SaveFolder.Contains("\\"))
+                        {
+                            SaveFolder = SaveFolder.Replace("\\", "/");
+                        }
+                        if (SaveFolder.EndsWith("/") == false)
+                            SaveFolder += "/";
+                    }
+                    else
+                    {
+                        SaveFolder = PlatformHelper.GetAppDirectory();
+                    }
+                    
+                    _SavePath = SaveFolder + "CLog";
                     if (_mSavePath == null)
                     {
                         _mSavePath = _SavePath;

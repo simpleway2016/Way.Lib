@@ -20,7 +20,11 @@ namespace Way.Lib
             {
                 if (System.Web.HttpRuntime.BinDirectory != null)
                 {
-                    folder = System.Web.HttpRuntime.BinDirectory.Replace("\\", "/");
+                    folder = System.Web.HttpRuntime.BinDirectory;
+                    if (folder.EndsWith("\\") || folder.EndsWith("/"))
+                        folder = folder.Substring(0, folder.Length - 1);
+
+                    folder = System.IO.Path.GetDirectoryName(folder).Replace("\\", "/");
                 }
                 else
                 {
