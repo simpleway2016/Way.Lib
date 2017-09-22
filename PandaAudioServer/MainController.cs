@@ -46,7 +46,7 @@ namespace PandaAudioServer
                 user.LastCheckTime = DateTime.Now;
                 this.db.Update(user);
 
-                if (user.LoginCode != loginCode)
+                if (user.LoginCode != loginCode || user.Disable == true)
                     return null;
                 return state;
             }
@@ -74,7 +74,10 @@ namespace PandaAudioServer
                 else
                     throw new Exception($"用户名或密码错误，剩余{iperror.GetChance()}次机会！");
             }
-
+            if(user.Disable == true)
+            {
+                throw new Exception("用户已经被禁用");
+            }
             if (this.Session["iperror"] != null)
             {
                 ((IPError)this.Session["iperror"]).Clear();

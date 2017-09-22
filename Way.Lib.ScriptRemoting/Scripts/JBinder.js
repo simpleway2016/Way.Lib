@@ -28,7 +28,7 @@ var JBinder = (function () {
         this.disposed = false;
         this.control = control;
         AllJBinders.forEach(function (binder, index) {
-            if (binder && binder.control == control && binder.constructor.name == _this.constructor.name) {
+            if (binder && binder.control == control && binder.constructor == _this.constructor) {
                 AllJBinders[index].dispose();
                 delete AllJBinders[index];
                 AllJBinders[index] = null;
@@ -191,7 +191,7 @@ var JDatacontextBinder = (function (_super) {
         for (var i = 0; i < element.children.length; i++) {
             var existed = false;
             AllJBinders.every(function (binder) {
-                if (binder && binder.control == element.children[i] && binder.constructor.name == _this.constructor.name) {
+                if (binder && binder.control == element.children[i] && binder.constructor == _this.constructor) {
                     existed = true;
                     return false;
                 }
@@ -199,12 +199,12 @@ var JDatacontextBinder = (function (_super) {
             });
             if (!existed) {
                 var ele = element.children[i];
-                var typename = this.constructor.name;
+                var myconstructor = this.constructor;
                 if (ele.JControl) {
-                    eval("new " + typename + "(ele.JControl)");
+                    eval("new myconstructor(ele.JControl)");
                 }
                 else {
-                    eval("new " + typename + "(ele)");
+                    eval("new myconstructor(ele)");
                 }
             }
         }
@@ -358,7 +358,7 @@ var JDatacontextExpressionBinder = (function (_super) {
         for (var i = 0; i < element.children.length; i++) {
             var existed = false;
             AllJBinders.every(function (binder) {
-                if (binder && binder.control == element.children[i] && binder.constructor.name == _this.constructor.name) {
+                if (binder && binder.control == element.children[i] && binder.constructor == _this.constructor) {
                     existed = true;
                     return false;
                 }
@@ -366,12 +366,12 @@ var JDatacontextExpressionBinder = (function (_super) {
             });
             if (!existed) {
                 var ele = element.children[i];
-                var typename = this.constructor.name;
+                var myconstructor = this.constructor;
                 if (ele.JControl) {
-                    eval("new " + typename + "(ele.JControl)");
+                    eval("new myconstructor(ele.JControl)");
                 }
                 else {
-                    eval("new " + typename + "(ele)");
+                    eval("new myconstructor(ele)");
                 }
             }
         }

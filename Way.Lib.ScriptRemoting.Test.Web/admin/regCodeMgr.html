@@ -31,9 +31,11 @@
         <script type="text/html">
             <div id="itemContainer" style="display:table;">
                 <div style="display:table-row;">
-                    <div style="display:table-cell;width:350px;">RegGuid</div>
-                    <div style="display:table-cell;width:130px;">MakerName</div>
-                    <div style="display:table-cell;">MakeTime</div>
+                    <div style="display:table-cell;width:350px;">注册码</div>
+                    <div style="display:table-cell;width:130px;">生成人</div>
+                    <div style="display:table-cell;width:250px;">生成时间</div>
+                    <div style="display:table-cell;width:130px;">使用者</div>
+                    <div style="display:table-cell;">状态</div>
                 </div>
             </div>
         </script>
@@ -43,6 +45,8 @@
                 <div style="display:table-cell;">{@RegGuid}</div>
                 <div style="display:table-cell;">{@MakerName}</div>
                 <div style="display:table-cell;">{@MakeTime}</div>
+                <div style="display:table-cell;">{@UserDesc}</div>
+                <div style="display:table-cell;" expression="{0}.innerHTML={1}.@Used?'已使用':'&nbsp;'" expression1="{0}.parentElement.style.color={1}.@Used?'blue':'black'">{@Used}</div>
             </div>
         </script>
     </JList>
