@@ -1,0 +1,70 @@
+﻿using Gecko;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace SunRizStudio
+{
+    public partial class Form1 : Form
+    {
+        GeckoWebBrowser gecko;
+        public Form1()
+        {
+            InitializeComponent();
+
+            Xpcom.Initialize("Firefox64");
+
+            gecko = new GeckoWebBrowser();
+            gecko.CreateControl();
+
+            gecko.NoDefaultContextMenu = true; //禁用右键菜单
+
+            gecko.Dock = DockStyle.Fill;
+            panel1.Controls.Add(gecko);
+            gecko.ProgressChanged += Gecko_ProgressChanged;
+            gecko.CreateWindow += Gecko_CreateWindow;
+            gecko.DocumentCompleted += Gecko_DocumentCompleted;
+            gecko.Navigate("file:///D:/%E6%B3%A8%E9%87%8A/2016/EasyJobCore/Way.Lib.ScriptRemoting.Test.Web/%E7%BB%84%E6%80%81/editor.html");
+        }
+
+        private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
+        {
+            //var executor = new Gecko.JQuery.JQueryExecutor(gecko.Window);  //先获取到jquery对象
+
+
+            //executor.ExecuteJQuery("$('#a')");    //然后执行jquery的代码
+            using (AutoJSContext context = new AutoJSContext(gecko.Window))
+            {
+                string result;
+                context.EvaluateScript("3 + 2;", out result);
+                context.EvaluateScript("'hello' + ' ' + 'world';", out result);
+            }
+
+
+            progressBar1.Value = 0;
+        }
+
+        private void Gecko_CreateWindow(object sender, GeckoCreateWindowEventArgs e)
+        {
+            e.InitialHeight = 500;
+            e.InitialWidth = 500;
+        }
+
+        private void Gecko_ProgressChanged(object sender, GeckoProgressEventArgs e)
+        {
+            if (e.MaximumProgress == 0)
+                return;
+
+            var value = (int)Math.Min(100, (e.CurrentProgress * 100) / e.MaximumProgress);
+            if (value == 100)
+                return;
+            progressBar1.Value = value;
+        }
+    }
+}

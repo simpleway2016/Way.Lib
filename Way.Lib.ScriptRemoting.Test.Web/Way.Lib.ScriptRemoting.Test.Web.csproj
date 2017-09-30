@@ -17,6 +17,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -28,6 +29,8 @@
     <Content Include="controlTest0.html" />
     <Content Include="controlTest.html" />
     <Content Include="css\flex.css" />
+    <Content Include="组态\css\flex.css" />
+    <Content Include="组态\editor.html" />
     <Content Include="Global.asax" />
     <Content Include="GridViewPageTest.html" />
     <Content Include="ListTest.html" />
@@ -51,6 +54,10 @@
     <Content Include="templates\system.html" />
     <Content Include="templates\main.html" />
     <Content Include="test.html" />
+    <Content Include="组态\images\toolbox\circle.png" />
+    <Content Include="组态\images\toolbox\ellipse.png" />
+    <Content Include="组态\images\toolbox\rect.png" />
+    <Content Include="组态\images\toolbox\line.png" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="GridViewTest.ts" />
@@ -63,6 +70,8 @@
     <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JHttpHelper.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.ts" />
+    <TypeScriptCompile Include="组态\js\Editor.ts" />
+    <TypeScriptCompile Include="组态\js\EditorControls.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

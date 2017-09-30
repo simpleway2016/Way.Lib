@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="css/flex.css" rel="stylesheet" type="text/css" />
+    <style>
+        body{
+            padding:0;
+            margin:0;
+            width:100%;
+            height:100%;
+        }
+        .toolboxItem {
+            width: 24px;
+            height: 24px;
+            box-sizing:border-box;
+            margin-left: 5px;
+            margin-top: 4px;
+            float: left;
+            background-repeat:no-repeat;
+            background-position:center;
+        }
+        .toolboxItem[selected='1'] {
+            border: 1px solid #b8b7b5;
+            background-color:#f6d39c;
+        }
+        .toolboxItem img{
+            width:16px;
+            height:16px;
+            margin-left:4px;
+            margin-top:4px;
+        }
+    </style>
+</head>
+<body style="overflow:hidden;" oncontextmenu="return false;">
+    <div class="display-flex flex-direction-column" style="position:absolute;width:100%;height:100%;">
+        <div style="background-color:#e8e7e3;height:36px;">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/line.png);" _type="ToolBox_Line">
+            </div>
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/circle.png);" _type="ToolBox_Circle">
+            </div>
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/rect.png);" _type="ToolBox_Rect">
+            </div>
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/ellipse.png);" _type="ToolBox_Ellipse">
+            </div>
+        </div>
+        <div class="flex-1" id="svgContainer">
+        </div>
+    </div>
+    <script src="js/Editor.js" type="text/javascript"></script>
+    <script src="js/EditorControls.js" type="text/javascript"></script>
+    <script lang="ja">
+        var lastActiveEle;
+        function toolboxClick(ele)
+        {
+            if (lastActiveEle)
+            {
+                lastActiveEle.setAttribute("selected", "0");
+            }
+            ele.setAttribute("selected", "1");
+            editor.setCurrentToolBoxItem(ele.getAttribute("_type"));
+            lastActiveEle = ele;
+        }
+        document.body.addEventListener("mousedown", function (e) {
+            if (e.button == 2 && lastActiveEle) {
+                lastActiveEle.setAttribute("selected", "0");
+                lastActiveEle = null;
+                editor.setCurrentToolBoxItem(null);
+            }
+        }, false);
+
+        function toolboxDone()
+        {
+            if (lastActiveEle) {
+                lastActiveEle.setAttribute("selected", "0");
+                lastActiveEle = null;
+                editor.setCurrentToolBoxItem(null);
+            }
+        }
+
+        var editor = new Editor("svgContainer");
+    </script>
+</body>
+</html>
