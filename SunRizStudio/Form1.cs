@@ -1,4 +1,5 @@
-﻿using Gecko;
+﻿
+using Gecko;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,7 +19,7 @@ namespace SunRizStudio
         {
             InitializeComponent();
 
-            Xpcom.Initialize("Firefox64");
+            Gecko.Xpcom.Initialize("Firefox");
 
             gecko = new GeckoWebBrowser();
             gecko.CreateControl();
