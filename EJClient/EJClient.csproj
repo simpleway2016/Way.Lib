@@ -238,13 +238,6 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppCodeBuilder\IAppCodeBuilder.cs" />
-    <Compile Include="AppCodeBuilder\BuilderWindow.xaml.cs">
-      <DependentUpon>BuilderWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AppCodeBuilder\Impls\WayGridView\WayGridViewBuilder.cs" />
-    <Compile Include="AppCodeBuilder\SampleColumn.cs" />
-    <Compile Include="AppCodeBuilder\SampleCode.cs" />
     <Compile Include="AutoUpdate.cs" />
     <Compile Include="BuildDatabase\Downloader.cs" />
     <Compile Include="Controls\ColorButton.cs" />
@@ -430,10 +423,6 @@
     <Compile Include="WebForm.Designer.cs">
       <DependentUpon>WebForm.cs</DependentUpon>
     </Compile>
-    <Page Include="AppCodeBuilder\BuilderWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Controls\WayWord.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

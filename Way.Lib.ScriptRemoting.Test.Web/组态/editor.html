@@ -8,6 +8,8 @@
     <script src="js/EditorControls.js" type="text/javascript"></script>
     <script src="js/PropertyDialog.js" type="text/javascript"></script>
     <script src="js/jscolor.min.js" type="text/javascript"></script>
+    <script src="js/FileBrowser.js" type="text/javascript"></script>
+    <script src="/WayScriptRemoting" type="text/javascript"></script>
     <style>
         body{
             padding:0;
@@ -42,6 +44,33 @@
             font-size:12px;
             line-height:25px;
         }
+        .FileBrowser
+        {
+            border:5px solid #808080;
+            background-color:white;
+            width:60%;
+            height:80%;
+            position:absolute;
+        }
+        .FileBrowserItem
+        {
+            width:100px;
+            font-size:12px;
+            margin-left:5px;
+            margin-top:5px;
+            cursor:pointer;
+        }
+        .FileBrowserFolderMenu
+        {
+            border:1px solid #808080;
+            border-radius:3px;
+            background-color:#e8e7e3;
+            position:absolute;
+        }
+        .FileBrowserFolderMenu div{
+            font-size:14px;
+            padding:5px;
+        }
     </style>
 </head>
 <body style="overflow:hidden;" oncontextmenu="return false;">
@@ -59,6 +88,11 @@
         </div>
         <div class="flex-1" id="svgContainer">
         </div>
+    </div>
+
+    <div class="FileBrowserFolderMenu" style="visibility:hidden;z-index:999;min-width:100px;">
+        <div onclick="this.parentElement.style.visibility='hidden'; this.parentElement._obj.rename(this.parentElement.ele,this.parentElement._data.id);">重命名</div>
+        <div onclick="this.parentElement.style.visibility='hidden'; this.parentElement._obj.deleteFile(this.parentElement.ele,this.parentElement._data.id);">删除</div>
     </div>
     
     <script lang="ja">
@@ -90,7 +124,18 @@
             }
         }
 
-        var editor = new Editor("svgContainer");
+        var editor;
+        var fileBrowser;
+        window.onload = function ()
+        {
+            editor = new Editor("svgContainer");
+            fileBrowser = new FileBrowser();
+            fileBrowser.onSelectFile = function (path)
+            {
+                alert(path);
+            }
+            fileBrowser.show();
+        }
     </script>
 </body>
 </html>

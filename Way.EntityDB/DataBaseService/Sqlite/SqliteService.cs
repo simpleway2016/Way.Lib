@@ -425,6 +425,12 @@ namespace Way.EntityDB
                             {
                                 string name = reader.GetName(i);
                                 row[name] = reader[i];
+                                if(reader[i] != null)
+                                {
+                                    string typename = reader.GetFieldType(i).FullName;
+                                    if (typename != dtable.Columns[i].DataType)
+                                        dtable.Columns[i].DataType = typename;
+                                }
                             }
                         }
                     }

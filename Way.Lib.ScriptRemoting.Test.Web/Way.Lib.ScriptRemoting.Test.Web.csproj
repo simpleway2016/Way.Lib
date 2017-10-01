@@ -54,6 +54,9 @@
     <Content Include="templates\system.html" />
     <Content Include="templates\main.html" />
     <Content Include="test.html" />
+    <Content Include="组态\images\browser\file.png" />
+    <Content Include="组态\images\browser\folder.png" />
+    <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\circle.png" />
     <Content Include="组态\images\toolbox\ellipse.png" />
     <Content Include="组态\images\toolbox\rect.png" />
@@ -74,6 +77,7 @@
     <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.ts" />
     <TypeScriptCompile Include="组态\js\Editor.ts" />
     <TypeScriptCompile Include="组态\js\EditorControls.ts" />
+    <TypeScriptCompile Include="组态\js\FileBrowser.ts" />
     <TypeScriptCompile Include="组态\js\PropertyDialog.ts" />
   </ItemGroup>
   <ItemGroup>

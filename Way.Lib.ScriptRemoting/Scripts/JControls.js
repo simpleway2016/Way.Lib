@@ -159,7 +159,7 @@ var JControl = (function () {
                 var original = this._datacontext;
                 this._datacontext = value;
                 AllJBinders.forEach(function (binder, index) {
-                    if (binder && binder.rootControl == _this && binder.constructor.name.indexOf("Datacontext") >= 0) {
+                    if (binder && binder.rootControl == _this && JElementHelper.getConstructorName(binder.constructor).indexOf("Datacontext") >= 0) {
                         AllJBinders[index].dispose();
                         delete AllJBinders[index];
                         AllJBinders[index] = null;
@@ -183,7 +183,7 @@ var JControl = (function () {
             var _this = this;
             if (this._parentJControl != value) {
                 AllJBinders.forEach(function (binder, index) {
-                    if (binder && binder.control == _this && binder.constructor.name.indexOf("Control") >= 0) {
+                    if (binder && binder.control == _this && JElementHelper.getConstructorName(binder.constructor).indexOf("Control") >= 0) {
                         AllJBinders[index].dispose();
                         delete AllJBinders[index];
                         AllJBinders[index] = null;
@@ -299,7 +299,7 @@ var JControl = (function () {
             alltemplates = keyTemplate.querySelectorAll("script");
         }
         else {
-            var typename = this.constructor.name;
+            var typename = JElementHelper.getConstructorName(this.constructor);
             alltemplates = JElementHelper.SystemTemplateContainer.querySelector(typename).children;
         }
         for (var i = 0; i < alltemplates.length; i++) {
