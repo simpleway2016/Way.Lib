@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <title></title>
     <link href="css/flex.css" rel="stylesheet" type="text/css" />
+    <script src="js/Editor.js" type="text/javascript"></script>
+    <script src="js/EditorControls.js" type="text/javascript"></script>
+    <script src="js/PropertyDialog.js" type="text/javascript"></script>
+    <script src="js/jscolor.min.js" type="text/javascript"></script>
     <style>
         body{
             padding:0;
@@ -31,6 +35,13 @@
             margin-left:4px;
             margin-top:4px;
         }
+        .propertyDialog{
+            border:1px solid #808080;
+            border-radius:5px;
+            background-color:#e8e7e3;
+            font-size:12px;
+            line-height:25px;
+        }
     </style>
 </head>
 <body style="overflow:hidden;" oncontextmenu="return false;">
@@ -44,12 +55,12 @@
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/ellipse.png);" _type="ToolBox_Ellipse">
             </div>
+            <!--<input class="jscolor" value="ab2567">-->
         </div>
         <div class="flex-1" id="svgContainer">
         </div>
     </div>
-    <script src="js/Editor.js" type="text/javascript"></script>
-    <script src="js/EditorControls.js" type="text/javascript"></script>
+    
     <script lang="ja">
         var lastActiveEle;
         function toolboxClick(ele)

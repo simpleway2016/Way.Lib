@@ -1,16 +1,21 @@
 declare var AllSelectedControls: EditorControl[];
 declare function documentElementMouseDown(e: MouseEvent): void;
 declare class EditorControl {
+    propertyDialog: PropertyDialog;
     ctrlKey: boolean;
     element: any;
     _selected: boolean;
     _moveAllSelectedControl: boolean;
     selected: boolean;
+    readonly rect: any;
     private mouseDownX;
     private mouseDownY;
     constructor(element: any);
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
     isIntersectWith(rect: any): boolean;
     isIntersect(rect1: any, rect: any): boolean;
+    showProperty(): void;
     onSelectedChange(): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
@@ -24,7 +29,17 @@ declare class LineControl extends EditorControl {
     startY: number;
     valueX: any;
     valueY: any;
+    readonly rect: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+    lineWidth: string;
+    color: string;
     constructor(element: any);
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
     isIntersectWith(rect: any): boolean;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
@@ -41,6 +56,17 @@ declare class RectControl extends EditorControl {
     moving: boolean;
     startX: number;
     startY: number;
+    readonly rect: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+    strokeWidth: string;
+    colorStroke: string;
+    colorFill: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
     constructor(element: any);
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
@@ -59,6 +85,17 @@ declare class EllipseControl extends EditorControl {
     moving: boolean;
     startX: number;
     startY: number;
+    readonly rect: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+    strokeWidth: string;
+    colorStroke: string;
+    colorFill: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
     constructor(element: any);
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
@@ -77,6 +114,17 @@ declare class CircleControl extends EditorControl {
     moving: boolean;
     startX: number;
     startY: number;
+    readonly rect: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+    strokeWidth: string;
+    colorStroke: string;
+    colorFill: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
     constructor(element: any);
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;

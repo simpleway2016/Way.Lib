@@ -34,7 +34,7 @@ var ToolBox_Line = (function (_super) {
         this.lineElement.setAttribute('y1', position.y);
         this.lineElement.setAttribute('x2', position.x);
         this.lineElement.setAttribute('y2', position.y);
-        this.lineElement.setAttribute('style', 'stroke:black;stroke-width:5;cursor:pointer;');
+        this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;cursor:pointer;');
         svgContainer.appendChild(this.lineElement);
     };
     ToolBox_Line.prototype.mousemove = function (x, y) {
@@ -57,7 +57,7 @@ var ToolBox_Rect = (function (_super) {
         this.rectElement.setAttribute('y', position.y);
         this.rectElement.setAttribute('width', "0");
         this.rectElement.setAttribute('height', "0");
-        this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:black;stroke-width:1;cursor:pointer;');
+        this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;cursor:pointer;');
         this.startx = position.x;
         this.starty = position.y;
         svgContainer.appendChild(this.rectElement);
@@ -85,7 +85,7 @@ var ToolBox_Ellipse = (function (_super) {
         this.rootElement.setAttribute('cy', position.y);
         this.rootElement.setAttribute('rx', "0");
         this.rootElement.setAttribute('ry', "0");
-        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:black;stroke-width:1;cursor:pointer;');
+        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;cursor:pointer;');
         this.startx = position.x;
         this.starty = position.y;
         svgContainer.appendChild(this.rootElement);
@@ -112,7 +112,7 @@ var ToolBox_Circle = (function (_super) {
         this.rootElement.setAttribute('cx', position.x);
         this.rootElement.setAttribute('cy', position.y);
         this.rootElement.setAttribute('r', "0");
-        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:black;stroke-width:1;cursor:pointer;');
+        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;cursor:pointer;');
         this.startx = position.x;
         this.starty = position.y;
         svgContainer.appendChild(this.rootElement);

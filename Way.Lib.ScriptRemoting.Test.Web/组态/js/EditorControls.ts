@@ -12,6 +12,7 @@ document.documentElement.addEventListener("mousedown", documentElementMouseDown,
 
 class EditorControl
 {
+    propertyDialog: PropertyDialog;
     ctrlKey = false;
     element: any;
     _selected: boolean = false;
@@ -34,9 +35,16 @@ class EditorControl
             else {
                 var index = AllSelectedControls.indexOf(this);
                 AllSelectedControls.splice(index, 1);
+                if (this.propertyDialog)
+                    this.propertyDialog.hide();
             }
             this.onSelectedChange();
         }
+    }
+
+    get rect()
+    {
+        return null;
     }
 
     private mouseDownX;
@@ -53,6 +61,11 @@ class EditorControl
         (<HTMLElement>this.element).addEventListener("click", (e) => {
             e.stopPropagation();           
         }, false);
+
+        (<HTMLElement>this.element).addEventListener("dblclick", (e) => {
+            e.stopPropagation();
+            this.showProperty();
+        }, false);        
 
         (<HTMLElement>this.element).addEventListener("mousedown", (e) => {
             if (e.button == 2)
@@ -101,6 +114,14 @@ class EditorControl
         }, false);
     }
 
+    getPropertiesCaption(): string[]
+    {
+        return null;
+    }
+    getProperties(): string[] {
+        return null;
+    }
+
     isIntersectWith(rect):boolean
     {
         return false;
@@ -108,6 +129,13 @@ class EditorControl
 
     isIntersect(rect1, rect): boolean {
         return rect.x < rect1.x + rect1.width && rect1.x < rect.x + rect.width && rect.y < rect1.y + rect1.height && rect1.y < rect.y + rect.height;
+    }
+
+    showProperty()
+    {
+        if (!this.propertyDialog)
+            this.propertyDialog = new PropertyDialog(this);
+        this.propertyDialog.show();
     }
 
     onSelectedChange()
@@ -137,18 +165,43 @@ class LineControl extends EditorControl
     valueX: any;
     valueY: any;
 
-    constructor(element: any) {
-        super(element);
-        this.lineElement = element;
-    }
-
-    isIntersectWith(rect): boolean {
-        var myrect = {
+    get rect() {
+        return {
             x: Math.min(parseInt(this.lineElement.getAttribute("x1")), parseInt(this.lineElement.getAttribute("x2"))),
             y: Math.min(parseInt(this.lineElement.getAttribute("y1")), parseInt(this.lineElement.getAttribute("y2"))),
             width: Math.abs(parseInt(this.lineElement.getAttribute("x1")) - parseInt(this.lineElement.getAttribute("x2"))),
             height: Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2"))),
         };
+    }
+
+    get lineWidth() {
+        return this.lineElement.style.strokeWidth;
+    }
+    set lineWidth(v)
+    {
+        this.lineElement.style.strokeWidth = v;
+    }
+    get color() {
+        return this.lineElement.style.stroke;
+    }
+    set color(v) {
+        this.lineElement.style.stroke = v;
+    }
+
+    constructor(element: any) {
+        super(element);
+        this.lineElement = element;
+    }
+
+    getPropertiesCaption(): string[] {
+        return ["线宽","颜色"];
+    }
+    getProperties(): string[] {
+        return ["lineWidth", "color"];
+    }
+
+    isIntersectWith(rect): boolean {
+        var myrect = this.rect;
         return this.isIntersect(myrect , rect);
     }
 
@@ -266,19 +319,49 @@ class RectControl extends EditorControl {
     startX = 0;
     startY = 0;
 
-    constructor(element: any) {
-        super(element);
-        this.rectElement = element;
-    }
-
-    isIntersectWith(rect): boolean {
+    get rect() {
         var myrect = {
             x: parseInt(this.rectElement.getAttribute("x")),
             y: parseInt(this.rectElement.getAttribute("y")),
             width: parseInt(this.rectElement.getAttribute("width")),
             height: parseInt(this.rectElement.getAttribute("height")),
         };
-        return this.isIntersect(myrect, rect);
+        return myrect;
+    }
+
+    get strokeWidth() {
+        return this.rectElement.style.strokeWidth;
+    }
+    set strokeWidth(v) {
+        this.rectElement.style.strokeWidth = v;
+    }
+    get colorStroke() {
+        return this.rectElement.style.stroke;
+    }
+    set colorStroke(v) {
+        this.rectElement.style.stroke = v;
+    }
+    get colorFill() {
+        return this.rectElement.style.fill;
+    }
+    set colorFill(v) {
+        this.rectElement.style.fill = v;
+    }
+
+    getPropertiesCaption(): string[] {
+        return ["边框大小", "边框颜色" , "填充颜色"];
+    }
+    getProperties(): string[] {
+        return ["strokeWidth", "colorStroke", "colorFill"];
+    }
+
+    constructor(element: any) {
+        super(element);
+        this.rectElement = element;
+    }
+
+    isIntersectWith(rect): boolean {
+        return this.isIntersect(this.rect, rect);
     }
 
     onSelectedChange() {
@@ -369,19 +452,50 @@ class EllipseControl extends EditorControl {
     startX = 0;
     startY = 0;
 
+    get rect() {
+        var myrect = {
+            x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("rx")),
+            y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("ry")),
+            width: parseInt(this.rootElement.getAttribute("rx")) * 2,
+            height: parseInt(this.rootElement.getAttribute("ry")) * 2,
+        };
+        return myrect;
+    }
+
+    get strokeWidth() {
+        return this.rootElement.style.strokeWidth;
+    }
+    set strokeWidth(v) {
+        this.rootElement.style.strokeWidth = v;
+    }
+    get colorStroke() {
+        return this.rootElement.style.stroke;
+    }
+    set colorStroke(v) {
+        this.rootElement.style.stroke = v;
+    }
+    get colorFill() {
+        return this.rootElement.style.fill;
+    }
+    set colorFill(v) {
+        this.rootElement.style.fill = v;
+    }
+
+    getPropertiesCaption(): string[] {
+        return ["边框大小", "边框颜色", "填充颜色"];
+    }
+    getProperties(): string[] {
+        return ["strokeWidth", "colorStroke", "colorFill"];
+    }
+
     constructor(element: any) {
         super(element);
         this.rootElement = element;
     }
 
     isIntersectWith(rect): boolean {
-        var myrect = {
-            x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("rx")) ,
-            y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("ry")) ,
-            width: parseInt(this.rootElement.getAttribute("rx")) * 2,
-            height: parseInt(this.rootElement.getAttribute("ry")) * 2,
-        };
-        return this.isIntersect(myrect, rect);
+
+        return this.isIntersect(this.rect, rect);
     }
 
     onSelectedChange() {
@@ -494,19 +608,50 @@ class CircleControl extends EditorControl {
     startX = 0;
     startY = 0;
 
-    constructor(element: any) {
-        super(element);
-        this.rootElement = element;
-    }
-
-    isIntersectWith(rect): boolean {
+    get rect() {
         var myrect = {
             x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("r")),
             y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("r")),
             width: parseInt(this.rootElement.getAttribute("r")) * 2,
             height: parseInt(this.rootElement.getAttribute("r")) * 2,
         };
-        return this.isIntersect(myrect, rect);
+        return myrect;
+    }
+
+    get strokeWidth() {
+        return this.rootElement.style.strokeWidth;
+    }
+    set strokeWidth(v) {
+        this.rootElement.style.strokeWidth = v;
+    }
+    get colorStroke() {
+        return this.rootElement.style.stroke;
+    }
+    set colorStroke(v) {
+        this.rootElement.style.stroke = v;
+    }
+    get colorFill() {
+        return this.rootElement.style.fill;
+    }
+    set colorFill(v) {
+        this.rootElement.style.fill = v;
+    }
+
+    getPropertiesCaption(): string[] {
+        return ["边框大小", "边框颜色", "填充颜色"];
+    }
+    getProperties(): string[] {
+        return ["strokeWidth", "colorStroke", "colorFill"];
+    }
+
+    constructor(element: any) {
+        super(element);
+        this.rootElement = element;
+    }
+
+    isIntersectWith(rect): boolean {
+
+        return this.isIntersect(this.rect, rect);
     }
 
     onSelectedChange() {

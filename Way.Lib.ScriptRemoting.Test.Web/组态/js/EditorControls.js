@@ -25,6 +25,10 @@ var EditorControl = (function () {
         this.element.addEventListener("click", function (e) {
             e.stopPropagation();
         }, false);
+        this.element.addEventListener("dblclick", function (e) {
+            e.stopPropagation();
+            _this.showProperty();
+        }, false);
         this.element.addEventListener("mousedown", function (e) {
             if (e.button == 2)
                 return;
@@ -85,6 +89,8 @@ var EditorControl = (function () {
                 else {
                     var index = AllSelectedControls.indexOf(this);
                     AllSelectedControls.splice(index, 1);
+                    if (this.propertyDialog)
+                        this.propertyDialog.hide();
                 }
                 this.onSelectedChange();
             }
@@ -92,11 +98,29 @@ var EditorControl = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(EditorControl.prototype, "rect", {
+        get: function () {
+            return null;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    EditorControl.prototype.getPropertiesCaption = function () {
+        return null;
+    };
+    EditorControl.prototype.getProperties = function () {
+        return null;
+    };
     EditorControl.prototype.isIntersectWith = function (rect) {
         return false;
     };
     EditorControl.prototype.isIntersect = function (rect1, rect) {
         return rect.x < rect1.x + rect1.width && rect1.x < rect.x + rect.width && rect.y < rect1.y + rect1.height && rect1.y < rect.y + rect.height;
+    };
+    EditorControl.prototype.showProperty = function () {
+        if (!this.propertyDialog)
+            this.propertyDialog = new PropertyDialog(this);
+        this.propertyDialog.show();
     };
     EditorControl.prototype.onSelectedChange = function () {
     };
@@ -117,13 +141,46 @@ var LineControl = (function (_super) {
         _this.lineElement = element;
         return _this;
     }
+    Object.defineProperty(LineControl.prototype, "rect", {
+        get: function () {
+            return {
+                x: Math.min(parseInt(this.lineElement.getAttribute("x1")), parseInt(this.lineElement.getAttribute("x2"))),
+                y: Math.min(parseInt(this.lineElement.getAttribute("y1")), parseInt(this.lineElement.getAttribute("y2"))),
+                width: Math.abs(parseInt(this.lineElement.getAttribute("x1")) - parseInt(this.lineElement.getAttribute("x2"))),
+                height: Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2"))),
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LineControl.prototype, "lineWidth", {
+        get: function () {
+            return this.lineElement.style.strokeWidth;
+        },
+        set: function (v) {
+            this.lineElement.style.strokeWidth = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LineControl.prototype, "color", {
+        get: function () {
+            return this.lineElement.style.stroke;
+        },
+        set: function (v) {
+            this.lineElement.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    LineControl.prototype.getPropertiesCaption = function () {
+        return ["线宽", "颜色"];
+    };
+    LineControl.prototype.getProperties = function () {
+        return ["lineWidth", "color"];
+    };
     LineControl.prototype.isIntersectWith = function (rect) {
-        var myrect = {
-            x: Math.min(parseInt(this.lineElement.getAttribute("x1")), parseInt(this.lineElement.getAttribute("x2"))),
-            y: Math.min(parseInt(this.lineElement.getAttribute("y1")), parseInt(this.lineElement.getAttribute("y2"))),
-            width: Math.abs(parseInt(this.lineElement.getAttribute("x1")) - parseInt(this.lineElement.getAttribute("x2"))),
-            height: Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2"))),
-        };
+        var myrect = this.rect;
         return this.isIntersect(myrect, rect);
     };
     LineControl.prototype.onBeginMoving = function () {
@@ -228,14 +285,57 @@ var RectControl = (function (_super) {
         _this.rectElement = element;
         return _this;
     }
+    Object.defineProperty(RectControl.prototype, "rect", {
+        get: function () {
+            var myrect = {
+                x: parseInt(this.rectElement.getAttribute("x")),
+                y: parseInt(this.rectElement.getAttribute("y")),
+                width: parseInt(this.rectElement.getAttribute("width")),
+                height: parseInt(this.rectElement.getAttribute("height")),
+            };
+            return myrect;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(RectControl.prototype, "strokeWidth", {
+        get: function () {
+            return this.rectElement.style.strokeWidth;
+        },
+        set: function (v) {
+            this.rectElement.style.strokeWidth = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(RectControl.prototype, "colorStroke", {
+        get: function () {
+            return this.rectElement.style.stroke;
+        },
+        set: function (v) {
+            this.rectElement.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(RectControl.prototype, "colorFill", {
+        get: function () {
+            return this.rectElement.style.fill;
+        },
+        set: function (v) {
+            this.rectElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    RectControl.prototype.getPropertiesCaption = function () {
+        return ["边框大小", "边框颜色", "填充颜色"];
+    };
+    RectControl.prototype.getProperties = function () {
+        return ["strokeWidth", "colorStroke", "colorFill"];
+    };
     RectControl.prototype.isIntersectWith = function (rect) {
-        var myrect = {
-            x: parseInt(this.rectElement.getAttribute("x")),
-            y: parseInt(this.rectElement.getAttribute("y")),
-            width: parseInt(this.rectElement.getAttribute("width")),
-            height: parseInt(this.rectElement.getAttribute("height")),
-        };
-        return this.isIntersect(myrect, rect);
+        return this.isIntersect(this.rect, rect);
     };
     RectControl.prototype.onSelectedChange = function () {
         if (this.selected) {
@@ -318,14 +418,57 @@ var EllipseControl = (function (_super) {
         _this.rootElement = element;
         return _this;
     }
+    Object.defineProperty(EllipseControl.prototype, "rect", {
+        get: function () {
+            var myrect = {
+                x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("rx")),
+                y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("ry")),
+                width: parseInt(this.rootElement.getAttribute("rx")) * 2,
+                height: parseInt(this.rootElement.getAttribute("ry")) * 2,
+            };
+            return myrect;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EllipseControl.prototype, "strokeWidth", {
+        get: function () {
+            return this.rootElement.style.strokeWidth;
+        },
+        set: function (v) {
+            this.rootElement.style.strokeWidth = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EllipseControl.prototype, "colorStroke", {
+        get: function () {
+            return this.rootElement.style.stroke;
+        },
+        set: function (v) {
+            this.rootElement.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EllipseControl.prototype, "colorFill", {
+        get: function () {
+            return this.rootElement.style.fill;
+        },
+        set: function (v) {
+            this.rootElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    EllipseControl.prototype.getPropertiesCaption = function () {
+        return ["边框大小", "边框颜色", "填充颜色"];
+    };
+    EllipseControl.prototype.getProperties = function () {
+        return ["strokeWidth", "colorStroke", "colorFill"];
+    };
     EllipseControl.prototype.isIntersectWith = function (rect) {
-        var myrect = {
-            x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("rx")),
-            y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("ry")),
-            width: parseInt(this.rootElement.getAttribute("rx")) * 2,
-            height: parseInt(this.rootElement.getAttribute("ry")) * 2,
-        };
-        return this.isIntersect(myrect, rect);
+        return this.isIntersect(this.rect, rect);
     };
     EllipseControl.prototype.onSelectedChange = function () {
         var _this = this;
@@ -428,14 +571,57 @@ var CircleControl = (function (_super) {
         _this.rootElement = element;
         return _this;
     }
+    Object.defineProperty(CircleControl.prototype, "rect", {
+        get: function () {
+            var myrect = {
+                x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("r")),
+                y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("r")),
+                width: parseInt(this.rootElement.getAttribute("r")) * 2,
+                height: parseInt(this.rootElement.getAttribute("r")) * 2,
+            };
+            return myrect;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CircleControl.prototype, "strokeWidth", {
+        get: function () {
+            return this.rootElement.style.strokeWidth;
+        },
+        set: function (v) {
+            this.rootElement.style.strokeWidth = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CircleControl.prototype, "colorStroke", {
+        get: function () {
+            return this.rootElement.style.stroke;
+        },
+        set: function (v) {
+            this.rootElement.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CircleControl.prototype, "colorFill", {
+        get: function () {
+            return this.rootElement.style.fill;
+        },
+        set: function (v) {
+            this.rootElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    CircleControl.prototype.getPropertiesCaption = function () {
+        return ["边框大小", "边框颜色", "填充颜色"];
+    };
+    CircleControl.prototype.getProperties = function () {
+        return ["strokeWidth", "colorStroke", "colorFill"];
+    };
     CircleControl.prototype.isIntersectWith = function (rect) {
-        var myrect = {
-            x: parseInt(this.rootElement.getAttribute("cx")) - parseInt(this.rootElement.getAttribute("r")),
-            y: parseInt(this.rootElement.getAttribute("cy")) - parseInt(this.rootElement.getAttribute("r")),
-            width: parseInt(this.rootElement.getAttribute("r")) * 2,
-            height: parseInt(this.rootElement.getAttribute("r")) * 2,
-        };
-        return this.isIntersect(myrect, rect);
+        return this.isIntersect(this.rect, rect);
     };
     CircleControl.prototype.onSelectedChange = function () {
         var _this = this;

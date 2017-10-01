@@ -1,0 +1,133 @@
+﻿
+class PropertyDialog
+{
+    rootElement: HTMLElement;
+    control: EditorControl;
+
+    constructor(control: EditorControl)
+    {
+        this.control = control;
+        var captions = control.getPropertiesCaption();
+        var pNames = control.getProperties();
+
+        this.rootElement = document.createElement("DIV");
+        this.rootElement.style.padding = "3px";
+
+        for (var i = 0; i < pNames.length; i++)
+        {
+            var row = document.createElement("DIV");
+            row.style.display = "table-row";
+            this.rootElement.appendChild(row);
+
+            var cell = document.createElement("DIV");
+            cell.style.display = "table-cell";
+            cell.innerHTML = captions[i] + "：";
+            row.appendChild(cell);
+
+            cell = document.createElement("DIV");
+            cell.style.display = "table-cell";
+            if (pNames[i].indexOf("color") >= 0) {
+                cell.innerHTML = "<input type='text' class='jscolor'>";
+                var picker;
+                eval("picker = new jscolor(cell.children[0])");
+
+                (<any>cell.children[0])._picker = picker;
+                (<any>cell.children[0])._picker.hash = true;
+                (<any>cell.children[0])._picker.fromString(control[pNames[i]]);
+
+                (<any>cell.children[0]).value = (<any>cell.children[0])._picker.toHEXString();
+            }
+            else {
+                cell.innerHTML = "<input type='text'>";
+                (<any>cell.children[0]).value = control[pNames[i]];
+            }
+            (<any>cell.children[0])._name = pNames[i];
+           
+            this.setInputEvent(cell.children[0]);
+            row.appendChild(cell);
+        }
+
+        this.rootElement.style.position = "absolute";
+        this.rootElement.style.visibility = "hidden";//visible
+        if (pNames.length > 0) {
+            document.body.appendChild(this.rootElement);
+        }
+
+        this.rootElement.className = "propertyDialog";
+        this.rootElement.style.cursor = "move";       
+
+        this.setRootEvent();
+    }
+
+    private setRootEvent()
+    {
+       
+        var ele = <any>(this.rootElement);
+      
+        var moving = false;
+
+        this.rootElement.addEventListener("mousedown", (e) => {
+            if ((<any>e.target).tagName == "DIV")
+            {
+                ele._startx = e.clientX;
+                ele._starty = e.clientY;
+                ele._oldx = parseInt( ele.style.left.replace("px", ""));
+                ele._oldy = parseInt(ele.style.top.replace("px", ""));
+                moving = true;
+            }
+        }, false);
+
+
+        document.body.addEventListener("mousemove", (e) => {
+            if (moving) {
+                ele.style.left = (ele._oldx + e.clientX - ele._startx) + "px";
+                ele.style.top = (ele._oldy + e.clientY - ele._starty) + "px";
+            }
+        }, false);
+
+        document.body.addEventListener("mouseup", (e) => {
+            if (moving) {
+                moving = false;
+            }
+        }, false);
+    }
+
+    private setInputEvent(input)
+    {
+        if (input._picker) {
+            input.onchange = () => {
+                this.control[input._name] = input.value;                
+            };
+        }
+        else {
+            input.onkeyup = () => {
+                this.control[input._name] = input.value;
+            };
+        }
+    }
+
+    hide()
+    {
+        this.rootElement.style.visibility = "hidden";
+    }
+    show()
+    {
+        var rect = this.control.rect;
+        var x = rect.x + rect.width + 6;
+        var y = rect.y + 30;
+        if (x + this.rootElement.offsetWidth > window.innerWidth) {
+            x = rect.x - this.rootElement.offsetWidth - 6;
+            if (x < 0)
+                x = window.innerWidth - this.rootElement.offsetWidth;
+        }
+        if (y + this.rootElement.offsetHeight > window.innerHeight) {
+            y = rect.y - this.rootElement.offsetHeight - 6;
+            if (y < 0)
+                y = window.innerHeight - this.rootElement.offsetHeight;
+        }
+        this.rootElement.style.left = x + "px";
+        this.rootElement.style.top = y + "px";
+
+        this.rootElement.style.visibility = "visible";
+    }
+}
