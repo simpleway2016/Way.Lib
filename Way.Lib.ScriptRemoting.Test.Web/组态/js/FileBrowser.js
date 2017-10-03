@@ -4,8 +4,17 @@ var FileBrowser = (function () {
         this.initdata = false;
         this.parentid = 0;
         this.uploading = false;
+        this.backgroundElement = document.createElement("DIV");
+        this.backgroundElement.className = "FileBrowserBg";
+        this.backgroundElement.style.visibility = "hidden";
+        this.backgroundElement.style.width = "100%";
+        this.backgroundElement.style.height = "100%";
+        this.backgroundElement.style.position = "absolute";
+        this.backgroundElement.style.zIndex = "899";
+        document.body.appendChild(this.backgroundElement);
         this.rootElement = document.createElement("DIV");
         this.rootElement.className = "FileBrowser";
+        this.rootElement.style.zIndex = "900";
         this.rootElement.style.visibility = "hidden";
         document.body.appendChild(this.rootElement);
         this.rootElement.style.left = (window.innerWidth - this.rootElement.offsetWidth) / 2 + "px";
@@ -15,12 +24,18 @@ var FileBrowser = (function () {
         toolDiv.style.height = "30px";
         toolDiv.style.position = "absolute";
         toolDiv.style.borderBottom = "1px solid #ccc";
-        var html = "<div style='position:absolute;right:10px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/folder.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>添加文件夹</div>";
+        var html = "<div style='position:absolute;right:70px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/folder.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>添加文件夹</div>";
         html += "<input type='file'><input type='button' value='上传'>";
+        html += "<div style='position:absolute;right:10px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/close.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>关闭</div>";
+        html += "<div style='position:absolute;right:180px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/clear.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>选择空图片</div>";
         toolDiv.innerHTML = html;
         this.fileElement = toolDiv.children[1];
         toolDiv.children[0].addEventListener("click", function () { _this.addFolderDialog(); }, false);
         toolDiv.children[2].addEventListener("click", function () { _this.updateFile(); }, false);
+        toolDiv.children[3].addEventListener("click", function () { _this.hide(); }, false);
+        toolDiv.children[4].addEventListener("click", function () { if (_this.onSelectFile) {
+            _this.onSelectFile("");
+        } _this.hide(); }, false);
         this.rootElement.appendChild(toolDiv);
         this.container = document.createElement("DIV");
         this.container.style.width = "100%";
@@ -40,6 +55,10 @@ var FileBrowser = (function () {
         this.loadingElement.style.left = (this.rootElement.offsetWidth - this.loadingElement.offsetWidth) / 2 + "px";
         this.loadingElement.style.top = (this.rootElement.offsetHeight - this.loadingElement.offsetHeight) / 2 + "px";
         this.serverController = "SunRizServer.Controllers.ImageFileManager".controller();
+        document.body.addEventListener("click", function () {
+            var menuEle = document.body.querySelector(".FileBrowserFolderMenu");
+            menuEle.style.visibility = "hidden";
+        }, false);
     }
     FileBrowser.prototype.updateFile = function () {
         var _this = this;
@@ -201,6 +220,7 @@ var FileBrowser = (function () {
         this.loadingElement.style.visibility = "hidden";
     };
     FileBrowser.prototype.show = function () {
+        this.backgroundElement.style.visibility = "visible";
         if (!this.initdata) {
             this.initdata = true;
             this.loadImages(0);
@@ -208,6 +228,7 @@ var FileBrowser = (function () {
         this.rootElement.style.visibility = "visible";
     };
     FileBrowser.prototype.hide = function () {
+        this.backgroundElement.style.visibility = "hidden";
         this.rootElement.style.visibility = "hidden";
     };
     FileBrowser.prototype.loadImages = function (parentid) {

@@ -1,11 +1,15 @@
-﻿
+﻿declare var fileBrowser : FileBrowser;
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
 
 class ToolBoxItem
 {
-
+    buildDone: (control: EditorControl) => any;
+    get supportMove(): boolean
+    {
+        return true;
+    }
     constructor()
     {
 
@@ -150,6 +154,38 @@ class ToolBox_Circle extends ToolBoxItem {
     }
 }
 
+class ToolBox_Image extends ToolBoxItem {
+    rootElement: SVGImageElement;
+
+    get supportMove(): boolean {
+        return false;
+    }
+
+    constructor() {
+        super();
+    }
+
+    begin(svgContainer: SVGSVGElement, position: any) {
+        fileBrowser.onSelectFile = (path) => {
+            fileBrowser.hide();
+            this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+
+            this.rootElement.setAttribute('x', position.x);
+            this.rootElement.setAttribute('y', position.y);
+            this.rootElement.setAttribute('width', "200");
+            this.rootElement.setAttribute('height', "200");
+            this.rootElement.href.baseVal = path;
+
+            svgContainer.appendChild(this.rootElement);
+            if (this.buildDone)
+            {
+                this.buildDone(new ImageControl(this.rootElement));
+            }
+        };
+        fileBrowser.show();        
+    }
+}
+
 
 class Editor
 {
@@ -157,7 +193,7 @@ class Editor
     private currentToolBoxItem: ToolBoxItem;
     private svgContainerMouseUpPosition: any;
     private beginedToolBoxItem: ToolBoxItem = null;
-
+    propertyDialog: PropertyDialog;
     controls: any[] = [];
     private selectingElement: SVGRectElement;
 
@@ -169,13 +205,15 @@ class Editor
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
         this.svgContainer.setAttribute('width', '100%');
-
+        this.svgContainer.style.backgroundSize = "100% 100%";
+        this.svgContainer.style.backgroundRepeat = "no-repeat";
         this.svgContainer.setAttribute('height', '100%');
-
+        this.svgContainer.style.backgroundColor = "#ffffff";
         divContainer.appendChild(this.svgContainer);
 
-        this.svgContainer.addEventListener("click", (e) => { this.svgContainerClick(e); });
+        this.svgContainer.addEventListener("click", (e) => { this.svgContainerClick(e); this.fireBodyEvent("click"); });
         this.svgContainer.addEventListener("mousedown", (e) => {
+            this.fireBodyEvent("mousedown");
             if (!this.currentToolBoxItem)
             {
                 this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -234,6 +272,13 @@ class Editor
 
     }
 
+    fireBodyEvent(event)
+    {
+        var evt = document.createEvent('HTMLEvents');
+        evt.initEvent(event, true, true);
+        document.body.dispatchEvent(evt);
+    }
+
     selectControlsByRect(rect, ctrlKey)
     {
         for (var i = 0; i < this.controls.length; i++)
@@ -284,8 +329,22 @@ class Editor
         }
        
         if (!this.beginedToolBoxItem) {
-            this.beginedToolBoxItem = this.currentToolBoxItem;
+           
             this.currentToolBoxItem.begin(this.svgContainer, this.svgContainerMouseUpPosition);
+            if (this.currentToolBoxItem.supportMove) {
+                this.beginedToolBoxItem = this.currentToolBoxItem;
+            }
+            else {
+                this.currentToolBoxItem.buildDone = (control) => {
+
+                    if (control) {
+                        this.controls.push(control);
+                    }
+                    if ((<any>window).toolboxDone) {
+                        (<any>window).toolboxDone();
+                    }
+                };
+            }
         }
         else {
             var control = this.beginedToolBoxItem.end();
@@ -304,5 +363,41 @@ class Editor
         {
             this.beginedToolBoxItem.mousemove(x, y);
         }
+    }
+
+    setting(e: MouseEvent)
+    {
+        e.stopPropagation();
+
+        if ((<any>window).toolboxDone) {
+            (<any>window).toolboxDone();
+        }
+
+
+        if (!this.propertyDialog)
+            this.propertyDialog = new PropertyDialog(new SVGContainerControl(this.svgContainer));
+        this.propertyDialog.show();
+        (<any>this)._svgContainerClickForDialog = (e) => {
+            this.svgContainerClickForDialog(e);
+        };
+        this.svgContainer.addEventListener("click", (<any>this)._svgContainerClickForDialog, false);
+    }
+
+    private svgContainerClickForDialog(e: MouseEvent)
+    {
+        var ele: any = e.target;
+        while (ele.tagName != "BODY")
+        {
+            if (ele == this.propertyDialog.rootElement)
+            {
+                return;
+            }
+            else {
+                ele = ele.parentElement;
+            }
+        }
+        this.propertyDialog.hide();
+        this.svgContainer.removeEventListener("click", (<any>this)._svgContainerClickForDialog, false);
+
     }
 }

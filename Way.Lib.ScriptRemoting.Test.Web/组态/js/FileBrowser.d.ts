@@ -1,4 +1,5 @@
 declare class FileBrowser {
+    backgroundElement: HTMLElement;
     rootElement: HTMLElement;
     container: HTMLElement;
     loadingElement: HTMLElement;

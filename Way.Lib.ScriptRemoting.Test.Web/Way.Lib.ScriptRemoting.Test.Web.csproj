@@ -54,13 +54,17 @@
     <Content Include="templates\system.html" />
     <Content Include="templates\main.html" />
     <Content Include="test.html" />
+    <Content Include="组态\images\browser\clear.png" />
+    <Content Include="组态\images\browser\close.png" />
     <Content Include="组态\images\browser\file.png" />
     <Content Include="组态\images\browser\folder.png" />
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\circle.png" />
     <Content Include="组态\images\toolbox\ellipse.png" />
+    <Content Include="组态\images\toolbox\img.png" />
     <Content Include="组态\images\toolbox\rect.png" />
     <Content Include="组态\images\toolbox\line.png" />
+    <Content Include="组态\images\toolbox\setting.png" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
   </ItemGroup>

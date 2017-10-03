@@ -7,12 +7,12 @@ namespace SunRizServer.Controllers
 {
     public class BaseController : RemotingController
     {
-        SunRizDB _db;
-        public SunRizDB db
+        SysDB _db;
+        public SysDB db
         {
             get
             {
-                return _db ?? (_db = new SunRizDB());
+                return _db ?? (_db = new SysDB());
             }
         }
         protected override void OnUnLoad()

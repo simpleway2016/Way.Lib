@@ -39,7 +39,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Way.EntityDB", "Way.EntityD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunRizStudio", "SunRizStudio\SunRizStudio.csproj", "{150345BE-726E-4256-B606-53B4932CF19B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunRizServer", "SunRizServer\SunRizServer.csproj", "{5BA43AF6-0497-43CE-A73B-F2F4867299C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SunRizServer", "SunRizServer\SunRizServer.csproj", "{5BA43AF6-0497-43CE-A73B-F2F4867299C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunRizModbusTcpDriver", "SunRizModbusTcpDriver\SunRizModbusTcpDriver.csproj", "{42565D23-31C3-4856-BB23-E6C437C9BF6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunRizModbusTcpDriverUnitTest", "SunRizModbusTcpDriverUnitTest\SunRizModbusTcpDriverUnitTest.csproj", "{EEF791CA-1A1C-4713-A8A0-5C2FC7588D0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunRizDriver", "SunRizDriver\SunRizDriver.csproj", "{E024AB64-CDFB-4299-A7AC-655F0AE986BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,6 +125,18 @@ Global
 		{5BA43AF6-0497-43CE-A73B-F2F4867299C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BA43AF6-0497-43CE-A73B-F2F4867299C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BA43AF6-0497-43CE-A73B-F2F4867299C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42565D23-31C3-4856-BB23-E6C437C9BF6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42565D23-31C3-4856-BB23-E6C437C9BF6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42565D23-31C3-4856-BB23-E6C437C9BF6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42565D23-31C3-4856-BB23-E6C437C9BF6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEF791CA-1A1C-4713-A8A0-5C2FC7588D0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEF791CA-1A1C-4713-A8A0-5C2FC7588D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEF791CA-1A1C-4713-A8A0-5C2FC7588D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEF791CA-1A1C-4713-A8A0-5C2FC7588D0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E024AB64-CDFB-4299-A7AC-655F0AE986BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E024AB64-CDFB-4299-A7AC-655F0AE986BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E024AB64-CDFB-4299-A7AC-655F0AE986BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E024AB64-CDFB-4299-A7AC-655F0AE986BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

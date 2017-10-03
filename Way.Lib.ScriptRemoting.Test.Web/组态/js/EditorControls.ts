@@ -155,6 +155,76 @@ class EditorControl
 
     }
 }
+
+class SVGContainerControl extends EditorControl
+{
+    rootElement: SVGSVGElement;
+
+    get colorBG() {
+        return this.rootElement.style.backgroundColor;
+    }
+    set colorBG(v) {
+        if (v == "")
+            v = "#FFFFFF";
+        this.rootElement.style.backgroundColor = v;
+    }
+    get imgBg()
+    {
+        var url = this.rootElement.style.backgroundImage;
+        if (url && url.length > 0)
+        {
+            url = url.substr(4, url.length - 5);
+        }
+        return url;
+    }
+    set imgBg(v)
+    {
+        if (v == "") {
+            this.rootElement.style.backgroundImage = "";
+        }
+        else {
+            this.rootElement.style.backgroundImage = "url(" + v + ")";
+        }
+    }
+    get bgWidth() {
+        var size = this.rootElement.style.backgroundSize.split(' ');
+        return size[0];
+    }
+    set bgWidth(v) {
+      
+        if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
+            v += "px";
+        var size = this.rootElement.style.backgroundSize.split(' ');
+        this.rootElement.style.backgroundSize = v + " " + size[1];
+    }
+    get bgHeight() {
+        var size = this.rootElement.style.backgroundSize.split(' ');
+        return size[1];
+    }
+    set bgHeight(v) {
+        if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
+            v += "px";
+
+        var size = this.rootElement.style.backgroundSize.split(' ');
+        this.rootElement.style.backgroundSize = size[0] + " " + v;
+    }
+    getPropertiesCaption(): string[] {
+        return ["底色", "背景图", "背景图宽", "背景图高"];
+    }
+    getProperties(): string[] {
+        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
+    }
+
+    constructor(element: any) {
+        super(element);
+        this.rootElement = element;
+    }
+
+    get rect() {
+        return {x:10,y:10,width:0,height:0};
+    }
+}
+
 class LineControl extends EditorControl
 {
     lineElement: SVGLineElement;
@@ -313,7 +383,7 @@ class LineControl extends EditorControl
 }
 
 class RectControl extends EditorControl {
-    rectElement: SVGRectElement;
+    rectElement: SVGGraphicsElement;
     pRightBottom: SVGCircleElement;
     moving: boolean = false;
     startX = 0;
@@ -382,8 +452,8 @@ class RectControl extends EditorControl {
 
     resetPointLocation()
     {
-        this.pRightBottom.setAttribute("cx", <any>(this.rectElement.x.animVal.value + this.rectElement.width.animVal.value));
-        this.pRightBottom.setAttribute("cy", <any>(this.rectElement.y.animVal.value + this.rectElement.height.animVal.value));
+        this.pRightBottom.setAttribute("cx", <any>(parseInt(this.rectElement.getAttribute("x")) + parseInt(this.rectElement.getAttribute("width"))));
+        this.pRightBottom.setAttribute("cy", <any>(parseInt(this.rectElement.getAttribute("y")) + parseInt(this.rectElement.getAttribute("height"))));
     }
 
     setEvent(pointEle) {
@@ -399,10 +469,10 @@ class RectControl extends EditorControl {
         this.startX = e.clientX;
         this.startY = e.clientY;
 
-        pointEle._valueX = this.rectElement.x.animVal.value;
-        pointEle._valueY = this.rectElement.y.animVal.value;
-        pointEle._valueWidth = this.rectElement.width.animVal.value;
-        pointEle._valueHeight = this.rectElement.height.animVal.value;
+        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
+        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
+        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
+        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -741,4 +811,29 @@ class CircleControl extends EditorControl {
     onEndMoving() {
 
     }
+}
+
+class ImageControl extends RectControl {
+    imgElement: SVGImageElement;
+    get imgDefault()
+    {
+        return this.imgElement.href.baseVal;
+    }
+    set imgDefault(v)
+    {
+        this.imgElement.href.baseVal = v;
+    }
+
+    getPropertiesCaption(): string[] {
+        return ["图片"];
+    }
+    getProperties(): string[] {
+        return ["imgDefault"];
+    }
+
+    constructor(element: any) {
+        super(element);
+        this.imgElement = element;
+    }
+
 }

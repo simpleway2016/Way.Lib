@@ -132,6 +132,87 @@ var EditorControl = (function () {
     };
     return EditorControl;
 }());
+var SVGContainerControl = (function (_super) {
+    __extends(SVGContainerControl, _super);
+    function SVGContainerControl(element) {
+        var _this = _super.call(this, element) || this;
+        _this.rootElement = element;
+        return _this;
+    }
+    Object.defineProperty(SVGContainerControl.prototype, "colorBG", {
+        get: function () {
+            return this.rootElement.style.backgroundColor;
+        },
+        set: function (v) {
+            if (v == "")
+                v = "#FFFFFF";
+            this.rootElement.style.backgroundColor = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SVGContainerControl.prototype, "imgBg", {
+        get: function () {
+            var url = this.rootElement.style.backgroundImage;
+            if (url && url.length > 0) {
+                url = url.substr(4, url.length - 5);
+            }
+            return url;
+        },
+        set: function (v) {
+            if (v == "") {
+                this.rootElement.style.backgroundImage = "";
+            }
+            else {
+                this.rootElement.style.backgroundImage = "url(" + v + ")";
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SVGContainerControl.prototype, "bgWidth", {
+        get: function () {
+            var size = this.rootElement.style.backgroundSize.split(' ');
+            return size[0];
+        },
+        set: function (v) {
+            if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
+                v += "px";
+            var size = this.rootElement.style.backgroundSize.split(' ');
+            this.rootElement.style.backgroundSize = v + " " + size[1];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SVGContainerControl.prototype, "bgHeight", {
+        get: function () {
+            var size = this.rootElement.style.backgroundSize.split(' ');
+            return size[1];
+        },
+        set: function (v) {
+            if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
+                v += "px";
+            var size = this.rootElement.style.backgroundSize.split(' ');
+            this.rootElement.style.backgroundSize = size[0] + " " + v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SVGContainerControl.prototype.getPropertiesCaption = function () {
+        return ["底色", "背景图", "背景图宽", "背景图高"];
+    };
+    SVGContainerControl.prototype.getProperties = function () {
+        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
+    };
+    Object.defineProperty(SVGContainerControl.prototype, "rect", {
+        get: function () {
+            return { x: 10, y: 10, width: 0, height: 0 };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return SVGContainerControl;
+}(EditorControl));
 var LineControl = (function (_super) {
     __extends(LineControl, _super);
     function LineControl(element) {
@@ -351,8 +432,8 @@ var RectControl = (function (_super) {
         }
     };
     RectControl.prototype.resetPointLocation = function () {
-        this.pRightBottom.setAttribute("cx", (this.rectElement.x.animVal.value + this.rectElement.width.animVal.value));
-        this.pRightBottom.setAttribute("cy", (this.rectElement.y.animVal.value + this.rectElement.height.animVal.value));
+        this.pRightBottom.setAttribute("cx", (parseInt(this.rectElement.getAttribute("x")) + parseInt(this.rectElement.getAttribute("width"))));
+        this.pRightBottom.setAttribute("cy", (parseInt(this.rectElement.getAttribute("y")) + parseInt(this.rectElement.getAttribute("height"))));
     };
     RectControl.prototype.setEvent = function (pointEle) {
         var _this = this;
@@ -366,10 +447,10 @@ var RectControl = (function (_super) {
         this.moving = true;
         this.startX = e.clientX;
         this.startY = e.clientY;
-        pointEle._valueX = this.rectElement.x.animVal.value;
-        pointEle._valueY = this.rectElement.y.animVal.value;
-        pointEle._valueWidth = this.rectElement.width.animVal.value;
-        pointEle._valueHeight = this.rectElement.height.animVal.value;
+        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
+        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
+        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
+        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -701,4 +782,29 @@ var CircleControl = (function (_super) {
     };
     return CircleControl;
 }(EditorControl));
+var ImageControl = (function (_super) {
+    __extends(ImageControl, _super);
+    function ImageControl(element) {
+        var _this = _super.call(this, element) || this;
+        _this.imgElement = element;
+        return _this;
+    }
+    Object.defineProperty(ImageControl.prototype, "imgDefault", {
+        get: function () {
+            return this.imgElement.href.baseVal;
+        },
+        set: function (v) {
+            this.imgElement.href.baseVal = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ImageControl.prototype.getPropertiesCaption = function () {
+        return ["图片"];
+    };
+    ImageControl.prototype.getProperties = function () {
+        return ["imgDefault"];
+    };
+    return ImageControl;
+}(RectControl));
 //# sourceMappingURL=EditorControls.js.map

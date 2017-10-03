@@ -52,13 +52,16 @@
             height:80%;
             position:absolute;
         }
-        .FileBrowserItem
-        {
-            width:100px;
-            font-size:12px;
-            margin-left:5px;
-            margin-top:5px;
-            cursor:pointer;
+        .FileBrowserBg{
+            background-color:rgba(0,0,0,0.3);
+          
+        }
+        .FileBrowserItem {
+            width: 100px;
+            font-size: 12px;
+            margin-left: 5px;
+            margin-top: 5px;
+            cursor: pointer;
         }
         .FileBrowserFolderMenu
         {
@@ -76,6 +79,8 @@
 <body style="overflow:hidden;" oncontextmenu="return false;">
     <div class="display-flex flex-direction-column" style="position:absolute;width:100%;height:100%;">
         <div style="background-color:#e8e7e3;height:36px;">
+            <div class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(images/toolbox/setting.png);">
+            </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/line.png);" _type="ToolBox_Line">
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/circle.png);" _type="ToolBox_Circle">
@@ -84,15 +89,17 @@
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/ellipse.png);" _type="ToolBox_Ellipse">
             </div>
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/img.png);" _type="ToolBox_Image">
+            </div>
             <!--<input class="jscolor" value="ab2567">-->
         </div>
         <div class="flex-1" id="svgContainer">
         </div>
     </div>
 
-    <div class="FileBrowserFolderMenu" style="visibility:hidden;z-index:999;min-width:100px;">
-        <div onclick="this.parentElement.style.visibility='hidden'; this.parentElement._obj.rename(this.parentElement.ele,this.parentElement._data.id);">重命名</div>
-        <div onclick="this.parentElement.style.visibility='hidden'; this.parentElement._obj.deleteFile(this.parentElement.ele,this.parentElement._data.id);">删除</div>
+    <div class="FileBrowserFolderMenu" style="visibility:hidden;z-index:999;min-width:100px;cursor:default;">
+        <div onclick="this.parentElement._obj.rename(this.parentElement.ele,this.parentElement._data.id);">重命名</div>
+        <div onclick="this.parentElement._obj.deleteFile(this.parentElement.ele,this.parentElement._data.id);">删除</div>
     </div>
     
     <script lang="ja">
@@ -134,7 +141,6 @@
             {
                 alert(path);
             }
-            fileBrowser.show();
         }
     </script>
 </body>

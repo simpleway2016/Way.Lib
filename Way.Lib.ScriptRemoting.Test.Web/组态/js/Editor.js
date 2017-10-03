@@ -14,6 +14,13 @@ window.onerror = function (errorMessage, scriptURI, lineNumber) {
 var ToolBoxItem = (function () {
     function ToolBoxItem() {
     }
+    Object.defineProperty(ToolBoxItem.prototype, "supportMove", {
+        get: function () {
+            return true;
+        },
+        enumerable: true,
+        configurable: true
+    });
     ToolBoxItem.prototype.begin = function (svgContainer, position) {
     };
     ToolBoxItem.prototype.mousemove = function (x, y) {
@@ -128,6 +135,37 @@ var ToolBox_Circle = (function (_super) {
     };
     return ToolBox_Circle;
 }(ToolBoxItem));
+var ToolBox_Image = (function (_super) {
+    __extends(ToolBox_Image, _super);
+    function ToolBox_Image() {
+        return _super.call(this) || this;
+    }
+    Object.defineProperty(ToolBox_Image.prototype, "supportMove", {
+        get: function () {
+            return false;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ToolBox_Image.prototype.begin = function (svgContainer, position) {
+        var _this = this;
+        fileBrowser.onSelectFile = function (path) {
+            fileBrowser.hide();
+            _this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            _this.rootElement.setAttribute('x', position.x);
+            _this.rootElement.setAttribute('y', position.y);
+            _this.rootElement.setAttribute('width', "200");
+            _this.rootElement.setAttribute('height', "200");
+            _this.rootElement.href.baseVal = path;
+            svgContainer.appendChild(_this.rootElement);
+            if (_this.buildDone) {
+                _this.buildDone(new ImageControl(_this.rootElement));
+            }
+        };
+        fileBrowser.show();
+    };
+    return ToolBox_Image;
+}(ToolBoxItem));
 var Editor = (function () {
     function Editor(id) {
         var _this = this;
@@ -136,10 +174,14 @@ var Editor = (function () {
         var divContainer = document.body.querySelector("#" + id);
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         this.svgContainer.setAttribute('width', '100%');
+        this.svgContainer.style.backgroundSize = "100% 100%";
+        this.svgContainer.style.backgroundRepeat = "no-repeat";
         this.svgContainer.setAttribute('height', '100%');
+        this.svgContainer.style.backgroundColor = "#ffffff";
         divContainer.appendChild(this.svgContainer);
-        this.svgContainer.addEventListener("click", function (e) { _this.svgContainerClick(e); });
+        this.svgContainer.addEventListener("click", function (e) { _this.svgContainerClick(e); _this.fireBodyEvent("click"); });
         this.svgContainer.addEventListener("mousedown", function (e) {
+            _this.fireBodyEvent("mousedown");
             if (!_this.currentToolBoxItem) {
                 _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 _this.selectingElement._startx = e.clientX - divContainer.offsetLeft;
@@ -193,6 +235,11 @@ var Editor = (function () {
             }
         });
     }
+    Editor.prototype.fireBodyEvent = function (event) {
+        var evt = document.createEvent('HTMLEvents');
+        evt.initEvent(event, true, true);
+        document.body.dispatchEvent(evt);
+    };
     Editor.prototype.selectControlsByRect = function (rect, ctrlKey) {
         for (var i = 0; i < this.controls.length; i++) {
             var original = this.controls[i].ctrlKey;
@@ -224,6 +271,7 @@ var Editor = (function () {
         this.currentToolBoxItem = item;
     };
     Editor.prototype.svgContainerClick = function (e) {
+        var _this = this;
         if (!this.currentToolBoxItem) {
             while (AllSelectedControls.length > 0) {
                 AllSelectedControls[0].selected = false;
@@ -231,8 +279,20 @@ var Editor = (function () {
             return;
         }
         if (!this.beginedToolBoxItem) {
-            this.beginedToolBoxItem = this.currentToolBoxItem;
             this.currentToolBoxItem.begin(this.svgContainer, this.svgContainerMouseUpPosition);
+            if (this.currentToolBoxItem.supportMove) {
+                this.beginedToolBoxItem = this.currentToolBoxItem;
+            }
+            else {
+                this.currentToolBoxItem.buildDone = function (control) {
+                    if (control) {
+                        _this.controls.push(control);
+                    }
+                    if (window.toolboxDone) {
+                        window.toolboxDone();
+                    }
+                };
+            }
         }
         else {
             var control = this.beginedToolBoxItem.end();
@@ -249,6 +309,33 @@ var Editor = (function () {
         if (this.beginedToolBoxItem) {
             this.beginedToolBoxItem.mousemove(x, y);
         }
+    };
+    Editor.prototype.setting = function (e) {
+        var _this = this;
+        e.stopPropagation();
+        if (window.toolboxDone) {
+            window.toolboxDone();
+        }
+        if (!this.propertyDialog)
+            this.propertyDialog = new PropertyDialog(new SVGContainerControl(this.svgContainer));
+        this.propertyDialog.show();
+        this._svgContainerClickForDialog = function (e) {
+            _this.svgContainerClickForDialog(e);
+        };
+        this.svgContainer.addEventListener("click", this._svgContainerClickForDialog, false);
+    };
+    Editor.prototype.svgContainerClickForDialog = function (e) {
+        var ele = e.target;
+        while (ele.tagName != "BODY") {
+            if (ele == this.propertyDialog.rootElement) {
+                return;
+            }
+            else {
+                ele = ele.parentElement;
+            }
+        }
+        this.propertyDialog.hide();
+        this.svgContainer.removeEventListener("click", this._svgContainerClickForDialog, false);
     };
     return Editor;
 }());

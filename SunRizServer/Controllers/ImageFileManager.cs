@@ -12,7 +12,10 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public ImageFiles[] GetFiles(int parentid)
         {
-            return this.db.ImageFiles.Where(m=>m.ParentId == parentid).ToArray();
+            return (from m in db.ImageFiles
+                    where m.ParentId == parentid
+                    orderby m.IsFolder descending, m.Name
+                    select m).ToArray();
         }
 
         [RemotingMethod]

@@ -12,7 +12,7 @@ class PropertyDialog
 
         this.rootElement = document.createElement("DIV");
         this.rootElement.style.padding = "3px";
-
+        this.rootElement.style.zIndex = "799";
         for (var i = 0; i < pNames.length; i++)
         {
             var row = document.createElement("DIV");
@@ -37,6 +37,12 @@ class PropertyDialog
 
                 (<any>cell.children[0]).value = (<any>cell.children[0])._picker.toHEXString();
             }
+            else if (pNames[i].indexOf("img") >= 0){
+                cell.innerHTML = "<input type='text'>";
+                (<any>cell.children[0]).value = control[pNames[i]];
+                (<any>cell.children[0])._name = pNames[i];
+                this.setImgItemEvent(cell.children[0]);
+            }
             else {
                 cell.innerHTML = "<input type='text'>";
                 (<any>cell.children[0]).value = control[pNames[i]];
@@ -57,6 +63,18 @@ class PropertyDialog
         this.rootElement.style.cursor = "move";       
 
         this.setRootEvent();
+    }
+
+    private setImgItemEvent(ele)
+    {
+        ele.onclick = () => {
+            fileBrowser.onSelectFile = (path) => {
+                ele.value = path;
+                this.control[ele._name] = path;
+                fileBrowser.hide();
+            };
+            fileBrowser.show();
+        };
     }
 
     private setRootEvent()

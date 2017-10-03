@@ -39,9 +39,9 @@ namespace SunRizServer
                 Console.WriteLine($"web server started");
 
                 //注册数据库触发器
-                SunRizDB.RegisterActionCapture(new DBTriggers.ImageFilesTrigger());
+                SysDB.RegisterActionCapture(new DBTriggers.ImageFilesTrigger());
 
-                using (var db = new SunRizDB())
+                using (var db = new SysDB())
                 {
                     db.ImageFiles.FirstOrDefault();
                 }

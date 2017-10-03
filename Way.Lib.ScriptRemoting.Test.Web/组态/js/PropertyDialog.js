@@ -5,6 +5,7 @@ var PropertyDialog = (function () {
         var pNames = control.getProperties();
         this.rootElement = document.createElement("DIV");
         this.rootElement.style.padding = "3px";
+        this.rootElement.style.zIndex = "799";
         for (var i = 0; i < pNames.length; i++) {
             var row = document.createElement("DIV");
             row.style.display = "table-row";
@@ -24,6 +25,12 @@ var PropertyDialog = (function () {
                 cell.children[0]._picker.fromString(control[pNames[i]]);
                 cell.children[0].value = cell.children[0]._picker.toHEXString();
             }
+            else if (pNames[i].indexOf("img") >= 0) {
+                cell.innerHTML = "<input type='text'>";
+                cell.children[0].value = control[pNames[i]];
+                cell.children[0]._name = pNames[i];
+                this.setImgItemEvent(cell.children[0]);
+            }
             else {
                 cell.innerHTML = "<input type='text'>";
                 cell.children[0].value = control[pNames[i]];
@@ -41,6 +48,17 @@ var PropertyDialog = (function () {
         this.rootElement.style.cursor = "move";
         this.setRootEvent();
     }
+    PropertyDialog.prototype.setImgItemEvent = function (ele) {
+        var _this = this;
+        ele.onclick = function () {
+            fileBrowser.onSelectFile = function (path) {
+                ele.value = path;
+                _this.control[ele._name] = path;
+                fileBrowser.hide();
+            };
+            fileBrowser.show();
+        };
+    };
     PropertyDialog.prototype.setRootEvent = function () {
         var ele = (this.rootElement);
         var moving = false;

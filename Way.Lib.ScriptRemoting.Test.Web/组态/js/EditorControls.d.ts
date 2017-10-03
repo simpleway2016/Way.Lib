@@ -21,6 +21,22 @@ declare class EditorControl {
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
+declare class SVGContainerControl extends EditorControl {
+    rootElement: SVGSVGElement;
+    colorBG: string;
+    imgBg: string;
+    bgWidth: string;
+    bgHeight: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor(element: any);
+    readonly rect: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+}
 declare class LineControl extends EditorControl {
     lineElement: SVGLineElement;
     pointEles: SVGCircleElement[];
@@ -51,7 +67,7 @@ declare class LineControl extends EditorControl {
     pointMouseUp(e: MouseEvent, pointEle: any): void;
 }
 declare class RectControl extends EditorControl {
-    rectElement: SVGRectElement;
+    rectElement: SVGGraphicsElement;
     pRightBottom: SVGCircleElement;
     moving: boolean;
     startX: number;
@@ -136,4 +152,11 @@ declare class CircleControl extends EditorControl {
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
+}
+declare class ImageControl extends RectControl {
+    imgElement: SVGImageElement;
+    imgDefault: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor(element: any);
 }
