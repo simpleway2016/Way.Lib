@@ -29,6 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -49,7 +50,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SunRizServerTest.cs" />
+    <Compile Include="OpcDriverServerTest.cs" />
+    <Compile Include="ModbusDriverServerTest.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -64,6 +66,10 @@
     <ProjectReference Include="..\SunRizModbusTcpDriver\SunRizModbusTcpDriver.csproj">
       <Project>{42565d23-31c3-4856-bb23-e6c437c9bf6f}</Project>
       <Name>SunRizModbusTcpDriver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SunRizOpcDriver\SunRizOpcDriver.csproj">
+      <Project>{5981e0c3-159b-4462-a622-6d85a104165c}</Project>
+      <Name>SunRizOpcDriver</Name>
     </ProjectReference>
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj">
       <Project>{5698aef7-fe1c-4ecd-a615-04ac7342f552}</Project>

@@ -7,16 +7,18 @@ using Way.Lib;
 
 namespace SunRizDriver.CommandHandlers
 {
-    class GetNameHandler : CommandHandler
+    class EnumDeviceHandler : CommandHandler
     {
         SunRizDriver.SunRizDriverServer serverObj;
-        public GetNameHandler(SunRizDriver.SunRizDriverServer _serverObj)
+        public EnumDeviceHandler(SunRizDriver.SunRizDriverServer _serverObj)
         {
             this.serverObj = _serverObj;
         }
         public override void Handle(NetStream stream, Command command)
         {
-            byte[] bs = System.Text.Encoding.UTF8.GetBytes(serverObj.Name);
+            var devices = this.serverObj.EnumDevice(command);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(devices);
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
             stream.Write(bs.Length);
             stream.Write(bs);
         }

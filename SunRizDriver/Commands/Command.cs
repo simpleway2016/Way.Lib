@@ -13,5 +13,6 @@ namespace SunRizDriver
         public string DeviceAddress;
         public string[] Points;
         public object[] Values;
+        public List<string> ParentPath;
     }
 }

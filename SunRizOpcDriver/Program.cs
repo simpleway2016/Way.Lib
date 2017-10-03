@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SunRizDriver
+namespace SunRizOpcDriver
 {
-    public enum PointValueType
+    class Program
     {
-        Short = 0,
-        Int = 1,
-        Float = 2,
-        String=3,
+        static void Main(string[] args)
+        {
+        }
     }
 }

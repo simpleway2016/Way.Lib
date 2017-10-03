@@ -42,8 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandHandlers\WriteValueHandler.cs" />
-    <Compile Include="CommandHandlers\AddPointToWatchHandler.cs" />
     <Compile Include="FunctionCode.cs" />
     <Compile Include="ModbusDriverServer.cs" />
     <Compile Include="Package.cs" />

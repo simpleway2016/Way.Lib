@@ -23,6 +23,24 @@ namespace SunRizDriver
         {
             this.Address = address;
             this.Port = port;
+           
+        }
+
+        /// <summary>
+        /// 检查是否可以和driver正常连接
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckDriver()
+        {
+            try
+            {
+                new Way.Lib.NetStream(this.Address, this.Port).Dispose();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void Dispose()
@@ -30,11 +48,11 @@ namespace SunRizDriver
            
         }
 
-        public string GetName()
+        public ServerInfo GetServerInfo()
         {
             var client = new Way.Lib.NetStream(this.Address, this.Port);
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command() {
-                Type = "GetName"
+                Type = "GetServerInfo"
             });
             byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
             client.Write(bs.Length);
@@ -43,7 +61,65 @@ namespace SunRizDriver
             int len = client.ReadInt();
             bs = client.ReceiveDatas(len);
             client.Dispose();
-            return System.Text.Encoding.UTF8.GetString(bs);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServerInfo>( System.Text.Encoding.UTF8.GetString(bs));
+        }
+        public string[] EnumDevice(string opcServerAddress)
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "EnumDevice",
+                DeviceAddress = opcServerAddress,
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            int len = client.ReadInt();
+            bs = client.ReceiveDatas(len);
+            client.Dispose();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(System.Text.Encoding.UTF8.GetString(bs));
+        }
+        public void EnumDevicePoint(string opcServerAddress ,List<string> parentPath, Action<PointInfomation> onFindPoint)
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "EnumDevicePoint",
+                DeviceAddress = opcServerAddress,
+                ParentPath = parentPath,
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            while(true)
+            {
+                var len = client.ReadInt();
+                if (len < 0)
+                    break;
+                bs = client.ReceiveDatas(len);
+                string point = System.Text.Encoding.UTF8.GetString(bs);
+                onFindPoint(Newtonsoft.Json.JsonConvert.DeserializeObject<PointInfomation>(point));
+            }
+            client.Dispose();
+        }
+        public bool CheckDeviceExist(string deviceAddress)
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "CheckDeviceExist",
+                DeviceAddress = deviceAddress
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            bool result = client.ReadBoolean();
+           
+            client.Dispose();
+            return result;
         }
         public bool WriteValue(string deviceAddress, string point, object value)
         {
@@ -72,9 +148,62 @@ namespace SunRizDriver
             client.Dispose();
             return result;
         }
-
-        public void AddPointToWatch(string deviceAddress , string[] points,Action<string,object> onReceiveValue,Action<string> onError)
+        public object[] ReadValue(string deviceAddress, string[] points)
         {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "ReadValue",
+                DeviceAddress = deviceAddress,
+                Points = points
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            object[] values = new object[points.Length];
+            for(int i = 0; i < points.Length; i ++)
+            {
+                int index = client.ReadInt();
+                PointValueType valueType = (PointValueType)client.ReadInt();
+                if (valueType == PointValueType.Short)
+                {
+                    values[index] = client.ReadShort();
+                }
+                else if (valueType == PointValueType.Int)
+                {
+                    values[index] = client.ReadInt();
+                }
+                else if (valueType == PointValueType.Float)
+                {
+                    values[index] = client.ReadFloat();
+                }
+                else if (valueType == PointValueType.String)
+                {
+                    values[index] = System.Text.Encoding.UTF8.GetString(client.ReceiveDatas(client.ReadInt()));
+                }
+                else
+                    throw new Exception($"not support value type {valueType}");
+            }
+            client.Dispose();
+            return values;
+        }
+        public void AddPointToWatch(string deviceAddress, string[] points,Action<string, object> onReceiveValue, Action<string> onError)
+        {
+            AddPointToWatch(deviceAddress, points, 1000, onReceiveValue, onError);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deviceAddress">设备地址</param>
+        /// <param name="points">点路径</param>
+        /// <param name="interval">更新时间间隔，单位：毫秒</param>
+        /// <param name="onReceiveValue"></param>
+        /// <param name="onError"></param>
+        public void AddPointToWatch(string deviceAddress , string[] points, int interval, Action<string,object> onReceiveValue,Action<string> onError)
+        {
+            if (interval < 1000)
+                interval = 1000;
             try
             {
                 var client = new Way.Lib.NetStream(this.Address, this.Port);
@@ -82,7 +211,8 @@ namespace SunRizDriver
                 {
                     Type = "AddPointToWatch",
                     DeviceAddress = deviceAddress,
-                    Points = points
+                    Points = points,
+                    Interval = interval
                 });
                 byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
                 client.Write(bs.Length);
@@ -107,6 +237,11 @@ namespace SunRizDriver
                             else if (valueType == PointValueType.Float)
                             {
                                 onReceiveValue(points[index], client.ReadFloat());
+                            }
+                            else if (valueType == PointValueType.String)
+                            {
+                                var str = System.Text.Encoding.UTF8.GetString( client.ReceiveDatas(client.ReadInt()));
+                                onReceiveValue(points[index], str);
                             }
                             else
                                 throw new Exception($"not support value type {valueType}");

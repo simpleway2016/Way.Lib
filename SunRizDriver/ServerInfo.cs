@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace SunRizDriver
 {
-    public enum PointValueType
+    public class ServerInfo
     {
-        Short = 0,
-        Int = 1,
-        Float = 2,
-        String=3,
+        public string Name;
+        public bool SupportEnumDevice;
+        public bool SupportEnumPoints;
     }
 }

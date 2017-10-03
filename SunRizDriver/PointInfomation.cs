@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace SunRizDriver
 {
-    public enum PointValueType
+    public class PointInfomation
     {
-        Short = 0,
-        Int = 1,
-        Float = 2,
-        String=3,
+        public bool IsFolder;
+        public string Path;
+        public string Name;
     }
 }

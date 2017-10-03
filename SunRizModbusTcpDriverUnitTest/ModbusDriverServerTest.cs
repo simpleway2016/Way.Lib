@@ -7,16 +7,16 @@ using System.Diagnostics;
 namespace SunRizModbusTcpDriverUnitTest
 {
     [TestClass]
-    public class SunRizServerTest
+    public class ModbusDriverServerTest
     {
         [TestMethod]
-        public void GetNameTest()
+        public void GetServerInfoTest()
         {
             SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
             server.Start();
 
             SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1" , 588);
-            var name = client.GetName();
+            var info = client.GetServerInfo();
 
             server.Stop();
 
@@ -50,6 +50,21 @@ namespace SunRizModbusTcpDriverUnitTest
         }
 
         [TestMethod]
+        public void ReadValueTest()
+        {
+            SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
+            server.Start();
+
+            SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1", 588);
+            var points = new string[] {
+                "1/3","3/1","1/0","1/2","3/2","1/4","1/1",
+                "3/0","3/3"
+            };
+            var values = client.ReadValue("127.0.0.1/502", points);
+            server.Stop();
+        }
+
+        [TestMethod]
         public void WriteValueTest()
         {
             SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
@@ -61,6 +76,17 @@ namespace SunRizModbusTcpDriverUnitTest
             };
             var values = new object[] { 1 , 388  };
             var result = client.WriteValue("127.0.0.1/502", points, values);
+            server.Stop();
+        }
+        [TestMethod]
+        public void CheckDeviceExistTest()
+        {
+            SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
+            server.Start();
+
+            SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1", 588);
+           
+            var result = client.CheckDeviceExist("127.0.0.1/502");
             server.Stop();
         }
     }

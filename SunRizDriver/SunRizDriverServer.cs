@@ -25,6 +25,14 @@ namespace SunRizDriver
                 return "SunRizDriverServer";
             }
         }
+        /// <summary>
+        /// 是否支持罗列设备
+        /// </summary>
+        public virtual bool SupportEnumDevice => false;
+        /// <summary>
+        /// 是否支持罗列设备点
+        /// </summary>
+        public virtual bool SupportEnumPoints => false;
 
         public SunRizDriverServer(int port)
         {
@@ -88,6 +96,31 @@ namespace SunRizDriver
         {
             Started =  ServerStatus.Stopped;
             _tcpListener.Stop();
+        }
+
+        public virtual void AddPointToWatch(Command command,Action<int,PointValueType,object> onValueReceive)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool[] WriteValue(Command command)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual void ReadValue(Command command, Action<int, PointValueType, object> onValueReceive)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool CheckDeviceExist(Command command)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual string[] EnumDevice(Command command)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual void EnumPoints(Command command, Action<string> onFindPoint)
+        {
+            throw new NotImplementedException();
         }
     }
 }
