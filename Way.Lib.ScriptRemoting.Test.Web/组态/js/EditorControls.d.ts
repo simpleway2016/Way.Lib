@@ -7,7 +7,7 @@ declare class EditorControl {
     _selected: boolean;
     _moveAllSelectedControl: boolean;
     selected: boolean;
-    readonly rect: any;
+    rect: any;
     private mouseDownX;
     private mouseDownY;
     constructor(element: any);

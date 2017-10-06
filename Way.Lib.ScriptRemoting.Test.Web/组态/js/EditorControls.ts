@@ -46,14 +46,17 @@ class EditorControl
     {
         return null;
     }
+    set rect(v)
+    {
 
+    }
     private mouseDownX;
     private mouseDownY;
 
     constructor(element:any)
     {
         this.element = element;
-
+        element._editorControl = this;
         (<HTMLElement>this.element).addEventListener("dragstart", (e) => {
             e.preventDefault();
         }, false);

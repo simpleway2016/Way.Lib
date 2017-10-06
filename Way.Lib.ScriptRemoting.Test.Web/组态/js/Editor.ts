@@ -316,6 +316,46 @@ class Editor
             }
         });
 
+
+        document.body.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.keyCode == 37)
+            {
+                //left
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.x--;
+                    control.rect = rect;
+                }
+            }
+            else if (e.keyCode == 38) {
+                //top
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.y--;
+                    control.rect = rect;
+                }
+            }
+            else if (e.keyCode == 39) {
+                //right
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.x++;
+                    control.rect = rect;
+                }
+            }
+            else if (e.keyCode == 40) {
+                //bottom
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.y++;
+                    control.rect = rect;
+                }
+            }
+        }, false);
     }
 
     fireBodyEvent(event)
@@ -446,5 +486,267 @@ class Editor
         this.propertyDialog.hide();
         this.svgContainer.removeEventListener("click", (<any>this)._svgContainerClickForDialog, false);
 
+    }
+
+    alignLeft()
+    {
+        var minLeft = 999999;
+        for (var i = 0; i < AllSelectedControls.length; i++)
+        {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+        }
+
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.x = minLeft;
+            control.rect = rect;
+        }
+    }
+    alignRight() {
+        var maxRight = -99999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.x + rect.width > maxRight)
+                maxRight = rect.x + rect.width;
+        }
+
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.x = maxRight - rect.width;
+            control.rect = rect;
+        }
+    }
+    alignTop() {
+        var minTop = 999999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.y < minTop)
+                minTop = rect.y;
+        }
+
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.y = minTop;
+            control.rect = rect;
+        }
+    }
+    alignBottom() {
+        var maxBottom = -99999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.y + rect.height > maxBottom)
+                maxBottom = rect.y + rect.height;
+        }
+
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.y = maxBottom - rect.height;
+            control.rect = rect;
+        }
+    }
+    hSpacing()
+    {
+        if (AllSelectedControls.length <= 1)
+            return;
+        var totalspacing = 0;
+        var maxRight = -99999;
+        var minLeft = 999999;
+        var rects = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.control = control;
+            rects.push(rect);
+            if (rect.x + rect.width > maxRight)
+                maxRight = rect.x + rect.width;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+        }
+        totalspacing = maxRight - minLeft;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            totalspacing -= rect.width;
+        }
+
+        //从左到右排列
+        for (var i = 0; i < rects.length - 1; i++)
+        {
+            var rect = rects[i];
+            var rect2 = rects[i + 1];
+            if (rect.x > rect2.x)
+            {
+                rects[i] = rect2;
+                rects[i + 1] = rect;
+                i -= 2;
+                if (i < -1)
+                    i = -1;
+            }
+        }
+
+        //间隔
+        var interval = totalspacing / (rects.length - 1);
+        var left = minLeft;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            var ctrl = rect.control;
+            rect.control = null;
+            rect.x = left;
+            left += rect.width + interval;
+            ctrl.rect = rect;            
+        }
+    }
+    vSpacing() {
+        if (AllSelectedControls.length <= 1)
+            return;
+        var totalspacing = 0;
+        var maxBottom = -99999;
+        var minTop = 999999;
+        var rects = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.control = control;
+            rects.push(rect);
+
+            if (rect.y + rect.height > maxBottom)
+                maxBottom = rect.y + rect.height;
+            if (rect.y < minTop)
+                minTop = rect.y;
+        }       
+       
+        totalspacing = maxBottom - minTop;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            totalspacing -= rect.height;
+        }
+
+        //从左到右排列
+        for (var i = 0; i < rects.length - 1; i++) {
+            var rect = rects[i];
+            var rect2 = rects[i + 1];
+            if (rect.y > rect2.y) {
+                rects[i] = rect2;
+                rects[i + 1] = rect;
+                i -= 2;
+                if (i < -1)
+                    i = -1;
+            }
+        }
+
+        //间隔
+        var interval = totalspacing / (rects.length - 1);
+        var top = minTop;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            var ctrl = rect.control;
+            rect.control = null;
+            rect.y = top;
+            top += rect.height + interval;
+            ctrl.rect = rect;
+        }
+    }
+    hCenter()
+    {
+        var maxHeight = 0;
+        var y;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.height > maxHeight) {
+                y = rect.y;
+                maxHeight = rect.height;
+            }
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.y = y + maxHeight / 2 - rect.height / 2;
+            control.rect = rect;
+        }
+    }
+    vCenter()
+    {
+        var maxWidth = 0;
+        var x;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.width > maxWidth) {
+                x = rect.x;
+                maxWidth = rect.width;
+            }
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.x = x + maxWidth / 2 - rect.width / 2;
+            control.rect = rect;
+        }
+    }
+    layerUp()
+    {
+        for (var i = 0; i < AllSelectedControls.length; i++)
+        {
+            var control = AllSelectedControls[i];
+            var nextEle :any = (<Element>control.element).nextElementSibling;
+            while (nextEle && !nextEle._editorControl)
+            {
+                nextEle = nextEle.nextElementSibling;
+            }
+            if (nextEle) {
+                this.svgContainer.removeChild(nextEle);
+                this.svgContainer.insertBefore(nextEle, <any>control.element);
+            }
+        }
+    }
+    layerDown()
+    {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var preEle: any = (<Element>control.element).previousElementSibling;
+            while (preEle && !preEle._editorControl) {
+                preEle = preEle.previousElementSibling;
+            }
+            if (preEle) {
+                this.svgContainer.removeChild(control.element);
+                this.svgContainer.insertBefore(<any>control.element, preEle);
+            }
+        }
+    }
+    layerFront() {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            this.svgContainer.removeChild(control.element);
+            this.svgContainer.appendChild(control.element);
+        }
+    }
+    layerBottom() {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            if (this.svgContainer.children[0] != control.element)
+            {
+                this.svgContainer.removeChild(control.element);
+                this.svgContainer.insertBefore(<any>control.element, <any>this.svgContainer.children[0]);
+            }
+        }
+    }
+    getIndex(element)
+    {
+        for (var i = 0; i < this.svgContainer.children.length; i++)
+        {
+            if (this.svgContainer.children[i] == element)
+                return i;
+        }
+        return -1;
     }
 }

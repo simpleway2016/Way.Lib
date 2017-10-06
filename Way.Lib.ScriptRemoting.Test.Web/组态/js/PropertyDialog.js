@@ -85,13 +85,16 @@ var PropertyDialog = (function () {
     };
     PropertyDialog.prototype.setInputEvent = function (input) {
         var _this = this;
+        input.addEventListener("keydown", function (e) {
+            e.stopPropagation();
+        }, false);
         if (input._picker) {
             input.onchange = function () {
                 _this.control[input._name] = input.value;
             };
         }
         else {
-            input.onkeyup = function () {
+            input.onkeyup = function (e) {
                 _this.control[input._name] = input.value;
             };
         }

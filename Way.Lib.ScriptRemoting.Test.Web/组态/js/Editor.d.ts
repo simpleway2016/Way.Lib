@@ -69,4 +69,17 @@ declare class Editor {
     svgContainerMouseMove(x: any, y: any): void;
     setting(e: MouseEvent): void;
     private svgContainerClickForDialog(e);
+    alignLeft(): void;
+    alignRight(): void;
+    alignTop(): void;
+    alignBottom(): void;
+    hSpacing(): void;
+    vSpacing(): void;
+    hCenter(): void;
+    vCenter(): void;
+    layerUp(): void;
+    layerDown(): void;
+    layerFront(): void;
+    layerBottom(): void;
+    getIndex(element: any): number;
 }

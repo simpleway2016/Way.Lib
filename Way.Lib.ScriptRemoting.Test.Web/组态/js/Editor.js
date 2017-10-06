@@ -275,6 +275,40 @@ var Editor = (function () {
                 _this.svgContainerMouseMove(e.clientX - divContainer.offsetLeft, e.clientY - divContainer.offsetTop);
             }
         });
+        document.body.addEventListener("keydown", function (e) {
+            if (e.keyCode == 37) {
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.x--;
+                    control.rect = rect;
+                }
+            }
+            else if (e.keyCode == 38) {
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.y--;
+                    control.rect = rect;
+                }
+            }
+            else if (e.keyCode == 39) {
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.x++;
+                    control.rect = rect;
+                }
+            }
+            else if (e.keyCode == 40) {
+                for (var i = 0; i < AllSelectedControls.length; i++) {
+                    var control = AllSelectedControls[i];
+                    var rect = control.rect;
+                    rect.y++;
+                    control.rect = rect;
+                }
+            }
+        }, false);
     }
     Editor.prototype.fireBodyEvent = function (event) {
         var evt = document.createEvent('HTMLEvents');
@@ -377,6 +411,239 @@ var Editor = (function () {
         }
         this.propertyDialog.hide();
         this.svgContainer.removeEventListener("click", this._svgContainerClickForDialog, false);
+    };
+    Editor.prototype.alignLeft = function () {
+        var minLeft = 999999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.x = minLeft;
+            control.rect = rect;
+        }
+    };
+    Editor.prototype.alignRight = function () {
+        var maxRight = -99999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.x + rect.width > maxRight)
+                maxRight = rect.x + rect.width;
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.x = maxRight - rect.width;
+            control.rect = rect;
+        }
+    };
+    Editor.prototype.alignTop = function () {
+        var minTop = 999999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.y < minTop)
+                minTop = rect.y;
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.y = minTop;
+            control.rect = rect;
+        }
+    };
+    Editor.prototype.alignBottom = function () {
+        var maxBottom = -99999;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.y + rect.height > maxBottom)
+                maxBottom = rect.y + rect.height;
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.y = maxBottom - rect.height;
+            control.rect = rect;
+        }
+    };
+    Editor.prototype.hSpacing = function () {
+        if (AllSelectedControls.length <= 1)
+            return;
+        var totalspacing = 0;
+        var maxRight = -99999;
+        var minLeft = 999999;
+        var rects = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.control = control;
+            rects.push(rect);
+            if (rect.x + rect.width > maxRight)
+                maxRight = rect.x + rect.width;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+        }
+        totalspacing = maxRight - minLeft;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            totalspacing -= rect.width;
+        }
+        for (var i = 0; i < rects.length - 1; i++) {
+            var rect = rects[i];
+            var rect2 = rects[i + 1];
+            if (rect.x > rect2.x) {
+                rects[i] = rect2;
+                rects[i + 1] = rect;
+                i -= 2;
+                if (i < -1)
+                    i = -1;
+            }
+        }
+        var interval = totalspacing / (rects.length - 1);
+        var left = minLeft;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            var ctrl = rect.control;
+            rect.control = null;
+            rect.x = left;
+            left += rect.width + interval;
+            ctrl.rect = rect;
+        }
+    };
+    Editor.prototype.vSpacing = function () {
+        if (AllSelectedControls.length <= 1)
+            return;
+        var totalspacing = 0;
+        var maxBottom = -99999;
+        var minTop = 999999;
+        var rects = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.control = control;
+            rects.push(rect);
+            if (rect.y + rect.height > maxBottom)
+                maxBottom = rect.y + rect.height;
+            if (rect.y < minTop)
+                minTop = rect.y;
+        }
+        totalspacing = maxBottom - minTop;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            totalspacing -= rect.height;
+        }
+        for (var i = 0; i < rects.length - 1; i++) {
+            var rect = rects[i];
+            var rect2 = rects[i + 1];
+            if (rect.y > rect2.y) {
+                rects[i] = rect2;
+                rects[i + 1] = rect;
+                i -= 2;
+                if (i < -1)
+                    i = -1;
+            }
+        }
+        var interval = totalspacing / (rects.length - 1);
+        var top = minTop;
+        for (var i = 0; i < rects.length; i++) {
+            var rect = rects[i];
+            var ctrl = rect.control;
+            rect.control = null;
+            rect.y = top;
+            top += rect.height + interval;
+            ctrl.rect = rect;
+        }
+    };
+    Editor.prototype.hCenter = function () {
+        var maxHeight = 0;
+        var y;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.height > maxHeight) {
+                y = rect.y;
+                maxHeight = rect.height;
+            }
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.y = y + maxHeight / 2 - rect.height / 2;
+            control.rect = rect;
+        }
+    };
+    Editor.prototype.vCenter = function () {
+        var maxWidth = 0;
+        var x;
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            if (rect.width > maxWidth) {
+                x = rect.x;
+                maxWidth = rect.width;
+            }
+        }
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var rect = control.rect;
+            rect.x = x + maxWidth / 2 - rect.width / 2;
+            control.rect = rect;
+        }
+    };
+    Editor.prototype.layerUp = function () {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var nextEle = control.element.nextElementSibling;
+            while (nextEle && !nextEle._editorControl) {
+                nextEle = nextEle.nextElementSibling;
+            }
+            if (nextEle) {
+                this.svgContainer.removeChild(nextEle);
+                this.svgContainer.insertBefore(nextEle, control.element);
+            }
+        }
+    };
+    Editor.prototype.layerDown = function () {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var preEle = control.element.previousElementSibling;
+            while (preEle && !preEle._editorControl) {
+                preEle = preEle.previousElementSibling;
+            }
+            if (preEle) {
+                this.svgContainer.removeChild(control.element);
+                this.svgContainer.insertBefore(control.element, preEle);
+            }
+        }
+    };
+    Editor.prototype.layerFront = function () {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            this.svgContainer.removeChild(control.element);
+            this.svgContainer.appendChild(control.element);
+        }
+    };
+    Editor.prototype.layerBottom = function () {
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            if (this.svgContainer.children[0] != control.element) {
+                this.svgContainer.removeChild(control.element);
+                this.svgContainer.insertBefore(control.element, this.svgContainer.children[0]);
+            }
+        }
+    };
+    Editor.prototype.getIndex = function (element) {
+        for (var i = 0; i < this.svgContainer.children.length; i++) {
+            if (this.svgContainer.children[i] == element)
+                return i;
+        }
+        return -1;
     };
     return Editor;
 }());

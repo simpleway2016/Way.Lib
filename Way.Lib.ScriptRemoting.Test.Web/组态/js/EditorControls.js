@@ -19,6 +19,7 @@ var EditorControl = (function () {
         this._selected = false;
         this._moveAllSelectedControl = false;
         this.element = element;
+        element._editorControl = this;
         this.element.addEventListener("dragstart", function (e) {
             e.preventDefault();
         }, false);
@@ -101,6 +102,8 @@ var EditorControl = (function () {
     Object.defineProperty(EditorControl.prototype, "rect", {
         get: function () {
             return null;
+        },
+        set: function (v) {
         },
         enumerable: true,
         configurable: true
