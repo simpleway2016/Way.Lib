@@ -70,8 +70,10 @@ var ToolBox_Rect = (function (_super) {
         svgContainer.appendChild(this.rectElement);
     };
     ToolBox_Rect.prototype.mousemove = function (x, y) {
-        this.rectElement.setAttribute('width', Math.max(0, x - this.startx));
-        this.rectElement.setAttribute('height', Math.max(0, y - this.starty));
+        this.rectElement.setAttribute('x', Math.min(x, this.startx));
+        this.rectElement.setAttribute('y', Math.min(y, this.starty));
+        this.rectElement.setAttribute('width', Math.abs(x - this.startx));
+        this.rectElement.setAttribute('height', Math.abs(y - this.starty));
     };
     ToolBox_Rect.prototype.end = function () {
         if (this.rectElement.getAttribute("width") == 0 || this.rectElement.getAttribute("height") == 0) {
@@ -98,8 +100,8 @@ var ToolBox_Ellipse = (function (_super) {
         svgContainer.appendChild(this.rootElement);
     };
     ToolBox_Ellipse.prototype.mousemove = function (x, y) {
-        this.rootElement.setAttribute('rx', Math.max(0, x - this.startx));
-        this.rootElement.setAttribute('ry', Math.max(0, y - this.starty));
+        this.rootElement.setAttribute('rx', Math.abs(x - this.startx));
+        this.rootElement.setAttribute('ry', Math.abs(y - this.starty));
     };
     ToolBox_Ellipse.prototype.end = function () {
         if (this.rootElement.getAttribute("rx") == 0 || this.rootElement.getAttribute("ry") == 0) {
@@ -125,7 +127,7 @@ var ToolBox_Circle = (function (_super) {
         svgContainer.appendChild(this.rootElement);
     };
     ToolBox_Circle.prototype.mousemove = function (x, y) {
-        this.rootElement.setAttribute('r', Math.max(0, x - this.startx));
+        this.rootElement.setAttribute('r', Math.abs(x - this.startx));
     };
     ToolBox_Circle.prototype.end = function () {
         if (this.rootElement.getAttribute("r") == 0) {

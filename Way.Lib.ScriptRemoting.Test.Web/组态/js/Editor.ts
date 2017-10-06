@@ -76,8 +76,11 @@ class ToolBox_Rect extends ToolBoxItem {
         svgContainer.appendChild(this.rectElement);
     }
     mousemove(x, y) {
-        this.rectElement.setAttribute('width', <any>Math.max(0 , x - this.startx));
-        this.rectElement.setAttribute('height', <any>Math.max(0, y - this.starty));
+        this.rectElement.setAttribute('x', <any>Math.min(x, this.startx));
+        this.rectElement.setAttribute('y', <any>Math.min(y, this.starty));
+
+        this.rectElement.setAttribute('width', <any>Math.abs(x - this.startx));
+        this.rectElement.setAttribute('height', <any>Math.abs(y - this.starty));
     }
     end(): EditorControl {
         if (<any>this.rectElement.getAttribute("width") == 0 || <any>this.rectElement.getAttribute("height") == 0)
@@ -111,8 +114,8 @@ class ToolBox_Ellipse extends ToolBoxItem {
         svgContainer.appendChild(this.rootElement);
     }
     mousemove(x, y) {
-        this.rootElement.setAttribute('rx', <any>Math.max(0, x - this.startx));
-        this.rootElement.setAttribute('ry', <any>Math.max(0, y - this.starty));
+        this.rootElement.setAttribute('rx', <any>Math.abs( x - this.startx));
+        this.rootElement.setAttribute('ry', <any>Math.abs( y - this.starty));
     }
     end(): EditorControl {
         if (<any>this.rootElement.getAttribute("rx") == 0 || <any>this.rootElement.getAttribute("ry") == 0) {
@@ -144,7 +147,7 @@ class ToolBox_Circle extends ToolBoxItem {
         svgContainer.appendChild(this.rootElement);
     }
     mousemove(x, y) {
-        this.rootElement.setAttribute('r', <any>Math.max(0, x - this.startx));
+        this.rootElement.setAttribute('r', <any>Math.abs(x - this.startx));
     }
     end(): EditorControl {
         if (<any>this.rootElement.getAttribute("r") == 0 ) {
