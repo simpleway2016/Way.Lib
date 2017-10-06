@@ -45,7 +45,7 @@ declare class LineControl extends EditorControl {
     startY: number;
     valueX: any;
     valueY: any;
-    readonly rect: {
+    rect: {
         x: number;
         y: number;
         width: number;
@@ -61,6 +61,7 @@ declare class LineControl extends EditorControl {
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
     onSelectedChange(): void;
+    resetPointLocation(): void;
     setEvent(pointEle: any, xName: any, yName: any): void;
     pointMouseDown(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
     pointMouseMove(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
@@ -72,12 +73,7 @@ declare class RectControl extends EditorControl {
     moving: boolean;
     startX: number;
     startY: number;
-    readonly rect: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    };
+    rect: any;
     strokeWidth: string;
     colorStroke: string;
     colorFill: string;
@@ -101,12 +97,7 @@ declare class EllipseControl extends EditorControl {
     moving: boolean;
     startX: number;
     startY: number;
-    readonly rect: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    };
+    rect: any;
     strokeWidth: string;
     colorStroke: string;
     colorFill: string;
@@ -130,12 +121,7 @@ declare class CircleControl extends EditorControl {
     moving: boolean;
     startX: number;
     startY: number;
-    readonly rect: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    };
+    rect: any;
     strokeWidth: string;
     colorStroke: string;
     colorFill: string;
@@ -159,4 +145,17 @@ declare class ImageControl extends RectControl {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(element: any);
+}
+declare class TextControl extends RectControl {
+    textElement: SVGTextElement;
+    selectingElement: SVGRectElement;
+    text: string;
+    size: number;
+    colorFill: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    rect: any;
+    constructor(element: any);
+    onSelectedChange(): void;
+    resetPointLocation(): void;
 }

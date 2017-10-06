@@ -243,6 +243,38 @@ class LineControl extends EditorControl
             height: Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2"))),
         };
     }
+    set rect(v) {
+        var x = Math.min(parseInt(this.lineElement.getAttribute("x1")), parseInt(this.lineElement.getAttribute("x2")));
+        var y = Math.min(parseInt(this.lineElement.getAttribute("y1")), parseInt(this.lineElement.getAttribute("y2")));
+        this.lineElement.setAttribute("x1", <any>(parseInt(this.lineElement.getAttribute("x1")) + v.x - x));
+        this.lineElement.setAttribute("x2", <any>(parseInt(this.lineElement.getAttribute("x2")) + v.x - x));
+
+        this.lineElement.setAttribute("y1", <any>(parseInt(this.lineElement.getAttribute("y1")) + v.y - y));
+        this.lineElement.setAttribute("y2", <any>(parseInt(this.lineElement.getAttribute("y2")) + v.y - y));
+
+
+        var height = Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2")));
+        if (parseInt(this.lineElement.getAttribute("y1")) < parseInt(this.lineElement.getAttribute("y2"))) {
+            var y2 :any = parseInt(this.lineElement.getAttribute("y2")) + v.height - height;
+            this.lineElement.setAttribute("y2" , y2);
+        }
+        else {
+            var y1: any = parseInt(this.lineElement.getAttribute("y1")) + v.height - height;
+            this.lineElement.setAttribute("y1", y1);
+        }
+
+        var width = Math.abs(parseInt(this.lineElement.getAttribute("x1")) - parseInt(this.lineElement.getAttribute("x2")));
+        if (parseInt(this.lineElement.getAttribute("x1")) < parseInt(this.lineElement.getAttribute("x2"))) {
+            var x2: any = parseInt(this.lineElement.getAttribute("x2")) + v.width - width;
+            this.lineElement.setAttribute("x2", x2);
+        }
+        else {
+            var x1: any = parseInt(this.lineElement.getAttribute("x1")) + v.width - width;
+            this.lineElement.setAttribute("x1", x1);
+        }
+
+        this.resetPointLocation();
+    }
 
     get lineWidth() {
         return this.lineElement.style.strokeWidth;
@@ -307,8 +339,6 @@ class LineControl extends EditorControl
         if (this.selected)
         {
             var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle1.setAttribute("cx", <any>this.lineElement.x1.animVal.value);
-            pointEle1.setAttribute("cy", <any>this.lineElement.y1.animVal.value);
             pointEle1.setAttribute("r", "5");
             pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
             (<any>pointEle1).xName = "x1";
@@ -316,8 +346,6 @@ class LineControl extends EditorControl
             this.lineElement.parentElement.appendChild(pointEle1);
 
             var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle2.setAttribute("cx", <any>this.lineElement.x2.animVal.value);
-            pointEle2.setAttribute("cy", <any>this.lineElement.y2.animVal.value);
             pointEle2.setAttribute("r", "5");
             pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
             (<any>pointEle2).xName = "x2";
@@ -326,6 +354,8 @@ class LineControl extends EditorControl
 
             this.pointEles.push(pointEle1);
             this.pointEles.push(pointEle2);
+
+            this.resetPointLocation();
 
             for (var i = 0; i < this.pointEles.length; i++) {
                 this.setEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
@@ -340,6 +370,14 @@ class LineControl extends EditorControl
 
             
         }
+    }
+
+    resetPointLocation() {
+        this.pointEles[0].setAttribute("cx", <any>this.lineElement.x1.animVal.value);
+        this.pointEles[0].setAttribute("cy", <any>this.lineElement.y1.animVal.value);
+
+        this.pointEles[1].setAttribute("cx", <any>this.lineElement.x2.animVal.value);
+        this.pointEles[1].setAttribute("cy", <any>this.lineElement.y2.animVal.value);
     }
 
     setEvent(pointEle, xName, yName)
@@ -390,13 +428,21 @@ class RectControl extends EditorControl {
     startY = 0;
 
     get rect() {
-        var myrect = {
-            x: parseInt(this.rectElement.getAttribute("x")),
-            y: parseInt(this.rectElement.getAttribute("y")),
-            width: parseInt(this.rectElement.getAttribute("width")),
-            height: parseInt(this.rectElement.getAttribute("height")),
-        };
+        var myrect: SVGRect = (<any>this.rectElement).getBBox();
+        //var myrect = {
+        //    x: parseInt(this.rectElement.getAttribute("x")),
+        //    y: parseInt(this.rectElement.getAttribute("y")),
+        //    width: parseInt(this.rectElement.getAttribute("width")),
+        //    height: parseInt(this.rectElement.getAttribute("height")),
+        //};
         return myrect;
+    }
+    set rect(v:any) {
+        this.rectElement.setAttribute("x", v.x);
+        this.rectElement.setAttribute("y", v.y);
+        this.rectElement.setAttribute("width", v.width);
+        this.rectElement.setAttribute("height", v.height);
+        this.resetPointLocation();
     }
 
     get strokeWidth() {
@@ -452,8 +498,9 @@ class RectControl extends EditorControl {
 
     resetPointLocation()
     {
-        this.pRightBottom.setAttribute("cx", <any>(parseInt(this.rectElement.getAttribute("x")) + parseInt(this.rectElement.getAttribute("width"))));
-        this.pRightBottom.setAttribute("cy", <any>(parseInt(this.rectElement.getAttribute("y")) + parseInt(this.rectElement.getAttribute("height"))));
+        var rect = this.rect;
+        this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
+        this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
     }
 
     setEvent(pointEle) {
@@ -530,6 +577,22 @@ class EllipseControl extends EditorControl {
             height: parseInt(this.rootElement.getAttribute("ry")) * 2,
         };
         return myrect;
+    }
+    set rect(v: any) {
+        var myrect = this.rect;
+        var x:any = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
+        this.rootElement.setAttribute("cx", x);
+
+        var y: any = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
+        this.rootElement.setAttribute("cy", y);
+
+        var rx : any = parseInt(this.rootElement.getAttribute("rx")) + (v.width - myrect.width)/2;
+        this.rootElement.setAttribute("rx", rx);
+
+        var ry: any = parseInt(this.rootElement.getAttribute("ry")) + (v.height - myrect.height) / 2;
+        this.rootElement.setAttribute("ry", ry);
+
+        this.resetPointLocation();
     }
 
     get strokeWidth() {
@@ -687,6 +750,19 @@ class CircleControl extends EditorControl {
         };
         return myrect;
     }
+    set rect(v: any) {
+        var myrect = this.rect;
+        var x: any = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
+        this.rootElement.setAttribute("cx", x);
+
+        var y: any = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
+        this.rootElement.setAttribute("cy", y);
+
+        var r: any = parseInt(this.rootElement.getAttribute("r")) + (v.width - myrect.width) / 2;
+        this.rootElement.setAttribute("r", r);
+
+        this.resetPointLocation();
+    }
 
     get strokeWidth() {
         return this.rootElement.style.strokeWidth;
@@ -835,5 +911,82 @@ class ImageControl extends RectControl {
         super(element);
         this.imgElement = element;
     }
+
+}
+
+class TextControl extends RectControl {
+    textElement: SVGTextElement;
+    selectingElement: SVGRectElement;
+    get text() {
+        return this.textElement.textContent;
+    }
+    set text(v) {
+        if (v != this.textElement.textContent) {
+            this.textElement.textContent = v;
+            this.resetPointLocation();
+        }
+    }
+    get size() {
+        return parseInt(this.textElement.getAttribute("font-size"));
+    }
+    set size(v) {
+        this.textElement.setAttribute("font-size", <any>v);
+        this.resetPointLocation();
+    }
+    get colorFill() {
+        return this.textElement.style.fill;
+    }
+    set colorFill(v) {
+        this.textElement.style.fill = v;
+    }
+    getPropertiesCaption(): string[] {
+        return ["文字","大小","颜色"];
+    }
+    getProperties(): string[] {
+        return ["text","size","colorFill"];
+    }
+
+
+    get rect() {
+        var myrect: SVGRect = (<any>this.rectElement).getBBox();
+        return myrect;
+    }
+    set rect(v: any) {
+        this.rectElement.setAttribute("x", v.x);
+        this.rectElement.setAttribute("y", v.y);
+        this.resetPointLocation();
+    }
+
+    constructor(element: any) {
+        super(element);
+        this.textElement = element;
+    }
+
+    onSelectedChange() {
+        if (this.selected) {
+            var myrect = this.rect;
+            this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
+            this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
+            this.selectingElement.setAttribute('width', <any>(myrect.width + 10));
+            this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
+            this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+            this.selectingElement.onmousedown = (e) => {
+                e.stopPropagation();
+            };
+            this.rectElement.parentElement.appendChild(this.selectingElement);
+        }
+        else {
+            this.rectElement.parentElement.removeChild(this.selectingElement);
+        }
+    }
+
+    resetPointLocation() {
+        var myrect = this.rect;
+        this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
+        this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
+        this.selectingElement.setAttribute('width', <any>(myrect.width + 10));
+        this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
+    }   
 
 }

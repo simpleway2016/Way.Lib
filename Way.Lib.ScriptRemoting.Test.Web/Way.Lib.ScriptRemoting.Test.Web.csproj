@@ -65,6 +65,7 @@
     <Content Include="组态\images\toolbox\rect.png" />
     <Content Include="组态\images\toolbox\line.png" />
     <Content Include="组态\images\toolbox\setting.png" />
+    <Content Include="组态\images\toolbox\text.png" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
   </ItemGroup>

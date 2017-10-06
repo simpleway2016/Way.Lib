@@ -166,6 +166,34 @@ var ToolBox_Image = (function (_super) {
     };
     return ToolBox_Image;
 }(ToolBoxItem));
+var ToolBox_Text = (function (_super) {
+    __extends(ToolBox_Text, _super);
+    function ToolBox_Text() {
+        return _super.call(this) || this;
+    }
+    Object.defineProperty(ToolBox_Text.prototype, "supportMove", {
+        get: function () {
+            return false;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ToolBox_Text.prototype.begin = function (svgContainer, position) {
+        this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        this.rootElement.setAttribute('x', position.x);
+        this.rootElement.setAttribute('id', "aac");
+        this.rootElement.setAttribute('y', position.y);
+        this.rootElement.textContent = "Text";
+        this.rootElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
+        this.rootElement.setAttribute('font-size', "16");
+        svgContainer.appendChild(this.rootElement);
+        this.rootElement.onselectstart = function (e) { e.preventDefault(); e.cancelBubble = true; return false; };
+        if (this.buildDone) {
+            this.buildDone(new TextControl(this.rootElement));
+        }
+    };
+    return ToolBox_Text;
+}(ToolBoxItem));
 var Editor = (function () {
     function Editor(id) {
         var _this = this;
@@ -179,10 +207,18 @@ var Editor = (function () {
         this.svgContainer.setAttribute('height', '100%');
         this.svgContainer.style.backgroundColor = "#ffffff";
         divContainer.appendChild(this.svgContainer);
-        this.svgContainer.addEventListener("click", function (e) { _this.svgContainerClick(e); _this.fireBodyEvent("click"); });
+        this.svgContainer.addEventListener("click", function (e) {
+            if (_this.svgContainer._notClick) {
+                _this.svgContainer._notClick = false;
+                return;
+            }
+            _this.svgContainerClick(e);
+            _this.fireBodyEvent("click");
+        });
         this.svgContainer.addEventListener("mousedown", function (e) {
             _this.fireBodyEvent("mousedown");
             if (!_this.currentToolBoxItem) {
+                _this.svgContainer._notClick = true;
                 _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 _this.selectingElement._startx = e.clientX - divContainer.offsetLeft;
                 _this.selectingElement._starty = e.clientY - divContainer.offsetTop;
@@ -190,12 +226,14 @@ var Editor = (function () {
                 _this.selectingElement.setAttribute('y', (e.clientY - divContainer.offsetTop));
                 _this.selectingElement.setAttribute('width', "0");
                 _this.selectingElement.setAttribute('height', "0");
-                _this.selectingElement.setAttribute('style', 'fill-opacity:0;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+                _this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
                 _this.svgContainer.appendChild(_this.selectingElement);
+                _this.svgContainer.setCapture();
             }
         });
         this.svgContainer.addEventListener("mouseup", function (e) {
             if (_this.selectingElement) {
+                _this.svgContainer.releaseCapture();
                 var rect = {
                     x: parseInt(_this.selectingElement.getAttribute("x")),
                     y: parseInt(_this.selectingElement.getAttribute("y")),
@@ -205,6 +243,9 @@ var Editor = (function () {
                 _this.svgContainer.removeChild(_this.selectingElement);
                 _this.selectingElement = null;
                 _this.selectControlsByRect(rect, e.ctrlKey);
+                setTimeout(function () {
+                    _this.svgContainer._notClick = false;
+                }, 500);
             }
             else {
                 _this.svgContainerMouseUpPosition = {
@@ -279,7 +320,6 @@ var Editor = (function () {
             return;
         }
         if (!this.beginedToolBoxItem) {
-            this.currentToolBoxItem.begin(this.svgContainer, this.svgContainerMouseUpPosition);
             if (this.currentToolBoxItem.supportMove) {
                 this.beginedToolBoxItem = this.currentToolBoxItem;
             }
@@ -293,6 +333,7 @@ var Editor = (function () {
                     }
                 };
             }
+            this.currentToolBoxItem.begin(this.svgContainer, this.svgContainerMouseUpPosition);
         }
         else {
             var control = this.beginedToolBoxItem.end();

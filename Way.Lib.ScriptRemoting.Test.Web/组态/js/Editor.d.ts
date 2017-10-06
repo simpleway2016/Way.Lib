@@ -47,6 +47,12 @@ declare class ToolBox_Image extends ToolBoxItem {
     constructor();
     begin(svgContainer: SVGSVGElement, position: any): void;
 }
+declare class ToolBox_Text extends ToolBoxItem {
+    rootElement: SVGTextElement;
+    readonly supportMove: boolean;
+    constructor();
+    begin(svgContainer: SVGSVGElement, position: any): void;
+}
 declare class Editor {
     private svgContainer;
     private currentToolBoxItem;

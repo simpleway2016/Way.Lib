@@ -231,6 +231,33 @@ var LineControl = (function (_super) {
                 height: Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2"))),
             };
         },
+        set: function (v) {
+            var x = Math.min(parseInt(this.lineElement.getAttribute("x1")), parseInt(this.lineElement.getAttribute("x2")));
+            var y = Math.min(parseInt(this.lineElement.getAttribute("y1")), parseInt(this.lineElement.getAttribute("y2")));
+            this.lineElement.setAttribute("x1", (parseInt(this.lineElement.getAttribute("x1")) + v.x - x));
+            this.lineElement.setAttribute("x2", (parseInt(this.lineElement.getAttribute("x2")) + v.x - x));
+            this.lineElement.setAttribute("y1", (parseInt(this.lineElement.getAttribute("y1")) + v.y - y));
+            this.lineElement.setAttribute("y2", (parseInt(this.lineElement.getAttribute("y2")) + v.y - y));
+            var height = Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2")));
+            if (parseInt(this.lineElement.getAttribute("y1")) < parseInt(this.lineElement.getAttribute("y2"))) {
+                var y2 = parseInt(this.lineElement.getAttribute("y2")) + v.height - height;
+                this.lineElement.setAttribute("y2", y2);
+            }
+            else {
+                var y1 = parseInt(this.lineElement.getAttribute("y1")) + v.height - height;
+                this.lineElement.setAttribute("y1", y1);
+            }
+            var width = Math.abs(parseInt(this.lineElement.getAttribute("x1")) - parseInt(this.lineElement.getAttribute("x2")));
+            if (parseInt(this.lineElement.getAttribute("x1")) < parseInt(this.lineElement.getAttribute("x2"))) {
+                var x2 = parseInt(this.lineElement.getAttribute("x2")) + v.width - width;
+                this.lineElement.setAttribute("x2", x2);
+            }
+            else {
+                var x1 = parseInt(this.lineElement.getAttribute("x1")) + v.width - width;
+                this.lineElement.setAttribute("x1", x1);
+            }
+            this.resetPointLocation();
+        },
         enumerable: true,
         configurable: true
     });
@@ -291,16 +318,12 @@ var LineControl = (function (_super) {
     LineControl.prototype.onSelectedChange = function () {
         if (this.selected) {
             var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle1.setAttribute("cx", this.lineElement.x1.animVal.value);
-            pointEle1.setAttribute("cy", this.lineElement.y1.animVal.value);
             pointEle1.setAttribute("r", "5");
             pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
             pointEle1.xName = "x1";
             pointEle1.yName = "y1";
             this.lineElement.parentElement.appendChild(pointEle1);
             var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle2.setAttribute("cx", this.lineElement.x2.animVal.value);
-            pointEle2.setAttribute("cy", this.lineElement.y2.animVal.value);
             pointEle2.setAttribute("r", "5");
             pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
             pointEle2.xName = "x2";
@@ -308,6 +331,7 @@ var LineControl = (function (_super) {
             this.lineElement.parentElement.appendChild(pointEle2);
             this.pointEles.push(pointEle1);
             this.pointEles.push(pointEle2);
+            this.resetPointLocation();
             for (var i = 0; i < this.pointEles.length; i++) {
                 this.setEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
             }
@@ -318,6 +342,12 @@ var LineControl = (function (_super) {
             }
             this.pointEles = [];
         }
+    };
+    LineControl.prototype.resetPointLocation = function () {
+        this.pointEles[0].setAttribute("cx", this.lineElement.x1.animVal.value);
+        this.pointEles[0].setAttribute("cy", this.lineElement.y1.animVal.value);
+        this.pointEles[1].setAttribute("cx", this.lineElement.x2.animVal.value);
+        this.pointEles[1].setAttribute("cy", this.lineElement.y2.animVal.value);
     };
     LineControl.prototype.setEvent = function (pointEle, xName, yName) {
         var _this = this;
@@ -368,13 +398,15 @@ var RectControl = (function (_super) {
     }
     Object.defineProperty(RectControl.prototype, "rect", {
         get: function () {
-            var myrect = {
-                x: parseInt(this.rectElement.getAttribute("x")),
-                y: parseInt(this.rectElement.getAttribute("y")),
-                width: parseInt(this.rectElement.getAttribute("width")),
-                height: parseInt(this.rectElement.getAttribute("height")),
-            };
+            var myrect = this.rectElement.getBBox();
             return myrect;
+        },
+        set: function (v) {
+            this.rectElement.setAttribute("x", v.x);
+            this.rectElement.setAttribute("y", v.y);
+            this.rectElement.setAttribute("width", v.width);
+            this.rectElement.setAttribute("height", v.height);
+            this.resetPointLocation();
         },
         enumerable: true,
         configurable: true
@@ -432,8 +464,9 @@ var RectControl = (function (_super) {
         }
     };
     RectControl.prototype.resetPointLocation = function () {
-        this.pRightBottom.setAttribute("cx", (parseInt(this.rectElement.getAttribute("x")) + parseInt(this.rectElement.getAttribute("width"))));
-        this.pRightBottom.setAttribute("cy", (parseInt(this.rectElement.getAttribute("y")) + parseInt(this.rectElement.getAttribute("height"))));
+        var rect = this.rect;
+        this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
+        this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
     };
     RectControl.prototype.setEvent = function (pointEle) {
         var _this = this;
@@ -508,6 +541,18 @@ var EllipseControl = (function (_super) {
                 height: parseInt(this.rootElement.getAttribute("ry")) * 2,
             };
             return myrect;
+        },
+        set: function (v) {
+            var myrect = this.rect;
+            var x = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
+            this.rootElement.setAttribute("cx", x);
+            var y = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
+            this.rootElement.setAttribute("cy", y);
+            var rx = parseInt(this.rootElement.getAttribute("rx")) + (v.width - myrect.width) / 2;
+            this.rootElement.setAttribute("rx", rx);
+            var ry = parseInt(this.rootElement.getAttribute("ry")) + (v.height - myrect.height) / 2;
+            this.rootElement.setAttribute("ry", ry);
+            this.resetPointLocation();
         },
         enumerable: true,
         configurable: true
@@ -662,6 +707,16 @@ var CircleControl = (function (_super) {
             };
             return myrect;
         },
+        set: function (v) {
+            var myrect = this.rect;
+            var x = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
+            this.rootElement.setAttribute("cx", x);
+            var y = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
+            this.rootElement.setAttribute("cy", y);
+            var r = parseInt(this.rootElement.getAttribute("r")) + (v.width - myrect.width) / 2;
+            this.rootElement.setAttribute("r", r);
+            this.resetPointLocation();
+        },
         enumerable: true,
         configurable: true
     });
@@ -806,5 +861,92 @@ var ImageControl = (function (_super) {
         return ["imgDefault"];
     };
     return ImageControl;
+}(RectControl));
+var TextControl = (function (_super) {
+    __extends(TextControl, _super);
+    function TextControl(element) {
+        var _this = _super.call(this, element) || this;
+        _this.textElement = element;
+        return _this;
+    }
+    Object.defineProperty(TextControl.prototype, "text", {
+        get: function () {
+            return this.textElement.textContent;
+        },
+        set: function (v) {
+            if (v != this.textElement.textContent) {
+                this.textElement.textContent = v;
+                this.resetPointLocation();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextControl.prototype, "size", {
+        get: function () {
+            return parseInt(this.textElement.getAttribute("font-size"));
+        },
+        set: function (v) {
+            this.textElement.setAttribute("font-size", v);
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextControl.prototype, "colorFill", {
+        get: function () {
+            return this.textElement.style.fill;
+        },
+        set: function (v) {
+            this.textElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TextControl.prototype.getPropertiesCaption = function () {
+        return ["文字", "大小", "颜色"];
+    };
+    TextControl.prototype.getProperties = function () {
+        return ["text", "size", "colorFill"];
+    };
+    Object.defineProperty(TextControl.prototype, "rect", {
+        get: function () {
+            var myrect = this.rectElement.getBBox();
+            return myrect;
+        },
+        set: function (v) {
+            this.rectElement.setAttribute("x", v.x);
+            this.rectElement.setAttribute("y", v.y);
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TextControl.prototype.onSelectedChange = function () {
+        if (this.selected) {
+            var myrect = this.rect;
+            this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.selectingElement.setAttribute('x', (myrect.x - 5));
+            this.selectingElement.setAttribute('y', (myrect.y - 5));
+            this.selectingElement.setAttribute('width', (myrect.width + 10));
+            this.selectingElement.setAttribute('height', (myrect.height + 10));
+            this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+            this.selectingElement.onmousedown = function (e) {
+                e.stopPropagation();
+            };
+            this.rectElement.parentElement.appendChild(this.selectingElement);
+        }
+        else {
+            this.rectElement.parentElement.removeChild(this.selectingElement);
+        }
+    };
+    TextControl.prototype.resetPointLocation = function () {
+        var myrect = this.rect;
+        this.selectingElement.setAttribute('x', (myrect.x - 5));
+        this.selectingElement.setAttribute('y', (myrect.y - 5));
+        this.selectingElement.setAttribute('width', (myrect.width + 10));
+        this.selectingElement.setAttribute('height', (myrect.height + 10));
+    };
+    return TextControl;
 }(RectControl));
 //# sourceMappingURL=EditorControls.js.map

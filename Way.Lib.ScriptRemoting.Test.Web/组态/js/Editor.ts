@@ -186,6 +186,36 @@ class ToolBox_Image extends ToolBoxItem {
     }
 }
 
+class ToolBox_Text extends ToolBoxItem {
+    rootElement: SVGTextElement;
+
+    get supportMove(): boolean {
+        return false;
+    }
+
+    constructor() {
+        super();
+    }
+
+    begin(svgContainer: SVGSVGElement, position: any) {
+        this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+        this.rootElement.setAttribute('x', position.x);
+        this.rootElement.setAttribute('id',"aac");
+        this.rootElement.setAttribute('y', position.y);
+        this.rootElement.textContent = "Text";
+
+        this.rootElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
+        this.rootElement.setAttribute('font-size', "16");
+        svgContainer.appendChild(this.rootElement);
+
+        (<any>this.rootElement).onselectstart = (e: Event) => { e.preventDefault(); e.cancelBubble = true; return false; };
+
+        if (this.buildDone) {
+            this.buildDone(new TextControl(this.rootElement));
+        }
+    }
+}
 
 class Editor
 {
@@ -211,11 +241,20 @@ class Editor
         this.svgContainer.style.backgroundColor = "#ffffff";
         divContainer.appendChild(this.svgContainer);
 
-        this.svgContainer.addEventListener("click", (e) => { this.svgContainerClick(e); this.fireBodyEvent("click"); });
+        this.svgContainer.addEventListener("click", (e) => {
+            if ((<any>this.svgContainer)._notClick) {
+                (<any>this.svgContainer)._notClick = false;
+                return;
+            }
+
+            this.svgContainerClick(e); this.fireBodyEvent("click");
+        });
         this.svgContainer.addEventListener("mousedown", (e) => {
-            this.fireBodyEvent("mousedown");
+            this.fireBodyEvent("mousedown");         
             if (!this.currentToolBoxItem)
             {
+                (<any>this.svgContainer)._notClick = true;
+
                 this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 (<any>this.selectingElement)._startx = e.clientX - divContainer.offsetLeft;
                 (<any>this.selectingElement)._starty = e.clientY - divContainer.offsetTop;
@@ -223,12 +262,15 @@ class Editor
                 this.selectingElement.setAttribute('y', <any>(e.clientY - divContainer.offsetTop));
                 this.selectingElement.setAttribute('width', "0");
                 this.selectingElement.setAttribute('height', "0");
-                this.selectingElement.setAttribute('style', 'fill-opacity:0;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+                this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
                 this.svgContainer.appendChild(this.selectingElement);
+                (<any>this.svgContainer).setCapture();
             }
         });
         this.svgContainer.addEventListener("mouseup", (e) => {
+          
             if (this.selectingElement) {
+                (<any>this.svgContainer).releaseCapture();
                 var rect = {
                     x: parseInt(this.selectingElement.getAttribute("x")),
                     y: parseInt(this.selectingElement.getAttribute("y")),
@@ -238,6 +280,10 @@ class Editor
                 this.svgContainer.removeChild(this.selectingElement);
                 this.selectingElement = null;
                 this.selectControlsByRect(rect, e.ctrlKey);
+
+                setTimeout(() => {
+                    (<any>this.svgContainer)._notClick = false;
+                }, 500);
             }
             else {
                 this.svgContainerMouseUpPosition = {
@@ -286,6 +332,7 @@ class Editor
             var original = this.controls[i].ctrlKey;
             this.controls[i].ctrlKey = true;//表示ctrl按下，否则，会把其他control的selected设为false
             var intersect = this.controls[i].isIntersectWith(rect);
+           
             if (intersect)
             {
                 if (ctrlKey && this.controls[i].selected)
@@ -329,8 +376,7 @@ class Editor
         }
        
         if (!this.beginedToolBoxItem) {
-           
-            this.currentToolBoxItem.begin(this.svgContainer, this.svgContainerMouseUpPosition);
+                     
             if (this.currentToolBoxItem.supportMove) {
                 this.beginedToolBoxItem = this.currentToolBoxItem;
             }
@@ -345,6 +391,7 @@ class Editor
                     }
                 };
             }
+            this.currentToolBoxItem.begin(this.svgContainer, this.svgContainerMouseUpPosition);
         }
         else {
             var control = this.beginedToolBoxItem.end();
