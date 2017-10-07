@@ -1,4 +1,5 @@
 declare var fileBrowser: FileBrowser;
+declare var windowid: number;
 declare class ToolBoxItem {
     buildDone: (control: EditorControl) => any;
     readonly supportMove: boolean;
@@ -62,6 +63,8 @@ declare class Editor {
     controls: any[];
     private selectingElement;
     constructor(id: string);
+    copy(): void;
+    paste(): void;
     fireBodyEvent(event: any): void;
     selectControlsByRect(rect: any, ctrlKey: any): void;
     setCurrentToolBoxItem(typename: string): void;

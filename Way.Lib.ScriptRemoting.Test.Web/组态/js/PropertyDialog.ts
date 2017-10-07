@@ -115,6 +115,9 @@ class PropertyDialog
         input.addEventListener("keydown", (e) => {
             e.stopPropagation();
         }, false);
+        input.addEventListener("keyup", (e) => {
+            e.stopPropagation();            
+        }, false);
 
         if (input._picker) {
             input.onchange = () => {
@@ -122,10 +125,9 @@ class PropertyDialog
             };
         }
         else {
-            input.onkeyup = (e: Event) => {
-                
+            input.addEventListener("keyup", (e) => {
                 this.control[input._name] = input.value;
-            };
+            }, false);
         }
     }
 

@@ -114,6 +114,18 @@ var EditorControl = (function () {
     EditorControl.prototype.getProperties = function () {
         return null;
     };
+    EditorControl.prototype.getJson = function () {
+        var obj = {
+            tagName: this.element.tagName,
+            rect: this.rect,
+            constructorName: this.constructor.name
+        };
+        var properites = this.getProperties();
+        for (var i = 0; i < properites.length; i++) {
+            obj[properites[i]] = this[properites[i]];
+        }
+        return obj;
+    };
     EditorControl.prototype.isIntersectWith = function (rect) {
         return false;
     };
@@ -223,6 +235,7 @@ var LineControl = (function (_super) {
         _this.pointEles = [];
         _this.moving = false;
         _this.lineElement = element;
+        element.style.cursor = "pointer";
         return _this;
     }
     Object.defineProperty(LineControl.prototype, "rect", {
@@ -264,6 +277,29 @@ var LineControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(LineControl.prototype, "point", {
+        get: function () {
+            return {
+                x1: parseInt(this.lineElement.getAttribute("x1")),
+                x2: parseInt(this.lineElement.getAttribute("x2")),
+                y1: parseInt(this.lineElement.getAttribute("y1")),
+                y2: parseInt(this.lineElement.getAttribute("y2")),
+            };
+        },
+        set: function (v) {
+            this.lineElement.setAttribute("x1", v.x1);
+            this.lineElement.setAttribute("x2", v.x2);
+            this.lineElement.setAttribute("y1", v.y1);
+            this.lineElement.setAttribute("y2", v.y2);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    LineControl.prototype.getJson = function () {
+        var obj = _super.prototype.getJson.call(this);
+        obj.point = this.point;
+        return obj;
+    };
     Object.defineProperty(LineControl.prototype, "lineWidth", {
         get: function () {
             return this.lineElement.style.strokeWidth;
@@ -402,7 +438,12 @@ var RectControl = (function (_super) {
     Object.defineProperty(RectControl.prototype, "rect", {
         get: function () {
             var myrect = this.rectElement.getBBox();
-            return myrect;
+            return {
+                x: myrect.x,
+                y: myrect.y,
+                width: myrect.width,
+                height: myrect.height
+            };
         },
         set: function (v) {
             this.rectElement.setAttribute("x", v.x);
@@ -546,14 +587,11 @@ var EllipseControl = (function (_super) {
             return myrect;
         },
         set: function (v) {
-            var myrect = this.rect;
-            var x = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
-            this.rootElement.setAttribute("cx", x);
-            var y = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
-            this.rootElement.setAttribute("cy", y);
-            var rx = parseInt(this.rootElement.getAttribute("rx")) + (v.width - myrect.width) / 2;
+            var rx = v.width / 2;
+            var ry = v.height / 2;
+            this.rootElement.setAttribute("cx", v.x + rx);
+            this.rootElement.setAttribute("cy", v.y + ry);
             this.rootElement.setAttribute("rx", rx);
-            var ry = parseInt(this.rootElement.getAttribute("ry")) + (v.height - myrect.height) / 2;
             this.rootElement.setAttribute("ry", ry);
             this.resetPointLocation();
         },
@@ -711,12 +749,9 @@ var CircleControl = (function (_super) {
             return myrect;
         },
         set: function (v) {
-            var myrect = this.rect;
-            var x = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
-            this.rootElement.setAttribute("cx", x);
-            var y = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
-            this.rootElement.setAttribute("cy", y);
-            var r = parseInt(this.rootElement.getAttribute("r")) + (v.width - myrect.width) / 2;
+            var r = v.width / 2;
+            this.rootElement.setAttribute("cx", v.x + r);
+            this.rootElement.setAttribute("cy", v.y + r);
             this.rootElement.setAttribute("r", r);
             this.resetPointLocation();
         },
@@ -915,7 +950,12 @@ var TextControl = (function (_super) {
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
             var myrect = this.rectElement.getBBox();
-            return myrect;
+            return {
+                x: myrect.x,
+                y: myrect.y,
+                width: myrect.width,
+                height: myrect.height
+            };
         },
         set: function (v) {
             this.rectElement.setAttribute("x", v.x);

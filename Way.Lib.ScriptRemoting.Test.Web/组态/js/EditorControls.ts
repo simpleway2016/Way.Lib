@@ -125,6 +125,21 @@ class EditorControl
         return null;
     }
 
+    getJson()
+    {
+        var obj = {
+            tagName: this.element.tagName,
+            rect: this.rect,
+            constructorName: (<any>this).constructor.name
+        };
+        var properites = this.getProperties();
+        for (var i = 0; i < properites.length; i++)
+        {
+            obj[properites[i]] = this[properites[i]];
+        }
+        return obj;
+    }
+
     isIntersectWith(rect):boolean
     {
         return false;
@@ -247,6 +262,7 @@ class LineControl extends EditorControl
         };
     }
     set rect(v) {
+
         var x = Math.min(parseInt(this.lineElement.getAttribute("x1")), parseInt(this.lineElement.getAttribute("x2")));
         var y = Math.min(parseInt(this.lineElement.getAttribute("y1")), parseInt(this.lineElement.getAttribute("y2")));
         this.lineElement.setAttribute("x1", <any>(parseInt(this.lineElement.getAttribute("x1")) + v.x - x));
@@ -279,6 +295,31 @@ class LineControl extends EditorControl
         this.resetPointLocation();
     }
 
+    get point()
+    {
+        return {
+            x1: parseInt(this.lineElement.getAttribute("x1")),
+            x2: parseInt(this.lineElement.getAttribute("x2")),
+            y1: parseInt(this.lineElement.getAttribute("y1")),
+            y2: parseInt(this.lineElement.getAttribute("y2")),
+        };
+    }
+    set point(v:any)
+    {
+        this.lineElement.setAttribute("x1", v.x1);
+        this.lineElement.setAttribute("x2", v.x2);
+        this.lineElement.setAttribute("y1", v.y1);
+        this.lineElement.setAttribute("y2", v.y2);
+
+    }
+
+    getJson() {
+        var obj: any = super.getJson();
+        obj.point = this.point;
+        return obj;
+    }
+
+
     get lineWidth() {
         return this.lineElement.style.strokeWidth;
     }
@@ -296,6 +337,7 @@ class LineControl extends EditorControl
     constructor(element: any) {
         super(element);
         this.lineElement = element;
+        element.style.cursor = "pointer";
     }
 
     getPropertiesCaption(): string[] {
@@ -438,7 +480,12 @@ class RectControl extends EditorControl {
         //    width: parseInt(this.rectElement.getAttribute("width")),
         //    height: parseInt(this.rectElement.getAttribute("height")),
         //};
-        return myrect;
+        return {
+            x: myrect.x,
+            y: myrect.y,
+            width: myrect.width,
+            height: myrect.height
+        };
     }
     set rect(v:any) {
         this.rectElement.setAttribute("x", v.x);
@@ -582,17 +629,11 @@ class EllipseControl extends EditorControl {
         return myrect;
     }
     set rect(v: any) {
-        var myrect = this.rect;
-        var x:any = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
-        this.rootElement.setAttribute("cx", x);
-
-        var y: any = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
-        this.rootElement.setAttribute("cy", y);
-
-        var rx : any = parseInt(this.rootElement.getAttribute("rx")) + (v.width - myrect.width)/2;
+        var rx : any = v.width / 2;
+        var ry : any = v.height / 2;
+        this.rootElement.setAttribute("cx", v.x + rx);
+        this.rootElement.setAttribute("cy", v.y + ry);
         this.rootElement.setAttribute("rx", rx);
-
-        var ry: any = parseInt(this.rootElement.getAttribute("ry")) + (v.height - myrect.height) / 2;
         this.rootElement.setAttribute("ry", ry);
 
         this.resetPointLocation();
@@ -754,14 +795,9 @@ class CircleControl extends EditorControl {
         return myrect;
     }
     set rect(v: any) {
-        var myrect = this.rect;
-        var x: any = parseInt(this.rootElement.getAttribute("cx")) + (v.x - myrect.x);
-        this.rootElement.setAttribute("cx", x);
-
-        var y: any = parseInt(this.rootElement.getAttribute("cy")) + (v.y - myrect.y);
-        this.rootElement.setAttribute("cy", y);
-
-        var r: any = parseInt(this.rootElement.getAttribute("r")) + (v.width - myrect.width) / 2;
+        var r: any = v.width / 2;
+        this.rootElement.setAttribute("cx", v.x + r);
+        this.rootElement.setAttribute("cy", v.y + r);
         this.rootElement.setAttribute("r", r);
 
         this.resetPointLocation();
@@ -952,7 +988,12 @@ class TextControl extends RectControl {
 
     get rect() {
         var myrect: SVGRect = (<any>this.rectElement).getBBox();
-        return myrect;
+        return {
+            x: myrect.x,
+            y: myrect.y,
+            width: myrect.width,
+            height: myrect.height
+        };
     }
     set rect(v: any) {
         this.rectElement.setAttribute("x", v.x);

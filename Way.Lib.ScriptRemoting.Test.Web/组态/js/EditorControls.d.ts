@@ -13,6 +13,11 @@ declare class EditorControl {
     constructor(element: any);
     getPropertiesCaption(): string[];
     getProperties(): string[];
+    getJson(): {
+        tagName: any;
+        rect: any;
+        constructorName: any;
+    };
     isIntersectWith(rect: any): boolean;
     isIntersect(rect1: any, rect: any): boolean;
     showProperty(): void;
@@ -51,6 +56,8 @@ declare class LineControl extends EditorControl {
         width: number;
         height: number;
     };
+    point: any;
+    getJson(): any;
     lineWidth: string;
     color: string;
     constructor(element: any);

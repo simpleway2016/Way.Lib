@@ -88,15 +88,18 @@ var PropertyDialog = (function () {
         input.addEventListener("keydown", function (e) {
             e.stopPropagation();
         }, false);
+        input.addEventListener("keyup", function (e) {
+            e.stopPropagation();
+        }, false);
         if (input._picker) {
             input.onchange = function () {
                 _this.control[input._name] = input.value;
             };
         }
         else {
-            input.onkeyup = function (e) {
+            input.addEventListener("keyup", function (e) {
                 _this.control[input._name] = input.value;
-            };
+            }, false);
         }
     };
     PropertyDialog.prototype.hide = function () {

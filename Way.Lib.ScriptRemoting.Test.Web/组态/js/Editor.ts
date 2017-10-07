@@ -1,4 +1,5 @@
-﻿declare var fileBrowser : FileBrowser;
+﻿declare var fileBrowser: FileBrowser;
+var windowid = new Date().getTime();
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -40,7 +41,7 @@ class ToolBox_Line extends ToolBoxItem
         this.lineElement.setAttribute('y1', position.y);
         this.lineElement.setAttribute('x2', position.x);
         this.lineElement.setAttribute('y2', position.y);
-        this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;cursor:pointer;');
+        this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;');
         
         svgContainer.appendChild(this.lineElement);
     }
@@ -68,7 +69,7 @@ class ToolBox_Rect extends ToolBoxItem {
         this.rectElement.setAttribute('y', position.y);
         this.rectElement.setAttribute('width',"0");
         this.rectElement.setAttribute('height', "0");
-        this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;cursor:pointer;');
+        this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
 
         this.startx = position.x;
         this.starty = position.y;
@@ -106,7 +107,7 @@ class ToolBox_Ellipse extends ToolBoxItem {
         this.rootElement.setAttribute('cy', position.y);
         this.rootElement.setAttribute('rx', "0");
         this.rootElement.setAttribute('ry', "0");
-        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;cursor:pointer;');
+        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
 
         this.startx = position.x;
         this.starty = position.y;
@@ -139,7 +140,7 @@ class ToolBox_Circle extends ToolBoxItem {
         this.rootElement.setAttribute('cx', position.x);
         this.rootElement.setAttribute('cy', position.y);
         this.rootElement.setAttribute('r', "0");
-        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;cursor:pointer;');
+        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
 
         this.startx = position.x;
         this.starty = position.y;
@@ -359,6 +360,54 @@ class Editor
                 }
             }
         }, false);
+    }
+
+    copy()
+    {
+        var copyitems = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            var json = control.getJson();
+            copyitems.push(json);
+        }
+
+        window.localStorage.setItem("copy", JSON.stringify(copyitems));
+        window.localStorage.setItem("windowid", windowid + "");
+    }
+    paste()
+    {
+        var str = window.localStorage.getItem("copy");
+        if (str) {
+            while (AllSelectedControls.length > 0)
+                AllSelectedControls[0].selected = false;
+
+            var isSameWindow = parseInt(window.localStorage.getItem("windowid")) == windowid;
+            var copyItems = JSON.parse(str);
+
+            for (var i = 0; i < copyItems.length; i++) {
+                var controlJson = copyItems[i];
+                if (isSameWindow) {
+                    controlJson.rect.x += 10;
+                    controlJson.rect.y += 10;
+                }
+                var editorctrl;
+                var ele = document.createElementNS('http://www.w3.org/2000/svg', controlJson.tagName);
+
+                eval("editorctrl = new " + controlJson.constructorName + "(ele)");
+                this.svgContainer.appendChild(ele);
+                this.controls.push(editorctrl);
+                editorctrl.ctrlKey = true;
+                editorctrl.selected = true;
+                editorctrl.ctrlKey = false;
+
+                for (var pname in controlJson) {
+                    if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                        editorctrl[pname] = controlJson[pname];
+                    }
+                }
+                editorctrl.rect = controlJson.rect;
+            }
+        }
     }
 
     fireBodyEvent(event)

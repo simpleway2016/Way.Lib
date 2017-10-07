@@ -60,8 +60,10 @@
     <Content Include="组态\images\browser\folder.png" />
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\circle.png" />
+    <Content Include="组态\images\toolbox\copy.png" />
     <Content Include="组态\images\toolbox\ellipse.png" />
     <Content Include="组态\images\toolbox\img.png" />
+    <Content Include="组态\images\toolbox\paste.png" />
     <Content Include="组态\images\toolbox\rect.png" />
     <Content Include="组态\images\toolbox\line.png" />
     <Content Include="组态\images\toolbox\setting.png" />
