@@ -251,10 +251,10 @@ class Editor
                 return;
             }
 
-            this.svgContainerClick(e); this.fireBodyEvent("click");
+            this.svgContainerClick(e);
         });
         this.svgContainer.addEventListener("mousedown", (e) => {
-            this.fireBodyEvent("mousedown");         
+    
             if (!this.currentToolBoxItem)
             {
                 (<any>this.svgContainer)._notClick = true;
@@ -412,9 +412,11 @@ class Editor
 
     fireBodyEvent(event)
     {
-        var evt = document.createEvent('HTMLEvents');
-        evt.initEvent(event, true, true);
-        document.body.dispatchEvent(evt);
+        //这个方式，winform做的browser不支持
+
+        //var evt = document.createEvent('HTMLEvents');
+        //evt.initEvent(event, true, true);
+        //document.body.dispatchEvent(evt);
     }
 
     selectControlsByRect(rect, ctrlKey)

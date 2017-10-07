@@ -31,7 +31,7 @@ namespace SunRizStudio
             gecko.ProgressChanged += Gecko_ProgressChanged;
             gecko.CreateWindow += Gecko_CreateWindow;
             gecko.DocumentCompleted += Gecko_DocumentCompleted;
-            gecko.Navigate("file:///D:/%E6%B3%A8%E9%87%8A/2016/EasyJobCore/Way.Lib.ScriptRemoting.Test.Web/%E7%BB%84%E6%80%81/editor.html");
+            gecko.Navigate("http://localhost:8988/editor");
         }
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)

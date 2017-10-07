@@ -216,10 +216,8 @@ var Editor = (function () {
                 return;
             }
             _this.svgContainerClick(e);
-            _this.fireBodyEvent("click");
         });
         this.svgContainer.addEventListener("mousedown", function (e) {
-            _this.fireBodyEvent("mousedown");
             if (!_this.currentToolBoxItem) {
                 _this.svgContainer._notClick = true;
                 _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -354,9 +352,6 @@ var Editor = (function () {
         }
     };
     Editor.prototype.fireBodyEvent = function (event) {
-        var evt = document.createEvent('HTMLEvents');
-        evt.initEvent(event, true, true);
-        document.body.dispatchEvent(evt);
     };
     Editor.prototype.selectControlsByRect = function (rect, ctrlKey) {
         for (var i = 0; i < this.controls.length; i++) {
