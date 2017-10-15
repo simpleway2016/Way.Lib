@@ -138,6 +138,15 @@ class PropertyDialog
     show()
     {
         var rect = this.control.rect;
+        if (!rect) {
+            //有些control没有rect属性
+            rect = {
+                x: 10,
+                y: 10,
+                width: 0,
+                height: 0
+            };
+        }
         var x = rect.x + rect.width + 6;
         var y = rect.y + 30;
         if (x + this.rootElement.offsetWidth > window.innerWidth) {

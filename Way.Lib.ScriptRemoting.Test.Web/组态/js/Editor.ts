@@ -28,34 +28,41 @@ class ToolBoxItem
 
 class ToolBox_Line extends ToolBoxItem
 {
-    lineElement: SVGLineElement;
+    control: LineControl;
     constructor()
     {
         super();
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
-        this.lineElement = document.createElementNS('http://www.w3.org/2000/svg','line');
 
-        this.lineElement.setAttribute('x1', position.x);
-        this.lineElement.setAttribute('y1', position.y);
-        this.lineElement.setAttribute('x2', position.x);
-        this.lineElement.setAttribute('y2', position.y);
-        this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;');
+        this.control = new LineControl();
+        this.control.lineElement.setAttribute('x1', position.x);
+        this.control.lineElement.setAttribute('y1', position.y);
+        this.control.lineElement.setAttribute('x2', position.x);
+        this.control.lineElement.setAttribute('y2', position.y);
+
+        this.control.virtualLineElement.setAttribute('x1', position.x);
+        this.control.virtualLineElement.setAttribute('y1', position.y);
+        this.control.virtualLineElement.setAttribute('x2', position.x);
+        this.control.virtualLineElement.setAttribute('y2', position.y);
         
-        svgContainer.appendChild(this.lineElement);
+        svgContainer.appendChild(this.control.element);
     }
     mousemove(x,y) {
-        this.lineElement.setAttribute('x2', x);
-        this.lineElement.setAttribute('y2', y);
+        this.control.lineElement.setAttribute('x2', x);
+        this.control.lineElement.setAttribute('y2', y);
+
+        this.control.virtualLineElement.setAttribute('x2', x);
+        this.control.virtualLineElement.setAttribute('y2', y);
     }
     end(): EditorControl {
-        return new LineControl(this.lineElement);
+        return this.control;
     }
 }
 
 class ToolBox_Rect extends ToolBoxItem {
-    rectElement: SVGRectElement;
+    control: RectControl;
     private startx;
     private starty;
     constructor() {
@@ -63,37 +70,38 @@ class ToolBox_Rect extends ToolBoxItem {
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
-        this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        this.control = new RectControl(null);
 
-        this.rectElement.setAttribute('x', position.x);
-        this.rectElement.setAttribute('y', position.y);
-        this.rectElement.setAttribute('width',"0");
-        this.rectElement.setAttribute('height', "0");
-        this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
+        this.control.element.setAttribute('x', position.x);
+        this.control.element.setAttribute('y', position.y);
+        this.control.element.setAttribute('width',"0");
+        this.control.element.setAttribute('height', "0");
+        
 
         this.startx = position.x;
         this.starty = position.y;
 
-        svgContainer.appendChild(this.rectElement);
+        svgContainer.appendChild(this.control.element);
     }
     mousemove(x, y) {
-        this.rectElement.setAttribute('x', <any>Math.min(x, this.startx));
-        this.rectElement.setAttribute('y', <any>Math.min(y, this.starty));
-
-        this.rectElement.setAttribute('width', <any>Math.abs(x - this.startx));
-        this.rectElement.setAttribute('height', <any>Math.abs(y - this.starty));
+        this.control.rect = {
+            x: Math.min(x, this.startx),
+            y: Math.min(y, this.starty),
+            width: Math.abs(x - this.startx),
+            height: Math.abs(y - this.starty)
+        }; 
     }
     end(): EditorControl {
-        if (<any>this.rectElement.getAttribute("width") == 0 || <any>this.rectElement.getAttribute("height") == 0)
+        if (<any>this.control.element.getAttribute("width") == 0 || <any>this.control.element.getAttribute("height") == 0)
         {
             return null;
         }
-        return new RectControl(this.rectElement);
+        return this.control;
     }
 }
 
 class ToolBox_Ellipse extends ToolBoxItem {
-    rootElement: SVGEllipseElement;
+    control: EllipseControl;
     private startx;
     private starty;
     constructor() {
@@ -101,33 +109,33 @@ class ToolBox_Ellipse extends ToolBoxItem {
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
-        this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        this.control = new EllipseControl();
 
-        this.rootElement.setAttribute('cx', position.x);
-        this.rootElement.setAttribute('cy', position.y);
-        this.rootElement.setAttribute('rx', "0");
-        this.rootElement.setAttribute('ry', "0");
-        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
+        this.control.element.setAttribute('cx', position.x);
+        this.control.element.setAttribute('cy', position.y);
+        this.control.element.setAttribute('rx', "0");
+        this.control.element.setAttribute('ry', "0");
+       
 
         this.startx = position.x;
         this.starty = position.y;
 
-        svgContainer.appendChild(this.rootElement);
+        svgContainer.appendChild(this.control.element);
     }
     mousemove(x, y) {
-        this.rootElement.setAttribute('rx', <any>Math.abs( x - this.startx));
-        this.rootElement.setAttribute('ry', <any>Math.abs( y - this.starty));
+        this.control.element.setAttribute('rx', <any>Math.abs( x - this.startx));
+        this.control.element.setAttribute('ry', <any>Math.abs( y - this.starty));
     }
     end(): EditorControl {
-        if (<any>this.rootElement.getAttribute("rx") == 0 || <any>this.rootElement.getAttribute("ry") == 0) {
+        if (<any>this.control.element.getAttribute("rx") == 0 || <any>this.control.element.getAttribute("ry") == 0) {
             return null;
         }
-        return new EllipseControl(this.rootElement);
+        return this.control;
     }
 }
 
 class ToolBox_Circle extends ToolBoxItem {
-    rootElement: SVGCircleElement;
+    control: CircleControl;
     private startx;
     private starty;
     constructor() {
@@ -135,31 +143,31 @@ class ToolBox_Circle extends ToolBoxItem {
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
-        this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        this.control = new CircleControl();
 
-        this.rootElement.setAttribute('cx', position.x);
-        this.rootElement.setAttribute('cy', position.y);
-        this.rootElement.setAttribute('r', "0");
-        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
+        this.control.element.setAttribute('cx', position.x);
+        this.control.element.setAttribute('cy', position.y);
+        this.control.element.setAttribute('r', "0");
+       
 
         this.startx = position.x;
         this.starty = position.y;
 
-        svgContainer.appendChild(this.rootElement);
+        svgContainer.appendChild(this.control.element);
     }
     mousemove(x, y) {
-        this.rootElement.setAttribute('r', <any>Math.abs(x - this.startx));
+        this.control.element.setAttribute('r', <any>Math.abs(x - this.startx));
     }
     end(): EditorControl {
-        if (<any>this.rootElement.getAttribute("r") == 0 ) {
+        if (<any>this.control.element.getAttribute("r") == 0 ) {
             return null;
         }
-        return new CircleControl(this.rootElement);
+        return this.control;
     }
 }
 
 class ToolBox_Image extends ToolBoxItem {
-    rootElement: SVGImageElement;
+    control: ImageControl;
 
     get supportMove(): boolean {
         return false;
@@ -172,18 +180,18 @@ class ToolBox_Image extends ToolBoxItem {
     begin(svgContainer: SVGSVGElement, position: any) {
         fileBrowser.onSelectFile = (path) => {
             fileBrowser.hide();
-            this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            this.control = new ImageControl();
 
-            this.rootElement.setAttribute('x', position.x);
-            this.rootElement.setAttribute('y', position.y);
-            this.rootElement.setAttribute('width', "200");
-            this.rootElement.setAttribute('height', "200");
-            this.rootElement.href.baseVal = path;
+            this.control.element.setAttribute('x', position.x);
+            this.control.element.setAttribute('y', position.y);
+            this.control.element.setAttribute('width', "200");
+            this.control.element.setAttribute('height', "200");
+            this.control.element.href.baseVal = path;
 
-            svgContainer.appendChild(this.rootElement);
+            svgContainer.appendChild(this.control.element);
             if (this.buildDone)
             {
-                this.buildDone(new ImageControl(this.rootElement));
+                this.buildDone(this.control);
             }
         };
         fileBrowser.show();        
@@ -191,7 +199,7 @@ class ToolBox_Image extends ToolBoxItem {
 }
 
 class ToolBox_Text extends ToolBoxItem {
-    rootElement: SVGTextElement;
+    control: TextControl;
 
     get supportMove(): boolean {
         return false;
@@ -202,27 +210,121 @@ class ToolBox_Text extends ToolBoxItem {
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
-        this.rootElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        this.control = new TextControl();
 
-        this.rootElement.setAttribute('x', position.x);
-        this.rootElement.setAttribute('id',"aac");
-        this.rootElement.setAttribute('y', position.y);
-        this.rootElement.textContent = "Text";
+        this.control.element.setAttribute('x', position.x);
+        this.control.element.setAttribute('y', position.y);
+       
+        svgContainer.appendChild(this.control.element);
 
-        this.rootElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
-        this.rootElement.setAttribute('font-size', "16");
-        svgContainer.appendChild(this.rootElement);
-
-        (<any>this.rootElement).onselectstart = (e: Event) => { e.preventDefault(); e.cancelBubble = true; return false; };
+        (<any>this.control.element).onselectstart = (e: Event) => { e.preventDefault(); e.cancelBubble = true; return false; };
 
         if (this.buildDone) {
-            this.buildDone(new TextControl(this.rootElement));
+            this.buildDone(this.control);
         }
     }
 }
 
-class Editor
+class ToolBox_Cylinder extends ToolBoxItem {
+    control: CylinderControl;
+    private startx;
+    private starty;
+    constructor() {
+        super();
+    }
+
+    begin(svgContainer: SVGSVGElement, position: any) {
+        this.control = new CylinderControl();
+
+        this.control.rectElement.setAttribute('x', position.x);
+        this.control.rectElement.setAttribute('y', position.y);
+
+        this.startx = position.x;
+        this.starty = position.y;
+
+        svgContainer.appendChild(this.control.element);
+    }
+    mousemove(x, y) {
+        this.control.rectElement.setAttribute('x', <any>Math.min(x, this.startx));
+        this.control.rectElement.setAttribute('y', <any>Math.min(y, this.starty));
+
+        this.control.rectElement.setAttribute('width', <any>Math.abs(x - this.startx));
+        this.control.rectElement.setAttribute('height', <any>Math.abs(y - this.starty));
+    }
+    end(): EditorControl {
+        if (<any>this.control.rectElement.getAttribute("width") == 0 || <any>this.control.rectElement.getAttribute("height") == 0) {
+            return null;
+        }
+        this.control.resetCylinder(this.control.rect);
+        return this.control;
+    }
+}
+
+class ToolBox_Trend extends ToolBoxItem {
+    control: TrendControl;
+    private startx;
+    private starty;
+    constructor() {
+        super();
+    }
+
+    begin(svgContainer: SVGSVGElement, position: any) {
+        this.control = new TrendControl();
+
+        this.control.rectElement.setAttribute('x', position.x);
+        this.control.rectElement.setAttribute('y', position.y);
+        this.control.rectElement.setAttribute('width', "0");
+        this.control.rectElement.setAttribute('height', "0");
+
+
+        this.startx = position.x;
+        this.starty = position.y;
+
+        svgContainer.appendChild(this.control.element);
+    }
+    mousemove(x, y) {
+        this.control.rect = {
+            x: Math.min(x, this.startx),
+            y: Math.min(y, this.starty),
+            width: Math.abs(x - this.startx),
+            height: Math.abs(y - this.starty)
+        };
+    }
+    end(): EditorControl {
+        if (<any>this.control.rectElement.getAttribute("width") == 0 || <any>this.control.rectElement.getAttribute("height") == 0) {
+            return null;
+        }
+        return this.control;
+    }
+}
+
+interface IEditorControlContainer
 {
+    controls: any[];
+    addControl(ctrl: EditorControl);
+    removeControl(ctrl: EditorControl);
+}
+
+class Editor implements IEditorControlContainer
+{
+    removeControl(ctrl: EditorControl) {
+       
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            if (this.controls[i] == ctrl)
+            {
+                ctrl.container = null;
+                this.svgContainer.removeChild(ctrl.element);
+                this.controls.splice(i, 1);
+                break;
+            }
+        }
+    }
+    addControl(ctrl: EditorControl) {
+        this.svgContainer.appendChild(ctrl.element);
+        this.controls.push(ctrl);
+        ctrl.container = this;
+    }
     private svgContainer: SVGSVGElement;
     private currentToolBoxItem: ToolBoxItem;
     private svgContainerMouseUpPosition: any;
@@ -230,6 +332,59 @@ class Editor
     propertyDialog: PropertyDialog;
     controls: any[] = [];
     private selectingElement: SVGRectElement;
+
+    get colorBG() {
+        return this.svgContainer.style.backgroundColor;
+    }
+    set colorBG(v) {
+        if (v == "")
+            v = "#FFFFFF";
+        this.svgContainer.style.backgroundColor = v;
+    }
+    get imgBg() {
+        var url = this.svgContainer.style.backgroundImage;
+        if (url && url.length > 0) {
+            url = url.substr(4, url.length - 5);
+        }
+        return url;
+    }
+    set imgBg(v) {
+        if (v == "") {
+            this.svgContainer.style.backgroundImage = "";
+        }
+        else {
+            this.svgContainer.style.backgroundImage = "url(" + v + ")";
+        }
+    }
+    get bgWidth() {
+        var size = this.svgContainer.style.backgroundSize.split(' ');
+        return size[0];
+    }
+    set bgWidth(v) {
+
+        if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
+            v += "px";
+        var size = this.svgContainer.style.backgroundSize.split(' ');
+        this.svgContainer.style.backgroundSize = v + " " + size[1];
+    }
+    get bgHeight() {
+        var size = this.svgContainer.style.backgroundSize.split(' ');
+        return size[1];
+    }
+    set bgHeight(v) {
+        if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
+            v += "px";
+
+        var size = this.svgContainer.style.backgroundSize.split(' ');
+        this.svgContainer.style.backgroundSize = size[0] + " " + v;
+    }
+
+    getPropertiesCaption(): string[] {
+        return ["底色", "背景图", "背景图宽", "背景图高"];
+    }
+    getProperties(): string[] {
+        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
+    }
 
     constructor(id: string)
     {
@@ -379,9 +534,17 @@ class Editor
         var str = window.localStorage.getItem("copy");
         if (str) {
             while (AllSelectedControls.length > 0)
-                AllSelectedControls[0].selected = false;
+                AllSelectedControls[0].selected = false;                      
 
             var isSameWindow = parseInt(window.localStorage.getItem("windowid")) == windowid;
+            var container: IEditorControlContainer = this;
+
+            //var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            //isSameWindow = false;
+            //var groupCtrl = new GroupControl(groupEle);
+            //this.addControl(groupCtrl);
+            //container = groupCtrl;
+
             var copyItems = JSON.parse(str);
 
             for (var i = 0; i < copyItems.length; i++) {
@@ -391,14 +554,13 @@ class Editor
                     controlJson.rect.y += 10;
                 }
                 var editorctrl;
-                var ele = document.createElementNS('http://www.w3.org/2000/svg', controlJson.tagName);
-
-                eval("editorctrl = new " + controlJson.constructorName + "(ele)");
-                this.svgContainer.appendChild(ele);
-                this.controls.push(editorctrl);
-                editorctrl.ctrlKey = true;
-                editorctrl.selected = true;
-                editorctrl.ctrlKey = false;
+                eval("editorctrl = new " + controlJson.constructorName + "()");
+                container.addControl(editorctrl);
+                if (this == container) {
+                    editorctrl.ctrlKey = true;
+                    editorctrl.selected = true;
+                    editorctrl.ctrlKey = false;
+                }
 
                 for (var pname in controlJson) {
                     if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
@@ -407,6 +569,7 @@ class Editor
                 }
                 editorctrl.rect = controlJson.rect;
             }
+            
         }
     }
 
@@ -478,6 +641,7 @@ class Editor
                 this.currentToolBoxItem.buildDone = (control) => {
 
                     if (control) {
+                        control.container = this;
                         this.controls.push(control);
                     }
                     if ((<any>window).toolboxDone) {
@@ -491,6 +655,7 @@ class Editor
             var control = this.beginedToolBoxItem.end();
             if (control) {
                 this.controls.push(control);
+                control.container = this;
             }
             this.beginedToolBoxItem = null;
             if ((<any>window).toolboxDone)
@@ -514,9 +679,8 @@ class Editor
             (<any>window).toolboxDone();
         }
 
-
         if (!this.propertyDialog)
-            this.propertyDialog = new PropertyDialog(new SVGContainerControl(this.svgContainer));
+            this.propertyDialog = new PropertyDialog(<any>this);
         this.propertyDialog.show();
         (<any>this)._svgContainerClickForDialog = (e) => {
             this.svgContainerClickForDialog(e);
@@ -564,7 +728,7 @@ class Editor
         var maxRight = -99999;
         for (var i = 0; i < AllSelectedControls.length; i++) {
             var control = AllSelectedControls[i];
-            var rect = control.rect;
+            var rect = control.rect; 
             if (rect.x + rect.width > maxRight)
                 maxRight = rect.x + rect.width;
         }

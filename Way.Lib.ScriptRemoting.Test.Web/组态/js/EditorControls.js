@@ -16,21 +16,30 @@ var EditorControl = (function () {
     function EditorControl(element) {
         var _this = this;
         this.ctrlKey = false;
+        this.isInGroup = false;
         this._selected = false;
         this._moveAllSelectedControl = false;
         this.element = element;
         element._editorControl = this;
         this.element.addEventListener("dragstart", function (e) {
+            if (_this.isInGroup || !_this.container)
+                return;
             e.preventDefault();
         }, false);
         this.element.addEventListener("click", function (e) {
+            if (_this.isInGroup || !_this.container)
+                return;
             e.stopPropagation();
         }, false);
         this.element.addEventListener("dblclick", function (e) {
+            if (_this.isInGroup || !_this.container)
+                return;
             e.stopPropagation();
             _this.showProperty();
         }, false);
         this.element.addEventListener("mousedown", function (e) {
+            if (_this.isInGroup || !_this.container)
+                return;
             if (e.button == 2)
                 return;
             _this._moveAllSelectedControl = _this.selected;
@@ -52,6 +61,8 @@ var EditorControl = (function () {
             }
         }, false);
         document.body.addEventListener("mousemove", function (e) {
+            if (_this.isInGroup || !_this.container)
+                return;
             if (_this.mouseDownX >= 0) {
                 e.stopPropagation();
                 if (_this._moveAllSelectedControl) {
@@ -65,6 +76,8 @@ var EditorControl = (function () {
             }
         }, false);
         document.body.addEventListener("mouseup", function (e) {
+            if (_this.isInGroup || !_this.container)
+                return;
             if (_this.mouseDownX >= 0) {
                 e.stopPropagation();
                 _this.onEndMoving();
@@ -114,9 +127,10 @@ var EditorControl = (function () {
     EditorControl.prototype.getProperties = function () {
         return null;
     };
+    EditorControl.prototype.run = function () {
+    };
     EditorControl.prototype.getJson = function () {
         var obj = {
-            tagName: this.element.tagName,
             rect: this.rect,
             constructorName: this.constructor.name
         };
@@ -147,95 +161,18 @@ var EditorControl = (function () {
     };
     return EditorControl;
 }());
-var SVGContainerControl = (function (_super) {
-    __extends(SVGContainerControl, _super);
-    function SVGContainerControl(element) {
-        var _this = _super.call(this, element) || this;
-        _this.rootElement = element;
-        return _this;
-    }
-    Object.defineProperty(SVGContainerControl.prototype, "colorBG", {
-        get: function () {
-            return this.rootElement.style.backgroundColor;
-        },
-        set: function (v) {
-            if (v == "")
-                v = "#FFFFFF";
-            this.rootElement.style.backgroundColor = v;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SVGContainerControl.prototype, "imgBg", {
-        get: function () {
-            var url = this.rootElement.style.backgroundImage;
-            if (url && url.length > 0) {
-                url = url.substr(4, url.length - 5);
-            }
-            return url;
-        },
-        set: function (v) {
-            if (v == "") {
-                this.rootElement.style.backgroundImage = "";
-            }
-            else {
-                this.rootElement.style.backgroundImage = "url(" + v + ")";
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SVGContainerControl.prototype, "bgWidth", {
-        get: function () {
-            var size = this.rootElement.style.backgroundSize.split(' ');
-            return size[0];
-        },
-        set: function (v) {
-            if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
-                v += "px";
-            var size = this.rootElement.style.backgroundSize.split(' ');
-            this.rootElement.style.backgroundSize = v + " " + size[1];
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SVGContainerControl.prototype, "bgHeight", {
-        get: function () {
-            var size = this.rootElement.style.backgroundSize.split(' ');
-            return size[1];
-        },
-        set: function (v) {
-            if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
-                v += "px";
-            var size = this.rootElement.style.backgroundSize.split(' ');
-            this.rootElement.style.backgroundSize = size[0] + " " + v;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    SVGContainerControl.prototype.getPropertiesCaption = function () {
-        return ["底色", "背景图", "背景图宽", "背景图高"];
-    };
-    SVGContainerControl.prototype.getProperties = function () {
-        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
-    };
-    Object.defineProperty(SVGContainerControl.prototype, "rect", {
-        get: function () {
-            return { x: 10, y: 10, width: 0, height: 0 };
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return SVGContainerControl;
-}(EditorControl));
 var LineControl = (function (_super) {
     __extends(LineControl, _super);
-    function LineControl(element) {
-        var _this = _super.call(this, element) || this;
+    function LineControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
         _this.pointEles = [];
         _this.moving = false;
-        _this.lineElement = element;
-        element.style.cursor = "pointer";
+        _this.lineElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        _this.element.appendChild(_this.lineElement);
+        _this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;');
+        _this.virtualLineElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        _this.element.appendChild(_this.virtualLineElement);
+        _this.virtualLineElement.setAttribute('style', 'stroke:red;stroke-opacity:0;stroke-width:10;cursor:pointer;');
         return _this;
     }
     Object.defineProperty(LineControl.prototype, "rect", {
@@ -272,6 +209,10 @@ var LineControl = (function (_super) {
                 var x1 = parseInt(this.lineElement.getAttribute("x1")) + v.width - width;
                 this.lineElement.setAttribute("x1", x1);
             }
+            this.virtualLineElement.setAttribute("x1", this.lineElement.getAttribute("x1"));
+            this.virtualLineElement.setAttribute("x2", this.lineElement.getAttribute("x2"));
+            this.virtualLineElement.setAttribute("y1", this.lineElement.getAttribute("y1"));
+            this.virtualLineElement.setAttribute("y2", this.lineElement.getAttribute("y2"));
             this.resetPointLocation();
         },
         enumerable: true,
@@ -291,6 +232,10 @@ var LineControl = (function (_super) {
             this.lineElement.setAttribute("x2", v.x2);
             this.lineElement.setAttribute("y1", v.y1);
             this.lineElement.setAttribute("y2", v.y2);
+            this.virtualLineElement.setAttribute("x1", v.x1);
+            this.virtualLineElement.setAttribute("x2", v.x2);
+            this.virtualLineElement.setAttribute("y1", v.y1);
+            this.virtualLineElement.setAttribute("y2", v.y2);
         },
         enumerable: true,
         configurable: true
@@ -345,6 +290,10 @@ var LineControl = (function (_super) {
         this.lineElement.setAttribute("y1", y1);
         this.lineElement.setAttribute("x2", x2);
         this.lineElement.setAttribute("y2", y2);
+        this.virtualLineElement.setAttribute("x1", x1);
+        this.virtualLineElement.setAttribute("y1", y1);
+        this.virtualLineElement.setAttribute("x2", x2);
+        this.virtualLineElement.setAttribute("y2", y2);
         if (this.selected) {
             this.pointEles[0].setAttribute("cx", x1);
             this.pointEles[0].setAttribute("cy", y1);
@@ -414,6 +363,8 @@ var LineControl = (function (_super) {
             pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
             this.lineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
             this.lineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
+            this.virtualLineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
+            this.virtualLineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
         }
     };
     LineControl.prototype.pointMouseUp = function (e, pointEle) {
@@ -428,11 +379,12 @@ var LineControl = (function (_super) {
 var RectControl = (function (_super) {
     __extends(RectControl, _super);
     function RectControl(element) {
-        var _this = _super.call(this, element) || this;
+        var _this = _super.call(this, element ? element : document.createElementNS('http://www.w3.org/2000/svg', 'rect')) || this;
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
-        _this.rectElement = element;
+        _this.rectElement = _this.element;
+        _this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
         return _this;
     }
     Object.defineProperty(RectControl.prototype, "rect", {
@@ -509,8 +461,10 @@ var RectControl = (function (_super) {
     };
     RectControl.prototype.resetPointLocation = function () {
         var rect = this.rect;
-        this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
-        this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
+        }
     };
     RectControl.prototype.setEvent = function (pointEle) {
         var _this = this;
@@ -567,13 +521,14 @@ var RectControl = (function (_super) {
 }(EditorControl));
 var EllipseControl = (function (_super) {
     __extends(EllipseControl, _super);
-    function EllipseControl(element) {
-        var _this = _super.call(this, element) || this;
+    function EllipseControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'ellipse')) || this;
         _this.pointEles = [];
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
-        _this.rootElement = element;
+        _this.rootElement = _this.element;
+        _this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
         return _this;
     }
     Object.defineProperty(EllipseControl.prototype, "rect", {
@@ -729,13 +684,14 @@ var EllipseControl = (function (_super) {
 }(EditorControl));
 var CircleControl = (function (_super) {
     __extends(CircleControl, _super);
-    function CircleControl(element) {
-        var _this = _super.call(this, element) || this;
+    function CircleControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'circle')) || this;
         _this.pointEles = [];
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
-        _this.rootElement = element;
+        _this.rootElement = _this.element;
+        _this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
         return _this;
     }
     Object.defineProperty(CircleControl.prototype, "rect", {
@@ -877,9 +833,9 @@ var CircleControl = (function (_super) {
 }(EditorControl));
 var ImageControl = (function (_super) {
     __extends(ImageControl, _super);
-    function ImageControl(element) {
-        var _this = _super.call(this, element) || this;
-        _this.imgElement = element;
+    function ImageControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'image')) || this;
+        _this.imgElement = _this.element;
         return _this;
     }
     Object.defineProperty(ImageControl.prototype, "imgDefault", {
@@ -902,9 +858,12 @@ var ImageControl = (function (_super) {
 }(RectControl));
 var TextControl = (function (_super) {
     __extends(TextControl, _super);
-    function TextControl(element) {
-        var _this = _super.call(this, element) || this;
-        _this.textElement = element;
+    function TextControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'text')) || this;
+        _this.textElement = _this.element;
+        _this.textElement.textContent = "Text";
+        _this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
+        _this.textElement.setAttribute('font-size', "16");
         return _this;
     }
     Object.defineProperty(TextControl.prototype, "text", {
@@ -949,7 +908,7 @@ var TextControl = (function (_super) {
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
-            var myrect = this.rectElement.getBBox();
+            var myrect = this.textElement.getBBox();
             return {
                 x: myrect.x,
                 y: myrect.y,
@@ -958,8 +917,10 @@ var TextControl = (function (_super) {
             };
         },
         set: function (v) {
+            var y = parseInt(this.textElement.getAttribute("y"));
+            var otherY = this.textElement.getBBox().y;
             this.rectElement.setAttribute("x", v.x);
-            this.rectElement.setAttribute("y", v.y);
+            this.rectElement.setAttribute("y", (v.y + y - otherY));
             this.resetPointLocation();
         },
         enumerable: true,
@@ -992,4 +953,646 @@ var TextControl = (function (_super) {
     };
     return TextControl;
 }(RectControl));
+var CylinderControl = (function (_super) {
+    __extends(CylinderControl, _super);
+    function CylinderControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
+        _this._value = 50;
+        _this._max = 100;
+        _this._min = 0;
+        _this.moving = false;
+        _this.startX = 0;
+        _this.startY = 0;
+        _this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        _this.rectElement.setAttribute("rx", "200000");
+        _this.rectElement.setAttribute("ry", "20");
+        _this.rectElement.setAttribute('width', "0");
+        _this.rectElement.setAttribute('height', "0");
+        _this.rectElement.setAttribute('style', 'fill:#ffffff;stroke:#aaaaaa;stroke-width:1;');
+        _this.cylinderElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        _this.cylinderElement.setAttribute("rx", "6");
+        _this.cylinderElement.setAttribute("ry", "6");
+        _this.cylinderElement.setAttribute('style', 'fill:#00BF00;stroke:none;');
+        _this.element.appendChild(_this.rectElement);
+        _this.element.appendChild(_this.cylinderElement);
+        return _this;
+    }
+    Object.defineProperty(CylinderControl.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value) {
+                this._value = v;
+                this.resetCylinder(this.rect);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "max", {
+        get: function () {
+            return this._max;
+        },
+        set: function (v) {
+            this._max = parseFloat(v);
+            if (this._max <= this._min)
+                this._max = this._min + 1;
+            this.resetCylinder(this.rect);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "min", {
+        get: function () {
+            return this._min;
+        },
+        set: function (v) {
+            this._min = parseFloat(v);
+            if (this._min >= this._max)
+                this._max = this._max - 1;
+            this.resetCylinder(this.rect);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "rect", {
+        get: function () {
+            var myrect = this.rectElement.getBBox();
+            return {
+                x: myrect.x,
+                y: myrect.y,
+                width: myrect.width,
+                height: myrect.height
+            };
+        },
+        set: function (v) {
+            this.rectElement.setAttribute("x", v.x);
+            this.rectElement.setAttribute("y", v.y);
+            this.rectElement.setAttribute("width", v.width);
+            this.rectElement.setAttribute("height", v.height);
+            this.resetCylinder(v);
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "strokeWidth", {
+        get: function () {
+            return this.rectElement.style.strokeWidth;
+        },
+        set: function (v) {
+            this.rectElement.style.strokeWidth = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "colorStroke", {
+        get: function () {
+            return this.rectElement.style.stroke;
+        },
+        set: function (v) {
+            this.rectElement.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "colorFill", {
+        get: function () {
+            return this.cylinderElement.style.fill;
+        },
+        set: function (v) {
+            this.cylinderElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CylinderControl.prototype, "colorBg", {
+        get: function () {
+            return this.rectElement.style.fill;
+        },
+        set: function (v) {
+            this.rectElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    CylinderControl.prototype.getPropertiesCaption = function () {
+        return ["边框大小", "边框颜色", "底色", "填充颜色", "值", "最大值", "最小值"];
+    };
+    CylinderControl.prototype.getProperties = function () {
+        return ["strokeWidth", "colorStroke", "colorBg", "colorFill", "value", "max", "min"];
+    };
+    CylinderControl.prototype.resetCylinder = function (rect) {
+        var ctrlHeight = rect.height - 40;
+        var myheight = parseInt((((this.value - this.min) * ctrlHeight) / (this.max - this.min)));
+        if (myheight < 0)
+            myheight = 0;
+        myheight = Math.min(ctrlHeight, myheight);
+        this.cylinderElement.setAttribute("x", rect.x + 10);
+        this.cylinderElement.setAttribute("y", (rect.y + 20 + ctrlHeight - myheight));
+        this.cylinderElement.setAttribute("width", (rect.width - 20));
+        this.cylinderElement.setAttribute("height", myheight);
+    };
+    CylinderControl.prototype.isIntersectWith = function (rect) {
+        return this.isIntersect(this.rect, rect);
+    };
+    CylinderControl.prototype.onSelectedChange = function () {
+        if (this.selected) {
+            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            this.pRightBottom.setAttribute("r", "5");
+            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
+            this.rectElement.parentElement.appendChild(this.pRightBottom);
+            this.setEvent(this.pRightBottom);
+            this.resetPointLocation();
+        }
+        else {
+            this.rectElement.parentElement.removeChild(this.pRightBottom);
+        }
+    };
+    CylinderControl.prototype.resetPointLocation = function () {
+        var rect = this.rect;
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
+        }
+    };
+    CylinderControl.prototype.setEvent = function (pointEle) {
+        var _this = this;
+        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
+    };
+    CylinderControl.prototype.pointMouseDown = function (e, pointEle) {
+        e.stopPropagation();
+        this.moving = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
+        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
+        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
+        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+    };
+    CylinderControl.prototype.pointMouseMove = function (e, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            var width = Math.max(15, pointEle._valueWidth + (e.clientX - this.startX));
+            var height = Math.max(15, pointEle._valueHeight + (e.clientY - this.startY));
+            this.rect = {
+                x: pointEle._valueX,
+                y: pointEle._valueY,
+                width: width,
+                height: height
+            };
+            this.resetPointLocation();
+        }
+    };
+    CylinderControl.prototype.pointMouseUp = function (e, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.moving = false;
+            pointEle.releaseCapture();
+        }
+    };
+    CylinderControl.prototype.onBeginMoving = function () {
+        this.rectElement._rect = this.rect;
+    };
+    CylinderControl.prototype.onMoving = function (downX, downY, nowX, nowY) {
+        var x = (this.rectElement._rect.x + nowX - downX);
+        var y = (this.rectElement._rect.y + nowY - downY);
+        this.rectElement.setAttribute("x", x);
+        this.rectElement.setAttribute("y", y);
+        this.resetCylinder({ x: x, y: y, width: this.rectElement._rect.width, height: this.rectElement._rect.height });
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    };
+    CylinderControl.prototype.onEndMoving = function () {
+    };
+    return CylinderControl;
+}(EditorControl));
+var TrendControl = (function (_super) {
+    __extends(TrendControl, _super);
+    function TrendControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
+        _this.values = [];
+        _this._value = 50;
+        _this._max = 100;
+        _this._min = 0;
+        _this.moving = false;
+        _this.startX = 0;
+        _this.startY = 0;
+        _this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        _this.element.appendChild(_this.rectElement);
+        _this.rectElement.setAttribute('style', 'fill:#000000;stroke:none;');
+        _this.line_left_Ele = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        _this.line_left_Ele.setAttribute('style', 'stroke:#ffffff;stroke-width:1;');
+        _this.element.appendChild(_this.line_left_Ele);
+        _this.line_bottom_Ele = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        _this.line_bottom_Ele.setAttribute('style', 'stroke:#ffffff;stroke-width:1;');
+        _this.element.appendChild(_this.line_bottom_Ele);
+        _this.pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        _this.pathElement.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
+        _this.pathElement.setAttribute("transform", "translate(0 0)");
+        _this.element.appendChild(_this.pathElement);
+        return _this;
+    }
+    Object.defineProperty(TrendControl.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value) {
+                this._value = v;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max", {
+        get: function () {
+            return this._max;
+        },
+        set: function (v) {
+            this._max = parseFloat(v);
+            if (this._max <= this._min)
+                this._max = this._min + 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min", {
+        get: function () {
+            return this._min;
+        },
+        set: function (v) {
+            this._min = parseFloat(v);
+            if (this._min >= this._max)
+                this._max = this._max - 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "rect", {
+        get: function () {
+            var myrect = this.rectElement.getBBox();
+            return {
+                x: myrect.x,
+                y: myrect.y,
+                width: myrect.width,
+                height: myrect.height
+            };
+        },
+        set: function (v) {
+            this.rectElement.setAttribute("x", v.x);
+            this.rectElement.setAttribute("y", v.y);
+            this.rectElement.setAttribute("width", v.width);
+            this.rectElement.setAttribute("height", v.height);
+            this.pathElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorFill", {
+        get: function () {
+            return this.rectElement.style.fill;
+        },
+        set: function (v) {
+            this.rectElement.style.fill = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLineLeftBottom", {
+        get: function () {
+            return this.line_left_Ele.style.stroke;
+        },
+        set: function (v) {
+            this.line_left_Ele.style.stroke = v;
+            this.line_bottom_Ele.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine", {
+        get: function () {
+            return this.pathElement.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TrendControl.prototype.getPropertiesCaption = function () {
+        return ["背景颜色", "值", "量程线颜色", "趋势颜色"];
+    };
+    TrendControl.prototype.getProperties = function () {
+        return ["colorFill", "value", "colorLineLeftBottom", "colorLine"];
+    };
+    TrendControl.prototype.isIntersectWith = function (rect) {
+        return this.isIntersect(this.rect, rect);
+    };
+    TrendControl.prototype.onSelectedChange = function () {
+        if (this.selected) {
+            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            this.pRightBottom.setAttribute("r", "5");
+            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
+            this.rectElement.parentElement.appendChild(this.pRightBottom);
+            this.setEvent(this.pRightBottom);
+            this.resetPointLocation();
+        }
+        else {
+            this.rectElement.parentElement.removeChild(this.pRightBottom);
+        }
+    };
+    TrendControl.prototype.run = function () {
+        var _this = this;
+        if (this.values.length > 0)
+            this.value = this.values[this.values.length - 1].value;
+        else
+            this.value = this.min;
+        this.reDrawTrend();
+        this.element._interval = setInterval(function () { return _this.checkValueChange(); }, 1000);
+    };
+    TrendControl.prototype.checkValueChange = function () {
+        this.values.push({
+            value: this.value,
+            time: new Date().getTime()
+        });
+        this.reDrawTrend();
+    };
+    TrendControl.prototype.reDrawTrend = function () {
+        var rect = this.rect;
+        var width = rect.width - 20 - 2;
+        var now = new Date().getTime();
+        var dataStr = "";
+        var deleteToIndex = -1;
+        for (var i = this.values.length - 1; i >= 0; i--) {
+            var x = rect.width - 10 - ((now - this.values[i].time) / 1000) * 2;
+            if (x < 10) {
+                deleteToIndex = i;
+                break;
+            }
+            var percent = 1 - (this.values[i].value - this.min) / (this.max - this.min);
+            var y = 10 + (rect.height - 20) * percent;
+            if (y < 10)
+                y = 10;
+            else if (y > rect.height - 10)
+                y = rect.height - 10;
+            if (dataStr.length == 0)
+                dataStr += "M";
+            else
+                dataStr += "L";
+            dataStr += x + " " + y + " ";
+        }
+        if (deleteToIndex >= 0) {
+            this.values.splice(0, deleteToIndex + 1);
+        }
+        this.pathElement.setAttribute("d", dataStr);
+    };
+    TrendControl.prototype.resetPointLocation = function () {
+        var rect = this.rect;
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
+        }
+        this.line_left_Ele.setAttribute("x1", (rect.x + 10));
+        this.line_left_Ele.setAttribute("y1", (rect.y + 10));
+        this.line_left_Ele.setAttribute("x2", (rect.x + 10));
+        this.line_left_Ele.setAttribute("y2", (rect.y + rect.height - 10));
+        this.line_bottom_Ele.setAttribute("x1", (rect.x + 10));
+        this.line_bottom_Ele.setAttribute("y1", (rect.y + rect.height - 10));
+        this.line_bottom_Ele.setAttribute("x2", (rect.x + rect.width - 10));
+        this.line_bottom_Ele.setAttribute("y2", (rect.y + rect.height - 10));
+    };
+    TrendControl.prototype.setEvent = function (pointEle) {
+        var _this = this;
+        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
+    };
+    TrendControl.prototype.pointMouseDown = function (e, pointEle) {
+        e.stopPropagation();
+        this.moving = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
+        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
+        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
+        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+    };
+    TrendControl.prototype.pointMouseMove = function (e, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.rectElement.setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
+            this.rectElement.setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
+            this.resetPointLocation();
+        }
+    };
+    TrendControl.prototype.pointMouseUp = function (e, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.moving = false;
+            pointEle.releaseCapture();
+        }
+    };
+    TrendControl.prototype.onBeginMoving = function () {
+        this.rectElement._x = parseInt(this.rectElement.getAttribute("x"));
+        this.rectElement._y = parseInt(this.rectElement.getAttribute("y"));
+    };
+    TrendControl.prototype.onMoving = function (downX, downY, nowX, nowY) {
+        var x = (this.rectElement._x + nowX - downX);
+        var y = (this.rectElement._y + nowY - downY);
+        this.rectElement.setAttribute("x", x);
+        this.rectElement.setAttribute("y", y);
+        this.pathElement.setAttribute("transform", "translate(" + x + " " + y + ")");
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    };
+    TrendControl.prototype.onEndMoving = function () {
+    };
+    return TrendControl;
+}(EditorControl));
+var GroupControl = (function (_super) {
+    __extends(GroupControl, _super);
+    function GroupControl(element) {
+        var _this = _super.call(this, element) || this;
+        _this.controls = [];
+        _this.moving = false;
+        _this.startX = 0;
+        _this.startY = 0;
+        _this.contentWidth = 0;
+        _this.contentHeight = 0;
+        element.setAttribute("transform", "translate(0 0) scale(1 1)");
+        _this.groupElement = element;
+        return _this;
+    }
+    GroupControl.prototype.removeControl = function (ctrl) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i] == ctrl) {
+                this.groupElement.removeChild(ctrl.element);
+                ctrl.isInGroup = false;
+                ctrl.container = null;
+                this.controls.splice(i, 1);
+                break;
+            }
+        }
+    };
+    GroupControl.prototype.addControl = function (ctrl) {
+        ctrl.isInGroup = true;
+        ctrl.container = this;
+        this.groupElement.appendChild(ctrl.element);
+        this.controls.push(ctrl);
+    };
+    Object.defineProperty(GroupControl.prototype, "rect", {
+        get: function () {
+            var transform = this.groupElement.getAttribute("transform");
+            var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+            var myrect = {};
+            myrect.x = parseInt(result[1]);
+            myrect.y = parseInt(result[2]);
+            result = /scale\(([0-9|\.]+) ([0-9|\.]+)\)/.exec(transform);
+            var scalex = parseFloat(result[1]);
+            var scaley = parseFloat(result[2]);
+            this.contentWidth = 0;
+            this.contentHeight = 0;
+            for (var i = 0; i < this.controls.length; i++) {
+                var ctrl = this.controls[i];
+                var _rect = ctrl.rect;
+                if (_rect.x + _rect.width > this.contentWidth)
+                    this.contentWidth = _rect.x + _rect.width;
+                if (_rect.y + _rect.height > this.contentHeight)
+                    this.contentHeight = _rect.y + _rect.height;
+            }
+            if (!this.virtualRectElement) {
+                this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                this.groupElement.appendChild(this.virtualRectElement);
+                this.virtualRectElement.setAttribute('x', "0");
+                this.virtualRectElement.setAttribute('y', "0");
+                this.virtualRectElement.setAttribute('style', 'fill:#ffffff;fill-opacity:0.1;stroke:#cccccc;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+            }
+            this.virtualRectElement.setAttribute('width', this.contentWidth);
+            this.virtualRectElement.setAttribute('height', this.contentHeight);
+            myrect.width = parseInt((this.contentWidth * scalex));
+            myrect.height = parseInt((this.contentHeight * scaley));
+            this.lastRect = myrect;
+            return myrect;
+        },
+        set: function (v) {
+            if (this.contentWidth == 0) {
+                var r = this.rect;
+            }
+            var scalex = parseFloat(v.width) / this.contentWidth;
+            var scaley = parseFloat(v.height) / this.contentHeight;
+            this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
+            this.lastRect = v;
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    GroupControl.prototype.getPropertiesCaption = function () {
+        return [];
+    };
+    GroupControl.prototype.getProperties = function () {
+        return [];
+    };
+    GroupControl.prototype.isIntersectWith = function (rect) {
+        return this.isIntersect(this.rect, rect);
+    };
+    GroupControl.prototype.onSelectedChange = function () {
+        if (this.selected) {
+            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            this.pRightBottom.setAttribute("r", "5");
+            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
+            this.groupElement.parentElement.appendChild(this.pRightBottom);
+            this.setEvent(this.pRightBottom);
+            this.resetPointLocation();
+        }
+        else {
+            this.groupElement.parentElement.removeChild(this.pRightBottom);
+        }
+    };
+    GroupControl.prototype.resetPointLocation = function () {
+        var rect = this.lastRect;
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
+        }
+    };
+    GroupControl.prototype.setEvent = function (pointEle) {
+        var _this = this;
+        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
+    };
+    GroupControl.prototype.pointMouseDown = function (e, pointEle) {
+        e.stopPropagation();
+        this.moving = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+        var rect = this.rect;
+        pointEle._x = rect.x;
+        pointEle._y = rect.y;
+        pointEle._width = rect.width;
+        pointEle._height = rect.height;
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+    };
+    GroupControl.prototype.pointMouseMove = function (e, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.rect = {
+                x: pointEle._x,
+                y: pointEle._y,
+                width: Math.max(15, pointEle._width + (e.clientX - this.startX)),
+                height: Math.max(15, pointEle._height + (e.clientY - this.startY))
+            };
+            this.resetPointLocation();
+        }
+    };
+    GroupControl.prototype.pointMouseUp = function (e, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.moving = false;
+            pointEle.releaseCapture();
+        }
+    };
+    GroupControl.prototype.onBeginMoving = function () {
+        var rect = this.rect;
+        this.groupElement._x = rect.x;
+        this.groupElement._y = rect.y;
+        this.groupElement._width = rect.width;
+        this.groupElement._height = rect.height;
+    };
+    GroupControl.prototype.onMoving = function (downX, downY, nowX, nowY) {
+        var x = (this.groupElement._x + nowX - downX);
+        var y = (this.groupElement._y + nowY - downY);
+        this.rect = { x: x, y: y, width: this.groupElement._width, height: this.groupElement._height };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    };
+    GroupControl.prototype.onEndMoving = function () {
+    };
+    return GroupControl;
+}(EditorControl));
 //# sourceMappingURL=EditorControls.js.map

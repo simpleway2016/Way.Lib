@@ -12,8 +12,10 @@ document.documentElement.addEventListener("mousedown", documentElementMouseDown,
 
 class EditorControl
 {
+    container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
     ctrlKey = false;
+    isInGroup = false;
     element: any;
     _selected: boolean = false;
     _moveAllSelectedControl = false;
@@ -58,19 +60,28 @@ class EditorControl
         this.element = element;
         element._editorControl = this;
         (<HTMLElement>this.element).addEventListener("dragstart", (e) => {
+            if (this.isInGroup || !this.container)
+                return;
             e.preventDefault();
         }, false);
 
         (<HTMLElement>this.element).addEventListener("click", (e) => {
+            if (this.isInGroup || !this.container)
+                return;
             e.stopPropagation();           
         }, false);
 
         (<HTMLElement>this.element).addEventListener("dblclick", (e) => {
+            if (this.isInGroup || !this.container)
+                return;
             e.stopPropagation();
             this.showProperty();
         }, false);        
 
         (<HTMLElement>this.element).addEventListener("mousedown", (e) => {
+            if (this.isInGroup || !this.container)
+                return;
+
             if (e.button == 2)
                 return;
             this._moveAllSelectedControl = this.selected;
@@ -95,6 +106,9 @@ class EditorControl
             }
         }, false);
         document.body.addEventListener("mousemove", (e) => {
+            if (this.isInGroup || !this.container)
+                return;
+
             if (this.mouseDownX >= 0) {
                 e.stopPropagation();
                 if (this._moveAllSelectedControl) {
@@ -109,6 +123,9 @@ class EditorControl
             }
         }, false);
         document.body.addEventListener("mouseup", (e) => {
+            if (this.isInGroup || !this.container)
+                return;
+
             if (this.mouseDownX >= 0) {
                 e.stopPropagation();
                 this.onEndMoving();
@@ -125,10 +142,15 @@ class EditorControl
         return null;
     }
 
+    //正式环境中运行模式
+    run()
+    {
+
+    }
+
     getJson()
     {
         var obj = {
-            tagName: this.element.tagName,
             rect: this.rect,
             constructorName: (<any>this).constructor.name
         };
@@ -174,78 +196,11 @@ class EditorControl
     }
 }
 
-class SVGContainerControl extends EditorControl
-{
-    rootElement: SVGSVGElement;
-
-    get colorBG() {
-        return this.rootElement.style.backgroundColor;
-    }
-    set colorBG(v) {
-        if (v == "")
-            v = "#FFFFFF";
-        this.rootElement.style.backgroundColor = v;
-    }
-    get imgBg()
-    {
-        var url = this.rootElement.style.backgroundImage;
-        if (url && url.length > 0)
-        {
-            url = url.substr(4, url.length - 5);
-        }
-        return url;
-    }
-    set imgBg(v)
-    {
-        if (v == "") {
-            this.rootElement.style.backgroundImage = "";
-        }
-        else {
-            this.rootElement.style.backgroundImage = "url(" + v + ")";
-        }
-    }
-    get bgWidth() {
-        var size = this.rootElement.style.backgroundSize.split(' ');
-        return size[0];
-    }
-    set bgWidth(v) {
-      
-        if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
-            v += "px";
-        var size = this.rootElement.style.backgroundSize.split(' ');
-        this.rootElement.style.backgroundSize = v + " " + size[1];
-    }
-    get bgHeight() {
-        var size = this.rootElement.style.backgroundSize.split(' ');
-        return size[1];
-    }
-    set bgHeight(v) {
-        if (v.indexOf("%") < 0 && v.indexOf("px") < 0)
-            v += "px";
-
-        var size = this.rootElement.style.backgroundSize.split(' ');
-        this.rootElement.style.backgroundSize = size[0] + " " + v;
-    }
-    getPropertiesCaption(): string[] {
-        return ["底色", "背景图", "背景图宽", "背景图高"];
-    }
-    getProperties(): string[] {
-        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
-    }
-
-    constructor(element: any) {
-        super(element);
-        this.rootElement = element;
-    }
-
-    get rect() {
-        return {x:10,y:10,width:0,height:0};
-    }
-}
 
 class LineControl extends EditorControl
 {
     lineElement: SVGLineElement;
+    virtualLineElement: SVGLineElement;
     pointEles: SVGCircleElement[] = [];
     moving: boolean = false;
     startX: number;
@@ -292,6 +247,11 @@ class LineControl extends EditorControl
             this.lineElement.setAttribute("x1", x1);
         }
 
+
+        this.virtualLineElement.setAttribute("x1", this.lineElement.getAttribute("x1"));
+        this.virtualLineElement.setAttribute("x2", this.lineElement.getAttribute("x2"));
+        this.virtualLineElement.setAttribute("y1", this.lineElement.getAttribute("y1"));
+        this.virtualLineElement.setAttribute("y2", this.lineElement.getAttribute("y2"));
         this.resetPointLocation();
     }
 
@@ -311,6 +271,10 @@ class LineControl extends EditorControl
         this.lineElement.setAttribute("y1", v.y1);
         this.lineElement.setAttribute("y2", v.y2);
 
+        this.virtualLineElement.setAttribute("x1", v.x1);
+        this.virtualLineElement.setAttribute("x2", v.x2);
+        this.virtualLineElement.setAttribute("y1", v.y1);
+        this.virtualLineElement.setAttribute("y2", v.y2);
     }
 
     getJson() {
@@ -334,10 +298,17 @@ class LineControl extends EditorControl
         this.lineElement.style.stroke = v;
     }
 
-    constructor(element: any) {
-        super(element);
-        this.lineElement = element;
-        element.style.cursor = "pointer";
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+
+        this.lineElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        this.element.appendChild(this.lineElement);
+        this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;');
+
+        //virtualLineElement是透明的，主要用来增大LineControl的点击面积
+        this.virtualLineElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        this.element.appendChild(this.virtualLineElement);
+        this.virtualLineElement.setAttribute('style', 'stroke:red;stroke-opacity:0;stroke-width:10;cursor:pointer;');
     }
 
     getPropertiesCaption(): string[] {
@@ -368,6 +339,11 @@ class LineControl extends EditorControl
         this.lineElement.setAttribute("y1", y1);
         this.lineElement.setAttribute("x2", x2);
         this.lineElement.setAttribute("y2", y2);
+
+        this.virtualLineElement.setAttribute("x1", x1);
+        this.virtualLineElement.setAttribute("y1", y1);
+        this.virtualLineElement.setAttribute("x2", x2);
+        this.virtualLineElement.setAttribute("y2", y2);
         if (this.selected)
         {
             this.pointEles[0].setAttribute("cx", x1);
@@ -454,6 +430,9 @@ class LineControl extends EditorControl
             pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
             this.lineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
             this.lineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
+
+            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
+            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
         }
     }
     pointMouseUp(e: MouseEvent, pointEle) {
@@ -521,9 +500,10 @@ class RectControl extends EditorControl {
         return ["strokeWidth", "colorStroke", "colorFill"];
     }
 
-    constructor(element: any) {
-        super(element);
-        this.rectElement = element;
+    constructor(element:any) {
+        super(element ? element : document.createElementNS('http://www.w3.org/2000/svg', 'rect'));
+        this.rectElement = this.element;
+        this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
     }
 
     isIntersectWith(rect): boolean {
@@ -549,8 +529,10 @@ class RectControl extends EditorControl {
     resetPointLocation()
     {
         var rect = this.rect;
-        this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-        this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
+        }
     }
 
     setEvent(pointEle) {
@@ -665,9 +647,10 @@ class EllipseControl extends EditorControl {
         return ["strokeWidth", "colorStroke", "colorFill"];
     }
 
-    constructor(element: any) {
-        super(element);
-        this.rootElement = element;
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'ellipse'));
+        this.rootElement = this.element;
+        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
     }
 
     isIntersectWith(rect): boolean {
@@ -829,9 +812,10 @@ class CircleControl extends EditorControl {
         return ["strokeWidth", "colorStroke", "colorFill"];
     }
 
-    constructor(element: any) {
-        super(element);
-        this.rootElement = element;
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'circle'));
+        this.rootElement = this.element;
+        this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
     }
 
     isIntersectWith(rect): boolean {
@@ -946,9 +930,9 @@ class ImageControl extends RectControl {
         return ["imgDefault"];
     }
 
-    constructor(element: any) {
-        super(element);
-        this.imgElement = element;
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'image'));
+        this.imgElement = this.element;
     }
 
 }
@@ -987,7 +971,7 @@ class TextControl extends RectControl {
 
 
     get rect() {
-        var myrect: SVGRect = (<any>this.rectElement).getBBox();
+        var myrect: SVGRect = (<any>this.textElement).getBBox();
         return {
             x: myrect.x,
             y: myrect.y,
@@ -996,14 +980,22 @@ class TextControl extends RectControl {
         };
     }
     set rect(v: any) {
+        var y = parseInt(this.textElement.getAttribute("y"));
+        var otherY = (<any>this.textElement).getBBox().y;
+        //getBBox().y和this.textElement.getAttribute("y")不相同的，所以要加上y - otherY这个相差值
+
         this.rectElement.setAttribute("x", v.x);
-        this.rectElement.setAttribute("y", v.y);
+        this.rectElement.setAttribute("y", <any>(v.y + y - otherY));
+
         this.resetPointLocation();
     }
 
-    constructor(element: any) {
-        super(element);
-        this.textElement = element;
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
+        this.textElement = this.element;
+        this.textElement.textContent = "Text";
+        this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
+        this.textElement.setAttribute('font-size', "16");
     }
 
     onSelectedChange() {
@@ -1033,4 +1025,696 @@ class TextControl extends RectControl {
         this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
     }   
 
+}
+
+class CylinderControl extends EditorControl {
+    private _value: number = 50;
+    private _max: number = 100;
+    private _min: number = 0;
+    get value()
+    {
+        return this._value;
+    }
+    set value(v: any)
+    {
+        v = parseFloat(v);
+        if (v != this._value) {
+            this._value = v;
+            this.resetCylinder(this.rect);
+        }
+    }
+
+    get max() {
+        return this._max;
+    }
+    set max(v: any) {
+        this._max = parseFloat(v);
+        if (this._max <= this._min)
+            this._max = this._min + 1;
+
+        this.resetCylinder(this.rect);
+    }
+    get min() {
+        return this._min;
+    }
+    set min(v: any) {
+        this._min = parseFloat(v);
+        if (this._min >= this._max)
+            this._max = this._max - 1;
+        this.resetCylinder(this.rect);
+    }
+    rectElement: SVGRectElement;
+    cylinderElement: SVGRectElement;
+
+    pRightBottom: SVGCircleElement;
+    moving: boolean = false;
+    startX = 0;
+    startY = 0;
+
+    get rect() {
+        var myrect: SVGRect = (<any>this.rectElement).getBBox();
+        //var myrect = {
+        //    x: parseInt(this.rectElement.getAttribute("x")),
+        //    y: parseInt(this.rectElement.getAttribute("y")),
+        //    width: parseInt(this.rectElement.getAttribute("width")),
+        //    height: parseInt(this.rectElement.getAttribute("height")),
+        //};
+        return {
+            x: myrect.x,
+            y: myrect.y,
+            width: myrect.width,
+            height: myrect.height
+        };
+    }
+    set rect(v: any) {
+        this.rectElement.setAttribute("x", v.x);
+        this.rectElement.setAttribute("y", v.y);
+        this.rectElement.setAttribute("width", v.width);
+        this.rectElement.setAttribute("height", v.height);
+
+        this.resetCylinder(v);
+        this.resetPointLocation();
+    }
+
+    get strokeWidth() {
+        return this.rectElement.style.strokeWidth;
+    }
+    set strokeWidth(v) {
+        this.rectElement.style.strokeWidth = v;
+    }
+    get colorStroke() {
+        return this.rectElement.style.stroke;
+    }
+    set colorStroke(v) {
+        this.rectElement.style.stroke = v;
+    }
+    get colorFill() {
+        return this.cylinderElement.style.fill;
+    }
+    set colorFill(v) {
+        this.cylinderElement.style.fill = v;
+    }
+    get colorBg() {
+        return this.rectElement.style.fill;
+    }
+    set colorBg(v) {
+        this.rectElement.style.fill = v;
+    }
+    getPropertiesCaption(): string[] {
+        return ["边框大小", "边框颜色", "底色", "填充颜色","值","最大值","最小值"];
+    }
+    getProperties(): string[] {
+        return ["strokeWidth", "colorStroke", "colorBg","colorFill","value","max","min"];
+    }
+
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+
+        this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        this.rectElement.setAttribute("rx", "200000");
+        this.rectElement.setAttribute("ry", "20");
+        this.rectElement.setAttribute('width', "0");
+        this.rectElement.setAttribute('height', "0");
+        this.rectElement.setAttribute('style', 'fill:#ffffff;stroke:#aaaaaa;stroke-width:1;');
+
+        this.cylinderElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        this.cylinderElement.setAttribute("rx", "6");
+        this.cylinderElement.setAttribute("ry", "6");
+        this.cylinderElement.setAttribute('style', 'fill:#00BF00;stroke:none;');
+
+        this.element.appendChild(this.rectElement);
+        this.element.appendChild(this.cylinderElement);
+    }
+
+    resetCylinder(rect:any)
+    {
+        var ctrlHeight = rect.height - 40;
+        var myheight: any = parseInt(<any>(((this.value - this.min) * ctrlHeight) / (this.max - this.min)));
+        if (myheight < 0)
+            myheight = 0;
+        myheight = Math.min(ctrlHeight, myheight);
+
+        this.cylinderElement.setAttribute("x", rect.x + 10);
+        this.cylinderElement.setAttribute("y", <any>(rect.y + 20 + ctrlHeight - myheight));
+        this.cylinderElement.setAttribute("width", <any>(rect.width - 20));
+        this.cylinderElement.setAttribute("height", myheight);
+    }
+
+    isIntersectWith(rect): boolean {
+        return this.isIntersect(this.rect, rect);
+    }
+
+    onSelectedChange() {
+        if (this.selected) {
+
+            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            this.pRightBottom.setAttribute("r", "5");
+            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
+            this.rectElement.parentElement.appendChild(this.pRightBottom);
+
+            this.setEvent(this.pRightBottom);
+            this.resetPointLocation();
+        }
+        else {
+            this.rectElement.parentElement.removeChild(this.pRightBottom);
+        }
+    }
+
+    resetPointLocation() {
+        var rect = this.rect;
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
+        }
+    }
+
+    setEvent(pointEle) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
+    }
+
+    pointMouseDown(e: MouseEvent, pointEle) {
+        e.stopPropagation();
+        this.moving = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+
+        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
+        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
+        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
+        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    pointMouseMove(e: MouseEvent, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+
+            var width = Math.max(15, pointEle._valueWidth + (e.clientX - this.startX));
+            var height = Math.max(15, pointEle._valueHeight + (e.clientY - this.startY));
+            this.rect = {
+                x: pointEle._valueX,
+                y: pointEle._valueY,
+                width: width,
+                height: height
+            };
+            this.resetPointLocation();
+        }
+    }
+    pointMouseUp(e: MouseEvent, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.moving = false;
+            pointEle.releaseCapture();
+        }
+    }
+
+
+    onBeginMoving() {
+        (<any>this.rectElement)._rect = this.rect;
+    }
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.rectElement)._rect.x + nowX - downX);
+        var y = <any>((<any>this.rectElement)._rect.y + nowY - downY);
+        this.rectElement.setAttribute("x", x);
+        this.rectElement.setAttribute("y", y);
+
+        this.resetCylinder({ x: x, y: y, width: (<any>this.rectElement)._rect.width, height: (<any>this.rectElement)._rect.height});
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    }
+    onEndMoving() {
+
+    }
+}
+
+class TrendControl extends EditorControl {
+    rectElement: SVGRectElement;
+    pRightBottom: SVGCircleElement;
+
+    line_left_Ele: SVGLineElement;
+    line_bottom_Ele: SVGLineElement;
+    pathElement: SVGPathElement;
+    values: any[] = [];
+
+    private _value: number = 50;
+    private _max: number = 100;
+    private _min: number = 0;
+    get value() {
+        return this._value;
+    }
+    set value(v: any) {
+        v = parseFloat(v);
+        if (v != this._value) {
+            this._value = v;
+        }
+    }
+
+    get max() {
+        return this._max;
+    }
+    set max(v: any) {
+        this._max = parseFloat(v);
+        if (this._max <= this._min)
+            this._max = this._min + 1;
+    }
+    get min() {
+        return this._min;
+    }
+    set min(v: any) {
+        this._min = parseFloat(v);
+        if (this._min >= this._max)
+            this._max = this._max - 1;
+    }
+
+    moving: boolean = false;
+    startX = 0;
+    startY = 0;
+
+    get rect() {
+        var myrect: SVGRect = (<any>this.rectElement).getBBox();
+        //var myrect = {
+        //    x: parseInt(this.rectElement.getAttribute("x")),
+        //    y: parseInt(this.rectElement.getAttribute("y")),
+        //    width: parseInt(this.rectElement.getAttribute("width")),
+        //    height: parseInt(this.rectElement.getAttribute("height")),
+        //};
+        return {
+            x: myrect.x,
+            y: myrect.y,
+            width: myrect.width,
+            height: myrect.height
+        };
+    }
+    set rect(v: any) {
+        this.rectElement.setAttribute("x", v.x);
+        this.rectElement.setAttribute("y", v.y);
+        this.rectElement.setAttribute("width", v.width);
+        this.rectElement.setAttribute("height", v.height);
+
+        this.pathElement.setAttribute("transform", "translate("+v.x+" "+v.y+")");
+
+        this.resetPointLocation();
+    }
+
+    get colorFill() {
+        return this.rectElement.style.fill;
+    }
+    set colorFill(v) {
+        this.rectElement.style.fill = v;
+    }
+
+    get colorLineLeftBottom() {
+        return this.line_left_Ele.style.stroke;
+    }
+    set colorLineLeftBottom(v) {
+        this.line_left_Ele.style.stroke = v;
+        this.line_bottom_Ele.style.stroke = v;
+    }
+    get colorLine() {
+        return this.pathElement.style.stroke;
+    }
+    set colorLine(v) {
+        this.pathElement.style.stroke = v;
+    }
+    getPropertiesCaption(): string[] {
+        return ["背景颜色", "值", "量程线颜色", "趋势颜色"];
+    }
+    getProperties(): string[] {
+        return ["colorFill", "value", "colorLineLeftBottom","colorLine"];
+    }
+
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+        this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        this.element.appendChild(this.rectElement);
+        this.rectElement.setAttribute('style', 'fill:#000000;stroke:none;');
+
+        this.line_left_Ele = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        this.line_left_Ele.setAttribute('style', 'stroke:#ffffff;stroke-width:1;');
+        this.element.appendChild(this.line_left_Ele);
+
+        this.line_bottom_Ele = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        this.line_bottom_Ele.setAttribute('style', 'stroke:#ffffff;stroke-width:1;');
+        this.element.appendChild(this.line_bottom_Ele);
+
+        this.pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        this.pathElement.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
+        this.pathElement.setAttribute("transform", "translate(0 0)");
+        this.element.appendChild(this.pathElement);
+    }
+
+    isIntersectWith(rect): boolean {
+        return this.isIntersect(this.rect, rect);
+    }
+
+    onSelectedChange() {
+        if (this.selected) {
+
+            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            this.pRightBottom.setAttribute("r", "5");
+            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
+            this.rectElement.parentElement.appendChild(this.pRightBottom);
+
+            this.setEvent(this.pRightBottom);
+            this.resetPointLocation();
+        }
+        else {
+            this.rectElement.parentElement.removeChild(this.pRightBottom);
+        }
+    }
+
+    //开始画趋势图,values表示已经有的变化值 value结构{ value:12 , time:1221212 }
+    run()
+    {
+        if (this.values.length > 0)
+            this.value = this.values[this.values.length - 1].value;
+        else
+            this.value = this.min;
+
+        this.reDrawTrend();
+        this.element._interval = setInterval(() => this.checkValueChange(), 1000);
+    }
+
+    checkValueChange()
+    {
+        this.values.push({
+            value: this.value,
+            time: new Date().getTime()
+        });
+        this.reDrawTrend();
+    }
+
+    //重画趋势图
+    reDrawTrend()
+    {
+        var rect = this.rect;
+        //先计算目前可以显示多少秒，2个像素表示1秒钟的值
+        var width = rect.width - 20 - 2;
+
+        var now = new Date().getTime();
+        //小于minTime时间的值不必要显示了
+        var dataStr = "";
+        var deleteToIndex = -1;
+        for (var i = this.values.length - 1; i >= 0; i--) {
+            var x = rect.width - 10 - ((now - this.values[i].time) / 1000) * 2;//1秒占2个像素
+            if (x < 10) {
+                deleteToIndex = i;
+                break;
+            }
+
+            var percent = 1 - (this.values[i].value - this.min) / (this.max - this.min);
+            var y = 10 + (rect.height - 20) * percent;
+            if (y < 10)
+                y = 10;
+            else if (y > rect.height - 10)
+                y = rect.height - 10;
+
+            if (dataStr.length == 0)
+                dataStr += "M";
+            else
+                dataStr += "L";
+            dataStr += x + " " + y + " ";
+        }
+
+        if (deleteToIndex >= 0) {
+            //点已经过时需要删除
+            this.values.splice(0, deleteToIndex + 1);
+        }
+
+        this.pathElement.setAttribute("d", dataStr);
+    }
+
+    resetPointLocation() {
+        var rect = this.rect;
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
+        }
+
+        this.line_left_Ele.setAttribute("x1", <any>(rect.x + 10));
+        this.line_left_Ele.setAttribute("y1", <any>(rect.y + 10));
+        this.line_left_Ele.setAttribute("x2", <any>(rect.x + 10));
+        this.line_left_Ele.setAttribute("y2", <any>(rect.y + rect.height - 10));
+
+        this.line_bottom_Ele.setAttribute("x1", <any>(rect.x + 10));
+        this.line_bottom_Ele.setAttribute("y1", <any>(rect.y + rect.height - 10));
+        this.line_bottom_Ele.setAttribute("x2", <any>(rect.x + rect.width - 10));
+        this.line_bottom_Ele.setAttribute("y2", <any>(rect.y + rect.height - 10));
+    }
+
+    setEvent(pointEle) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
+    }
+
+    pointMouseDown(e: MouseEvent, pointEle) {
+        e.stopPropagation();
+        this.moving = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+
+        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
+        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
+        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
+        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    pointMouseMove(e: MouseEvent, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+
+            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
+            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
+            this.resetPointLocation();
+        }
+    }
+    pointMouseUp(e: MouseEvent, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.moving = false;
+            pointEle.releaseCapture();
+        }
+    }
+
+
+    onBeginMoving() {
+        (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
+        (<any>this.rectElement)._y = parseInt(this.rectElement.getAttribute("y"));
+    }
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.rectElement)._x + nowX - downX);
+        var y = <any>((<any>this.rectElement)._y + nowY - downY);
+        this.rectElement.setAttribute("x", x);
+        this.rectElement.setAttribute("y", y);
+        this.pathElement.setAttribute("transform", "translate("+x+" "+y+")");
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    }
+    onEndMoving() {
+
+    }
+}
+
+class GroupControl extends EditorControl implements IEditorControlContainer {
+    controls: any[] = [];
+    removeControl(ctrl: EditorControl) {
+
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i] == ctrl) {
+                this.groupElement.removeChild(ctrl.element);
+                ctrl.isInGroup = false;
+                ctrl.container = null;
+                this.controls.splice(i, 1);
+                break;
+            }
+        }
+    }
+    addControl(ctrl: EditorControl) {
+        ctrl.isInGroup = true;
+        ctrl.container = this;
+        this.groupElement.appendChild(ctrl.element);
+        this.controls.push(ctrl);
+    }
+    groupElement: SVGGElement;
+    pRightBottom: SVGCircleElement;
+    moving: boolean = false;
+    startX = 0;
+    startY = 0;
+
+    virtualRectElement: SVGRectElement;
+    contentWidth = 0;
+    contentHeight = 0;
+    private lastRect: any;
+    get rect() {
+        var transform = this.groupElement.getAttribute("transform");
+        var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+        var myrect: any = {};
+        myrect.x = parseInt(result[1]);
+        myrect.y = parseInt(result[2]);
+        result = /scale\(([0-9|\.]+) ([0-9|\.]+)\)/.exec(transform);
+        var scalex = parseFloat(result[1]);
+        var scaley = parseFloat(result[2]);
+
+        this.contentWidth = 0;
+        this.contentHeight = 0;
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];
+            var _rect = ctrl.rect;
+
+            if (_rect.x + _rect.width > this.contentWidth)
+                this.contentWidth = _rect.x + _rect.width;
+            if (_rect.y + _rect.height > this.contentHeight)
+                this.contentHeight = _rect.y + _rect.height;
+        }
+        if (!this.virtualRectElement) {
+            this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.groupElement.appendChild(this.virtualRectElement);
+            this.virtualRectElement.setAttribute('x', "0");
+            this.virtualRectElement.setAttribute('y', "0");
+            this.virtualRectElement.setAttribute('style', 'fill:#ffffff;fill-opacity:0.1;stroke:#cccccc;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+        }
+        this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
+        this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
+
+        myrect.width = parseInt(<any>(this.contentWidth * scalex));
+        myrect.height = parseInt(<any>(this.contentHeight * scaley));
+        this.lastRect = myrect;
+        return myrect;
+    }
+    set rect(v: any) {
+       
+        if (this.contentWidth == 0)
+        {
+            var r = this.rect;//目的是获取contentWidth
+        }
+        var scalex = parseFloat(<any>v.width) / this.contentWidth;
+        var scaley = parseFloat(<any>v.height) / this.contentHeight;
+
+        this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
+        this.lastRect = v;
+        this.resetPointLocation();
+    }
+
+    
+    getPropertiesCaption(): string[] {
+        return [];
+    }
+    getProperties(): string[] {
+        return [];
+    }
+
+    constructor(element:any) {
+        super(element);
+        element.setAttribute("transform", "translate(0 0) scale(1 1)");
+        this.groupElement = element;
+    }
+
+    isIntersectWith(rect): boolean {
+        return this.isIntersect(this.rect, rect);
+    }
+
+    onSelectedChange() {
+        if (this.selected) {
+
+            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            this.pRightBottom.setAttribute("r", "5");
+            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
+            this.groupElement.parentElement.appendChild(this.pRightBottom);
+
+            this.setEvent(this.pRightBottom);
+            this.resetPointLocation();
+        }
+        else {
+            this.groupElement.parentElement.removeChild(this.pRightBottom);
+        }
+    }
+
+    resetPointLocation() {
+        var rect = this.lastRect;
+        if (this.pRightBottom) {
+            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
+            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
+        }
+    }
+
+    setEvent(pointEle) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
+    }
+
+    pointMouseDown(e: MouseEvent, pointEle) {
+        e.stopPropagation();
+        this.moving = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+
+        var rect = this.rect;
+        pointEle._x = rect.x;
+        pointEle._y = rect.y;
+        pointEle._width = rect.width;
+        pointEle._height = rect.height;
+       
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    pointMouseMove(e: MouseEvent, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+
+            this.rect = {
+                x: pointEle._x,
+                y: pointEle._y,
+                width: Math.max(15, pointEle._width + (e.clientX - this.startX)),
+                height: Math.max(15, pointEle._height + (e.clientY - this.startY))
+            };
+
+            this.resetPointLocation();
+        }
+    }
+    pointMouseUp(e: MouseEvent, pointEle) {
+        if (this.moving) {
+            e.stopPropagation();
+            this.moving = false;
+            pointEle.releaseCapture();
+        }
+    }
+
+
+    onBeginMoving() {
+        var rect = this.rect;
+        (<any>this.groupElement)._x = rect.x;
+        (<any>this.groupElement)._y = rect.y;
+        (<any>this.groupElement)._width = rect.width;
+        (<any>this.groupElement)._height = rect.height;
+    }
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.groupElement)._x + nowX - downX);
+        var y = <any>((<any>this.groupElement)._y + nowY - downY);
+
+        this.rect = { x: x, y: y, width: (<any>this.groupElement)._width, height: (<any>this.groupElement)._height };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    }
+    onEndMoving() {
+
+    }
 }

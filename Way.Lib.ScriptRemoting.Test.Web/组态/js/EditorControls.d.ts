@@ -1,8 +1,10 @@
 declare var AllSelectedControls: EditorControl[];
 declare function documentElementMouseDown(e: MouseEvent): void;
 declare class EditorControl {
+    container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
     ctrlKey: boolean;
+    isInGroup: boolean;
     element: any;
     _selected: boolean;
     _moveAllSelectedControl: boolean;
@@ -13,8 +15,8 @@ declare class EditorControl {
     constructor(element: any);
     getPropertiesCaption(): string[];
     getProperties(): string[];
+    run(): void;
     getJson(): {
-        tagName: any;
         rect: any;
         constructorName: any;
     };
@@ -26,24 +28,9 @@ declare class EditorControl {
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
-declare class SVGContainerControl extends EditorControl {
-    rootElement: SVGSVGElement;
-    colorBG: string;
-    imgBg: string;
-    bgWidth: string;
-    bgHeight: string;
-    getPropertiesCaption(): string[];
-    getProperties(): string[];
-    constructor(element: any);
-    readonly rect: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    };
-}
 declare class LineControl extends EditorControl {
     lineElement: SVGLineElement;
+    virtualLineElement: SVGLineElement;
     pointEles: SVGCircleElement[];
     moving: boolean;
     startX: number;
@@ -60,7 +47,7 @@ declare class LineControl extends EditorControl {
     getJson(): any;
     lineWidth: string;
     color: string;
-    constructor(element: any);
+    constructor();
     getPropertiesCaption(): string[];
     getProperties(): string[];
     isIntersectWith(rect: any): boolean;
@@ -110,7 +97,7 @@ declare class EllipseControl extends EditorControl {
     colorFill: string;
     getPropertiesCaption(): string[];
     getProperties(): string[];
-    constructor(element: any);
+    constructor();
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
     resetPointLocation(): void;
@@ -134,7 +121,7 @@ declare class CircleControl extends EditorControl {
     colorFill: string;
     getPropertiesCaption(): string[];
     getProperties(): string[];
-    constructor(element: any);
+    constructor();
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
     resetPointLocation(): void;
@@ -151,7 +138,7 @@ declare class ImageControl extends RectControl {
     imgDefault: string;
     getPropertiesCaption(): string[];
     getProperties(): string[];
-    constructor(element: any);
+    constructor();
 }
 declare class TextControl extends RectControl {
     textElement: SVGTextElement;
@@ -162,7 +149,105 @@ declare class TextControl extends RectControl {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     rect: any;
-    constructor(element: any);
+    constructor();
     onSelectedChange(): void;
     resetPointLocation(): void;
+}
+declare class CylinderControl extends EditorControl {
+    private _value;
+    private _max;
+    private _min;
+    value: any;
+    max: any;
+    min: any;
+    rectElement: SVGRectElement;
+    cylinderElement: SVGRectElement;
+    pRightBottom: SVGCircleElement;
+    moving: boolean;
+    startX: number;
+    startY: number;
+    rect: any;
+    strokeWidth: string;
+    colorStroke: string;
+    colorFill: string;
+    colorBg: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor();
+    resetCylinder(rect: any): void;
+    isIntersectWith(rect: any): boolean;
+    onSelectedChange(): void;
+    resetPointLocation(): void;
+    setEvent(pointEle: any): void;
+    pointMouseDown(e: MouseEvent, pointEle: any): void;
+    pointMouseMove(e: MouseEvent, pointEle: any): void;
+    pointMouseUp(e: MouseEvent, pointEle: any): void;
+    onBeginMoving(): void;
+    onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
+    onEndMoving(): void;
+}
+declare class TrendControl extends EditorControl {
+    rectElement: SVGRectElement;
+    pRightBottom: SVGCircleElement;
+    line_left_Ele: SVGLineElement;
+    line_bottom_Ele: SVGLineElement;
+    pathElement: SVGPathElement;
+    values: any[];
+    private _value;
+    private _max;
+    private _min;
+    value: any;
+    max: any;
+    min: any;
+    moving: boolean;
+    startX: number;
+    startY: number;
+    rect: any;
+    colorFill: string;
+    colorLineLeftBottom: string;
+    colorLine: string;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor();
+    isIntersectWith(rect: any): boolean;
+    onSelectedChange(): void;
+    run(): void;
+    checkValueChange(): void;
+    reDrawTrend(): void;
+    resetPointLocation(): void;
+    setEvent(pointEle: any): void;
+    pointMouseDown(e: MouseEvent, pointEle: any): void;
+    pointMouseMove(e: MouseEvent, pointEle: any): void;
+    pointMouseUp(e: MouseEvent, pointEle: any): void;
+    onBeginMoving(): void;
+    onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
+    onEndMoving(): void;
+}
+declare class GroupControl extends EditorControl implements IEditorControlContainer {
+    controls: any[];
+    removeControl(ctrl: EditorControl): void;
+    addControl(ctrl: EditorControl): void;
+    groupElement: SVGGElement;
+    pRightBottom: SVGCircleElement;
+    moving: boolean;
+    startX: number;
+    startY: number;
+    virtualRectElement: SVGRectElement;
+    contentWidth: number;
+    contentHeight: number;
+    private lastRect;
+    rect: any;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor(element: any);
+    isIntersectWith(rect: any): boolean;
+    onSelectedChange(): void;
+    resetPointLocation(): void;
+    setEvent(pointEle: any): void;
+    pointMouseDown(e: MouseEvent, pointEle: any): void;
+    pointMouseMove(e: MouseEvent, pointEle: any): void;
+    pointMouseUp(e: MouseEvent, pointEle: any): void;
+    onBeginMoving(): void;
+    onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
+    onEndMoving(): void;
 }
