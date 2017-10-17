@@ -72,6 +72,15 @@ declare class ToolBox_Trend extends ToolBoxItem {
     mousemove(x: any, y: any): void;
     end(): EditorControl;
 }
+declare class ToolBox_ButtonArea extends ToolBoxItem {
+    control: ButtonAreaControl;
+    private startx;
+    private starty;
+    constructor();
+    begin(svgContainer: SVGSVGElement, position: any): void;
+    mousemove(x: any, y: any): void;
+    end(): EditorControl;
+}
 interface IEditorControlContainer {
     controls: any[];
     addControl(ctrl: EditorControl): any;

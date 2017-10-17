@@ -5,6 +5,7 @@ declare class EditorControl {
     propertyDialog: PropertyDialog;
     ctrlKey: boolean;
     isInGroup: boolean;
+    isDesignMode: boolean;
     element: any;
     _selected: boolean;
     _moveAllSelectedControl: boolean;
@@ -16,6 +17,7 @@ declare class EditorControl {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     run(): void;
+    onDevicePointValueChanged(devPoint: any): void;
     getJson(): {
         rect: any;
         constructorName: any;
@@ -146,6 +148,11 @@ declare class TextControl extends RectControl {
     text: string;
     size: number;
     colorFill: string;
+    _devicePoint: string;
+    _lastDevPoint: any;
+    devicePoint: string;
+    onDevicePointValueChanged(devPoint: any): void;
+    run(): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     rect: any;
@@ -214,6 +221,28 @@ declare class TrendControl extends EditorControl {
     run(): void;
     checkValueChange(): void;
     reDrawTrend(): void;
+    resetPointLocation(): void;
+    setEvent(pointEle: any): void;
+    pointMouseDown(e: MouseEvent, pointEle: any): void;
+    pointMouseMove(e: MouseEvent, pointEle: any): void;
+    pointMouseUp(e: MouseEvent, pointEle: any): void;
+    onBeginMoving(): void;
+    onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
+    onEndMoving(): void;
+}
+declare class ButtonAreaControl extends EditorControl {
+    rectElement: SVGGraphicsElement;
+    pRightBottom: SVGCircleElement;
+    moving: boolean;
+    startX: number;
+    startY: number;
+    rect: any;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor();
+    run(): void;
+    isIntersectWith(rect: any): boolean;
+    onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
     pointMouseDown(e: MouseEvent, pointEle: any): void;

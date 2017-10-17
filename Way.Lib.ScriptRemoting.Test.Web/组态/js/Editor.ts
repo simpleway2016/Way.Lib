@@ -298,6 +298,44 @@ class ToolBox_Trend extends ToolBoxItem {
     }
 }
 
+class ToolBox_ButtonArea extends ToolBoxItem {
+    control: ButtonAreaControl;
+    private startx;
+    private starty;
+    constructor() {
+        super();
+    }
+
+    begin(svgContainer: SVGSVGElement, position: any) {
+        this.control = new ButtonAreaControl();
+
+        this.control.element.setAttribute('x', position.x);
+        this.control.element.setAttribute('y', position.y);
+        this.control.element.setAttribute('width', "0");
+        this.control.element.setAttribute('height', "0");
+
+
+        this.startx = position.x;
+        this.starty = position.y;
+
+        svgContainer.appendChild(this.control.element);
+    }
+    mousemove(x, y) {
+        this.control.rect = {
+            x: Math.min(x, this.startx),
+            y: Math.min(y, this.starty),
+            width: Math.abs(x - this.startx),
+            height: Math.abs(y - this.starty)
+        };
+    }
+    end(): EditorControl {
+        if (<any>this.control.element.getAttribute("width") == 0 || <any>this.control.element.getAttribute("height") == 0) {
+            return null;
+        }
+        return this.control;
+    }
+}
+
 interface IEditorControlContainer
 {
     controls: any[];

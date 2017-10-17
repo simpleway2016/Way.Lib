@@ -97,10 +97,15 @@
             </div>
             <div class="toolboxItem" title="趋势图" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/trend.png);" _type="ToolBox_Trend">
             </div>
+            <div class="toolboxItem" title="点击区域" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/buttonarea.png);" _type="ToolBox_ButtonArea">
+            </div>
             <!--<input class="jscolor" value="ab2567">-->
             <div class="toolboxItem" title="复制" onclick="editor.copy();" style="background-image:url(images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
             </div>
             <div class="toolboxItem" title="粘贴" onclick="editor.paste();" style="background-image:url(images/toolbox/paste.png);cursor:pointer;margin-left:0px;">
+            </div>
+
+            <div class="toolboxItem" title="测试开始" onclick="startTest();" style="background-image:url(images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
             </div>
 
             <div class="toolboxItem" title="左对齐" onclick="editor.alignLeft();" style="background-image:url(images/toolbox/alignleft.png);margin-left:20px;cursor:pointer;">
@@ -178,15 +183,114 @@
             }
         }
 
-        //var testObj = {};
+        //var testObj = {age:12};
         //Object.defineProperty(testObj, "name", {
-        //    get: function () { return testObj._name; },
-        //    set: function (v) { testObj._name = v; },
+        //    get: function () { return this._name; },
+        //    set: function (v) { this._name = v; },
         //    enumerable: true,
         //    configurable: true
         //});
         //testObj.name = "abc";
-        //alert(testObj.name);
+        window.devicePoints = [];
+        window.devicePoints.push({
+            name: "/p/01",
+            value: 1,
+            max: 200,
+            min: 0,
+            timeoutNumber: null,
+            timeoutValue:null,
+        });
+        window.devicePoints.push({
+            name: "/p/02",
+            value: 2,
+            max: 200,
+            min: 0,
+            timeoutNumber: null,
+            timeoutValue: null,
+        });
+        window.devicePoints.push({
+            name: "/p/03",
+            value:3,
+            max: 200,
+            min: 0,
+            timeoutNumber: null,
+            timeoutValue: null,
+        });
+        function startTest()
+        {
+            for (var i = 0; i < editor.controls.length; i++) {
+                var control = editor.controls[i];
+                control.run();
+            }
+
+            window.setInterval(function () {
+                for (var i = 0; i < window.devicePoints.length; i++) {
+                    var devPoint = window.devicePoints[i];
+                    var newvalue = GetRandomNum(1, 1000);
+                    receiveNewValue(devPoint, newvalue);
+                }
+            }, 1000);
+        }
+
+        function receiveNewValue(devPoint,newvalue)
+        {
+            if (devPoint.value != newvalue)
+            {
+                if (!devPoint.setValueTime || new Date().getTime() - devPoint.setValueTime > 3000) {
+                    //如果是手动设置值，那么3秒内，不会被服务器发送过来的值更新
+                    devPoint.value = newvalue;
+                    if (devPoint.timeoutNumber)
+                    {
+                        //既然这里更新点的值，那setTimeout更新的那个就没有必要了
+                        clearTimeout(devPoint.timeoutNumber);
+                        devPoint.timeoutNumber = null;
+                    }                   
+                    onPointValueChanged(devPoint);
+                }
+                else {
+                    var interval = new Date().getTime() - devPoint.setValueTime;
+                    interval = 3000 - interval;
+                    if (interval <= 0)
+                        interval = 1;
+
+                    devPoint.timeoutValue = newvalue;
+                    if (!devPoint.timeoutNumber) {
+                        //设置经过一段时间后，再更新点的值
+                        devPoint.timeoutNumber = setTimeout(function () {
+                            devPoint.timeoutNumber = null; 
+                            if (devPoint.value != devPoint.timeoutValue) {
+                                devPoint.value = devPoint.timeoutValue;
+                                onPointValueChanged(devPoint);
+                            }
+                        }, interval);
+                    }
+                }
+            }
+            else {
+                if (devPoint.timeoutNumber) {
+                    //既然服务器新的值和point.value相同，证明上一次设置的setTimeout没有必要运行了
+                    clearTimeout(devPoint.timeoutNumber);
+                    devPoint.timeoutNumber = null;
+                }     
+            }
+        }
+
+        function GetRandomNum(Min, Max) {
+            var Range = Max - Min;
+            var Rand = Math.random();
+            return (Min + Math.round(Rand * Range));
+        }   
+        function onPointValueChanged(point)
+        {
+            for (var i = 0; i < editor.controls.length; i++)
+            {
+                var control = editor.controls[i];
+                if (control.devicePoint == point.name)
+                {
+                    control.onDevicePointValueChanged(point);
+                }
+            }
+        }
     </script>
 </body>
 </html>

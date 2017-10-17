@@ -256,6 +256,37 @@ var ToolBox_Trend = (function (_super) {
     };
     return ToolBox_Trend;
 }(ToolBoxItem));
+var ToolBox_ButtonArea = (function (_super) {
+    __extends(ToolBox_ButtonArea, _super);
+    function ToolBox_ButtonArea() {
+        return _super.call(this) || this;
+    }
+    ToolBox_ButtonArea.prototype.begin = function (svgContainer, position) {
+        this.control = new ButtonAreaControl();
+        this.control.element.setAttribute('x', position.x);
+        this.control.element.setAttribute('y', position.y);
+        this.control.element.setAttribute('width', "0");
+        this.control.element.setAttribute('height', "0");
+        this.startx = position.x;
+        this.starty = position.y;
+        svgContainer.appendChild(this.control.element);
+    };
+    ToolBox_ButtonArea.prototype.mousemove = function (x, y) {
+        this.control.rect = {
+            x: Math.min(x, this.startx),
+            y: Math.min(y, this.starty),
+            width: Math.abs(x - this.startx),
+            height: Math.abs(y - this.starty)
+        };
+    };
+    ToolBox_ButtonArea.prototype.end = function () {
+        if (this.control.element.getAttribute("width") == 0 || this.control.element.getAttribute("height") == 0) {
+            return null;
+        }
+        return this.control;
+    };
+    return ToolBox_ButtonArea;
+}(ToolBoxItem));
 var Editor = (function () {
     function Editor(id) {
         var _this = this;
