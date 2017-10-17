@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 
 #if NET46
@@ -25,6 +26,7 @@ namespace Way.Lib.ScriptRemoting
     /// </summary>
     public static class ScriptRemotingServer
     {
+        internal static X509Certificate SSLKey;
         internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal static List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
         internal static string ScriptFilePath;
@@ -137,6 +139,12 @@ namespace Way.Lib.ScriptRemoting
                 socketServer.Stop();
                 socketServer = null;
             }
+        }
+
+
+        public static void UseHttps(X509Certificate ssl)
+        {
+            SSLKey = ssl;
         }
 
         /// <summary>
@@ -311,31 +319,27 @@ namespace Way.Lib.ScriptRemoting
 
         internal static void HandleSocket(NetStream client)
         {
-            //不要用task.run，明显会影响网页反应速度
-            new Thread(() =>
+            try
             {
-                try
-                {
-                    var Request = new Net.Request(client);
-                    client.ReadTimeout = 0;
+                var Request = new Net.Request(client);
+                client.ReadTimeout = 0;
 
-                    ISocketHandler handler = null;
-                    if (Request.Headers.ContainsKey("Connection") == false || Request.Headers["Connection"].Contains("Upgrade") == false)
-                    {
-                        handler = new HttpSocketHandler(Request);
-                    }
-                    else
-                    {
-                        handler = new WebSocketHandler(Request);
-                    }
-                   
-                    handler.Handle();
-                }
-                catch
+                ISocketHandler handler = null;
+                if (Request.Headers.ContainsKey("Connection") == false || Request.Headers["Connection"].Contains("Upgrade") == false)
                 {
-                    client.Close();
+                    handler = new HttpSocketHandler(Request);
                 }
-            }).Start();
+                else
+                {
+                    handler = new WebSocketHandler(Request);
+                }
+
+                handler.Handle();
+            }
+            catch
+            {
+                client.Close();
+            }
         }
 
         void _start()
@@ -344,15 +348,25 @@ namespace Way.Lib.ScriptRemoting
             {
                 try
                 {
-                    var task = m_listener.AcceptSocketAsync();
-                    task.Wait();
-                    //Debug.WriteLine("new socket in");
-                    var socket = task.Result;
-                    HandleSocket(new NetStream(socket));
+                    var socket = m_listener.AcceptSocket();
+
+                    new Thread(()=> {
+                        try
+                        {
+                            if (ScriptRemotingServer.SSLKey == null)
+                                HandleSocket(new NetStream(socket));
+                            else
+                            {
+                                HandleSocket(new NetStream(socket, ScriptRemotingServer.SSLKey));
+                            }
+                        }
+                        catch { }
+                    }).Start();
+                    
                 }
                 catch
                 {
-                    break;
+                    Thread.Sleep(1000);
                 }
             }
         }

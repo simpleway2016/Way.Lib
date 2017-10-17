@@ -32,7 +32,7 @@
 <body controller="Way.Lib.ScriptRemoting.Test.TestPage">
     <div id="aaa" class="panel">awfeawfawfeawf</div>
 
-    <!--<JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
+    <JButton id="btn1" datacontext="{name:'hello'}" class="btn" text="{bind @name}">
         <script type="text/html">
             <div>
                 <input type="button" onclick="alert(this.getDataContextControl().constructor)" class="{bind $class}" value="{bind $text}" />
@@ -106,7 +106,7 @@
         checkbox:
         <JCheckbox id="chk1" text="mycheck">
         </JCheckbox>
-    </div>-->
+    </div>
 
     <div style="margin-top:20px;">
         JList:<input type="button" value="重新绑定" onclick="list4.rebind();"/><input type="button" value="sendGroupMsg" onclick=" window.controller.server.sendGroupMsg('hello')" />
@@ -143,7 +143,6 @@
                 alert(msg);
             }
 
-            return;
             document.querySelector("#aaa").removeAttribute("class");
 
             var c = "看到这个，证明成功了。";

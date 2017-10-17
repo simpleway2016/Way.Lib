@@ -6,6 +6,9 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 namespace Way.Lib
 {
@@ -28,16 +31,13 @@ namespace Way.Lib
     public class NetStream : Stream
     {
        
-        private Socket m_ClientSocket;
-        public Socket Socket
+        private Stream _stream;
+        Socket Socket;
+        public System.Net.EndPoint RemoteEndPoint
         {
             get
             {
-                return m_ClientSocket;
-            }
-            private set
-            {
-                m_ClientSocket = value;
+                return this.Socket.RemoteEndPoint;
             }
         }
         private bool m_Active;
@@ -74,22 +74,22 @@ namespace Way.Lib
         public override int ReadTimeout {
             get
             {
-                return m_ClientSocket.ReceiveTimeout;
+                return this.Socket.ReceiveTimeout;
             }
             set
             {
-                m_ClientSocket.ReceiveTimeout = value;
+                this.Socket.ReceiveTimeout = value;
             }
         }
 
         public override int WriteTimeout {
             get
             {
-                return m_ClientSocket.SendTimeout;
+                return this.Socket.SendTimeout;
             }
             set
             {
-                m_ClientSocket.SendTimeout = value;
+                this.Socket.SendTimeout = value;
             }
         }
         protected override void Dispose(bool disposing)
@@ -111,8 +111,8 @@ namespace Way.Lib
             socket.ReceiveTimeout = 0;
             System.Net.DnsEndPoint endPoint = new DnsEndPoint(Address , port);
             socket.Connect(endPoint);
-            this.m_ClientSocket = socket;
-
+            this.Socket = socket;
+            this._stream = new SocketStream( socket );
             try
             {
                 //经典代码,再也不用写什么心跳包了，接收数据必须采用BeginReceive
@@ -134,11 +134,11 @@ namespace Way.Lib
         /// <param name="SocketClient"></param>
         public NetStream(Socket SocketClient)
         {
-            this.m_ClientSocket = SocketClient;
+            this.Socket = SocketClient;
             this.Socket.SendTimeout = 10000;
             this.Socket.ReceiveTimeout = 0;
             this.Socket.ReceiveBufferSize = 1024 * 100;
-
+            this._stream = new SocketStream(this.Socket);
             try
             {
                 //经典代码,再也不用写什么心跳包了，接收数据必须采用BeginReceive
@@ -153,6 +153,41 @@ namespace Way.Lib
                     readed = task.Result;
              */
 
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="SocketClient"></param>
+        /// <param name="ssl">ssl证书</param>
+        public NetStream(Socket SocketClient, X509Certificate ssl)
+        {
+            this.Socket = SocketClient;
+            SslStream sslStream = new SslStream(new SocketStream(this.Socket), false);
+            try
+            {
+               
+                sslStream.AuthenticateAsServer(ssl, false, SslProtocols.Tls, true);
+                this._stream = sslStream;
+
+                this.Socket.SendTimeout = 10000;
+                this.Socket.ReceiveTimeout = 0;
+                this.Socket.ReceiveBufferSize = 1024 * 100;
+            }
+            catch(Exception ex)
+            {
+                sslStream.Close();
+                SocketClient.Close();
+                throw ex;
+            }
+          
+
+            try
+            {
+                //经典代码,再也不用写什么心跳包了，接收数据必须采用BeginReceive
+                byte[] inValue = new byte[] { 1, 0, 0, 0, 0x20, 0x4e, 0, 0, 0xd0, 0x07, 0, 0 }; //True, 20 秒, 2 秒
+                this.Socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
+            }
+            catch { return; }
         }
 
         /// <summary>
@@ -170,6 +205,14 @@ namespace Way.Lib
         {
             try
             {
+                _stream.Close();
+            }
+            catch
+            {
+            }
+            try
+            {
+                
                 Socket.Dispose();
             }
             catch
@@ -209,7 +252,7 @@ namespace Way.Lib
             int readed;
             while (true)
             {
-                readed = Socket.Receive(buffer, offset, buffer.Length - offset, SocketFlags.None);
+                readed = _stream.Read(buffer, offset, buffer.Length - offset);
                 if (readed == 0)
                 {
                     throw new Exception("Socket已经断开");
@@ -227,7 +270,7 @@ namespace Way.Lib
             int readed;
             while (true)
             {
-                readed = Socket.Receive(buffer, offset, buffer.Length - offset, SocketFlags.None);
+                readed = _stream.Read(buffer, offset, buffer.Length - offset);
                 if (readed == 0)
                 {
                     throw new Exception("Socket已经断开");
@@ -253,7 +296,7 @@ namespace Way.Lib
             int readed;
             while (true)
             {
-                readed = Socket.Receive(bs);
+                readed = _stream.Read(bs , 0 , bs.Length);
                 if (readed == 0)
                 {
                     throw new Exception("Socket已经断开");
@@ -291,7 +334,7 @@ namespace Way.Lib
             
             while(true)
             {
-                int readed = Socket.Receive(bs);
+                int readed = _stream.Read(bs,0,bs.Length);
                 if (readed == 0)
                 {
                     throw new Exception("Socket已经断开");
@@ -340,13 +383,10 @@ namespace Way.Lib
 
                 while (count > 0)
                 {
-                    int f = Socket.Send(buffer, writed, Math.Min(count, eachSize), SocketFlags.None);
-                    writed += f;
-                    count -= f;
-                    if (f == 0)
-                    {
-                        Thread.Sleep(10);
-                    }
+                    int towrite = Math.Min(count, eachSize);
+                    _stream.Write(buffer, writed, towrite);
+                    writed += towrite;
+                    count -= towrite;
                 }
             }
             catch
@@ -382,19 +422,7 @@ namespace Way.Lib
             }
             try
             {
-                int writed = offset;
-
-
-                while (count > 0)
-                {
-                    int f = Socket.Send(buffer, writed, count, SocketFlags.None);
-                    writed += f;
-                    count -= f;
-                    if (f == 0)
-                    {
-                        Thread.Sleep(10);
-                    }
-                }
+                _stream.Write(buffer, offset, count);
 
                 return count;
             }
@@ -406,40 +434,25 @@ namespace Way.Lib
 
 
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => _stream.CanRead;
 
-        public override bool CanSeek
-        {
-            get { return false; }
-        }
+        public override bool CanSeek => _stream.CanSeek;
 
-        public override bool CanWrite
-        {
-            get { return true; }
-        }
+        public override bool CanWrite => _stream.CanWrite;
 
         public override void Flush()
         {
-
+            _stream.Flush();
         }
 
-        public override long Length
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public override long Length => _stream.Length;
 
         public override long Position
         {
-            get
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
+            get => _stream.Position;
             set
             {
-                throw new Exception("The method or operation is not implemented.");
+                _stream.Position = value;
             }
         }
 
@@ -449,7 +462,7 @@ namespace Way.Lib
                 return 0;
 
 
-            var readed =  Socket.Receive(buffer, offset, count, SocketFlags.None);
+            var readed =  _stream.Read(buffer, offset, count);
 
             if (readed == 0)
             {
@@ -460,12 +473,12 @@ namespace Way.Lib
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new Exception("The method or operation is not implemented.");
+            return _stream.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
         {
-            throw new Exception("The method or operation is not implemented.");
+            _stream.SetLength(value);
         }
         public delegate void BeforeWriteStringHandler(ref string content);
         public event BeforeWriteStringHandler BeforeWriteString;
@@ -590,5 +603,76 @@ namespace Way.Lib
         }
     }
 
+   class SocketStream:Stream
+    {
+        public Socket Socket => _socket;
+        Socket _socket;
+        public SocketStream(Socket socket)
+        {
+            _socket = socket;
+        }
+        public override void Close()
+        {
+            try
+            {
+                _socket.Close();
+            }
+            catch
+            {
 
+            }
+            try
+            {
+                _socket.Dispose();
+            }
+            catch
+            {
+
+            }
+        }
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => true;
+
+        public override long Length => throw new NotImplementedException();
+
+        public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public override void Flush()
+        {
+            
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+           return _socket.Receive(buffer, offset, count, SocketFlags.None);
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            int sended = 0;
+            while (count > 0)
+            {
+                int f = _socket.Send(buffer, offset + sended, count, SocketFlags.None);
+                sended += f;
+                count -= f;
+                if (f == 0)
+                {
+                    Thread.Sleep(10);
+                }
+            }
+        }
+    }
 }

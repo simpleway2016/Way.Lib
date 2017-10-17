@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting.Net
@@ -244,8 +245,8 @@ namespace Way.Lib.ScriptRemoting.Net
                     }
                 }
                 buffer.Append("\r\n");
-                mClient.Socket.Send(getBytes("HTTP/1.1 200 OK\r\n"));
-                mClient.Socket.Send(getBytes(buffer.ToString()));
+                mClient.Write(getBytes("HTTP/1.1 200 OK\r\n"));
+                mClient.Write(getBytes(buffer.ToString()));
             }
             if(_buffer != null && _buffer.Length > 0)
             {
@@ -254,9 +255,9 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer.Read(bs, 0, bs.Length);
                 _buffer.Dispose();
                 _buffer = null;
-                mClient.Socket.Send(bs, 0, bs.Length, System.Net.Sockets.SocketFlags.None);
+                mClient.Write(bs, 0, bs.Length);
             }
-            mClient.Socket.Send(content , offset , count , System.Net.Sockets.SocketFlags.None);
+            mClient.Write(content , offset , count);
         }
        
         internal void SendFileNoChanged()
@@ -269,7 +270,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Socket.Send(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         string getConnectString()
@@ -290,7 +291,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Socket.Send(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         internal void SendServerError()
@@ -303,7 +304,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Socket.Send(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         internal void CloseSocket()
@@ -330,13 +331,17 @@ namespace Way.Lib.ScriptRemoting.Net
             if(!_sendedHeader)
             {
                 _sendedHeader = true;
-                mClient.Socket.Send(getBytes($"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+                mClient.Write(getBytes($"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             }
 
             if(Headers.ContainsKey("Connection") && string.Equals( Headers["Connection"] , "keep-alive" , StringComparison.CurrentCultureIgnoreCase))
             {
                 mClient.ReadTimeout = 6 * 1000;//5秒超时
-                SocketServer.HandleSocket(mClient);
+                var oc = mClient;
+                new Thread(()=> {
+                    SocketServer.HandleSocket(oc);
+                }).Start();
+                
                 mClient = null;
                 return;
             }

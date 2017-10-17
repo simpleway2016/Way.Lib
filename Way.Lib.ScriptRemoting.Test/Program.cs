@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Way.Lib.ScriptRemoting.WinTest;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Way.Lib.ScriptRemoting.Test
 {
@@ -34,7 +35,7 @@ namespace Way.Lib.ScriptRemoting.Test
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
                 ScriptRemotingServer.Start(9090, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web", 1);
             }
-          
+            ScriptRemotingServer.UseHttps(new X509Certificate(Way.Lib.PlatformHelper.GetAppDirectory() + "server.pfx", "linezero"));
             Console.WriteLine("server started");
             try
             {

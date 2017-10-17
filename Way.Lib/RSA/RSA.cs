@@ -12,6 +12,11 @@ namespace Way.Lib
     public class RSADecrptException : Exception
     {
     }
+    public enum RSAKeyType
+    {
+        PKCS1 = 0,
+        PKCS8 = 1
+    }
     public class RSA
     {
         System.Security.Cryptography.RSA _rsa;
@@ -135,10 +140,72 @@ namespace Way.Lib
             return count;
         }
 
+        private static byte[] pkcs8ToPkcs1(byte[] pkcs8)
+        {
+            byte[] SeqOID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
+            byte[] seq = new byte[15];
 
-        public static System.Security.Cryptography.RSA CreateRsaFromPrivateKey(string privateKey)
+            MemoryStream mem = new MemoryStream(pkcs8);
+            int lenstream = (int)mem.Length;
+            BinaryReader binr = new BinaryReader(mem);    //wrap Memory Stream with BinaryReader for easy reading    
+            byte bt = 0;
+            ushort twobytes = 0;
+
+            try
+            {
+                twobytes = binr.ReadUInt16();
+                if (twobytes == 0x8130)    //data read as little endian order (actual data order for Sequence is 30 81)    
+                    binr.ReadByte();    //advance 1 byte    
+                else if (twobytes == 0x8230)
+                    binr.ReadInt16();    //advance 2 bytes    
+                else
+                    return null;
+
+                bt = binr.ReadByte();
+                if (bt != 0x02)
+                    return null;
+
+                twobytes = binr.ReadUInt16();
+
+                if (twobytes != 0x0001)
+                    return null;
+
+                seq = binr.ReadBytes(15);        //read the Sequence OID    
+                if (!CompareBytearrays(seq, SeqOID))    //make sure Sequence for OID is correct    
+                    return null;
+
+                bt = binr.ReadByte();
+                if (bt != 0x04)    //expect an Octet string    
+                    return null;
+
+                bt = binr.ReadByte();        //read next byte, or next 2 bytes is  0x81 or 0x82; otherwise bt is the byte count    
+                if (bt == 0x81)
+                    binr.ReadByte();
+                else
+                    if (bt == 0x82)
+                    binr.ReadUInt16();
+                //------ at this stage, the remaining sequence should be the RSA private key    
+
+                byte[] rsaprivkey = binr.ReadBytes((int)(lenstream - mem.Position));
+                return rsaprivkey;
+            }
+
+            catch (Exception)
+            {
+                return null;
+            }
+
+            finally { binr.Close(); }
+
+        }
+
+        public static System.Security.Cryptography.RSA CreateRsaFromPrivateKey(string privateKey , RSAKeyType keytype = RSAKeyType.PKCS1)
         {
             var privateKeyBits = System.Convert.FromBase64String(privateKey);
+            if(keytype == RSAKeyType.PKCS8)
+            {
+                privateKeyBits = pkcs8ToPkcs1(privateKeyBits);
+            }
             var rsa = System.Security.Cryptography.RSA.Create();
             var RSAparams = new RSAParameters();
 
@@ -497,6 +564,56 @@ namespace Way.Lib
                 hexString.Append(String.Format("{0:X2}", input[i]));
             }
             return hexString.ToString();
+        }
+
+        /// <summary>
+        /// 加密内容成base64字符串，支持超长字符串
+        /// </summary>
+        /// <param name="rsa"></param>
+        /// <param name="content"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
+        public static string EncryptToBase64(System.Security.Cryptography.RSA rsa, byte[] content, RSAEncryptionPadding padding)
+        {
+            int KEYBIT = rsa.KeySize;
+            int RESERVEBYTES = 11;// 加密block需要预留11字节
+            int encryptBlockSize = KEYBIT / 8 - RESERVEBYTES;
+            List<byte> result = new List<byte>();
+            int total = content.Length;
+            int index = 0;
+            while (total > 0)
+            {
+                int read = Math.Min(encryptBlockSize, total);
+                total -= read;
+                byte[] bs = new byte[read];
+                Array.Copy(content, index, bs, 0, read);
+                bs = rsa.Encrypt(bs, padding);
+                result.AddRange(bs);
+
+                index += read;
+            }
+            return Convert.ToBase64String(result.ToArray());
+        }
+        public static byte[] DecryptFromBase64(System.Security.Cryptography.RSA rsa, string content, RSAEncryptionPadding padding)
+        {
+            var data = Convert.FromBase64String(content);
+            int KEYBIT = rsa.KeySize;
+            int decryptBlockSize = KEYBIT / 8;
+            List<byte> result = new List<byte>();
+            int total = data.Length;
+            int index = 0;
+            while (total > 0)
+            {
+                int read = Math.Min(decryptBlockSize, total);
+                total -= read;
+                byte[] bs = new byte[read];
+                Array.Copy(data, index, bs, 0, read);
+                bs = rsa.Decrypt(bs, padding);
+                result.AddRange(bs);
+
+                index += read;
+            }
+            return result.ToArray();
         }
     }
 }
