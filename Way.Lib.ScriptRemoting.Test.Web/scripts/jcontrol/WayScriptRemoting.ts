@@ -13,6 +13,14 @@ enum WayScriptRemotingMessageType {
     RSADecrptError = 6,
 }
 
+
+var HTTP_Protocol = location.href.substr(0, location.href.indexOf(":"));
+var WEBSOCKET_Protocol = "ws";
+if (HTTP_Protocol == "https")
+{
+    WEBSOCKET_Protocol = "wss";
+}
+
 class WayCookie {
     static setCookie(name: string, value: string): void {
         document.cookie = name + "=" + (<any>window).encodeURIComponent(value, "utf-8");
@@ -132,7 +140,7 @@ class WayScriptRemoting {
         }
 
         WayScriptRemoting.getServerAddress();
-        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
+        var invoker = new WayScriptInvoker(HTTP_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
         invoker.async = false;
         var result;
         var hasErr = null;
@@ -207,7 +215,7 @@ class WayScriptRemoting {
 
     private static createRemotingControllerAsync(remoteName: string, callback: (obj: WayScriptRemoting, err: string) => void): void {
         WayScriptRemoting.getServerAddress();
-        var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+        var ws = WayHelper.createWebSocket(WEBSOCKET_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         ws.onopen = () => {
             ws.send("{'Action':'init' , 'ClassFullName':'" + remoteName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
         };
@@ -242,7 +250,7 @@ class WayScriptRemoting {
 
     private reCreateRSA(callback:(ret,err)=>any)
     {
-        var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_recreatersa?a=" + (new Date().getTime()));
+        var invoker = new WayScriptInvoker(HTTP_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_recreatersa?a=" + (new Date().getTime()));
         invoker.onCompleted = (ret, err) => {
             if (err) {
                 callback(null, err);
@@ -432,7 +440,7 @@ class WayScriptRemoting {
             if (!handler) {
                 handler = new WayScriptRemotingUploadHandler();
             }
-            var ws = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+            var ws = WayHelper.createWebSocket(WEBSOCKET_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
             var initType = ws.binaryType;
             ws.onopen = () => {
                 ws.send("{'Action':'UploadFile','FileName':'" + file.name + "',State:" + JSON.stringify(state)+ ",'FileSize':" + size + ",'Offset':" + handler.offset + ",'ClassFullName':'" + this.classFullName + "','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
@@ -562,7 +570,7 @@ class WayScriptRemoting {
             }
 
             
-            var invoker = new WayScriptInvoker("http://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
+            var invoker = new WayScriptInvoker(HTTP_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
             invoker.async = async;
             invoker.onCompleted = (ret, err) => {
                 if (WayScriptRemoting.onInvokeFinish) {
@@ -646,7 +654,7 @@ class WayScriptRemoting {
     }
 
     private connect(): void {
-        this.socket = WayHelper.createWebSocket("ws://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
+        this.socket = WayHelper.createWebSocket(WEBSOCKET_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_socket");
         this.socket.onopen = () => {
             try {
                 if (this.onconnect) {

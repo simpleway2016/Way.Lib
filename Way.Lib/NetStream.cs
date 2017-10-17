@@ -6,6 +6,9 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 namespace Way.Lib
 {
@@ -29,10 +32,13 @@ namespace Way.Lib
     {
        
         private Stream _stream;
-        public Socket Socket
+        Socket Socket;
+        public System.Net.EndPoint RemoteEndPoint
         {
-            get;
-            private set;
+            get
+            {
+                return this.Socket.RemoteEndPoint;
+            }
         }
         private bool m_Active;
         private System.Text.Encoding code = System.Text.Encoding.UTF8;
@@ -148,6 +154,41 @@ namespace Way.Lib
              */
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="SocketClient"></param>
+        /// <param name="ssl">ssl证书</param>
+        public NetStream(Socket SocketClient, X509Certificate ssl)
+        {
+            this.Socket = SocketClient;
+            SslStream sslStream = new SslStream(new SocketStream(this.Socket), false);
+            try
+            {
+               
+                sslStream.AuthenticateAsServer(ssl, false, SslProtocols.Tls, true);
+                this._stream = sslStream;
+
+                this.Socket.SendTimeout = 10000;
+                this.Socket.ReceiveTimeout = 0;
+                this.Socket.ReceiveBufferSize = 1024 * 100;
+            }
+            catch(Exception ex)
+            {
+                sslStream.Close();
+                SocketClient.Close();
+                throw ex;
+            }
+          
+
+            try
+            {
+                //经典代码,再也不用写什么心跳包了，接收数据必须采用BeginReceive
+                byte[] inValue = new byte[] { 1, 0, 0, 0, 0x20, 0x4e, 0, 0, 0xd0, 0x07, 0, 0 }; //True, 20 秒, 2 秒
+                this.Socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
+            }
+            catch { return; }
+        }
 
         /// <summary>
         /// 
@@ -164,6 +205,14 @@ namespace Way.Lib
         {
             try
             {
+                _stream.Close();
+            }
+            catch
+            {
+            }
+            try
+            {
+                
                 Socket.Dispose();
             }
             catch
@@ -562,7 +611,25 @@ namespace Way.Lib
         {
             _socket = socket;
         }
+        public override void Close()
+        {
+            try
+            {
+                _socket.Close();
+            }
+            catch
+            {
 
+            }
+            try
+            {
+                _socket.Dispose();
+            }
+            catch
+            {
+
+            }
+        }
         public override bool CanRead => true;
 
         public override bool CanSeek => false;

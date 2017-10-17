@@ -61,7 +61,7 @@ namespace Way.Lib.ScriptRemoting
             mRemotingHandler = new ScriptRemoting.RemotingClientHandler((string data) =>
             {
                 byte[] bs = new DataFrame(data).GetBytes();
-                mClient.Socket.Send(bs);
+                mClient.Write(bs);
             } , ()=>
             {
                 mClient.Close();

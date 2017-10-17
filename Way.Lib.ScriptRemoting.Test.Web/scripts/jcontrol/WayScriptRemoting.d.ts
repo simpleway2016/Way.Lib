@@ -13,6 +13,8 @@ declare enum WayScriptRemotingMessageType {
     UploadFileBegined = 5,
     RSADecrptError = 6,
 }
+declare var HTTP_Protocol: string;
+declare var WEBSOCKET_Protocol: string;
 declare class WayCookie {
     static setCookie(name: string, value: string): void;
     static getCookie(name: string): string;

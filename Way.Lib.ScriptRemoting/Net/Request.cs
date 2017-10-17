@@ -39,7 +39,7 @@ namespace Way.Lib.ScriptRemoting.Net
         {
             get
             {
-                return mClient.Socket.RemoteEndPoint;
+                return mClient.RemoteEndPoint;
             }
         }
 

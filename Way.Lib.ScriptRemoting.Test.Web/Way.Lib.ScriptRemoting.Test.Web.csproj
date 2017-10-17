@@ -27,14 +27,10 @@
     <Content Include="admin\regCodeMgr.html" />
     <Content Include="admin\login.html" />
     <Content Include="controlTest0.html" />
-    <Content Include="controlTest.html" />
     <Content Include="css\flex.css" />
     <Content Include="组态\css\flex.css" />
     <Content Include="组态\editor.html" />
     <Content Include="Global.asax" />
-    <Content Include="GridViewPageTest.html" />
-    <Content Include="ListTest.html" />
-    <Content Include="GridViewTest.html" />
     <Content Include="master.html" />
     <Content Include="master2.html" />
     <Content Include="master3.html" />
@@ -74,7 +70,6 @@
     <Content Include="组态\js\jscolor.min.js" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="GridViewTest.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JBinder.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JDataSource.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JExtension.ts" />

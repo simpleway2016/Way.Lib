@@ -79,7 +79,6 @@ namespace Way.Lib.ScriptRemoting
                 {
                     RemotingContext.Current.Response.Headers["Connection"] = RemotingContext.Current.Request.Headers["Connection"];
                 }
-
                 //访问ts脚本
                 if (RemotingContext.Current.Request.Headers["GET"].ToSafeString().EndsWith("/WayScriptRemoting", StringComparison.CurrentCultureIgnoreCase))
                 {
