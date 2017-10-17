@@ -35,6 +35,17 @@ var JElementHelper = (function () {
             parent.insertBefore(source, nextlib);
         }
     };
+    JElementHelper.getConstructorName = function (_constructor) {
+        var str = _constructor.toString();
+        if (str.indexOf("function ") >= 0) {
+            var result = /function ([\w]+)\(/.exec(str);
+            return result[1];
+        }
+        else {
+            var result = /\[object ([\w]+)/.exec(str);
+            return result[1];
+        }
+    };
     JElementHelper.getControlTypeName = function (tagname) {
         if (tagname == "OPTION")
             return null;
