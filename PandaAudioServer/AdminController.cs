@@ -11,6 +11,8 @@ namespace PandaAudioServer
         public class RegInfo:SysDB.SystemRegCode
         {
             public string MakerName { get; set; }
+            public bool Used { get; set; }
+            public string UserDesc { get; set; }
         }
 
         public override int UserId
@@ -36,7 +38,9 @@ namespace PandaAudioServer
                            id = m.id,
                            RegGuid = m.RegGuid,
                            MakerName = (from u in db.AdminUser where u.id == m.MakerUserId select u.UserName).FirstOrDefault(),
-                           MakeTime = m.MakeTime
+                           MakeTime = m.MakeTime,
+                           Used = m.UserId > 0,
+                           UserDesc = (from u in db.UserInfo where u.id == m.UserId select u.PhoneNumber).FirstOrDefault()
                        };
             }
         }

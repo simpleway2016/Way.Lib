@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<r>
+  <db ConnectionString="data source=D:/注释/2016/EasyJobCore/SunRizServer/SunRiz.db" Type="Sqlite"></db>
+</r>

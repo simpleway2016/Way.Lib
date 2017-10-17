@@ -67,18 +67,39 @@ namespace Way.Lib.ScriptRemoting
         }
         static void findPath(string folder)
         {
-            var files = System.IO.Directory.GetFiles(folder);
-            foreach (var file in files)
+            try
             {
-                Paths.Add(file.Substring(root.Length - 1).Replace("\\", "/"));
+                var files = System.IO.Directory.GetFiles(folder);
+                foreach (var file in files)
+                {
+                    Paths.Add(file.Substring(root.Length - 1).Replace("\\", "/"));
+                }
+            }
+            catch(Exception ex)
+            {
+                using (CLog log = new CLog("WebPathManger GetFiles error"))
+                {
+                    log.Log("folder:{0}" , folder);
+                    log.Log(ex.ToString());
+                }
             }
 
-            var dirs = System.IO.Directory.GetDirectories(folder);
-            foreach( var dir in dirs )
+            try
             {
-                findPath(dir);
+                var dirs = System.IO.Directory.GetDirectories(folder);
+                foreach (var dir in dirs)
+                {
+                    findPath(dir);
+                }
             }
-            
+            catch (Exception ex)
+            {
+                using (CLog log = new CLog("WebPathManger GetDirectories error"))
+                {
+                    log.Log("folder:{0}", folder);
+                    log.Log(ex.ToString());
+                }
+            }
         }
         internal static string getFileUrl(string url)
         {

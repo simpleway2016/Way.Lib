@@ -54,6 +54,7 @@ namespace Way.Lib.ScriptRemoting
                         stream.Read(bs, 0, bs.Length);
                         stream.Dispose();
                         fs.Write(bs, 0, bs.Length);
+                        fs.Write(new byte[] {(byte)10 , (byte)13 } ,0 , 2);
                     }
                 }
                 fs.Dispose();
@@ -310,7 +311,8 @@ namespace Way.Lib.ScriptRemoting
 
         internal static void HandleSocket(NetStream client)
         {
-            Task.Run(() =>
+            //不要用task.run，明显会影响网页反应速度
+            new Thread(() =>
             {
                 try
                 {
@@ -318,7 +320,7 @@ namespace Way.Lib.ScriptRemoting
                     client.ReadTimeout = 0;
 
                     ISocketHandler handler = null;
-                    if ("Upgrade".Equals(Request.Headers["Connection"]) == false)
+                    if (Request.Headers.ContainsKey("Connection") == false || Request.Headers["Connection"].Contains("Upgrade") == false)
                     {
                         handler = new HttpSocketHandler(Request);
                     }
@@ -333,7 +335,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     client.Close();
                 }
-            });
+            }).Start();
         }
 
         void _start()
@@ -346,7 +348,6 @@ namespace Way.Lib.ScriptRemoting
                     task.Wait();
                     //Debug.WriteLine("new socket in");
                     var socket = task.Result;
-
                     HandleSocket(new NetStream(socket));
                 }
                 catch
