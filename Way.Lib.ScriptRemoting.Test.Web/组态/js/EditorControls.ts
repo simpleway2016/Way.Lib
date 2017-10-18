@@ -24,7 +24,7 @@ class EditorControl
         return this._selected;
     }
     set selected(value: boolean) {
-        if (this._selected !== value) {
+        if (this._selected !== value && this.isDesignMode) {
             this._selected = value;
             if (value)
             {
@@ -53,6 +53,15 @@ class EditorControl
     {
 
     }
+
+    _id: string;
+    get id() {
+        return this._id;
+    }
+    set id(v) {
+        this._id = v;
+    }
+
     private mouseDownX;
     private mouseDownY;
 
@@ -288,7 +297,6 @@ class LineControl extends EditorControl
         return obj;
     }
 
-
     get lineWidth() {
         return this.lineElement.style.strokeWidth;
     }
@@ -317,10 +325,10 @@ class LineControl extends EditorControl
     }
 
     getPropertiesCaption(): string[] {
-        return ["线宽","颜色"];
+        return ["id","线宽","颜色"];
     }
     getProperties(): string[] {
-        return ["lineWidth", "color"];
+        return ["id","lineWidth", "color"];
     }
 
     isIntersectWith(rect): boolean {
@@ -498,11 +506,42 @@ class RectControl extends EditorControl {
         this.rectElement.style.fill = v;
     }
 
+    _devicePoint: string = "";
+    get devicePoint() {
+        return this._devicePoint;
+    }
+    set devicePoint(v) {
+        this._devicePoint = v;
+    }
+
+    _scriptOnValueChange: string;
+    get scriptOnValueChange() {
+        return this._scriptOnValueChange;
+    }
+    set scriptOnValueChange(v) {
+        this._scriptOnValueChange = v;
+    }
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(devPoint: any) {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0)
+        {
+            try {
+                var value = devPoint.value;
+                eval(this._scriptOnValueChange);
+            }
+            catch (e)
+            {
+                alert(e.message);
+            }
+        }
+    }
+
     getPropertiesCaption(): string[] {
-        return ["边框大小", "边框颜色" , "填充颜色"];
+        return ["id","边框大小", "边框颜色", "填充颜色","设备点", "值变化脚本"];
     }
     getProperties(): string[] {
-        return ["strokeWidth", "colorStroke", "colorFill"];
+        return ["id","strokeWidth", "colorStroke", "colorFill","devicePoint", "scriptOnValueChange"];
     }
 
     constructor(element:any) {
@@ -645,11 +684,40 @@ class EllipseControl extends EditorControl {
         this.rootElement.style.fill = v;
     }
 
+    _devicePoint: string = "";
+    get devicePoint() {
+        return this._devicePoint;
+    }
+    set devicePoint(v) {
+        this._devicePoint = v;
+    }
+
+    _scriptOnValueChange: string;
+    get scriptOnValueChange() {
+        return this._scriptOnValueChange;
+    }
+    set scriptOnValueChange(v) {
+        this._scriptOnValueChange = v;
+    }
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(devPoint: any) {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0) {
+            try {
+                var value = devPoint.value;
+                eval(this._scriptOnValueChange);
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
+    }
+
     getPropertiesCaption(): string[] {
-        return ["边框大小", "边框颜色", "填充颜色"];
+        return ["id","边框大小", "边框颜色", "填充颜色","设备点","值变化脚本"];
     }
     getProperties(): string[] {
-        return ["strokeWidth", "colorStroke", "colorFill"];
+        return ["id","strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     }
 
     constructor() {
@@ -810,11 +878,40 @@ class CircleControl extends EditorControl {
         this.rootElement.style.fill = v;
     }
 
+    _devicePoint: string = "";
+    get devicePoint() {
+        return this._devicePoint;
+    }
+    set devicePoint(v) {
+        this._devicePoint = v;
+    }
+
+    _scriptOnValueChange: string;
+    get scriptOnValueChange() {
+        return this._scriptOnValueChange;
+    }
+    set scriptOnValueChange(v) {
+        this._scriptOnValueChange = v;
+    }
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(devPoint: any) {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0) {
+            try {
+                var value = devPoint.value;
+                eval(this._scriptOnValueChange);
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
+    }
+
     getPropertiesCaption(): string[] {
-        return ["边框大小", "边框颜色", "填充颜色"];
+        return ["id","边框大小", "边框颜色", "填充颜色","设备点","值变化脚本"];
     }
     getProperties(): string[] {
-        return ["strokeWidth", "colorStroke", "colorFill"];
+        return ["id","strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     }
 
     constructor() {
@@ -929,10 +1026,10 @@ class ImageControl extends RectControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["图片"];
+        return ["id","图片"];
     }
     getProperties(): string[] {
-        return ["imgDefault"];
+        return ["id","imgDefault"];
     }
 
     constructor() {
@@ -945,6 +1042,8 @@ class ImageControl extends RectControl {
 class TextControl extends RectControl {
     textElement: SVGTextElement;
     selectingElement: SVGRectElement;
+
+
     get text() {
         return this.textElement.textContent;
     }
@@ -968,6 +1067,14 @@ class TextControl extends RectControl {
         this.textElement.style.fill = v;
     }
 
+    _canSetValue = true;
+    get canSetValue() {
+        return this._canSetValue;
+    }
+    set canSetValue(v: boolean) {
+        this._canSetValue = v;
+    }
+
     _devicePoint: string = "";
     _lastDevPoint: any;
     get devicePoint() {
@@ -982,7 +1089,7 @@ class TextControl extends RectControl {
     }
     run() {
         super.run();
-        if (this.devicePoint.length > 0) {
+        if (this.devicePoint.length > 0 && this.canSetValue) {
             this.textElement.style.cursor = "pointer";
             (<HTMLElement>this.element).addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -1008,13 +1115,14 @@ class TextControl extends RectControl {
             }, false);
         }
     }
+
     getPropertiesCaption(): string[] {
-        return ["文字","大小","颜色","设备点"];
-    }
-    getProperties(): string[] {
-        return ["text", "size", "colorFill","devicePoint"];
+        return ["id","文字","大小","颜色","设备点","运行时允许输入值"];
     }
 
+    getProperties(): string[] {
+        return ["id","text", "size", "colorFill", "devicePoint","canSetValue"];
+    }
 
     get rect() {
         var myrect: SVGRect = (<any>this.textElement).getBBox();
@@ -1109,6 +1217,23 @@ class CylinderControl extends EditorControl {
             this._max = this._max - 1;
         this.resetCylinder(this.rect);
     }
+
+    _devicePoint: string = "";
+    get devicePoint() {
+        return this._devicePoint;
+    }
+    set devicePoint(v) {
+        this._devicePoint = v;
+    }
+    onDevicePointValueChanged(devPoint: any) {
+        if (devPoint.max != this.max)
+            this.max = devPoint.max;
+        if (devPoint.min != this.min)
+            this.min = devPoint.min;
+
+        this.value = devPoint.value;
+    }
+
     rectElement: SVGRectElement;
     cylinderElement: SVGRectElement;
 
@@ -1167,10 +1292,10 @@ class CylinderControl extends EditorControl {
         this.rectElement.style.fill = v;
     }
     getPropertiesCaption(): string[] {
-        return ["边框大小", "边框颜色", "底色", "填充颜色","值","最大值","最小值"];
+        return ["id","边框大小", "边框颜色", "底色", "填充颜色","值","最大值","最小值","设备点"];
     }
     getProperties(): string[] {
-        return ["strokeWidth", "colorStroke", "colorBg","colorFill","value","max","min"];
+        return ["id","strokeWidth", "colorStroke", "colorBg", "colorFill", "value", "max", "min", "devicePoint"];
     }
 
     constructor() {
@@ -1339,6 +1464,22 @@ class TrendControl extends EditorControl {
             this._max = this._max - 1;
     }
 
+    _devicePoint: string = "";
+    get devicePoint() {
+        return this._devicePoint;
+    }
+    set devicePoint(v) {
+        this._devicePoint = v;
+    }
+    onDevicePointValueChanged(devPoint: any) {
+        if (devPoint.max != this.max)
+            this.max = devPoint.max;
+        if (devPoint.min != this.min)
+            this.min = devPoint.min;
+
+        this.value = devPoint.value;
+    }
+
     moving: boolean = false;
     startX = 0;
     startY = 0;
@@ -1390,10 +1531,10 @@ class TrendControl extends EditorControl {
         this.pathElement.style.stroke = v;
     }
     getPropertiesCaption(): string[] {
-        return ["背景颜色", "值", "量程线颜色", "趋势颜色"];
+        return ["id","背景颜色", "值", "量程线颜色", "趋势颜色","设备点"];
     }
     getProperties(): string[] {
-        return ["colorFill", "value", "colorLineLeftBottom","colorLine"];
+        return ["id","colorFill", "value", "colorLineLeftBottom","colorLine","devicePoint"];
     }
 
     constructor() {

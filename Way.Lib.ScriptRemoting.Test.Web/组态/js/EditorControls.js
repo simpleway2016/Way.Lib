@@ -91,7 +91,7 @@ var EditorControl = (function () {
             return this._selected;
         },
         set: function (value) {
-            if (this._selected !== value) {
+            if (this._selected !== value && this.isDesignMode) {
                 this._selected = value;
                 if (value) {
                     if (!this.ctrlKey) {
@@ -118,6 +118,16 @@ var EditorControl = (function () {
             return null;
         },
         set: function (v) {
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EditorControl.prototype, "id", {
+        get: function () {
+            return this._id;
+        },
+        set: function (v) {
+            this._id = v;
         },
         enumerable: true,
         configurable: true
@@ -270,10 +280,10 @@ var LineControl = (function (_super) {
         configurable: true
     });
     LineControl.prototype.getPropertiesCaption = function () {
-        return ["线宽", "颜色"];
+        return ["id", "线宽", "颜色"];
     };
     LineControl.prototype.getProperties = function () {
-        return ["lineWidth", "color"];
+        return ["id", "lineWidth", "color"];
     };
     LineControl.prototype.isIntersectWith = function (rect) {
         var myrect = this.rect;
@@ -387,6 +397,7 @@ var RectControl = (function (_super) {
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
+        _this._devicePoint = "";
         _this.rectElement = _this.element;
         _this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
         return _this;
@@ -441,11 +452,42 @@ var RectControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(RectControl.prototype, "devicePoint", {
+        get: function () {
+            return this._devicePoint;
+        },
+        set: function (v) {
+            this._devicePoint = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(RectControl.prototype, "scriptOnValueChange", {
+        get: function () {
+            return this._scriptOnValueChange;
+        },
+        set: function (v) {
+            this._scriptOnValueChange = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    RectControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0) {
+            try {
+                var value = devPoint.value;
+                eval(this._scriptOnValueChange);
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
+    };
     RectControl.prototype.getPropertiesCaption = function () {
-        return ["边框大小", "边框颜色", "填充颜色"];
+        return ["id", "边框大小", "边框颜色", "填充颜色", "设备点", "值变化脚本"];
     };
     RectControl.prototype.getProperties = function () {
-        return ["strokeWidth", "colorStroke", "colorFill"];
+        return ["id", "strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     };
     RectControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
@@ -531,6 +573,7 @@ var EllipseControl = (function (_super) {
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
+        _this._devicePoint = "";
         _this.rootElement = _this.element;
         _this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
         return _this;
@@ -587,11 +630,42 @@ var EllipseControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(EllipseControl.prototype, "devicePoint", {
+        get: function () {
+            return this._devicePoint;
+        },
+        set: function (v) {
+            this._devicePoint = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EllipseControl.prototype, "scriptOnValueChange", {
+        get: function () {
+            return this._scriptOnValueChange;
+        },
+        set: function (v) {
+            this._scriptOnValueChange = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    EllipseControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0) {
+            try {
+                var value = devPoint.value;
+                eval(this._scriptOnValueChange);
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
+    };
     EllipseControl.prototype.getPropertiesCaption = function () {
-        return ["边框大小", "边框颜色", "填充颜色"];
+        return ["id", "边框大小", "边框颜色", "填充颜色", "设备点", "值变化脚本"];
     };
     EllipseControl.prototype.getProperties = function () {
-        return ["strokeWidth", "colorStroke", "colorFill"];
+        return ["id", "strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     };
     EllipseControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
@@ -694,6 +768,7 @@ var CircleControl = (function (_super) {
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
+        _this._devicePoint = "";
         _this.rootElement = _this.element;
         _this.rootElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
         return _this;
@@ -748,11 +823,42 @@ var CircleControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(CircleControl.prototype, "devicePoint", {
+        get: function () {
+            return this._devicePoint;
+        },
+        set: function (v) {
+            this._devicePoint = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CircleControl.prototype, "scriptOnValueChange", {
+        get: function () {
+            return this._scriptOnValueChange;
+        },
+        set: function (v) {
+            this._scriptOnValueChange = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    CircleControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0) {
+            try {
+                var value = devPoint.value;
+                eval(this._scriptOnValueChange);
+            }
+            catch (e) {
+                alert(e.message);
+            }
+        }
+    };
     CircleControl.prototype.getPropertiesCaption = function () {
-        return ["边框大小", "边框颜色", "填充颜色"];
+        return ["id", "边框大小", "边框颜色", "填充颜色", "设备点", "值变化脚本"];
     };
     CircleControl.prototype.getProperties = function () {
-        return ["strokeWidth", "colorStroke", "colorFill"];
+        return ["id", "strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     };
     CircleControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
@@ -853,10 +959,10 @@ var ImageControl = (function (_super) {
         configurable: true
     });
     ImageControl.prototype.getPropertiesCaption = function () {
-        return ["图片"];
+        return ["id", "图片"];
     };
     ImageControl.prototype.getProperties = function () {
-        return ["imgDefault"];
+        return ["id", "imgDefault"];
     };
     return ImageControl;
 }(RectControl));
@@ -864,6 +970,7 @@ var TextControl = (function (_super) {
     __extends(TextControl, _super);
     function TextControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'text')) || this;
+        _this._canSetValue = true;
         _this._devicePoint = "";
         _this.textElement = _this.element;
         _this.textElement.textContent = "Text";
@@ -905,6 +1012,16 @@ var TextControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TextControl.prototype, "canSetValue", {
+        get: function () {
+            return this._canSetValue;
+        },
+        set: function (v) {
+            this._canSetValue = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(TextControl.prototype, "devicePoint", {
         get: function () {
             return this._devicePoint;
@@ -922,7 +1039,7 @@ var TextControl = (function (_super) {
     TextControl.prototype.run = function () {
         var _this = this;
         _super.prototype.run.call(this);
-        if (this.devicePoint.length > 0) {
+        if (this.devicePoint.length > 0 && this.canSetValue) {
             this.textElement.style.cursor = "pointer";
             this.element.addEventListener("click", function (e) {
                 e.stopPropagation();
@@ -945,10 +1062,10 @@ var TextControl = (function (_super) {
         }
     };
     TextControl.prototype.getPropertiesCaption = function () {
-        return ["文字", "大小", "颜色", "设备点"];
+        return ["id", "文字", "大小", "颜色", "设备点", "运行时允许输入值"];
     };
     TextControl.prototype.getProperties = function () {
-        return ["text", "size", "colorFill", "devicePoint"];
+        return ["id", "text", "size", "colorFill", "devicePoint", "canSetValue"];
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
@@ -1004,6 +1121,7 @@ var CylinderControl = (function (_super) {
         _this._value = 50;
         _this._max = 100;
         _this._min = 0;
+        _this._devicePoint = "";
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
@@ -1061,6 +1179,23 @@ var CylinderControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(CylinderControl.prototype, "devicePoint", {
+        get: function () {
+            return this._devicePoint;
+        },
+        set: function (v) {
+            this._devicePoint = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    CylinderControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        if (devPoint.max != this.max)
+            this.max = devPoint.max;
+        if (devPoint.min != this.min)
+            this.min = devPoint.min;
+        this.value = devPoint.value;
+    };
     Object.defineProperty(CylinderControl.prototype, "rect", {
         get: function () {
             var myrect = this.rectElement.getBBox();
@@ -1123,10 +1258,10 @@ var CylinderControl = (function (_super) {
         configurable: true
     });
     CylinderControl.prototype.getPropertiesCaption = function () {
-        return ["边框大小", "边框颜色", "底色", "填充颜色", "值", "最大值", "最小值"];
+        return ["id", "边框大小", "边框颜色", "底色", "填充颜色", "值", "最大值", "最小值", "设备点"];
     };
     CylinderControl.prototype.getProperties = function () {
-        return ["strokeWidth", "colorStroke", "colorBg", "colorFill", "value", "max", "min"];
+        return ["id", "strokeWidth", "colorStroke", "colorBg", "colorFill", "value", "max", "min", "devicePoint"];
     };
     CylinderControl.prototype.resetCylinder = function (rect) {
         var ctrlHeight = rect.height - 40;
@@ -1229,6 +1364,7 @@ var TrendControl = (function (_super) {
         _this._value = 50;
         _this._max = 100;
         _this._min = 0;
+        _this._devicePoint = "";
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
@@ -1284,6 +1420,23 @@ var TrendControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TrendControl.prototype, "devicePoint", {
+        get: function () {
+            return this._devicePoint;
+        },
+        set: function (v) {
+            this._devicePoint = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        if (devPoint.max != this.max)
+            this.max = devPoint.max;
+        if (devPoint.min != this.min)
+            this.min = devPoint.min;
+        this.value = devPoint.value;
+    };
     Object.defineProperty(TrendControl.prototype, "rect", {
         get: function () {
             var myrect = this.rectElement.getBBox();
@@ -1337,10 +1490,10 @@ var TrendControl = (function (_super) {
         configurable: true
     });
     TrendControl.prototype.getPropertiesCaption = function () {
-        return ["背景颜色", "值", "量程线颜色", "趋势颜色"];
+        return ["id", "背景颜色", "值", "量程线颜色", "趋势颜色", "设备点"];
     };
     TrendControl.prototype.getProperties = function () {
-        return ["colorFill", "value", "colorLineLeftBottom", "colorLine"];
+        return ["id", "colorFill", "value", "colorLineLeftBottom", "colorLine", "devicePoint"];
     };
     TrendControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);

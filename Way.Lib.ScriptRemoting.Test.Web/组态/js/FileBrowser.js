@@ -199,6 +199,11 @@ var FileBrowser = (function () {
             });
         }
     };
+    FileBrowser.prototype.copy = function (ele, id) {
+        if (ele._data.FileName) {
+            window.copyToClipboard("/ImageFiles/" + ele._data.FileName);
+        }
+    };
     FileBrowser.prototype.deleteFile = function (ele, id) {
         var _this = this;
         if (window.confirm("确定删除吗？")) {

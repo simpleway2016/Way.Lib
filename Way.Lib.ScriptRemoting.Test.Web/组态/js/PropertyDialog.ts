@@ -3,7 +3,7 @@ class PropertyDialog
 {
     rootElement: HTMLElement;
     control: EditorControl;
-
+    static CHKNumber = 0;
     constructor(control: EditorControl)
     {
         this.control = control;
@@ -23,6 +23,7 @@ class PropertyDialog
             cell.style.display = "table-cell";
             cell.innerHTML = captions[i] + "：";
             row.appendChild(cell);
+            var captionCell = cell;
 
             cell = document.createElement("DIV");
             cell.style.display = "table-cell";
@@ -37,6 +38,21 @@ class PropertyDialog
 
                 (<any>cell.children[0]).value = (<any>cell.children[0])._picker.toHEXString();
             }
+            else if (pNames[i].indexOf("can") == 0) {
+                captionCell.innerHTML = "&nbsp;";
+                var chknumber = PropertyDialog.CHKNumber++;
+
+                cell.innerHTML = "<input type='checkbox' id='chk" + chknumber + "'><label for='chk" + chknumber + "'>" + captions[i] + "</label>";
+                (<any>cell.children[0])._name = pNames[i];
+                if (control[pNames[i]])
+                {
+                    (<any>cell.children[0]).checked = "checked";
+                }
+                this.setChkItemEvent(cell.children[0]);
+            }
+            else if (pNames[i].indexOf("script") >= 0) {
+                cell.innerHTML = "<textarea style='width:300px;height:100px;'></textarea>";
+            }
             else if (pNames[i].indexOf("img") >= 0){
                 cell.innerHTML = "<input type='text'>";
                 (<any>cell.children[0]).value = control[pNames[i]];
@@ -45,7 +61,9 @@ class PropertyDialog
             }
             else {
                 cell.innerHTML = "<input type='text'>";
-                (<any>cell.children[0]).value = control[pNames[i]];
+                if (control[pNames[i]]) {
+                    (<any>cell.children[0]).value = control[pNames[i]];
+                }
             }
             (<any>cell.children[0])._name = pNames[i];
            
@@ -64,7 +82,11 @@ class PropertyDialog
 
         this.setRootEvent();
     }
-
+    private setChkItemEvent(ele) {
+        ele.onclick = () => {
+            this.control[ele._name] = !this.control[ele._name];
+        };
+    }
     private setImgItemEvent(ele)
     {
         ele.onclick = () => {

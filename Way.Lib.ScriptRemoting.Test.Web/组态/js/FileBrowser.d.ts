@@ -17,6 +17,7 @@ declare class FileBrowser {
     itemContextMenu(e: PointerEvent): void;
     itemClick(e: MouseEvent): void;
     rename(ele: any, id: any): void;
+    copy(ele: any, id: any): void;
     deleteFile(ele: any, id: any): void;
     showLoading(): void;
     hideLoading(): void;

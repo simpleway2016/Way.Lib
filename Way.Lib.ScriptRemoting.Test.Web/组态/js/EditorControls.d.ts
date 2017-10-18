@@ -11,6 +11,8 @@ declare class EditorControl {
     _moveAllSelectedControl: boolean;
     selected: boolean;
     rect: any;
+    _id: string;
+    id: string;
     private mouseDownX;
     private mouseDownY;
     constructor(element: any);
@@ -73,6 +75,11 @@ declare class RectControl extends EditorControl {
     strokeWidth: string;
     colorStroke: string;
     colorFill: string;
+    _devicePoint: string;
+    devicePoint: string;
+    _scriptOnValueChange: string;
+    scriptOnValueChange: string;
+    onDevicePointValueChanged(devPoint: any): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(element: any);
@@ -97,6 +104,11 @@ declare class EllipseControl extends EditorControl {
     strokeWidth: string;
     colorStroke: string;
     colorFill: string;
+    _devicePoint: string;
+    devicePoint: string;
+    _scriptOnValueChange: string;
+    scriptOnValueChange: string;
+    onDevicePointValueChanged(devPoint: any): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor();
@@ -121,6 +133,11 @@ declare class CircleControl extends EditorControl {
     strokeWidth: string;
     colorStroke: string;
     colorFill: string;
+    _devicePoint: string;
+    devicePoint: string;
+    _scriptOnValueChange: string;
+    scriptOnValueChange: string;
+    onDevicePointValueChanged(devPoint: any): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor();
@@ -148,6 +165,8 @@ declare class TextControl extends RectControl {
     text: string;
     size: number;
     colorFill: string;
+    _canSetValue: boolean;
+    canSetValue: boolean;
     _devicePoint: string;
     _lastDevPoint: any;
     devicePoint: string;
@@ -167,6 +186,9 @@ declare class CylinderControl extends EditorControl {
     value: any;
     max: any;
     min: any;
+    _devicePoint: string;
+    devicePoint: string;
+    onDevicePointValueChanged(devPoint: any): void;
     rectElement: SVGRectElement;
     cylinderElement: SVGRectElement;
     pRightBottom: SVGCircleElement;
@@ -206,6 +228,9 @@ declare class TrendControl extends EditorControl {
     value: any;
     max: any;
     min: any;
+    _devicePoint: string;
+    devicePoint: string;
+    onDevicePointValueChanged(devPoint: any): void;
     moving: boolean;
     startX: number;
     startY: number;

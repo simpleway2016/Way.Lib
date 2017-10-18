@@ -23,8 +23,8 @@ namespace SunRizStudio
 
             gecko = new GeckoWebBrowser();
             gecko.CreateControl();
-
             gecko.NoDefaultContextMenu = true; //禁用右键菜单
+            gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
 
             gecko.Dock = DockStyle.Fill;
             panel1.Controls.Add(gecko);
@@ -32,6 +32,11 @@ namespace SunRizStudio
             gecko.CreateWindow += Gecko_CreateWindow;
             gecko.DocumentCompleted += Gecko_DocumentCompleted;
             gecko.Navigate("http://localhost:8988/editor");
+        }
+
+        void copyToClipboard(string message)
+        {
+            Clipboard.SetText(message);
         }
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)

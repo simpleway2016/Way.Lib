@@ -1,4 +1,5 @@
-﻿class FileBrowser
+﻿
+class FileBrowser
 {
     backgroundElement: HTMLElement;
     rootElement: HTMLElement;
@@ -228,6 +229,11 @@
                     ele.updateName(newname);
                 }
             });
+        }
+    }
+    copy(ele, id) {
+        if (ele._data.FileName) {
+            (<any>window).copyToClipboard("/ImageFiles/" + ele._data.FileName);
         }
     }
     deleteFile(ele , id)

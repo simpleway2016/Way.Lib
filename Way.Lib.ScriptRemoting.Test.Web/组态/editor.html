@@ -138,11 +138,13 @@
     </div>
 
     <div class="FileBrowserFolderMenu" style="visibility:hidden;z-index:999;min-width:100px;cursor:default;">
+        <div onclick="this.parentElement._obj.copy(this.parentElement.ele,this.parentElement._data.id);">复制路径到粘贴板</div>
         <div onclick="this.parentElement._obj.rename(this.parentElement.ele,this.parentElement._data.id);">重命名</div>
         <div onclick="this.parentElement._obj.deleteFile(this.parentElement.ele,this.parentElement._data.id);">删除</div>
     </div>
     
     <script lang="ja">
+       
         var lastActiveEle;
         function toolboxClick(ele)
         {
@@ -177,10 +179,13 @@
         {
             editor = new Editor("svgContainer");
             fileBrowser = new FileBrowser();
-            fileBrowser.onSelectFile = function (path)
-            {
-                alert(path);
-            }
+        }
+
+        function copyToClipboard(data) {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('copyToClipboard', true, true, data, origin, 1234, window, null);
+            document.dispatchEvent(event);
         }
 
         //var testObj = {age:12};
@@ -226,7 +231,7 @@
             window.setInterval(function () {
                 for (var i = 0; i < window.devicePoints.length; i++) {
                     var devPoint = window.devicePoints[i];
-                    var newvalue = GetRandomNum(1, 1000);
+                    var newvalue = GetRandomNum(1, 200);
                     receiveNewValue(devPoint, newvalue);
                 }
             }, 1000);
