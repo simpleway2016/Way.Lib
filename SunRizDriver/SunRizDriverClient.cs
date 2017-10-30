@@ -104,6 +104,44 @@ namespace SunRizDriver
             }
             client.Dispose();
         }
+        public string[] GetPointProperties()
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "GetPointProperties"
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            int len = client.ReadInt();
+            bs = client.ReceiveDatas(len);
+            client.Dispose();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>( System.Text.Encoding.UTF8.GetString(bs));
+        }
+        /// <summary>
+        /// 获取点路径
+        /// </summary>
+        /// <param name="proObj">属性值</param>
+        /// <returns></returns>
+        public string GetPointAddress(Dictionary<string,string> proValues)
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "GetPointAddress",
+                Values = new object[] {proValues }
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            int len = client.ReadInt();
+            bs = client.ReceiveDatas(len);
+            client.Dispose();
+            return System.Text.Encoding.UTF8.GetString(bs);
+        }
         public bool CheckDeviceExist(string deviceAddress)
         {
             var client = new Way.Lib.NetStream(this.Address, this.Port);

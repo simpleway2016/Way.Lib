@@ -151,7 +151,16 @@ namespace SunRizOpcDriver
             opcServer.Disconnect();
 
         }
-
+        public override string[] GetPointProperties(Command command)
+        {
+            return new string[] { "OPC路径" };
+        }
+        public override string GetPointAddress(Command command)
+        {
+            Newtonsoft.Json.Linq.JToken proObj = (Newtonsoft.Json.Linq.JToken)command.Values[0];
+            return proObj.Value<string>("OPC路径");
+        }
+    
         public override bool[] WriteValue(Command command)
         {
             int index = command.DeviceAddress.IndexOf("|");

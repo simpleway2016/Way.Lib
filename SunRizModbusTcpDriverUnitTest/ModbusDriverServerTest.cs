@@ -89,6 +89,32 @@ namespace SunRizModbusTcpDriverUnitTest
             var result = client.CheckDeviceExist("127.0.0.1/502");
             server.Stop();
         }
+
+        [TestMethod]
+        public void GetPointPropertiesTest()
+        {
+            SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
+            server.Start();
+
+            SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1", 588);
+
+            var result = client.GetPointProperties();
+            server.Stop();
+        }
+        [TestMethod]
+        public void GetPointAddressTest()
+        {
+            SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
+            server.Start();
+
+            SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1", 588);
+
+            var result = client.GetPointAddress(new System.Collections.Generic.Dictionary<string, string>() {
+                { "Modbus功能码" , "1"},
+                 { "Modbus点地址" , "12"}
+            });
+            server.Stop();
+        }
     }
 
 

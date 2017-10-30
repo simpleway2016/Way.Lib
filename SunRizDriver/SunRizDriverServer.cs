@@ -114,6 +114,24 @@ namespace SunRizDriver
         {
             throw new NotImplementedException();
         }
+        /// <summary>
+        /// 获取需要多少个属性去描述一个点的地址，返回json格式的字符串数组
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public virtual string[] GetPointProperties(Command command)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 根据点的属性描述，返回点地址
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public virtual string GetPointAddress(Command command)
+        {
+            throw new NotImplementedException();
+        }
         public virtual string[] EnumDevice(Command command)
         {
             throw new NotImplementedException();

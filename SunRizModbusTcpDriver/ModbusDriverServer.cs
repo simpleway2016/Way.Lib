@@ -194,7 +194,15 @@ namespace SunRizModbusTcpDriver
             }
             client.Dispose();
         }
-
+        public override string[] GetPointProperties(Command command)
+        {
+            return new string[] { "Modbus功能码", "Modbus点地址" };
+        }
+        public override string GetPointAddress(Command command)
+        {
+            Newtonsoft.Json.Linq.JToken proObj =(Newtonsoft.Json.Linq.JToken) command.Values[0];
+            return $"{ proObj.Value<string>("Modbus功能码")}/{ proObj.Value<string>("Modbus点地址")}";
+        }
         public override bool CheckDeviceExist(Command command)
         {
 
