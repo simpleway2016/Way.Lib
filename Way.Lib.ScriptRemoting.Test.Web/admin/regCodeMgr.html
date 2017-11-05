@@ -19,7 +19,7 @@
         .clist {
             overflow-y: auto;
             height: 500px;
-            width: 90%;
+            width: 99%;
         }
     </style>  
 </head>
@@ -27,15 +27,17 @@
     <div>
         创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>
     </div>
-    <JList id="list" buffersize="15" loadonscroll="true" class="clist" itemsource="RegCodes">
+    <JList id="list" buffersize="15" loadonscroll="true" itemsource="RegCodes">
         <script type="text/html">
-            <div id="itemContainer" style="display:table;">
-                <div style="display:table-row;">
-                    <div style="display:table-cell;width:350px;">注册码</div>
-                    <div style="display:table-cell;width:130px;">生成人</div>
-                    <div style="display:table-cell;width:250px;">生成时间</div>
-                    <div style="display:table-cell;width:130px;">使用者</div>
-                    <div style="display:table-cell;">状态</div>
+            <div class="clist">
+                <div id="itemContainer" style="display:table;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell;width:350px;">注册码</div>
+                        <div style="display:table-cell;width:130px;">生成人</div>
+                        <div style="display:table-cell;width:250px;">生成时间</div>
+                        <div style="display:table-cell;width:130px;">使用者</div>
+                        <div style="display:table-cell;">状态</div>
+                    </div>
                 </div>
             </div>
         </script>

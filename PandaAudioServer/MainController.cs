@@ -186,6 +186,48 @@ namespace PandaAudioServer
             return true;
         }
 
+        [RemotingMethod]
+        public int SaveAdminSetting(string pwd , string content)
+        {
+            string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
+            if (IPError.IsIPLocked(ip))
+                throw new Exception("禁止访问");
+
+            int count = db.UserEffect.Count(m => m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId);
+            if (count > 0 && pwd != "xingyue")
+            {
+                var iperror = IPError.GetInstance(ip);
+                iperror.MarkError();
+                this.Session["iperror"] = iperror;
+                if (iperror.ErrorCount < 7)
+                    throw new Exception("密码错误");
+                else
+                    throw new Exception($"密码错误，剩余{iperror.GetChance()}次机会！");
+            }
+
+            this.db.Delete(db.UserEffect.Where(m=>m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId));
+            var effect = new UserEffect();
+            effect.Type = UserEffect_TypeEnum.AdminSetting;
+            effect.UserId = this.UserId;
+            effect.Name = "AdminSetting";
+            effect.FileName = Guid.NewGuid().ToString();
+            var filepath = $"{WebRoot}effects/{effect.FileName}";
+            File.WriteAllBytes(filepath , System.Text.Encoding.UTF8.GetBytes(content));
+            this.db.Insert(effect);
+            return 0;
+        }
+
+        [RemotingMethod]
+        public string GetAdminSetting()
+        {
+            var effect = db.UserEffect.FirstOrDefault(m => m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId);
+            if(effect != null)
+            {
+                var filepath = $"{WebRoot}effects/{effect.FileName}";
+                return System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8);
+            }
+            throw new Exception("Panda Audio管理员尚未保存您的专属效果！");
+        }
 
         #region 忘记密码
         /// <summary>
@@ -308,7 +350,7 @@ namespace PandaAudioServer
         [RemotingMethod]
         public object CompareEffects(UserEffect[] clientEffect)
         {
-            var serverEffects = this.db.UserEffect.Where(m => m.UserId == this.UserId).ToArray();
+            var serverEffects = this.db.UserEffect.Where(m => m.UserId == this.UserId && m.Type != UserEffect_TypeEnum.AdminSetting).ToArray();
             //先计算需要下载的effect
             var downloads = (from m in serverEffects
                              where clientEffect.Any(client => string.Equals(client.Name, m.Name) && client.Version >= m.Version) == false
