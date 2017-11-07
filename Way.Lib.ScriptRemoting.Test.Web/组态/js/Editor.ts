@@ -359,7 +359,9 @@ class Editor implements IEditorControlContainer
         }
     }
     addControl(ctrl: EditorControl) {
-        this.svgContainer.appendChild(ctrl.element);
+        if (!ctrl.element.parentElement) {
+            this.svgContainer.appendChild(ctrl.element);
+        }
         this.controls.push(ctrl);
         ctrl.container = this;
     }
@@ -370,6 +372,7 @@ class Editor implements IEditorControlContainer
     propertyDialog: PropertyDialog;
     controls: any[] = [];
     private selectingElement: SVGRectElement;
+    undoMgr: UndoManager;
 
     get colorBG() {
         return this.svgContainer.style.backgroundColor;
@@ -427,7 +430,7 @@ class Editor implements IEditorControlContainer
     constructor(id: string)
     {
         var divContainer: HTMLElement = <HTMLElement>document.body.querySelector("#" + id);
-        
+        this.undoMgr = new UndoManager();
 
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
@@ -555,6 +558,31 @@ class Editor implements IEditorControlContainer
         }, false);
     }
 
+    undo()
+    {
+        this.undoMgr.undo();
+    }
+
+    redo()
+    {
+        this.undoMgr.redo();
+    }
+
+    delete()
+    {
+        var ctrls = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            ctrls.push(control);
+        }
+        if (ctrls.length > 0)
+        {
+            var undoObj = new UndoRemoveControls(this, ctrls);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+    }
+
     copy()
     {
         var copyitems = [];
@@ -679,8 +707,9 @@ class Editor implements IEditorControlContainer
                 this.currentToolBoxItem.buildDone = (control) => {
 
                     if (control) {
-                        control.container = this;
-                        this.controls.push(control);
+                        this.addControl(control);
+                        var undoObj = new UndoAddControl(this, control);
+                        this.undoMgr.addUndo(undoObj);
                     }
                     if ((<any>window).toolboxDone) {
                         (<any>window).toolboxDone();
@@ -692,8 +721,9 @@ class Editor implements IEditorControlContainer
         else {
             var control = this.beginedToolBoxItem.end();
             if (control) {
-                this.controls.push(control);
-                control.container = this;
+                this.addControl(control);
+                var undoObj = new UndoAddControl(this, control);
+                this.undoMgr.addUndo(undoObj);
             }
             this.beginedToolBoxItem = null;
             if ((<any>window).toolboxDone)

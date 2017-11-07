@@ -293,6 +293,7 @@ var Editor = (function () {
         this.beginedToolBoxItem = null;
         this.controls = [];
         var divContainer = document.body.querySelector("#" + id);
+        this.undoMgr = new UndoManager();
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         this.svgContainer.setAttribute('width', '100%');
         this.svgContainer.style.backgroundSize = "100% 100%";
@@ -412,7 +413,9 @@ var Editor = (function () {
         }
     };
     Editor.prototype.addControl = function (ctrl) {
-        this.svgContainer.appendChild(ctrl.element);
+        if (!ctrl.element.parentElement) {
+            this.svgContainer.appendChild(ctrl.element);
+        }
         this.controls.push(ctrl);
         ctrl.container = this;
     };
@@ -480,6 +483,24 @@ var Editor = (function () {
     };
     Editor.prototype.getProperties = function () {
         return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
+    };
+    Editor.prototype.undo = function () {
+        this.undoMgr.undo();
+    };
+    Editor.prototype.redo = function () {
+        this.undoMgr.redo();
+    };
+    Editor.prototype.delete = function () {
+        var ctrls = [];
+        for (var i = 0; i < AllSelectedControls.length; i++) {
+            var control = AllSelectedControls[i];
+            ctrls.push(control);
+        }
+        if (ctrls.length > 0) {
+            var undoObj = new UndoRemoveControls(this, ctrls);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
     };
     Editor.prototype.copy = function () {
         var copyitems = [];
@@ -569,8 +590,9 @@ var Editor = (function () {
             else {
                 this.currentToolBoxItem.buildDone = function (control) {
                     if (control) {
-                        control.container = _this;
-                        _this.controls.push(control);
+                        _this.addControl(control);
+                        var undoObj = new UndoAddControl(_this, control);
+                        _this.undoMgr.addUndo(undoObj);
                     }
                     if (window.toolboxDone) {
                         window.toolboxDone();
@@ -582,8 +604,9 @@ var Editor = (function () {
         else {
             var control = this.beginedToolBoxItem.end();
             if (control) {
-                this.controls.push(control);
-                control.container = this;
+                this.addControl(control);
+                var undoObj = new UndoAddControl(this, control);
+                this.undoMgr.addUndo(undoObj);
             }
             this.beginedToolBoxItem = null;
             if (window.toolboxDone) {

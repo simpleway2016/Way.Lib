@@ -56,6 +56,8 @@
     <Content Include="组态\images\browser\folder.png" />
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\buttonarea.png" />
+    <Content Include="组态\images\toolbox\delete.png" />
+    <Content Include="组态\images\toolbox\redo.png" />
     <Content Include="组态\images\toolbox\trend.png" />
     <Content Include="组态\images\toolbox\circle.png" />
     <Content Include="组态\images\toolbox\copy.png" />
@@ -67,6 +69,7 @@
     <Content Include="组态\images\toolbox\line.png" />
     <Content Include="组态\images\toolbox\setting.png" />
     <Content Include="组态\images\toolbox\text.png" />
+    <Content Include="组态\images\toolbox\undo.png" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
   </ItemGroup>
@@ -84,6 +87,7 @@
     <TypeScriptCompile Include="组态\js\EditorControls.ts" />
     <TypeScriptCompile Include="组态\js\FileBrowser.ts" />
     <TypeScriptCompile Include="组态\js\PropertyDialog.ts" />
+    <TypeScriptCompile Include="组态\js\UndoManager.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

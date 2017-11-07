@@ -96,6 +96,7 @@ declare class Editor implements IEditorControlContainer {
     propertyDialog: PropertyDialog;
     controls: any[];
     private selectingElement;
+    undoMgr: UndoManager;
     colorBG: string;
     imgBg: string;
     bgWidth: string;
@@ -103,6 +104,9 @@ declare class Editor implements IEditorControlContainer {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);
+    undo(): void;
+    redo(): void;
+    delete(): void;
     copy(): void;
     paste(): void;
     fireBodyEvent(event: any): void;

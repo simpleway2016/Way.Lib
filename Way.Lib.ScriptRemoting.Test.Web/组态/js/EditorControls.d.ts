@@ -1,4 +1,6 @@
 declare var AllSelectedControls: EditorControl[];
+declare var editor: Editor;
+declare var ManyPointDefined: number;
 declare function documentElementMouseDown(e: MouseEvent): void;
 declare class EditorControl {
     container: IEditorControlContainer;
@@ -15,6 +17,7 @@ declare class EditorControl {
     id: string;
     private mouseDownX;
     private mouseDownY;
+    private undoMoveObj;
     constructor(element: any);
     getPropertiesCaption(): string[];
     getProperties(): string[];
@@ -61,6 +64,7 @@ declare class LineControl extends EditorControl {
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any, xName: any, yName: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
     pointMouseMove(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -87,6 +91,7 @@ declare class RectControl extends EditorControl {
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -116,6 +121,7 @@ declare class EllipseControl extends EditorControl {
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -145,6 +151,7 @@ declare class CircleControl extends EditorControl {
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -208,6 +215,7 @@ declare class CylinderControl extends EditorControl {
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -221,16 +229,17 @@ declare class TrendControl extends EditorControl {
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
     pathElement: SVGPathElement;
-    values: any[];
-    private _value;
     private _max;
     private _min;
-    value: any;
+    values1: any[];
+    private _value1;
+    value1: any;
     max: any;
     min: any;
-    _devicePoint: string;
-    devicePoint: string;
+    _devicePoint1: string;
+    devicePoint1: string;
     onDevicePointValueChanged(devPoint: any): void;
+    running: boolean;
     moving: boolean;
     startX: number;
     startY: number;
@@ -244,10 +253,10 @@ declare class TrendControl extends EditorControl {
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
     run(): void;
-    checkValueChange(): void;
     reDrawTrend(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -270,6 +279,7 @@ declare class ButtonAreaControl extends EditorControl {
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;
@@ -298,6 +308,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
+    private undoObj;
     pointMouseDown(e: MouseEvent, pointEle: any): void;
     pointMouseMove(e: MouseEvent, pointEle: any): void;
     pointMouseUp(e: MouseEvent, pointEle: any): void;

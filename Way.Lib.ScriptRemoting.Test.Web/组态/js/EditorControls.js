@@ -9,6 +9,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var AllSelectedControls = [];
+var ManyPointDefined = 999999;
 function documentElementMouseDown(e) {
 }
 document.documentElement.addEventListener("mousedown", documentElementMouseDown, false);
@@ -52,14 +53,18 @@ var EditorControl = (function () {
                 _this.selected = true;
             _this.mouseDownX = e.clientX;
             _this.mouseDownY = e.clientY;
+            var movingCtrls = [];
             if (_this._moveAllSelectedControl) {
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     AllSelectedControls[i].onBeginMoving();
+                    movingCtrls.push(AllSelectedControls[i]);
                 }
             }
             else {
                 _this.onBeginMoving();
+                movingCtrls.push(_this);
             }
+            _this.undoMoveObj = new UndoMoveControls(editor, movingCtrls);
         }, false);
         document.body.addEventListener("mousemove", function (e) {
             if (_this.isInGroup || !_this.container || !_this.isDesignMode)
@@ -83,6 +88,8 @@ var EditorControl = (function () {
                 e.stopPropagation();
                 _this.onEndMoving();
                 _this.mouseDownX = -1;
+                _this.undoMoveObj.moveFinish();
+                editor.undoMgr.addUndo(_this.undoMoveObj);
             }
         }, false);
     }
@@ -346,6 +353,8 @@ var LineControl = (function (_super) {
         }
     };
     LineControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         this.pointEles[0].setAttribute("cx", this.lineElement.x1.animVal.value);
         this.pointEles[0].setAttribute("cy", this.lineElement.y1.animVal.value);
         this.pointEles[1].setAttribute("cx", this.lineElement.x2.animVal.value);
@@ -365,6 +374,7 @@ var LineControl = (function (_super) {
         this.startY = e.clientY;
         this.valueX = parseInt(this.lineElement.getAttribute(xName));
         this.valueY = parseInt(this.lineElement.getAttribute(yName));
+        this.undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -386,6 +396,8 @@ var LineControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     return LineControl;
@@ -506,6 +518,8 @@ var RectControl = (function (_super) {
         }
     };
     RectControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
@@ -528,6 +542,7 @@ var RectControl = (function (_super) {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -546,6 +561,8 @@ var RectControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     RectControl.prototype.onBeginMoving = function () {
@@ -703,6 +720,8 @@ var EllipseControl = (function (_super) {
         }
     };
     EllipseControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         this.pointEles[0].setAttribute("cx", (this.rootElement.cx.animVal.value + this.rootElement.rx.animVal.value));
         this.pointEles[0].setAttribute("cy", (this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
         this.pointEles[1].setAttribute("cx", (this.rootElement.cx.animVal.value));
@@ -724,6 +743,7 @@ var EllipseControl = (function (_super) {
         pointEle._value_cy = this.rootElement.cy.animVal.value;
         pointEle._value_rx = this.rootElement.rx.animVal.value;
         pointEle._value_ry = this.rootElement.ry.animVal.value;
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -741,6 +761,8 @@ var EllipseControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     EllipseControl.prototype.onBeginMoving = function () {
@@ -887,6 +909,8 @@ var CircleControl = (function (_super) {
         }
     };
     CircleControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         this.pointEles[0].setAttribute("cx", (this.rootElement.cx.animVal.value + this.rootElement.r.animVal.value));
         this.pointEles[0].setAttribute("cy", (this.rootElement.cy.animVal.value + this.rootElement.r.animVal.value));
     };
@@ -905,6 +929,7 @@ var CircleControl = (function (_super) {
         pointEle._value_cx = this.rootElement.cx.animVal.value;
         pointEle._value_cy = this.rootElement.cy.animVal.value;
         pointEle._value_r = this.rootElement.r.animVal.value;
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -922,6 +947,8 @@ var CircleControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     CircleControl.prototype.onBeginMoving = function () {
@@ -1106,6 +1133,8 @@ var TextControl = (function (_super) {
         }
     };
     TextControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         var myrect = this.rect;
         this.selectingElement.setAttribute('x', (myrect.x - 5));
         this.selectingElement.setAttribute('y', (myrect.y - 5));
@@ -1291,6 +1320,8 @@ var CylinderControl = (function (_super) {
         }
     };
     CylinderControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
@@ -1313,6 +1344,7 @@ var CylinderControl = (function (_super) {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -1337,6 +1369,8 @@ var CylinderControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     CylinderControl.prototype.onBeginMoving = function () {
@@ -1360,11 +1394,12 @@ var TrendControl = (function (_super) {
     __extends(TrendControl, _super);
     function TrendControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
-        _this.values = [];
-        _this._value = 50;
         _this._max = 100;
         _this._min = 0;
-        _this._devicePoint = "";
+        _this.values1 = [];
+        _this._value1 = 50;
+        _this._devicePoint1 = "";
+        _this.running = false;
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
@@ -1381,16 +1416,23 @@ var TrendControl = (function (_super) {
         _this.pathElement.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
         _this.pathElement.setAttribute("transform", "translate(0 0)");
         _this.element.appendChild(_this.pathElement);
+        _this.devicePoint = ManyPointDefined;
         return _this;
     }
-    Object.defineProperty(TrendControl.prototype, "value", {
+    Object.defineProperty(TrendControl.prototype, "value1", {
         get: function () {
-            return this._value;
+            return this._value1;
         },
         set: function (v) {
             v = parseFloat(v);
-            if (v != this._value) {
-                this._value = v;
+            if (v != this._value1) {
+                this._value1 = v;
+                if (this.running) {
+                    this.values1.push({
+                        value: this._value1,
+                        time: new Date().getTime()
+                    });
+                }
             }
         },
         enumerable: true,
@@ -1420,22 +1462,31 @@ var TrendControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TrendControl.prototype, "devicePoint", {
+    Object.defineProperty(TrendControl.prototype, "devicePoint1", {
         get: function () {
-            return this._devicePoint;
+            return this._devicePoint1;
         },
         set: function (v) {
-            this._devicePoint = v;
+            this._devicePoint1 = v;
         },
         enumerable: true,
         configurable: true
     });
     TrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        var number = 0;
+        for (var i = 1; i <= 12; i++) {
+            if (devPoint.name == this["devicePoint" + i]) {
+                number = i;
+                break;
+            }
+        }
+        if (number == 0)
+            return;
         if (devPoint.max != this.max)
             this.max = devPoint.max;
         if (devPoint.min != this.min)
             this.min = devPoint.min;
-        this.value = devPoint.value;
+        this["value" + number] = devPoint.value;
     };
     Object.defineProperty(TrendControl.prototype, "rect", {
         get: function () {
@@ -1490,10 +1541,10 @@ var TrendControl = (function (_super) {
         configurable: true
     });
     TrendControl.prototype.getPropertiesCaption = function () {
-        return ["id", "背景颜色", "值", "量程线颜色", "趋势颜色", "设备点"];
+        return ["id", "背景颜色", "量程线颜色", "趋势颜色", "设备点"];
     };
     TrendControl.prototype.getProperties = function () {
-        return ["id", "colorFill", "value", "colorLineLeftBottom", "colorLine", "devicePoint"];
+        return ["id", "colorFill", "colorLineLeftBottom", "colorLine", "devicePoint1"];
     };
     TrendControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
@@ -1514,19 +1565,13 @@ var TrendControl = (function (_super) {
     TrendControl.prototype.run = function () {
         var _this = this;
         _super.prototype.run.call(this);
-        if (this.values.length > 0)
-            this.value = this.values[this.values.length - 1].value;
+        if (this.values1.length > 0)
+            this.value1 = this.values1[this.values1.length - 1].value;
         else
-            this.value = this.min;
+            this.value1 = this.min;
+        this.running = true;
         this.reDrawTrend();
-        this.element._interval = setInterval(function () { return _this.checkValueChange(); }, 1000);
-    };
-    TrendControl.prototype.checkValueChange = function () {
-        this.values.push({
-            value: this.value,
-            time: new Date().getTime()
-        });
-        this.reDrawTrend();
+        this.element._interval = setInterval(function () { return _this.reDrawTrend(); }, 1000);
     };
     TrendControl.prototype.reDrawTrend = function () {
         var rect = this.rect;
@@ -1534,13 +1579,13 @@ var TrendControl = (function (_super) {
         var now = new Date().getTime();
         var dataStr = "";
         var deleteToIndex = -1;
-        for (var i = this.values.length - 1; i >= 0; i--) {
-            var x = rect.width - 10 - ((now - this.values[i].time) / 1000) * 2;
+        for (var i = this.values1.length - 1; i >= 0; i--) {
+            var x = rect.width - 10 - ((now - this.values1[i].time) / 1000) * 2;
             if (x < 10) {
                 deleteToIndex = i;
                 break;
             }
-            var percent = 1 - (this.values[i].value - this.min) / (this.max - this.min);
+            var percent = 1 - (this.values1[i].value - this.min) / (this.max - this.min);
             var y = 10 + (rect.height - 20) * percent;
             if (y < 10)
                 y = 10;
@@ -1553,11 +1598,13 @@ var TrendControl = (function (_super) {
             dataStr += x + " " + y + " ";
         }
         if (deleteToIndex >= 0) {
-            this.values.splice(0, deleteToIndex + 1);
+            this.values1.splice(0, deleteToIndex + 1);
         }
         this.pathElement.setAttribute("d", dataStr);
     };
     TrendControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
@@ -1588,6 +1635,7 @@ var TrendControl = (function (_super) {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -1606,6 +1654,8 @@ var TrendControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     TrendControl.prototype.onBeginMoving = function () {
@@ -1685,6 +1735,8 @@ var ButtonAreaControl = (function (_super) {
         }
     };
     ButtonAreaControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
@@ -1707,6 +1759,7 @@ var ButtonAreaControl = (function (_super) {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -1725,6 +1778,8 @@ var ButtonAreaControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     ButtonAreaControl.prototype.onBeginMoving = function () {
@@ -1845,6 +1900,8 @@ var GroupControl = (function (_super) {
         }
     };
     GroupControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
         var rect = this.lastRect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
@@ -1868,6 +1925,7 @@ var GroupControl = (function (_super) {
         pointEle._y = rect.y;
         pointEle._width = rect.width;
         pointEle._height = rect.height;
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -1890,6 +1948,8 @@ var GroupControl = (function (_super) {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     };
     GroupControl.prototype.onBeginMoving = function () {

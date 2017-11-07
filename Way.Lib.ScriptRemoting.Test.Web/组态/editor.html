@@ -9,6 +9,7 @@
     <script src="js/PropertyDialog.js" type="text/javascript"></script>
     <script src="js/jscolor.min.js" type="text/javascript"></script>
     <script src="js/FileBrowser.js" type="text/javascript"></script>
+    <script src="js/UndoManager.js" type="text/javascript"></script>
     <script src="/WayScriptRemoting" type="text/javascript"></script>
     <style>
         body{
@@ -99,6 +100,14 @@
             </div>
             <div class="toolboxItem" title="点击区域" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/buttonarea.png);" _type="ToolBox_ButtonArea">
             </div>
+            <!--<input class="jscolor" value="ab2567">-->
+            <div class="toolboxItem" title="撤销" onclick="editor.undo();" style="background-image:url(images/toolbox/undo.png);margin-left:20px;cursor:pointer;">
+            </div>
+            <div class="toolboxItem" title="重做" onclick="editor.redo();" style="background-image:url(images/toolbox/redo.png);cursor:pointer;margin-left:0px;">
+            </div>
+            <div class="toolboxItem" title="删除选定的控件" onclick="editor.delete();" style="background-image:url(images/toolbox/delete.png);cursor:pointer;margin-left:0px;">
+            </div>
+
             <!--<input class="jscolor" value="ab2567">-->
             <div class="toolboxItem" title="复制" onclick="editor.copy();" style="background-image:url(images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
             </div>
@@ -290,7 +299,7 @@
             for (var i = 0; i < editor.controls.length; i++)
             {
                 var control = editor.controls[i];
-                if (control.devicePoint == point.name)
+                if (control.devicePoint == ManyPointDefined || control.devicePoint == point.name)
                 {
                     control.onDevicePointValueChanged(point);
                 }

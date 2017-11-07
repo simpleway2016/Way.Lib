@@ -1,4 +1,6 @@
 ﻿var AllSelectedControls: EditorControl[] = [];
+declare var editor: Editor;
+var ManyPointDefined = 999999;//表示EditorControl是否绑定了多个point
 
 function documentElementMouseDown(e: MouseEvent) {
     //while (AllSelectedControls.length > 0) {
@@ -64,6 +66,7 @@ class EditorControl
 
     private mouseDownX;
     private mouseDownY;
+    private undoMoveObj: UndoMoveControls;
 
     constructor(element:any)
     {
@@ -106,14 +109,19 @@ class EditorControl
 
             this.mouseDownX = e.clientX;
             this.mouseDownY = e.clientY;
+            var movingCtrls = [];
             if (this._moveAllSelectedControl) {
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     AllSelectedControls[i].onBeginMoving();
+                    movingCtrls.push(AllSelectedControls[i]);
                 }
             }
             else {
                 this.onBeginMoving();
+                movingCtrls.push(this);
             }
+
+            this.undoMoveObj = new UndoMoveControls(editor, movingCtrls);
         }, false);
         document.body.addEventListener("mousemove", (e) => {
             if (this.isInGroup || !this.container || !this.isDesignMode)
@@ -140,6 +148,8 @@ class EditorControl
                 e.stopPropagation();
                 this.onEndMoving();
                 this.mouseDownX = -1;
+                this.undoMoveObj.moveFinish();
+                editor.undoMgr.addUndo(this.undoMoveObj);
             }
         }, false);
     }
@@ -407,6 +417,9 @@ class LineControl extends EditorControl
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
+
         this.pointEles[0].setAttribute("cx", <any>this.lineElement.x1.animVal.value);
         this.pointEles[0].setAttribute("cy", <any>this.lineElement.y1.animVal.value);
 
@@ -422,6 +435,7 @@ class LineControl extends EditorControl
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
 
+    private undoObj : UndoChangeLinePoint;
     pointMouseDown(e: MouseEvent, pointEle, xName: string, yName: string)
     {
         e.stopPropagation();
@@ -430,6 +444,8 @@ class LineControl extends EditorControl
         this.startY = e.clientY;
         this.valueX = parseInt(this.lineElement.getAttribute(xName));
         this.valueY = parseInt(this.lineElement.getAttribute(yName));
+
+        this.undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -453,6 +469,9 @@ class LineControl extends EditorControl
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 }
@@ -572,6 +591,9 @@ class RectControl extends EditorControl {
 
     resetPointLocation()
     {
+        if (!this.selected)
+            return;
+
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
@@ -586,6 +608,7 @@ class RectControl extends EditorControl {
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
 
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -597,6 +620,8 @@ class RectControl extends EditorControl {
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
 
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -616,6 +641,9 @@ class RectControl extends EditorControl {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
@@ -769,6 +797,8 @@ class EllipseControl extends EditorControl {
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
         this.pointEles[0].setAttribute("cx", <any>(this.rootElement.cx.animVal.value + this.rootElement.rx.animVal.value));
         this.pointEles[0].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
 
@@ -783,6 +813,7 @@ class EllipseControl extends EditorControl {
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
 
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -793,6 +824,8 @@ class EllipseControl extends EditorControl {
         pointEle._value_cy = this.rootElement.cy.animVal.value;
         pointEle._value_rx = this.rootElement.rx.animVal.value;
         pointEle._value_ry = this.rootElement.ry.animVal.value;
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -812,6 +845,9 @@ class EllipseControl extends EditorControl {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
@@ -953,6 +989,8 @@ class CircleControl extends EditorControl {
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
         this.pointEles[0].setAttribute("cx", <any>(this.rootElement.cx.animVal.value + this.rootElement.r.animVal.value));
         this.pointEles[0].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.r.animVal.value));
     }
@@ -964,6 +1002,7 @@ class CircleControl extends EditorControl {
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
 
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -973,6 +1012,8 @@ class CircleControl extends EditorControl {
         pointEle._value_cx = this.rootElement.cx.animVal.value;
         pointEle._value_cy = this.rootElement.cy.animVal.value;
         pointEle._value_r = this.rootElement.r.animVal.value;
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -992,6 +1033,9 @@ class CircleControl extends EditorControl {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
@@ -1172,6 +1216,9 @@ class TextControl extends RectControl {
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
+
         var myrect = this.rect;
         this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
         this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
@@ -1352,6 +1399,9 @@ class CylinderControl extends EditorControl {
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
+
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
@@ -1365,7 +1415,7 @@ class CylinderControl extends EditorControl {
         pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
-
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -1376,6 +1426,8 @@ class CylinderControl extends EditorControl {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -1402,6 +1454,9 @@ class CylinderControl extends EditorControl {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
@@ -1432,18 +1487,26 @@ class TrendControl extends EditorControl {
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
     pathElement: SVGPathElement;
-    values: any[] = [];
-
-    private _value: number = 50;
+    
     private _max: number = 100;
     private _min: number = 0;
-    get value() {
-        return this._value;
+
+    values1: any[] = [];
+    private _value1: number = 50;
+    get value1() {
+        return this._value1;
     }
-    set value(v: any) {
+    set value1(v: any) {
         v = parseFloat(v);
-        if (v != this._value) {
-            this._value = v;
+        if (v != this._value1) {
+            this._value1 = v;
+            if (this.running)
+            {
+                this.values1.push({
+                    value: this._value1,
+                    time: new Date().getTime()
+                });
+            }
         }
     }
 
@@ -1464,22 +1527,35 @@ class TrendControl extends EditorControl {
             this._max = this._max - 1;
     }
 
-    _devicePoint: string = "";
-    get devicePoint() {
-        return this._devicePoint;
+    _devicePoint1: string = "";
+    get devicePoint1() {
+        return this._devicePoint1;
     }
-    set devicePoint(v) {
-        this._devicePoint = v;
+    set devicePoint1(v) {
+        this._devicePoint1 = v;
     }
     onDevicePointValueChanged(devPoint: any) {
+        var number = 0;
+        for (var i = 1; i <= 12; i++)
+        {
+            if (devPoint.name == this["devicePoint" + i])
+            {
+                number = i;
+                break;
+            }
+        }
+        if (number == 0)
+            return;
+
         if (devPoint.max != this.max)
             this.max = devPoint.max;
         if (devPoint.min != this.min)
             this.min = devPoint.min;
 
-        this.value = devPoint.value;
+        this["value" + number] = devPoint.value;
     }
 
+    running: boolean = false;
     moving: boolean = false;
     startX = 0;
     startY = 0;
@@ -1531,10 +1607,10 @@ class TrendControl extends EditorControl {
         this.pathElement.style.stroke = v;
     }
     getPropertiesCaption(): string[] {
-        return ["id","背景颜色", "值", "量程线颜色", "趋势颜色","设备点"];
+        return ["id","背景颜色",  "量程线颜色", "趋势颜色","设备点"];
     }
     getProperties(): string[] {
-        return ["id","colorFill", "value", "colorLineLeftBottom","colorLine","devicePoint"];
+        return ["id","colorFill","colorLineLeftBottom","colorLine","devicePoint1"];
     }
 
     constructor() {
@@ -1555,6 +1631,8 @@ class TrendControl extends EditorControl {
         this.pathElement.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
         this.pathElement.setAttribute("transform", "translate(0 0)");
         this.element.appendChild(this.pathElement);
+
+        (<any>this).devicePoint = ManyPointDefined;
     }
 
     isIntersectWith(rect): boolean {
@@ -1581,22 +1659,14 @@ class TrendControl extends EditorControl {
     run()
     {
         super.run();
-        if (this.values.length > 0)
-            this.value = this.values[this.values.length - 1].value;
+        if (this.values1.length > 0)
+            this.value1 = this.values1[this.values1.length - 1].value;
         else
-            this.value = this.min;
+            this.value1 = this.min;
 
+        this.running = true;
         this.reDrawTrend();
-        this.element._interval = setInterval(() => this.checkValueChange(), 1000);
-    }
-
-    checkValueChange()
-    {
-        this.values.push({
-            value: this.value,
-            time: new Date().getTime()
-        });
-        this.reDrawTrend();
+        this.element._interval = setInterval(() => this.reDrawTrend(), 1000);
     }
 
     //重画趋势图
@@ -1610,14 +1680,14 @@ class TrendControl extends EditorControl {
         //小于minTime时间的值不必要显示了
         var dataStr = "";
         var deleteToIndex = -1;
-        for (var i = this.values.length - 1; i >= 0; i--) {
-            var x = rect.width - 10 - ((now - this.values[i].time) / 1000) * 2;//1秒占2个像素
+        for (var i = this.values1.length - 1; i >= 0; i--) {
+            var x = rect.width - 10 - ((now - this.values1[i].time) / 1000) * 2;//1秒占2个像素
             if (x < 10) {
                 deleteToIndex = i;
                 break;
             }
 
-            var percent = 1 - (this.values[i].value - this.min) / (this.max - this.min);
+            var percent = 1 - (this.values1[i].value - this.min) / (this.max - this.min);
             var y = 10 + (rect.height - 20) * percent;
             if (y < 10)
                 y = 10;
@@ -1633,13 +1703,16 @@ class TrendControl extends EditorControl {
 
         if (deleteToIndex >= 0) {
             //点已经过时需要删除
-            this.values.splice(0, deleteToIndex + 1);
+            this.values1.splice(0, deleteToIndex + 1);
         }
 
         this.pathElement.setAttribute("d", dataStr);
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
+
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
@@ -1663,7 +1736,7 @@ class TrendControl extends EditorControl {
         pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
-
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -1674,6 +1747,8 @@ class TrendControl extends EditorControl {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -1694,6 +1769,9 @@ class TrendControl extends EditorControl {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
@@ -1783,6 +1861,9 @@ class ButtonAreaControl extends EditorControl {
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
+
         var rect = this.rect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
@@ -1797,6 +1878,7 @@ class ButtonAreaControl extends EditorControl {
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
 
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -1807,6 +1889,8 @@ class ButtonAreaControl extends EditorControl {
         pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
         pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
         pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
 
         if (pointEle.setCapture)
             pointEle.setCapture();
@@ -1827,6 +1911,9 @@ class ButtonAreaControl extends EditorControl {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
@@ -1964,6 +2051,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
 
     resetPointLocation() {
+        if (!this.selected)
+            return;
+
         var rect = this.lastRect;
         if (this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
@@ -1978,6 +2068,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
     }
 
+    private undoObj: UndoMoveControls;
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.moving = true;
@@ -1989,7 +2080,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         pointEle._y = rect.y;
         pointEle._width = rect.width;
         pointEle._height = rect.height;
-       
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
+
         if (pointEle.setCapture)
             pointEle.setCapture();
         else if (window.captureEvents)
@@ -2014,6 +2107,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             e.stopPropagation();
             this.moving = false;
             pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
         }
     }
 
