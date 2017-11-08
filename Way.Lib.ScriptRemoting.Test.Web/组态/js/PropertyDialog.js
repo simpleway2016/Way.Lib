@@ -5,6 +5,9 @@ var PropertyDialog = (function () {
         var pNames = control.getProperties();
         this.rootElement = document.createElement("DIV");
         this.rootElement.style.padding = "3px";
+        this.rootElement.style.maxHeight = window.innerHeight * 0.95 + "px";
+        this.rootElement.style.overflowY = "auto";
+        this.rootElement.style.overflowX = "hidden";
         this.rootElement.style.zIndex = "799";
         for (var i = 0; i < pNames.length; i++) {
             var row = document.createElement("DIV");
@@ -12,11 +15,13 @@ var PropertyDialog = (function () {
             this.rootElement.appendChild(row);
             var cell = document.createElement("DIV");
             cell.style.display = "table-cell";
+            cell.style.whiteSpace = "nowrap";
             cell.innerHTML = captions[i] + "：";
             row.appendChild(cell);
             var captionCell = cell;
             cell = document.createElement("DIV");
             cell.style.display = "table-cell";
+            cell.style.paddingRight = "30px";
             if (pNames[i].indexOf("color") >= 0) {
                 cell.innerHTML = "<input type='text' class='jscolor'>";
                 var picker;

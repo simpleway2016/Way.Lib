@@ -1486,13 +1486,35 @@ class TrendControl extends EditorControl {
 
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
-    pathElement: SVGPathElement;
+    pathElement1: SVGPathElement;
+    pathElement2: SVGPathElement;
+    pathElement3: SVGPathElement;
+    pathElement4: SVGPathElement;
+    pathElement5: SVGPathElement;
+    pathElement6: SVGPathElement;
+    pathElement7: SVGPathElement;
+    pathElement8: SVGPathElement;
+    pathElement9: SVGPathElement;
+    pathElement10: SVGPathElement;
+    pathElement11: SVGPathElement;
+    pathElement12: SVGPathElement;
     
     private _max: number = 100;
     private _min: number = 0;
 
     values1: any[] = [];
-    private _value1: number = 50;
+    values2: any[] = [];
+    values3: any[] = [];
+    values4: any[] = [];
+    values5: any[] = [];
+    values6: any[] = [];
+    values7: any[] = [];
+    values8: any[] = [];
+    values9: any[] = [];
+    values10: any[] = [];
+    values11: any[] = [];
+    values12: any[] = [];
+    private _value1: number = 0;
     get value1() {
         return this._value1;
     }
@@ -1509,7 +1531,183 @@ class TrendControl extends EditorControl {
             }
         }
     }
-
+    
+    private _value2: number = 0;
+    get value2() {
+        return this._value2;
+    }
+    set value2(v: any) {
+        v = parseFloat(v);
+        if (v != this._value2) {
+            this._value2 = v;
+            if (this.running) {
+                this.values2.push({
+                    value: this._value2,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value3: number = 0;
+    get value3() {
+        return this._value3;
+    }
+    set value3(v: any) {
+        v = parseFloat(v);
+        if (v != this._value3) {
+            this._value3 = v;
+            if (this.running) {
+                this.values3.push({
+                    value: this._value3,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value4: number = 0;
+    get value4() {
+        return this._value4;
+    }
+    set value4(v: any) {
+        v = parseFloat(v);
+        if (v != this._value4) {
+            this._value4 = v;
+            if (this.running) {
+                this.values4.push({
+                    value: this._value4,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value5: number = 0;
+    get value5() {
+        return this._value5;
+    }
+    set value5(v: any) {
+        v = parseFloat(v);
+        if (v != this._value5) {
+            this._value5 = v;
+            if (this.running) {
+                this.values5.push({
+                    value: this._value5,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value6: number = 0;
+    get value6() {
+        return this._value6;
+    }
+    set value6(v: any) {
+        v = parseFloat(v);
+        if (v != this._value6) {
+            this._value6 = v;
+            if (this.running) {
+                this.values6.push({
+                    value: this._value6,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value7: number = 0;
+    get value7() {
+        return this._value7;
+    }
+    set value7(v: any) {
+        v = parseFloat(v);
+        if (v != this._value7) {
+            this._value7 = v;
+            if (this.running) {
+                this.values7.push({
+                    value: this._value7,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value8: number = 0;
+    get value8() {
+        return this._value8;
+    }
+    set value8(v: any) {
+        v = parseFloat(v);
+        if (v != this._value8) {
+            this._value8 = v;
+            if (this.running) {
+                this.values8.push({
+                    value: this._value8,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value9: number = 0;
+    get value9() {
+        return this._value9;
+    }
+    set value9(v: any) {
+        v = parseFloat(v);
+        if (v != this._value9) {
+            this._value9 = v;
+            if (this.running) {
+                this.values9.push({
+                    value: this._value9,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value10: number = 0;
+    get value10() {
+        return this._value10;
+    }
+    set value10(v: any) {
+        v = parseFloat(v);
+        if (v != this._value10) {
+            this._value10 = v;
+            if (this.running) {
+                this.values10.push({
+                    value: this._value10,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value11: number = 0;
+    get value11() {
+        return this._value11;
+    }
+    set value11(v: any) {
+        v = parseFloat(v);
+        if (v != this._value11) {
+            this._value11 = v;
+            if (this.running) {
+                this.values11.push({
+                    value: this._value11,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
+    private _value12: number = 0;
+    get value12() {
+        return this._value12;
+    }
+    set value12(v: any) {
+        v = parseFloat(v);
+        if (v != this._value12) {
+            this._value12 = v;
+            if (this.running) {
+                this.values12.push({
+                    value: this._value12,
+                    time: new Date().getTime()
+                });
+            }
+        }
+    }
     get max() {
         return this._max;
     }
@@ -1533,6 +1731,83 @@ class TrendControl extends EditorControl {
     }
     set devicePoint1(v) {
         this._devicePoint1 = v;
+    }
+    _devicePoint2: string = "";
+    get devicePoint2() {
+        return this._devicePoint2;
+    }
+    set devicePoint2(v) {
+        this._devicePoint2 = v;
+    }
+    _devicePoint3: string = "";
+    get devicePoint3() {
+        return this._devicePoint3;
+    }
+    set devicePoint3(v) {
+        this._devicePoint3 = v;
+    }
+    _devicePoint4: string = "";
+    get devicePoint4() {
+        return this._devicePoint4;
+    }
+    set devicePoint4(v) {
+        this._devicePoint4 = v;
+    }
+    _devicePoint5: string = "";
+    get devicePoint5() {
+        return this._devicePoint5;
+    }
+    set devicePoint5(v) {
+        this._devicePoint5 = v;
+    }
+    _devicePoint6: string = "";
+    get devicePoint6() {
+        return this._devicePoint6;
+    }
+    set devicePoint6(v) {
+        this._devicePoint6 = v;
+    }
+    _devicePoint7: string = "";
+    get devicePoint7() {
+        return this._devicePoint7;
+    }
+    set devicePoint7(v) {
+        this._devicePoint7 = v;
+    }
+    _devicePoint8: string = "";
+    get devicePoint8() {
+        return this._devicePoint8;
+    }
+    set devicePoint8(v) {
+        this._devicePoint8 = v;
+    }
+    _devicePoint9: string = "";
+    get devicePoint9() {
+        return this._devicePoint9;
+    }
+    set devicePoint9(v) {
+        this._devicePoint9 = v;
+    }
+    _devicePoint10: string = "";
+    get devicePoint10() {
+        return this._devicePoint10;
+    }
+    set devicePoint10(v) {
+        this._devicePoint10 = v;
+    }
+    _devicePoint11: string = "";
+    get devicePoint11() {
+        return this._devicePoint11;
+    }
+    set devicePoint11(v) {
+        this._devicePoint11 = v;
+    }
+    _devicePoint12: string = "";
+    get devicePoint12() {
+        return this._devicePoint12;
+    }
+    set devicePoint12(v) {
+        this._devicePoint12 = v;
     }
     onDevicePointValueChanged(devPoint: any) {
         var number = 0;
@@ -1581,7 +1856,8 @@ class TrendControl extends EditorControl {
         this.rectElement.setAttribute("width", v.width);
         this.rectElement.setAttribute("height", v.height);
 
-        this.pathElement.setAttribute("transform", "translate("+v.x+" "+v.y+")");
+        for (var i = 1; i <= 12; i ++)
+            this["pathElement" + i].setAttribute("transform", "translate("+v.x+" "+v.y+")");
 
         this.resetPointLocation();
     }
@@ -1600,17 +1876,93 @@ class TrendControl extends EditorControl {
         this.line_left_Ele.style.stroke = v;
         this.line_bottom_Ele.style.stroke = v;
     }
-    get colorLine() {
-        return this.pathElement.style.stroke;
+    get colorLine1() {
+        return this.pathElement1.style.stroke;
     }
-    set colorLine(v) {
-        this.pathElement.style.stroke = v;
+    set colorLine1(v) {
+        this.pathElement1.style.stroke = v;
+    }
+    get colorLine2() {
+        return this.pathElement2.style.stroke;
+    }
+    set colorLine2(v) {
+        this.pathElement2.style.stroke = v;
+    }
+    get colorLine3() {
+        return this.pathElement3.style.stroke;
+    }
+    set colorLine3(v) {
+        this.pathElement3.style.stroke = v;
+    }
+    get colorLine4() {
+        return this.pathElement4.style.stroke;
+    }
+    set colorLine4(v) {
+        this.pathElement4.style.stroke = v;
+    }
+    get colorLine5() {
+        return this.pathElement5.style.stroke;
+    }
+    set colorLine5(v) {
+        this.pathElement5.style.stroke = v;
+    }
+    get colorLine6() {
+        return this.pathElement6.style.stroke;
+    }
+    set colorLine6(v) {
+        this.pathElement6.style.stroke = v;
+    }
+    get colorLine7() {
+        return this.pathElement7.style.stroke;
+    }
+    set colorLine7(v) {
+        this.pathElement7.style.stroke = v;
+    }
+    get colorLine8() {
+        return this.pathElement8.style.stroke;
+    }
+    set colorLine8(v) {
+        this.pathElement8.style.stroke = v;
+    }
+    get colorLine9() {
+        return this.pathElement9.style.stroke;
+    }
+    set colorLine9(v) {
+        this.pathElement9.style.stroke = v;
+    }
+    get colorLine10() {
+        return this.pathElement10.style.stroke;
+    }
+    set colorLine10(v) {
+        this.pathElement10.style.stroke = v;
+    }
+    get colorLine11() {
+        return this.pathElement11.style.stroke;
+    }
+    set colorLine11(v) {
+        this.pathElement11.style.stroke = v;
+    }
+    get colorLine12() {
+        return this.pathElement12.style.stroke;
+    }
+    set colorLine12(v) {
+        this.pathElement12.style.stroke = v;
     }
     getPropertiesCaption(): string[] {
-        return ["id","背景颜色",  "量程线颜色", "趋势颜色","设备点"];
+        var arr = ["id", "背景颜色", "量程线颜色"];
+        for (var i = 1; i <= 12; i++) {
+            arr.push("趋势颜色" + i);
+            arr.push("设备点" + i);
+        }
+        return arr;
     }
     getProperties(): string[] {
-        return ["id","colorFill","colorLineLeftBottom","colorLine","devicePoint1"];
+        var arr = ["id", "colorFill", "colorLineLeftBottom"];
+        for (var i = 1; i <= 12; i++) {
+            arr.push("colorLine" + i);
+            arr.push("devicePoint" + i);
+        }
+        return arr;
     }
 
     constructor() {
@@ -1627,10 +1979,14 @@ class TrendControl extends EditorControl {
         this.line_bottom_Ele.setAttribute('style', 'stroke:#ffffff;stroke-width:1;');
         this.element.appendChild(this.line_bottom_Ele);
 
-        this.pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        this.pathElement.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
-        this.pathElement.setAttribute("transform", "translate(0 0)");
-        this.element.appendChild(this.pathElement);
+        for (var i = 1; i <= 12; i++) {
+            var pe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pe.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
+            pe.setAttribute("transform", "translate(0 0)");
+            this.element.appendChild(pe);
+
+            this["pathElement" + i] = pe;
+        }
 
         (<any>this).devicePoint = ManyPointDefined;
     }
@@ -1659,10 +2015,13 @@ class TrendControl extends EditorControl {
     run()
     {
         super.run();
-        if (this.values1.length > 0)
-            this.value1 = this.values1[this.values1.length - 1].value;
-        else
-            this.value1 = this.min;
+        for (var i = 1; i <= 12; i++) {
+            var valueArr = this["values" + i];
+            if (valueArr.length > 0)
+                this["value" + i] = valueArr[valueArr.length - 1].value;
+            else
+                this["value" + i]  = this.min;
+        }
 
         this.running = true;
         this.reDrawTrend();
@@ -1677,36 +2036,45 @@ class TrendControl extends EditorControl {
         var width = rect.width - 20 - 2;
 
         var now = new Date().getTime();
-        //小于minTime时间的值不必要显示了
-        var dataStr = "";
-        var deleteToIndex = -1;
-        for (var i = this.values1.length - 1; i >= 0; i--) {
-            var x = rect.width - 10 - ((now - this.values1[i].time) / 1000) * 2;//1秒占2个像素
-            if (x < 10) {
-                deleteToIndex = i;
-                break;
+        for (var k = 1; k <= 12; k++) {
+           
+            var valueArr = this["values" + k];
+            if (valueArr.length <= 1)
+                continue;
+
+            //小于minTime时间的值不必要显示了
+            var dataStr = "";
+            var deleteToIndex = -1;
+            for (var i = valueArr.length - 1; i >= 0; i--) {
+                
+
+                var x = rect.width - 10 - ((now - valueArr[i].time) / 1000) * 2;//1秒占2个像素
+                if (x < 10) {
+                    deleteToIndex = i;
+                    break;
+                }
+
+                var percent = 1 - (valueArr[i].value - this.min) / (this.max - this.min);
+                var y = 10 + (rect.height - 20) * percent;
+                if (y < 10)
+                    y = 10;
+                else if (y > rect.height - 10)
+                    y = rect.height - 10;
+
+                if (dataStr.length == 0)
+                    dataStr += "M";
+                else
+                    dataStr += "L";
+                dataStr += x + " " + y + " ";
             }
 
-            var percent = 1 - (this.values1[i].value - this.min) / (this.max - this.min);
-            var y = 10 + (rect.height - 20) * percent;
-            if (y < 10)
-                y = 10;
-            else if (y > rect.height - 10)
-                y = rect.height - 10;
+            if (deleteToIndex >= 0) {
+                //点已经过时需要删除
+                valueArr.splice(0, deleteToIndex + 1);
+            }
 
-            if (dataStr.length == 0)
-                dataStr += "M";
-            else
-                dataStr += "L";
-            dataStr += x + " " + y + " ";
+            this["pathElement" + k].setAttribute("d", dataStr);
         }
-
-        if (deleteToIndex >= 0) {
-            //点已经过时需要删除
-            this.values1.splice(0, deleteToIndex + 1);
-        }
-
-        this.pathElement.setAttribute("d", dataStr);
     }
 
     resetPointLocation() {
@@ -1785,7 +2153,9 @@ class TrendControl extends EditorControl {
         var y = <any>((<any>this.rectElement)._y + nowY - downY);
         this.rectElement.setAttribute("x", x);
         this.rectElement.setAttribute("y", y);
-        this.pathElement.setAttribute("transform", "translate("+x+" "+y+")");
+        for (var i = 1; i <= 12; i++) {
+            this["pathElement" + i].setAttribute("transform", "translate(" + x + " " + y + ")");
+        }
         if (this.selected) {
             this.resetPointLocation();
         }

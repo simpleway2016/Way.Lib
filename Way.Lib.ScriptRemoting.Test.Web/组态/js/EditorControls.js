@@ -1397,8 +1397,41 @@ var TrendControl = (function (_super) {
         _this._max = 100;
         _this._min = 0;
         _this.values1 = [];
-        _this._value1 = 50;
+        _this.values2 = [];
+        _this.values3 = [];
+        _this.values4 = [];
+        _this.values5 = [];
+        _this.values6 = [];
+        _this.values7 = [];
+        _this.values8 = [];
+        _this.values9 = [];
+        _this.values10 = [];
+        _this.values11 = [];
+        _this.values12 = [];
+        _this._value1 = 0;
+        _this._value2 = 0;
+        _this._value3 = 0;
+        _this._value4 = 0;
+        _this._value5 = 0;
+        _this._value6 = 0;
+        _this._value7 = 0;
+        _this._value8 = 0;
+        _this._value9 = 0;
+        _this._value10 = 0;
+        _this._value11 = 0;
+        _this._value12 = 0;
         _this._devicePoint1 = "";
+        _this._devicePoint2 = "";
+        _this._devicePoint3 = "";
+        _this._devicePoint4 = "";
+        _this._devicePoint5 = "";
+        _this._devicePoint6 = "";
+        _this._devicePoint7 = "";
+        _this._devicePoint8 = "";
+        _this._devicePoint9 = "";
+        _this._devicePoint10 = "";
+        _this._devicePoint11 = "";
+        _this._devicePoint12 = "";
         _this.running = false;
         _this.moving = false;
         _this.startX = 0;
@@ -1412,10 +1445,13 @@ var TrendControl = (function (_super) {
         _this.line_bottom_Ele = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         _this.line_bottom_Ele.setAttribute('style', 'stroke:#ffffff;stroke-width:1;');
         _this.element.appendChild(_this.line_bottom_Ele);
-        _this.pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        _this.pathElement.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
-        _this.pathElement.setAttribute("transform", "translate(0 0)");
-        _this.element.appendChild(_this.pathElement);
+        for (var i = 1; i <= 12; i++) {
+            var pe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pe.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
+            pe.setAttribute("transform", "translate(0 0)");
+            _this.element.appendChild(pe);
+            _this["pathElement" + i] = pe;
+        }
         _this.devicePoint = ManyPointDefined;
         return _this;
     }
@@ -1430,6 +1466,215 @@ var TrendControl = (function (_super) {
                 if (this.running) {
                     this.values1.push({
                         value: this._value1,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value2", {
+        get: function () {
+            return this._value2;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value2) {
+                this._value2 = v;
+                if (this.running) {
+                    this.values2.push({
+                        value: this._value2,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value3", {
+        get: function () {
+            return this._value3;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value3) {
+                this._value3 = v;
+                if (this.running) {
+                    this.values3.push({
+                        value: this._value3,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value4", {
+        get: function () {
+            return this._value4;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value4) {
+                this._value4 = v;
+                if (this.running) {
+                    this.values4.push({
+                        value: this._value4,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value5", {
+        get: function () {
+            return this._value5;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value5) {
+                this._value5 = v;
+                if (this.running) {
+                    this.values5.push({
+                        value: this._value5,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value6", {
+        get: function () {
+            return this._value6;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value6) {
+                this._value6 = v;
+                if (this.running) {
+                    this.values6.push({
+                        value: this._value6,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value7", {
+        get: function () {
+            return this._value7;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value7) {
+                this._value7 = v;
+                if (this.running) {
+                    this.values7.push({
+                        value: this._value7,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value8", {
+        get: function () {
+            return this._value8;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value8) {
+                this._value8 = v;
+                if (this.running) {
+                    this.values8.push({
+                        value: this._value8,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value9", {
+        get: function () {
+            return this._value9;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value9) {
+                this._value9 = v;
+                if (this.running) {
+                    this.values9.push({
+                        value: this._value9,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value10", {
+        get: function () {
+            return this._value10;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value10) {
+                this._value10 = v;
+                if (this.running) {
+                    this.values10.push({
+                        value: this._value10,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value11", {
+        get: function () {
+            return this._value11;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value11) {
+                this._value11 = v;
+                if (this.running) {
+                    this.values11.push({
+                        value: this._value11,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "value12", {
+        get: function () {
+            return this._value12;
+        },
+        set: function (v) {
+            v = parseFloat(v);
+            if (v != this._value12) {
+                this._value12 = v;
+                if (this.running) {
+                    this.values12.push({
+                        value: this._value12,
                         time: new Date().getTime()
                     });
                 }
@@ -1472,6 +1717,116 @@ var TrendControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TrendControl.prototype, "devicePoint2", {
+        get: function () {
+            return this._devicePoint2;
+        },
+        set: function (v) {
+            this._devicePoint2 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint3", {
+        get: function () {
+            return this._devicePoint3;
+        },
+        set: function (v) {
+            this._devicePoint3 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint4", {
+        get: function () {
+            return this._devicePoint4;
+        },
+        set: function (v) {
+            this._devicePoint4 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint5", {
+        get: function () {
+            return this._devicePoint5;
+        },
+        set: function (v) {
+            this._devicePoint5 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint6", {
+        get: function () {
+            return this._devicePoint6;
+        },
+        set: function (v) {
+            this._devicePoint6 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint7", {
+        get: function () {
+            return this._devicePoint7;
+        },
+        set: function (v) {
+            this._devicePoint7 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint8", {
+        get: function () {
+            return this._devicePoint8;
+        },
+        set: function (v) {
+            this._devicePoint8 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint9", {
+        get: function () {
+            return this._devicePoint9;
+        },
+        set: function (v) {
+            this._devicePoint9 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint10", {
+        get: function () {
+            return this._devicePoint10;
+        },
+        set: function (v) {
+            this._devicePoint10 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint11", {
+        get: function () {
+            return this._devicePoint11;
+        },
+        set: function (v) {
+            this._devicePoint11 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "devicePoint12", {
+        get: function () {
+            return this._devicePoint12;
+        },
+        set: function (v) {
+            this._devicePoint12 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     TrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
         var number = 0;
         for (var i = 1; i <= 12; i++) {
@@ -1503,7 +1858,8 @@ var TrendControl = (function (_super) {
             this.rectElement.setAttribute("y", v.y);
             this.rectElement.setAttribute("width", v.width);
             this.rectElement.setAttribute("height", v.height);
-            this.pathElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            for (var i = 1; i <= 12; i++)
+                this["pathElement" + i].setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
             this.resetPointLocation();
         },
         enumerable: true,
@@ -1530,21 +1886,141 @@ var TrendControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TrendControl.prototype, "colorLine", {
+    Object.defineProperty(TrendControl.prototype, "colorLine1", {
         get: function () {
-            return this.pathElement.style.stroke;
+            return this.pathElement1.style.stroke;
         },
         set: function (v) {
-            this.pathElement.style.stroke = v;
+            this.pathElement1.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine2", {
+        get: function () {
+            return this.pathElement2.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement2.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine3", {
+        get: function () {
+            return this.pathElement3.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement3.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine4", {
+        get: function () {
+            return this.pathElement4.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement4.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine5", {
+        get: function () {
+            return this.pathElement5.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement5.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine6", {
+        get: function () {
+            return this.pathElement6.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement6.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine7", {
+        get: function () {
+            return this.pathElement7.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement7.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine8", {
+        get: function () {
+            return this.pathElement8.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement8.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine9", {
+        get: function () {
+            return this.pathElement9.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement9.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine10", {
+        get: function () {
+            return this.pathElement10.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement10.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine11", {
+        get: function () {
+            return this.pathElement11.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement11.style.stroke = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "colorLine12", {
+        get: function () {
+            return this.pathElement12.style.stroke;
+        },
+        set: function (v) {
+            this.pathElement12.style.stroke = v;
         },
         enumerable: true,
         configurable: true
     });
     TrendControl.prototype.getPropertiesCaption = function () {
-        return ["id", "背景颜色", "量程线颜色", "趋势颜色", "设备点"];
+        var arr = ["id", "背景颜色", "量程线颜色"];
+        for (var i = 1; i <= 12; i++) {
+            arr.push("趋势颜色" + i);
+            arr.push("设备点" + i);
+        }
+        return arr;
     };
     TrendControl.prototype.getProperties = function () {
-        return ["id", "colorFill", "colorLineLeftBottom", "colorLine", "devicePoint1"];
+        var arr = ["id", "colorFill", "colorLineLeftBottom"];
+        for (var i = 1; i <= 12; i++) {
+            arr.push("colorLine" + i);
+            arr.push("devicePoint" + i);
+        }
+        return arr;
     };
     TrendControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
@@ -1565,10 +2041,13 @@ var TrendControl = (function (_super) {
     TrendControl.prototype.run = function () {
         var _this = this;
         _super.prototype.run.call(this);
-        if (this.values1.length > 0)
-            this.value1 = this.values1[this.values1.length - 1].value;
-        else
-            this.value1 = this.min;
+        for (var i = 1; i <= 12; i++) {
+            var valueArr = this["values" + i];
+            if (valueArr.length > 0)
+                this["value" + i] = valueArr[valueArr.length - 1].value;
+            else
+                this["value" + i] = this.min;
+        }
         this.running = true;
         this.reDrawTrend();
         this.element._interval = setInterval(function () { return _this.reDrawTrend(); }, 1000);
@@ -1577,30 +2056,35 @@ var TrendControl = (function (_super) {
         var rect = this.rect;
         var width = rect.width - 20 - 2;
         var now = new Date().getTime();
-        var dataStr = "";
-        var deleteToIndex = -1;
-        for (var i = this.values1.length - 1; i >= 0; i--) {
-            var x = rect.width - 10 - ((now - this.values1[i].time) / 1000) * 2;
-            if (x < 10) {
-                deleteToIndex = i;
-                break;
+        for (var k = 1; k <= 12; k++) {
+            var valueArr = this["values" + k];
+            if (valueArr.length <= 1)
+                continue;
+            var dataStr = "";
+            var deleteToIndex = -1;
+            for (var i = valueArr.length - 1; i >= 0; i--) {
+                var x = rect.width - 10 - ((now - valueArr[i].time) / 1000) * 2;
+                if (x < 10) {
+                    deleteToIndex = i;
+                    break;
+                }
+                var percent = 1 - (valueArr[i].value - this.min) / (this.max - this.min);
+                var y = 10 + (rect.height - 20) * percent;
+                if (y < 10)
+                    y = 10;
+                else if (y > rect.height - 10)
+                    y = rect.height - 10;
+                if (dataStr.length == 0)
+                    dataStr += "M";
+                else
+                    dataStr += "L";
+                dataStr += x + " " + y + " ";
             }
-            var percent = 1 - (this.values1[i].value - this.min) / (this.max - this.min);
-            var y = 10 + (rect.height - 20) * percent;
-            if (y < 10)
-                y = 10;
-            else if (y > rect.height - 10)
-                y = rect.height - 10;
-            if (dataStr.length == 0)
-                dataStr += "M";
-            else
-                dataStr += "L";
-            dataStr += x + " " + y + " ";
+            if (deleteToIndex >= 0) {
+                valueArr.splice(0, deleteToIndex + 1);
+            }
+            this["pathElement" + k].setAttribute("d", dataStr);
         }
-        if (deleteToIndex >= 0) {
-            this.values1.splice(0, deleteToIndex + 1);
-        }
-        this.pathElement.setAttribute("d", dataStr);
     };
     TrendControl.prototype.resetPointLocation = function () {
         if (!this.selected)
@@ -1667,7 +2151,9 @@ var TrendControl = (function (_super) {
         var y = (this.rectElement._y + nowY - downY);
         this.rectElement.setAttribute("x", x);
         this.rectElement.setAttribute("y", y);
-        this.pathElement.setAttribute("transform", "translate(" + x + " " + y + ")");
+        for (var i = 1; i <= 12; i++) {
+            this["pathElement" + i].setAttribute("transform", "translate(" + x + " " + y + ")");
+        }
         if (this.selected) {
             this.resetPointLocation();
         }
