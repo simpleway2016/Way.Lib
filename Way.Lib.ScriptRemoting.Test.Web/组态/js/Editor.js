@@ -400,6 +400,18 @@ var Editor = (function () {
                     control.rect = rect;
                 }
             }
+            else if (e.ctrlKey && e.keyCode == 90) {
+                _this.undo();
+            }
+            else if (e.ctrlKey && e.keyCode == 89) {
+                _this.redo();
+            }
+            else if (e.ctrlKey && e.keyCode == 67) {
+                _this.copy();
+            }
+            else if (e.ctrlKey && e.keyCode == 86) {
+                _this.paste();
+            }
         }, false);
     }
     Editor.prototype.removeControl = function (ctrl) {

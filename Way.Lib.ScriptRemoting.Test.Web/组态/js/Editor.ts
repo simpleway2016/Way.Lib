@@ -555,6 +555,23 @@ class Editor implements IEditorControlContainer
                     control.rect = rect;
                 }
             }
+            else if (e.ctrlKey && e.keyCode == 90) 
+            {
+                this.undo();
+            }
+            else if (e.ctrlKey && e.keyCode == 89) 
+            {
+                this.redo();
+            }
+            else if (e.ctrlKey && e.keyCode == 67) 
+            {
+                this.copy();
+
+            }
+            else if (e.ctrlKey && e.keyCode == 86) 
+            {
+                this.paste();
+            }
         }, false);
     }
 
