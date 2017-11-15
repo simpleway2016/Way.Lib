@@ -10,6 +10,11 @@ namespace SunRizModbusTcpDriver
     {
         static void Main(string[] args)
         {
+            var server = new SunRizModbusTcpDriver.ModbusDriverServer(int.Parse(args[0]));
+            server.Start();
+            Console.WriteLine($"runing on port:{args[0]}");
+            while (true)
+                System.Threading.Thread.Sleep(100000);
         }
     }
 }

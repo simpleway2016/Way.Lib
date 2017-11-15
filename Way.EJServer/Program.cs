@@ -89,6 +89,7 @@ namespace Way.EJServer
                 }
 
                 ScriptRemotingServer.RegisterHandler(new DownLoadCodeHandler());
+                ScriptRemotingServer.RegisterHandler(new DownLoadSimpleCodeHandler());
                 ScriptRemotingServer.RegisterHandler(new DownloadTableDataHandler());
                 ScriptRemotingServer.RegisterHandler(new ImportDataHandler());
 

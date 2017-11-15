@@ -279,15 +279,23 @@ namespace EJClient
                 }
             }
         }
-        private void MenuItem_生成模型代码_Click_1(object sender, RoutedEventArgs e)
+        private void MenuItem_生成数据库模型代码_Click_1(object sender, RoutedEventArgs e)
         {
             DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
             using (System.Windows.Forms.SaveFileDialog fd = new System.Windows.Forms.SaveFileDialog())
             {
-                if (!string.IsNullOrEmpty(selectedItem.Database.dllPath))
+                if (!string.IsNullOrEmpty(selectedItem.Database.dllPath) && selectedItem.Database.dllPath.StartsWith("{"))
                 {
-                    fd.InitialDirectory = System.IO.Path.GetDirectoryName(selectedItem.Database.dllPath);
-                    fd.FileName = System.IO.Path.GetFileName(selectedItem.Database.dllPath);
+                    var json = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(selectedItem.Database.dllPath);
+                    try
+                    {
+                        fd.InitialDirectory = System.IO.Path.GetDirectoryName(json.Value<string>("db"));
+                        fd.FileName = System.IO.Path.GetFileName(json.Value<string>("db"));
+                    }
+                    catch
+                    {
+                        fd.FileName = selectedItem.Database.Name + ".cs";
+                    }
                 }
                 else
                     fd.FileName = selectedItem.Database.Name + ".cs";
@@ -295,11 +303,48 @@ namespace EJClient
                 {
                     try
                     {
-                        Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value, fd.FileName);
+                        Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value, fd.FileName , "DownloadDatabaseCode.aspx");
                         code.Owner = this;
                         code.ShowDialog();
                     }
                     catch(Exception ex)
+                    {
+                        Helper.ShowError(ex);
+                    }
+                }
+            }
+
+        }
+
+        private void MenuItem_生成简单模型代码_Click_1(object sender, RoutedEventArgs e)
+        {
+            DatabaseItemNode selectedItem = ((FrameworkElement)e.OriginalSource).DataContext as DatabaseItemNode;
+            using (System.Windows.Forms.SaveFileDialog fd = new System.Windows.Forms.SaveFileDialog())
+            {
+                if (!string.IsNullOrEmpty(selectedItem.Database.dllPath) && selectedItem.Database.dllPath.StartsWith("{"))
+                {
+                    var json = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(selectedItem.Database.dllPath);
+                    try
+                    {
+                        fd.InitialDirectory = System.IO.Path.GetDirectoryName(json.Value<string>("simple"));
+                        fd.FileName = System.IO.Path.GetFileName(json.Value<string>("simple"));
+                    }
+                    catch
+                    {
+                        fd.FileName = selectedItem.Database.Name + ".cs";
+                    }
+                }
+                else
+                    fd.FileName = selectedItem.Database.Name + ".cs";
+                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    try
+                    {
+                        Forms.BuildeCode code = new Forms.BuildeCode(selectedItem.Database.id.Value, fd.FileName, "DownLoadSimpleCodeHandler.aspx");
+                        code.Owner = this;
+                        code.ShowDialog();
+                    }
+                    catch (Exception ex)
                     {
                         Helper.ShowError(ex);
                     }

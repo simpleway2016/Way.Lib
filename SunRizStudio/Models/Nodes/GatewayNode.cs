@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SunRizServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace SunRizStudio.Models
 {
     class GatewayNode : SolutionNode
     {
-        public Dialogs.GatewayDialog.Gateway Gateway
+        public SunRizServer.CommunicationDriver Gateway
         {
             get;
             private set;
@@ -18,8 +19,10 @@ namespace SunRizStudio.Models
         public void UpdateText()
         {
             this.Text = $"{Gateway.Name}";
+            this.ToolTip = $"{Gateway.Address}:{Gateway.Port}";
+
         }
-        public GatewayNode(Dialogs.GatewayDialog.Gateway data)
+        public GatewayNode(CommunicationDriver data)
         {
             Gateway = data;
             this.Icon = "/Images/solution/gateway.png";
@@ -29,7 +32,7 @@ namespace SunRizStudio.Models
 
         protected override void OnDoublicClick(object window, MouseButtonEventArgs e)
         {
-            var data = this.Gateway.Clone<Dialogs.GatewayDialog.Gateway>();
+            var data = this.Gateway.Clone<CommunicationDriver>();
             Dialogs.GatewayDialog dialog = new Dialogs.GatewayDialog(data);
             dialog.Owner = (Window)window;
             dialog.Title = this.Text;

@@ -142,6 +142,48 @@ namespace SunRizDriver
             client.Dispose();
             return System.Text.Encoding.UTF8.GetString(bs);
         }
+
+
+        public string[] GetDeviceProperties()
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "GetDeviceProperties"
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            int len = client.ReadInt();
+            bs = client.ReceiveDatas(len);
+            client.Dispose();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(System.Text.Encoding.UTF8.GetString(bs));
+        }
+        /// <summary>
+        /// 获取设备路径
+        /// </summary>
+        /// <param name="proObj">属性值</param>
+        /// <returns></returns>
+        public string GetDeviceAddress(Dictionary<string, string> proValues)
+        {
+            var client = new Way.Lib.NetStream(this.Address, this.Port);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new Command()
+            {
+                Type = "GetDeviceAddress",
+                Values = new object[] { proValues }
+            });
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(json);
+            client.Write(bs.Length);
+            client.Write(bs);
+
+            int len = client.ReadInt();
+            bs = client.ReceiveDatas(len);
+            client.Dispose();
+            return System.Text.Encoding.UTF8.GetString(bs);
+        }
+
+
         public bool CheckDeviceExist(string deviceAddress)
         {
             var client = new Way.Lib.NetStream(this.Address, this.Port);

@@ -1,0 +1,19 @@
+﻿<Window x:Class="SunRizStudio.Dialogs.InputBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SunRizStudio.Dialogs"
+        mc:Ignorable="d" WindowStartupLocation="CenterOwner"
+        Title="InputBox" SizeToContent="WidthAndHeight">
+    <StackPanel Height="110" Width="400"  Orientation="Vertical" >
+        <TextBlock Margin="10,10,0,0" x:Name="_txtCaption" Text="{Binding Caption}"></TextBlock>
+        <TextBox x:Name="txtContent" Height="25" Text="{Binding Value,Mode=TwoWay}" Margin="10"></TextBox>
+        <PasswordBox x:Name="txtPwd" Height="25" Margin="10"></PasswordBox>
+        <Grid>
+            <Button x:Name="_btnCancel" Content="取  消" HorizontalAlignment="Right" Width="80" Height="23" Margin="0,0,10,0"></Button>
+            <Button x:Name="_btnOK" Content="确  定" HorizontalAlignment="Right" Width="80" Height="23" Margin="0,0,98,0"></Button>
+        </Grid>
+    </StackPanel>
+
+</Window>

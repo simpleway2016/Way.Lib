@@ -40,7 +40,21 @@ namespace SunRizStudio.Models
                 }
             }
         }
-        
+
+        string _ToolTip;
+        public virtual string ToolTip
+        {
+            get => _ToolTip;
+            set
+            {
+                if (value != _ToolTip)
+                {
+                    _ToolTip = value;
+                    this.OnPropertyChanged("ToolTip");
+                }
+            }
+        }
+
         bool _IsExpanded;
         public bool IsExpanded
         {
@@ -50,9 +64,15 @@ namespace SunRizStudio.Models
                 if (value != _IsExpanded)
                 {
                     _IsExpanded = value;
+                    OnExpandedChanged();
                     this.OnPropertyChanged("IsExpanded");
                 }
             }
+        }
+
+        protected virtual void OnExpandedChanged()
+        {
+
         }
 
         bool _IsSelected;
@@ -117,6 +137,14 @@ namespace SunRizStudio.Models
             this.DoublicClickHandler = (s, e) => {
                 OnDoublicClick(s,e);
             };
+        }
+
+        /// <summary>
+        /// 初始化子节点
+        /// </summary>
+        public virtual void InitChildren()
+        {
+
         }
 
         protected virtual void OnDoublicClick(object window, MouseButtonEventArgs e)

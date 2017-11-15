@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SunRizStudio"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="625" Width="1280">
     <DockPanel Background="#d6dbe9">
         <Menu Height="25" Margin="0,5,0,0" Background="#d6dbe9" DockPanel.Dock="Top">
             <MenuItem Header="设置(_F)"></MenuItem>
@@ -26,7 +26,7 @@
                     </TreeView.ItemContainerStyle>
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate  ItemsSource="{Binding Path=Nodes}">
-                            <StackPanel x:Name="main_panel" Orientation="Horizontal" Height="22">
+                            <StackPanel x:Name="main_panel" ToolTip="{Binding ToolTip}" Orientation="Horizontal" Height="22">
                                 <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
                                 <TextBlock x:Name="main_text" VerticalAlignment="Center" Text="{Binding Text}"></TextBlock>
                                 <StackPanel.ContextMenu>

@@ -40,6 +40,7 @@ namespace SunRizServer
 
                 //注册数据库触发器
                 SysDB.RegisterActionCapture(new DBTriggers.ImageFilesTrigger());
+                SysDB.RegisterActionCapture(new DBTriggers.DevicePointFolderTrigger());
 
                 using (var db = new SysDB())
                 {

@@ -492,7 +492,188 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
             }
             return "";
         }
-                 
-       
+
+        /// <summary>
+        /// 生成一般的model类
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="nameSpace"></param>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        public string[] BuildSimpleTable(EJDB db, string nameSpace, EJ.DBTable table)
+        {
+            var columns = db.DBColumn.Where(m => m.TableID == table.id).ToList();
+            string[] codes = new string[1];
+            codes[0] = BuildSimpleTable(db, nameSpace, table, columns);
+            return codes;
+        }
+
+        static string BuildSimpleTable(EJDB db, string nameSpace, EJ.DBTable table, List<EJ.DBColumn> columns)
+        {
+            var pkcolumn = columns.FirstOrDefault(m => m.IsPKID == true);
+            StringBuilder result = new StringBuilder();
+            StringBuilder enumDefines = new StringBuilder();
+
+
+            result.Append(@"
+
+    /// <summary>
+	/// " + table.caption + @"
+	/// </summary>
+    public class " + table.Name + @" :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  " + table.Name + @"()
+        {
+        }
+
+");
+
+            foreach (var column in columns)
+            {
+                string caption = column.caption == null ? "" : column.caption;
+                if (caption.Contains(","))
+                {
+                    caption = caption.Substring(0, caption.IndexOf(","));
+                }
+                else if (caption.Contains("，"))
+                {
+                    caption = caption.Substring(0, caption.IndexOf("，"));
+                }
+
+                string dataType = GetLinqTypeString(column.dbType);
+                string att = ",DbType=\"" + column.dbType;
+                if (string.IsNullOrEmpty(column.length))
+                {
+                    if (column.dbType.Contains("char"))
+                    {
+                        att += "(50)";
+                    }
+                }
+                else
+                {
+                    if (column.dbType.Contains("char"))
+                    {
+                        att += "(" + column.length + ")";
+                    }
+                }
+                att += "\"";
+                if (column.IsPKID == true)
+                {
+                    //,AutoSync= AutoSync.OnInsert ,IsPrimaryKey=true,IsDbGenerated=true
+                    att += " ,IsPrimaryKey=true";
+                }
+                if (column.IsAutoIncrement == true)
+                {
+                    att += ",IsDbGenerated=true";
+                }
+                if (column.CanNull == false)
+                {
+                    att += ",CanBeNull=false";
+                }
+
+                string eqString = "";
+                if (!string.IsNullOrEmpty(column.EnumDefine) && column.dbType == "int")
+                {
+
+                    string[] enumitems = column.EnumDefine.Split(',');
+
+                    enumDefines.Append(@"
+/// <summary>
+/// 
+/// </summary>
+public enum " + table.Name + "_" + column.Name + @"Enum:int
+{
+    
+");
+                    foreach (string enumitem in enumitems)
+                    {
+                        if (enumitem.Trim().Length == 0)
+                            continue;
+                        enumDefines.Append(@"
+/// <summary>
+/// 
+/// </summary>
+");
+                        enumDefines.Append(enumitem);
+                        enumDefines.Append(",\r\n");
+
+                    }
+                    enumDefines.Append("}\r\n");
+
+                    dataType = "System.Nullable<" + table.Name + "_" + column.Name + "Enum>";
+                }
+
+
+                if (!string.IsNullOrEmpty(column.defaultValue))
+                {
+                    if (column.defaultValue.Trim().Length > 0)
+                    {
+                        eqString = column.defaultValue.Trim();
+                        if (dataType == "String")
+                        {
+                            if (eqString.StartsWith("'") && eqString.EndsWith("'") && eqString.Length > 1)
+                                eqString = eqString.Substring(1, eqString.Length - 2);
+                            eqString = "\"" + eqString + "\"";
+                        }
+                        else if (dataType == "System.Nullable<Decimal>")
+                        {
+                            eqString = eqString + "m";
+                        }
+                        else if (dataType == "System.Nullable<float>")
+                        {
+                            eqString = eqString + "f";
+                        }
+                        else if (dataType == "System.Nullable<Boolean>")
+                        {
+                            if (eqString == "1")
+                                eqString = "true";
+                            else if (eqString == "0")
+                                eqString = "false";
+                        }
+                        else if (!string.IsNullOrEmpty(column.EnumDefine) && column.dbType == "int")
+                        {
+                            eqString = "(" + dataType + ")(" + eqString + ")";
+                        }
+                        eqString = "=" + eqString;
+                    }
+                }
+
+               
+                result.Append(@"
+        " + dataType + @" _" + column.Name + eqString + @";
+        /// <summary>
+        /// " + column.caption + @"
+        /// </summary>
+        public virtual " + dataType + @" " + column.Name + @"
+        {
+            get
+            {
+                return this._" + column.Name + @";
+            }
+            set
+            {
+                if ((this._" + column.Name + @" != value))
+                {
+                    var original = this._" + column.Name + @";
+                    this._" + column.Name + @" = value;
+                    this.OnPropertyChanged(""" + column.Name.Trim() + @""",original,value);
+
+                }
+            }
+        }
+");
+            }
+
+            result.Append("}}\r\n");
+
+            result.Insert(0, @"namespace " + nameSpace + @"{
+" + enumDefines);
+
+            return result.ToString();
+        }
     }
 }

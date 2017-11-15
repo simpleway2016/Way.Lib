@@ -25,8 +25,10 @@ namespace EJClient.Forms
         int m_databaseID;
         EJ.Databases m_database;
         string m_outputFileName;
-        public BuildeCode(int databaseid,string filename)
+        string m_pagename;
+        public BuildeCode(int databaseid,string filename,string pagename)
         {
+            m_pagename = pagename;
             m_outputFileName = filename;
 
             m_databaseID = databaseid;
@@ -47,7 +49,7 @@ namespace EJClient.Forms
                        
                        
 
-                        BuildDatabase.Downloader.downloadFile(this.m_databaseID, m_outputFileName, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
+                        BuildDatabase.Downloader.downloadFile(m_pagename, this.m_databaseID, m_outputFileName, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
                         this.Dispatcher.Invoke(new Action(() =>
                         {
                             lblStatus.Content = "Building...";

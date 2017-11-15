@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SunRizStudio.Models.Nodes;
+using SunRizStudio.Models;
 
 namespace SunRizStudio
 {
@@ -21,69 +23,40 @@ namespace SunRizStudio
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow Instance;
         Models.SolutionNodeCollection Nodes = new Models.SolutionNodeCollection(null);
-        Models.SolutionNodeCollection GatewayNodes;
         public MainWindow()
         {
+            Instance = this;
             InitializeComponent();
+
+            // 加载树形节点
             initNodes();
-            new Form1().Show();
+            //new Form1().Show();
         }
 
         void initNodes()
         {
-            var deviceNode = new Models.SolutionNode()
-            {
-                Text = "设备(loading...)",
-                Icon = "/Images/solution/device.png",
+            
+            var systemNode = new SystemNode() {
+                Text = "系统",
+                IsExpanded = true
             };
-            GatewayNodes = deviceNode.Nodes;           
+            Nodes.Add(systemNode);
 
-            deviceNode.ContextMenuItems.Add(new Models.ContextMenuItem() {
-                Text = "添加通讯网关...",
-                Icon = "/Images/solution/gateway.png",
-                ClickHandler = (s, e) => AddGateway(),
-            });
-            Nodes.Add(deviceNode);
-
-
-            Nodes.Add(new Models.SolutionNode()
-            {
-                Text = "组态界面",
-                Icon = "/Images/solution/graphic.png",
-            });
+            // 绑定树形节点
             tree.ItemsSource = Nodes;
-
-
-            Helper.Remote.Invoke<Dialogs.GatewayDialog.Gateway[]>("GetGatewayList", (datas, err) => {
-                deviceNode.Text = "设备";
-                if (err != null)
-                    MessageBox.Show(this, err);
-                else
-                {
-                    foreach (var gateway in datas)
-                    {
-                        GatewayNodes.Add(new Models.GatewayNode(gateway));
-                    }
-                }
-            });
         }
 
-        private void AddGateway()
-        {
-            Dialogs.GatewayDialog dialog = new Dialogs.GatewayDialog();
-            dialog.Owner = this;
-            dialog.Title = "添加通讯网关";
-            if(dialog.ShowDialog() == true)
-            {
-                var data = dialog.Data;
-                GatewayNodes.Add(new Models.GatewayNode(data));
-                GatewayNodes.Last().Parent.IsExpanded = true;
-            }
-        }
-
+       
+        /// <summary>
+        /// 触发树形节点的右键菜单，被点击后的相应事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void NodeContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            e.Handled = true;
             MenuItem menuitem = sender as MenuItem;
             Models.ContextMenuItem data = menuitem.DataContext as Models.ContextMenuItem;
             if (data.ClickHandler != null)
@@ -92,13 +65,21 @@ namespace SunRizStudio
             }
         }
 
+        /// <summary>
+        /// 树形节点双击事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TreeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            e.Handled = true;
             TreeViewItem treeviewitem = sender as TreeViewItem;
+            if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
+                return;
             Models.SolutionNode data = treeviewitem.DataContext as Models.SolutionNode;
             if (data.DoublicClickHandler != null)
             {
-                data.DoublicClickHandler(this, e);
+                data.DoublicClickHandler(sender, e);
             }
         }
     }

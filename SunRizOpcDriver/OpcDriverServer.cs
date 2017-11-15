@@ -32,7 +32,7 @@ namespace SunRizOpcDriver
             string[] result = new string[opcservers.Length];
             for(int i = 0; i < opcservers.Length; i ++)
             {
-                result[i] = $"{opcip}|{opcservers[i].ProgID}";
+                result[i] = opcservers[i].ProgID;
             }
 
             return result;
@@ -160,7 +160,15 @@ namespace SunRizOpcDriver
             Newtonsoft.Json.Linq.JToken proObj = (Newtonsoft.Json.Linq.JToken)command.Values[0];
             return proObj.Value<string>("OPC路径");
         }
-    
+        public override string[] GetDeviceProperties(Command command)
+        {
+            return new string[] { "IP地址", "OPC名称{isEnumDevice:true,addressProperty:\"IP地址\"}" };
+        }
+        public override string GetDeviceAddress(Command command)
+        {
+            Newtonsoft.Json.Linq.JToken proObj = (Newtonsoft.Json.Linq.JToken)command.Values[0];
+            return $"{ proObj.Value<string>("IP地址")}|{ proObj.Value<string>("OPC名称")}";
+        }
         public override bool[] WriteValue(Command command)
         {
             int index = command.DeviceAddress.IndexOf("|");

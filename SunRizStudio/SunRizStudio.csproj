@@ -68,7 +68,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialogs\DeviceDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\GatewayDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\InputBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -80,9 +88,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Dialogs\DeviceDialog.xaml.cs">
+      <DependentUpon>DeviceDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\GatewayDialog.xaml.cs">
       <DependentUpon>GatewayDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\InputBox.xaml.cs">
+      <DependentUpon>InputBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ExtendMethods.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,10 +111,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\DataItem.cs" />
-    <Compile Include="Models\GatewayNode.cs" />
-    <Compile Include="Models\SolutionNode.cs" />
-    <Compile Include="Models\SolutionNodeCollection.cs" />
+    <Compile Include="Models\Nodes\DigitalNode.cs" />
+    <Compile Include="Models\Nodes\AnalogNode.cs" />
+    <Compile Include="Models\Nodes\AuthorizeNode.cs" />
+    <Compile Include="Models\Nodes\ControlUnitNode.cs" />
+    <Compile Include="Models\Nodes\ControlUnitParentNode.cs" />
+    <Compile Include="Models\Nodes\DeviceNode.cs" />
+    <Compile Include="Models\Nodes\DriversNode.cs" />
+    <Compile Include="Models\Nodes\GatewayNode.cs" />
+    <Compile Include="Models\Nodes\LoadingNode.cs" />
+    <Compile Include="Models\Nodes\SolutionNode.cs" />
+    <Compile Include="Models\Nodes\SolutionNodeCollection.cs" />
+    <Compile Include="Models\Nodes\SystemNode.cs" />
+    <Compile Include="Models\Nodes\UserMgrNode.cs" />
+    <Compile Include="Models\SunRiz.cs" />
     <Compile Include="MyExtensions.cs" />
     <Compile Include="Net\RemotingClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -152,6 +177,8 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\solution\delete.png" />
+    <Resource Include="Images\solution\folder.png" />
     <Resource Include="Images\solution\gateway.png" />
     <Resource Include="Images\solution\graphic.png" />
     <Resource Include="Images\solution\device.png" />

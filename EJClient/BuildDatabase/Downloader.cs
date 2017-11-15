@@ -10,7 +10,7 @@ namespace EJClient.BuildDatabase
     class Downloader
     {
         public delegate void DownloadingFileHandler(string fileName,byte[] fileData , int fileCount, int readedFileCount);
-        public static bool downloadFile( int databaseid,string filepath , DownloadingFileHandler callback)
+        public static bool downloadFile(string pagename, int databaseid,string filepath , DownloadingFileHandler callback)
         {
             HttpWebRequest req = null;
             HttpWebResponse res = null;
@@ -19,7 +19,7 @@ namespace EJClient.BuildDatabase
             System.GC.Collect();
             try
             {
-                req = HttpWebRequest.Create(Helper.WebSite + "/DownloadDatabaseCode.aspx?databaseid=" + databaseid + "&filepath=" + System.Web.HttpUtility.UrlEncode(filepath , System.Text.Encoding.UTF8)) as System.Net.HttpWebRequest;
+                req = HttpWebRequest.Create(Helper.WebSite + "/"+ pagename + "?databaseid=" + databaseid + "&filepath=" + System.Web.HttpUtility.UrlEncode(filepath , System.Text.Encoding.UTF8)) as System.Net.HttpWebRequest;
                 req.Headers["Cookie"] = $"WayScriptRemoting={Net.RemotingClient.SessionID}";
                 req.AllowAutoRedirect = true;
                 req.KeepAlive = false;
@@ -31,7 +31,11 @@ namespace EJClient.BuildDatabase
 
                 using (var fs = System.IO.File.Create(filepath))
                 {
-                    var header = System.Text.Encoding.UTF8.GetBytes(@"
+
+                    byte[] header;
+                    if (pagename == "DownloadDatabaseCode.aspx")
+                    {
+                        header = System.Text.Encoding.UTF8.GetBytes(@"
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -41,6 +45,17 @@ using System.Linq;
 using System.Text;
 
 ");
+                    }
+                    else
+                    {
+                        header = System.Text.Encoding.UTF8.GetBytes(@"
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+");
+                    }
                     fs.Write(header, 0, header.Length);
 
                     System.IO.BinaryReader br = new System.IO.BinaryReader(stream);

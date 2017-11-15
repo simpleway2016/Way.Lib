@@ -203,6 +203,17 @@ namespace SunRizModbusTcpDriver
             Newtonsoft.Json.Linq.JToken proObj =(Newtonsoft.Json.Linq.JToken) command.Values[0];
             return $"{ proObj.Value<string>("Modbus功能码")}/{ proObj.Value<string>("Modbus点地址")}";
         }
+
+        public override string[] GetDeviceProperties(Command command)
+        {
+            return new string[] { "IP地址", "端口{defaultValue:502}" };
+        }
+        public override string GetDeviceAddress(Command command)
+        {
+            Newtonsoft.Json.Linq.JToken proObj = (Newtonsoft.Json.Linq.JToken)command.Values[0];
+            return $"{ proObj.Value<string>("IP地址")}/{ proObj.Value<string>("端口")}";
+        }
+
         public override bool CheckDeviceExist(Command command)
         {
 

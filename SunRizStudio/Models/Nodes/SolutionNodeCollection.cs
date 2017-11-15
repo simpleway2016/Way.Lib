@@ -18,7 +18,13 @@ namespace SunRizStudio.Models
         {
             item.Parent = _owner;
             base.InsertItem(index, item);
+            item.InitChildren();
         }
-
+        protected override void RemoveItem(int index)
+        {
+            var item = this[index];
+            item.Parent = null;
+            base.RemoveItem(index);
+        }
     }
 }

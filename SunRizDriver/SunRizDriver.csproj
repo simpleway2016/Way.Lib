@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandlers\AddPointToWatchHandler.cs" />
+    <Compile Include="CommandHandlers\GetDeviceAddressHandler.cs" />
     <Compile Include="CommandHandlers\GetPointAddressHandler.cs" />
+    <Compile Include="CommandHandlers\GetDevicePropertiesHandler.cs" />
     <Compile Include="CommandHandlers\GetPointPropertiesHandler.cs" />
     <Compile Include="CommandHandlers\CheckDeviceExistHandler.cs" />
     <Compile Include="CommandHandlers\CommandHandler.cs" />
