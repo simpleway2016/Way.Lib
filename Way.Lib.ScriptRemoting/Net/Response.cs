@@ -40,6 +40,8 @@ namespace Way.Lib.ScriptRemoting.Net
             }
         }
 
+        public int StatusCode = 200;
+
         public override bool CanSeek
         {
             get
@@ -245,7 +247,7 @@ namespace Way.Lib.ScriptRemoting.Net
                     }
                 }
                 buffer.Append("\r\n");
-                mClient.Write(getBytes("HTTP/1.1 200 OK\r\n"));
+                mClient.Write(getBytes($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\n"));
                 mClient.Write(getBytes(buffer.ToString()));
             }
             if(_buffer != null && _buffer.Length > 0)
@@ -331,7 +333,7 @@ namespace Way.Lib.ScriptRemoting.Net
             if(!_sendedHeader)
             {
                 _sendedHeader = true;
-                mClient.Write(getBytes($"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+                mClient.Write(getBytes($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             }
 
             if(Headers.ContainsKey("Connection") && string.Equals( Headers["Connection"] , "keep-alive" , StringComparison.CurrentCultureIgnoreCase))
@@ -419,7 +421,7 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 setHeaderIfNot("Accept-Ranges", "none");
             }
-            else if (range == 0)
+            else 
             {
                 setHeaderIfNot("Accept-Ranges", "bytes");
             }

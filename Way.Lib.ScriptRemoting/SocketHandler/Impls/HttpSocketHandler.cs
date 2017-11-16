@@ -359,7 +359,7 @@ namespace Way.Lib.ScriptRemoting
          void outputFile(string url , string filePath , string lastModifyTime)
         {
             byte[] bs;
-            var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read);
+            var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, FileShare.ReadWrite);
             if (filePath.EndsWith(".html" , StringComparison.CurrentCultureIgnoreCase))
             {
                 bs = new byte[20];
@@ -404,15 +404,49 @@ namespace Way.Lib.ScriptRemoting
             {
                 RemotingContext.Current.Response.Headers["Content-Type"] = "application/octet-stream";
             }
-            RemotingContext.Current.Response.MakeResponseHeaders(fs.Length, false, -1, 0, lastModifyTime, null, true);
+            int range = -1, rangeEnd = 0;
+            string RangeStr = RemotingContext.Current.Request.Headers["Range"];
+            if (RangeStr != null)
+            {
+                RemotingContext.Current.Response.StatusCode = 206;
+                var rangeInfo = RangeStr.Replace("bytes=", "").Split('-');
+                range = Convert.ToInt32(rangeInfo[0]);
+                if (rangeInfo[1].IsNullOrEmpty())
+                {
+                    rangeEnd = (int)fs.Length - 1;
+                }
+                else
+                {
+                    rangeEnd = Convert.ToInt32(rangeInfo[1]);
+                }
+            }
+
+            RemotingContext.Current.Response.MakeResponseHeaders(fs.Length, false, range, rangeEnd, lastModifyTime, null, true);
             
             bs = new byte[4096];
-            while (true)
+            if (range >= 0)
             {
-                int count = fs.Read(bs, 0, bs.Length);
-                if (count == 0)
-                    break;
-                RemotingContext.Current.Response.Write(bs ,0 , count  );
+                fs.Position = range;
+                int totalRead = rangeEnd - range + 1;
+                while (totalRead > 0)
+                {
+                    int toread = Math.Min(bs.Length, totalRead);
+                    int count = fs.Read(bs, 0, toread);
+                    if (count == 0)
+                        break;
+                    totalRead -= count;
+                    RemotingContext.Current.Response.Write(bs, 0, count);
+                }
+            }
+            else
+            {
+                while (true)
+                {
+                    int count = fs.Read(bs, 0, bs.Length);
+                    if (count == 0)
+                        break;
+                    RemotingContext.Current.Response.Write(bs, 0, count);
+                }
             }
             fs.Dispose();
                 
