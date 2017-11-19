@@ -187,6 +187,8 @@ namespace "+nameSpace+@".DB{
                 case "decimal":
                     return "System.Nullable<Decimal>";
                 case "float":
+                    return "System.Nullable<float>";
+                case "double":
                     return "System.Nullable<double>";
                 case "image":
                     return "Byte[]";

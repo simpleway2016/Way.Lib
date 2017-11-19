@@ -91,5 +91,24 @@ namespace SunRizServer.Controllers
             this.db.Delete(this.db.DevicePointFolder.Where(m=>m.id == folderid));
             return 0;
         }
+
+        [RemotingMethod]
+        public CommunicationDriver GetDriver(int driverid)
+        {
+            return this.db.CommunicationDriver.FirstOrDefault(m => m.id == driverid);
+        }
+
+        [RemotingMethod]
+        public int UpdatePoint(DevicePoint point)
+        {
+            if (point.id == null && this.db.DevicePointFolder.Any(m => m.DeviceId == point.DeviceId && m.Name == point.Name ))
+                throw new Exception("点名已存在");
+            else if (point.id == null && this.db.DevicePointFolder.Any(m => m.id != point.id && m.DeviceId == point.DeviceId && m.Name == point.Name))
+                throw new Exception("点名已存在");
+
+            this.db.Update(point);
+            return point.id.Value;
+        }
+        
     }
 }

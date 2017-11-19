@@ -80,6 +80,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Documents\AnalogPointDocument.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Documents\DigitalPointDocument.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,6 +105,13 @@
     <Compile Include="Dialogs\InputBox.xaml.cs">
       <DependentUpon>InputBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Documents\AnalogPointDocument.xaml.cs">
+      <DependentUpon>AnalogPointDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Documents\DigitalPointDocument.xaml.cs">
+      <DependentUpon>DigitalPointDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Documents\PointDocumentController.cs" />
     <Compile Include="ExtendMethods.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -104,6 +119,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="GridHelper.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -111,6 +127,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Nodes\DevicePointNode.cs" />
     <Compile Include="Models\Nodes\DigitalNode.cs" />
     <Compile Include="Models\Nodes\AnalogNode.cs" />
     <Compile Include="Models\Nodes\AuthorizeNode.cs" />
@@ -177,6 +194,7 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\solution\point.png" />
     <Resource Include="Images\solution\delete.png" />
     <Resource Include="Images\solution\folder.png" />
     <Resource Include="Images\solution\gateway.png" />

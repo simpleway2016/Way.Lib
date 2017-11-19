@@ -82,5 +82,17 @@ namespace SunRizStudio
                 data.DoublicClickHandler(sender, e);
             }
         }
+
+        public void SetActiveDocument(UserControl document)
+        {
+            while(documentContainer.Children.Count > 0)
+            {
+                documentContainer.Children.RemoveAt(0);
+            }
+            if (document != null)
+            {
+                documentContainer.Children.Add(document);
+            }
+        }
     }
 }

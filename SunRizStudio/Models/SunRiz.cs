@@ -644,11 +644,11 @@ Digital = 2,
             }
         }
 
-        double _InitValue;
+        System.Nullable<double> _InitValue;
         /// <summary>
         /// 初始值
         /// </summary>
-        public virtual double InitValue
+        public virtual System.Nullable<double> InitValue
         {
             get
             {
@@ -732,11 +732,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmValue;
+        System.Nullable<double> _AlarmValue;
         /// <summary>
         /// 报警值
         /// </summary>
-        public virtual double AlarmValue
+        public virtual System.Nullable<double> AlarmValue
         {
             get
             {
@@ -864,11 +864,11 @@ Digital = 2,
             }
         }
 
-        double _ValueAbsoluteChangeSetting;
+        System.Nullable<double> _ValueAbsoluteChangeSetting;
         /// <summary>
         /// 数据绝对变化值
         /// </summary>
-        public virtual double ValueAbsoluteChangeSetting
+        public virtual System.Nullable<double> ValueAbsoluteChangeSetting
         {
             get
             {
@@ -908,11 +908,11 @@ Digital = 2,
             }
         }
 
-        double _ValueRelativeChangeSetting;
+        System.Nullable<double> _ValueRelativeChangeSetting;
         /// <summary>
         /// 数据相对变化值
         /// </summary>
-        public virtual double ValueRelativeChangeSetting
+        public virtual System.Nullable<double> ValueRelativeChangeSetting
         {
             get
             {
@@ -952,11 +952,11 @@ Digital = 2,
             }
         }
 
-        double _ValueOnTimeChangeSetting;
+        System.Nullable<double> _ValueOnTimeChangeSetting;
         /// <summary>
         /// 数据定时值
         /// </summary>
-        public virtual double ValueOnTimeChangeSetting
+        public virtual System.Nullable<double> ValueOnTimeChangeSetting
         {
             get
             {
@@ -1062,11 +1062,11 @@ Digital = 2,
             }
         }
 
-        double _TransMax;
+        System.Nullable<double> _TransMax;
         /// <summary>
         /// 模拟量-量程上限
         /// </summary>
-        public virtual double TransMax
+        public virtual System.Nullable<double> TransMax
         {
             get
             {
@@ -1084,11 +1084,11 @@ Digital = 2,
             }
         }
 
-        double _TransMin;
+        System.Nullable<double> _TransMin;
         /// <summary>
         /// 模拟量-量程下限
         /// </summary>
-        public virtual double TransMin
+        public virtual System.Nullable<double> TransMin
         {
             get
             {
@@ -1106,11 +1106,11 @@ Digital = 2,
             }
         }
 
-        double _SensorMax;
+        System.Nullable<double> _SensorMax;
         /// <summary>
         /// 模拟量-传感器量程上限
         /// </summary>
-        public virtual double SensorMax
+        public virtual System.Nullable<double> SensorMax
         {
             get
             {
@@ -1194,11 +1194,11 @@ Digital = 2,
             }
         }
 
-        double _LinearX1;
+        System.Nullable<double> _LinearX1;
         /// <summary>
         /// 分段线性化X1
         /// </summary>
-        public virtual double LinearX1
+        public virtual System.Nullable<double> LinearX1
         {
             get
             {
@@ -1216,11 +1216,11 @@ Digital = 2,
             }
         }
 
-        double _LinearY1;
+        System.Nullable<double> _LinearY1;
         /// <summary>
         /// 分段线性化Y1
         /// </summary>
-        public virtual double LinearY1
+        public virtual System.Nullable<double> LinearY1
         {
             get
             {
@@ -1238,11 +1238,11 @@ Digital = 2,
             }
         }
 
-        double _LinearX2;
+        System.Nullable<double> _LinearX2;
         /// <summary>
         /// 分段线性化X2
         /// </summary>
-        public virtual double LinearX2
+        public virtual System.Nullable<double> LinearX2
         {
             get
             {
@@ -1260,11 +1260,11 @@ Digital = 2,
             }
         }
 
-        double _LinearY2;
+        System.Nullable<double> _LinearY2;
         /// <summary>
         /// 分段线性化Y2
         /// </summary>
-        public virtual double LinearY2
+        public virtual System.Nullable<double> LinearY2
         {
             get
             {
@@ -1282,11 +1282,11 @@ Digital = 2,
             }
         }
 
-        double _LinearX3;
+        System.Nullable<double> _LinearX3;
         /// <summary>
         /// 
         /// </summary>
-        public virtual double LinearX3
+        public virtual System.Nullable<double> LinearX3
         {
             get
             {
@@ -1304,11 +1304,11 @@ Digital = 2,
             }
         }
 
-        double _LinearY3;
+        System.Nullable<double> _LinearY3;
         /// <summary>
         /// 
         /// </summary>
-        public virtual double LinearY3
+        public virtual System.Nullable<double> LinearY3
         {
             get
             {
@@ -1326,11 +1326,11 @@ Digital = 2,
             }
         }
 
-        double _LinearX4;
+        System.Nullable<double> _LinearX4;
         /// <summary>
         /// 
         /// </summary>
-        public virtual double LinearX4
+        public virtual System.Nullable<double> LinearX4
         {
             get
             {
@@ -1348,11 +1348,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmValue2;
+        System.Nullable<double> _AlarmValue2;
         /// <summary>
         /// 报警值2
         /// </summary>
-        public virtual double AlarmValue2
+        public virtual System.Nullable<double> AlarmValue2
         {
             get
             {
@@ -1392,11 +1392,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmValue3;
+        System.Nullable<double> _AlarmValue3;
         /// <summary>
         /// 
         /// </summary>
-        public virtual double AlarmValue3
+        public virtual System.Nullable<double> AlarmValue3
         {
             get
             {
@@ -1436,11 +1436,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmValue4;
+        System.Nullable<double> _AlarmValue4;
         /// <summary>
         /// 
         /// </summary>
-        public virtual double AlarmValue4
+        public virtual System.Nullable<double> AlarmValue4
         {
             get
             {
@@ -1480,11 +1480,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmValue5;
+        System.Nullable<double> _AlarmValue5;
         /// <summary>
         /// 
         /// </summary>
-        public virtual double AlarmValue5
+        public virtual System.Nullable<double> AlarmValue5
         {
             get
             {
@@ -1546,11 +1546,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmOffsetOriginalValue;
+        System.Nullable<double> _AlarmOffsetOriginalValue;
         /// <summary>
         /// 偏差报警设定值
         /// </summary>
-        public virtual double AlarmOffsetOriginalValue
+        public virtual System.Nullable<double> AlarmOffsetOriginalValue
         {
             get
             {
@@ -1568,11 +1568,11 @@ Digital = 2,
             }
         }
 
-        double _AlarmOffsetValue;
+        System.Nullable<double> _AlarmOffsetValue;
         /// <summary>
         /// 偏差值
         /// </summary>
-        public virtual double AlarmOffsetValue
+        public virtual System.Nullable<double> AlarmOffsetValue
         {
             get
             {
@@ -1634,11 +1634,11 @@ Digital = 2,
             }
         }
 
-        double _Percent;
+        System.Nullable<double> _Percent;
         /// <summary>
         /// 变化率值（百分比）
         /// </summary>
-        public virtual double Percent
+        public virtual System.Nullable<double> Percent
         {
             get
             {
@@ -1739,6 +1739,358 @@ Digital = 2,
                     var original = this._DeviceId;
                     this._DeviceId = value;
                     this.OnPropertyChanged("DeviceId",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _LinearY4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> LinearY4
+        {
+            get
+            {
+                return this._LinearY4;
+            }
+            set
+            {
+                if ((this._LinearY4 != value))
+                {
+                    var original = this._LinearY4;
+                    this._LinearY4 = value;
+                    this.OnPropertyChanged("LinearY4",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _LinearX5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> LinearX5
+        {
+            get
+            {
+                return this._LinearX5;
+            }
+            set
+            {
+                if ((this._LinearX5 != value))
+                {
+                    var original = this._LinearX5;
+                    this._LinearX5 = value;
+                    this.OnPropertyChanged("LinearX5",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _LinearY5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> LinearY5
+        {
+            get
+            {
+                return this._LinearY5;
+            }
+            set
+            {
+                if ((this._LinearY5 != value))
+                {
+                    var original = this._LinearY5;
+                    this._LinearY5 = value;
+                    this.OnPropertyChanged("LinearY5",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _LinearX6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> LinearX6
+        {
+            get
+            {
+                return this._LinearX6;
+            }
+            set
+            {
+                if ((this._LinearX6 != value))
+                {
+                    var original = this._LinearX6;
+                    this._LinearX6 = value;
+                    this.OnPropertyChanged("LinearX6",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _LinearY6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> LinearY6
+        {
+            get
+            {
+                return this._LinearY6;
+            }
+            set
+            {
+                if ((this._LinearY6 != value))
+                {
+                    var original = this._LinearY6;
+                    this._LinearY6 = value;
+                    this.OnPropertyChanged("LinearY6",original,value);
+
+                }
+            }
+        }
+
+        String _SafeArea;
+        /// <summary>
+        /// 安全区
+        /// </summary>
+        public virtual String SafeArea
+        {
+            get
+            {
+                return this._SafeArea;
+            }
+            set
+            {
+                if ((this._SafeArea != value))
+                {
+                    var original = this._SafeArea;
+                    this._SafeArea = value;
+                    this.OnPropertyChanged("SafeArea",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _HiAlarmValue;
+        /// <summary>
+        /// 高报警值
+        /// </summary>
+        public virtual System.Nullable<double> HiAlarmValue
+        {
+            get
+            {
+                return this._HiAlarmValue;
+            }
+            set
+            {
+                if ((this._HiAlarmValue != value))
+                {
+                    var original = this._HiAlarmValue;
+                    this._HiAlarmValue = value;
+                    this.OnPropertyChanged("HiAlarmValue",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _HiAlarmPriority;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> HiAlarmPriority
+        {
+            get
+            {
+                return this._HiAlarmPriority;
+            }
+            set
+            {
+                if ((this._HiAlarmPriority != value))
+                {
+                    var original = this._HiAlarmPriority;
+                    this._HiAlarmPriority = value;
+                    this.OnPropertyChanged("HiAlarmPriority",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _HiAlarmValue2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> HiAlarmValue2
+        {
+            get
+            {
+                return this._HiAlarmValue2;
+            }
+            set
+            {
+                if ((this._HiAlarmValue2 != value))
+                {
+                    var original = this._HiAlarmValue2;
+                    this._HiAlarmValue2 = value;
+                    this.OnPropertyChanged("HiAlarmValue2",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _HiAlarmPriority2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> HiAlarmPriority2
+        {
+            get
+            {
+                return this._HiAlarmPriority2;
+            }
+            set
+            {
+                if ((this._HiAlarmPriority2 != value))
+                {
+                    var original = this._HiAlarmPriority2;
+                    this._HiAlarmPriority2 = value;
+                    this.OnPropertyChanged("HiAlarmPriority2",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _HiAlarmValue3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> HiAlarmValue3
+        {
+            get
+            {
+                return this._HiAlarmValue3;
+            }
+            set
+            {
+                if ((this._HiAlarmValue3 != value))
+                {
+                    var original = this._HiAlarmValue3;
+                    this._HiAlarmValue3 = value;
+                    this.OnPropertyChanged("HiAlarmValue3",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _HiAlarmPriority3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> HiAlarmPriority3
+        {
+            get
+            {
+                return this._HiAlarmPriority3;
+            }
+            set
+            {
+                if ((this._HiAlarmPriority3 != value))
+                {
+                    var original = this._HiAlarmPriority3;
+                    this._HiAlarmPriority3 = value;
+                    this.OnPropertyChanged("HiAlarmPriority3",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _HiAlarmValue4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> HiAlarmValue4
+        {
+            get
+            {
+                return this._HiAlarmValue4;
+            }
+            set
+            {
+                if ((this._HiAlarmValue4 != value))
+                {
+                    var original = this._HiAlarmValue4;
+                    this._HiAlarmValue4 = value;
+                    this.OnPropertyChanged("HiAlarmValue4",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _HiAlarmPriority4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> HiAlarmPriority4
+        {
+            get
+            {
+                return this._HiAlarmPriority4;
+            }
+            set
+            {
+                if ((this._HiAlarmPriority4 != value))
+                {
+                    var original = this._HiAlarmPriority4;
+                    this._HiAlarmPriority4 = value;
+                    this.OnPropertyChanged("HiAlarmPriority4",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _HiAlarmValue5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> HiAlarmValue5
+        {
+            get
+            {
+                return this._HiAlarmValue5;
+            }
+            set
+            {
+                if ((this._HiAlarmValue5 != value))
+                {
+                    var original = this._HiAlarmValue5;
+                    this._HiAlarmValue5 = value;
+                    this.OnPropertyChanged("HiAlarmValue5",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _HiAlarmPriority5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> HiAlarmPriority5
+        {
+            get
+            {
+                return this._HiAlarmPriority5;
+            }
+            set
+            {
+                if ((this._HiAlarmPriority5 != value))
+                {
+                    var original = this._HiAlarmPriority5;
+                    this._HiAlarmPriority5 = value;
+                    this.OnPropertyChanged("HiAlarmPriority5",original,value);
 
                 }
             }

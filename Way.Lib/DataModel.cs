@@ -159,6 +159,23 @@ namespace Way.Lib
             }
         }
 
+        /// <summary>
+        /// 从source拷贝属性值
+        /// </summary>
+        /// <param name="source"></param>
+        public void CopyValue(DataModel source)
+        {
+            var properties = source.GetType().GetProperties();
+            foreach( var p in properties )
+            {
+                if(p.CanWrite)
+                {
+                   var value =  p.GetValue(source);
+                    p.SetValue(this, value);
+                }
+            }
+        }
+
         public T Clone<T>()
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>( Newtonsoft.Json.JsonConvert.SerializeObject(this));

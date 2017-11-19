@@ -23,13 +23,37 @@ namespace SunRizStudio.Models.Nodes
         {
             Icon = "/Images/solution/folder.png";
 
-            this.ContextMenuItems.Add(new ContextMenuItem() {
+            this.ContextMenuItems.Add(new ContextMenuItem()
+            {
                 Icon = "/Images/solution/folder.png",
                 Text = "添加文件夹...",
                 ClickHandler = addFolderClick,
             });
+            this.ContextMenuItems.Add(new ContextMenuItem()
+            {
+                Icon = "/Images/solution/point.png",
+                Text = "添加设备点...",
+                ClickHandler = addPointClick,
+
+            });
 
             this.DoublicClickHandler = doubleClick;
+        }
+
+        void addPointClick(object sender, RoutedEventArgs e)
+        {
+            //获取device对象
+            Device device = this.GetDevice();
+            if (this.FolderType == DevicePointFolder_TypeEnum.Analog)
+            {
+                var doc = new Documents.AnalogPointDocument(device,this,null, FolderModel.id.Value);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
+            else if (this.FolderType == DevicePointFolder_TypeEnum.Digital)
+            {              
+                var doc = new Documents.DigitalPointDocument(device, this, null, FolderModel.id.Value);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
         }
 
         /// <summary>
@@ -39,7 +63,7 @@ namespace SunRizStudio.Models.Nodes
         /// <param name="e"></param>
         void doubleClick(object sender, RoutedEventArgs e)
         {
-            if(this.FolderModel.id != 0)
+            if (this.FolderModel.id != 0)
             {
                 var inputbox = new Dialogs.InputBox("请输入新文件夹名称", "修改文件夹");
                 inputbox.Owner = MainWindow.Instance;
@@ -66,11 +90,11 @@ namespace SunRizStudio.Models.Nodes
                 }
             }
         }
-        void addFolderClick(object sender , RoutedEventArgs e)
+        void addFolderClick(object sender, RoutedEventArgs e)
         {
             var inputbox = new Dialogs.InputBox("请输入文件夹名称", "添加文件夹");
             inputbox.Owner = MainWindow.Instance;
-            if(inputbox.ShowDialog() == true && !inputbox.Value.IsBlank())
+            if (inputbox.ShowDialog() == true && !inputbox.Value.IsBlank())
             {
                 SunRizServer.DevicePointFolder folder = new DevicePointFolder();
                 folder.ParentId = this.FolderModel.id;
@@ -79,7 +103,8 @@ namespace SunRizStudio.Models.Nodes
                 folder.DeviceId = GetDevice().id;
 
                 MainWindow.Instance.Cursor = Cursors.Hand;
-                Helper.Remote.Invoke<int>("UpdateDevicePointFolder", (ret, err) => {
+                Helper.Remote.Invoke<int>("UpdateDevicePointFolder", (ret, err) =>
+                {
                     MainWindow.Instance.Cursor = null;
                     if (err != null)
                     {
@@ -92,7 +117,7 @@ namespace SunRizStudio.Models.Nodes
 
                         //添加node对象
                         AnalogNode newNode = null;
-                        if(this.FolderType == DevicePointFolder_TypeEnum.Analog)
+                        if (this.FolderType == DevicePointFolder_TypeEnum.Analog)
                         {
                             newNode = new AnalogNode();
                         }
@@ -102,7 +127,7 @@ namespace SunRizStudio.Models.Nodes
                         }
                         newNode.FolderModel = folder;
                         newNode.Text = folder.Name;
-                        this.Nodes.Insert(0 , newNode);
+                        this.Nodes.Insert(0, newNode);
                         this.IsExpanded = true;
                     }
                 }, folder);
@@ -110,20 +135,22 @@ namespace SunRizStudio.Models.Nodes
         }
 
         public override void InitChildren()
-        {           
+        {
             this.Nodes.Add(new LoadingNode());
 
-            if(this.FolderModel.id != 0)
+            if (this.FolderModel.id != 0)
             {
                 this.ContextMenuItems.Add(new ContextMenuItem()
                 {
                     Icon = "/Images/solution/delete.png",
                     Text = "删除",
-                    ClickHandler = (s,e)=> {
-                        if( MessageBox.Show("确定删除此文件夹，以及它的所有设备点吗？" , "系统提示" , MessageBoxButton.OKCancel) == MessageBoxResult.OK )
+                    ClickHandler = (s, e) =>
+                    {
+                        if (MessageBox.Show("确定删除此文件夹，以及它的所有设备点吗？", "系统提示", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                         {
                             MainWindow.Instance.Cursor = Cursors.Hand;
-                            Helper.Remote.Invoke<int>("DeleteDevicePointFolder", (ret, err) => {
+                            Helper.Remote.Invoke<int>("DeleteDevicePointFolder", (ret, err) =>
+                            {
                                 MainWindow.Instance.Cursor = null;
                                 if (err != null)
                                 {
@@ -156,14 +183,15 @@ namespace SunRizStudio.Models.Nodes
         protected override void OnExpandedChanged()
         {
             base.OnExpandedChanged();
-           
-            if(this.IsExpanded && this.Nodes.Any(m=>m is LoadingNode))
+
+            if (this.IsExpanded && this.Nodes.Any(m => m is LoadingNode))
             {
                 //获取Device对象
                 SunRizServer.Device device = this.GetDevice();
 
-                Helper.Remote.Invoke<DevicePointFolder[]>("GetDevicePointFolders", (ret, err) => {
-                    if(err != null)
+                Helper.Remote.Invoke<DevicePointFolder[]>("GetDevicePointFolders", (ret, err) =>
+                {
+                    if (err != null)
                     {
                         MessageBox.Show(MainWindow.Instance, err);
                     }
@@ -171,10 +199,10 @@ namespace SunRizStudio.Models.Nodes
                     {
                         this.Nodes.Clear();
                         //加载子节点
-                        foreach ( var folder in ret )
+                        foreach (var folder in ret)
                         {
                             AnalogNode newNode = null;
-                            if(FolderType == DevicePointFolder_TypeEnum.Analog)
+                            if (FolderType == DevicePointFolder_TypeEnum.Analog)
                             {
                                 newNode = new AnalogNode();
                             }
@@ -190,28 +218,28 @@ namespace SunRizStudio.Models.Nodes
                         //加载点
                         loadPoints(device);
                     }
-                },device.id , FolderType ,this.FolderModel.id );
+                }, device.id, FolderType, this.FolderModel.id);
 
-               
+
             }
         }
 
         void loadPoints(SunRizServer.Device device)
         {
             //异步加载设备点
-            Helper.Remote.Invoke<DevicePoint[]>("GetDevicePoints", (ret, err) => {
+            Helper.Remote.Invoke<DevicePoint[]>("GetDevicePoints", (ret, err) =>
+            {
                 if (err != null)
                 {
                     MessageBox.Show(MainWindow.Instance, err);
                 }
                 else
                 {
-                    
+
                     //加载子节点
                     foreach (var point in ret)
                     {
-                        var newNode = new SolutionNode();
-                        newNode.Text = point.Name;
+                        var newNode = new DevicePointNode(point);
                         this.Nodes.Add(newNode);
                     }
                 }
