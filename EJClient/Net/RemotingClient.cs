@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Way.Lib;
@@ -78,6 +81,15 @@ namespace EJClient.Net
        
         string _ServerUrl;
         string _Referer;
+        static RemotingClient()
+        {
+            //实现https post
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+        }
+        private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            return true; //总是接受     
+        }
         public RemotingClient(string serverUrl)
         {
             _Referer = $"{serverUrl}/main.html";
