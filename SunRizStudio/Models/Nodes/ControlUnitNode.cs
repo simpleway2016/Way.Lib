@@ -82,7 +82,7 @@ namespace SunRizStudio.Models.Nodes
                 Text = "单元配置",
             });
 
-            this.Nodes.Add(new SolutionNode()
+            this.Nodes.Add(new ControlWindowContainerNode(this.Data.id.Value , null)
             {
                 Text = "监视画面",
             });

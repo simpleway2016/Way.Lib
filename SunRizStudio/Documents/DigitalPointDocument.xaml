@@ -33,16 +33,16 @@
                             </Grid>
 
                             <TextBlock Text="点名" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Text="{Binding Name,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="点描述" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Text="{Binding Desc,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="开状态信息" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Text="{Binding StatusOpenInfo,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="关状态信息" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Text="{Binding StateCloseInfo,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
                         </Grid>
 
                         <TextBlock Text="安全区配置" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
@@ -57,7 +57,7 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Text="安全区" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Grid.Row="0" Grid.Column="1">
+                            <ComboBox BorderThickness="0" Text="{Binding SafeArea,Mode=TwoWay}" Grid.Row="0" Grid.Column="1">
                                 <ComboBoxItem Content="A"></ComboBoxItem>
                                 <ComboBoxItem Content="B"></ComboBoxItem>
                                 <ComboBoxItem Content="C"></ComboBoxItem>
@@ -87,13 +87,13 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Text="报警开关" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarm,Mode=TwoWay}"  VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
 
                             <TextBlock Text="报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue,Mode=TwoWay}"  BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="报警优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Grid.Row="2" Grid.Column="1">
+                            <ComboBox BorderThickness="0" Text="{Binding AlarmPriority,Mode=TwoWay}" Grid.Row="2" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>
@@ -105,7 +105,7 @@
                             </ComboBox>
 
                             <TextBlock Text="报警组" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Grid.Row="3" Grid.Column="1">
+                            <ComboBox BorderThickness="0" Text="{Binding AlarmGroup,Mode=TwoWay}" Grid.Row="3" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>
@@ -138,10 +138,10 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Text="报警自动确认" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoConfirm,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
 
                             <TextBlock Text="报警自动复位" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoReset,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -174,7 +174,7 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
-            gridHelper:GridHelper.GridLineBrush="#b4b1b1">
+                gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
                                 <ColumnDefinition Width="350"></ColumnDefinition>
@@ -196,10 +196,10 @@
                             </Grid>
 
                             <TextBlock Text="数据绝对变化保存" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueAbsoluteChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
 
                             <TextBlock Text="数据绝对变化值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="2" Grid.Column="1">
+                            <ComboBox Padding="2,4,0,0" Text="{Binding ValueAbsoluteChangeSetting,Mode=TwoWay}"  BorderThickness="0" Grid.Row="2" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>
@@ -208,10 +208,10 @@
                             </ComboBox>
 
                             <TextBlock Text="数据相对变化保存" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="3" Grid.Column="1"></CheckBox>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueRelativeChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="3" Grid.Column="1"></CheckBox>
 
                             <TextBlock Text="数据相对变化值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="4" Grid.Column="1">
+                            <ComboBox Padding="2,4,0,0" Text="{Binding ValueRelativeChangeSetting,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>
@@ -220,10 +220,10 @@
                             </ComboBox>
 
                             <TextBlock Text="数据定时保存" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="5" Grid.Column="1"></CheckBox>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueOnTimeChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="5" Grid.Column="1"></CheckBox>
 
                             <TextBlock Text="数据定时值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="6" Grid.Column="1">
+                            <ComboBox Padding="2,4,0,0" Text="{Binding ValueOnTimeChangeSetting,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>

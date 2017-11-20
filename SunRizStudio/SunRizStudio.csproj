@@ -96,6 +96,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ControlWindow\Editor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ControlWindow\Editor.Designer.cs">
+      <DependentUpon>Editor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\DeviceDialog.xaml.cs">
       <DependentUpon>DeviceDialog.xaml</DependentUpon>
     </Compile>
@@ -127,6 +133,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Nodes\ControlWindowContainerNode.cs" />
+    <Compile Include="Models\Nodes\ControlWindowNode.cs" />
     <Compile Include="Models\Nodes\DevicePointNode.cs" />
     <Compile Include="Models\Nodes\DigitalNode.cs" />
     <Compile Include="Models\Nodes\AnalogNode.cs" />
@@ -157,6 +165,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="ControlWindow\Editor.resx">
+      <DependentUpon>Editor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -194,6 +205,7 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\solution\window.png" />
     <Resource Include="Images\solution\point.png" />
     <Resource Include="Images\solution\delete.png" />
     <Resource Include="Images\solution\folder.png" />

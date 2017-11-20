@@ -31,8 +31,16 @@ namespace SunRizStudio.Models.Nodes
 
         void doubleClick(object sender, RoutedEventArgs e)
         {
-            var doc = new Documents.AnalogPointDocument(this.GetDevice(), this.Parent, _point, _point.FolderId.Value);
-            MainWindow.Instance.SetActiveDocument(doc);
+            if (_point.Type == DevicePoint_TypeEnum.Analog)
+            {
+                var doc = new Documents.AnalogPointDocument(this.GetDevice(), this.Parent, _point, _point.FolderId.Value);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
+            else
+            {
+                var doc = new Documents.DigitalPointDocument(this.GetDevice(), this.Parent, _point, _point.FolderId.Value);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
         }
         Device GetDevice()
         {

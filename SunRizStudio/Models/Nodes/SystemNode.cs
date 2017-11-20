@@ -41,10 +41,9 @@ namespace SunRizStudio.Models.Nodes
             };
             this.Nodes.Add(drviersNode);
 
-            var videoWindowNode = new SolutionNode()
+            var videoWindowNode = new ControlWindowContainerNode(0 , null)
             {
-                Text = "监视画面",
-                Icon = "/Images/solution/graphic.png",
+                Text = "监视画面"                
             };
             this.Nodes.Add(videoWindowNode);
 

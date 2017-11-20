@@ -33,7 +33,7 @@ namespace SunRizStudio.Documents
             {
                 _originalModel = new DevicePoint()
                 {
-                    Type = DevicePoint_TypeEnum.Analog,
+                    Type = type,
                     DeviceId = this.Device.id,
                     FolderId = folderId
                 };

@@ -2303,3 +2303,235 @@ Digital = 2,
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 监控画面
+	/// </summary>
+    public class ControlWindow :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  ControlWindow()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ControlUnitId;
+        /// <summary>
+        /// 控制单元id
+        /// </summary>
+        public virtual System.Nullable<Int32> ControlUnitId
+        {
+            get
+            {
+                return this._ControlUnitId;
+            }
+            set
+            {
+                if ((this._ControlUnitId != value))
+                {
+                    var original = this._ControlUnitId;
+                    this._ControlUnitId = value;
+                    this.OnPropertyChanged("ControlUnitId",original,value);
+
+                }
+            }
+        }
+
+        String _Name;
+        /// <summary>
+        /// 名称
+        /// </summary>
+        public virtual String Name
+        {
+            get
+            {
+                return this._Name;
+            }
+            set
+            {
+                if ((this._Name != value))
+                {
+                    var original = this._Name;
+                    this._Name = value;
+                    this.OnPropertyChanged("Name",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _FolderId;
+        /// <summary>
+        /// 所属文件夹
+        /// </summary>
+        public virtual System.Nullable<Int32> FolderId
+        {
+            get
+            {
+                return this._FolderId;
+            }
+            set
+            {
+                if ((this._FolderId != value))
+                {
+                    var original = this._FolderId;
+                    this._FolderId = value;
+                    this.OnPropertyChanged("FolderId",original,value);
+
+                }
+            }
+        }
+
+        String _FilePath;
+        /// <summary>
+        /// 文件名
+        /// </summary>
+        public virtual String FilePath
+        {
+            get
+            {
+                return this._FilePath;
+            }
+            set
+            {
+                if ((this._FilePath != value))
+                {
+                    var original = this._FilePath;
+                    this._FilePath = value;
+                    this.OnPropertyChanged("FilePath",original,value);
+
+                }
+            }
+        }
+}}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 监视画面文件夹
+	/// </summary>
+    public class ControlWindowFolder :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  ControlWindowFolder()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ControlUnitId;
+        /// <summary>
+        /// 控制单元id
+        /// </summary>
+        public virtual System.Nullable<Int32> ControlUnitId
+        {
+            get
+            {
+                return this._ControlUnitId;
+            }
+            set
+            {
+                if ((this._ControlUnitId != value))
+                {
+                    var original = this._ControlUnitId;
+                    this._ControlUnitId = value;
+                    this.OnPropertyChanged("ControlUnitId",original,value);
+
+                }
+            }
+        }
+
+        String _Name;
+        /// <summary>
+        /// 名称
+        /// </summary>
+        public virtual String Name
+        {
+            get
+            {
+                return this._Name;
+            }
+            set
+            {
+                if ((this._Name != value))
+                {
+                    var original = this._Name;
+                    this._Name = value;
+                    this.OnPropertyChanged("Name",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ParentId=0;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> ParentId
+        {
+            get
+            {
+                return this._ParentId;
+            }
+            set
+            {
+                if ((this._ParentId != value))
+                {
+                    var original = this._ParentId;
+                    this._ParentId = value;
+                    this.OnPropertyChanged("ParentId",original,value);
+
+                }
+            }
+        }
+}}

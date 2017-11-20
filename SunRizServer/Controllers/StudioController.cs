@@ -66,13 +66,27 @@ namespace SunRizServer.Controllers
         {
             return this.db.DevicePointFolder.Where(m => m.DeviceId == deviceid && m.Type == type && m.ParentId == parentid).OrderBy(m => m.Name).ToArray();
         }
-
+        [RemotingMethod]
+        public ControlWindowFolder[] GetControlWindowFolders(int controlUnitId,  int parentid)
+        {
+            return this.db.ControlWindowFolder.Where(m => m.ControlUnitId == controlUnitId && m.ParentId == parentid).OrderBy(m => m.Name).ToArray();
+        }
         [RemotingMethod]
         public DevicePoint[] GetDevicePoints(int deviceid, SunRizServer.DevicePoint_TypeEnum type, int folderid)
         {
             return this.db.DevicePoint.Where(m => m.DeviceId == deviceid && m.Type == type && m.FolderId == folderid).OrderBy(m => m.Name).ToArray();
         }
-
+        [RemotingMethod]
+        public ControlWindow[] GetWindows(int controlUnitId, int folderId)
+        {
+            return this.db.ControlWindow.Where(m => m.ControlUnitId == controlUnitId && m.FolderId == folderId).OrderBy(m => m.Name).ToArray();
+        }
+        [RemotingMethod]
+        public string GetWindowContent(int windowid)
+        {
+            var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            return System.IO.File.ReadAllText( Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath  , System.Text.Encoding.UTF8);
+        }
         [RemotingMethod]
         public int UpdateDevicePointFolder(DevicePointFolder folder)
         {
@@ -84,7 +98,17 @@ namespace SunRizServer.Controllers
             this.db.Update(folder);
             return folder.id.Value;
         }
+        [RemotingMethod]
+        public int UpdateControlWindowFolder(ControlWindowFolder folder)
+        {
+            if (folder.id == null && this.db.ControlWindowFolder.Any(m => m.ControlUnitId == folder.ControlUnitId && m.Name == folder.Name && m.ParentId == folder.ParentId ))
+                throw new Exception("此文件夹已存在");
+            else if (folder.id == null && this.db.ControlWindowFolder.Any(m => m.id != folder.id && m.ControlUnitId == folder.ControlUnitId && m.Name == folder.Name && m.ParentId == folder.ParentId))
+                throw new Exception("此文件夹已存在");
 
+            this.db.Update(folder);
+            return folder.id.Value;
+        }
         [RemotingMethod]
         public int DeleteDevicePointFolder(int folderid)
         {
