@@ -27,7 +27,7 @@
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate  ItemsSource="{Binding Path=Nodes}">
                             <StackPanel x:Name="main_panel" ToolTip="{Binding ToolTip}" Orientation="Horizontal" Height="22">
-                                <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
+                                <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
                                 <TextBlock x:Name="main_text" VerticalAlignment="Center" Text="{Binding Text}"></TextBlock>
                                 <StackPanel.ContextMenu>
                                     <ContextMenu IsEnabled="{Binding HasContextMenu}" ItemsSource="{Binding ContextMenuItems}">
@@ -51,6 +51,9 @@
                                     <Setter TargetName="main_panel" Property="Background" Value="#3399ff"></Setter>
                                     <Setter TargetName="main_text" Property="Foreground" Value="White"></Setter>
                                 </DataTrigger>
+                                <!--<DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
+                                    <Setter TargetName="main_img" Property="Visibility" Value="Collapsed"></Setter>
+                                </DataTrigger>-->
                                 <DataTrigger Binding="{Binding HasContextMenu}" Value="False">
                                     <Setter TargetName="main_panel" Property="ContextMenu" Value="{x:Null}"></Setter>
                                 </DataTrigger>
