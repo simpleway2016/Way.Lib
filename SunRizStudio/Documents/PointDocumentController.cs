@@ -20,7 +20,8 @@ namespace SunRizStudio.Documents
         DevicePoint _originalModel;
         SolutionNode _parentNode;
         UserControl _container;
-
+        SunRizDriver.SunRizDriverClient gatewayClient;
+        Dictionary<string, string> _PointJsonDict = null;
         public PointDocumentController( UserControl container, Grid gridProperty,Device device, DevicePoint_TypeEnum type, SolutionNode parent, DevicePoint dataModel, int folderId)
         {
             _container = container;
@@ -40,7 +41,10 @@ namespace SunRizStudio.Documents
             //复制一份，给刷新按钮使用
             _pointModel = _originalModel.Clone<DevicePoint>();
             _container.DataContext = _pointModel;
-
+            if(_pointModel.AddrSetting.IsBlank() == false)
+            {
+                _PointJsonDict = _pointModel.AddrSetting.JsonToObject<Dictionary<string, string>>();
+            }
             setPointPropertyInput();
         }
 
@@ -59,14 +63,24 @@ namespace SunRizStudio.Documents
                 }
                 else
                 {
-                    SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient(gateway.Address, gateway.Port.GetValueOrDefault());
-                    string[] properties = client.GetPointProperties();
+                    gatewayClient = new SunRizDriver.SunRizDriverClient(gateway.Address, gateway.Port.GetValueOrDefault());
+                    string[] properties = gatewayClient.GetPointProperties();
+                    bool isNew = false;
+                    if (_PointJsonDict == null)
+                    {
+                        _PointJsonDict = new Dictionary<string, string>();
+                        isNew = true;
+                    }
                     foreach (var item in properties)
                     {
                         string strProperty = item;
                         if (strProperty.Contains("{"))
                             strProperty = strProperty.Substring(0, strProperty.IndexOf("{"));
 
+                        if(isNew)
+                        {
+                            _PointJsonDict[strProperty] = "";
+                        }
                         addPropertyItem(strProperty);
                     }
                 }
@@ -101,6 +115,11 @@ namespace SunRizStudio.Documents
             textbox.BorderThickness = new Thickness(0);
             textbox.SetValue(Grid.RowProperty, rowNumber);
             textbox.SetValue(Grid.ColumnProperty, 1);
+            textbox.Text = _PointJsonDict[name];
+            textbox.TextChanged += (s, e) =>
+            {
+                _PointJsonDict[name] = textbox.Text;
+            };
             _gridProperty.Children.Add(textbox);
         }
 
@@ -116,6 +135,17 @@ namespace SunRizStudio.Documents
                 return;
             }
             _container.Cursor = Cursors.Hand;
+            try
+            {
+                _pointModel.AddrSetting = _PointJsonDict.ToJsonString();
+                _pointModel.Address = gatewayClient.GetPointAddress(_PointJsonDict);
+            }
+            catch(Exception ex)
+            {
+                _container.Cursor = null;
+                MessageBox.Show(MainWindow.Instance, ex.Message);
+                return;
+            }
             Helper.Remote.Invoke<int>("UpdatePoint", (ret, err) => {
                 _container.Cursor = null;
                 if (err != null)

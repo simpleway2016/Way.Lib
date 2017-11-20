@@ -34,5 +34,28 @@ namespace SunRizStudio.Documents
 
             _controller = new PointDocumentController(this, gridProperty, device, DevicePoint_TypeEnum.Digital, parent, dataModel, folderId);
         }
+
+        private void btnOK_Click(object sender, RoutedEventArgs e)
+        {
+            _controller.saveToServer(true);
+        }
+
+        private void btnApply_Click(object sender, RoutedEventArgs e)
+        {
+            _controller.saveToServer(false);
+        }
+
+
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            //关闭当前document
+            MainWindow.Instance.SetActiveDocument(null);
+        }
+
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            _controller.refresh();
+        }
     }
 }
