@@ -27,6 +27,7 @@ declare class EditorControl {
         rect: any;
         constructorName: any;
     };
+    getScript(): string;
     isIntersectWith(rect: any): boolean;
     isIntersect(rect1: any, rect: any): boolean;
     showProperty(): void;

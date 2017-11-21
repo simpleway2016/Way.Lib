@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <link href="css/flex.css" rel="stylesheet" type="text/css" />
-    <script src="js/Editor.js" type="text/javascript"></script>
-    <script src="js/EditorControls.js" type="text/javascript"></script>
-    <script src="js/PropertyDialog.js" type="text/javascript"></script>
-    <script src="js/jscolor.min.js" type="text/javascript"></script>
-    <script src="js/FileBrowser.js" type="text/javascript"></script>
-    <script src="js/UndoManager.js" type="text/javascript"></script>
+    <link href="/css/flex.css" rel="stylesheet" type="text/css" />
+    <script src="/js/Editor.js" type="text/javascript"></script>
+    <script src="/js/EditorControls.js" type="text/javascript"></script>
+    <script src="/js/PropertyDialog.js" type="text/javascript"></script>
+    <script src="/js/jscolor.min.js" type="text/javascript"></script>
+    <script src="/js/FileBrowser.js" type="text/javascript"></script>
+    <script src="/js/UndoManager.js" type="text/javascript"></script>
     <script src="/WayScriptRemoting" type="text/javascript"></script>
     <style>
         body{
@@ -80,66 +80,66 @@
 <body style="overflow:hidden;" oncontextmenu="return false;">
     <div class="display-flex flex-direction-column" style="position:absolute;width:100%;height:100%;">
         <div style="background-color:#e8e7e3;height:36px;">
-            <div class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(images/toolbox/setting.png);">
+            <div class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/line.png);" _type="ToolBox_Line">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);" _type="ToolBox_Line">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/circle.png);" _type="ToolBox_Circle">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/circle.png);" _type="ToolBox_Circle">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/rect.png);" _type="ToolBox_Rect">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/rect.png);" _type="ToolBox_Rect">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/ellipse.png);" _type="ToolBox_Ellipse">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/ellipse.png);" _type="ToolBox_Ellipse">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/text.png);" _type="ToolBox_Text">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/text.png);" _type="ToolBox_Text">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/img.png);" _type="ToolBox_Image">
+            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/img.png);" _type="ToolBox_Image">
             </div>
-            <div class="toolboxItem" title="动态值圆柱" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/cylinder.png);" _type="ToolBox_Cylinder">
+            <div class="toolboxItem" title="动态值圆柱" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/cylinder.png);" _type="ToolBox_Cylinder">
             </div>
-            <div class="toolboxItem" title="趋势图" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/trend.png);" _type="ToolBox_Trend">
+            <div class="toolboxItem" title="趋势图" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/trend.png);" _type="ToolBox_Trend">
             </div>
-            <div class="toolboxItem" title="点击区域" onclick="toolboxClick(this);" style="background-image:url(images/toolbox/buttonarea.png);" _type="ToolBox_ButtonArea">
+            <div class="toolboxItem" title="点击区域" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/buttonarea.png);" _type="ToolBox_ButtonArea">
             </div>
             <!--<input class="jscolor" value="ab2567">-->
-            <div class="toolboxItem" title="撤销" onclick="editor.undo();" style="background-image:url(images/toolbox/undo.png);margin-left:20px;cursor:pointer;">
+            <div class="toolboxItem" title="撤销" onclick="editor.undo();" style="background-image:url(/images/toolbox/undo.png);margin-left:20px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="重做" onclick="editor.redo();" style="background-image:url(images/toolbox/redo.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="重做" onclick="editor.redo();" style="background-image:url(/images/toolbox/redo.png);cursor:pointer;margin-left:0px;">
             </div>
-            <div class="toolboxItem" title="删除选定的控件" onclick="editor.delete();" style="background-image:url(images/toolbox/delete.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="删除选定的控件" onclick="editor.delete();" style="background-image:url(/images/toolbox/delete.png);cursor:pointer;margin-left:0px;">
             </div>
 
             <!--<input class="jscolor" value="ab2567">-->
-            <div class="toolboxItem" title="复制" onclick="editor.copy();" style="background-image:url(images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
+            <div class="toolboxItem" title="复制" onclick="editor.copy();" style="background-image:url(/images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="粘贴" onclick="editor.paste();" style="background-image:url(images/toolbox/paste.png);cursor:pointer;margin-left:0px;">
-            </div>
-
-            <div class="toolboxItem" title="测试开始" onclick="startTest();" style="background-image:url(images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
+            <div class="toolboxItem" title="粘贴" onclick="editor.paste();" style="background-image:url(/images/toolbox/paste.png);cursor:pointer;margin-left:0px;">
             </div>
 
-            <div class="toolboxItem" title="左对齐" onclick="editor.alignLeft();" style="background-image:url(images/toolbox/alignleft.png);margin-left:20px;cursor:pointer;">
+            <div class="toolboxItem" title="测试开始" onclick="startTest();" style="background-image:url(/images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="右对齐" onclick="editor.alignRight();" style="background-image:url(images/toolbox/alignright.png);cursor:pointer;margin-left:0px;">
+
+            <div class="toolboxItem" title="左对齐" onclick="editor.alignLeft();" style="background-image:url(/images/toolbox/alignleft.png);margin-left:20px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="上对齐" onclick="editor.alignTop();" style="background-image:url(images/toolbox/aligntop.png);margin-left:0px;cursor:pointer;">
+            <div class="toolboxItem" title="右对齐" onclick="editor.alignRight();" style="background-image:url(/images/toolbox/alignright.png);cursor:pointer;margin-left:0px;">
             </div>
-            <div class="toolboxItem" title="下对齐" onclick="editor.alignBottom();" style="background-image:url(images/toolbox/alignbottom.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="上对齐" onclick="editor.alignTop();" style="background-image:url(/images/toolbox/aligntop.png);margin-left:0px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="水平等距离" onclick="editor.hSpacing();" style="background-image:url(images/toolbox/hspacing.png);margin-left:0px;cursor:pointer;">
+            <div class="toolboxItem" title="下对齐" onclick="editor.alignBottom();" style="background-image:url(/images/toolbox/alignbottom.png);cursor:pointer;margin-left:0px;">
             </div>
-            <div class="toolboxItem" title="垂直等距离" onclick="editor.vSpacing();" style="background-image:url(images/toolbox/vspacing.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="水平等距离" onclick="editor.hSpacing();" style="background-image:url(/images/toolbox/hspacing.png);margin-left:0px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="水平居中对齐" onclick="editor.hCenter();" style="background-image:url(images/toolbox/hcenter.png);margin-left:0px;cursor:pointer;">
+            <div class="toolboxItem" title="垂直等距离" onclick="editor.vSpacing();" style="background-image:url(/images/toolbox/vspacing.png);cursor:pointer;margin-left:0px;">
             </div>
-            <div class="toolboxItem" title="垂直居中对齐" onclick="editor.vCenter();" style="background-image:url(images/toolbox/vcenter.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="水平居中对齐" onclick="editor.hCenter();" style="background-image:url(/images/toolbox/hcenter.png);margin-left:0px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="上移一层" onclick="editor.layerUp();" style="background-image:url(images/toolbox/layerup.png);margin-left:0px;cursor:pointer;">
+            <div class="toolboxItem" title="垂直居中对齐" onclick="editor.vCenter();" style="background-image:url(/images/toolbox/vcenter.png);cursor:pointer;margin-left:0px;">
             </div>
-            <div class="toolboxItem" title="下移一层" onclick="editor.layerDown();" style="background-image:url(images/toolbox/layerdown.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="上移一层" onclick="editor.layerUp();" style="background-image:url(/images/toolbox/layerup.png);margin-left:0px;cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="移到顶层" onclick="editor.layerFront();" style="background-image:url(images/toolbox/bringtofront.png);margin-left:0px;cursor:pointer;">
+            <div class="toolboxItem" title="下移一层" onclick="editor.layerDown();" style="background-image:url(/images/toolbox/layerdown.png);cursor:pointer;margin-left:0px;">
             </div>
-            <div class="toolboxItem" title="移到底层" onclick="editor.layerBottom();" style="background-image:url(images/toolbox/bringtobottom.png);cursor:pointer;margin-left:0px;">
+            <div class="toolboxItem" title="移到顶层" onclick="editor.layerFront();" style="background-image:url(/images/toolbox/bringtofront.png);margin-left:0px;cursor:pointer;">
+            </div>
+            <div class="toolboxItem" title="移到底层" onclick="editor.layerBottom();" style="background-image:url(/images/toolbox/bringtobottom.png);cursor:pointer;margin-left:0px;">
             </div>
         </div>
         <div class="flex-1" id="svgContainer">
@@ -182,18 +182,27 @@
             }
         }
 
-        var editor;
-        var fileBrowser;
-        window.onload = function ()
-        {
-            editor = new Editor("svgContainer");
-            fileBrowser = new FileBrowser();
-        }
+        
 
         function copyToClipboard(data) {
             var event = document.createEvent('MessageEvent');
             var origin = window.location.protocol + '//' + window.location.host;
             event.initMessageEvent('copyToClipboard', true, true, data, origin, 1234, window, null);
+            document.dispatchEvent(event);
+        }
+
+        function loadFinish()
+        {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('loadFinish', true, true,"", origin, 1234, window, null);
+            document.dispatchEvent(event);
+        }
+
+        function save(name,code,editorScript,controlsScript) {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('save', true, true, JSON.stringify({ "name": name,"code":code,"editorScript": editorScript, "controlsScript": controlsScript} ), origin, 1234, window, null);
             document.dispatchEvent(event);
         }
 
@@ -305,6 +314,21 @@
                 }
             }
         }
+
+        function loadControls(editor)
+        {
+            var eCtrl;
+            //code here
+        }
+
+
+
+        var editor;
+        var fileBrowser;
+        editor = new Editor("svgContainer");
+        fileBrowser = new FileBrowser();
+        loadControls(editor);
+        loadFinish();
     </script>
 </body>
 </html>

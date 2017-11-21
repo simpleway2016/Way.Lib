@@ -5,6 +5,7 @@ using Way.Lib.ScriptRemoting;
 using System.Linq;
 namespace SunRizServer.Controllers
 {
+    [RemotingUrl("Home")]
     public class StudioController : BaseController
     {
         [RemotingMethod]
@@ -85,8 +86,40 @@ namespace SunRizServer.Controllers
         public string GetWindowContent(int windowid)
         {
             var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
-            return System.IO.File.ReadAllText( Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath  , System.Text.Encoding.UTF8);
+            var editorHtml = System.IO.File.ReadAllText(WebRoot + "editor.html", System.Text.Encoding.UTF8);
+            var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            editorHtml = editorHtml.Replace("//code here", obj.Value<string>("editorScript") + "\r\n" + obj.Value<string>("controlsScript"));
+            return editorHtml;
         }
+
+        [RemotingMethod]
+        public ControlWindow SaveWindowContent(ControlWindow window , string content)
+        {
+            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(content);
+            window.Name = obj.Value<string>("name");
+            window.Code = obj.Value<string>("code");
+
+            if (window.id == null && this.db.ControlWindow.Any(m => m.Name == window.Name && window.FolderId == m.FolderId && window.ControlUnitId == m.ControlUnitId))
+                throw new Exception("监视画面名称已存在");
+            else if (window.id == null && this.db.ControlWindow.Any(m => m.id != window.id && m.Name == window.Name && window.FolderId == m.FolderId && window.ControlUnitId == m.ControlUnitId))
+                throw new Exception("监视画面名称已存在");
+
+            if (window.id == null && this.db.ControlWindow.Any(m => m.Code == window.Code ))
+                throw new Exception("监视画面编号已存在");
+            else if (window.id == null && this.db.ControlWindow.Any(m => m.id != window.id && m.Code == window.Code))
+                throw new Exception("监视画面编号已存在");
+
+            if (window.FilePath == null)
+            {
+                window.FilePath = Guid.NewGuid().ToString("N");
+            }
+            this.db.Update(window);
+           
+            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath,content, System.Text.Encoding.UTF8);
+            return window;
+        }
+
         [RemotingMethod]
         public int UpdateDevicePointFolder(DevicePointFolder folder)
         {

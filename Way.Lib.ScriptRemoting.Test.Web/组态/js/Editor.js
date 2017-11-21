@@ -290,6 +290,8 @@ var ToolBox_ButtonArea = (function (_super) {
 var Editor = (function () {
     function Editor(id) {
         var _this = this;
+        this.name = "";
+        this.code = "";
         this.beginedToolBoxItem = null;
         this.controls = [];
         var divContainer = document.body.querySelector("#" + id);
@@ -412,6 +414,9 @@ var Editor = (function () {
             else if (e.ctrlKey && e.keyCode == 86) {
                 _this.paste();
             }
+            else if (e.ctrlKey && e.keyCode == 83) {
+                _this.save();
+            }
         }, false);
     }
     Editor.prototype.removeControl = function (ctrl) {
@@ -491,10 +496,20 @@ var Editor = (function () {
         configurable: true
     });
     Editor.prototype.getPropertiesCaption = function () {
-        return ["底色", "背景图", "背景图宽", "背景图高"];
+        return ["名称", "编号", "底色", "背景图", "背景图宽", "背景图高"];
     };
     Editor.prototype.getProperties = function () {
-        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
+        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight"];
+    };
+    Editor.prototype.getScript = function () {
+        var properties = this.getProperties();
+        var script = "";
+        for (var i = 0; i < properties.length; i++) {
+            if (this[properties[i]]) {
+                script += "editor." + properties[i] + " = " + JSON.stringify(this[properties[i]]) + ";\r\n";
+            }
+        }
+        return script;
     };
     Editor.prototype.undo = function () {
         this.undoMgr.undo();
@@ -513,6 +528,21 @@ var Editor = (function () {
             undoObj.redo();
             this.undoMgr.addUndo(undoObj);
         }
+    };
+    Editor.prototype.save = function () {
+        if (this.name.length == 0) {
+            alert("请点击左上角设置图标，设置监视画面的名称");
+            return;
+        }
+        if (this.code.length == 0) {
+            alert("请点击左上角设置图标，设置监视画面的编号");
+            return;
+        }
+        var scripts = "";
+        for (var i = 0; i < this.controls.length; i++) {
+            scripts += this.controls[i].getScript();
+        }
+        window.save(this.name, this.code, this.getScript(), scripts);
     };
     Editor.prototype.copy = function () {
         var copyitems = [];

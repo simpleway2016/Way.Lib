@@ -365,6 +365,9 @@ class Editor implements IEditorControlContainer
         this.controls.push(ctrl);
         ctrl.container = this;
     }
+
+    name: string = "";
+    code: string = "";
     private svgContainer: SVGSVGElement;
     private currentToolBoxItem: ToolBoxItem;
     private svgContainerMouseUpPosition: any;
@@ -421,10 +424,10 @@ class Editor implements IEditorControlContainer
     }
 
     getPropertiesCaption(): string[] {
-        return ["底色", "背景图", "背景图宽", "背景图高"];
+        return ["名称","编号","底色", "背景图", "背景图宽", "背景图高"];
     }
     getProperties(): string[] {
-        return ["colorBG", "imgBg", "bgWidth", "bgHeight"];
+        return ["name" , "code" , "colorBG", "imgBg", "bgWidth", "bgHeight"];
     }
 
     constructor(id: string)
@@ -572,7 +575,22 @@ class Editor implements IEditorControlContainer
             {
                 this.paste();
             }
+            else if (e.ctrlKey && e.keyCode == 83) {
+                this.save();
+            }
         }, false);
+    }
+
+    getScript() {
+        var properties = this.getProperties();
+        var script = "";
+        for (var i = 0; i < properties.length; i ++) {
+            if (this[properties[i]])
+            {
+                script += "editor." + properties[i] + " = " + JSON.stringify(this[properties[i]]) + ";\r\n";
+            }
+        }
+        return script;
     }
 
     undo()
@@ -598,6 +616,25 @@ class Editor implements IEditorControlContainer
             undoObj.redo();
             this.undoMgr.addUndo(undoObj);
         }
+    }
+
+    save()
+    {
+        if (this.name.length == 0)
+        {
+            alert("请点击左上角设置图标，设置监视画面的名称");
+            return;
+        }
+        if (this.code.length == 0) {
+            alert("请点击左上角设置图标，设置监视画面的编号");
+            return;
+        }
+        var scripts = "";
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            scripts += this.controls[i].getScript();
+        }
+        (<any>window).save(this.name , this.code ,  this.getScript(), scripts);
     }
 
     copy()

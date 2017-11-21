@@ -72,6 +72,8 @@
     <Content Include="组态\images\toolbox\undo.png" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
+    <Content Include="组态\templates\main.html" />
+    <Content Include="组态\templates\system.html" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="scripts\jcontrol\JBinder.ts" />

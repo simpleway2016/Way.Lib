@@ -10,9 +10,9 @@ namespace SunRizStudio.Models.Nodes
 {
     class ControlWindowContainerNode : SolutionNode
     {
-        int _controlUnitId;
+        internal int _controlUnitId;
         SunRizServer.ControlWindowFolder _folderModel;
-        int _folderId = 0;
+        internal int _folderId = 0;
         public ControlWindowContainerNode(int controlUnitId, SunRizServer.ControlWindowFolder folder)
         {
            
@@ -80,7 +80,7 @@ namespace SunRizStudio.Models.Nodes
 
         void addWindowClick(object sender, RoutedEventArgs e)
         {
-            new ControlWindow.Editor().Show();
+            new ControlWindow.Editor(this , null).Show();
         }
 
         void addFolderClick(object sender, RoutedEventArgs e)

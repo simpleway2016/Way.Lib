@@ -1,0 +1,65 @@
+﻿<style>
+    .btn {
+            -webkit-appearance: none;
+            min-height:33px;
+            border-radius:3px;
+    width: auto;
+    min-width: 78px;
+    color: #3e5e00!important;
+    text-shadow: 0 1px 0 rgba(255,255,255,.3);
+    background: #8ab923;
+    background: -webkit-linear-gradient(top,#adda4d,#86b846);
+    background: linear-gradient(to bottom,#adda4d,#86b846);
+    border: 1px solid #6d8f29;
+    box-shadow: 0 1px 0 rgba(255,255,255,.5) inset,0 1px 0 rgba(0,0,0,.2);
+}
+</style>
+
+<WayDropDownList>
+    <div>
+        <input type="text" istext="true" /><input type="button" isaction="true" />
+        <script for="itemContainer" type="text/html">
+            <div style="border:1px solid #ccc;background-color:#fff;"></div>
+        </script>
+        <script for="item" type="text/html">
+            <div style="padding:5px;border-bottom:1px solid #eee;cursor:default;" expression="this.style.backgroundColor=$Selected?'green':'';this.style.color=$Selected?'white':'';">{@text}</div>
+        </script>
+    </div>
+</WayDropDownList>
+
+<WayRelateList>
+    <div>
+        <input type="text" istext="true"/>
+        <script for="itemContainer" type="text/html">
+            <div style="border:1px solid #ccc;background-color:#fff;"></div>
+        </script>
+        <script for="item" type="text/html">
+            <div style="padding:5px;padding-right:30px;border-bottom:1px solid #eee;cursor:default;word-break:keep-all;white-space:nowrap;" expression="this.style.backgroundColor=$Selected?'green':'';this.style.color=$Selected?'white':'';">{@text}</div>
+        </script>
+    </div>
+</WayRelateList>
+
+<WayGridView pagesize="20">
+    <div>
+    </div>
+</WayGridView>
+
+<WayCheckboxList>
+    <div>
+        <script for="item" type="text/html">
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;"><input type="checkbox" databind="checked=$Selected">{@text}</div>
+        </script>
+    </div>
+</WayCheckboxList>
+
+<WayRadioList>
+    <div>
+        <script for="item" type="text/html">
+            <div style="padding-top:1px;padding-left:2px;padding-right:2px;padding-bottom:1px;cursor:default;" expression="this.style.color=$Selected?'#eee':'';this.style.backgroundColor=($Selected&&@text)?'green':'';"><input type="radio" databind="checked=$Selected">{@text}</div>
+        </script>
+    </div>
+</WayRadioList>
+
+<WayButton>
+    <input type="button" expression="this.value=@text">
+</WayButton>

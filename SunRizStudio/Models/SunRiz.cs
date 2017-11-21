@@ -2429,6 +2429,28 @@ namespace SunRizServer{
                 }
             }
         }
+
+        String _Code;
+        /// <summary>
+        /// 编号
+        /// </summary>
+        public virtual String Code
+        {
+            get
+            {
+                return this._Code;
+            }
+            set
+            {
+                if ((this._Code != value))
+                {
+                    var original = this._Code;
+                    this._Code = value;
+                    this.OnPropertyChanged("Code",original,value);
+
+                }
+            }
+        }
 }}
 namespace SunRizServer{
 

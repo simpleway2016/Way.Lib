@@ -186,6 +186,30 @@ class EditorControl
         return obj;
     }
 
+    getScript()
+    {
+        var json = this.getJson();
+        var script = "";
+        var id = this.id;
+        if (!id || id.length == 0)
+        {
+            id = "eCtrl";
+        }
+        script += id + " = new " + json.constructorName + "();\r\n";
+        for (var proName in json)
+        {
+            if (proName == "rect" || proName == "constructorName")
+                continue;
+            var type = typeof json[proName];
+            if (type == "function" || type == "undefined")
+                continue;
+            script += id + "." + proName + " = " + JSON.stringify(json[proName]) + ";\r\n";
+        }
+        script += id + ".rect = " + JSON.stringify(json.rect) + ";\r\n";
+        script += "editor.addControl(" + id + ");\r\n";
+        return script;
+    }
+
     isIntersectWith(rect):boolean
     {
         return false;

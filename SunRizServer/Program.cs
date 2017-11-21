@@ -32,6 +32,11 @@ namespace SunRizServer
                 {
                     System.IO.Directory.CreateDirectory(webroot);
                 }
+                if (!System.IO.Directory.Exists(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/"))
+                {
+                    System.IO.Directory.CreateDirectory(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/");
+                }
+               
 
                 Console.WriteLine($"path:{webroot}");
 
@@ -41,6 +46,7 @@ namespace SunRizServer
                 //注册数据库触发器
                 SysDB.RegisterActionCapture(new DBTriggers.ImageFilesTrigger());
                 SysDB.RegisterActionCapture(new DBTriggers.DevicePointFolderTrigger());
+                SysDB.RegisterActionCapture(new DBTriggers.ControlWindowTrigger());
 
                 using (var db = new SysDB())
                 {

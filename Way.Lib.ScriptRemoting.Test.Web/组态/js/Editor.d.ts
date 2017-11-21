@@ -89,6 +89,8 @@ interface IEditorControlContainer {
 declare class Editor implements IEditorControlContainer {
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
+    name: string;
+    code: string;
     private svgContainer;
     private currentToolBoxItem;
     private svgContainerMouseUpPosition;
@@ -104,9 +106,11 @@ declare class Editor implements IEditorControlContainer {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);
+    getScript(): string;
     undo(): void;
     redo(): void;
     delete(): void;
+    save(): void;
     copy(): void;
     paste(): void;
     fireBodyEvent(event: any): void;

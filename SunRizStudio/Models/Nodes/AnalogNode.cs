@@ -44,6 +44,11 @@ namespace SunRizStudio.Models.Nodes
         {
             //获取device对象
             Device device = this.GetDevice();
+            if(device.DriverID == null)
+            {
+                MessageBox.Show(MainWindow.Instance, "请先配置控制器");
+                return;
+            }
             if (this.FolderType == DevicePointFolder_TypeEnum.Analog)
             {
                 var doc = new Documents.AnalogPointDocument(device,this,null, FolderModel.id.Value);
