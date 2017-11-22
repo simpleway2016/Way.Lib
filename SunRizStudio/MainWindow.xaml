@@ -63,7 +63,9 @@
                 </TreeView>
             </Grid>
             <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Width="5"/>
-            <Grid x:Name="documentContainer" Background="AliceBlue" Grid.Column="1"></Grid>
+            <TabControl x:Name="documentContainer" Background="AliceBlue" Grid.Column="1">
+
+            </TabControl>
             
         </Grid>
     </DockPanel>

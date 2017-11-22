@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace SunRizStudio.Models.Nodes
 {
@@ -31,6 +32,16 @@ namespace SunRizStudio.Models.Nodes
 
         void doubleClick(object sender, RoutedEventArgs e)
         {
+            foreach( TabItem item in MainWindow.Instance.documentContainer.Items )
+            {
+                var doc = item.Content as Documents.BaseDocument;
+                if(doc.DataContext == _point)
+                {
+                    MainWindow.Instance.documentContainer.SelectedItem = item;
+                    return;
+                }
+            }
+
             if (_point.Type == DevicePoint_TypeEnum.Analog)
             {
                 var doc = new Documents.AnalogPointDocument(this.GetDevice(), this.Parent, _point, _point.FolderId.Value);

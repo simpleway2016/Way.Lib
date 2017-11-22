@@ -17,7 +17,7 @@ namespace SunRizStudio.Documents
         public Device Device;
         Grid _gridProperty;
         DevicePoint _pointModel;
-        DevicePoint _originalModel;
+        internal DevicePoint OriginalModel;
         SolutionNode _parentNode;
         UserControl _container;
         SunRizDriver.SunRizDriverClient gatewayClient;
@@ -28,18 +28,19 @@ namespace SunRizStudio.Documents
             _gridProperty = gridProperty;
             Device = device;
             _parentNode = parent;
-            _originalModel = dataModel;
-            if (_originalModel == null)
+            OriginalModel = dataModel;
+            if (OriginalModel == null)
             {
-                _originalModel = new DevicePoint()
+                OriginalModel = new DevicePoint()
                 {
                     Type = type,
                     DeviceId = this.Device.id,
                     FolderId = folderId
                 };
             }
+
             //复制一份，给刷新按钮使用
-            _pointModel = _originalModel.Clone<DevicePoint>();
+            _pointModel = OriginalModel.Clone<DevicePoint>();
             _container.DataContext = _pointModel;
             if(_pointModel.AddrSetting.IsBlank() == false)
             {
@@ -47,6 +48,7 @@ namespace SunRizStudio.Documents
             }
             setPointPropertyInput();
         }
+
 
         /// <summary>
         /// 设置数据连接相关的属性输入框
@@ -154,6 +156,8 @@ namespace SunRizStudio.Documents
                 }
                 else
                 {
+                    //更新TabItem的文字
+                    this._container.GetParentByName<TabItem>(null).Header = _pointModel.Name;
                     if (_pointModel.id == null)
                     {
                         //是添加的新点
@@ -161,8 +165,8 @@ namespace SunRizStudio.Documents
                         _parentNode.Nodes.Add(new DevicePointNode(_pointModel));
                     }
                     _pointModel.ChangedProperties.Clear();
-                    _originalModel.CopyValue(_pointModel);
-                    _originalModel.ChangedProperties.Clear();
+                    OriginalModel.CopyValue(_pointModel);
+                    OriginalModel.ChangedProperties.Clear();
 
                     if (closeOnSuccess)
                     {
@@ -175,7 +179,7 @@ namespace SunRizStudio.Documents
 
         internal void refresh()
         {
-            _pointModel = _originalModel.Clone<DevicePoint>();
+            _pointModel = OriginalModel.Clone<DevicePoint>();
             _container.DataContext = _pointModel;
         }
     }

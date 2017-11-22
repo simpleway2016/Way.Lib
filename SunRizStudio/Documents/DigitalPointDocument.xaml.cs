@@ -20,9 +20,10 @@ namespace SunRizStudio.Documents
     /// <summary>
     /// DigitalPointDocument.xaml 的交互逻辑
     /// </summary>
-    public partial class DigitalPointDocument : UserControl
+    public partial class DigitalPointDocument : BaseDocument
     {
-        PointDocumentController _controller;
+        internal PointDocumentController Controller;
+        public override string Header => Controller.OriginalModel.Name;
         public DigitalPointDocument()
         {
             InitializeComponent();
@@ -32,17 +33,17 @@ namespace SunRizStudio.Documents
 
             InitializeComponent();
 
-            _controller = new PointDocumentController(this, gridProperty, device, DevicePoint_TypeEnum.Digital, parent, dataModel, folderId);
+            Controller = new PointDocumentController(this, gridProperty, device, DevicePoint_TypeEnum.Digital, parent, dataModel, folderId);
         }
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
-            _controller.saveToServer(true);
+            Controller.saveToServer(true);
         }
 
         private void btnApply_Click(object sender, RoutedEventArgs e)
         {
-            _controller.saveToServer(false);
+            Controller.saveToServer(false);
         }
 
 
@@ -55,7 +56,7 @@ namespace SunRizStudio.Documents
 
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            _controller.refresh();
+            Controller.refresh();
         }
     }
 }

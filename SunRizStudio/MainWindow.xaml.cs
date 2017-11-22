@@ -83,16 +83,24 @@ namespace SunRizStudio
             }
         }
 
-        public void SetActiveDocument(UserControl document)
+        public void SetActiveDocument(Documents.BaseDocument document)
         {
-            while(documentContainer.Children.Count > 0)
-            {
-                documentContainer.Children.RemoveAt(0);
-            }
-            if (document != null)
-            {
-                documentContainer.Children.Add(document);
-            }
+            TabItem newItem = new TabItem();
+            newItem.Loaded += (s, e) => {
+                newItem.GetChildByName<Button>("closeIcon").Click += (s2, e2) => {
+                    bool cancel = false;
+                    document.OnClose(ref cancel);
+                    if(!cancel)
+                    {
+                        documentContainer.Items.Remove(newItem);
+                    }
+                };
+            };
+            newItem.Header = document.Header;
+            newItem.Style = (Style)App.Current.Resources["TabItemDocStyle"];
+            newItem.Content = document;
+            documentContainer.Items.Add(newItem);
+            documentContainer.SelectedItem = newItem;
         }
     }
 }

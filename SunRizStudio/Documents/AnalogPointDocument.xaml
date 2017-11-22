@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SunRizStudio.Documents.AnalogPointDocument"
+﻿<local:BaseDocument x:Class="SunRizStudio.Documents.AnalogPointDocument"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -584,4 +584,4 @@
             <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
         </StackPanel>
     </Grid>
-</UserControl>
+</local:BaseDocument>
