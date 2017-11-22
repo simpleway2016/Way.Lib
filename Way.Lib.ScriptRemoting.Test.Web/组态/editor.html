@@ -80,7 +80,7 @@
 <body style="overflow:hidden;" oncontextmenu="return false;">
     <div class="display-flex flex-direction-column" style="position:absolute;width:100%;height:100%;">
         <div style="background-color:#e8e7e3;height:36px;">
-            <div class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);">
+            <div id="btnSetting" class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);">
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);" _type="ToolBox_Line">
             </div>
@@ -329,6 +329,10 @@
         fileBrowser = new FileBrowser();
         loadControls(editor);
         loadFinish();
+        if (editor.name.length == 0)
+        {
+            btnSetting.click();
+        }
     </script>
 </body>
 </html>

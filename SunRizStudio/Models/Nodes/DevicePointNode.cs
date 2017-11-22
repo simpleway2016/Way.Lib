@@ -32,11 +32,13 @@ namespace SunRizStudio.Models.Nodes
 
         void doubleClick(object sender, RoutedEventArgs e)
         {
-            foreach( TabItem item in MainWindow.Instance.documentContainer.Items )
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach ( TabItem item in MainWindow.Instance.documentContainer.Items )
             {
                 var doc = item.Content as Documents.BaseDocument;
-                if(doc.DataContext == _point)
+                if(doc.DataContext is DevicePoint && ((DevicePoint)doc.DataContext).id == _point.id)
                 {
+                    //active
                     MainWindow.Instance.documentContainer.SelectedItem = item;
                     return;
                 }

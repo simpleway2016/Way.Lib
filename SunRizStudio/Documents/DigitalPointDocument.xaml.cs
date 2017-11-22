@@ -23,7 +23,6 @@ namespace SunRizStudio.Documents
     public partial class DigitalPointDocument : BaseDocument
     {
         internal PointDocumentController Controller;
-        public override string Header => Controller.OriginalModel.Name;
         public DigitalPointDocument()
         {
             InitializeComponent();
@@ -34,6 +33,7 @@ namespace SunRizStudio.Documents
             InitializeComponent();
 
             Controller = new PointDocumentController(this, gridProperty, device, DevicePoint_TypeEnum.Digital, parent, dataModel, folderId);
+            this.Title = Controller.OriginalModel.Name;
         }
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
@@ -51,7 +51,7 @@ namespace SunRizStudio.Documents
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             //关闭当前document
-            MainWindow.Instance.SetActiveDocument(null);
+            MainWindow.Instance.CloseDocument(this);
         }
 
         private void btnRefresh_Click(object sender, RoutedEventArgs e)

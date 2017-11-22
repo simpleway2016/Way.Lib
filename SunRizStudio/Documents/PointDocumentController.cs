@@ -19,10 +19,10 @@ namespace SunRizStudio.Documents
         DevicePoint _pointModel;
         internal DevicePoint OriginalModel;
         SolutionNode _parentNode;
-        UserControl _container;
+        BaseDocument _container;
         SunRizDriver.SunRizDriverClient gatewayClient;
         Dictionary<string, string> _PointJsonDict = null;
-        public PointDocumentController( UserControl container, Grid gridProperty,Device device, DevicePoint_TypeEnum type, SolutionNode parent, DevicePoint dataModel, int folderId)
+        public PointDocumentController(BaseDocument container, Grid gridProperty,Device device, DevicePoint_TypeEnum type, SolutionNode parent, DevicePoint dataModel, int folderId)
         {
             _container = container;
             _gridProperty = gridProperty;
@@ -157,7 +157,7 @@ namespace SunRizStudio.Documents
                 else
                 {
                     //更新TabItem的文字
-                    this._container.GetParentByName<TabItem>(null).Header = _pointModel.Name;
+                    this._container.Title = _pointModel.Desc;
                     if (_pointModel.id == null)
                     {
                         //是添加的新点
@@ -171,7 +171,7 @@ namespace SunRizStudio.Documents
                     if (closeOnSuccess)
                     {
                         //关闭当前document
-                        MainWindow.Instance.SetActiveDocument(null);
+                        MainWindow.Instance.CloseDocument(_container);
                     }
                 }
             }, _pointModel);

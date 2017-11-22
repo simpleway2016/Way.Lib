@@ -59,9 +59,11 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAutomationProvider" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -84,6 +86,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Documents\ControlWindowDocument.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Documents\DigitalPointDocument.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -95,12 +101,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ControlWindow\Editor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ControlWindow\Editor.Designer.cs">
-      <DependentUpon>Editor.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\DeviceDialog.xaml.cs">
       <DependentUpon>DeviceDialog.xaml</DependentUpon>
@@ -115,9 +115,13 @@
       <DependentUpon>AnalogPointDocument.xaml</DependentUpon>
     </Compile>
     <Compile Include="Documents\BaseDocument.cs" />
+    <Compile Include="Documents\ControlWindowDocument.xaml.cs">
+      <DependentUpon>ControlWindowDocument.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Documents\DigitalPointDocument.xaml.cs">
       <DependentUpon>DigitalPointDocument.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Documents\DocTabItem.cs" />
     <Compile Include="Documents\PointDocumentController.cs" />
     <Compile Include="ExtendMethods.cs" />
     <Compile Include="Form1.cs">
@@ -166,9 +170,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="ControlWindow\Editor.resx">
-      <DependentUpon>Editor.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

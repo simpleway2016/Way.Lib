@@ -24,7 +24,6 @@ namespace SunRizStudio.Documents
     public partial class AnalogPointDocument : BaseDocument
     {
         internal PointDocumentController Controller;
-        public override string Header => Controller.OriginalModel.Name;
         public AnalogPointDocument()
         {
             InitializeComponent();
@@ -35,7 +34,7 @@ namespace SunRizStudio.Documents
             InitializeComponent();
 
             Controller = new PointDocumentController(this,gridProperty, device , DevicePoint_TypeEnum.Analog , parent , dataModel , folderId);
-            
+            this.Title = Controller.OriginalModel.Desc;
         }
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
@@ -53,7 +52,7 @@ namespace SunRizStudio.Documents
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             //关闭当前document
-            MainWindow.Instance.SetActiveDocument(null);
+            MainWindow.Instance.CloseDocument(this);
         }
 
         private void btnRefresh_Click(object sender, RoutedEventArgs e)

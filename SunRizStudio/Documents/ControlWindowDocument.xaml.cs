@@ -2,32 +2,48 @@
 using SunRizStudio.Models.Nodes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-namespace SunRizStudio.ControlWindow
+namespace SunRizStudio.Documents
 {
-    public partial class Editor : Form
+    /// <summary>
+    /// ControlWindowDocument.xaml 的交互逻辑
+    /// </summary>
+    public partial class ControlWindowDocument : BaseDocument
     {
         static bool InitFireFoxed = false;
         GeckoWebBrowser _gecko;
         ControlWindowContainerNode _parentNode;
-        SunRizServer.ControlWindow _dataModel;
-        internal Editor(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel)
+        internal SunRizServer.ControlWindow _dataModel;
+
+        public ControlWindowDocument()
         {
-            _dataModel = dataModel??new SunRizServer.ControlWindow() {
+            InitializeComponent();
+
+        }
+
+        internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel)
+        {
+            _dataModel = dataModel ?? new SunRizServer.ControlWindow()
+            {
                 ControlUnitId = parent._controlUnitId,
                 FolderId = parent._folderId,
             };
             _parentNode = parent;
             InitializeComponent();
-            this.Text = "正在初始化...";
+            this.Title = "初始化...";
             this.init();
         }
 
@@ -42,7 +58,7 @@ namespace SunRizStudio.ControlWindow
                 });
                 Gecko.Xpcom.Initialize("Firefox");
             }
-            this.Text = "正在加载画面内容";
+            this.Title = "Loading...";
             _gecko = new GeckoWebBrowser();
             _gecko.CreateControl();
             _gecko.Enabled = false;
@@ -51,8 +67,7 @@ namespace SunRizStudio.ControlWindow
             _gecko.AddMessageEventListener("save", save);
             _gecko.AddMessageEventListener("loadFinish", loadFinish);
 
-            _gecko.Dock = DockStyle.Fill;
-            this.Controls.Add(_gecko);
+            winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
             _gecko.CreateWindow += Gecko_CreateWindow;
             _gecko.DocumentCompleted += Gecko_DocumentCompleted;
@@ -67,7 +82,7 @@ namespace SunRizStudio.ControlWindow
         }
         void loadFinish(string msg)
         {
-            this.Text = "监视画面编辑器";
+            this.Title = _dataModel.Name;
             _gecko.Enabled = true;
         }
         void copyToClipboard(string message)
@@ -77,27 +92,31 @@ namespace SunRizStudio.ControlWindow
 
         void save(string json)
         {
+            this.Title = "正在保存...";
             Helper.Remote.Invoke<SunRizServer.ControlWindow>("SaveWindowContent", (ret, err) => {
-                if(err != null)
-                {
+                
+                if (err != null)
+                {                    
                     MessageBox.Show(err);
                 }
                 else
                 {
                     _dataModel.CopyValue(ret);
                     if (_dataModel.id == null)
-                    {                      
+                    {
                         _parentNode.Nodes.Add(new ControlWindowNode(_dataModel));
                     }
                     _dataModel.ChangedProperties.Clear();
+                    this.Title = _dataModel.Name;
                 }
-            }, _dataModel , json);
+                this.Title = _dataModel.Name;
+            }, _dataModel, json);
         }
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
         {
-           
-           // progressBar1.Value = 0;
+
+            // progressBar1.Value = 0;
         }
 
         private void Gecko_CreateWindow(object sender, GeckoCreateWindowEventArgs e)
@@ -114,7 +133,7 @@ namespace SunRizStudio.ControlWindow
             var value = (int)Math.Min(100, (e.CurrentProgress * 100) / e.MaximumProgress);
             if (value == 100)
                 return;
-           // progressBar1.Value = value;
+            // progressBar1.Value = value;
         }
     }
 }

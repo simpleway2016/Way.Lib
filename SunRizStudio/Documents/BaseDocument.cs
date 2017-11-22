@@ -9,11 +9,25 @@ namespace SunRizStudio.Documents
 {
     public class BaseDocument : UserControl
     {
-        public virtual string Header
+        internal DocTabItem TabItem;
+        public event EventHandler TitleChanged;
+        string _title;
+        public string Title
         {
             get
             {
-                return "";
+                return _title;
+            }
+            set
+            {
+                if(_title !=value)
+                {
+                    _title = value;
+                    if (TitleChanged != null)
+                    {
+                        TitleChanged(this, null);
+                    }
+                }
             }
         }
         /// <summary>
