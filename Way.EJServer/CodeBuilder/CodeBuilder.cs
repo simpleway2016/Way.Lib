@@ -90,7 +90,7 @@ namespace "+nameSpace+@".DB{
                 {
                     if (!setEvented)
                     {
-                        Way.EntityDB.Design.DBUpgrade.Upgrade(this, _designData);
+                        Way.EntityDB.Design.DBUpgrade.Upgrade(this,  GetDesignString());
                         setEvented = true;
                         Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
                     }
@@ -150,15 +150,25 @@ namespace "+nameSpace+@".DB{
             }
             result.Append("\r\n");
 
-
+            
             var dt = db.Database.SelectDataSet("select * from __action where databaseid=" + databaseObj.id + " order by [id]");
             dt.Tables[0].TableName = databaseObj.dbType.ToString();
             dt.DataSetName = databaseObj.Guid;
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(dt);
-            result.Append("static string _designData = \""+ System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json)) +"\";");
+            string content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
+           
+            result.AppendLine("static string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); ");
+            for (int i = 0; i < content.Length; i += 200)
+            {
+                int len = Math.Min(content.Length - i, 200);
+                result.AppendLine("result.Append(\"" + content.Substring(i , len) + "\");");
+            }
+            result.AppendLine("return result.ToString();}");
             result.Append("}}\r\n");
             return result.ToString();
         }
+        
+
         public string[] BuildTable(EJDB db,string nameSpace, EJ.DBTable table)
         {
             var columns = db.DBColumn.Where(m => m.TableID == table.id).ToList();
