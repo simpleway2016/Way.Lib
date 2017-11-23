@@ -79,6 +79,7 @@ namespace Way.Lib.ScriptRemoting
             internal set;
         }
         public delegate bool OnMessageReceiverConnectHandler(SessionState session, string groupName);
+        public delegate void OnMessageReceiverDisconnectHandler(SessionState session, string groupName);
         /// <summary>
         /// 当有客户端试图连接，接收group信息时触发，您可以return false，或者throw Exception，拒绝对方连接
         /// </summary>
@@ -90,6 +91,16 @@ namespace Way.Lib.ScriptRemoting
             return OnMessageReceiverConnect(session, groupName);
         }
 
+        /// <summary>
+        /// 当group信息接收通道断开时，触发此事件
+        /// </summary>
+        public static event OnMessageReceiverDisconnectHandler OnMessageReceiverDisconnect;
+        internal static void MessageReceiverDisconnect(SessionState session, string groupName)
+        {
+            if (OnMessageReceiverDisconnect == null)
+                return;
+            OnMessageReceiverDisconnect(session, groupName);
+        }
 
         /// <summary>
         /// 获取web所在文件夹

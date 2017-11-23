@@ -62,7 +62,7 @@ namespace SunRizStudio.Documents
             _gecko = new GeckoWebBrowser();
             _gecko.CreateControl();
             _gecko.Enabled = false;
-            _gecko.NoDefaultContextMenu = true; //禁用右键菜单
+            //_gecko.NoDefaultContextMenu = true; //禁用右键菜单
             _gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
             _gecko.AddMessageEventListener("save", save);
             _gecko.AddMessageEventListener("loadFinish", loadFinish);

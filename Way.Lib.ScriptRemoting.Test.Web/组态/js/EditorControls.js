@@ -169,6 +169,7 @@ var EditorControl = (function () {
             id = "eCtrl";
         }
         script += id + " = new " + json.constructorName + "();\r\n";
+        script += "editor.addControl(" + id + ");\r\n";
         for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
                 continue;
@@ -178,7 +179,6 @@ var EditorControl = (function () {
             script += id + "." + proName + " = " + JSON.stringify(json[proName]) + ";\r\n";
         }
         script += id + ".rect = " + JSON.stringify(json.rect) + ";\r\n";
-        script += "editor.addControl(" + id + ");\r\n";
         return script;
     };
     EditorControl.prototype.isIntersectWith = function (rect) {
@@ -436,12 +436,11 @@ var RectControl = (function (_super) {
     }
     Object.defineProperty(RectControl.prototype, "rect", {
         get: function () {
-            var myrect = this.rectElement.getBBox();
             return {
-                x: myrect.x,
-                y: myrect.y,
-                width: myrect.width,
-                height: myrect.height
+                x: parseInt(this.rectElement.getAttribute("x")),
+                y: parseInt(this.rectElement.getAttribute("y")),
+                width: parseInt(this.rectElement.getAttribute("width")),
+                height: parseInt(this.rectElement.getAttribute("height")),
             };
         },
         set: function (v) {
@@ -1167,7 +1166,7 @@ var CylinderControl = (function (_super) {
     __extends(CylinderControl, _super);
     function CylinderControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
-        _this._value = 50;
+        _this._value = 0;
         _this._max = 100;
         _this._min = 0;
         _this._devicePoint = "";
@@ -1210,7 +1209,11 @@ var CylinderControl = (function (_super) {
             this._max = parseFloat(v);
             if (this._max <= this._min)
                 this._max = this._min + 1;
-            this.resetCylinder(this.rect);
+            try {
+                this.resetCylinder(this.rect);
+            }
+            catch (e) {
+            }
         },
         enumerable: true,
         configurable: true
@@ -1223,7 +1226,11 @@ var CylinderControl = (function (_super) {
             this._min = parseFloat(v);
             if (this._min >= this._max)
                 this._max = this._max - 1;
-            this.resetCylinder(this.rect);
+            try {
+                this.resetCylinder(this.rect);
+            }
+            catch (e) {
+            }
         },
         enumerable: true,
         configurable: true
@@ -1247,12 +1254,11 @@ var CylinderControl = (function (_super) {
     };
     Object.defineProperty(CylinderControl.prototype, "rect", {
         get: function () {
-            var myrect = this.rectElement.getBBox();
             return {
-                x: myrect.x,
-                y: myrect.y,
-                width: myrect.width,
-                height: myrect.height
+                x: parseInt(this.rectElement.getAttribute("x")),
+                y: parseInt(this.rectElement.getAttribute("y")),
+                width: parseInt(this.rectElement.getAttribute("width")),
+                height: parseInt(this.rectElement.getAttribute("height")),
             };
         },
         set: function (v) {
@@ -1865,12 +1871,11 @@ var TrendControl = (function (_super) {
     };
     Object.defineProperty(TrendControl.prototype, "rect", {
         get: function () {
-            var myrect = this.rectElement.getBBox();
             return {
-                x: myrect.x,
-                y: myrect.y,
-                width: myrect.width,
-                height: myrect.height
+                x: parseInt(this.rectElement.getAttribute("x")),
+                y: parseInt(this.rectElement.getAttribute("y")),
+                width: parseInt(this.rectElement.getAttribute("width")),
+                height: parseInt(this.rectElement.getAttribute("height")),
             };
         },
         set: function (v) {
@@ -2195,12 +2200,11 @@ var ButtonAreaControl = (function (_super) {
     }
     Object.defineProperty(ButtonAreaControl.prototype, "rect", {
         get: function () {
-            var myrect = this.rectElement.getBBox();
             return {
-                x: myrect.x,
-                y: myrect.y,
-                width: myrect.width,
-                height: myrect.height
+                x: parseInt(this.rectElement.getAttribute("x")),
+                y: parseInt(this.rectElement.getAttribute("y")),
+                width: parseInt(this.rectElement.getAttribute("width")),
+                height: parseInt(this.rectElement.getAttribute("height")),
             };
         },
         set: function (v) {

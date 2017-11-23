@@ -164,6 +164,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     KeepAliveHandlers.Remove(this);
                 }
+                RemotingController.MessageReceiverDisconnect(this.Session, this.GroupName);
             }
             catch
             {

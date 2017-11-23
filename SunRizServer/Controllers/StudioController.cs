@@ -158,14 +158,32 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int UpdatePoint(DevicePoint point)
         {
-            if (point.id == null && this.db.DevicePointFolder.Any(m => m.DeviceId == point.DeviceId && m.Name == point.Name ))
+            if (point.id == null && this.db.DevicePointFolder.Any(m => m.Name == point.Name ))
                 throw new Exception("点名已存在");
-            else if (point.id == null && this.db.DevicePointFolder.Any(m => m.id != point.id && m.DeviceId == point.DeviceId && m.Name == point.Name))
+            else if (point.id == null && this.db.DevicePointFolder.Any(m => m.id != point.id && m.Name == point.Name))
                 throw new Exception("点名已存在");
 
             this.db.Update(point);
             return point.id.Value;
         }
-        
+
+        [RemotingMethod]
+        public object RegisterPointsAndGetGroupName(string[] pointNames)
+        {
+            object[] objs = new object[pointNames.Length];
+            for(int i = 0; i < pointNames.Length; i ++)
+            {
+                var devPoint = this.db.DevicePoint.FirstOrDefault(m => m.Name == pointNames[i]);
+                objs[i] = new {
+                    name = pointNames[i],
+                    max = devPoint.TransMax,
+                    min = devPoint.TransMin,
+                };
+            }
+            return new {
+                points = objs,
+                groupName = Guid.NewGuid().ToString("N")
+            };
+        }
     }
 }

@@ -196,6 +196,7 @@ class EditorControl
             id = "eCtrl";
         }
         script += id + " = new " + json.constructorName + "();\r\n";
+        script += "editor.addControl(" + id + ");\r\n";
         for (var proName in json)
         {
             if (proName == "rect" || proName == "constructorName")
@@ -205,8 +206,7 @@ class EditorControl
                 continue;
             script += id + "." + proName + " = " + JSON.stringify(json[proName]) + ";\r\n";
         }
-        script += id + ".rect = " + JSON.stringify(json.rect) + ";\r\n";
-        script += "editor.addControl(" + id + ");\r\n";
+        script += id + ".rect = " + JSON.stringify(json.rect) + ";\r\n";       
         return script;
     }
 
@@ -508,18 +508,11 @@ class RectControl extends EditorControl {
     startY = 0;
 
     get rect() {
-        var myrect: SVGRect = (<any>this.rectElement).getBBox();
-        //var myrect = {
-        //    x: parseInt(this.rectElement.getAttribute("x")),
-        //    y: parseInt(this.rectElement.getAttribute("y")),
-        //    width: parseInt(this.rectElement.getAttribute("width")),
-        //    height: parseInt(this.rectElement.getAttribute("height")),
-        //};
         return {
-            x: myrect.x,
-            y: myrect.y,
-            width: myrect.width,
-            height: myrect.height
+            x: parseInt(this.rectElement.getAttribute("x")),
+            y: parseInt(this.rectElement.getAttribute("y")),
+            width: parseInt(this.rectElement.getAttribute("width")),
+            height: parseInt(this.rectElement.getAttribute("height")),
         };
     }
     set rect(v:any) {
@@ -1253,7 +1246,7 @@ class TextControl extends RectControl {
 }
 
 class CylinderControl extends EditorControl {
-    private _value: number = 50;
+    private _value: number = 0;
     private _max: number = 100;
     private _min: number = 0;
     get value()
@@ -1273,11 +1266,17 @@ class CylinderControl extends EditorControl {
         return this._max;
     }
     set max(v: any) {
+
         this._max = parseFloat(v);
         if (this._max <= this._min)
             this._max = this._min + 1;
+        try {
+            this.resetCylinder(this.rect);
+        }
+        catch (e)
+        {
 
-        this.resetCylinder(this.rect);
+        }
     }
     get min() {
         return this._min;
@@ -1286,7 +1285,12 @@ class CylinderControl extends EditorControl {
         this._min = parseFloat(v);
         if (this._min >= this._max)
             this._max = this._max - 1;
-        this.resetCylinder(this.rect);
+        try {
+            this.resetCylinder(this.rect);
+        }
+        catch (e) {
+
+        }
     }
 
     _devicePoint: string = "";
@@ -1313,20 +1317,15 @@ class CylinderControl extends EditorControl {
     startX = 0;
     startY = 0;
 
-    get rect() {
-        var myrect: SVGRect = (<any>this.rectElement).getBBox();
-        //var myrect = {
-        //    x: parseInt(this.rectElement.getAttribute("x")),
-        //    y: parseInt(this.rectElement.getAttribute("y")),
-        //    width: parseInt(this.rectElement.getAttribute("width")),
-        //    height: parseInt(this.rectElement.getAttribute("height")),
-        //};
+    get rect() {        
+
         return {
-            x: myrect.x,
-            y: myrect.y,
-            width: myrect.width,
-            height: myrect.height
+            x: parseInt(this.rectElement.getAttribute("x")),
+            y: parseInt(this.rectElement.getAttribute("y")),
+            width: parseInt(this.rectElement.getAttribute("width")),
+            height: parseInt(this.rectElement.getAttribute("height")),
         };
+        
     }
     set rect(v: any) {
         this.rectElement.setAttribute("x", v.x);
@@ -1860,18 +1859,11 @@ class TrendControl extends EditorControl {
     startY = 0;
 
     get rect() {
-        var myrect: SVGRect = (<any>this.rectElement).getBBox();
-        //var myrect = {
-        //    x: parseInt(this.rectElement.getAttribute("x")),
-        //    y: parseInt(this.rectElement.getAttribute("y")),
-        //    width: parseInt(this.rectElement.getAttribute("width")),
-        //    height: parseInt(this.rectElement.getAttribute("height")),
-        //};
         return {
-            x: myrect.x,
-            y: myrect.y,
-            width: myrect.width,
-            height: myrect.height
+            x: parseInt(this.rectElement.getAttribute("x")),
+            y: parseInt(this.rectElement.getAttribute("y")),
+            width: parseInt(this.rectElement.getAttribute("width")),
+            height: parseInt(this.rectElement.getAttribute("height")),
         };
     }
     set rect(v: any) {
@@ -2197,12 +2189,11 @@ class ButtonAreaControl extends EditorControl {
     startY = 0;
 
     get rect() {
-        var myrect: SVGRect = (<any>this.rectElement).getBBox();
         return {
-            x: myrect.x,
-            y: myrect.y,
-            width: myrect.width,
-            height: myrect.height
+            x: parseInt(this.rectElement.getAttribute("x")),
+            y: parseInt(this.rectElement.getAttribute("y")),
+            width: parseInt(this.rectElement.getAttribute("width")),
+            height: parseInt(this.rectElement.getAttribute("height")),
         };
     }
     set rect(v: any) {

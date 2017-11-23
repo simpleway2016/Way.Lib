@@ -206,41 +206,36 @@
             document.dispatchEvent(event);
         }
 
-        //var testObj = {age:12};
-        //Object.defineProperty(testObj, "name", {
-        //    get: function () { return this._name; },
-        //    set: function (v) { this._name = v; },
-        //    enumerable: true,
-        //    configurable: true
-        //});
-        //testObj.name = "abc";
-        window.devicePoints = [];
-        window.devicePoints.push({
-            name: "/p/01",
-            value: 1,
-            max: 200,
-            min: 0,
-            timeoutNumber: null,
-            timeoutValue:null,
-        });
-        window.devicePoints.push({
-            name: "/p/02",
-            value: 2,
-            max: 200,
-            min: 0,
-            timeoutNumber: null,
-            timeoutValue: null,
-        });
-        window.devicePoints.push({
-            name: "/p/03",
-            value:3,
-            max: 200,
-            min: 0,
-            timeoutNumber: null,
-            timeoutValue: null,
-        });
+        
+       
         function startTest()
         {
+            window.devicePoints = [];
+            window.devicePoints.push({
+                name: "/p/01",
+                value: 1,
+                max: 200,
+                min: 0,
+                timeoutNumber: null,
+                timeoutValue: null,
+            });
+            window.devicePoints.push({
+                name: "/p/02",
+                value: 2,
+                max: 200,
+                min: 0,
+                timeoutNumber: null,
+                timeoutValue: null,
+            });
+            window.devicePoints.push({
+                name: "/p/03",
+                value: 3,
+                max: 200,
+                min: 0,
+                timeoutNumber: null,
+                timeoutValue: null,
+            });
+
             for (var i = 0; i < editor.controls.length; i++) {
                 var control = editor.controls[i];
                 control.run();
@@ -322,13 +317,40 @@
         }
 
 
+        function initAllDevicePoints()
+        {
+            var pointNames = [];
+            for (var i = 0; i < editor.controls.length; i++)
+            {
+                var ctrl = editor.controls[i];
+                for (var p in ctrl)
+                {
+                    if (p.indexOf("devicePoint") == 0 && ctrl[p] && ctrl[p].length > 0)
+                    {
+                        var pointName = ctrl[p];
+                        if (pointNames.indexOf(pointName) < 0)
+                            pointNames.push(pointName);
+                    }
+                }
+            }
 
+            remoting.server.RegisterPointsAndGetGroupName(pointNames, function (ret, err) {
+                alert("所有点：" + JSON.stringify(ret));
+            });
+        }
+
+        var devicePoints = [];
         var editor;
         var fileBrowser;
+        var remoting;
         editor = new Editor("svgContainer");
         fileBrowser = new FileBrowser();
         loadControls(editor);
         loadFinish();
+        //把EditorControl关联的点找出来
+        remoting = "SunRizServer.Controllers.StudioController".controller();
+        initAllDevicePoints();        
+        
         if (editor.name.length == 0)
         {
             btnSetting.click();
