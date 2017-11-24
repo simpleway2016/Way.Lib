@@ -27,6 +27,8 @@ namespace SunRizStudio.Documents
         GeckoWebBrowser _gecko;
         ControlWindowContainerNode _parentNode;
         internal SunRizServer.ControlWindow _dataModel;
+        List<MyDriverClient> _clients = new List<MyDriverClient>();
+        AutoJSContext jsContext;
 
         public ControlWindowDocument()
         {
@@ -66,6 +68,7 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
             _gecko.AddMessageEventListener("save", save);
             _gecko.AddMessageEventListener("loadFinish", loadFinish);
+            _gecko.AddMessageEventListener("watchPointValues", watchPointValues);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -80,10 +83,79 @@ namespace SunRizStudio.Documents
                 _gecko.Navigate($"{Helper.Url}/editor");
             }
         }
+        void watchPointValues(string jsonStr)
+        {
+            Task.Run(()=> {
+                try
+                {
+                    var pointArr = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonStr);
+                    var groups = (from m in pointArr
+                                  group m by m.Value<int>("deviceId") into g
+                                  select new
+                                  {
+                                      deviceId = g.Key,
+                                      points = g.ToArray(),
+                                  }).ToArray();
+                    foreach (var group in groups)
+                    {
+                        var device = Helper.Remote.InvokeSync<SunRizServer.Device>("GetDeviceAndDriver", group.deviceId);
+                        var points = group.points.Select(m => m.Value<string>("addr")).ToArray();
+                        var client = new MyDriverClient(device.Driver.Address, device.Driver.Port.Value);
+                        _clients.Add(client);
+                        watchDevice(client , device, points);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    MainWindow.Instance.Dispatcher.Invoke(() => {
+                        MessageBox.Show(MainWindow.Instance, ex.Message);
+                    });
+                }
+            });            
+        }
+
+        public override void OnClose(ref bool canceled)
+        {
+            foreach( var client in _clients )
+            {
+                client.Released = true;
+                client.NetClient.Close();
+            }
+            base.OnClose(ref canceled);
+        }
+
+        void watchDevice(MyDriverClient client , SunRizServer.Device device , string[] points)
+        {
+
+            client.NetClient = client.AddPointToWatch(device.Address, points, (point, value) =>
+            {
+                try
+                {
+                    _gecko.Invoke(new ThreadStart(()=> {
+                        jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = point, value = value }).ToJsonString()})");
+                    }));                    
+                }
+                catch(Exception ex)
+                {
+
+                }
+            }, (err) =>
+            {
+                if (client.Released)
+                    return;
+
+                Task.Run(() => {
+                    Thread.Sleep(2000);
+                    watchDevice(client,device, points);
+                });
+            });
+        }
+
         void loadFinish(string msg)
         {
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
+            jsContext = new AutoJSContext(_gecko.Window);
         }
         void copyToClipboard(string message)
         {
@@ -115,7 +187,7 @@ namespace SunRizStudio.Documents
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
         {
-
+           
             // progressBar1.Value = 0;
         }
 
@@ -127,6 +199,7 @@ namespace SunRizStudio.Documents
 
         private void Gecko_ProgressChanged(object sender, GeckoProgressEventArgs e)
         {
+            
             if (e.MaximumProgress == 0)
                 return;
 
@@ -134,6 +207,16 @@ namespace SunRizStudio.Documents
             if (value == 100)
                 return;
             // progressBar1.Value = value;
+        }
+    }
+
+    class MyDriverClient:SunRizDriver.SunRizDriverClient
+    {
+        public bool Released = false;
+        public Way.Lib.NetStream NetClient;
+        public MyDriverClient(string addr,int port) : base(addr , port)
+        {
+
         }
     }
 }

@@ -193,10 +193,16 @@
 
         function loadFinish()
         {
-            var event = document.createEvent('MessageEvent');
-            var origin = window.location.protocol + '//' + window.location.host;
-            event.initMessageEvent('loadFinish', true, true,"", origin, 1234, window, null);
-            document.dispatchEvent(event);
+            try {
+                var event = document.createEvent('MessageEvent');
+                var origin = window.location.protocol + '//' + window.location.host;
+                event.initMessageEvent('loadFinish', true, true, "", origin, 1234, window, null);
+                document.dispatchEvent(event);
+            }
+            catch (e)
+            {
+
+            }
         }
 
         function save(name,code,editorScript,controlsScript) {
@@ -205,7 +211,13 @@
             event.initMessageEvent('save', true, true, JSON.stringify({ "name": name,"code":code,"editorScript": editorScript, "controlsScript": controlsScript} ), origin, 1234, window, null);
             document.dispatchEvent(event);
         }
-
+        function watchPointValues(json)
+        {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('watchPointValues', true, true, json, origin, 1234, window, null);
+            document.dispatchEvent(event);
+        }
         
        
         function startTest()
@@ -334,26 +346,31 @@
                 }
             }
 
-            remoting.server.CreateGuid(function (groupName, err)
-            {
+            remoting.server.GetPointDetails(pointNames, function (ret, err) {
                 if (err)
                     alert(err);
                 else {
-                    remoting.groupName = groupName;
-                    //定义实时接收值变化事件
-                    remoting.onmessage = function (msg) {
-                        alert(msg);
+                    for (var i = 0; i < ret.length; i++) {
+                        var p = ret[i];
+                        p.value = 0;
+                        p.timeoutNumber = null;
+                        p.timeoutValue = null;
+                        devicePoints.push(p);
                     }
-
-                    remoting.server.RegisterPointsAndGetGroupName(pointNames, groupName, function (ret, err) {
-                        if (err)
-                            alert(err);
-                        else
-                            alert("所有点：" + JSON.stringify(ret));
-                    });
+                    watchPointValues(JSON.stringify(devicePoints));
                 }
             });
            
+        }
+
+        function onReceiveValueFromServer(point)
+        {
+            for (var i = 0; i < devicePoints.length; i++) {
+                if (devicePoints[i].addr == point.addr) {
+                    receiveNewValue(devicePoints[i], point.value);
+                    break;
+                }
+            }
         }
 
         //进入运行模式
@@ -375,8 +392,9 @@
         loadControls(editor);
         loadFinish();
         //把EditorControl关联的点找出来
-        remoting = "SunRizServer.Controllers.StudioController".controller();               
-        
+        remoting = "SunRizServer.Controllers.StudioController".controller();
+        run();
+
         if (editor.name.length == 0)
         {
             btnSetting.click();

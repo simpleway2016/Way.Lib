@@ -1182,6 +1182,7 @@ var CylinderControl = (function (_super) {
         _this.cylinderElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         _this.cylinderElement.setAttribute("rx", "6");
         _this.cylinderElement.setAttribute("ry", "6");
+        _this.cylinderElement.setAttribute("height", "0");
         _this.cylinderElement.setAttribute('style', 'fill:#00BF00;stroke:none;');
         _this.element.appendChild(_this.rectElement);
         _this.element.appendChild(_this.cylinderElement);
@@ -1246,9 +1247,9 @@ var CylinderControl = (function (_super) {
         configurable: true
     });
     CylinderControl.prototype.onDevicePointValueChanged = function (devPoint) {
-        if (devPoint.max != this.max)
+        if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
-        if (devPoint.min != this.min)
+        if (devPoint.min != null && devPoint.min != this.min)
             this.min = devPoint.min;
         this.value = devPoint.value;
     };
@@ -1321,9 +1322,9 @@ var CylinderControl = (function (_super) {
     CylinderControl.prototype.resetCylinder = function (rect) {
         var ctrlHeight = rect.height - 40;
         var myheight = parseInt((((this.value - this.min) * ctrlHeight) / (this.max - this.min)));
+        myheight = Math.min(ctrlHeight, myheight);
         if (myheight < 0)
             myheight = 0;
-        myheight = Math.min(ctrlHeight, myheight);
         this.cylinderElement.setAttribute("x", rect.x + 10);
         this.cylinderElement.setAttribute("y", (rect.y + 20 + ctrlHeight - myheight));
         this.cylinderElement.setAttribute("width", (rect.width - 20));

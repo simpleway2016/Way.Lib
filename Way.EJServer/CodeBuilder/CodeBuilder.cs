@@ -680,6 +680,34 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 ");
             }
 
+
+            var classProperties = db.classproperty.Where(m => m.tableid == table.id).ToArray();
+            foreach (var pro in classProperties)
+            {
+                try
+                {
+                    var foreign_table = db.DBTable.FirstOrDefault(m => m.id == pro.foreignkey_tableid);
+                    if (pro.iscollection == false)
+                    {
+
+                        var column = db.DBColumn.FirstOrDefault(m => m.id == pro.foreignkey_columnid);
+                        result.Append(@"
+        public virtual " + foreign_table.Name + @" " + pro.name + @" { get; set; }
+");
+                    }
+                    else
+                    {
+                        result.Append(@"
+        public virtual ICollection<" + foreign_table.Name + @"> " + pro.name + @" { get; set; }
+");
+                    }
+                }
+                catch
+                {
+                }
+
+            }
+
             result.Append("}}\r\n");
 
             result.Insert(0, @"namespace " + nameSpace + @"{

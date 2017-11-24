@@ -7,11 +7,12 @@ namespace SunRizServer.Controllers
 {
     [RemotingUrl("Home")]
     public class StudioController : BaseController
-    {
+    { 
+
         [RemotingMethod]
         public int UpdateGateway(CommunicationDriver driver)
-        {            
-            if (driver.id == null &&  this.db.CommunicationDriver.Any(m => m.Address == driver.Address && m.Port == driver.Port))
+        {
+            if (driver.id == null && this.db.CommunicationDriver.Any(m => m.Address == driver.Address && m.Port == driver.Port))
                 throw new Exception("此网关已存在");
             else if (this.db.CommunicationDriver.Any(m => m.id != driver.id && m.Address == driver.Address && m.Port == driver.Port))
                 throw new Exception("此网关已存在");
@@ -24,6 +25,14 @@ namespace SunRizServer.Controllers
         public CommunicationDriver[] GetGatewayList()
         {
             return this.db.CommunicationDriver.ToArray();
+        }
+
+        [RemotingMethod]
+        public Device GetDeviceAndDriver(int deviceId)
+        {
+            var device = this.db.Device.FirstOrDefault(m => m.id == deviceId);
+            device.Driver = this.db.CommunicationDriver.FirstOrDefault(m=>m.id == device.DriverID);
+            return device;
         }
 
         [RemotingMethod]
@@ -59,16 +68,16 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public Device[] GetDeviceList(int unitid)
         {
-            return this.db.Device.Where(m=>m.UnitId == unitid).OrderBy(m => m.Name).ToArray();
+            return this.db.Device.Where(m => m.UnitId == unitid).OrderBy(m => m.Name).ToArray();
         }
 
         [RemotingMethod]
-        public DevicePointFolder[] GetDevicePointFolders(int deviceid,SunRizServer.DevicePointFolder_TypeEnum type , int parentid)
+        public DevicePointFolder[] GetDevicePointFolders(int deviceid, SunRizServer.DevicePointFolder_TypeEnum type, int parentid)
         {
             return this.db.DevicePointFolder.Where(m => m.DeviceId == deviceid && m.Type == type && m.ParentId == parentid).OrderBy(m => m.Name).ToArray();
         }
         [RemotingMethod]
-        public ControlWindowFolder[] GetControlWindowFolders(int controlUnitId,  int parentid)
+        public ControlWindowFolder[] GetControlWindowFolders(int controlUnitId, int parentid)
         {
             return this.db.ControlWindowFolder.Where(m => m.ControlUnitId == controlUnitId && m.ParentId == parentid).OrderBy(m => m.Name).ToArray();
         }
@@ -94,7 +103,7 @@ namespace SunRizServer.Controllers
         }
 
         [RemotingMethod]
-        public ControlWindow SaveWindowContent(ControlWindow window , string content)
+        public ControlWindow SaveWindowContent(ControlWindow window, string content)
         {
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(content);
             window.Name = obj.Value<string>("name");
@@ -105,7 +114,7 @@ namespace SunRizServer.Controllers
             else if (window.id == null && this.db.ControlWindow.Any(m => m.id != window.id && m.Name == window.Name && window.FolderId == m.FolderId && window.ControlUnitId == m.ControlUnitId))
                 throw new Exception("监视画面名称已存在");
 
-            if (window.id == null && this.db.ControlWindow.Any(m => m.Code == window.Code ))
+            if (window.id == null && this.db.ControlWindow.Any(m => m.Code == window.Code))
                 throw new Exception("监视画面编号已存在");
             else if (window.id == null && this.db.ControlWindow.Any(m => m.id != window.id && m.Code == window.Code))
                 throw new Exception("监视画面编号已存在");
@@ -115,8 +124,8 @@ namespace SunRizServer.Controllers
                 window.FilePath = Guid.NewGuid().ToString("N");
             }
             this.db.Update(window);
-           
-            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath,content, System.Text.Encoding.UTF8);
+
+            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, content, System.Text.Encoding.UTF8);
             return window;
         }
 
@@ -134,7 +143,7 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int UpdateControlWindowFolder(ControlWindowFolder folder)
         {
-            if (folder.id == null && this.db.ControlWindowFolder.Any(m => m.ControlUnitId == folder.ControlUnitId && m.Name == folder.Name && m.ParentId == folder.ParentId ))
+            if (folder.id == null && this.db.ControlWindowFolder.Any(m => m.ControlUnitId == folder.ControlUnitId && m.Name == folder.Name && m.ParentId == folder.ParentId))
                 throw new Exception("此文件夹已存在");
             else if (folder.id == null && this.db.ControlWindowFolder.Any(m => m.id != folder.id && m.ControlUnitId == folder.ControlUnitId && m.Name == folder.Name && m.ParentId == folder.ParentId))
                 throw new Exception("此文件夹已存在");
@@ -145,7 +154,7 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int DeleteDevicePointFolder(int folderid)
         {
-            this.db.Delete(this.db.DevicePointFolder.Where(m=>m.id == folderid));
+            this.db.Delete(this.db.DevicePointFolder.Where(m => m.id == folderid));
             return 0;
         }
 
@@ -158,7 +167,7 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int UpdatePoint(DevicePoint point)
         {
-            if (point.id == null && this.db.DevicePointFolder.Any(m => m.Name == point.Name ))
+            if (point.id == null && this.db.DevicePointFolder.Any(m => m.Name == point.Name))
                 throw new Exception("点名已存在");
             else if (point.id == null && this.db.DevicePointFolder.Any(m => m.id != point.id && m.Name == point.Name))
                 throw new Exception("点名已存在");
@@ -174,23 +183,27 @@ namespace SunRizServer.Controllers
         }
 
         [RemotingMethod]
-        public object RegisterPointsAndGetGroupName(string[] pointNames,string groupName)
+        public object GetPointDetails(string[] pointNames)
         {
             object[] objs = new object[pointNames.Length];
             List<DevicePoint> devPoints = new List<DevicePoint>();
-            for(int i = 0; i < pointNames.Length; i ++)
+            for (int i = 0; i < pointNames.Length; i++)
             {
                 var devPoint = this.db.DevicePoint.FirstOrDefault(m => m.Name == pointNames[i]);
                 devPoints.Add(devPoint);
 
-                objs[i] = new {
+                objs[i] = new
+                {
                     name = pointNames[i],
                     max = devPoint.TransMax,
                     min = devPoint.TransMin,
+                    addr = devPoint.Address,
+                    deviceId = devPoint.DeviceId,
                 };
             }
-            DeviceListener.AddClient(groupName, this.db , devPoints.ToArray());
             return objs;
         }
+
+      
     }
 }

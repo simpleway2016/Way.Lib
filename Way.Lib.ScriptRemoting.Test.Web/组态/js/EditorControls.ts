@@ -1301,9 +1301,9 @@ class CylinderControl extends EditorControl {
         this._devicePoint = v;
     }
     onDevicePointValueChanged(devPoint: any) {
-        if (devPoint.max != this.max)
+        if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
-        if (devPoint.min != this.min)
+        if (devPoint.min != null && devPoint.min != this.min)
             this.min = devPoint.min;
 
         this.value = devPoint.value;
@@ -1381,6 +1381,7 @@ class CylinderControl extends EditorControl {
         this.cylinderElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         this.cylinderElement.setAttribute("rx", "6");
         this.cylinderElement.setAttribute("ry", "6");
+        this.cylinderElement.setAttribute("height", "0");
         this.cylinderElement.setAttribute('style', 'fill:#00BF00;stroke:none;');
 
         this.element.appendChild(this.rectElement);
@@ -1389,12 +1390,14 @@ class CylinderControl extends EditorControl {
 
     resetCylinder(rect:any)
     {
+        
         var ctrlHeight = rect.height - 40;
         var myheight: any = parseInt(<any>(((this.value - this.min) * ctrlHeight) / (this.max - this.min)));
+       
+        myheight = Math.min(ctrlHeight, myheight);
         if (myheight < 0)
             myheight = 0;
-        myheight = Math.min(ctrlHeight, myheight);
-
+                
         this.cylinderElement.setAttribute("x", rect.x + 10);
         this.cylinderElement.setAttribute("y", <any>(rect.y + 20 + ctrlHeight - myheight));
         this.cylinderElement.setAttribute("width", <any>(rect.width - 20));

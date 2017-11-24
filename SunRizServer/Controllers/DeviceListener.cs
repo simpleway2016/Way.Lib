@@ -29,6 +29,7 @@ namespace SunRizServer.Controllers
                     var gateway = db.CommunicationDriver.FirstOrDefault(m => m.id == device.DriverID);
 
                     watch = new WatchGroup();
+                    watch.MessageGroupName = groupName;
                     watch.DeviceAddress = device.Address;
                     watch.Client = new SunRizDriver.SunRizDriverClient(gateway.Address, gateway.Port.Value);
                     watch.DeviceId = point.DeviceId.Value;
@@ -37,26 +38,50 @@ namespace SunRizServer.Controllers
                 watch.PointAddress.Add(point.Address);
             }
 
-            if (watches.Count > 0)
+            RunningWatches[groupName] = watches.ToArray();
+        }
+
+        public static void StartGroup(string groupName)
+        {
+            var watches = RunningWatches[groupName];
+            Task.Run(() =>
             {
-                RunningWatches[groupName] = watches.ToArray();
-                Task.Run(() =>
+                foreach (var watch in watches)
+                {
+                    StartWatches(watch);
+                }
+            });
+        }
+
+        public static void StopGroup(string groupName)
+        {
+            //未实现
+            WatchGroup[] watches;
+            if (RunningWatches.TryRemove(groupName, out watches))
+            {
+                if (watches != null)
                 {
                     foreach (var watch in watches)
                     {
-                        StartWatches(watch);
+                        watch.Release = true;
+                        watch.NetClient.Close();
                     }
-                });
+                }
             }
         }
 
         static void StartWatches(WatchGroup watch)
         {
-            watch.Client.AddPointToWatch(watch.DeviceAddress, watch.PointAddress.ToArray(), (point, value) =>
+            watch.NetClient = watch.Client.AddPointToWatch(watch.DeviceAddress, watch.PointAddress.ToArray(), (point, value) =>
             {
-                Way.Lib.ScriptRemoting.RemotingController.SendGroupMessage(watch.MessageGroupName, Newtonsoft.Json.JsonConvert.SerializeObject(new { point = point , value = value }));
+                if (watch.Release)
+                    return;
+                Way.Lib.ScriptRemoting.RemotingController.SendGroupMessage(watch.MessageGroupName, Newtonsoft.Json.JsonConvert.SerializeObject(new { addr = point , value = value }));
             }, (err) =>
             {
+                if (watch.Release)
+                    return;
+
                 Task.Run(() =>
                 {
                     Thread.Sleep(2000);
@@ -71,7 +96,9 @@ namespace SunRizServer.Controllers
     class WatchGroup
     {
         public int DeviceId;
+        public bool Release = false;
         public string DeviceAddress;
+        public Way.Lib.NetStream NetClient;
         public List<string> PointAddress = new List<string>();
         public SunRizDriver.SunRizDriverClient Client;
         public string MessageGroupName;

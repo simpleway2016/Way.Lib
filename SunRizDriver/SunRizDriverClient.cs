@@ -268,9 +268,9 @@ namespace SunRizDriver
             client.Dispose();
             return values;
         }
-        public void AddPointToWatch(string deviceAddress, string[] points,Action<string, object> onReceiveValue, Action<string> onError)
+        public Way.Lib.NetStream AddPointToWatch(string deviceAddress, string[] points,Action<string, object> onReceiveValue, Action<string> onError)
         {
-            AddPointToWatch(deviceAddress, points, 1000, onReceiveValue, onError);
+            return AddPointToWatch(deviceAddress, points, 1000, onReceiveValue, onError);
         }
         /// <summary>
         /// 
@@ -280,7 +280,7 @@ namespace SunRizDriver
         /// <param name="interval">更新时间间隔，单位：毫秒</param>
         /// <param name="onReceiveValue"></param>
         /// <param name="onError"></param>
-        public void AddPointToWatch(string deviceAddress , string[] points, int interval, Action<string,object> onReceiveValue,Action<string> onError)
+        public Way.Lib.NetStream AddPointToWatch(string deviceAddress , string[] points, int interval, Action<string,object> onReceiveValue,Action<string> onError)
         {
             if (interval < 1000)
                 interval = 1000;
@@ -334,11 +334,13 @@ namespace SunRizDriver
                         }
                     }
                 });
+                return client;
             }
             catch(Exception ex)
             {
                 onError(ex.Message);
             }
+            return null;
         }
     }
 }

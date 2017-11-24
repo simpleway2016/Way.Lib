@@ -162,9 +162,13 @@ namespace Way.Lib.ScriptRemoting
             {
                 if (this.GroupName.IsNullOrEmpty() == false)
                 {
-                    KeepAliveHandlers.Remove(this);
+                    if (KeepAliveHandlers.Contains(this))
+                    {
+                        KeepAliveHandlers.Remove(this);
+                        RemotingController.MessageReceiverDisconnect(this.Session, this.GroupName);
+                    }
                 }
-                RemotingController.MessageReceiverDisconnect(this.Session, this.GroupName);
+                
             }
             catch
             {

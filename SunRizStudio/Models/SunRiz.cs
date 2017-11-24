@@ -130,6 +130,8 @@ namespace SunRizServer{
                 }
             }
         }
+
+        public virtual ImageFiles Parent { get; set; }
 }}
 namespace SunRizServer{
 
@@ -475,6 +477,8 @@ namespace SunRizServer{
                 }
             }
         }
+
+        public virtual CommunicationDriver Driver { get; set; }
 }}
 namespace SunRizServer{
 
