@@ -168,22 +168,29 @@ namespace SunRizServer.Controllers
         }
 
         [RemotingMethod]
-        public object RegisterPointsAndGetGroupName(string[] pointNames)
+        public string CreateGuid()
+        {
+            return Guid.NewGuid().ToString("N");
+        }
+
+        [RemotingMethod]
+        public object RegisterPointsAndGetGroupName(string[] pointNames,string groupName)
         {
             object[] objs = new object[pointNames.Length];
+            List<DevicePoint> devPoints = new List<DevicePoint>();
             for(int i = 0; i < pointNames.Length; i ++)
             {
                 var devPoint = this.db.DevicePoint.FirstOrDefault(m => m.Name == pointNames[i]);
+                devPoints.Add(devPoint);
+
                 objs[i] = new {
                     name = pointNames[i],
                     max = devPoint.TransMax,
                     min = devPoint.TransMin,
                 };
             }
-            return new {
-                points = objs,
-                groupName = Guid.NewGuid().ToString("N")
-            };
+            DeviceListener.AddClient(groupName, this.db , devPoints.ToArray());
+            return objs;
         }
     }
 }

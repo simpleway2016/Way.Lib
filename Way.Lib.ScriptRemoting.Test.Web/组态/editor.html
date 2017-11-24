@@ -334,9 +334,36 @@
                 }
             }
 
-            remoting.server.RegisterPointsAndGetGroupName(pointNames, function (ret, err) {
-                alert("所有点：" + JSON.stringify(ret));
+            remoting.server.CreateGuid(function (groupName, err)
+            {
+                if (err)
+                    alert(err);
+                else {
+                    remoting.groupName = groupName;
+                    //定义实时接收值变化事件
+                    remoting.onmessage = function (msg) {
+                        alert(msg);
+                    }
+
+                    remoting.server.RegisterPointsAndGetGroupName(pointNames, groupName, function (ret, err) {
+                        if (err)
+                            alert(err);
+                        else
+                            alert("所有点：" + JSON.stringify(ret));
+                    });
+                }
             });
+           
+        }
+
+        //进入运行模式
+        function run()
+        {
+            initAllDevicePoints(); 
+            for (var i = 0; i < editor.controls.length; i++) {
+                var control = editor.controls[i];
+                control.run();
+            }
         }
 
         var devicePoints = [];
@@ -348,8 +375,7 @@
         loadControls(editor);
         loadFinish();
         //把EditorControl关联的点找出来
-        remoting = "SunRizServer.Controllers.StudioController".controller();
-        initAllDevicePoints();        
+        remoting = "SunRizServer.Controllers.StudioController".controller();               
         
         if (editor.name.length == 0)
         {
