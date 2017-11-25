@@ -167,6 +167,7 @@ class EditorControl
     {
         this.isDesignMode = false;
     }
+
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(devPoint: any) {
 

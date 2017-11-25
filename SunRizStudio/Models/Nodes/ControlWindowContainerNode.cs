@@ -80,7 +80,7 @@ namespace SunRizStudio.Models.Nodes
 
         void addWindowClick(object sender, RoutedEventArgs e)
         {
-            var doc = new Documents.ControlWindowDocument(this, null);
+            var doc = new Documents.ControlWindowDocument(this, null,false);
             MainWindow.Instance.SetActiveDocument(doc);
         }
 

@@ -29,15 +29,19 @@ namespace SunRizStudio.Documents
         internal SunRizServer.ControlWindow _dataModel;
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
-
+        /// <summary>
+        /// 是否允许模式
+        /// </summary>
+        bool _isRunMode = false;
         public ControlWindowDocument()
         {
             InitializeComponent();
 
         }
 
-        internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel)
+        internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel,bool isRunMode)
         {
+            _isRunMode = isRunMode;
             _dataModel = dataModel ?? new SunRizServer.ControlWindow()
             {
                 ControlUnitId = parent._controlUnitId,
@@ -69,6 +73,7 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("save", save);
             _gecko.AddMessageEventListener("loadFinish", loadFinish);
             _gecko.AddMessageEventListener("watchPointValues", watchPointValues);
+            _gecko.AddMessageEventListener("openRunMode", openRunMode);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -82,6 +87,11 @@ namespace SunRizStudio.Documents
             {
                 _gecko.Navigate($"{Helper.Url}/editor");
             }
+        }
+        void openRunMode(string arg)
+        {
+            var doc = new ControlWindowDocument(_parentNode, _dataModel,true);
+            MainWindow.Instance.SetActiveDocument(doc);
         }
         void watchPointValues(string jsonStr)
         {
@@ -150,12 +160,16 @@ namespace SunRizStudio.Documents
                 });
             });
         }
-
+        
         void loadFinish(string msg)
         {
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
             jsContext = new AutoJSContext(_gecko.Window);
+            if(_isRunMode)
+            {
+                jsContext.EvaluateScript("run()");
+            }
         }
         void copyToClipboard(string message)
         {

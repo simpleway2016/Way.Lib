@@ -57,6 +57,7 @@
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\buttonarea.png" />
     <Content Include="组态\images\toolbox\delete.png" />
+    <Content Include="组态\images\toolbox\play.png" />
     <Content Include="组态\images\toolbox\redo.png" />
     <Content Include="组态\images\toolbox\trend.png" />
     <Content Include="组态\images\toolbox\circle.png" />

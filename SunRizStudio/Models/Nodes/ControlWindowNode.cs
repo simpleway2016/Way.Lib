@@ -13,7 +13,9 @@ namespace SunRizStudio.Models.Nodes
         public ControlWindowNode(SunRizServer.ControlWindow dataModel)
         {
             _dataModel = dataModel;
+            _dataModel.PropertyChanged += _dataModel_PropertyChanged;
             this.Text = _dataModel.Name + " " + _dataModel.Code;
+            this.Icon = "/images/solution/window.png";
             this.DoublicClickHandler = (s,e) =>{
                 //先查看是否已经打开document，如果打开，则激活就可以
                 foreach(TabItem item in MainWindow.Instance.documentContainer.Items )
@@ -29,9 +31,24 @@ namespace SunRizStudio.Models.Nodes
                         }
                     }
                 }
-                var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, _dataModel);
+                var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, _dataModel,false);
                 MainWindow.Instance.SetActiveDocument(doc);
             };
+        }
+       
+        private void _dataModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+           if(e.PropertyName == "Name" || e.PropertyName == "Code")
+            {
+                try
+                {
+                    this.Text = _dataModel.Name + " " + _dataModel.Code;
+                }
+                catch
+                {
+                    _dataModel.PropertyChanged -= _dataModel_PropertyChanged;
+                }
+            }
         }
     }
 }

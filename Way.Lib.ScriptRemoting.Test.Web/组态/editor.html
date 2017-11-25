@@ -79,7 +79,7 @@
 </head>
 <body style="overflow:hidden;" oncontextmenu="return false;">
     <div class="display-flex flex-direction-column" style="position:absolute;width:100%;height:100%;">
-        <div style="background-color:#e8e7e3;height:36px;">
+        <div id="divToolbar" style="background-color:#e8e7e3;height:36px;">
             <div id="btnSetting" class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);">
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);" _type="ToolBox_Line">
@@ -114,7 +114,7 @@
             <div class="toolboxItem" title="粘贴" onclick="editor.paste();" style="background-image:url(/images/toolbox/paste.png);cursor:pointer;margin-left:0px;">
             </div>
 
-            <div class="toolboxItem" title="测试开始" onclick="startTest();" style="background-image:url(/images/toolbox/copy.png);margin-left:20px;cursor:pointer;">
+            <div class="toolboxItem" title="运行预览" onclick="openRunMode();" style="background-image:url(/images/toolbox/play.png);margin-left:20px;cursor:pointer;">
             </div>
 
             <div class="toolboxItem" title="左对齐" onclick="editor.alignLeft();" style="background-image:url(/images/toolbox/alignleft.png);margin-left:20px;cursor:pointer;">
@@ -218,7 +218,12 @@
             event.initMessageEvent('watchPointValues', true, true, json, origin, 1234, window, null);
             document.dispatchEvent(event);
         }
-        
+        function openRunMode() {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('openRunMode', true, true, "", origin, 1234, window, null);
+            document.dispatchEvent(event);
+        }
        
         function startTest()
         {
@@ -264,7 +269,7 @@
 
         function receiveNewValue(devPoint,newvalue)
         {
-            if (devPoint.value != newvalue)
+            if (devPoint.value !== newvalue)
             {
                 if (!devPoint.setValueTime || new Date().getTime() - devPoint.setValueTime > 3000) {
                     //如果是手动设置值，那么3秒内，不会被服务器发送过来的值更新
@@ -328,9 +333,9 @@
             //code here
         }
 
-
         function initAllDevicePoints()
         {
+            devicePoints = [];
             var pointNames = [];
             for (var i = 0; i < editor.controls.length; i++)
             {
@@ -352,7 +357,7 @@
                 else {
                     for (var i = 0; i < ret.length; i++) {
                         var p = ret[i];
-                        p.value = 0;
+                        p.value = null;
                         p.timeoutNumber = null;
                         p.timeoutValue = null;
                         devicePoints.push(p);
@@ -376,6 +381,9 @@
         //进入运行模式
         function run()
         {
+            var divToolbar = document.body.querySelector("#divToolbar");
+            divToolbar.parentElement.removeChild(divToolbar);
+
             initAllDevicePoints(); 
             for (var i = 0; i < editor.controls.length; i++) {
                 var control = editor.controls[i];
@@ -390,10 +398,9 @@
         editor = new Editor("svgContainer");
         fileBrowser = new FileBrowser();
         loadControls(editor);
-        loadFinish();
         //把EditorControl关联的点找出来
         remoting = "SunRizServer.Controllers.StudioController".controller();
-        run();
+        loadFinish();       
 
         if (editor.name.length == 0)
         {

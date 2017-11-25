@@ -43,6 +43,7 @@ var PropertyDialog = (function () {
             }
             else if (pNames[i].indexOf("script") >= 0) {
                 cell.innerHTML = "<textarea style='width:300px;height:100px;'></textarea>";
+                cell.children[0].value = control[pNames[i]];
             }
             else if (pNames[i].indexOf("img") >= 0) {
                 cell.innerHTML = "<input type='text'>";
