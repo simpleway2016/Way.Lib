@@ -1016,7 +1016,7 @@ var TextControl = (function (_super) {
     __extends(TextControl, _super);
     function TextControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'text')) || this;
-        _this._canSetValue = true;
+        _this._canSetValue = false;
         _this._devicePoint = "";
         _this.textElement = _this.element;
         _this.textElement.textContent = "Text";

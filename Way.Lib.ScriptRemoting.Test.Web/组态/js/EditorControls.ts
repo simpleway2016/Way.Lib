@@ -1129,7 +1129,7 @@ class TextControl extends RectControl {
         this.textElement.style.fill = v;
     }
 
-    _canSetValue = true;
+    _canSetValue = false;
     get canSetValue() {
         return this._canSetValue;
     }
