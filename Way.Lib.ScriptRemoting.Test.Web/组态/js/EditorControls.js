@@ -994,7 +994,7 @@ var ImageControl = (function (_super) {
         _this.imgElement = _this.element;
         return _this;
     }
-    Object.defineProperty(ImageControl.prototype, "imgDefault", {
+    Object.defineProperty(ImageControl.prototype, "imgSrc", {
         get: function () {
             return this.imgElement.href.baseVal;
         },
@@ -1008,7 +1008,7 @@ var ImageControl = (function (_super) {
         return ["id", "图片"];
     };
     ImageControl.prototype.getProperties = function () {
-        return ["id", "imgDefault"];
+        return ["id", "imgSrc"];
     };
     return ImageControl;
 }(RectControl));

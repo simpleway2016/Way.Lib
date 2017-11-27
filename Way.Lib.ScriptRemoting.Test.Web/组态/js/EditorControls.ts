@@ -1078,11 +1078,11 @@ class CircleControl extends EditorControl {
 
 class ImageControl extends RectControl {
     imgElement: SVGImageElement;
-    get imgDefault()
+    get imgSrc()
     {
         return this.imgElement.href.baseVal;
     }
-    set imgDefault(v)
+    set imgSrc(v)
     {
         this.imgElement.href.baseVal = v;
     }
@@ -1091,7 +1091,7 @@ class ImageControl extends RectControl {
         return ["id","图片"];
     }
     getProperties(): string[] {
-        return ["id","imgDefault"];
+        return ["id","imgSrc"];
     }
 
     constructor() {
