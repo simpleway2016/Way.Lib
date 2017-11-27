@@ -1099,6 +1099,7 @@ var TextControl = (function (_super) {
                             newValue = parseInt(newValue);
                     }
                     if (_this._lastDevPoint.value != newValue) {
+                        window.writePointValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
                         _this._lastDevPoint.setValueTime = new Date().getTime();
                         _this._lastDevPoint.value = newValue;
                         _this.onDevicePointValueChanged(_this._lastDevPoint);

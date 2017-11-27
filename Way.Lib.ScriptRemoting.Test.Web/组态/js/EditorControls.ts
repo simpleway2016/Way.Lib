@@ -1168,6 +1168,7 @@ class TextControl extends RectControl {
                     }
                     if (this._lastDevPoint.value != newValue)
                     {
+                        (<any>window).writePointValue(this.devicePoint, this._lastDevPoint.addr, newValue);
                         this._lastDevPoint.setValueTime = new Date().getTime();
                         this._lastDevPoint.value = newValue;
                         this.onDevicePointValueChanged(this._lastDevPoint);

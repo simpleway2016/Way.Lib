@@ -224,6 +224,12 @@
             event.initMessageEvent('openRunMode', true, true, "", origin, 1234, window, null);
             document.dispatchEvent(event);
         }
+        function writePointValue(pointName,addr,value) {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('writePointValue', true, true, JSON.stringify([pointName,addr, value]), origin, 1234, window, null);
+            document.dispatchEvent(event);
+        } 
        
         function startTest()
         {

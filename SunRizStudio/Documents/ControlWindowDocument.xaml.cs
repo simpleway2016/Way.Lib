@@ -74,6 +74,7 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("loadFinish", loadFinish);
             _gecko.AddMessageEventListener("watchPointValues", watchPointValues);
             _gecko.AddMessageEventListener("openRunMode", openRunMode);
+            _gecko.AddMessageEventListener("writePointValue", writePointValue);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -86,6 +87,18 @@ namespace SunRizStudio.Documents
             else
             {
                 _gecko.Navigate($"{Helper.Url}/editor");
+            }
+        }
+        void writePointValue(string arg)
+        {
+            string[] pointValue = arg.ToJsonObject<string[]>();
+            string pointName = pointValue[0];// /p/a/01
+            string addr = pointValue[1];// 点真实路径
+            string value = pointValue[2];
+            var client = _clients.FirstOrDefault(m=>m.WatchingPointNames.Contains(pointName));
+            if(client != null)
+            {
+                client.WriteValue(client.Device.Address, addr, value);
             }
         }
         void openRunMode(string arg)
@@ -109,10 +122,13 @@ namespace SunRizStudio.Documents
                     foreach (var group in groups)
                     {
                         var device = Helper.Remote.InvokeSync<SunRizServer.Device>("GetDeviceAndDriver", group.deviceId);
-                        var points = group.points.Select(m => m.Value<string>("addr")).ToArray();
+
                         var client = new MyDriverClient(device.Driver.Address, device.Driver.Port.Value);
+                        client.WatchingPoints = group.points.Select(m => m.Value<string>("addr")).ToArray();
+                        client.WatchingPointNames = group.points.Select(m => m.Value<string>("name")).ToArray();
+                        client.Device = device;
                         _clients.Add(client);
-                        watchDevice(client , device, points);
+                        watchDevice(client);
                     }
                 }
                 catch(Exception ex)
@@ -134,10 +150,10 @@ namespace SunRizStudio.Documents
             base.OnClose(ref canceled);
         }
 
-        void watchDevice(MyDriverClient client , SunRizServer.Device device , string[] points)
+        void watchDevice(MyDriverClient client )
         {
 
-            client.NetClient = client.AddPointToWatch(device.Address, points, (point, value) =>
+            client.NetClient = client.AddPointToWatch(client.Device.Address, client.WatchingPoints, (point, value) =>
             {
                 try
                 {
@@ -156,7 +172,7 @@ namespace SunRizStudio.Documents
 
                 Task.Run(() => {
                     Thread.Sleep(2000);
-                    watchDevice(client,device, points);
+                    watchDevice(client);
                 });
             });
         }
@@ -228,6 +244,9 @@ namespace SunRizStudio.Documents
     {
         public bool Released = false;
         public Way.Lib.NetStream NetClient;
+        public string[] WatchingPoints;
+        public string[] WatchingPointNames;
+        public SunRizServer.Device Device;
         public MyDriverClient(string addr,int port) : base(addr , port)
         {
 
