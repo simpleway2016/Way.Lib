@@ -18,6 +18,8 @@ var EditorControl = (function () {
         var _this = this;
         this.ctrlKey = false;
         this.isInGroup = false;
+        this.lastSetValueTime = 0;
+        this.updatePointValueTimeoutFlag = 0;
         this.isDesignMode = true;
         this._selected = false;
         this._moveAllSelectedControl = false;
@@ -1079,8 +1081,11 @@ var TextControl = (function (_super) {
         configurable: true
     });
     TextControl.prototype.onDevicePointValueChanged = function (devPoint) {
-        this.text = devPoint.value;
         this._lastDevPoint = devPoint;
+        this.updateText(devPoint.value);
+    };
+    TextControl.prototype.updateText = function (value) {
+        this.text = value;
     };
     TextControl.prototype.run = function () {
         var _this = this;
@@ -1100,9 +1105,8 @@ var TextControl = (function (_super) {
                     }
                     if (_this._lastDevPoint.value != newValue) {
                         window.writeValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
-                        _this._lastDevPoint.setValueTime = new Date().getTime();
-                        _this._lastDevPoint.value = newValue;
-                        _this.onDevicePointValueChanged(_this._lastDevPoint);
+                        _this.lastSetValueTime = new Date().getTime();
+                        _this.updateText(newValue);
                     }
                 }
             }, false);
@@ -1126,6 +1130,8 @@ var TextControl = (function (_super) {
         },
         set: function (v) {
             var y = parseInt(this.textElement.getAttribute("y"));
+            if (isNaN(y))
+                y = 0;
             var otherY = this.textElement.getBBox().y;
             this.rectElement.setAttribute("x", v.x);
             this.rectElement.setAttribute("y", (v.y + y - otherY));

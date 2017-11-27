@@ -277,42 +277,8 @@
         {
             if (devPoint.value !== newvalue)
             {
-                if (!devPoint.setValueTime || new Date().getTime() - devPoint.setValueTime > 3000) {
-                    //如果是手动设置值，那么3秒内，不会被服务器发送过来的值更新
-                    devPoint.value = newvalue;
-                    if (devPoint.timeoutNumber)
-                    {
-                        //既然这里更新点的值，那setTimeout更新的那个就没有必要了
-                        clearTimeout(devPoint.timeoutNumber);
-                        devPoint.timeoutNumber = null;
-                    }                   
-                    onPointValueChanged(devPoint);
-                }
-                else {
-                    var interval = new Date().getTime() - devPoint.setValueTime;
-                    interval = 3000 - interval;
-                    if (interval <= 0)
-                        interval = 1;
-
-                    devPoint.timeoutValue = newvalue;
-                    if (!devPoint.timeoutNumber) {
-                        //设置经过一段时间后，再更新点的值
-                        devPoint.timeoutNumber = setTimeout(function () {
-                            devPoint.timeoutNumber = null; 
-                            if (devPoint.value != devPoint.timeoutValue) {
-                                devPoint.value = devPoint.timeoutValue;
-                                onPointValueChanged(devPoint);
-                            }
-                        }, interval);
-                    }
-                }
-            }
-            else {
-                if (devPoint.timeoutNumber) {
-                    //既然服务器新的值和point.value相同，证明上一次设置的setTimeout没有必要运行了
-                    clearTimeout(devPoint.timeoutNumber);
-                    devPoint.timeoutNumber = null;
-                }     
+                devPoint.value = newvalue;
+                onPointValueChanged(devPoint);
             }
         }
 
@@ -328,9 +294,25 @@
                 var control = editor.controls[i];
                 if (control.devicePoint == ManyPointDefined || control.devicePoint == point.name)
                 {
+                    if (new Date().getTime() - control.lastSetValueTime < 2000) {
+                        updateValueLater(control, point);
+                    }
+                    else {
+                        if (control.updatePointValueTimeoutFlag) {
+                            clearTimeout(control.updatePointValueTimeoutFlag);
+                        }
+                    }
                     control.onDevicePointValueChanged(point);
                 }
             }
+        }
+
+        function updateValueLater(control, point)
+        {
+            control.updatePointValueTimeoutFlag = setTimeout(function () {
+                control.updatePointValueTimeoutFlag = 0;
+                control.onDevicePointValueChanged(point);
+            }, 2000);
         }
 
         function loadControls(editor)

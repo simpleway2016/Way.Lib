@@ -18,6 +18,8 @@ class EditorControl
     propertyDialog: PropertyDialog;
     ctrlKey = false;
     isInGroup = false;
+    lastSetValueTime: number = 0;
+    updatePointValueTimeoutFlag: number = 0;
     isDesignMode = true;
     element: any;
     _selected: boolean = false;
@@ -1146,8 +1148,13 @@ class TextControl extends RectControl {
         this._devicePoint = v;
     }
     onDevicePointValueChanged(devPoint: any) {
-        this.text = devPoint.value;
+        
         this._lastDevPoint = devPoint;
+        this.updateText(devPoint.value);
+    }
+    updateText(value:any)
+    {
+        this.text = value;
     }
     run() {
         super.run();
@@ -1170,9 +1177,8 @@ class TextControl extends RectControl {
                     {
                         //往设备写入值
                         (<any>window).writeValue(this.devicePoint, this._lastDevPoint.addr, newValue);
-                        this._lastDevPoint.setValueTime = new Date().getTime();
-                        this._lastDevPoint.value = newValue;
-                        this.onDevicePointValueChanged(this._lastDevPoint);
+                        this.lastSetValueTime = new Date().getTime();
+                        this.updateText(newValue);
                     }
                    
                 }
@@ -1199,6 +1205,8 @@ class TextControl extends RectControl {
     }
     set rect(v: any) {
         var y = parseInt(this.textElement.getAttribute("y"));
+        if (isNaN(y))
+            y = 0;
         var otherY = (<any>this.textElement).getBBox().y;
         //getBBox().y和this.textElement.getAttribute("y")不相同的，所以要加上y - otherY这个相差值
 
@@ -2091,7 +2099,7 @@ class TrendControl extends EditorControl {
                 dataStr += "L";
                 dataStr += location.result;
             }
-
+             
             if (deleteToIndex >= 0) {
                 //点已经过时需要删除
                 valueArr.splice(0, deleteToIndex + 1);

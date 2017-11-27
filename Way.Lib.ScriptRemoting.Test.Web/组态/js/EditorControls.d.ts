@@ -7,6 +7,8 @@ declare class EditorControl {
     propertyDialog: PropertyDialog;
     ctrlKey: boolean;
     isInGroup: boolean;
+    lastSetValueTime: number;
+    updatePointValueTimeoutFlag: number;
     isDesignMode: boolean;
     element: any;
     _selected: boolean;
@@ -179,6 +181,7 @@ declare class TextControl extends RectControl {
     _lastDevPoint: any;
     devicePoint: string;
     onDevicePointValueChanged(devPoint: any): void;
+    updateText(value: any): void;
     run(): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];
