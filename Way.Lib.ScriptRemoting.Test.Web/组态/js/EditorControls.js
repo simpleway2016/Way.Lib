@@ -994,7 +994,7 @@ var ImageControl = (function (_super) {
         _this.imgElement = _this.element;
         return _this;
     }
-    Object.defineProperty(ImageControl.prototype, "imgDefault", {
+    Object.defineProperty(ImageControl.prototype, "imgSrc", {
         get: function () {
             return this.imgElement.href.baseVal;
         },
@@ -1008,7 +1008,7 @@ var ImageControl = (function (_super) {
         return ["id", "图片"];
     };
     ImageControl.prototype.getProperties = function () {
-        return ["id", "imgDefault"];
+        return ["id", "imgSrc"];
     };
     return ImageControl;
 }(RectControl));
@@ -1016,7 +1016,7 @@ var TextControl = (function (_super) {
     __extends(TextControl, _super);
     function TextControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'text')) || this;
-        _this._canSetValue = true;
+        _this._canSetValue = false;
         _this._devicePoint = "";
         _this.textElement = _this.element;
         _this.textElement.textContent = "Text";
@@ -1099,6 +1099,7 @@ var TextControl = (function (_super) {
                             newValue = parseInt(newValue);
                     }
                     if (_this._lastDevPoint.value != newValue) {
+                        window.writeValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
                         _this._lastDevPoint.setValueTime = new Date().getTime();
                         _this._lastDevPoint.value = newValue;
                         _this.onDevicePointValueChanged(_this._lastDevPoint);

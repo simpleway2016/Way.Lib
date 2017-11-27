@@ -162,7 +162,7 @@ declare class CircleControl extends EditorControl {
 }
 declare class ImageControl extends RectControl {
     imgElement: SVGImageElement;
-    imgDefault: string;
+    imgSrc: string;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor();

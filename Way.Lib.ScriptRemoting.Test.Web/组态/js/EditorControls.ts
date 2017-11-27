@@ -1078,11 +1078,11 @@ class CircleControl extends EditorControl {
 
 class ImageControl extends RectControl {
     imgElement: SVGImageElement;
-    get imgDefault()
+    get imgSrc()
     {
         return this.imgElement.href.baseVal;
     }
-    set imgDefault(v)
+    set imgSrc(v)
     {
         this.imgElement.href.baseVal = v;
     }
@@ -1091,7 +1091,7 @@ class ImageControl extends RectControl {
         return ["id","图片"];
     }
     getProperties(): string[] {
-        return ["id","imgDefault"];
+        return ["id","imgSrc"];
     }
 
     constructor() {
@@ -1129,7 +1129,7 @@ class TextControl extends RectControl {
         this.textElement.style.fill = v;
     }
 
-    _canSetValue = true;
+    _canSetValue = false;
     get canSetValue() {
         return this._canSetValue;
     }
@@ -1168,6 +1168,8 @@ class TextControl extends RectControl {
                     }
                     if (this._lastDevPoint.value != newValue)
                     {
+                        //往设备写入值
+                        (<any>window).writeValue(this.devicePoint, this._lastDevPoint.addr, newValue);
                         this._lastDevPoint.setValueTime = new Date().getTime();
                         this._lastDevPoint.value = newValue;
                         this.onDevicePointValueChanged(this._lastDevPoint);
