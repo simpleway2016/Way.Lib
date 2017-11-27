@@ -91,14 +91,24 @@ namespace SunRizStudio.Documents
         }
         void writePointValue(string arg)
         {
-            string[] pointValue = arg.ToJsonObject<string[]>();
-            string pointName = pointValue[0];// /p/a/01
-            string addr = pointValue[1];// 点真实路径
-            string value = pointValue[2];
-            var client = _clients.FirstOrDefault(m=>m.WatchingPointNames.Contains(pointName));
-            if(client != null)
+            try
             {
-                client.WriteValue(client.Device.Address, addr, value);
+                string[] pointValue = arg.ToJsonObject<string[]>();
+                string pointName = pointValue[0];// /p/a/01
+                string addr = pointValue[1];// 点真实路径
+                string value = pointValue[2];
+                var client = _clients.FirstOrDefault(m => m.WatchingPointNames.Contains(pointName));
+                if (client != null)
+                {
+                    if( client.WriteValue(client.Device.Address, addr, value) == false)
+                    {
+                        System.Windows.Forms.MessageBox.Show(_gecko, "写入值失败！");
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(_gecko, ex.Message);
             }
         }
         void openRunMode(string arg)
