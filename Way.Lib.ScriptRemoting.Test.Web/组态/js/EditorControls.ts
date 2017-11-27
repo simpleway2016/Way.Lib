@@ -1549,13 +1549,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value1) {
             this._value1 = v;
-            if (this.running)
-            {
-                this.values1.push({
-                    value: this._value1,
-                    time: new Date().getTime()
-                });
-            }
+            this.values1.push({
+                value: this._value1,
+                time: new Date().getTime()
+            });
         }
     }
     
@@ -1567,12 +1564,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value2) {
             this._value2 = v;
-            if (this.running) {
-                this.values2.push({
-                    value: this._value2,
-                    time: new Date().getTime()
-                });
-            }
+            this.values2.push({
+                value: this._value2,
+                time: new Date().getTime()
+            });
         }
     }
     private _value3: number = 0;
@@ -1583,12 +1578,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value3) {
             this._value3 = v;
-            if (this.running) {
-                this.values3.push({
-                    value: this._value3,
-                    time: new Date().getTime()
-                });
-            }
+            this.values3.push({
+                value: this._value3,
+                time: new Date().getTime()
+            });
         }
     }
     private _value4: number = 0;
@@ -1599,12 +1592,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value4) {
             this._value4 = v;
-            if (this.running) {
-                this.values4.push({
-                    value: this._value4,
-                    time: new Date().getTime()
-                });
-            }
+            this.values4.push({
+                value: this._value4,
+                time: new Date().getTime()
+            });
         }
     }
     private _value5: number = 0;
@@ -1615,12 +1606,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value5) {
             this._value5 = v;
-            if (this.running) {
-                this.values5.push({
-                    value: this._value5,
-                    time: new Date().getTime()
-                });
-            }
+            this.values5.push({
+                value: this._value5,
+                time: new Date().getTime()
+            });
         }
     }
     private _value6: number = 0;
@@ -1631,12 +1620,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value6) {
             this._value6 = v;
-            if (this.running) {
-                this.values6.push({
-                    value: this._value6,
-                    time: new Date().getTime()
-                });
-            }
+            this.values6.push({
+                value: this._value6,
+                time: new Date().getTime()
+            });
         }
     }
     private _value7: number = 0;
@@ -1647,12 +1634,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value7) {
             this._value7 = v;
-            if (this.running) {
-                this.values7.push({
-                    value: this._value7,
-                    time: new Date().getTime()
-                });
-            }
+            this.values7.push({
+                value: this._value7,
+                time: new Date().getTime()
+            });
         }
     }
     private _value8: number = 0;
@@ -1663,12 +1648,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value8) {
             this._value8 = v;
-            if (this.running) {
-                this.values8.push({
-                    value: this._value8,
-                    time: new Date().getTime()
-                });
-            }
+            this.values8.push({
+                value: this._value8,
+                time: new Date().getTime()
+            });
         }
     }
     private _value9: number = 0;
@@ -1679,12 +1662,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value9) {
             this._value9 = v;
-            if (this.running) {
-                this.values9.push({
-                    value: this._value9,
-                    time: new Date().getTime()
-                });
-            }
+            this.values9.push({
+                value: this._value9,
+                time: new Date().getTime()
+            });
         }
     }
     private _value10: number = 0;
@@ -1695,12 +1676,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value10) {
             this._value10 = v;
-            if (this.running) {
-                this.values10.push({
-                    value: this._value10,
-                    time: new Date().getTime()
-                });
-            }
+            this.values10.push({
+                value: this._value10,
+                time: new Date().getTime()
+            });
         }
     }
     private _value11: number = 0;
@@ -1711,12 +1690,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value11) {
             this._value11 = v;
-            if (this.running) {
-                this.values11.push({
-                    value: this._value11,
-                    time: new Date().getTime()
-                });
-            }
+            this.values11.push({
+                value: this._value11,
+                time: new Date().getTime()
+            });
         }
     }
     private _value12: number = 0;
@@ -1727,12 +1704,10 @@ class TrendControl extends EditorControl {
         v = parseFloat(v);
         if (v != this._value12) {
             this._value12 = v;
-            if (this.running) {
-                this.values12.push({
-                    value: this._value12,
-                    time: new Date().getTime()
-                });
-            }
+            this.values12.push({
+                value: this._value12,
+                time: new Date().getTime()
+            });
         }
     }
     get max() {
@@ -1849,9 +1824,9 @@ class TrendControl extends EditorControl {
         if (number == 0)
             return;
 
-        if (devPoint.max != this.max)
+        if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
-        if (devPoint.min != this.min)
+        if (devPoint.min != null && devPoint.min != this.min)
             this.min = devPoint.min;
 
         this["value" + number] = devPoint.value;
@@ -2035,17 +2010,43 @@ class TrendControl extends EditorControl {
     run()
     {
         super.run();
+
         for (var i = 1; i <= 12; i++) {
             var valueArr = this["values" + i];
-            if (valueArr.length > 0)
-                this["value" + i] = valueArr[valueArr.length - 1].value;
-            else
-                this["value" + i]  = this.min;
+            if (valueArr.length > 1) {
+                //如果有预先安排的数据
+                this["_value" + i] = valueArr[valueArr.length - 1].value;
+            }
         }
 
         this.running = true;
         this.reDrawTrend();
         this.element._interval = setInterval(() => this.reDrawTrend(), 1000);
+    }
+
+    getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any {
+        var x = rect.width - 10 - ((now - valueItem.time) / 1000) * 2;//1秒占2个像素
+        if (x < 10) {
+            if (canDel) {
+                return {
+                    isDel: true
+                };
+            }
+            else {
+                x = 10;
+            }
+        }
+
+        var percent = 1 - (valueItem.value - this.min) / (this.max - this.min);
+        var y = 10 + (rect.height - 20) * percent;
+        if (y < 10)
+            y = 10;
+        else if (y > rect.height - 10)
+            y = rect.height - 10;
+
+        return {
+            result: x + " " + y + " "
+        };
     }
 
     //重画趋势图
@@ -2059,7 +2060,7 @@ class TrendControl extends EditorControl {
         for (var k = 1; k <= 12; k++) {
            
             var valueArr = this["values" + k];
-            if (valueArr.length <= 1)
+            if (valueArr.length == 0)
                 continue;
 
             //小于minTime时间的值不必要显示了
@@ -2067,25 +2068,26 @@ class TrendControl extends EditorControl {
             var deleteToIndex = -1;
             for (var i = valueArr.length - 1; i >= 0; i--) {
                 
+                if (i == valueArr.length - 1)
+                {
+                    //先加入当前时刻的一个点
+                    var rightLocation = this.getDrawLocation({
+                        value: valueArr[i].value,
+                        time: new Date().getTime()
+                    },false, rect, now);
+                    dataStr += "M";
+                    dataStr += rightLocation.result;
+                }
+                var canDel = valueArr.length > 1;
+                var location = this.getDrawLocation(valueArr[i], canDel , rect, now);
 
-                var x = rect.width - 10 - ((now - valueArr[i].time) / 1000) * 2;//1秒占2个像素
-                if (x < 10) {
+                if (location.isDel) {
                     deleteToIndex = i;
                     break;
                 }
 
-                var percent = 1 - (valueArr[i].value - this.min) / (this.max - this.min);
-                var y = 10 + (rect.height - 20) * percent;
-                if (y < 10)
-                    y = 10;
-                else if (y > rect.height - 10)
-                    y = rect.height - 10;
-
-                if (dataStr.length == 0)
-                    dataStr += "M";
-                else
-                    dataStr += "L";
-                dataStr += x + " " + y + " ";
+                dataStr += "L";
+                dataStr += location.result;
             }
 
             if (deleteToIndex >= 0) {
@@ -2098,11 +2100,8 @@ class TrendControl extends EditorControl {
     }
 
     resetPointLocation() {
-        if (!this.selected)
-            return;
-
         var rect = this.rect;
-        if (this.pRightBottom) {
+        if (this.selected && this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
             this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
         }

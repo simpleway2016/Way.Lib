@@ -1490,12 +1490,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value1) {
                 this._value1 = v;
-                if (this.running) {
-                    this.values1.push({
-                        value: this._value1,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values1.push({
+                    value: this._value1,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1509,12 +1507,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value2) {
                 this._value2 = v;
-                if (this.running) {
-                    this.values2.push({
-                        value: this._value2,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values2.push({
+                    value: this._value2,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1528,12 +1524,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value3) {
                 this._value3 = v;
-                if (this.running) {
-                    this.values3.push({
-                        value: this._value3,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values3.push({
+                    value: this._value3,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1547,12 +1541,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value4) {
                 this._value4 = v;
-                if (this.running) {
-                    this.values4.push({
-                        value: this._value4,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values4.push({
+                    value: this._value4,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1566,12 +1558,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value5) {
                 this._value5 = v;
-                if (this.running) {
-                    this.values5.push({
-                        value: this._value5,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values5.push({
+                    value: this._value5,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1585,12 +1575,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value6) {
                 this._value6 = v;
-                if (this.running) {
-                    this.values6.push({
-                        value: this._value6,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values6.push({
+                    value: this._value6,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1604,12 +1592,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value7) {
                 this._value7 = v;
-                if (this.running) {
-                    this.values7.push({
-                        value: this._value7,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values7.push({
+                    value: this._value7,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1623,12 +1609,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value8) {
                 this._value8 = v;
-                if (this.running) {
-                    this.values8.push({
-                        value: this._value8,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values8.push({
+                    value: this._value8,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1642,12 +1626,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value9) {
                 this._value9 = v;
-                if (this.running) {
-                    this.values9.push({
-                        value: this._value9,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values9.push({
+                    value: this._value9,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1661,12 +1643,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value10) {
                 this._value10 = v;
-                if (this.running) {
-                    this.values10.push({
-                        value: this._value10,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values10.push({
+                    value: this._value10,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1680,12 +1660,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value11) {
                 this._value11 = v;
-                if (this.running) {
-                    this.values11.push({
-                        value: this._value11,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values11.push({
+                    value: this._value11,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1699,12 +1677,10 @@ var TrendControl = (function (_super) {
             v = parseFloat(v);
             if (v != this._value12) {
                 this._value12 = v;
-                if (this.running) {
-                    this.values12.push({
-                        value: this._value12,
-                        time: new Date().getTime()
-                    });
-                }
+                this.values12.push({
+                    value: this._value12,
+                    time: new Date().getTime()
+                });
             }
         },
         enumerable: true,
@@ -1864,9 +1840,9 @@ var TrendControl = (function (_super) {
         }
         if (number == 0)
             return;
-        if (devPoint.max != this.max)
+        if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
-        if (devPoint.min != this.min)
+        if (devPoint.min != null && devPoint.min != this.min)
             this.min = devPoint.min;
         this["value" + number] = devPoint.value;
     };
@@ -2069,14 +2045,35 @@ var TrendControl = (function (_super) {
         _super.prototype.run.call(this);
         for (var i = 1; i <= 12; i++) {
             var valueArr = this["values" + i];
-            if (valueArr.length > 0)
-                this["value" + i] = valueArr[valueArr.length - 1].value;
-            else
-                this["value" + i] = this.min;
+            if (valueArr.length > 1) {
+                this["_value" + i] = valueArr[valueArr.length - 1].value;
+            }
         }
         this.running = true;
         this.reDrawTrend();
         this.element._interval = setInterval(function () { return _this.reDrawTrend(); }, 1000);
+    };
+    TrendControl.prototype.getDrawLocation = function (valueItem, canDel, rect, now) {
+        var x = rect.width - 10 - ((now - valueItem.time) / 1000) * 2;
+        if (x < 10) {
+            if (canDel) {
+                return {
+                    isDel: true
+                };
+            }
+            else {
+                x = 10;
+            }
+        }
+        var percent = 1 - (valueItem.value - this.min) / (this.max - this.min);
+        var y = 10 + (rect.height - 20) * percent;
+        if (y < 10)
+            y = 10;
+        else if (y > rect.height - 10)
+            y = rect.height - 10;
+        return {
+            result: x + " " + y + " "
+        };
     };
     TrendControl.prototype.reDrawTrend = function () {
         var rect = this.rect;
@@ -2084,27 +2081,27 @@ var TrendControl = (function (_super) {
         var now = new Date().getTime();
         for (var k = 1; k <= 12; k++) {
             var valueArr = this["values" + k];
-            if (valueArr.length <= 1)
+            if (valueArr.length == 0)
                 continue;
             var dataStr = "";
             var deleteToIndex = -1;
             for (var i = valueArr.length - 1; i >= 0; i--) {
-                var x = rect.width - 10 - ((now - valueArr[i].time) / 1000) * 2;
-                if (x < 10) {
+                if (i == valueArr.length - 1) {
+                    var rightLocation = this.getDrawLocation({
+                        value: valueArr[i].value,
+                        time: new Date().getTime()
+                    }, false, rect, now);
+                    dataStr += "M";
+                    dataStr += rightLocation.result;
+                }
+                var canDel = valueArr.length > 1;
+                var location = this.getDrawLocation(valueArr[i], canDel, rect, now);
+                if (location.isDel) {
                     deleteToIndex = i;
                     break;
                 }
-                var percent = 1 - (valueArr[i].value - this.min) / (this.max - this.min);
-                var y = 10 + (rect.height - 20) * percent;
-                if (y < 10)
-                    y = 10;
-                else if (y > rect.height - 10)
-                    y = rect.height - 10;
-                if (dataStr.length == 0)
-                    dataStr += "M";
-                else
-                    dataStr += "L";
-                dataStr += x + " " + y + " ";
+                dataStr += "L";
+                dataStr += location.result;
             }
             if (deleteToIndex >= 0) {
                 valueArr.splice(0, deleteToIndex + 1);
@@ -2113,10 +2110,8 @@ var TrendControl = (function (_super) {
         }
     };
     TrendControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
         var rect = this.rect;
-        if (this.pRightBottom) {
+        if (this.selected && this.pRightBottom) {
             this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
             this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
         }

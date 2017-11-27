@@ -23,7 +23,7 @@ namespace SunRizStudio.Models.Nodes
                     if(item.Content is Documents.ControlWindowDocument)
                     {
                         var document = item.Content as Documents.ControlWindowDocument;
-                        if(document._dataModel.id == _dataModel.id)
+                        if(document.IsRunMode == false && document._dataModel.id == _dataModel.id)
                         {
                             //激活document
                             MainWindow.Instance.documentContainer.SelectedItem = item;

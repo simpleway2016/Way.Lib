@@ -113,7 +113,7 @@ class PropertyDialog
         var moving = false;
 
         this.rootElement.addEventListener("mousedown", (e) => {
-            if ((<any>e.target).tagName == "DIV")
+            if ((<any>e.target).tagName == "DIV" && e.clientX < this.rootElement.offsetLeft + this.rootElement.offsetWidth - 50)
             {
                 ele._startx = e.clientX;
                 ele._starty = e.clientY;

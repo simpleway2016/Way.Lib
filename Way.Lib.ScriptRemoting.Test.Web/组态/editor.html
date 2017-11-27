@@ -357,6 +357,9 @@
                 else {
                     for (var i = 0; i < ret.length; i++) {
                         var p = ret[i];
+                        if (p.deviceId == 0)
+                            continue;
+
                         p.value = null;
                         p.timeoutNumber = null;
                         p.timeoutValue = null;

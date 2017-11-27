@@ -32,7 +32,7 @@ namespace SunRizStudio.Documents
         /// <summary>
         /// 是否允许模式
         /// </summary>
-        bool _isRunMode = false;
+        internal bool IsRunMode = false;
         public ControlWindowDocument()
         {
             InitializeComponent();
@@ -41,7 +41,7 @@ namespace SunRizStudio.Documents
 
         internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel,bool isRunMode)
         {
-            _isRunMode = isRunMode;
+            IsRunMode = isRunMode;
             _dataModel = dataModel ?? new SunRizServer.ControlWindow()
             {
                 ControlUnitId = parent._controlUnitId,
@@ -131,6 +131,7 @@ namespace SunRizStudio.Documents
                 client.Released = true;
                 client.NetClient.Close();
             }
+            _gecko.Dispose();
             base.OnClose(ref canceled);
         }
 
@@ -166,7 +167,7 @@ namespace SunRizStudio.Documents
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
             jsContext = new AutoJSContext(_gecko.Window);
-            if(_isRunMode)
+            if(IsRunMode)
             {
                 jsContext.EvaluateScript("run()");
             }

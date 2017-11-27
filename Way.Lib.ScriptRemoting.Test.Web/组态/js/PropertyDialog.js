@@ -88,10 +88,11 @@ var PropertyDialog = (function () {
         };
     };
     PropertyDialog.prototype.setRootEvent = function () {
+        var _this = this;
         var ele = (this.rootElement);
         var moving = false;
         this.rootElement.addEventListener("mousedown", function (e) {
-            if (e.target.tagName == "DIV") {
+            if (e.target.tagName == "DIV" && e.clientX < _this.rootElement.offsetLeft + _this.rootElement.offsetWidth - 50) {
                 ele._startx = e.clientX;
                 ele._starty = e.clientY;
                 ele._oldx = parseInt(ele.style.left.replace("px", ""));

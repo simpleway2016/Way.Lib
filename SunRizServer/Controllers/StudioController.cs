@@ -186,20 +186,31 @@ namespace SunRizServer.Controllers
         public object GetPointDetails(string[] pointNames)
         {
             object[] objs = new object[pointNames.Length];
-            List<DevicePoint> devPoints = new List<DevicePoint>();
             for (int i = 0; i < pointNames.Length; i++)
             {
                 var devPoint = this.db.DevicePoint.FirstOrDefault(m => m.Name == pointNames[i]);
-                devPoints.Add(devPoint);
-
-                objs[i] = new
+                if (devPoint == null)
                 {
-                    name = pointNames[i],
-                    max = devPoint.TransMax,
-                    min = devPoint.TransMin,
-                    addr = devPoint.Address,
-                    deviceId = devPoint.DeviceId,
-                };
+                    objs[i] = new
+                    {
+                        name = "null_can_not_find",
+                        max = 100,
+                        min = 0,
+                        addr = "",
+                        deviceId = 0,
+                    };
+                }
+                else
+                {
+                    objs[i] = new
+                    {
+                        name = pointNames[i],
+                        max = devPoint.TransMax,
+                        min = devPoint.TransMin,
+                        addr = devPoint.Address,
+                        deviceId = devPoint.DeviceId,
+                    };
+                }
             }
             return objs;
         }

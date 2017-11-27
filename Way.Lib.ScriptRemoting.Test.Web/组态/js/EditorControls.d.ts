@@ -331,6 +331,7 @@ declare class TrendControl extends EditorControl {
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
     run(): void;
+    getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any;
     reDrawTrend(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
