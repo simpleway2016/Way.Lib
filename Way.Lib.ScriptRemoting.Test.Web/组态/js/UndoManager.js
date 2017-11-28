@@ -21,6 +21,7 @@ var UndoManager = (function () {
         }
         this.items.push(undoObj);
         this.position++;
+        editor.changed = true;
     };
     UndoManager.prototype.undo = function () {
         if (this.position == 0)

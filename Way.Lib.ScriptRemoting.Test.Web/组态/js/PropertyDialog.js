@@ -123,11 +123,13 @@ var PropertyDialog = (function () {
         if (input._picker) {
             input.onchange = function () {
                 _this.control[input._name] = input.value;
+                editor.changed = true;
             };
         }
         else {
             input.addEventListener("keyup", function (e) {
                 _this.control[input._name] = input.value;
+                editor.changed = true;
             }, false);
         }
     };

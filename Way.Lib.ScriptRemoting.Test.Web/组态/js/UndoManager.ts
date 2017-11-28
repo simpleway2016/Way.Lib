@@ -17,6 +17,7 @@
         }
         this.items.push(undoObj);
         this.position++;
+        editor.changed = true;
     }
 
     undo()

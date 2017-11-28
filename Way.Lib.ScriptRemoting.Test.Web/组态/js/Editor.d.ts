@@ -99,6 +99,7 @@ declare class Editor implements IEditorControlContainer {
     controls: any[];
     private selectingElement;
     undoMgr: UndoManager;
+    changed: boolean;
     colorBG: string;
     imgBg: string;
     bgWidth: string;
@@ -111,6 +112,7 @@ declare class Editor implements IEditorControlContainer {
     redo(): void;
     delete(): void;
     save(): void;
+    getSaveInfo(): string;
     copy(): void;
     paste(): void;
     fireBodyEvent(event: any): void;

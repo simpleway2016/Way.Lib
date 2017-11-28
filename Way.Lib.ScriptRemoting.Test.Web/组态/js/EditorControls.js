@@ -2259,10 +2259,10 @@ var ButtonAreaControl = (function (_super) {
         this.pointAddr = devPoint.addr;
     };
     ButtonAreaControl.prototype.getPropertiesCaption = function () {
-        return ["设备点", "点击脚本"];
+        return ["设备点", "点击设值", "点击脚本"];
     };
     ButtonAreaControl.prototype.getProperties = function () {
-        return ["devicePoint", "scriptOnClick"];
+        return ["devicePoint", "clickValues", "scriptOnClick"];
     };
     ButtonAreaControl.prototype.run = function () {
         var _this = this;
@@ -2277,7 +2277,7 @@ var ButtonAreaControl = (function (_super) {
             else {
                 if (_this.clickValues && _this.pointAddr && _this.clickValues.length > 0) {
                     var values = _this.clickValues.split(',');
-                    var index = values.indexOf(_this.pointValue);
+                    var index = values.indexOf(_this.pointValue.toString());
                     index++;
                     if (index >= values.length)
                         index = 0;

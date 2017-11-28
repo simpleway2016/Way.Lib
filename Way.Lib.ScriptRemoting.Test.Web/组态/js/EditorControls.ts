@@ -2250,10 +2250,10 @@ class ButtonAreaControl extends EditorControl {
     }
    
     getPropertiesCaption(): string[] {
-        return ["设备点","点击脚本"];
+        return ["设备点","点击设值","点击脚本"];
     }
     getProperties(): string[] {
-        return ["devicePoint","scriptOnClick"];
+        return ["devicePoint","clickValues","scriptOnClick"];
     }
 
     constructor() {
@@ -2277,8 +2277,8 @@ class ButtonAreaControl extends EditorControl {
                 if (this.clickValues && this.pointAddr && this.clickValues.length > 0)
                 {
                     var values = this.clickValues.split(',');
-                    var index = values.indexOf(this.pointValue);
-                    index++;
+                    var index = values.indexOf(this.pointValue.toString());
+                    index++;                   
                     if (index >= values.length)
                         index = 0;
                     var nextvalue = values[index];

@@ -294,6 +294,7 @@ var Editor = (function () {
         this.code = "";
         this.beginedToolBoxItem = null;
         this.controls = [];
+        this.changed = false;
         var divContainer = document.body.querySelector("#" + id);
         this.undoMgr = new UndoManager();
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -543,6 +544,13 @@ var Editor = (function () {
             scripts += this.controls[i].getScript();
         }
         window.save(this.name, this.code, this.getScript(), scripts);
+    };
+    Editor.prototype.getSaveInfo = function () {
+        var scripts = "";
+        for (var i = 0; i < this.controls.length; i++) {
+            scripts += this.controls[i].getScript();
+        }
+        return JSON.stringify({ "name": this.name, "code": this.code, "editorScript": this.getScript(), "controlsScript": scripts });
     };
     Editor.prototype.copy = function () {
         var copyitems = [];

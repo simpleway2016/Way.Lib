@@ -149,12 +149,14 @@ class PropertyDialog
 
         if (input._picker) {
             input.onchange = () => {
-                this.control[input._name] = input.value;                
+                this.control[input._name] = input.value;
+                editor.changed = true;
             };
         }
         else {
             input.addEventListener("keyup", (e) => {
                 this.control[input._name] = input.value;
+                editor.changed = true;
             }, false);
         }
     }

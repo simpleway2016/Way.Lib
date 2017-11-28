@@ -29,6 +29,7 @@ namespace SunRizStudio.Documents
         internal SunRizServer.ControlWindow _dataModel;
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
+        bool closeAfterSave = false;
         /// <summary>
         /// 是否允许模式
         /// </summary>
@@ -104,6 +105,10 @@ namespace SunRizStudio.Documents
                     {
                         System.Windows.Forms.MessageBox.Show(_gecko, "写入值失败！");
                     }
+                    else
+                    {
+                        jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = addr, value = value }).ToJsonString()})");
+                    }
                 }
             }
             catch(Exception ex)
@@ -152,6 +157,33 @@ namespace SunRizStudio.Documents
 
         public override void OnClose(ref bool canceled)
         {
+            string changed;
+            jsContext.EvaluateScript("editor.changed", out changed);
+            if (changed == "true")
+            {
+                var dialogResult = MessageBox.Show(MainWindow.Instance, "窗口已修改，是否保存？","", MessageBoxButton.YesNoCancel);
+                if(dialogResult == MessageBoxResult.Yes)
+                {
+                    string info;
+                    jsContext.EvaluateScript("editor.getSaveInfo()",out info);
+                    var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
+                    if(json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
+                    {
+                        MessageBox.Show("请点击左上角设置图标，设置监视画面的名称、编号！");
+                        canceled = true;
+                        return;
+                    }
+                    closeAfterSave = true;
+                    this.save(info);
+                    canceled = true;
+                    return;
+                }
+                else if (dialogResult == MessageBoxResult.Cancel)
+                {
+                    canceled = true;
+                    return;
+                }
+            }
             foreach( var client in _clients )
             {
                 client.Released = true;
@@ -214,6 +246,7 @@ namespace SunRizStudio.Documents
                 }
                 else
                 {
+                    jsContext.EvaluateScript("editor.changed=false");
                     _dataModel.CopyValue(ret);
                     if (_dataModel.id == null)
                     {
@@ -221,6 +254,11 @@ namespace SunRizStudio.Documents
                     }
                     _dataModel.ChangedProperties.Clear();
                     this.Title = _dataModel.Name;
+                    if(closeAfterSave)
+                    {
+                        closeAfterSave = false;
+                        MainWindow.Instance.CloseDocument(this);
+                    }
                 }
                 this.Title = _dataModel.Name;
             }, _dataModel, json);

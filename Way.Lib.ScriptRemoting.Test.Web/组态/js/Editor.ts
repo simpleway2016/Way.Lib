@@ -376,6 +376,7 @@ class Editor implements IEditorControlContainer
     controls: any[] = [];
     private selectingElement: SVGRectElement;
     undoMgr: UndoManager;
+    changed: boolean = false;
 
     get colorBG() {
         return this.svgContainer.style.backgroundColor;
@@ -635,6 +636,16 @@ class Editor implements IEditorControlContainer
             scripts += this.controls[i].getScript();
         }
         (<any>window).save(this.name , this.code ,  this.getScript(), scripts);
+    }
+
+    getSaveInfo()
+    {
+        var scripts = "";
+        for (var i = 0; i < this.controls.length; i++) {
+            scripts += this.controls[i].getScript();
+        }
+     
+        return JSON.stringify({ "name": this.name, "code": this.code, "editorScript": this.getScript(), "controlsScript": scripts });
     }
 
     copy()
