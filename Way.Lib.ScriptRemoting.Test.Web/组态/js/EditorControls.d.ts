@@ -353,6 +353,15 @@ declare class ButtonAreaControl extends EditorControl {
     startX: number;
     startY: number;
     rect: any;
+    private pointAddr;
+    private pointValue;
+    _devicePoint: string;
+    devicePoint: string;
+    _clickValues: string;
+    clickValues: string;
+    _scriptOnClick: string;
+    scriptOnClick: string;
+    onDevicePointValueChanged(devPoint: any): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor();

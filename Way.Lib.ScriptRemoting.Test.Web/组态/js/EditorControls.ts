@@ -2217,12 +2217,43 @@ class ButtonAreaControl extends EditorControl {
         this.resetPointLocation();
     }
 
+    private pointAddr = null;
+    private pointValue: any;
+    _devicePoint: string = "";
+    get devicePoint() {
+        return this._devicePoint;
+    }
+    set devicePoint(v) {
+        this._devicePoint = v;
+    }    
+
+    _clickValues: string = null;
+    get clickValues() {
+        return this._clickValues;
+    }
+    set clickValues(v) {
+        this._clickValues = v;
+    }  
+
+    _scriptOnClick: string = null;
+    get scriptOnClick() {
+        return this._scriptOnClick;
+    }
+    set scriptOnClick(v) {
+        this._scriptOnClick = v;
+    }    
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(devPoint: any) {
+        this.pointValue = devPoint.value;
+        this.pointAddr = devPoint.addr;
+    }
    
     getPropertiesCaption(): string[] {
-        return [];
+        return ["设备点","点击脚本"];
     }
     getProperties(): string[] {
-        return [];
+        return ["devicePoint","scriptOnClick"];
     }
 
     constructor() {
@@ -2236,6 +2267,28 @@ class ButtonAreaControl extends EditorControl {
         super.run();
         this.rectElement.style.fillOpacity = "0";
         this.rectElement.style.cursor = "pointer";
+        this.rectElement.addEventListener("click", (e)=> {
+            e.stopPropagation();
+            if (this.scriptOnClick && this.scriptOnClick.length > 0)
+            {
+                eval(this.scriptOnClick);
+            }
+            else {
+                if (this.clickValues && this.pointAddr && this.clickValues.length > 0)
+                {
+                    var values = this.clickValues.split(',');
+                    var index = values.indexOf(this.pointValue);
+                    index++;
+                    if (index >= values.length)
+                        index = 0;
+                    var nextvalue = values[index];
+                    //往设备写入值
+                    (<any>window).writeValue(this.devicePoint, this.pointAddr, nextvalue);
+                    this.pointValue = nextvalue;
+                    this.lastSetValueTime = new Date().getTime();
+                }
+            }
+        }, false);
     }
 
     isIntersectWith(rect): boolean {

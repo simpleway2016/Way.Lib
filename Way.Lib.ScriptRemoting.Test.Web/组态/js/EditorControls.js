@@ -2197,6 +2197,10 @@ var ButtonAreaControl = (function (_super) {
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
+        _this.pointAddr = null;
+        _this._devicePoint = "";
+        _this._clickValues = null;
+        _this._scriptOnClick = null;
         _this.rectElement = _this.element;
         _this.rectElement.setAttribute('style', 'fill:#000000;fill-opacity:0.3;stroke:none;');
         return _this;
@@ -2220,16 +2224,70 @@ var ButtonAreaControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(ButtonAreaControl.prototype, "devicePoint", {
+        get: function () {
+            return this._devicePoint;
+        },
+        set: function (v) {
+            this._devicePoint = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ButtonAreaControl.prototype, "clickValues", {
+        get: function () {
+            return this._clickValues;
+        },
+        set: function (v) {
+            this._clickValues = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ButtonAreaControl.prototype, "scriptOnClick", {
+        get: function () {
+            return this._scriptOnClick;
+        },
+        set: function (v) {
+            this._scriptOnClick = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ButtonAreaControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        this.pointValue = devPoint.value;
+        this.pointAddr = devPoint.addr;
+    };
     ButtonAreaControl.prototype.getPropertiesCaption = function () {
-        return [];
+        return ["设备点", "点击脚本"];
     };
     ButtonAreaControl.prototype.getProperties = function () {
-        return [];
+        return ["devicePoint", "scriptOnClick"];
     };
     ButtonAreaControl.prototype.run = function () {
+        var _this = this;
         _super.prototype.run.call(this);
         this.rectElement.style.fillOpacity = "0";
         this.rectElement.style.cursor = "pointer";
+        this.rectElement.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (_this.scriptOnClick && _this.scriptOnClick.length > 0) {
+                eval(_this.scriptOnClick);
+            }
+            else {
+                if (_this.clickValues && _this.pointAddr && _this.clickValues.length > 0) {
+                    var values = _this.clickValues.split(',');
+                    var index = values.indexOf(_this.pointValue);
+                    index++;
+                    if (index >= values.length)
+                        index = 0;
+                    var nextvalue = values[index];
+                    window.writeValue(_this.devicePoint, _this.pointAddr, nextvalue);
+                    _this.pointValue = nextvalue;
+                    _this.lastSetValueTime = new Date().getTime();
+                }
+            }
+        }, false);
     };
     ButtonAreaControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
