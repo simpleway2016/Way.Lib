@@ -34,7 +34,6 @@ namespace SunRizServer.Controllers
         {
             //必须using Microsoft.EntityFrameworkCore;才有include
             var device = this.db.Device.Include(m=>m.Driver).FirstOrDefault(m => m.id == deviceId);
-            //device.Driver = this.db.CommunicationDriver.FirstOrDefault(m=>m.id == device.DriverID);
             return device;
         }
 
