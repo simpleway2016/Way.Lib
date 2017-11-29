@@ -205,8 +205,7 @@ namespace SunRizStudio
                     var response = responseString.ToJsonObject<ResultInfo<T>>();
                     if (response.type == WayScriptRemotingMessageType.InvokeError)
                     {
-                        Debug.WriteLine($"{name} error:{response.result}");
-                        callback(default(T), response.result.ToSafeString());
+                        callback(default(T), responseString.ToJsonObject<Newtonsoft.Json.Linq.JToken>().Value<string>("result"));
                     }
                     else if (response.type == WayScriptRemotingMessageType.Result)
                     {
@@ -216,8 +215,7 @@ namespace SunRizStudio
                     }
                     else
                     {
-                        Debug.WriteLine($"{name} error:{response.result}");
-                        callback(default(T), response.result.ToSafeString());
+                        callback(default(T), responseString.ToJsonObject<Newtonsoft.Json.Linq.JToken>().Value<string>("result"));
                     }
                 }
                 catch (Exception ex)
