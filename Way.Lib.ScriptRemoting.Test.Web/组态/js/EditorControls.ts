@@ -2565,11 +2565,51 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return script;
     }
 
+    loadCustomProperties(properties: string)
+    {
+        if (properties && properties.length > 0)
+        {
+            var ps = properties.split('\n');
+            for (var i = 0; i < ps.length; i++)
+            {
+                var name = ps[i].trim();
+                if (name.length == 0)
+                    continue;
+
+                this["_" + name] = null;
+                Object.defineProperty(this, name, {
+                    get: this.getFuncForCustomProperty(name),
+                    set: this.setFuncForCustomProperty(name),
+                    enumerable: true,
+                    configurable: true
+                });
+                
+            }
+        }
+    }
+
+    private getFuncForCustomProperty(name) : any
+    {
+        return function () {
+            return this["_" + name];
+        }
+    }
+    private setFuncForCustomProperty(name): any {
+        return function (value) {
+            if (this["_" + name] !== value)
+            {
+                this["_" + name] = value;
+            }
+        }
+    }
     createGroupControl(windowid, rect): GroupControl {
-        var code = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var content;
+        eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         var editor = new GroupControl(groupEle, windowid);
-        eval(code);
+        eval(content.controlsScript);
+        editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);
         editor.rect = rect;
         return editor;

@@ -455,11 +455,18 @@ class Editor implements IEditorControlContainer
         this.svgContainer.style.backgroundSize = size[0] + " " + v;
     }
 
+    private _customProperties: string = "";
+    get customProperties() {
+        return this._customProperties;
+    }
+    set customProperties(v) {
+        this._customProperties = v;
+    }
     getPropertiesCaption(): string[] {
-        return ["名称","编号","底色", "背景图", "背景图宽", "背景图高"];
+        return ["名称","编号","底色", "背景图", "背景图宽", "背景图高","自定义变量"];
     }
     getProperties(): string[] {
-        return ["name" , "code" , "colorBG", "imgBg", "bgWidth", "bgHeight"];
+        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight","customProperties"];
     }
 
     constructor(id: string)
@@ -630,10 +637,13 @@ class Editor implements IEditorControlContainer
 
     createGroupControl(windowid,rect): GroupControl
     {
-        var code = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var content;
+        eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         var editor = new GroupControl(groupEle, windowid);
-        eval(code);
+        eval(content.controlsScript);
+        editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);
         editor.rect = rect;
         return editor;
@@ -697,7 +707,7 @@ class Editor implements IEditorControlContainer
                 windowids.push(this.controls[i].windowid);
             }
         }
-        (<any>window).save(this.name, this.code, this.getScript(), scripts, windowids);
+        (<any>window).save(this.name, this.code, this.customProperties, this.getScript(), scripts, windowids);
     }
 
     getSaveInfo()

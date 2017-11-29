@@ -60,7 +60,7 @@ class PropertyDialog
                 }
                 this.setChkItemEvent(cell.children[0]);
             }
-            else if (pNames[i].indexOf("script") >= 0) {
+            else if (pNames[i].indexOf("script") >= 0 || captions[i] == "自定义变量" ) {
                 cell.innerHTML = "<textarea style='width:300px;height:100px;'></textarea>";
                
                 (<any>cell.children[0]).value = value;

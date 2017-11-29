@@ -402,6 +402,9 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     onDevicePointValueChanged(point: any): void;
     getJson(): any;
     getScript(): string;
+    loadCustomProperties(properties: string): void;
+    private getFuncForCustomProperty(name);
+    private setFuncForCustomProperty(name);
     createGroupControl(windowid: any, rect: any): GroupControl;
     onSelectedChange(): void;
     resetPointLocation(): void;

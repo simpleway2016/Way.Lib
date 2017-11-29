@@ -296,6 +296,7 @@ var Editor = (function () {
         this.beginedToolBoxItem = null;
         this.controls = [];
         this.changed = false;
+        this._customProperties = "";
         var divContainer = document.body.querySelector("#" + id);
         this.undoMgr = new UndoManager();
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -533,17 +534,30 @@ var Editor = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Editor.prototype, "customProperties", {
+        get: function () {
+            return this._customProperties;
+        },
+        set: function (v) {
+            this._customProperties = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Editor.prototype.getPropertiesCaption = function () {
-        return ["名称", "编号", "底色", "背景图", "背景图宽", "背景图高"];
+        return ["名称", "编号", "底色", "背景图", "背景图宽", "背景图高", "自定义变量"];
     };
     Editor.prototype.getProperties = function () {
-        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight"];
+        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "customProperties"];
     };
     Editor.prototype.createGroupControl = function (windowid, rect) {
-        var code = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var content;
+        eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         var editor = new GroupControl(groupEle, windowid);
-        eval(code);
+        eval(content.controlsScript);
+        editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);
         editor.rect = rect;
         return editor;
@@ -593,7 +607,7 @@ var Editor = (function () {
                 windowids.push(this.controls[i].windowid);
             }
         }
-        window.save(this.name, this.code, this.getScript(), scripts, windowids);
+        window.save(this.name, this.code, this.customProperties, this.getScript(), scripts, windowids);
     };
     Editor.prototype.getSaveInfo = function () {
         var scripts = "";

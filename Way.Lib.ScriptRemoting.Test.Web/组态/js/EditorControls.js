@@ -2523,11 +2523,43 @@ var GroupControl = (function (_super) {
         }
         return script;
     };
+    GroupControl.prototype.loadCustomProperties = function (properties) {
+        if (properties && properties.length > 0) {
+            var ps = properties.split('\n');
+            for (var i = 0; i < ps.length; i++) {
+                var name = ps[i].trim();
+                if (name.length == 0)
+                    continue;
+                this["_" + name] = null;
+                Object.defineProperty(this, name, {
+                    get: this.getFuncForCustomProperty(name),
+                    set: this.setFuncForCustomProperty(name),
+                    enumerable: true,
+                    configurable: true
+                });
+            }
+        }
+    };
+    GroupControl.prototype.getFuncForCustomProperty = function (name) {
+        return function () {
+            return this["_" + name];
+        };
+    };
+    GroupControl.prototype.setFuncForCustomProperty = function (name) {
+        return function (value) {
+            if (this["_" + name] !== value) {
+                this["_" + name] = value;
+            }
+        };
+    };
     GroupControl.prototype.createGroupControl = function (windowid, rect) {
-        var code = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var content;
+        eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         var editor = new GroupControl(groupEle, windowid);
-        eval(code);
+        eval(content.controlsScript);
+        editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);
         editor.rect = rect;
         return editor;

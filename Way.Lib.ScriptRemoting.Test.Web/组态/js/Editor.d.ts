@@ -107,6 +107,8 @@ declare class Editor implements IEditorControlContainer {
     imgBg: string;
     bgWidth: string;
     bgHeight: string;
+    private _customProperties;
+    customProperties: string;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);

@@ -204,10 +204,17 @@
             }
         }
 
-        function save(name,code,editorScript,controlsScript,windowids) {
+        function save(name,code,customProperties,editorScript,controlsScript,windowids) {
             var event = document.createEvent('MessageEvent');
             var origin = window.location.protocol + '//' + window.location.host;
-            event.initMessageEvent('save', true, true, JSON.stringify({ "name": name, "code": code, "editorScript": editorScript, "controlsScript": controlsScript, "windowids": windowids} ), origin, 1234, window, null);
+            event.initMessageEvent('save', true, true, JSON.stringify({
+                "name": name,
+                "code": code,
+                "customProperties": customProperties,
+                "editorScript": editorScript,
+                "controlsScript": controlsScript,
+                "windowids": windowids
+            }), origin, 1234, window, null);
             document.dispatchEvent(event);
         }
         function watchPointValues(json)

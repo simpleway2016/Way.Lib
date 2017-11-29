@@ -108,8 +108,7 @@ namespace SunRizServer.Controllers
         {
             var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);          
             var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
-            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-            return obj.Value<string>("controlsScript");
+            return json;
         }
         [RemotingMethod]
         public ControlWindow SaveWindowContent(ControlWindow window, string content)
@@ -117,7 +116,8 @@ namespace SunRizServer.Controllers
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(content);
             window.Name = obj.Value<string>("name");
             window.Code = obj.Value<string>("code");
-            var windowids = obj.Value<string[]>("windowids");
+            var windowids = obj.Value<Newtonsoft.Json.Linq.JArray>("windowids");
+            var customProperties = obj.Value<string>("customProperties");
 
             if (window.id == null && this.db.ControlWindow.Any(m => m.Name == window.Name && window.FolderId == m.FolderId && window.ControlUnitId == m.ControlUnitId))
                 throw new Exception("监视画面名称已存在");
