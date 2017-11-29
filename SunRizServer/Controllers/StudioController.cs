@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Way.Lib.ScriptRemoting;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+
 namespace SunRizServer.Controllers
 {
     [RemotingUrl("Home")]
@@ -30,8 +32,9 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public Device GetDeviceAndDriver(int deviceId)
         {
-            var device = this.db.Device.FirstOrDefault(m => m.id == deviceId);
-            device.Driver = this.db.CommunicationDriver.FirstOrDefault(m=>m.id == device.DriverID);
+            //必须using Microsoft.EntityFrameworkCore;才有include
+            var device = this.db.Device.Include(m=>m.Driver).FirstOrDefault(m => m.id == deviceId);
+            //device.Driver = this.db.CommunicationDriver.FirstOrDefault(m=>m.id == device.DriverID);
             return device;
         }
 
