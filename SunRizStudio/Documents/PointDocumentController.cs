@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 namespace SunRizStudio.Documents
@@ -66,6 +67,7 @@ namespace SunRizStudio.Documents
                 else
                 {
                     gatewayClient = new SunRizDriver.SunRizDriverClient(gateway.Address, gateway.Port.GetValueOrDefault());
+                    var serverInfo = gatewayClient.GetServerInfo();
                     string[] properties = gatewayClient.GetPointProperties();
                     bool isNew = false;
                     if (_PointJsonDict == null)
@@ -73,8 +75,9 @@ namespace SunRizStudio.Documents
                         _PointJsonDict = new Dictionary<string, string>();
                         isNew = true;
                     }
-                    foreach (var item in properties)
+                    for(int i = 0; i < properties.Length; i ++)
                     {
+                        var item = properties[i];
                         string strProperty = item;
                         if (strProperty.Contains("{"))
                             strProperty = strProperty.Substring(0, strProperty.IndexOf("{"));
@@ -83,7 +86,7 @@ namespace SunRizStudio.Documents
                         {
                             _PointJsonDict[strProperty] = "";
                         }
-                        addPropertyItem(strProperty);
+                        addPropertyItem(strProperty,i ==0 && serverInfo.SupportEnumPoints);
                     }
                 }
             }, Device.DriverID);
@@ -94,7 +97,7 @@ namespace SunRizStudio.Documents
         /// 添加一个点属性输入框
         /// </summary>
         /// <param name="name"></param>
-        void addPropertyItem(string name)
+        void addPropertyItem(string name,bool supportEnumPoints)
         {
             int rowNumber = _gridProperty.RowDefinitions.Count;
             //给grid加入一行
@@ -123,6 +126,43 @@ namespace SunRizStudio.Documents
                 _PointJsonDict[name] = textbox.Text;
             };
             _gridProperty.Children.Add(textbox);
+
+            if(supportEnumPoints )
+            {
+                Button btn = new Button();
+                btn.Content = "...";
+                btn.Width = 26;
+                btn.Height = 20;
+                btn.HorizontalAlignment = HorizontalAlignment.Right;
+                btn.VerticalAlignment = VerticalAlignment.Center;
+                btn.Margin = new Thickness(0, 0, 5, 0);
+                btn.SetValue(Grid.RowProperty, rowNumber);
+                btn.SetValue(Grid.ColumnProperty, 1);
+                _gridProperty.Children.Add(btn);
+                btn.Click += (s, e) =>
+                {
+                    showPointSelector(btn);
+                };
+            }
+        }
+
+        /// <summary>
+        /// 显示设备点选择控件
+        /// </summary>
+        /// <param name="btn"></param>
+        void showPointSelector(Button btn)
+        {
+            TreeView treeview = new TreeView();
+            treeview.Width = 300;
+            treeview.Height = 500;
+            treeview.Background = System.Windows.Media.Brushes.AliceBlue;
+
+            Popup popup = new Popup();
+            popup.PlacementTarget = btn;
+            popup.Placement = PlacementMode.Right;
+            popup.Child = treeview;
+            popup.StaysOpen = false;
+            popup.IsOpen = true;
         }
 
         /// <summary>

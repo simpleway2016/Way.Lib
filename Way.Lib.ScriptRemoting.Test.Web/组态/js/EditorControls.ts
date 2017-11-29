@@ -1116,6 +1116,7 @@ class ImageControl extends RectControl {
 
 class TextControl extends RectControl {
     textElement: SVGTextElement;
+    //选择状态下的边框
     selectingElement: SVGRectElement;
 
 
