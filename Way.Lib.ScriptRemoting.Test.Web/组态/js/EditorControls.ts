@@ -2081,25 +2081,28 @@ class TrendControl extends EditorControl {
         var now = new Date().getTime();
         for (var k = 1; k <= 12; k++) {
            
-            var valueArr = this["values" + k];
+            var valueArr : any[] = this["values" + k];
             if (valueArr.length == 0)
                 continue;
 
             //小于minTime时间的值不必要显示了
             var dataStr = "";
             var deleteToIndex = -1;
+            if (new Date().getTime() - valueArr[valueArr.length - 1].time > 1000) {
+                //如果最右边那个点和往左的一个点同值，那么把最右边那个点，移到new Date().getTime()时刻
+                if (valueArr.length >= 2 &&
+                    valueArr[valueArr.length - 1].value == valueArr[valueArr.length - 2].value) {
+                    valueArr[valueArr.length - 1].time = new Date().getTime();
+                }
+                else {
+                    valueArr.push({
+                        value: valueArr[valueArr.length - 1].value,
+                        time: new Date().getTime()
+                    });
+                }
+            }
             for (var i = valueArr.length - 1; i >= 0; i--) {
                 
-                if (i == valueArr.length - 1)
-                {
-                    //先加入当前时刻的一个点
-                    var rightLocation = this.getDrawLocation({
-                        value: valueArr[i].value,
-                        time: new Date().getTime()
-                    },false, rect, now);
-                    dataStr += "M";
-                    dataStr += rightLocation.result;
-                }
                 var canDel = valueArr.length > 1;
                 var location = this.getDrawLocation(valueArr[i], canDel , rect, now);
 
@@ -2108,7 +2111,7 @@ class TrendControl extends EditorControl {
                     break;
                 }
 
-                dataStr += "L";
+                dataStr += dataStr.length == 0 ? "M" : "L";
                 dataStr += location.result;
             }
              

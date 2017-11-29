@@ -2092,22 +2092,26 @@ var TrendControl = (function (_super) {
                 continue;
             var dataStr = "";
             var deleteToIndex = -1;
-            for (var i = valueArr.length - 1; i >= 0; i--) {
-                if (i == valueArr.length - 1) {
-                    var rightLocation = this.getDrawLocation({
-                        value: valueArr[i].value,
-                        time: new Date().getTime()
-                    }, false, rect, now);
-                    dataStr += "M";
-                    dataStr += rightLocation.result;
+            if (new Date().getTime() - valueArr[valueArr.length - 1].time > 1000) {
+                if (valueArr.length >= 2 &&
+                    valueArr[valueArr.length - 1].value == valueArr[valueArr.length - 2].value) {
+                    valueArr[valueArr.length - 1].time = new Date().getTime();
                 }
+                else {
+                    valueArr.push({
+                        value: valueArr[valueArr.length - 1].value,
+                        time: new Date().getTime()
+                    });
+                }
+            }
+            for (var i = valueArr.length - 1; i >= 0; i--) {
                 var canDel = valueArr.length > 1;
                 var location = this.getDrawLocation(valueArr[i], canDel, rect, now);
                 if (location.isDel) {
                     deleteToIndex = i;
                     break;
                 }
-                dataStr += "L";
+                dataStr += dataStr.length == 0 ? "M" : "L";
                 dataStr += location.result;
             }
             if (deleteToIndex >= 0) {
