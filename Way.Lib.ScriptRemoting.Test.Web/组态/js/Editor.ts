@@ -342,6 +342,7 @@ interface IEditorControlContainer
     controls: any[];
     addControl(ctrl: EditorControl);
     removeControl(ctrl: EditorControl);
+    writeValue(pointName, addr, value);
 }
 
 class Editor implements IEditorControlContainer
@@ -389,6 +390,10 @@ class Editor implements IEditorControlContainer
 
         this.controls.push(ctrl);
         ctrl.container = this;
+    }
+    writeValue(pointName, addr, value)
+    {
+        (<any>window).writeValue(pointName, addr, value);
     }
 
     name: string = "";

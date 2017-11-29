@@ -86,10 +86,12 @@ interface IEditorControlContainer {
     controls: any[];
     addControl(ctrl: EditorControl): any;
     removeControl(ctrl: EditorControl): any;
+    writeValue(pointName: any, addr: any, value: any): any;
 }
 declare class Editor implements IEditorControlContainer {
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
+    writeValue(pointName: any, addr: any, value: any): void;
     name: string;
     code: string;
     private svgContainer;

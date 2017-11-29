@@ -471,6 +471,9 @@ var Editor = (function () {
         this.controls.push(ctrl);
         ctrl.container = this;
     };
+    Editor.prototype.writeValue = function (pointName, addr, value) {
+        window.writeValue(pointName, addr, value);
+    };
     Object.defineProperty(Editor.prototype, "colorBG", {
         get: function () {
             return this.svgContainer.style.backgroundColor;

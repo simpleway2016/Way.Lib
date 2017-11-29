@@ -382,6 +382,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     controls: any[];
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
+    writeValue(pointName: any, addr: any, value: any): void;
     groupElement: SVGGElement;
     pRightBottom: SVGCircleElement;
     moving: boolean;

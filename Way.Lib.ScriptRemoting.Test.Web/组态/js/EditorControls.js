@@ -1104,7 +1104,7 @@ var TextControl = (function (_super) {
                             newValue = parseInt(newValue);
                     }
                     if (_this._lastDevPoint.value != newValue) {
-                        window.writeValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
+                        _this.container.writeValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
                         _this.lastSetValueTime = new Date().getTime();
                         _this.updateText(newValue);
                     }
@@ -2282,7 +2282,7 @@ var ButtonAreaControl = (function (_super) {
                     if (index >= values.length)
                         index = 0;
                     var nextvalue = values[index];
-                    window.writeValue(_this.devicePoint, _this.pointAddr, nextvalue);
+                    _this.container.writeValue(_this.devicePoint, _this.pointAddr, nextvalue);
                     _this.pointValue = nextvalue;
                     _this.lastSetValueTime = new Date().getTime();
                 }
@@ -2408,6 +2408,15 @@ var GroupControl = (function (_super) {
         ctrl.container = this;
         this.groupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
+    };
+    GroupControl.prototype.writeValue = function (pointName, addr, value) {
+        for (var p in this) {
+            if (p == pointName) {
+                this[p] = value;
+                break;
+            }
+        }
+        window.writeValue(pointName, addr, value);
     };
     Object.defineProperty(GroupControl.prototype, "rect", {
         get: function () {

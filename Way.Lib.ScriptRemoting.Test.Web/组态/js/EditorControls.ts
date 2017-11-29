@@ -1176,7 +1176,7 @@ class TextControl extends RectControl {
                     if (this._lastDevPoint.value != newValue)
                     {
                         //往设备写入值
-                        (<any>window).writeValue(this.devicePoint, this._lastDevPoint.addr, newValue);
+                        this.container.writeValue(this.devicePoint, this._lastDevPoint.addr, newValue);
                         this.lastSetValueTime = new Date().getTime();
                         this.updateText(newValue);
                     }
@@ -2283,7 +2283,7 @@ class ButtonAreaControl extends EditorControl {
                         index = 0;
                     var nextvalue = values[index];
                     //往设备写入值
-                    (<any>window).writeValue(this.devicePoint, this.pointAddr, nextvalue);
+                    this.container.writeValue(this.devicePoint, this.pointAddr, nextvalue);
                     this.pointValue = nextvalue;
                     this.lastSetValueTime = new Date().getTime();
                 }
@@ -2407,6 +2407,19 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.groupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
     }
+    writeValue(pointName, addr, value) {
+        for (var p in this)
+        {
+            if (p == pointName)
+            {
+                //如果指向的是自定义变量，那么直接设置属性值
+                this[p] = value;
+                break;
+            }
+        }
+        (<any>window).writeValue(pointName, addr, value);
+    }
+
     groupElement: SVGGElement;
     pRightBottom: SVGCircleElement;
     moving: boolean = false;
