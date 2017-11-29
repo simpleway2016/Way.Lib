@@ -2380,6 +2380,7 @@ var GroupControl = (function (_super) {
         _this.startY = 0;
         _this.contentWidth = 0;
         _this.contentHeight = 0;
+        _this.customProperties = [];
         _this.windowid = windowid;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         _this.groupElement = element;
@@ -2413,7 +2414,7 @@ var GroupControl = (function (_super) {
         for (var p in this) {
             if (p == pointName) {
                 this[p] = value;
-                break;
+                return;
             }
         }
         window.writeValue(pointName, addr, value);
@@ -2466,10 +2467,18 @@ var GroupControl = (function (_super) {
         configurable: true
     });
     GroupControl.prototype.getPropertiesCaption = function () {
-        return ["id"];
+        var caps = ["id"];
+        for (var i = 0; i < this.customProperties.length; i++) {
+            caps.push(this.customProperties[i] + "设备点");
+        }
+        return caps;
     };
     GroupControl.prototype.getProperties = function () {
-        return ["id"];
+        var pros = ["id"];
+        for (var i = 0; i < this.customProperties.length; i++) {
+            pros.push(this.customProperties[i] + "_devPoint");
+        }
+        return pros;
     };
     GroupControl.prototype.run = function () {
         _super.prototype.run.call(this);
@@ -2484,20 +2493,34 @@ var GroupControl = (function (_super) {
         return this.isIntersect(this.rect, rect);
     };
     GroupControl.prototype.onDevicePointValueChanged = function (point) {
-        for (var i = 0; i < this.controls.length; i++) {
-            var control = this.controls[i];
-            if (control.constructor.name == "GroupControl" ||
-                control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
-                if (new Date().getTime() - control.lastSetValueTime < 2000) {
-                    window.updateValueLater(control, point);
-                }
-                else {
-                    if (control.updatePointValueTimeoutFlag) {
-                        clearTimeout(control.updatePointValueTimeoutFlag);
-                    }
-                }
-                control.onDevicePointValueChanged(point);
+        for (var i = 0; i < this.customProperties.length; i++) {
+            var proName = this.customProperties[i];
+            if (this[proName + "_devPoint"] == point.name) {
+                this[proName + "_devPoint_addr"] = point.addr;
+                this[proName + "_devPoint_max"] = point.max;
+                this[proName + "_devPoint_min"] = point.min;
+                this["_" + proName] = point.value;
             }
+        }
+        if (!point.isCustomProperty) {
+            for (var i = 0; i < this.controls.length; i++) {
+                var control = this.controls[i];
+                this.onChildrenPointValueChanged(control, point);
+            }
+        }
+    };
+    GroupControl.prototype.onChildrenPointValueChanged = function (control, point) {
+        if (control.constructor.name == "GroupControl" ||
+            control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
+            if (new Date().getTime() - control.lastSetValueTime < 2000) {
+                window.updateValueLater(control, point);
+            }
+            else {
+                if (control.updatePointValueTimeoutFlag) {
+                    clearTimeout(control.updatePointValueTimeoutFlag);
+                }
+            }
+            control.onDevicePointValueChanged(point);
         }
     };
     GroupControl.prototype.getJson = function () {
@@ -2530,25 +2553,44 @@ var GroupControl = (function (_super) {
                 var name = ps[i].trim();
                 if (name.length == 0)
                     continue;
+                this.customProperties.push(name);
                 this["_" + name] = null;
+                this[name + "_devPoint_addr"] = null;
+                this[name + "_devPoint_max"] = null;
+                this[name + "_devPoint_min"] = null;
                 Object.defineProperty(this, name, {
-                    get: this.getFuncForCustomProperty(name),
-                    set: this.setFuncForCustomProperty(name),
+                    get: this.getFuncForCustomProperty(this, name),
+                    set: this.setFuncForCustomProperty(this, name),
                     enumerable: true,
                     configurable: true
                 });
             }
         }
     };
-    GroupControl.prototype.getFuncForCustomProperty = function (name) {
+    GroupControl.prototype.getFuncForCustomProperty = function (self, name) {
         return function () {
-            return this["_" + name];
+            return self["_" + name];
         };
     };
-    GroupControl.prototype.setFuncForCustomProperty = function (name) {
+    GroupControl.prototype.setFuncForCustomProperty = function (self, name) {
         return function (value) {
-            if (this["_" + name] !== value) {
-                this["_" + name] = value;
+            if (self["_" + name] !== value) {
+                self["_" + name] = value;
+                var pointName = self[name + "_devPoint"];
+                if (pointName && pointName.length > 0) {
+                    self.container.writeValue(pointName, self[name + "_devPoint_addr"], value);
+                }
+                var point = {
+                    max: self[name + "_devPoint_max"],
+                    min: self[name + "_devPoint_min"],
+                    name: name,
+                    value: value,
+                    isCustomProperty: true
+                };
+                for (var i = 0; i < self.controls.length; i++) {
+                    var control = self.controls[i];
+                    self.onChildrenPointValueChanged(control, point);
+                }
             }
         };
     };

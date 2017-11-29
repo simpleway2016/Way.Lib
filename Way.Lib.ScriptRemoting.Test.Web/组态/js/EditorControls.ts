@@ -164,17 +164,25 @@ class EditorControl
         return null;
     }
 
-    //正式环境中运行模式
+    /**
+     * 正式环境中运行模式
+     */
     run()
     {
         this.isDesignMode = false;
     }
 
-    //当关联的设备点值方式变化时触发
+    /**
+     * 当关联的设备点值方式变化时触发
+     * @param devPoint
+     */
     onDevicePointValueChanged(devPoint: any) {
 
     }
 
+    /**
+     * 获取描述本控件属性的一个json对象
+     */
     getJson()
     {
         var obj = {
@@ -189,6 +197,9 @@ class EditorControl
         return obj;
     }
 
+    /**
+     * 获取运行时的执行脚本
+     */
     getScript()
     {
         var json = this.getJson();
@@ -2414,7 +2425,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             {
                 //如果指向的是自定义变量，那么直接设置属性值
                 this[p] = value;
-                break;
+                return;
             }
         }
         (<any>window).writeValue(pointName, addr, value);
@@ -2483,12 +2494,21 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.resetPointLocation();
     }
 
-    
+    private customProperties: any[] = [];
     getPropertiesCaption(): string[] {
-        return ["id"];
+        var caps = ["id"];
+        for (var i = 0; i < this.customProperties.length; i++)
+        {
+            caps.push(this.customProperties[i] + "设备点");
+        }
+        return caps;
     }
     getProperties(): string[] {
-        return ["id"];
+        var pros = ["id"];
+        for (var i = 0; i < this.customProperties.length; i++) {
+            pros.push(this.customProperties[i] + "_devPoint");
+        }
+        return pros;
     }
 
     constructor(element: any, windowid) {
@@ -2522,20 +2542,40 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(point: any) {
-        for (var i = 0; i < this.controls.length; i++) {
-            var control = this.controls[i];
-            if (control.constructor.name == "GroupControl" ||
-                control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
-                if (new Date().getTime() - control.lastSetValueTime < 2000) {
-                    (<any>window).updateValueLater(control, point);
-                }
-                else {
-                    if (control.updatePointValueTimeoutFlag) {
-                        clearTimeout(control.updatePointValueTimeoutFlag);
-                    }
-                }
-                control.onDevicePointValueChanged(point);
+        for (var i = 0; i < this.customProperties.length; i++)
+        {
+            var proName = this.customProperties[i];
+            //如果和自定义变量对应的点一致，那么设置自定义变量值
+            if (this[proName + "_devPoint"] == point.name)
+            {
+                this[proName + "_devPoint_addr"] = point.addr;
+                this[proName + "_devPoint_max"] = point.max;
+                this[proName + "_devPoint_min"] = point.min;
+                this["_" + proName] = point.value;
             }
+        }
+        if (!point.isCustomProperty) {
+            //如果不是自定义变量发生的变化，那么继续往子控件传递
+            for (var i = 0; i < this.controls.length; i++) {
+                var control = this.controls[i];
+                this.onChildrenPointValueChanged(control, point);
+            }
+        }
+    }
+
+    private onChildrenPointValueChanged(control, point)
+    {
+        if (control.constructor.name == "GroupControl" ||
+            control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
+            if (new Date().getTime() - control.lastSetValueTime < 2000) {
+                (<any>window).updateValueLater(control, point);
+            }
+            else {
+                if (control.updatePointValueTimeoutFlag) {
+                    clearTimeout(control.updatePointValueTimeoutFlag);
+                }
+            }
+            control.onDevicePointValueChanged(point);
         }
     }
 
@@ -2565,6 +2605,10 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return script;
     }
 
+    /**
+     * run状态下，加载自定义属性
+     * @param properties
+     */
     loadCustomProperties(properties: string)
     {
         if (properties && properties.length > 0)
@@ -2576,10 +2620,15 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 if (name.length == 0)
                     continue;
 
+                this.customProperties.push(name);
                 this["_" + name] = null;
+                this[name + "_devPoint_addr"] = null;
+                this[name + "_devPoint_max"] = null;
+                this[name + "_devPoint_min"] = null;
+
                 Object.defineProperty(this, name, {
-                    get: this.getFuncForCustomProperty(name),
-                    set: this.setFuncForCustomProperty(name),
+                    get: this.getFuncForCustomProperty(this,name),
+                    set: this.setFuncForCustomProperty(this,name),
                     enumerable: true,
                     configurable: true
                 });
@@ -2588,17 +2637,33 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
 
-    private getFuncForCustomProperty(name) : any
+    private getFuncForCustomProperty(self: GroupControl, name): any
     {
         return function () {
-            return this["_" + name];
+            return self["_" + name];
         }
     }
-    private setFuncForCustomProperty(name): any {
+    private setFuncForCustomProperty(self: GroupControl,name): any {
         return function (value) {
-            if (this["_" + name] !== value)
-            {
-                this["_" + name] = value;
+            if (self["_" + name] !== value) {
+                self["_" + name] = value;
+                var pointName: string = self[name + "_devPoint"];
+                if (pointName && pointName.length > 0) {
+                    self.container.writeValue(pointName, self[name + "_devPoint_addr"], value);
+                }
+
+                var point = {
+                    max: self[name + "_devPoint_max"],
+                    min: self[name + "_devPoint_min"],
+                    name: name,
+                    value: value,
+                    isCustomProperty:true
+                };
+                for (var i = 0; i < self.controls.length; i++)
+                {
+                    var control = self.controls[i];
+                    self.onChildrenPointValueChanged(control, point);
+                }
             }
         }
     }
