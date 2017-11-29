@@ -247,6 +247,8 @@ namespace Way.Lib
 
         public byte[] ReceiveDatas(int length)
         {
+            if (length == 0)
+                return new byte[0];
             int offset = 0;
             byte[] buffer = new byte[length];
             int readed;
