@@ -2824,13 +2824,14 @@ namespace SunRizServer.DB{
                 {
                     if (!setEvented)
                     {
-                        Way.EntityDB.Design.DBUpgrade.Upgrade(this,  GetDesignString());
+                        
                         setEvented = true;
                         Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
                     }
                 }
             }
         }
+        
 
         static object lockObj = new object();
         static bool setEvented = false;
@@ -3115,7 +3116,7 @@ modelBuilder.Entity<SunRizServer.ControlWindowFolder>().HasKey(m => m.id);
             }
         }
 
-static string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); 
+        protected override string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); 
 result.Append("eyJUYWJsZXMiOlt7IlRhYmxlTmFtZSI6IlNxbGl0ZSIsIlJvd3MiOlt7Ikl0ZW1zIjpbeyJOYW1lIjoiaWQiLCJWYWx1ZSI6MTd9LHsiTmFtZSI6InR5cGUiLCJWYWx1ZSI6IkNyZWF0ZVRhYmxlQWN0aW9uIn0seyJOYW1lIjoiY29udGVudCIsIlZhbHVlIjoie1wi");
 result.Append("VGFibGVcIjp7XCJpZFwiOjUsXCJjYXB0aW9uXCI6XCLlm77niYfmlofku7ZcIixcIk5hbWVcIjpcIkltYWdlRmlsZXNcIixcIkRhdGFiYXNlSURcIjoyLFwiaUxvY2tcIjowfSxcIkNvbHVtbnNcIjpbe1wiaWRcIjoyOSxcIk5hbWVcIjpcImlkXCIsXCJJc0F1dG9J");
 result.Append("bmNyZW1lbnRcIjp0cnVlLFwiQ2FuTnVsbFwiOmZhbHNlLFwiZGJUeXBlXCI6XCJpbnRcIixcIlRhYmxlSURcIjo1LFwiSXNQS0lEXCI6dHJ1ZSxcIm9yZGVyaWRcIjowfSx7XCJpZFwiOjMwLFwiTmFtZVwiOlwiTmFtZVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFs");

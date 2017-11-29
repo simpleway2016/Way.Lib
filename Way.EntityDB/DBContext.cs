@@ -97,6 +97,8 @@ namespace Way.EntityDB
         public string ConnectionString { get; private set; }
 
         IDatabaseService _databaseService;
+        static object GlobalLockObj = new object();
+        static Dictionary<Type,bool> upgradedDatabase = new Dictionary<Type, bool>();
         public new IDatabaseService Database
         {
             get
@@ -682,17 +684,62 @@ namespace Way.EntityDB
         {
             this.DatabaseType = dbType;
             this.ConnectionString = connectionString;
-            Type type = DatabaseServiceTypes[dbType];
+
+            Type type = DatabaseServiceTypes[this.DatabaseType];
             _databaseService = (IDatabaseService)Activator.CreateInstance(type, new object[] { this });
+
+            Type thisType = this.GetType();
+            if (thisType != typeof(EntityDB.DBContext))
+            {
+                if (upgradedDatabase.ContainsKey(thisType) == false || !upgradedDatabase[thisType])
+                {
+                    lock (GlobalLockObj)
+                    {
+                        if (upgradedDatabase.ContainsKey(thisType) == false || !upgradedDatabase[thisType])
+                        {
+                            upgradedDatabase[thisType] = true;
+                            this.CreateIfNotExist();
+                            Way.EntityDB.Design.DBUpgrade.Upgrade(this, GetDesignString());
+                        }
+                    }
+                }
+            }
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
-        
 
+        static Dictionary<Type,bool> CreatedIfNotExist = new Dictionary<Type, bool>();
+        /// <summary>
+        /// 如果数据库不存在，创建数据库，此方法在构造函数中自动调用，如果不想创建数据库，请重写此方法
+        /// 此方法只在进程第一次调用有效
+        /// </summary>
+        protected virtual void CreateIfNotExist()
+        {
+            Type thisType = this.GetType();
+            if (CreatedIfNotExist.ContainsKey(thisType) == false || !CreatedIfNotExist[thisType])
+            {
+                lock (GlobalLockObj)
+                {
+                    if (CreatedIfNotExist.ContainsKey(thisType) == false || !CreatedIfNotExist[thisType])
+                    {
+                        CreatedIfNotExist[thisType] = true;
+                        Design.Services.IDatabaseDesignService dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)this.DatabaseType);
+                        dbservice.Create(new EJ.Databases()
+                        {
+                            conStr = this.ConnectionString
+                        });
+                    }
+                }
+            }
+        }
+        protected virtual string GetDesignString()
+        {
+            return null;
+        }
         protected override void OnConfiguring(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder)
         {
-            _databaseService.OnConfiguring(optionsBuilder);
+            this.Database.OnConfiguring(optionsBuilder);
         }
 
 
@@ -728,7 +775,7 @@ namespace Way.EntityDB
 
             try
             {
-                _databaseService.Update(dataitem);
+                this.Database.Update(dataitem);
                 if (AfterUpdate != null)
                 {
                     AfterUpdate(this, new DatabaseModifyEventArg()
@@ -771,7 +818,7 @@ namespace Way.EntityDB
 
             try
             {
-                _databaseService.Insert(dataitem);
+                this.Database.Insert(dataitem);
                 if (AfterInsert != null)
                 {
                     AfterInsert(this, new DatabaseModifyEventArg()
@@ -813,7 +860,7 @@ namespace Way.EntityDB
 
             try
             {
-                _databaseService.Delete(dataitem);
+                this.Database.Delete(dataitem);
                 if (AfterDelete != null)
                 {
                     AfterDelete(this, new DatabaseModifyEventArg()

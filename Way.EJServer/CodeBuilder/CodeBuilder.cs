@@ -90,7 +90,6 @@ namespace "+nameSpace+@".DB{
                 {
                     if (!setEvented)
                     {
-                        Way.EntityDB.Design.DBUpgrade.Upgrade(this,  GetDesignString());
                         setEvented = true;
                         Way.EntityDB.DBContext.BeforeDelete += Database_BeforeDelete;
                     }
@@ -157,7 +156,7 @@ namespace "+nameSpace+@".DB{
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(dt);
             string content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
            
-            result.AppendLine("static string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); ");
+            result.AppendLine("protected override string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); ");
             for (int i = 0; i < content.Length; i += 200)
             {
                 int len = Math.Min(content.Length - i, 200);
