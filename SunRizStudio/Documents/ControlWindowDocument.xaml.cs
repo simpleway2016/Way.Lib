@@ -41,7 +41,7 @@ namespace SunRizStudio.Documents
         }
 
         internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel,bool isRunMode)
-        {
+        {           
             IsRunMode = isRunMode;
             _dataModel = dataModel ?? new SunRizServer.ControlWindow()
             {
@@ -50,6 +50,7 @@ namespace SunRizStudio.Documents
             };
             _parentNode = parent;
             InitializeComponent();
+           
             this.Title = "初始化...";
             this.init();
         }
@@ -66,9 +67,11 @@ namespace SunRizStudio.Documents
                 Gecko.Xpcom.Initialize("Firefox");
             }
             this.Title = "Loading...";
+            this.AllowDrop = true;
             _gecko = new GeckoWebBrowser();
             _gecko.CreateControl();
             _gecko.Enabled = false;
+            _gecko.AllowDrop = true;
             //_gecko.NoDefaultContextMenu = true; //禁用右键菜单
             _gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
             _gecko.AddMessageEventListener("save", save);
@@ -81,6 +84,8 @@ namespace SunRizStudio.Documents
             _gecko.ProgressChanged += Gecko_ProgressChanged;
             _gecko.CreateWindow += Gecko_CreateWindow;
             _gecko.DocumentCompleted += Gecko_DocumentCompleted;
+            _gecko.DragDrop += _gecko_DragDrop;
+            _gecko.DragOver += _gecko_DragOver;
             if (_dataModel.id != null)
             {
                 _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowid={_dataModel.id}");
@@ -90,6 +95,17 @@ namespace SunRizStudio.Documents
                 _gecko.Navigate($"{Helper.Url}/editor");
             }
         }
+
+        private void _gecko_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
+        {
+           
+        }
+
+        private void _gecko_DragDrop(object sender, System.Windows.Forms.DragEventArgs e)
+        {
+            
+        }
+
         void writePointValue(string arg)
         {
             try
@@ -225,6 +241,7 @@ namespace SunRizStudio.Documents
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
             jsContext = new AutoJSContext(_gecko.Window);
+            jsContext.EvaluateScript($"ServerUrl=\"{Helper.Url}\"");
             if(IsRunMode)
             {
                 jsContext.EvaluateScript("run()");

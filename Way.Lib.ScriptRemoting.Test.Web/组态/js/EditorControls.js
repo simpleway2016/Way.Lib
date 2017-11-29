@@ -2372,7 +2372,7 @@ var ButtonAreaControl = (function (_super) {
 }(EditorControl));
 var GroupControl = (function (_super) {
     __extends(GroupControl, _super);
-    function GroupControl(element) {
+    function GroupControl(element, windowid) {
         var _this = _super.call(this, element) || this;
         _this.controls = [];
         _this.moving = false;
@@ -2380,8 +2380,16 @@ var GroupControl = (function (_super) {
         _this.startY = 0;
         _this.contentWidth = 0;
         _this.contentHeight = 0;
+        _this.windowid = windowid;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         _this.groupElement = element;
+        if (!_this.virtualRectElement) {
+            _this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            _this.groupElement.appendChild(_this.virtualRectElement);
+            _this.virtualRectElement.setAttribute('x', "0");
+            _this.virtualRectElement.setAttribute('y', "0");
+            _this.virtualRectElement.setAttribute('style', 'fill:#ffffff;fill-opacity:0.1;stroke:#cccccc;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+        }
         return _this;
     }
     GroupControl.prototype.removeControl = function (ctrl) {
@@ -2421,13 +2429,6 @@ var GroupControl = (function (_super) {
                 if (_rect.y + _rect.height > this.contentHeight)
                     this.contentHeight = _rect.y + _rect.height;
             }
-            if (!this.virtualRectElement) {
-                this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                this.groupElement.appendChild(this.virtualRectElement);
-                this.virtualRectElement.setAttribute('x', "0");
-                this.virtualRectElement.setAttribute('y', "0");
-                this.virtualRectElement.setAttribute('style', 'fill:#ffffff;fill-opacity:0.1;stroke:#cccccc;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
-            }
             this.virtualRectElement.setAttribute('width', this.contentWidth);
             this.virtualRectElement.setAttribute('height', this.contentHeight);
             myrect.width = parseInt((this.contentWidth * scalex));
@@ -2436,11 +2437,18 @@ var GroupControl = (function (_super) {
             return myrect;
         },
         set: function (v) {
+            if (v.width == null) {
+                this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(1 1)");
+                var r = this.rect;
+                return;
+            }
             if (this.contentWidth == 0) {
                 var r = this.rect;
             }
             var scalex = parseFloat(v.width) / this.contentWidth;
             var scaley = parseFloat(v.height) / this.contentHeight;
+            this.virtualRectElement.setAttribute('width', this.contentWidth);
+            this.virtualRectElement.setAttribute('height', this.contentHeight);
             this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
             this.lastRect = v;
             this.resetPointLocation();
@@ -2449,13 +2457,71 @@ var GroupControl = (function (_super) {
         configurable: true
     });
     GroupControl.prototype.getPropertiesCaption = function () {
-        return [];
+        return ["id"];
     };
     GroupControl.prototype.getProperties = function () {
-        return [];
+        return ["id"];
+    };
+    GroupControl.prototype.run = function () {
+        _super.prototype.run.call(this);
+        if (this.virtualRectElement) {
+            this.virtualRectElement.setAttribute('style', '');
+        }
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].run();
+        }
     };
     GroupControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
+    };
+    GroupControl.prototype.onDevicePointValueChanged = function (point) {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            if (control.constructor.name == "GroupControl" ||
+                control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
+                if (new Date().getTime() - control.lastSetValueTime < 2000) {
+                    window.updateValueLater(control, point);
+                }
+                else {
+                    if (control.updatePointValueTimeoutFlag) {
+                        clearTimeout(control.updatePointValueTimeoutFlag);
+                    }
+                }
+                control.onDevicePointValueChanged(point);
+            }
+        }
+    };
+    GroupControl.prototype.getJson = function () {
+        var json = _super.prototype.getJson.call(this);
+        json.windowid = this.windowid;
+        return json;
+    };
+    GroupControl.prototype.getScript = function () {
+        var json = this.getJson();
+        var script = "";
+        var id = this.id;
+        if (!id || id.length == 0) {
+            id = "eCtrl";
+        }
+        script += id + " = editor.createGroupControl(" + this.windowid + " , " + JSON.stringify(json.rect) + ");\r\n";
+        for (var proName in json) {
+            if (proName == "rect" || proName == "constructorName")
+                continue;
+            var type = typeof json[proName];
+            if (type == "function" || type == "undefined")
+                continue;
+            script += id + "." + proName + " = " + JSON.stringify(json[proName]) + ";\r\n";
+        }
+        return script;
+    };
+    GroupControl.prototype.createGroupControl = function (windowid, rect) {
+        var code = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        var editor = new GroupControl(groupEle, windowid);
+        eval(code);
+        this.addControl(editor);
+        editor.rect = rect;
+        return editor;
     };
     GroupControl.prototype.onSelectedChange = function () {
         if (this.selected) {

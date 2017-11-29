@@ -2412,6 +2412,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     moving: boolean = false;
     startX = 0;
     startY = 0;
+    windowid: any;
 
     virtualRectElement: SVGRectElement;
     contentWidth = 0;
@@ -2438,13 +2439,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             if (_rect.y + _rect.height > this.contentHeight)
                 this.contentHeight = _rect.y + _rect.height;
         }
-        if (!this.virtualRectElement) {
-            this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            this.groupElement.appendChild(this.virtualRectElement);
-            this.virtualRectElement.setAttribute('x', "0");
-            this.virtualRectElement.setAttribute('y', "0");
-            this.virtualRectElement.setAttribute('style', 'fill:#ffffff;fill-opacity:0.1;stroke:#cccccc;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
-        }
+        
         this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
@@ -2454,13 +2449,21 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return myrect;
     }
     set rect(v: any) {
-       
+
+        if (v.width == null) {
+            this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(1 1)");
+            var r = this.rect;//目的是获取contentWidth
+            return;
+        }
         if (this.contentWidth == 0)
         {
             var r = this.rect;//目的是获取contentWidth
         }
         var scalex = parseFloat(<any>v.width) / this.contentWidth;
         var scaley = parseFloat(<any>v.height) / this.contentHeight;
+
+        this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
+        this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
         this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
         this.lastRect = v;
@@ -2469,20 +2472,94 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     
     getPropertiesCaption(): string[] {
-        return [];
+        return ["id"];
     }
     getProperties(): string[] {
-        return [];
+        return ["id"];
     }
 
-    constructor(element:any) {
+    constructor(element: any, windowid) {
         super(element);
+        this.windowid = windowid;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         this.groupElement = element;
-    }
 
+        if (!this.virtualRectElement) {
+            this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.groupElement.appendChild(this.virtualRectElement);
+            this.virtualRectElement.setAttribute('x', "0");
+            this.virtualRectElement.setAttribute('y', "0");
+            this.virtualRectElement.setAttribute('style', 'fill:#ffffff;fill-opacity:0.1;stroke:#cccccc;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+        }
+    }
+    run() {
+        super.run();
+        if (this.virtualRectElement)
+        {
+            this.virtualRectElement.setAttribute('style', '');
+        }
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            this.controls[i].run();
+        }
+    }
     isIntersectWith(rect): boolean {
         return this.isIntersect(this.rect, rect);
+    }
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(point: any) {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            if (control.constructor.name == "GroupControl" ||
+                control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
+                if (new Date().getTime() - control.lastSetValueTime < 2000) {
+                    (<any>window).updateValueLater(control, point);
+                }
+                else {
+                    if (control.updatePointValueTimeoutFlag) {
+                        clearTimeout(control.updatePointValueTimeoutFlag);
+                    }
+                }
+                control.onDevicePointValueChanged(point);
+            }
+        }
+    }
+
+    getJson()
+    {
+        var json : any = super.getJson();
+        json.windowid = this.windowid;
+        return json;
+    }
+
+    getScript() {
+        var json = this.getJson();
+        var script = "";
+        var id = this.id;
+        if (!id || id.length == 0) {
+            id = "eCtrl";
+        }
+        script += id + " = editor.createGroupControl(" + this.windowid + " , " + JSON.stringify(json.rect) + ");\r\n";
+        for (var proName in json) {
+            if (proName == "rect" || proName == "constructorName")
+                continue;
+            var type = typeof json[proName];
+            if (type == "function" || type == "undefined")
+                continue;
+            script += id + "." + proName + " = " + JSON.stringify(json[proName]) + ";\r\n";
+        }
+        return script;
+    }
+
+    createGroupControl(windowid, rect): GroupControl {
+        var code = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+        var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        var editor = new GroupControl(groupEle, windowid);
+        eval(code);
+        this.addControl(editor);
+        editor.rect = rect;
+        return editor;
     }
 
     onSelectedChange() {

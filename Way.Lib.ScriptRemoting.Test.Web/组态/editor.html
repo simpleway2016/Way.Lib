@@ -153,7 +153,6 @@
     </div>
     
     <script lang="ja">
-       
         var lastActiveEle;
         function toolboxClick(ele)
         {
@@ -205,10 +204,10 @@
             }
         }
 
-        function save(name,code,editorScript,controlsScript) {
+        function save(name,code,editorScript,controlsScript,windowids) {
             var event = document.createEvent('MessageEvent');
             var origin = window.location.protocol + '//' + window.location.host;
-            event.initMessageEvent('save', true, true, JSON.stringify({ "name": name,"code":code,"editorScript": editorScript, "controlsScript": controlsScript} ), origin, 1234, window, null);
+            event.initMessageEvent('save', true, true, JSON.stringify({ "name": name, "code": code, "editorScript": editorScript, "controlsScript": controlsScript, "windowids": windowids} ), origin, 1234, window, null);
             document.dispatchEvent(event);
         }
         function watchPointValues(json)
@@ -292,7 +291,8 @@
             for (var i = 0; i < editor.controls.length; i++)
             {
                 var control = editor.controls[i];
-                if (control.devicePoint == ManyPointDefined || control.devicePoint == point.name)
+                if (control.constructor.name == "GroupControl" ||
+                    control.devicePoint == ManyPointDefined || control.devicePoint == point.name)
                 {
                     if (new Date().getTime() - control.lastSetValueTime < 2000) {
                         updateValueLater(control, point);

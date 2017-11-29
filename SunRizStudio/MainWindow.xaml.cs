@@ -95,6 +95,17 @@ namespace SunRizStudio
             documentContainer.SelectedItem = newItem;           
         }
 
-        
+
+        private void TreeViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem treeviewitem = sender as TreeViewItem;
+            if (!(e.OriginalSource is TextBlock))
+                return;
+            if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
+                return;
+            Models.SolutionNode data = treeviewitem.DataContext as Models.SolutionNode;
+            data.MouseDown(sender, e);
+        }
+
     }
 }

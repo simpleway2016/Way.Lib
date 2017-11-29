@@ -1,4 +1,5 @@
 declare var fileBrowser: FileBrowser;
+declare var ServerUrl: string;
 declare var windowid: number;
 declare class ToolBoxItem {
     buildDone: (control: EditorControl) => any;
@@ -107,6 +108,7 @@ declare class Editor implements IEditorControlContainer {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);
+    createGroupControl(windowid: any, rect: any): GroupControl;
     getScript(): string;
     undo(): void;
     redo(): void;

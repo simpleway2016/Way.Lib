@@ -10,6 +10,7 @@ class PropertyDialog
         var captions = control.getPropertiesCaption();
         var pNames = control.getProperties();
 
+
         this.rootElement = document.createElement("DIV");
         this.rootElement.style.padding = "3px";
         this.rootElement.style.maxHeight = window.innerHeight*0.95 + "px";
@@ -18,6 +19,10 @@ class PropertyDialog
         this.rootElement.style.zIndex = "799";
         for (var i = 0; i < pNames.length; i++)
         {
+            var value = control[pNames[i]];
+            if (typeof value == "undefined")
+                value = "";
+
             var row = document.createElement("DIV");
             row.style.display = "table-row";
             this.rootElement.appendChild(row);
@@ -39,7 +44,7 @@ class PropertyDialog
 
                 (<any>cell.children[0])._picker = picker;
                 (<any>cell.children[0])._picker.hash = true;
-                (<any>cell.children[0])._picker.fromString(control[pNames[i]]);
+                (<any>cell.children[0])._picker.fromString(value);
 
                 (<any>cell.children[0]).value = (<any>cell.children[0])._picker.toHEXString();
             }
@@ -49,7 +54,7 @@ class PropertyDialog
 
                 cell.innerHTML = "<input type='checkbox' id='chk" + chknumber + "'><label for='chk" + chknumber + "'>" + captions[i] + "</label>";
                 (<any>cell.children[0])._name = pNames[i];
-                if (control[pNames[i]])
+                if (value)
                 {
                     (<any>cell.children[0]).checked = "checked";
                 }
@@ -57,19 +62,18 @@ class PropertyDialog
             }
             else if (pNames[i].indexOf("script") >= 0) {
                 cell.innerHTML = "<textarea style='width:300px;height:100px;'></textarea>";
-                (<any>cell.children[0]).value = control[pNames[i]];
+               
+                (<any>cell.children[0]).value = value;
             }
             else if (pNames[i].indexOf("img") >= 0){
                 cell.innerHTML = "<input type='text'>";
-                (<any>cell.children[0]).value = control[pNames[i]];
+                (<any>cell.children[0]).value = value;
                 (<any>cell.children[0])._name = pNames[i];
                 this.setImgItemEvent(cell.children[0]);
             }
             else {
                 cell.innerHTML = "<input type='text'>";
-                if (control[pNames[i]]) {
-                    (<any>cell.children[0]).value = control[pNames[i]];
-                }
+                (<any>cell.children[0]).value = value;
             }
             (<any>cell.children[0])._name = pNames[i];
            

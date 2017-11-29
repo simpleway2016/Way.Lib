@@ -27,6 +27,10 @@ namespace SunRizServer
                 {
                     webroot = @"D:\注释\2016\EasyJobCore\Way.Lib.ScriptRemoting.Test.Web\组态";
                 }
+                else if(System.IO.Directory.Exists(@"D:\projects\c#\EasyJob\Way.Lib.ScriptRemoting.Test.Web\组态"))
+                {
+                    webroot = @"D:\projects\c#\EasyJob\Way.Lib.ScriptRemoting.Test.Web\组态";
+                }
 #endif
 
                 if (!System.IO.Directory.Exists(webroot))

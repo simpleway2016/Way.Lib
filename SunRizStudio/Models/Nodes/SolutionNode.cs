@@ -151,6 +151,11 @@ namespace SunRizStudio.Models
         {
 
         }
+
+        public virtual void MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 
     class ContextMenuItem 

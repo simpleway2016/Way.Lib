@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SunRizStudio.Models.Nodes
 {
@@ -50,5 +52,13 @@ namespace SunRizStudio.Models.Nodes
                 }
             }
         }
+
+        public override void MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem treeviewitem = sender as TreeViewItem;
+            DataObject data = new DataObject("Text", _dataModel.id.ToString());
+            DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+        }
+    
     }
 }

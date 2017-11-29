@@ -387,6 +387,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     moving: boolean;
     startX: number;
     startY: number;
+    windowid: any;
     virtualRectElement: SVGRectElement;
     contentWidth: number;
     contentHeight: number;
@@ -394,8 +395,13 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     rect: any;
     getPropertiesCaption(): string[];
     getProperties(): string[];
-    constructor(element: any);
+    constructor(element: any, windowid: any);
+    run(): void;
     isIntersectWith(rect: any): boolean;
+    onDevicePointValueChanged(point: any): void;
+    getJson(): any;
+    getScript(): string;
+    createGroupControl(windowid: any, rect: any): GroupControl;
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;
