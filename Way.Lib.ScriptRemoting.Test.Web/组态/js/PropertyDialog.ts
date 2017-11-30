@@ -17,6 +17,32 @@ class PropertyDialog
         this.rootElement.style.overflowY = "auto";
         this.rootElement.style.overflowX = "hidden";
         this.rootElement.style.zIndex = "799";
+
+        if (true)
+        {
+            var row = document.createElement("DIV");
+            row.style.display = "table-row";
+            this.rootElement.appendChild(row);
+
+            var cell = document.createElement("DIV");
+            cell.style.display = "table-cell";
+            cell.style.whiteSpace = "nowrap";
+            cell.innerHTML = "类型：";
+            row.appendChild(cell);
+            var captionCell = cell;
+
+            cell = document.createElement("DIV");
+            cell.style.display = "table-cell";
+            cell.style.paddingRight = "30px";
+            if ((<any>control).constructor.name == "GroupControl") {
+                cell.innerHTML = (<any>control).path;
+            }
+            else {
+                cell.innerHTML = (<any>control).constructor.name;
+            }
+            row.appendChild(cell);
+        }
+
         for (var i = 0; i < pNames.length; i++)
         {
             var value = control[pNames[i]];

@@ -5,6 +5,13 @@ window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
 
+if (true)
+{
+    var index = location.href.indexOf("://");
+    var domain = location.href.substr(location.href.indexOf("://") + 3);
+    ServerUrl = location.href.substr(0, index) + "://" + domain.substr(0, domain.indexOf("/"));
+}
+
 class ToolBoxItem
 {
     buildDone: (control: EditorControl) => any;
@@ -638,6 +645,7 @@ class Editor implements IEditorControlContainer
     createGroupControl(windowid,rect): GroupControl
     {
         var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+       
         var content;
         eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -646,6 +654,7 @@ class Editor implements IEditorControlContainer
         editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);
         editor.rect = rect;
+        this.undoMgr.addUndo(new UndoAddControl(this, editor));
         return editor;
     }
 

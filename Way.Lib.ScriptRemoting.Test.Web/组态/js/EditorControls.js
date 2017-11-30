@@ -1132,9 +1132,9 @@ var TextControl = (function (_super) {
             var y = parseInt(this.textElement.getAttribute("y"));
             if (isNaN(y))
                 y = 0;
-            var otherY = this.textElement.getBBox().y;
+            var more = 17;
             this.rectElement.setAttribute("x", v.x);
-            this.rectElement.setAttribute("y", (v.y + y - otherY));
+            this.rectElement.setAttribute("y", (v.y + more));
             this.resetPointLocation();
         },
         enumerable: true,
@@ -2382,6 +2382,7 @@ var GroupControl = (function (_super) {
         _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
+        _this._path = null;
         _this.contentWidth = 0;
         _this.contentHeight = 0;
         _this.customProperties = [];
@@ -2423,6 +2424,15 @@ var GroupControl = (function (_super) {
         }
         window.writeValue(pointName, addr, value);
     };
+    Object.defineProperty(GroupControl.prototype, "path", {
+        get: function () {
+            if (this._path == null)
+                this._path = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowPath?windowid=" + this.windowid);
+            return this._path;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(GroupControl.prototype, "rect", {
         get: function () {
             var transform = this.groupElement.getAttribute("transform");
@@ -2487,7 +2497,7 @@ var GroupControl = (function (_super) {
     GroupControl.prototype.run = function () {
         _super.prototype.run.call(this);
         if (this.virtualRectElement) {
-            this.virtualRectElement.setAttribute('style', '');
+            this.groupElement.removeChild(this.virtualRectElement);
         }
         for (var i = 0; i < this.controls.length; i++) {
             this.controls[i].run();
@@ -2504,6 +2514,17 @@ var GroupControl = (function (_super) {
                 this[proName + "_devPoint_max"] = point.max;
                 this[proName + "_devPoint_min"] = point.min;
                 this["_" + proName] = point.value;
+                var proPoint = {
+                    max: self[proName + "_devPoint_max"],
+                    min: self[proName + "_devPoint_min"],
+                    name: proName,
+                    value: point.value,
+                    isCustomProperty: true
+                };
+                for (var i = 0; i < this.controls.length; i++) {
+                    var control = this.controls[i];
+                    this.onChildrenPointValueChanged(control, proPoint);
+                }
             }
         }
         if (!point.isCustomProperty) {

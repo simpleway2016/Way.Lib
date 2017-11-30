@@ -2,6 +2,7 @@
 {
     items: UndoItem[] = [];
     position: number = 0;
+    enable: boolean = false;
     constructor()
     {
 
@@ -9,7 +10,7 @@
 
     addUndo(undoObj: UndoItem)
     {
-        if (!undoObj.enable)
+        if (!undoObj.enable || !this.enable)
             return;
 
         if (this.items.length - this.position > 0) {

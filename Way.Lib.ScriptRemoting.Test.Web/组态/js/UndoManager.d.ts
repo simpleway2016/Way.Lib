@@ -1,6 +1,7 @@
 declare class UndoManager {
     items: UndoItem[];
     position: number;
+    enable: boolean;
     constructor();
     addUndo(undoObj: UndoItem): void;
     undo(): void;

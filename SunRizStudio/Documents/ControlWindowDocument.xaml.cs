@@ -174,32 +174,40 @@ namespace SunRizStudio.Documents
         public override void OnClose(ref bool canceled)
         {
             string changed;
-            jsContext.EvaluateScript("editor.changed", out changed);
-            if (changed == "true")
+            try
             {
-                var dialogResult = MessageBox.Show(MainWindow.Instance, "窗口已修改，是否保存？","", MessageBoxButton.YesNoCancel);
-                if(dialogResult == MessageBoxResult.Yes)
+                jsContext.EvaluateScript("editor.changed", out changed);
+                if (changed == "true" && IsRunMode == false)
                 {
-                    string info;
-                    jsContext.EvaluateScript("editor.getSaveInfo()",out info);
-                    var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
-                    if(json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
+                    var dialogResult = MessageBox.Show(MainWindow.Instance, "窗口已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
+                    if (dialogResult == MessageBoxResult.Yes)
                     {
-                        MessageBox.Show("请点击左上角设置图标，设置监视画面的名称、编号！");
+                        string info;
+                        jsContext.EvaluateScript("editor.getSaveInfo()", out info);
+                        var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
+                        if (json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
+                        {
+                            MessageBox.Show("请点击左上角设置图标，设置监视画面的名称、编号！");
+                            canceled = true;
+                            return;
+                        }
+                        closeAfterSave = true;
+                        this.save(info);
                         canceled = true;
                         return;
                     }
-                    closeAfterSave = true;
-                    this.save(info);
-                    canceled = true;
-                    return;
-                }
-                else if (dialogResult == MessageBoxResult.Cancel)
-                {
-                    canceled = true;
-                    return;
+                    else if (dialogResult == MessageBoxResult.Cancel)
+                    {
+                        canceled = true;
+                        return;
+                    }
                 }
             }
+            catch(Exception ex)
+            {
+
+            }
+            
             foreach( var client in _clients )
             {
                 client.Released = true;
@@ -241,7 +249,7 @@ namespace SunRizStudio.Documents
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
             jsContext = new AutoJSContext(_gecko.Window);
-            jsContext.EvaluateScript($"ServerUrl=\"{Helper.Url}\"");
+
             if(IsRunMode)
             {
                 jsContext.EvaluateScript("run()");

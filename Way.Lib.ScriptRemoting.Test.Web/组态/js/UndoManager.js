@@ -12,9 +12,10 @@ var UndoManager = (function () {
     function UndoManager() {
         this.items = [];
         this.position = 0;
+        this.enable = false;
     }
     UndoManager.prototype.addUndo = function (undoObj) {
-        if (!undoObj.enable)
+        if (!undoObj.enable || !this.enable)
             return;
         if (this.items.length - this.position > 0) {
             this.items.splice(this.position, this.items.length - this.position);

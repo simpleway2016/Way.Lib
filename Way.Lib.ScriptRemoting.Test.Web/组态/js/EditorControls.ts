@@ -1219,11 +1219,16 @@ class TextControl extends RectControl {
         var y = parseInt(this.textElement.getAttribute("y"));
         if (isNaN(y))
             y = 0;
-        var otherY = (<any>this.textElement).getBBox().y;
+
         //getBBox().y和this.textElement.getAttribute("y")不相同的，所以要加上y - otherY这个相差值
+        //var otherY = (<any>this.textElement).getBBox().y;        
+        //var more = y - otherY;
+
+        //getBBox()尽量避免使用，因为元素没有渲染之前，会报错
+        var more = 17;
 
         this.rectElement.setAttribute("x", v.x);
-        this.rectElement.setAttribute("y", <any>(v.y + y - otherY));
+        this.rectElement.setAttribute("y", <any>(v.y + more));
 
         this.resetPointLocation();
     }
@@ -2441,6 +2446,12 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     startX = 0;
     startY = 0;
     windowid: any;
+    private _path: string = null;
+    get path(): string {
+        if (this._path == null)
+            this._path = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowPath?windowid=" + this.windowid);
+        return this._path;
+    }
 
     virtualRectElement: SVGRectElement;
     contentWidth = 0;
@@ -2521,6 +2532,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         this.groupElement = element;
 
+
         if (!this.virtualRectElement) {
             this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             this.groupElement.appendChild(this.virtualRectElement);
@@ -2533,7 +2545,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         super.run();
         if (this.virtualRectElement)
         {
-            this.virtualRectElement.setAttribute('style', '');
+            this.groupElement.removeChild(this.virtualRectElement);
         }
         for (var i = 0; i < this.controls.length; i++)
         {
@@ -2546,6 +2558,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(point: any) {
+        
         for (var i = 0; i < this.customProperties.length; i++)
         {
             var proName = this.customProperties[i];
@@ -2556,6 +2569,20 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 this[proName + "_devPoint_max"] = point.max;
                 this[proName + "_devPoint_min"] = point.min;
                 this["_" + proName] = point.value;
+
+                //传递自定义属性的变化
+                var proPoint = {
+                    max: self[proName + "_devPoint_max"],
+                    min: self[proName + "_devPoint_min"],
+                    name: proName,
+                    value: point.value,
+                    isCustomProperty: true
+                };
+
+                for (var i = 0; i < this.controls.length; i++) {
+                    var control = this.controls[i];
+                    this.onChildrenPointValueChanged(control, proPoint);
+                }
             }
         }
         if (!point.isCustomProperty) {
@@ -2579,6 +2606,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                     clearTimeout(control.updatePointValueTimeoutFlag);
                 }
             }
+
             control.onDevicePointValueChanged(point);
         }
     }

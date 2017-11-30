@@ -398,6 +398,7 @@
         loadControls(editor);
         //把EditorControl关联的点找出来
         remoting = "SunRizServer.Controllers.StudioController".controller();
+        editor.undoMgr.enable = true;
         loadFinish();       
 
         if (editor.name.length == 0)

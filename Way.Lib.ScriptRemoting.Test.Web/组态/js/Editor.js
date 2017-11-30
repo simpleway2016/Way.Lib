@@ -13,6 +13,11 @@ var windowid = new Date().getTime();
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
+if (true) {
+    var index = location.href.indexOf("://");
+    var domain = location.href.substr(location.href.indexOf("://") + 3);
+    ServerUrl = location.href.substr(0, index) + "://" + domain.substr(0, domain.indexOf("/"));
+}
 var ToolBoxItem = (function () {
     function ToolBoxItem() {
     }
@@ -560,6 +565,7 @@ var Editor = (function () {
         editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);
         editor.rect = rect;
+        this.undoMgr.addUndo(new UndoAddControl(this, editor));
         return editor;
     };
     Editor.prototype.getScript = function () {

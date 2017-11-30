@@ -111,6 +111,26 @@ namespace SunRizServer.Controllers
             return json;
         }
         [RemotingMethod]
+        public string GetWindowPath(int windowid)
+        {
+            var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+           
+            StringBuilder path = new StringBuilder();
+            path.Append(window.Name);
+            var folder = this.db.ControlWindowFolder.FirstOrDefault(m => m.id == window.FolderId);
+            while (folder != null)
+            {
+                path.Insert(0, folder.Name + "/");
+                folder = this.db.ControlWindowFolder.FirstOrDefault(m => m.id == folder.ParentId);
+            }
+            var unit = this.db.ControlUnit.FirstOrDefault(m => m.id == window.ControlUnitId);
+            if (unit != null)
+            {
+                path.Insert(0, unit.Name + "/");
+            }
+            return path.ToString();
+        }
+        [RemotingMethod]
         public ControlWindow SaveWindowContent(ControlWindow window, string content)
         {
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(content);

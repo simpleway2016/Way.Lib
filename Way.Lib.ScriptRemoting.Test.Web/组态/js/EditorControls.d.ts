@@ -389,6 +389,8 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     startX: number;
     startY: number;
     windowid: any;
+    private _path;
+    readonly path: string;
     virtualRectElement: SVGRectElement;
     contentWidth: number;
     contentHeight: number;
