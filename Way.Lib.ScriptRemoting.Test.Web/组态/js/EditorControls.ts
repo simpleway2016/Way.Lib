@@ -1207,13 +1207,24 @@ class TextControl extends RectControl {
     }
 
     get rect() {
-        var myrect: SVGRect = (<any>this.textElement).getBBox();
-        return {
-            x: myrect.x,
-            y: myrect.y,
-            width: myrect.width,
-            height: myrect.height
-        };
+        try {
+            var myrect: SVGRect = (<any>this.textElement).getBBox();
+            return {
+                x: myrect.x,
+                y: myrect.y,
+                width: myrect.width,
+                height: myrect.height
+            };
+        }
+        catch (e)
+        {
+            return {
+                x: parseInt(this.rectElement.getAttribute("x")),
+                y: parseInt(this.rectElement.getAttribute("y")) - 17,
+                width: 0,
+                height: 0
+            };
+        }
     }
     set rect(v: any) {
         var y = parseInt(this.textElement.getAttribute("y"));
@@ -2426,6 +2437,28 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         ctrl.container = this;
         this.groupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
+
+        if ((<any>ctrl).constructor.name == "GroupControl") {
+            var groupControl = <GroupControl>ctrl;
+            //整理左边距，右边距
+            var minleft = 9999999;
+            var mintop = 9999999;
+            for (var i = 0; i < groupControl.controls.length; i++) {
+                var child = groupControl.controls[i];
+                var rect = child.rect;
+                if (minleft > rect.x)
+                    minleft = rect.x;
+                if (mintop > rect.y)
+                    mintop = rect.y;
+            }
+            for (var i = 0; i < groupControl.controls.length; i++) {
+                var child = groupControl.controls[i];
+                var rect = child.rect;
+                rect.x -= minleft;
+                rect.y -= mintop;
+                child.rect = rect;
+            }
+        }
     }
     writeValue(pointName, addr, value) {
         for (var p in this)

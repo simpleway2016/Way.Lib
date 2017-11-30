@@ -272,10 +272,15 @@ namespace SunRizStudio.Documents
                 else
                 {
                     jsContext.EvaluateScript("editor.changed=false");
-                    _dataModel.CopyValue(ret);
+                    
                     if (_dataModel.id == null)
                     {
+                        _dataModel.CopyValue(ret);
                         _parentNode.Nodes.Add(new ControlWindowNode(_dataModel));
+                    }
+                    else
+                    {
+                        _dataModel.CopyValue(ret);
                     }
                     _dataModel.ChangedProperties.Clear();
                     this.Title = _dataModel.Name;

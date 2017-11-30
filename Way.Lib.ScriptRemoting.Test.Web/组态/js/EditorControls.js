@@ -1120,13 +1120,23 @@ var TextControl = (function (_super) {
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
-            var myrect = this.textElement.getBBox();
-            return {
-                x: myrect.x,
-                y: myrect.y,
-                width: myrect.width,
-                height: myrect.height
-            };
+            try {
+                var myrect = this.textElement.getBBox();
+                return {
+                    x: myrect.x,
+                    y: myrect.y,
+                    width: myrect.width,
+                    height: myrect.height
+                };
+            }
+            catch (e) {
+                return {
+                    x: parseInt(this.rectElement.getAttribute("x")),
+                    y: parseInt(this.rectElement.getAttribute("y")) - 17,
+                    width: 0,
+                    height: 0
+                };
+            }
         },
         set: function (v) {
             var y = parseInt(this.textElement.getAttribute("y"));
@@ -2414,6 +2424,26 @@ var GroupControl = (function (_super) {
         ctrl.container = this;
         this.groupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
+        if (ctrl.constructor.name == "GroupControl") {
+            var groupControl = ctrl;
+            var minleft = 9999999;
+            var mintop = 9999999;
+            for (var i = 0; i < groupControl.controls.length; i++) {
+                var child = groupControl.controls[i];
+                var rect = child.rect;
+                if (minleft > rect.x)
+                    minleft = rect.x;
+                if (mintop > rect.y)
+                    mintop = rect.y;
+            }
+            for (var i = 0; i < groupControl.controls.length; i++) {
+                var child = groupControl.controls[i];
+                var rect = child.rect;
+                rect.x -= minleft;
+                rect.y -= mintop;
+                child.rect = rect;
+            }
+        }
     };
     GroupControl.prototype.writeValue = function (pointName, addr, value) {
         for (var p in this) {
