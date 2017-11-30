@@ -23,6 +23,8 @@ namespace SunRizStudio.Documents
         BaseDocument _container;
         SunRizDriver.SunRizDriverClient gatewayClient;
         Dictionary<string, string> _PointJsonDict = null;
+        TextBox _textBoxForSelect = null;
+        Popup _popup;
         public PointDocumentController(BaseDocument container, Grid gridProperty,Device device, DevicePoint_TypeEnum type, SolutionNode parent, DevicePoint dataModel, int folderId)
         {
             _container = container;
@@ -141,6 +143,7 @@ namespace SunRizStudio.Documents
                 _gridProperty.Children.Add(btn);
                 btn.Click += (s, e) =>
                 {
+                    _textBoxForSelect = textbox;
                     showPointSelector(btn);
                 };
             }
@@ -152,17 +155,91 @@ namespace SunRizStudio.Documents
         /// <param name="btn"></param>
         void showPointSelector(Button btn)
         {
-            TreeView treeview = new TreeView();
-            treeview.Width = 300;
-            treeview.Height = 500;
-            treeview.Background = System.Windows.Media.Brushes.AliceBlue;
+            if (_popup == null)
+            {
+                TreeView treeview = new TreeView();
+                treeview.Width = 300;
+                treeview.Height = 500;
+                treeview.Background = System.Windows.Media.Brushes.AliceBlue;
+                LoadingTreeItem loadingNode = new LoadingTreeItem();
+                loadingNode.Header = "正在加载...";
+                treeview.Items.Add(loadingNode);
+                loadPoints(new List<string>(), treeview.Items);
 
-            Popup popup = new Popup();
-            popup.PlacementTarget = btn;
-            popup.Placement = PlacementMode.Right;
-            popup.Child = treeview;
-            popup.StaysOpen = false;
-            popup.IsOpen = true;
+                _popup = new Popup();
+                _popup.PlacementTarget = btn;
+                _popup.Placement = PlacementMode.Right;
+                _popup.Child = treeview;
+                _popup.StaysOpen = false;
+            }
+            _popup.IsOpen = true;
+        }
+
+        void loadPoints(List<string> parentPath,ItemCollection nodes)
+        {
+            
+            Task.Run(() => {
+                try
+                {
+                    gatewayClient.EnumDevicePoint(this.Device.Address, parentPath, (info) =>
+                    {
+                        this._container.Dispatcher.Invoke(() => {
+                            if(nodes[0] is LoadingTreeItem)
+                            {
+                                nodes.Clear();
+                            }
+                            TreeViewItem node = new TreeViewItem();
+                            node.Header = info.Name;
+                            if(info.IsFolder)
+                            {
+                                LoadingTreeItem loadingNode = new LoadingTreeItem();
+                                loadingNode.Header = "正在加载...";
+                                node.Items.Add(loadingNode);
+
+                                var path = new List<string>(parentPath);
+                                path.Add(info.Name);
+                                node.Tag = path;
+                                node.Expanded += Node_Expanded;
+                            }
+                            else
+                            {
+                                node.Tag = info.Path;
+                                node.PreviewMouseDown += Point_MouseDown;
+                            }
+                            nodes.Add(node);
+                        });
+                    });
+
+                    if (nodes[0] is LoadingTreeItem)
+                    {
+                        this._container.Dispatcher.Invoke(() => {
+                            nodes.Clear();
+                        });                        
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this._container.Dispatcher.Invoke(() => {
+                        MessageBox.Show(MainWindow.Instance, ex.Message);
+                    });                    
+                }
+            });
+        }
+
+        private void Point_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem node = sender as TreeViewItem;
+            _textBoxForSelect.Text = node.Tag.ToString();
+            _popup.IsOpen = false;
+        }
+
+        private void Node_Expanded(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem node = sender as TreeViewItem;
+            if (node.Items[0] is LoadingTreeItem)
+            {
+                loadPoints(node.Tag as List<string>, node.Items);
+            }
         }
 
         /// <summary>
@@ -222,5 +299,10 @@ namespace SunRizStudio.Documents
             _pointModel = OriginalModel.Clone<DevicePoint>();
             _container.DataContext = _pointModel;
         }
+    }
+
+    class LoadingTreeItem: TreeViewItem
+    {
+
     }
 }
