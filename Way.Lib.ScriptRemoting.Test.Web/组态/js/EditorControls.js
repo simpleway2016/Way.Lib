@@ -2501,6 +2501,7 @@ var GroupControl = (function (_super) {
             }
             var scalex = parseFloat(v.width) / this.contentWidth;
             var scaley = parseFloat(v.height) / this.contentHeight;
+            scaley = scalex;
             this.virtualRectElement.setAttribute('width', this.contentWidth);
             this.virtualRectElement.setAttribute('height', this.contentHeight);
             this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");

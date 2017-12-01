@@ -2533,6 +2533,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
         var scalex = parseFloat(<any>v.width) / this.contentWidth;
         var scaley = parseFloat(<any>v.height) / this.contentHeight;
+        scaley = scalex;//比例一致
 
         this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
