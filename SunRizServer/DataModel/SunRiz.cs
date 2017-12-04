@@ -2804,6 +2804,98 @@ namespace SunRizServer{
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 记录子窗体
+	/// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.Table("childwindow")]
+    [Way.EntityDB.Attributes.Table("id")]
+    public class ChildWindow :Way.EntityDB.DataItem
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  ChildWindow()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+[System.ComponentModel.DataAnnotations.Key]
+        [System.ComponentModel.DataAnnotations.Schema.Column("id")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="id",Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    this.SendPropertyChanging("id",this._id,value);
+                    this._id = value;
+                    this.SendPropertyChanged("id");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _WindowId;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("windowid")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="windowid",Comment="",Caption="",Storage = "_WindowId",DbType="int")]
+        public virtual System.Nullable<Int32> WindowId
+        {
+            get
+            {
+                return this._WindowId;
+            }
+            set
+            {
+                if ((this._WindowId != value))
+                {
+                    this.SendPropertyChanging("WindowId",this._WindowId,value);
+                    this._WindowId = value;
+                    this.SendPropertyChanged("WindowId");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ChildWindowId;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("childwindowid")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="childwindowid",Comment="",Caption="",Storage = "_ChildWindowId",DbType="int")]
+        public virtual System.Nullable<Int32> ChildWindowId
+        {
+            get
+            {
+                return this._ChildWindowId;
+            }
+            set
+            {
+                if ((this._ChildWindowId != value))
+                {
+                    this.SendPropertyChanging("ChildWindowId",this._ChildWindowId,value);
+                    this._ChildWindowId = value;
+                    this.SendPropertyChanged("ChildWindowId");
+
+                }
+            }
+        }
+}}
 
 namespace SunRizServer.DB{
     /// <summary>
@@ -2945,6 +3037,29 @@ namespace SunRizServer.DB{
 
                     }
 
+                    if (e.DataItem is SunRizServer.ControlWindow)
+                    {
+                        var deletingItem = (SunRizServer.ControlWindow)e.DataItem;
+                        
+                    var items0 = (from m in db.ChildWindow
+                    where m.WindowId == deletingItem.id
+                    select new SunRizServer.ChildWindow
+                    {
+                        id = m.id
+                    });
+                    while(true)
+                    {
+                        var data2del = items0.Take(100).ToList();
+                        if(data2del.Count() ==0)
+                            break;
+                        foreach (var t in data2del)
+                        {
+                            db.Delete(t);
+                        }
+                    }
+
+                    }
+
                     if (e.DataItem is SunRizServer.ControlWindowFolder)
                     {
                         var deletingItem = (SunRizServer.ControlWindowFolder)e.DataItem;
@@ -2984,6 +3099,7 @@ modelBuilder.Entity<SunRizServer.ControlUnit>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.DevicePointFolder>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ControlWindow>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ControlWindowFolder>().HasKey(m => m.id);
+modelBuilder.Entity<SunRizServer.ChildWindow>().HasKey(m => m.id);
 }
 
         System.Linq.IQueryable<SunRizServer.ImageFiles> _ImageFiles;
@@ -3111,6 +3227,22 @@ modelBuilder.Entity<SunRizServer.ControlWindowFolder>().HasKey(m => m.id);
                     _ControlWindowFolder = this.Set<SunRizServer.ControlWindowFolder>();
                 }
                 return _ControlWindowFolder;
+            }
+        }
+
+        System.Linq.IQueryable<SunRizServer.ChildWindow> _ChildWindow;
+        /// <summary>
+        /// 记录子窗体
+        /// </summary>
+        public virtual System.Linq.IQueryable<SunRizServer.ChildWindow> ChildWindow
+        {
+             get
+            {
+                if (_ChildWindow == null)
+                {
+                    _ChildWindow = this.Set<SunRizServer.ChildWindow>();
+                }
+                return _ChildWindow;
             }
         }
 
@@ -4409,8 +4541,22 @@ result.Append("IixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkY
 result.Append("dGlvblwiOlwi6K6+5aSH5ZCN56ewXCIsXCJOYW1lXCI6XCJOYW1lXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6NyxcIklzUEtJRFwi");
 result.Append("OmZhbHNlLFwib3JkZXJpZFwiOjJ9LHtcImlkXCI6MTAyLFwiY2FwdGlvblwiOlwi5o6n5Yi25Y2V5YWDaWRcIixcIk5hbWVcIjpcIlVuaXRJZFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiaW50XCIsXCJs");
 result.Append("ZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjcsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo1fV0sXCJuZXdDb2x1bW5zXCI6W10sXCJjaGFuZ2VkQ29sdW1uc1wiOltdLFwiZGVsZXRlZENvbHVtbnNcIjpbXSxcIklEWENvbmZpZ3NcIjpbXSxcIklEXCI6MH0i");
-result.Append("fSx7Ik5hbWUiOiJkYXRhYmFzZWlkIiwiVmFsdWUiOjJ9XSwiUm93U3RhdGUiOjB9XSwiQ29sdW1ucyI6W3siQ29sdW1uTmFtZSI6ImlkIiwiRGF0YVR5cGUiOiJTeXN0ZW0uSW50NjQifSx7IkNvbHVtbk5hbWUiOiJ0eXBlIiwiRGF0YVR5cGUiOiJTeXN0ZW0uU3Ry");
-result.Append("aW5nIn0seyJDb2x1bW5OYW1lIjoiY29udGVudCIsIkRhdGFUeXBlIjoiU3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImRhdGFiYXNlaWQiLCJEYXRhVHlwZSI6IlN5c3RlbS5JbnQ2NCJ9XX1dLCJEYXRhU2V0TmFtZSI6IjQzNzdiMGQ2LWVmZjktNDMzMC1h");
-result.Append("YmViLWYwYWEzYWYyNmVhZSJ9");
+result.Append("fSx7Ik5hbWUiOiJkYXRhYmFzZWlkIiwiVmFsdWUiOjJ9XSwiUm93U3RhdGUiOjB9LHsiSXRlbXMiOlt7Ik5hbWUiOiJpZCIsIlZhbHVlIjo2N30seyJOYW1lIjoidHlwZSIsIlZhbHVlIjoiQ3JlYXRlVGFibGVBY3Rpb24ifSx7Ik5hbWUiOiJjb250ZW50IiwiVmFs");
+result.Append("dWUiOiJ7XCJUYWJsZVwiOntcImlkXCI6MTMsXCJjYXB0aW9uXCI6XCLorrDlvZXlrZDnqpfkvZNcIixcIk5hbWVcIjpcIkNoaWxkV2luZG93XCIsXCJEYXRhYmFzZUlEXCI6MixcImlMb2NrXCI6MH0sXCJDb2x1bW5zXCI6W3tcImlkXCI6MTM3LFwiTmFtZVwiOlwi");
+result.Append("aWRcIixcIklzQXV0b0luY3JlbWVudFwiOnRydWUsXCJDYW5OdWxsXCI6ZmFsc2UsXCJkYlR5cGVcIjpcImludFwiLFwiVGFibGVJRFwiOjEzLFwiSXNQS0lEXCI6dHJ1ZSxcIm9yZGVyaWRcIjowfSx7XCJpZFwiOjEzOCxcIk5hbWVcIjpcIldpbmRvd0lkXCIsXCJJ");
+result.Append("c0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcImxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MTMsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoxfSx7XCJpZFwiOjEzOSxcIk5hbWVcIjpcIkNoaWxk");
+result.Append("V2luZG93SWRcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxMyxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjJ9XSxcIklEWENvbmZpZ3Nc");
+result.Append("IjpbXSxcIklEXCI6MH0ifSx7Ik5hbWUiOiJkYXRhYmFzZWlkIiwiVmFsdWUiOjJ9XSwiUm93U3RhdGUiOjB9LHsiSXRlbXMiOlt7Ik5hbWUiOiJpZCIsIlZhbHVlIjo2OH0seyJOYW1lIjoidHlwZSIsIlZhbHVlIjoiQ2hhbmdlVGFibGVBY3Rpb24ifSx7Ik5hbWUi");
+result.Append("OiJjb250ZW50IiwiVmFsdWUiOiJ7XCJPbGRUYWJsZU5hbWVcIjpcIkNvbnRyb2xXaW5kb3dcIixcIk5ld1RhYmxlTmFtZVwiOlwiQ29udHJvbFdpbmRvd1wiLFwib3RoZXJDb2x1bW5zXCI6W3tcImlkXCI6MTI2LFwiTmFtZVwiOlwiaWRcIixcIklzQXV0b0luY3Jl");
+result.Append("bWVudFwiOnRydWUsXCJDYW5OdWxsXCI6ZmFsc2UsXCJkYlR5cGVcIjpcImludFwiLFwiVGFibGVJRFwiOjExLFwiSXNQS0lEXCI6dHJ1ZSxcIm9yZGVyaWRcIjowfSx7XCJpZFwiOjEyNyxcImNhcHRpb25cIjpcIuaOp+WItuWNleWFg2lkXCIsXCJOYW1lXCI6XCJD");
+result.Append("b250cm9sVW5pdElkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcImxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MTEsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoxfSx7XCJpZFwiOjEy");
+result.Append("OCxcImNhcHRpb25cIjpcIuWQjeensFwiLFwiTmFtZVwiOlwiTmFtZVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjExLFwiSXNQS0lE");
+result.Append("XCI6ZmFsc2UsXCJvcmRlcmlkXCI6Mn0se1wiaWRcIjoxMzMsXCJjYXB0aW9uXCI6XCLmiYDlsZ7mlofku7blpLlcIixcIk5hbWVcIjpcIkZvbGRlcklkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRc");
+result.Append("IixcImxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MTEsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo0fSx7XCJpZFwiOjEzNCxcImNhcHRpb25cIjpcIuaWh+S7tuWQjVwiLFwiTmFtZVwiOlwiRmlsZVBhdGhcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNl");
+result.Append("LFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiMTAwXCIsXCJUYWJsZUlEXCI6MTEsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo1fSx7XCJpZFwiOjEzNixcImNhcHRpb25cIjpcIue8luWPt1wiLFwiTmFtZVwi");
+result.Append("OlwiQ29kZVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjExLFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6M31dLFwibmV3Q29s");
+result.Append("dW1uc1wiOltdLFwiY2hhbmdlZENvbHVtbnNcIjpbXSxcImRlbGV0ZWRDb2x1bW5zXCI6W10sXCJJRFhDb25maWdzXCI6W10sXCJJRFwiOjB9In0seyJOYW1lIjoiZGF0YWJhc2VpZCIsIlZhbHVlIjoyfV0sIlJvd1N0YXRlIjowfV0sIkNvbHVtbnMiOlt7IkNvbHVt");
+result.Append("bk5hbWUiOiJpZCIsIkRhdGFUeXBlIjoiU3lzdGVtLkludDY0In0seyJDb2x1bW5OYW1lIjoidHlwZSIsIkRhdGFUeXBlIjoiU3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImNvbnRlbnQiLCJEYXRhVHlwZSI6IlN5c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5h");
+result.Append("bWUiOiJkYXRhYmFzZWlkIiwiRGF0YVR5cGUiOiJTeXN0ZW0uSW50NjQifV19XSwiRGF0YVNldE5hbWUiOiI0Mzc3YjBkNi1lZmY5LTQzMzAtYWJlYi1mMGFhM2FmMjZlYWUifQ==");
 return result.ToString();}
 }}

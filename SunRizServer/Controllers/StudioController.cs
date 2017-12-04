@@ -130,6 +130,24 @@ namespace SunRizServer.Controllers
             }
             return path.ToString();
         }
+
+        void checkChild(int windowId,int childid)
+        {
+            if (this.db.ChildWindow.Any(m => m.WindowId == childid && m.ChildWindowId == windowId))
+            {
+                string path = GetWindowPath(childid);
+                throw new Exception("不能嵌套子画面" + path);
+            }
+            else
+            {
+                var myChildrens = this.db.ChildWindow.Where(m => m.WindowId == childid).Select(m => m.ChildWindowId).ToArray();
+                foreach( var c in myChildrens )
+                {
+                    checkChild(windowId, c.Value);
+                }
+            }
+        }
+
         [RemotingMethod]
         public ControlWindow SaveWindowContent(ControlWindow window, string content)
         {
@@ -137,6 +155,14 @@ namespace SunRizServer.Controllers
             window.Name = obj.Value<string>("name");
             window.Code = obj.Value<string>("code");
             var windowids = obj.Value<Newtonsoft.Json.Linq.JArray>("windowids");
+
+            if(window.id != null)
+            {
+                //检查循环嵌套
+                foreach (var item in windowids) {
+                    checkChild(window.id.Value, int.Parse(item.ToString()));
+                }
+            }
             var customProperties = obj.Value<string>("customProperties");
 
             if (window.id == null && this.db.ControlWindow.Any(m => m.Name == window.Name && window.FolderId == m.FolderId && window.ControlUnitId == m.ControlUnitId))

@@ -2561,3 +2561,86 @@ namespace SunRizServer{
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 记录子窗体
+	/// </summary>
+    public class ChildWindow :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  ChildWindow()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _WindowId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> WindowId
+        {
+            get
+            {
+                return this._WindowId;
+            }
+            set
+            {
+                if ((this._WindowId != value))
+                {
+                    var original = this._WindowId;
+                    this._WindowId = value;
+                    this.OnPropertyChanged("WindowId",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ChildWindowId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> ChildWindowId
+        {
+            get
+            {
+                return this._ChildWindowId;
+            }
+            set
+            {
+                if ((this._ChildWindowId != value))
+                {
+                    var original = this._ChildWindowId;
+                    this._ChildWindowId = value;
+                    this.OnPropertyChanged("ChildWindowId",original,value);
+
+                }
+            }
+        }
+}}
