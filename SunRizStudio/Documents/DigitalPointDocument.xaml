@@ -84,16 +84,24 @@
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
+                                <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="报警开关" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarm,Mode=TwoWay}"  VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
+                            <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                            </Grid>
+                            <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
+                                <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                            </Grid>
 
-                            <TextBlock Text="报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue,Mode=TwoWay}"  BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBlock Text="报警开关" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarm,Mode=TwoWay}"  VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="报警优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Text="{Binding AlarmPriority,Mode=TwoWay}" Grid.Row="2" Grid.Column="1">
+                            <TextBlock Text="报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue,Mode=TwoWay}"  BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+
+                            <TextBlock Text="报警优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
+                            <ComboBox BorderThickness="0" Text="{Binding AlarmPriority,Mode=TwoWay}" Grid.Row="3" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>
@@ -104,8 +112,8 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="报警组" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Text="{Binding AlarmGroup,Mode=TwoWay}" Grid.Row="3" Grid.Column="1">
+                            <TextBlock Text="报警组" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
+                            <ComboBox BorderThickness="0" Text="{Binding AlarmGroup,Mode=TwoWay}" Grid.Row="4" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
                                 <ComboBoxItem Content="3"></ComboBoxItem>

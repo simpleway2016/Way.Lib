@@ -2160,6 +2160,1260 @@ namespace SunRizServer{
                 }
             }
         }
+
+        System.Nullable<double> _Max;
+        /// <summary>
+        /// 量程上限
+        /// </summary>
+        public virtual System.Nullable<double> Max
+        {
+            get
+            {
+                return this._Max;
+            }
+            set
+            {
+                if ((this._Max != value))
+                {
+                    var original = this._Max;
+                    this._Max = value;
+                    this.OnPropertyChanged("Max",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _Min;
+        /// <summary>
+        /// 量程下限
+        /// </summary>
+        public virtual System.Nullable<double> Min
+        {
+            get
+            {
+                return this._Min;
+            }
+            set
+            {
+                if ((this._Min != value))
+                {
+                    var original = this._Min;
+                    this._Min = value;
+                    this.OnPropertyChanged("Min",original,value);
+
+                }
+            }
+        }
+
+        String _WinBgColor;
+        /// <summary>
+        /// 窗口背景色
+        /// </summary>
+        public virtual String WinBgColor
+        {
+            get
+            {
+                return this._WinBgColor;
+            }
+            set
+            {
+                if ((this._WinBgColor != value))
+                {
+                    var original = this._WinBgColor;
+                    this._WinBgColor = value;
+                    this.OnPropertyChanged("WinBgColor",original,value);
+
+                }
+            }
+        }
+
+        String _WinFrontColor;
+        /// <summary>
+        /// 窗口前景色
+        /// </summary>
+        public virtual String WinFrontColor
+        {
+            get
+            {
+                return this._WinFrontColor;
+            }
+            set
+            {
+                if ((this._WinFrontColor != value))
+                {
+                    var original = this._WinFrontColor;
+                    this._WinFrontColor = value;
+                    this.OnPropertyChanged("WinFrontColor",original,value);
+
+                }
+            }
+        }
+
+        String _GridColor;
+        /// <summary>
+        /// 网格颜色
+        /// </summary>
+        public virtual String GridColor
+        {
+            get
+            {
+                return this._GridColor;
+            }
+            set
+            {
+                if ((this._GridColor != value))
+                {
+                    var original = this._GridColor;
+                    this._GridColor = value;
+                    this.OnPropertyChanged("GridColor",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor1;
+        /// <summary>
+        /// 点颜色
+        /// </summary>
+        public virtual String LineColor1
+        {
+            get
+            {
+                return this._LineColor1;
+            }
+            set
+            {
+                if ((this._LineColor1 != value))
+                {
+                    var original = this._LineColor1;
+                    this._LineColor1 = value;
+                    this.OnPropertyChanged("LineColor1",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor2
+        {
+            get
+            {
+                return this._LineColor2;
+            }
+            set
+            {
+                if ((this._LineColor2 != value))
+                {
+                    var original = this._LineColor2;
+                    this._LineColor2 = value;
+                    this.OnPropertyChanged("LineColor2",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor3
+        {
+            get
+            {
+                return this._LineColor3;
+            }
+            set
+            {
+                if ((this._LineColor3 != value))
+                {
+                    var original = this._LineColor3;
+                    this._LineColor3 = value;
+                    this.OnPropertyChanged("LineColor3",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor4
+        {
+            get
+            {
+                return this._LineColor4;
+            }
+            set
+            {
+                if ((this._LineColor4 != value))
+                {
+                    var original = this._LineColor4;
+                    this._LineColor4 = value;
+                    this.OnPropertyChanged("LineColor4",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor5
+        {
+            get
+            {
+                return this._LineColor5;
+            }
+            set
+            {
+                if ((this._LineColor5 != value))
+                {
+                    var original = this._LineColor5;
+                    this._LineColor5 = value;
+                    this.OnPropertyChanged("LineColor5",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor6
+        {
+            get
+            {
+                return this._LineColor6;
+            }
+            set
+            {
+                if ((this._LineColor6 != value))
+                {
+                    var original = this._LineColor6;
+                    this._LineColor6 = value;
+                    this.OnPropertyChanged("LineColor6",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor7
+        {
+            get
+            {
+                return this._LineColor7;
+            }
+            set
+            {
+                if ((this._LineColor7 != value))
+                {
+                    var original = this._LineColor7;
+                    this._LineColor7 = value;
+                    this.OnPropertyChanged("LineColor7",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor8
+        {
+            get
+            {
+                return this._LineColor8;
+            }
+            set
+            {
+                if ((this._LineColor8 != value))
+                {
+                    var original = this._LineColor8;
+                    this._LineColor8 = value;
+                    this.OnPropertyChanged("LineColor8",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor9;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor9
+        {
+            get
+            {
+                return this._LineColor9;
+            }
+            set
+            {
+                if ((this._LineColor9 != value))
+                {
+                    var original = this._LineColor9;
+                    this._LineColor9 = value;
+                    this.OnPropertyChanged("LineColor9",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor10;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor10
+        {
+            get
+            {
+                return this._LineColor10;
+            }
+            set
+            {
+                if ((this._LineColor10 != value))
+                {
+                    var original = this._LineColor10;
+                    this._LineColor10 = value;
+                    this.OnPropertyChanged("LineColor10",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor11;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor11
+        {
+            get
+            {
+                return this._LineColor11;
+            }
+            set
+            {
+                if ((this._LineColor11 != value))
+                {
+                    var original = this._LineColor11;
+                    this._LineColor11 = value;
+                    this.OnPropertyChanged("LineColor11",original,value);
+
+                }
+            }
+        }
+
+        String _LineColor12;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String LineColor12
+        {
+            get
+            {
+                return this._LineColor12;
+            }
+            set
+            {
+                if ((this._LineColor12 != value))
+                {
+                    var original = this._LineColor12;
+                    this._LineColor12 = value;
+                    this.OnPropertyChanged("LineColor12",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ForwardCount=5;
+        /// <summary>
+        /// 向前浏览画面数量
+        /// </summary>
+        public virtual System.Nullable<Int32> ForwardCount
+        {
+            get
+            {
+                return this._ForwardCount;
+            }
+            set
+            {
+                if ((this._ForwardCount != value))
+                {
+                    var original = this._ForwardCount;
+                    this._ForwardCount = value;
+                    this.OnPropertyChanged("ForwardCount",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _MaxOpen=8;
+        /// <summary>
+        /// 最多打开画面数量
+        /// </summary>
+        public virtual System.Nullable<Int32> MaxOpen
+        {
+            get
+            {
+                return this._MaxOpen;
+            }
+            set
+            {
+                if ((this._MaxOpen != value))
+                {
+                    var original = this._MaxOpen;
+                    this._MaxOpen = value;
+                    this.OnPropertyChanged("MaxOpen",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _DialogCount=5;
+        /// <summary>
+        /// 弹出窗口数量
+        /// </summary>
+        public virtual System.Nullable<Int32> DialogCount
+        {
+            get
+            {
+                return this._DialogCount;
+            }
+            set
+            {
+                if ((this._DialogCount != value))
+                {
+                    var original = this._DialogCount;
+                    this._DialogCount = value;
+                    this.OnPropertyChanged("DialogCount",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Boolean> _IsLockDialog=true;
+        /// <summary>
+        /// 锁定弹出窗口
+        /// </summary>
+        public virtual System.Nullable<Boolean> IsLockDialog
+        {
+            get
+            {
+                return this._IsLockDialog;
+            }
+            set
+            {
+                if ((this._IsLockDialog != value))
+                {
+                    var original = this._IsLockDialog;
+                    this._IsLockDialog = value;
+                    this.OnPropertyChanged("IsLockDialog",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _AlarmShinePercent;
+        /// <summary>
+        /// 窗口闪烁行的百分比
+        /// </summary>
+        public virtual System.Nullable<double> AlarmShinePercent
+        {
+            get
+            {
+                return this._AlarmShinePercent;
+            }
+            set
+            {
+                if ((this._AlarmShinePercent != value))
+                {
+                    var original = this._AlarmShinePercent;
+                    this._AlarmShinePercent = value;
+                    this.OnPropertyChanged("AlarmShinePercent",original,value);
+
+                }
+            }
+        }
+
+        String _AlarmStatusChangeColor;
+        /// <summary>
+        /// 状态变化报警颜色
+        /// </summary>
+        public virtual String AlarmStatusChangeColor
+        {
+            get
+            {
+                return this._AlarmStatusChangeColor;
+            }
+            set
+            {
+                if ((this._AlarmStatusChangeColor != value))
+                {
+                    var original = this._AlarmStatusChangeColor;
+                    this._AlarmStatusChangeColor = value;
+                    this.OnPropertyChanged("AlarmStatusChangeColor",original,value);
+
+                }
+            }
+        }
+
+        String _AlarmTimeoutColor;
+        /// <summary>
+        /// 控制站超时颜色
+        /// </summary>
+        public virtual String AlarmTimeoutColor
+        {
+            get
+            {
+                return this._AlarmTimeoutColor;
+            }
+            set
+            {
+                if ((this._AlarmTimeoutColor != value))
+                {
+                    var original = this._AlarmTimeoutColor;
+                    this._AlarmTimeoutColor = value;
+                    this.OnPropertyChanged("AlarmTimeoutColor",original,value);
+
+                }
+            }
+        }
+
+        String _AlarmPTimeoutColor;
+        /// <summary>
+        /// 点超时颜色
+        /// </summary>
+        public virtual String AlarmPTimeoutColor
+        {
+            get
+            {
+                return this._AlarmPTimeoutColor;
+            }
+            set
+            {
+                if ((this._AlarmPTimeoutColor != value))
+                {
+                    var original = this._AlarmPTimeoutColor;
+                    this._AlarmPTimeoutColor = value;
+                    this.OnPropertyChanged("AlarmPTimeoutColor",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor1;
+        /// <summary>
+        /// 未确认报警颜色
+        /// </summary>
+        public virtual String UnConfigAlarmColor1
+        {
+            get
+            {
+                return this._UnConfigAlarmColor1;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor1 != value))
+                {
+                    var original = this._UnConfigAlarmColor1;
+                    this._UnConfigAlarmColor1 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor1",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor2
+        {
+            get
+            {
+                return this._UnConfigAlarmColor2;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor2 != value))
+                {
+                    var original = this._UnConfigAlarmColor2;
+                    this._UnConfigAlarmColor2 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor2",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor3
+        {
+            get
+            {
+                return this._UnConfigAlarmColor3;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor3 != value))
+                {
+                    var original = this._UnConfigAlarmColor3;
+                    this._UnConfigAlarmColor3 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor3",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor4
+        {
+            get
+            {
+                return this._UnConfigAlarmColor4;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor4 != value))
+                {
+                    var original = this._UnConfigAlarmColor4;
+                    this._UnConfigAlarmColor4 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor4",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor5
+        {
+            get
+            {
+                return this._UnConfigAlarmColor5;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor5 != value))
+                {
+                    var original = this._UnConfigAlarmColor5;
+                    this._UnConfigAlarmColor5 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor5",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor6
+        {
+            get
+            {
+                return this._UnConfigAlarmColor6;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor6 != value))
+                {
+                    var original = this._UnConfigAlarmColor6;
+                    this._UnConfigAlarmColor6 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor6",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor7
+        {
+            get
+            {
+                return this._UnConfigAlarmColor7;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor7 != value))
+                {
+                    var original = this._UnConfigAlarmColor7;
+                    this._UnConfigAlarmColor7 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor7",original,value);
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnConfigAlarmColor8
+        {
+            get
+            {
+                return this._UnConfigAlarmColor8;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor8 != value))
+                {
+                    var original = this._UnConfigAlarmColor8;
+                    this._UnConfigAlarmColor8 = value;
+                    this.OnPropertyChanged("UnConfigAlarmColor8",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor1;
+        /// <summary>
+        /// 确认报警颜色
+        /// </summary>
+        public virtual String ConfigAlarmColor1
+        {
+            get
+            {
+                return this._ConfigAlarmColor1;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor1 != value))
+                {
+                    var original = this._ConfigAlarmColor1;
+                    this._ConfigAlarmColor1 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor1",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor2
+        {
+            get
+            {
+                return this._ConfigAlarmColor2;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor2 != value))
+                {
+                    var original = this._ConfigAlarmColor2;
+                    this._ConfigAlarmColor2 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor2",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor3
+        {
+            get
+            {
+                return this._ConfigAlarmColor3;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor3 != value))
+                {
+                    var original = this._ConfigAlarmColor3;
+                    this._ConfigAlarmColor3 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor3",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor4
+        {
+            get
+            {
+                return this._ConfigAlarmColor4;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor4 != value))
+                {
+                    var original = this._ConfigAlarmColor4;
+                    this._ConfigAlarmColor4 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor4",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor5
+        {
+            get
+            {
+                return this._ConfigAlarmColor5;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor5 != value))
+                {
+                    var original = this._ConfigAlarmColor5;
+                    this._ConfigAlarmColor5 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor5",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor6
+        {
+            get
+            {
+                return this._ConfigAlarmColor6;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor6 != value))
+                {
+                    var original = this._ConfigAlarmColor6;
+                    this._ConfigAlarmColor6 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor6",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor7
+        {
+            get
+            {
+                return this._ConfigAlarmColor7;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor7 != value))
+                {
+                    var original = this._ConfigAlarmColor7;
+                    this._ConfigAlarmColor7 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor7",original,value);
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String ConfigAlarmColor8
+        {
+            get
+            {
+                return this._ConfigAlarmColor8;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor8 != value))
+                {
+                    var original = this._ConfigAlarmColor8;
+                    this._ConfigAlarmColor8 = value;
+                    this.OnPropertyChanged("ConfigAlarmColor8",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor1;
+        /// <summary>
+        /// 未确认返回颜色
+        /// </summary>
+        public virtual String UnBackAlarmColor1
+        {
+            get
+            {
+                return this._UnBackAlarmColor1;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor1 != value))
+                {
+                    var original = this._UnBackAlarmColor1;
+                    this._UnBackAlarmColor1 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor1",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor2
+        {
+            get
+            {
+                return this._UnBackAlarmColor2;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor2 != value))
+                {
+                    var original = this._UnBackAlarmColor2;
+                    this._UnBackAlarmColor2 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor2",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor3
+        {
+            get
+            {
+                return this._UnBackAlarmColor3;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor3 != value))
+                {
+                    var original = this._UnBackAlarmColor3;
+                    this._UnBackAlarmColor3 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor3",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor4
+        {
+            get
+            {
+                return this._UnBackAlarmColor4;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor4 != value))
+                {
+                    var original = this._UnBackAlarmColor4;
+                    this._UnBackAlarmColor4 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor4",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor5
+        {
+            get
+            {
+                return this._UnBackAlarmColor5;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor5 != value))
+                {
+                    var original = this._UnBackAlarmColor5;
+                    this._UnBackAlarmColor5 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor5",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor6
+        {
+            get
+            {
+                return this._UnBackAlarmColor6;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor6 != value))
+                {
+                    var original = this._UnBackAlarmColor6;
+                    this._UnBackAlarmColor6 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor6",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor7
+        {
+            get
+            {
+                return this._UnBackAlarmColor7;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor7 != value))
+                {
+                    var original = this._UnBackAlarmColor7;
+                    this._UnBackAlarmColor7 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor7",original,value);
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String UnBackAlarmColor8
+        {
+            get
+            {
+                return this._UnBackAlarmColor8;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor8 != value))
+                {
+                    var original = this._UnBackAlarmColor8;
+                    this._UnBackAlarmColor8 = value;
+                    this.OnPropertyChanged("UnBackAlarmColor8",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor1;
+        /// <summary>
+        /// 确认返回颜色
+        /// </summary>
+        public virtual String BackAlarmColor1
+        {
+            get
+            {
+                return this._BackAlarmColor1;
+            }
+            set
+            {
+                if ((this._BackAlarmColor1 != value))
+                {
+                    var original = this._BackAlarmColor1;
+                    this._BackAlarmColor1 = value;
+                    this.OnPropertyChanged("BackAlarmColor1",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor2
+        {
+            get
+            {
+                return this._BackAlarmColor2;
+            }
+            set
+            {
+                if ((this._BackAlarmColor2 != value))
+                {
+                    var original = this._BackAlarmColor2;
+                    this._BackAlarmColor2 = value;
+                    this.OnPropertyChanged("BackAlarmColor2",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor3
+        {
+            get
+            {
+                return this._BackAlarmColor3;
+            }
+            set
+            {
+                if ((this._BackAlarmColor3 != value))
+                {
+                    var original = this._BackAlarmColor3;
+                    this._BackAlarmColor3 = value;
+                    this.OnPropertyChanged("BackAlarmColor3",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor4
+        {
+            get
+            {
+                return this._BackAlarmColor4;
+            }
+            set
+            {
+                if ((this._BackAlarmColor4 != value))
+                {
+                    var original = this._BackAlarmColor4;
+                    this._BackAlarmColor4 = value;
+                    this.OnPropertyChanged("BackAlarmColor4",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor5
+        {
+            get
+            {
+                return this._BackAlarmColor5;
+            }
+            set
+            {
+                if ((this._BackAlarmColor5 != value))
+                {
+                    var original = this._BackAlarmColor5;
+                    this._BackAlarmColor5 = value;
+                    this.OnPropertyChanged("BackAlarmColor5",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor6
+        {
+            get
+            {
+                return this._BackAlarmColor6;
+            }
+            set
+            {
+                if ((this._BackAlarmColor6 != value))
+                {
+                    var original = this._BackAlarmColor6;
+                    this._BackAlarmColor6 = value;
+                    this.OnPropertyChanged("BackAlarmColor6",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor7
+        {
+            get
+            {
+                return this._BackAlarmColor7;
+            }
+            set
+            {
+                if ((this._BackAlarmColor7 != value))
+                {
+                    var original = this._BackAlarmColor7;
+                    this._BackAlarmColor7 = value;
+                    this.OnPropertyChanged("BackAlarmColor7",original,value);
+
+                }
+            }
+        }
+
+        String _BackAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String BackAlarmColor8
+        {
+            get
+            {
+                return this._BackAlarmColor8;
+            }
+            set
+            {
+                if ((this._BackAlarmColor8 != value))
+                {
+                    var original = this._BackAlarmColor8;
+                    this._BackAlarmColor8 = value;
+                    this.OnPropertyChanged("BackAlarmColor8",original,value);
+
+                }
+            }
+        }
 }}
 namespace SunRizServer{
 

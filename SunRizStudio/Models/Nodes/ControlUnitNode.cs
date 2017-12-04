@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SunRizServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -78,9 +79,27 @@ namespace SunRizStudio.Models.Nodes
         /// </summary>
         void bindChilds()
         {
-            this.Nodes.Add(new SolutionNode() {
+            var settingNode = new SolutionNode()
+            {
                 Text = "单元配置",
-            });
+            };
+            if(true)
+            {
+                settingNode.Nodes.Add(new SolutionNode()
+                {
+                    Text = "报警",
+                    DoublicClickHandler = alarmSetting_doubleClick,
+                });
+                settingNode.Nodes.Add(new SolutionNode()
+                {
+                    Text = "趋势",
+                });
+                settingNode.Nodes.Add(new SolutionNode()
+                {
+                    Text = "MMI",
+                });
+            }
+            this.Nodes.Add(settingNode);
 
             this.Nodes.Add(new ControlWindowContainerNode(this.Data.id.Value , null)
             {
@@ -104,6 +123,28 @@ namespace SunRizStudio.Models.Nodes
                     }
                 }
             },this.Data.id);
+        }
+
+        void alarmSetting_doubleClick(object sender, RoutedEventArgs e)
+        {
+            var unit = this.Data;
+
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach (TabItem item in MainWindow.Instance.documentContainer.Items)
+            {
+                var doc = item.Content as Documents.BaseDocument;
+                if (item.Content is Documents.UnitAlarmSettingDocument && ((ControlUnit)doc.DataContext).id == unit.id)
+                {
+                    //active
+                    MainWindow.Instance.documentContainer.SelectedItem = item;
+                    return;
+                }
+            }
+            if (true)
+            {
+                var doc = new Documents.UnitAlarmSettingDocument(unit);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
         }
 
         void editUnitClick(object sender, MouseButtonEventArgs e)
