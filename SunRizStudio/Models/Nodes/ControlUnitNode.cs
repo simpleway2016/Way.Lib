@@ -93,10 +93,12 @@ namespace SunRizStudio.Models.Nodes
                 settingNode.Nodes.Add(new SolutionNode()
                 {
                     Text = "趋势",
+                    DoublicClickHandler = trendSetting_doubleClick,
                 });
                 settingNode.Nodes.Add(new SolutionNode()
                 {
                     Text = "MMI",
+                    DoublicClickHandler = mmiSetting_doubleClick,
                 });
             }
             this.Nodes.Add(settingNode);
@@ -146,7 +148,48 @@ namespace SunRizStudio.Models.Nodes
                 MainWindow.Instance.SetActiveDocument(doc);
             }
         }
+        void trendSetting_doubleClick(object sender, RoutedEventArgs e)
+        {
+            var unit = this.Data;
 
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach (TabItem item in MainWindow.Instance.documentContainer.Items)
+            {
+                var doc = item.Content as Documents.BaseDocument;
+                if (item.Content is Documents.UnitTrendSettingDocument && ((ControlUnit)doc.DataContext).id == unit.id)
+                {
+                    //active
+                    MainWindow.Instance.documentContainer.SelectedItem = item;
+                    return;
+                }
+            }
+            if (true)
+            {
+                var doc = new Documents.UnitTrendSettingDocument(unit);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
+        }
+        void mmiSetting_doubleClick(object sender, RoutedEventArgs e)
+        {
+            var unit = this.Data;
+
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach (TabItem item in MainWindow.Instance.documentContainer.Items)
+            {
+                var doc = item.Content as Documents.BaseDocument;
+                if (item.Content is Documents.UnitMMISettingDocument && ((ControlUnit)doc.DataContext).id == unit.id)
+                {
+                    //active
+                    MainWindow.Instance.documentContainer.SelectedItem = item;
+                    return;
+                }
+            }
+            if (true)
+            {
+                var doc = new Documents.UnitMMISettingDocument(unit);
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
+        }
         void editUnitClick(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem treeviewitem = sender as TreeViewItem;

@@ -90,6 +90,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Documents\UnitMMISettingDocument.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Documents\UnitTrendSettingDocument.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Documents\UnitAlarmSettingDocument.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -121,6 +129,12 @@
     <Compile Include="Documents\BaseDocument.cs" />
     <Compile Include="Documents\ControlWindowDocument.xaml.cs">
       <DependentUpon>ControlWindowDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Documents\UnitMMISettingDocument.xaml.cs">
+      <DependentUpon>UnitMMISettingDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Documents\UnitTrendSettingDocument.xaml.cs">
+      <DependentUpon>UnitTrendSettingDocument.xaml</DependentUpon>
     </Compile>
     <Compile Include="Documents\UnitAlarmSettingDocument.xaml.cs">
       <DependentUpon>UnitAlarmSettingDocument.xaml</DependentUpon>
