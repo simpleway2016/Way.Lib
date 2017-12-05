@@ -4264,6 +4264,1418 @@ namespace SunRizServer{
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 系统配置
+	/// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.Table("systemsetting")]
+    [Way.EntityDB.Attributes.Table("id")]
+    public class SystemSetting :Way.EntityDB.DataItem
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  SystemSetting()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+[System.ComponentModel.DataAnnotations.Key]
+        [System.ComponentModel.DataAnnotations.Schema.Column("id")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="id",Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    this.SendPropertyChanging("id",this._id,value);
+                    this._id = value;
+                    this.SendPropertyChanged("id");
+
+                }
+            }
+        }
+
+        System.Nullable<double> _Max;
+        /// <summary>
+        /// 量程上限
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("max")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="max",Comment="",Caption="量程上限",Storage = "_Max",DbType="double")]
+        public virtual System.Nullable<double> Max
+        {
+            get
+            {
+                return this._Max;
+            }
+            set
+            {
+                if ((this._Max != value))
+                {
+                    this.SendPropertyChanging("Max",this._Max,value);
+                    this._Max = value;
+                    this.SendPropertyChanged("Max");
+
+                }
+            }
+        }
+
+        System.Nullable<double> _Min;
+        /// <summary>
+        /// 量程下限
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("min")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="min",Comment="",Caption="量程下限",Storage = "_Min",DbType="double")]
+        public virtual System.Nullable<double> Min
+        {
+            get
+            {
+                return this._Min;
+            }
+            set
+            {
+                if ((this._Min != value))
+                {
+                    this.SendPropertyChanging("Min",this._Min,value);
+                    this._Min = value;
+                    this.SendPropertyChanged("Min");
+
+                }
+            }
+        }
+
+        String _WinBgColor;
+        /// <summary>
+        /// 窗口背景色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("winbgcolor")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="winbgcolor",Comment="",Caption="窗口背景色",Storage = "_WinBgColor",DbType="varchar(50)")]
+        public virtual String WinBgColor
+        {
+            get
+            {
+                return this._WinBgColor;
+            }
+            set
+            {
+                if ((this._WinBgColor != value))
+                {
+                    this.SendPropertyChanging("WinBgColor",this._WinBgColor,value);
+                    this._WinBgColor = value;
+                    this.SendPropertyChanged("WinBgColor");
+
+                }
+            }
+        }
+
+        String _WinFrontColor;
+        /// <summary>
+        /// 窗口前景色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("winfrontcolor")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="winfrontcolor",Comment="",Caption="窗口前景色",Storage = "_WinFrontColor",DbType="varchar(50)")]
+        public virtual String WinFrontColor
+        {
+            get
+            {
+                return this._WinFrontColor;
+            }
+            set
+            {
+                if ((this._WinFrontColor != value))
+                {
+                    this.SendPropertyChanging("WinFrontColor",this._WinFrontColor,value);
+                    this._WinFrontColor = value;
+                    this.SendPropertyChanged("WinFrontColor");
+
+                }
+            }
+        }
+
+        String _GridColor;
+        /// <summary>
+        /// 网格颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("gridcolor")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="gridcolor",Comment="",Caption="网格颜色",Storage = "_GridColor",DbType="varchar(50)")]
+        public virtual String GridColor
+        {
+            get
+            {
+                return this._GridColor;
+            }
+            set
+            {
+                if ((this._GridColor != value))
+                {
+                    this.SendPropertyChanging("GridColor",this._GridColor,value);
+                    this._GridColor = value;
+                    this.SendPropertyChanged("GridColor");
+
+                }
+            }
+        }
+
+        String _LineColor1;
+        /// <summary>
+        /// 点颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor1")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor1",Comment="",Caption="点颜色",Storage = "_LineColor1",DbType="varchar(50)")]
+        public virtual String LineColor1
+        {
+            get
+            {
+                return this._LineColor1;
+            }
+            set
+            {
+                if ((this._LineColor1 != value))
+                {
+                    this.SendPropertyChanging("LineColor1",this._LineColor1,value);
+                    this._LineColor1 = value;
+                    this.SendPropertyChanged("LineColor1");
+
+                }
+            }
+        }
+
+        String _LineColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor2")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor2",Comment="",Caption="",Storage = "_LineColor2",DbType="varchar(50)")]
+        public virtual String LineColor2
+        {
+            get
+            {
+                return this._LineColor2;
+            }
+            set
+            {
+                if ((this._LineColor2 != value))
+                {
+                    this.SendPropertyChanging("LineColor2",this._LineColor2,value);
+                    this._LineColor2 = value;
+                    this.SendPropertyChanged("LineColor2");
+
+                }
+            }
+        }
+
+        String _LineColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor3")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor3",Comment="",Caption="",Storage = "_LineColor3",DbType="varchar(50)")]
+        public virtual String LineColor3
+        {
+            get
+            {
+                return this._LineColor3;
+            }
+            set
+            {
+                if ((this._LineColor3 != value))
+                {
+                    this.SendPropertyChanging("LineColor3",this._LineColor3,value);
+                    this._LineColor3 = value;
+                    this.SendPropertyChanged("LineColor3");
+
+                }
+            }
+        }
+
+        String _LineColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor4")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor4",Comment="",Caption="",Storage = "_LineColor4",DbType="varchar(50)")]
+        public virtual String LineColor4
+        {
+            get
+            {
+                return this._LineColor4;
+            }
+            set
+            {
+                if ((this._LineColor4 != value))
+                {
+                    this.SendPropertyChanging("LineColor4",this._LineColor4,value);
+                    this._LineColor4 = value;
+                    this.SendPropertyChanged("LineColor4");
+
+                }
+            }
+        }
+
+        String _LineColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor5")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor5",Comment="",Caption="",Storage = "_LineColor5",DbType="varchar(50)")]
+        public virtual String LineColor5
+        {
+            get
+            {
+                return this._LineColor5;
+            }
+            set
+            {
+                if ((this._LineColor5 != value))
+                {
+                    this.SendPropertyChanging("LineColor5",this._LineColor5,value);
+                    this._LineColor5 = value;
+                    this.SendPropertyChanged("LineColor5");
+
+                }
+            }
+        }
+
+        String _LineColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor6")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor6",Comment="",Caption="",Storage = "_LineColor6",DbType="varchar(50)")]
+        public virtual String LineColor6
+        {
+            get
+            {
+                return this._LineColor6;
+            }
+            set
+            {
+                if ((this._LineColor6 != value))
+                {
+                    this.SendPropertyChanging("LineColor6",this._LineColor6,value);
+                    this._LineColor6 = value;
+                    this.SendPropertyChanged("LineColor6");
+
+                }
+            }
+        }
+
+        String _LineColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor7")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor7",Comment="",Caption="",Storage = "_LineColor7",DbType="varchar(50)")]
+        public virtual String LineColor7
+        {
+            get
+            {
+                return this._LineColor7;
+            }
+            set
+            {
+                if ((this._LineColor7 != value))
+                {
+                    this.SendPropertyChanging("LineColor7",this._LineColor7,value);
+                    this._LineColor7 = value;
+                    this.SendPropertyChanged("LineColor7");
+
+                }
+            }
+        }
+
+        String _LineColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor8")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor8",Comment="",Caption="",Storage = "_LineColor8",DbType="varchar(50)")]
+        public virtual String LineColor8
+        {
+            get
+            {
+                return this._LineColor8;
+            }
+            set
+            {
+                if ((this._LineColor8 != value))
+                {
+                    this.SendPropertyChanging("LineColor8",this._LineColor8,value);
+                    this._LineColor8 = value;
+                    this.SendPropertyChanged("LineColor8");
+
+                }
+            }
+        }
+
+        String _LineColor9;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor9")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor9",Comment="",Caption="",Storage = "_LineColor9",DbType="varchar(50)")]
+        public virtual String LineColor9
+        {
+            get
+            {
+                return this._LineColor9;
+            }
+            set
+            {
+                if ((this._LineColor9 != value))
+                {
+                    this.SendPropertyChanging("LineColor9",this._LineColor9,value);
+                    this._LineColor9 = value;
+                    this.SendPropertyChanged("LineColor9");
+
+                }
+            }
+        }
+
+        String _LineColor10;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor10")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor10",Comment="",Caption="",Storage = "_LineColor10",DbType="varchar(50)")]
+        public virtual String LineColor10
+        {
+            get
+            {
+                return this._LineColor10;
+            }
+            set
+            {
+                if ((this._LineColor10 != value))
+                {
+                    this.SendPropertyChanging("LineColor10",this._LineColor10,value);
+                    this._LineColor10 = value;
+                    this.SendPropertyChanged("LineColor10");
+
+                }
+            }
+        }
+
+        String _LineColor11;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor11")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor11",Comment="",Caption="",Storage = "_LineColor11",DbType="varchar(50)")]
+        public virtual String LineColor11
+        {
+            get
+            {
+                return this._LineColor11;
+            }
+            set
+            {
+                if ((this._LineColor11 != value))
+                {
+                    this.SendPropertyChanging("LineColor11",this._LineColor11,value);
+                    this._LineColor11 = value;
+                    this.SendPropertyChanged("LineColor11");
+
+                }
+            }
+        }
+
+        String _LineColor12;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("linecolor12")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="linecolor12",Comment="",Caption="",Storage = "_LineColor12",DbType="varchar(50)")]
+        public virtual String LineColor12
+        {
+            get
+            {
+                return this._LineColor12;
+            }
+            set
+            {
+                if ((this._LineColor12 != value))
+                {
+                    this.SendPropertyChanging("LineColor12",this._LineColor12,value);
+                    this._LineColor12 = value;
+                    this.SendPropertyChanged("LineColor12");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ForwardCount=5;
+        /// <summary>
+        /// 向前浏览画面数量
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("forwardcount")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="forwardcount",Comment="",Caption="向前浏览画面数量",Storage = "_ForwardCount",DbType="int")]
+        public virtual System.Nullable<Int32> ForwardCount
+        {
+            get
+            {
+                return this._ForwardCount;
+            }
+            set
+            {
+                if ((this._ForwardCount != value))
+                {
+                    this.SendPropertyChanging("ForwardCount",this._ForwardCount,value);
+                    this._ForwardCount = value;
+                    this.SendPropertyChanged("ForwardCount");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _MaxOpen=8;
+        /// <summary>
+        /// 最多打开画面数量
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("maxopen")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="maxopen",Comment="",Caption="最多打开画面数量",Storage = "_MaxOpen",DbType="int")]
+        public virtual System.Nullable<Int32> MaxOpen
+        {
+            get
+            {
+                return this._MaxOpen;
+            }
+            set
+            {
+                if ((this._MaxOpen != value))
+                {
+                    this.SendPropertyChanging("MaxOpen",this._MaxOpen,value);
+                    this._MaxOpen = value;
+                    this.SendPropertyChanged("MaxOpen");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _DialogCount=5;
+        /// <summary>
+        /// 弹出窗口数量
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("dialogcount")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="dialogcount",Comment="",Caption="弹出窗口数量",Storage = "_DialogCount",DbType="int")]
+        public virtual System.Nullable<Int32> DialogCount
+        {
+            get
+            {
+                return this._DialogCount;
+            }
+            set
+            {
+                if ((this._DialogCount != value))
+                {
+                    this.SendPropertyChanging("DialogCount",this._DialogCount,value);
+                    this._DialogCount = value;
+                    this.SendPropertyChanged("DialogCount");
+
+                }
+            }
+        }
+
+        System.Nullable<Boolean> _IsLockDialog=true;
+        /// <summary>
+        /// 锁定弹出窗口
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("islockdialog")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="islockdialog",Comment="",Caption="锁定弹出窗口",Storage = "_IsLockDialog",DbType="bit")]
+        public virtual System.Nullable<Boolean> IsLockDialog
+        {
+            get
+            {
+                return this._IsLockDialog;
+            }
+            set
+            {
+                if ((this._IsLockDialog != value))
+                {
+                    this.SendPropertyChanging("IsLockDialog",this._IsLockDialog,value);
+                    this._IsLockDialog = value;
+                    this.SendPropertyChanged("IsLockDialog");
+
+                }
+            }
+        }
+
+        System.Nullable<double> _AlarmShinePercent;
+        /// <summary>
+        /// 窗口闪烁行的百分比
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("alarmshinepercent")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="alarmshinepercent",Comment="",Caption="窗口闪烁行的百分比",Storage = "_AlarmShinePercent",DbType="double")]
+        public virtual System.Nullable<double> AlarmShinePercent
+        {
+            get
+            {
+                return this._AlarmShinePercent;
+            }
+            set
+            {
+                if ((this._AlarmShinePercent != value))
+                {
+                    this.SendPropertyChanging("AlarmShinePercent",this._AlarmShinePercent,value);
+                    this._AlarmShinePercent = value;
+                    this.SendPropertyChanged("AlarmShinePercent");
+
+                }
+            }
+        }
+
+        String _AlarmStatusChangeColor;
+        /// <summary>
+        /// 状态变化报警颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("alarmstatuschangecolor")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="alarmstatuschangecolor",Comment="",Caption="状态变化报警颜色",Storage = "_AlarmStatusChangeColor",DbType="varchar(50)")]
+        public virtual String AlarmStatusChangeColor
+        {
+            get
+            {
+                return this._AlarmStatusChangeColor;
+            }
+            set
+            {
+                if ((this._AlarmStatusChangeColor != value))
+                {
+                    this.SendPropertyChanging("AlarmStatusChangeColor",this._AlarmStatusChangeColor,value);
+                    this._AlarmStatusChangeColor = value;
+                    this.SendPropertyChanged("AlarmStatusChangeColor");
+
+                }
+            }
+        }
+
+        String _AlarmTimeoutColor;
+        /// <summary>
+        /// 控制站超时颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("alarmtimeoutcolor")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="alarmtimeoutcolor",Comment="",Caption="控制站超时颜色",Storage = "_AlarmTimeoutColor",DbType="varchar(50)")]
+        public virtual String AlarmTimeoutColor
+        {
+            get
+            {
+                return this._AlarmTimeoutColor;
+            }
+            set
+            {
+                if ((this._AlarmTimeoutColor != value))
+                {
+                    this.SendPropertyChanging("AlarmTimeoutColor",this._AlarmTimeoutColor,value);
+                    this._AlarmTimeoutColor = value;
+                    this.SendPropertyChanged("AlarmTimeoutColor");
+
+                }
+            }
+        }
+
+        String _AlarmPTimeoutColor;
+        /// <summary>
+        /// 点超时颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("alarmptimeoutcolor")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="alarmptimeoutcolor",Comment="",Caption="点超时颜色",Storage = "_AlarmPTimeoutColor",DbType="varchar(50)")]
+        public virtual String AlarmPTimeoutColor
+        {
+            get
+            {
+                return this._AlarmPTimeoutColor;
+            }
+            set
+            {
+                if ((this._AlarmPTimeoutColor != value))
+                {
+                    this.SendPropertyChanging("AlarmPTimeoutColor",this._AlarmPTimeoutColor,value);
+                    this._AlarmPTimeoutColor = value;
+                    this.SendPropertyChanged("AlarmPTimeoutColor");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor1;
+        /// <summary>
+        /// 未确认报警颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor1")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor1",Comment="",Caption="未确认报警颜色",Storage = "_UnConfigAlarmColor1",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor1
+        {
+            get
+            {
+                return this._UnConfigAlarmColor1;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor1 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor1",this._UnConfigAlarmColor1,value);
+                    this._UnConfigAlarmColor1 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor1");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor2")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor2",Comment="",Caption="",Storage = "_UnConfigAlarmColor2",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor2
+        {
+            get
+            {
+                return this._UnConfigAlarmColor2;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor2 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor2",this._UnConfigAlarmColor2,value);
+                    this._UnConfigAlarmColor2 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor2");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor3")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor3",Comment="",Caption="",Storage = "_UnConfigAlarmColor3",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor3
+        {
+            get
+            {
+                return this._UnConfigAlarmColor3;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor3 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor3",this._UnConfigAlarmColor3,value);
+                    this._UnConfigAlarmColor3 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor3");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor4")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor4",Comment="",Caption="",Storage = "_UnConfigAlarmColor4",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor4
+        {
+            get
+            {
+                return this._UnConfigAlarmColor4;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor4 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor4",this._UnConfigAlarmColor4,value);
+                    this._UnConfigAlarmColor4 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor4");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor5")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor5",Comment="",Caption="",Storage = "_UnConfigAlarmColor5",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor5
+        {
+            get
+            {
+                return this._UnConfigAlarmColor5;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor5 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor5",this._UnConfigAlarmColor5,value);
+                    this._UnConfigAlarmColor5 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor5");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor6")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor6",Comment="",Caption="",Storage = "_UnConfigAlarmColor6",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor6
+        {
+            get
+            {
+                return this._UnConfigAlarmColor6;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor6 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor6",this._UnConfigAlarmColor6,value);
+                    this._UnConfigAlarmColor6 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor6");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor7")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor7",Comment="",Caption="",Storage = "_UnConfigAlarmColor7",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor7
+        {
+            get
+            {
+                return this._UnConfigAlarmColor7;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor7 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor7",this._UnConfigAlarmColor7,value);
+                    this._UnConfigAlarmColor7 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor7");
+
+                }
+            }
+        }
+
+        String _UnConfigAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unconfigalarmcolor8")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unconfigalarmcolor8",Comment="",Caption="",Storage = "_UnConfigAlarmColor8",DbType="varchar(50)")]
+        public virtual String UnConfigAlarmColor8
+        {
+            get
+            {
+                return this._UnConfigAlarmColor8;
+            }
+            set
+            {
+                if ((this._UnConfigAlarmColor8 != value))
+                {
+                    this.SendPropertyChanging("UnConfigAlarmColor8",this._UnConfigAlarmColor8,value);
+                    this._UnConfigAlarmColor8 = value;
+                    this.SendPropertyChanged("UnConfigAlarmColor8");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor1;
+        /// <summary>
+        /// 确认报警颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor1")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor1",Comment="",Caption="确认报警颜色",Storage = "_ConfigAlarmColor1",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor1
+        {
+            get
+            {
+                return this._ConfigAlarmColor1;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor1 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor1",this._ConfigAlarmColor1,value);
+                    this._ConfigAlarmColor1 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor1");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor2")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor2",Comment="",Caption="",Storage = "_ConfigAlarmColor2",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor2
+        {
+            get
+            {
+                return this._ConfigAlarmColor2;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor2 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor2",this._ConfigAlarmColor2,value);
+                    this._ConfigAlarmColor2 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor2");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor3")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor3",Comment="",Caption="",Storage = "_ConfigAlarmColor3",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor3
+        {
+            get
+            {
+                return this._ConfigAlarmColor3;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor3 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor3",this._ConfigAlarmColor3,value);
+                    this._ConfigAlarmColor3 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor3");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor4")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor4",Comment="",Caption="",Storage = "_ConfigAlarmColor4",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor4
+        {
+            get
+            {
+                return this._ConfigAlarmColor4;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor4 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor4",this._ConfigAlarmColor4,value);
+                    this._ConfigAlarmColor4 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor4");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor5")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor5",Comment="",Caption="",Storage = "_ConfigAlarmColor5",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor5
+        {
+            get
+            {
+                return this._ConfigAlarmColor5;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor5 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor5",this._ConfigAlarmColor5,value);
+                    this._ConfigAlarmColor5 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor5");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor6")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor6",Comment="",Caption="",Storage = "_ConfigAlarmColor6",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor6
+        {
+            get
+            {
+                return this._ConfigAlarmColor6;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor6 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor6",this._ConfigAlarmColor6,value);
+                    this._ConfigAlarmColor6 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor6");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor7")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor7",Comment="",Caption="",Storage = "_ConfigAlarmColor7",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor7
+        {
+            get
+            {
+                return this._ConfigAlarmColor7;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor7 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor7",this._ConfigAlarmColor7,value);
+                    this._ConfigAlarmColor7 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor7");
+
+                }
+            }
+        }
+
+        String _ConfigAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("configalarmcolor8")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="configalarmcolor8",Comment="",Caption="",Storage = "_ConfigAlarmColor8",DbType="varchar(50)")]
+        public virtual String ConfigAlarmColor8
+        {
+            get
+            {
+                return this._ConfigAlarmColor8;
+            }
+            set
+            {
+                if ((this._ConfigAlarmColor8 != value))
+                {
+                    this.SendPropertyChanging("ConfigAlarmColor8",this._ConfigAlarmColor8,value);
+                    this._ConfigAlarmColor8 = value;
+                    this.SendPropertyChanged("ConfigAlarmColor8");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor1;
+        /// <summary>
+        /// 未确认返回颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor1")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor1",Comment="",Caption="未确认返回颜色",Storage = "_UnBackAlarmColor1",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor1
+        {
+            get
+            {
+                return this._UnBackAlarmColor1;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor1 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor1",this._UnBackAlarmColor1,value);
+                    this._UnBackAlarmColor1 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor1");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor2")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor2",Comment="",Caption="",Storage = "_UnBackAlarmColor2",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor2
+        {
+            get
+            {
+                return this._UnBackAlarmColor2;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor2 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor2",this._UnBackAlarmColor2,value);
+                    this._UnBackAlarmColor2 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor2");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor3")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor3",Comment="",Caption="",Storage = "_UnBackAlarmColor3",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor3
+        {
+            get
+            {
+                return this._UnBackAlarmColor3;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor3 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor3",this._UnBackAlarmColor3,value);
+                    this._UnBackAlarmColor3 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor3");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor4")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor4",Comment="",Caption="",Storage = "_UnBackAlarmColor4",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor4
+        {
+            get
+            {
+                return this._UnBackAlarmColor4;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor4 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor4",this._UnBackAlarmColor4,value);
+                    this._UnBackAlarmColor4 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor4");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor5")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor5",Comment="",Caption="",Storage = "_UnBackAlarmColor5",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor5
+        {
+            get
+            {
+                return this._UnBackAlarmColor5;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor5 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor5",this._UnBackAlarmColor5,value);
+                    this._UnBackAlarmColor5 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor5");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor6")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor6",Comment="",Caption="",Storage = "_UnBackAlarmColor6",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor6
+        {
+            get
+            {
+                return this._UnBackAlarmColor6;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor6 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor6",this._UnBackAlarmColor6,value);
+                    this._UnBackAlarmColor6 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor6");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor7")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor7",Comment="",Caption="",Storage = "_UnBackAlarmColor7",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor7
+        {
+            get
+            {
+                return this._UnBackAlarmColor7;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor7 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor7",this._UnBackAlarmColor7,value);
+                    this._UnBackAlarmColor7 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor7");
+
+                }
+            }
+        }
+
+        String _UnBackAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("unbackalarmcolor8")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="unbackalarmcolor8",Comment="",Caption="",Storage = "_UnBackAlarmColor8",DbType="varchar(50)")]
+        public virtual String UnBackAlarmColor8
+        {
+            get
+            {
+                return this._UnBackAlarmColor8;
+            }
+            set
+            {
+                if ((this._UnBackAlarmColor8 != value))
+                {
+                    this.SendPropertyChanging("UnBackAlarmColor8",this._UnBackAlarmColor8,value);
+                    this._UnBackAlarmColor8 = value;
+                    this.SendPropertyChanged("UnBackAlarmColor8");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor1;
+        /// <summary>
+        /// 确认返回颜色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor1")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor1",Comment="",Caption="确认返回颜色",Storage = "_BackAlarmColor1",DbType="varchar(50)")]
+        public virtual String BackAlarmColor1
+        {
+            get
+            {
+                return this._BackAlarmColor1;
+            }
+            set
+            {
+                if ((this._BackAlarmColor1 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor1",this._BackAlarmColor1,value);
+                    this._BackAlarmColor1 = value;
+                    this.SendPropertyChanged("BackAlarmColor1");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor2;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor2")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor2",Comment="",Caption="",Storage = "_BackAlarmColor2",DbType="varchar(50)")]
+        public virtual String BackAlarmColor2
+        {
+            get
+            {
+                return this._BackAlarmColor2;
+            }
+            set
+            {
+                if ((this._BackAlarmColor2 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor2",this._BackAlarmColor2,value);
+                    this._BackAlarmColor2 = value;
+                    this.SendPropertyChanged("BackAlarmColor2");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor3;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor3")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor3",Comment="",Caption="",Storage = "_BackAlarmColor3",DbType="varchar(50)")]
+        public virtual String BackAlarmColor3
+        {
+            get
+            {
+                return this._BackAlarmColor3;
+            }
+            set
+            {
+                if ((this._BackAlarmColor3 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor3",this._BackAlarmColor3,value);
+                    this._BackAlarmColor3 = value;
+                    this.SendPropertyChanged("BackAlarmColor3");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor4;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor4")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor4",Comment="",Caption="",Storage = "_BackAlarmColor4",DbType="varchar(50)")]
+        public virtual String BackAlarmColor4
+        {
+            get
+            {
+                return this._BackAlarmColor4;
+            }
+            set
+            {
+                if ((this._BackAlarmColor4 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor4",this._BackAlarmColor4,value);
+                    this._BackAlarmColor4 = value;
+                    this.SendPropertyChanged("BackAlarmColor4");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor5;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor5")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor5",Comment="",Caption="",Storage = "_BackAlarmColor5",DbType="varchar(50)")]
+        public virtual String BackAlarmColor5
+        {
+            get
+            {
+                return this._BackAlarmColor5;
+            }
+            set
+            {
+                if ((this._BackAlarmColor5 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor5",this._BackAlarmColor5,value);
+                    this._BackAlarmColor5 = value;
+                    this.SendPropertyChanged("BackAlarmColor5");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor6;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor6")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor6",Comment="",Caption="",Storage = "_BackAlarmColor6",DbType="varchar(50)")]
+        public virtual String BackAlarmColor6
+        {
+            get
+            {
+                return this._BackAlarmColor6;
+            }
+            set
+            {
+                if ((this._BackAlarmColor6 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor6",this._BackAlarmColor6,value);
+                    this._BackAlarmColor6 = value;
+                    this.SendPropertyChanged("BackAlarmColor6");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor7;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor7")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor7",Comment="",Caption="",Storage = "_BackAlarmColor7",DbType="varchar(50)")]
+        public virtual String BackAlarmColor7
+        {
+            get
+            {
+                return this._BackAlarmColor7;
+            }
+            set
+            {
+                if ((this._BackAlarmColor7 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor7",this._BackAlarmColor7,value);
+                    this._BackAlarmColor7 = value;
+                    this.SendPropertyChanged("BackAlarmColor7");
+
+                }
+            }
+        }
+
+        String _BackAlarmColor8;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("backalarmcolor8")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="backalarmcolor8",Comment="",Caption="",Storage = "_BackAlarmColor8",DbType="varchar(50)")]
+        public virtual String BackAlarmColor8
+        {
+            get
+            {
+                return this._BackAlarmColor8;
+            }
+            set
+            {
+                if ((this._BackAlarmColor8 != value))
+                {
+                    this.SendPropertyChanging("BackAlarmColor8",this._BackAlarmColor8,value);
+                    this._BackAlarmColor8 = value;
+                    this.SendPropertyChanged("BackAlarmColor8");
+
+                }
+            }
+        }
+}}
 
 namespace SunRizServer.DB{
     /// <summary>
@@ -4468,6 +5880,7 @@ modelBuilder.Entity<SunRizServer.DevicePointFolder>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ControlWindow>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ControlWindowFolder>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ChildWindow>().HasKey(m => m.id);
+modelBuilder.Entity<SunRizServer.SystemSetting>().HasKey(m => m.id);
 }
 
         System.Linq.IQueryable<SunRizServer.ImageFiles> _ImageFiles;
@@ -4611,6 +6024,22 @@ modelBuilder.Entity<SunRizServer.ChildWindow>().HasKey(m => m.id);
                     _ChildWindow = this.Set<SunRizServer.ChildWindow>();
                 }
                 return _ChildWindow;
+            }
+        }
+
+        System.Linq.IQueryable<SunRizServer.SystemSetting> _SystemSetting;
+        /// <summary>
+        /// 系统配置
+        /// </summary>
+        public virtual System.Linq.IQueryable<SunRizServer.SystemSetting> SystemSetting
+        {
+             get
+            {
+                if (_SystemSetting == null)
+                {
+                    _SystemSetting = this.Set<SunRizServer.SystemSetting>();
+                }
+                return _SystemSetting;
             }
         }
 
@@ -6028,7 +7457,80 @@ result.Append("bUNvbG9yNlwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6d
 result.Append("OTUsXCJOYW1lXCI6XCJCYWNrQWxhcm1Db2xvcjdcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjo5LFwiSXNQS0lEXCI6ZmFsc2UsXCJv");
 result.Append("cmRlcmlkXCI6NTd9LHtcImlkXCI6MTk2LFwiTmFtZVwiOlwiQmFja0FsYXJtQ29sb3I4XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6");
 result.Append("OSxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjU4fV0sXCJjaGFuZ2VkQ29sdW1uc1wiOltdLFwiZGVsZXRlZENvbHVtbnNcIjpbXSxcIklEWENvbmZpZ3NcIjpbXSxcIklEXCI6MH0ifSx7Ik5hbWUiOiJkYXRhYmFzZWlkIiwiVmFsdWUiOjJ9XSwiUm93U3Rh");
-result.Append("dGUiOjB9XSwiQ29sdW1ucyI6W3siQ29sdW1uTmFtZSI6ImlkIiwiRGF0YVR5cGUiOiJTeXN0ZW0uSW50NjQifSx7IkNvbHVtbk5hbWUiOiJ0eXBlIiwiRGF0YVR5cGUiOiJTeXN0ZW0uU3RyaW5nIn0seyJDb2x1bW5OYW1lIjoiY29udGVudCIsIkRhdGFUeXBlIjoi");
-result.Append("U3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImRhdGFiYXNlaWQiLCJEYXRhVHlwZSI6IlN5c3RlbS5JbnQ2NCJ9XX1dLCJEYXRhU2V0TmFtZSI6IjQzNzdiMGQ2LWVmZjktNDMzMC1hYmViLWYwYWEzYWYyNmVhZSJ9");
+result.Append("dGUiOjB9LHsiSXRlbXMiOlt7Ik5hbWUiOiJpZCIsIlZhbHVlIjo3MX0seyJOYW1lIjoidHlwZSIsIlZhbHVlIjoiQ3JlYXRlVGFibGVBY3Rpb24ifSx7Ik5hbWUiOiJjb250ZW50IiwiVmFsdWUiOiJ7XCJUYWJsZVwiOntcImlkXCI6MTQsXCJjYXB0aW9uXCI6XCLn");
+result.Append("s7vnu5/phY3nva5cIixcIk5hbWVcIjpcIlN5c3RlbVNldHRpbmdcIixcIkRhdGFiYXNlSURcIjoyLFwiaUxvY2tcIjowfSxcIkNvbHVtbnNcIjpbe1wiaWRcIjoxOTcsXCJOYW1lXCI6XCJpZFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6dHJ1ZSxcIkNhbk51bGxcIjpm");
+result.Append("YWxzZSxcImRiVHlwZVwiOlwiaW50XCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjp0cnVlLFwib3JkZXJpZFwiOjB9LHtcImlkXCI6MTk4LFwiY2FwdGlvblwiOlwi6YeP56iL5LiK6ZmQXCIsXCJOYW1lXCI6XCJNYXhcIixcIklzQXV0b0luY3JlbWVudFwiOmZh");
+result.Append("bHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRvdWJsZVwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjF9LHtcImlkXCI6MTk5LFwiY2FwdGlvblwiOlwi6YeP56iL5LiL6ZmQXCIsXCJO");
+result.Append("YW1lXCI6XCJNaW5cIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRvdWJsZVwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjJ9LHtcImlkXCI6");
+result.Append("MjAwLFwiY2FwdGlvblwiOlwi56qX5Y+j6IOM5pmv6ImyXCIsXCJOYW1lXCI6XCJXaW5CZ0NvbG9yXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJs");
+result.Append("ZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozfSx7XCJpZFwiOjIwMSxcImNhcHRpb25cIjpcIueql+WPo+WJjeaZr+iJslwiLFwiTmFtZVwiOlwiV2luRnJvbnRDb2xvclwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6");
+result.Append("dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NH0se1wiaWRcIjoyMDIsXCJjYXB0aW9uXCI6XCLnvZHmoLzpopzoibJcIixcIk5hbWVcIjpcIkdyaWRD");
+result.Append("b2xvclwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NX0se1wiaWRcIjoyMDMs");
+result.Append("XCJjYXB0aW9uXCI6XCLngrnpopzoibJcIixcIk5hbWVcIjpcIkxpbmVDb2xvcjFcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxc");
+result.Append("IklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjZ9LHtcImlkXCI6MjA0LFwiTmFtZVwiOlwiTGluZUNvbG9yMlwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwi");
+result.Append("LFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6N30se1wiaWRcIjoyMDUsXCJOYW1lXCI6XCJMaW5lQ29sb3IzXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIs");
+result.Append("XCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo4fSx7XCJpZFwiOjIwNixcIk5hbWVcIjpcIkxpbmVDb2xvcjRcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5");
+result.Append("cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjl9LHtcImlkXCI6MjA3LFwiTmFtZVwiOlwiTGluZUNvbG9yNVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5O");
+result.Append("dWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MTB9LHtcImlkXCI6MjA4LFwiTmFtZVwiOlwiTGluZUNvbG9yNlwiLFwiSXNBdXRvSW5jcmVt");
+result.Append("ZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MTF9LHtcImlkXCI6MjA5LFwiTmFtZVwiOlwiTGluZUNvbG9y");
+result.Append("N1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MTJ9LHtcImlkXCI6MjEwLFwi");
+result.Append("TmFtZVwiOlwiTGluZUNvbG9yOFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6");
+result.Append("MTN9LHtcImlkXCI6MjExLFwiTmFtZVwiOlwiTGluZUNvbG9yOVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6");
+result.Append("ZmFsc2UsXCJvcmRlcmlkXCI6MTR9LHtcImlkXCI6MjEyLFwiTmFtZVwiOlwiTGluZUNvbG9yMTBcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxl");
+result.Append("SURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjE1fSx7XCJpZFwiOjIxMyxcIk5hbWVcIjpcIkxpbmVDb2xvcjExXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5n");
+result.Append("dGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoxNn0se1wiaWRcIjoyMTQsXCJOYW1lXCI6XCJMaW5lQ29sb3IxMlwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwi");
+result.Append("OlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MTd9LHtcImlkXCI6MjE1LFwiY2FwdGlvblwiOlwi5ZCR5YmN5rWP6KeI55S76Z2i5pWw6YePXCIsXCJOYW1lXCI6XCJGb3J3YXJk");
+result.Append("Q291bnRcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcImRlZmF1bHRWYWx1ZVwiOlwiNVwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlk");
+result.Append("XCI6MTh9LHtcImlkXCI6MjE2LFwiY2FwdGlvblwiOlwi5pyA5aSa5omT5byA55S76Z2i5pWw6YePXCIsXCJOYW1lXCI6XCJNYXhPcGVuXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcImxlbmd0");
+result.Append("aFwiOlwiXCIsXCJkZWZhdWx0VmFsdWVcIjpcIjhcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjE5fSx7XCJpZFwiOjIxNyxcImNhcHRpb25cIjpcIuW8ueWHuueql+WPo+aVsOmHj1wiLFwiTmFtZVwiOlwiRGlhbG9nQ291bnRc");
+result.Append("IixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcImRlZmF1bHRWYWx1ZVwiOlwiNVwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MjB9");
+result.Append("LHtcImlkXCI6MjE4LFwiY2FwdGlvblwiOlwi6ZSB5a6a5by55Ye656qX5Y+jXCIsXCJOYW1lXCI6XCJJc0xvY2tEaWFsb2dcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImJpdFwiLFwibGVuZ3RoXCI6XCJc");
+result.Append("IixcImRlZmF1bHRWYWx1ZVwiOlwiMVwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MjF9LHtcImlkXCI6MjE5LFwiY2FwdGlvblwiOlwi56qX5Y+j6Zeq54OB6KGM55qE55m+5YiG5q+UXCIsXCJOYW1lXCI6XCJBbGFybVNoaW5l");
+result.Append("UGVyY2VudFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiZG91YmxlXCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MjJ9LHtcImlkXCI6MjIw");
+result.Append("LFwiY2FwdGlvblwiOlwi54q25oCB5Y+Y5YyW5oql6K2m6aKc6ImyXCIsXCJOYW1lXCI6XCJBbGFybVN0YXR1c0NoYW5nZUNvbG9yXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5n");
+result.Append("dGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyM30se1wiaWRcIjoyMjEsXCJjYXB0aW9uXCI6XCLmjqfliLbnq5notoXml7bpopzoibJcIixcIk5hbWVcIjpcIkFsYXJtVGltZW91dENvbG9yXCIsXCJJc0F1dG9J");
+result.Append("bmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyNH0se1wiaWRcIjoyMjIsXCJjYXB0aW9uXCI6XCLn");
+result.Append("grnotoXml7bpopzoibJcIixcIk5hbWVcIjpcIkFsYXJtUFRpbWVvdXRDb2xvclwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwi");
+result.Append("SXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MjV9LHtcImlkXCI6MjIzLFwiY2FwdGlvblwiOlwi5pyq56Gu6K6k5oql6K2m6aKc6ImyXCIsXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3IxXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxc");
+result.Append("Ijp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyNn0se1wiaWRcIjoyMjQsXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3IyXCIsXCJJc0F1dG9J");
+result.Append("bmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyN30se1wiaWRcIjoyMjUsXCJOYW1lXCI6XCJVbkNv");
+result.Append("bmZpZ0FsYXJtQ29sb3IzXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyOH0s");
+result.Append("e1wiaWRcIjoyMjYsXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3I0XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BL");
+result.Append("SURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyOX0se1wiaWRcIjoyMjcsXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3I1XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpc");
+result.Append("IjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozMH0se1wiaWRcIjoyMjgsXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3I2XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBl");
+result.Append("XCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozMX0se1wiaWRcIjoyMjksXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3I3XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxz");
+result.Append("ZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozMn0se1wiaWRcIjoyMzAsXCJOYW1lXCI6XCJVbkNvbmZpZ0FsYXJtQ29sb3I4");
+result.Append("XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozM30se1wiaWRcIjoyMzEsXCJj");
+result.Append("YXB0aW9uXCI6XCLnoa7orqTmiqXorabpopzoibJcIixcIk5hbWVcIjpcIkNvbmZpZ0FsYXJtQ29sb3IxXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJU");
+result.Append("YWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozNH0se1wiaWRcIjoyMzIsXCJOYW1lXCI6XCJDb25maWdBbGFybUNvbG9yMlwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hh");
+result.Append("clwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MzV9LHtcImlkXCI6MjMzLFwiTmFtZVwiOlwiQ29uZmlnQWxhcm1Db2xvcjNcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwi");
+result.Append("OnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjM2fSx7XCJpZFwiOjIzNCxcIk5hbWVcIjpcIkNvbmZpZ0FsYXJtQ29sb3I0XCIsXCJJc0F1dG9JbmNy");
+result.Append("ZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozN30se1wiaWRcIjoyMzUsXCJOYW1lXCI6XCJDb25maWdB");
+result.Append("bGFybUNvbG9yNVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6Mzh9LHtcImlk");
+result.Append("XCI6MjM2LFwiTmFtZVwiOlwiQ29uZmlnQWxhcm1Db2xvcjZcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZh");
+result.Append("bHNlLFwib3JkZXJpZFwiOjM5fSx7XCJpZFwiOjIzNyxcIk5hbWVcIjpcIkNvbmZpZ0FsYXJtQ29sb3I3XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJU");
+result.Append("YWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo0MH0se1wiaWRcIjoyMzgsXCJOYW1lXCI6XCJDb25maWdBbGFybUNvbG9yOFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hh");
+result.Append("clwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NDF9LHtcImlkXCI6MjM5LFwiY2FwdGlvblwiOlwi5pyq56Gu6K6k6L+U5Zue6aKc6ImyXCIsXCJOYW1lXCI6XCJVbkJhY2tBbGFybUNvbG9yMVwi");
+result.Append("LFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NDJ9LHtcImlkXCI6MjQwLFwiTmFt");
+result.Append("ZVwiOlwiVW5CYWNrQWxhcm1Db2xvcjJcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJp");
+result.Append("ZFwiOjQzfSx7XCJpZFwiOjI0MSxcIk5hbWVcIjpcIlVuQmFja0FsYXJtQ29sb3IzXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQs");
+result.Append("XCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo0NH0se1wiaWRcIjoyNDIsXCJOYW1lXCI6XCJVbkJhY2tBbGFybUNvbG9yNFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3Ro");
+result.Append("XCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NDV9LHtcImlkXCI6MjQzLFwiTmFtZVwiOlwiVW5CYWNrQWxhcm1Db2xvcjVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5");
+result.Append("cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjQ2fSx7XCJpZFwiOjI0NCxcIk5hbWVcIjpcIlVuQmFja0FsYXJtQ29sb3I2XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxz");
+result.Append("ZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo0N30se1wiaWRcIjoyNDUsXCJOYW1lXCI6XCJVbkJhY2tBbGFybUNvbG9yN1wi");
+result.Append("LFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NDh9LHtcImlkXCI6MjQ2LFwiTmFt");
+result.Append("ZVwiOlwiVW5CYWNrQWxhcm1Db2xvcjhcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJp");
+result.Append("ZFwiOjQ5fSx7XCJpZFwiOjI0NyxcImNhcHRpb25cIjpcIuehruiupOi/lOWbnuminOiJslwiLFwiTmFtZVwiOlwiQmFja0FsYXJtQ29sb3IxXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIs");
+result.Append("XCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo1MH0se1wiaWRcIjoyNDgsXCJOYW1lXCI6XCJCYWNrQWxhcm1Db2xvcjJcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUs");
+result.Append("XCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjUxfSx7XCJpZFwiOjI0OSxcIk5hbWVcIjpcIkJhY2tBbGFybUNvbG9yM1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6");
+result.Append("ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NTJ9LHtcImlkXCI6MjUwLFwiTmFtZVwiOlwiQmFja0FsYXJtQ29sb3I0");
+result.Append("XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo1M30se1wiaWRcIjoyNTEsXCJO");
+result.Append("YW1lXCI6XCJCYWNrQWxhcm1Db2xvcjVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcInZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJp");
+result.Append("ZFwiOjU0fSx7XCJpZFwiOjI1MixcIk5hbWVcIjpcIkJhY2tBbGFybUNvbG9yNlwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE0LFwi");
+result.Append("SXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NTV9LHtcImlkXCI6MjUzLFwiTmFtZVwiOlwiQmFja0FsYXJtQ29sb3I3XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpc");
+result.Append("IjUwXCIsXCJUYWJsZUlEXCI6MTQsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo1Nn0se1wiaWRcIjoyNTQsXCJOYW1lXCI6XCJCYWNrQWxhcm1Db2xvcjhcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpc");
+result.Append("InZhcmNoYXJcIixcImxlbmd0aFwiOlwiNTBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjU3fV0sXCJJRFhDb25maWdzXCI6W10sXCJJRFwiOjB9In0seyJOYW1lIjoiZGF0YWJhc2VpZCIsIlZhbHVlIjoyfV0sIlJvd1N0YXRl");
+result.Append("IjowfV0sIkNvbHVtbnMiOlt7IkNvbHVtbk5hbWUiOiJpZCIsIkRhdGFUeXBlIjoiU3lzdGVtLkludDY0In0seyJDb2x1bW5OYW1lIjoidHlwZSIsIkRhdGFUeXBlIjoiU3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImNvbnRlbnQiLCJEYXRhVHlwZSI6IlN5");
+result.Append("c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5hbWUiOiJkYXRhYmFzZWlkIiwiRGF0YVR5cGUiOiJTeXN0ZW0uSW50NjQifV19XSwiRGF0YVNldE5hbWUiOiI0Mzc3YjBkNi1lZmY5LTQzMzAtYWJlYi1mMGFhM2FmMjZlYWUifQ==");
 return result.ToString();}
 }}
