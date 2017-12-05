@@ -84,8 +84,6 @@ namespace SunRizStudio.Documents
             _gecko.ProgressChanged += Gecko_ProgressChanged;
             _gecko.CreateWindow += Gecko_CreateWindow;
             _gecko.DocumentCompleted += Gecko_DocumentCompleted;
-            _gecko.DragDrop += _gecko_DragDrop;
-            _gecko.DragOver += _gecko_DragOver;
             if (_dataModel.id != null)
             {
                 _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowid={_dataModel.id}");
@@ -96,15 +94,6 @@ namespace SunRizStudio.Documents
             }
         }
 
-        private void _gecko_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
-        {
-           
-        }
-
-        private void _gecko_DragDrop(object sender, System.Windows.Forms.DragEventArgs e)
-        {
-            
-        }
 
         void writePointValue(string arg)
         {

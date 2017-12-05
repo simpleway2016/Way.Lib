@@ -258,13 +258,28 @@ namespace SunRizServer.Controllers
                 }
                 else
                 {
+                    //AsTracking防止重复从数据库取值
+                    var device = this.db.Device.AsTracking().FirstOrDefault(m => m.id == devPoint.DeviceId);
+                    var unit = this.db.ControlUnit.AsTracking().FirstOrDefault(m => m.id == device.UnitId);
                     objs[i] = new
                     {
                         name = pointNames[i],
-                        max = devPoint.TransMax,
-                        min = devPoint.TransMin,
+                        max = devPoint.TransMax??unit.Max,
+                        min = devPoint.TransMin??unit.Min,
                         addr = devPoint.Address,
                         deviceId = devPoint.DeviceId,
+                        colorLine1 = unit.LineColor1,
+                        colorLine2 = unit.LineColor2,
+                        colorLine3 = unit.LineColor3,
+                        colorLine4 = unit.LineColor4,
+                        colorLine5 = unit.LineColor5,
+                        colorLine6 = unit.LineColor6,
+                        colorLine7 = unit.LineColor7,
+                        colorLine8 = unit.LineColor8,
+                        colorLine9 = unit.LineColor9,
+                        colorLine10 = unit.LineColor10,
+                        colorLine11 = unit.LineColor11,
+                        colorLine12 = unit.LineColor12,
                     };
                 }
             }

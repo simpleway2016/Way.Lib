@@ -131,6 +131,7 @@ namespace SunRizStudio.Documents
 
             if(supportEnumPoints )
             {
+                //如果可以枚举点，那么加入一个按钮，点击选择设备点
                 Button btn = new Button();
                 btn.Content = "...";
                 btn.Width = 26;

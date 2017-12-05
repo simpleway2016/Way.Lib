@@ -34,7 +34,23 @@ namespace SunRizStudio.Documents
             this.Title = $"“{dataModel.Name}”配置-报警";
             this.DataContext = _originalModel.Clone<ControlUnit>();
         }
-
+        public override void OnClose(ref bool canceled)
+        {
+            if (((ControlUnit)this.DataContext).ChangedProperties.Count > 0)
+            {
+                var dialogResult = MessageBox.Show(MainWindow.Instance, "窗口已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
+                if (dialogResult == MessageBoxResult.Yes)
+                {
+                    save(false);
+                }
+                else if (dialogResult == MessageBoxResult.Cancel)
+                {
+                    canceled = true;
+                    return;
+                }
+            }
+            base.OnClose(ref canceled);
+        }
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
             save(true);

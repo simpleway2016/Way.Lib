@@ -1,7 +1,7 @@
 ﻿using System;
 using Way.Lib.ScriptRemoting;
 using System.Linq;
-
+using Microsoft.EntityFrameworkCore;
 namespace SunRizServer
 {
     public class Program

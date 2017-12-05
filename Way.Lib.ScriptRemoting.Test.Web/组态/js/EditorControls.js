@@ -1491,7 +1491,7 @@ var TrendControl = (function (_super) {
         _this.element.appendChild(_this.line_bottom_Ele);
         for (var i = 1; i <= 12; i++) {
             var pe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            pe.setAttribute('style', 'stroke:#ffffff;stroke-width:1;fill:none;');
+            pe.setAttribute('style', 'stroke-width:1;fill:none;');
             pe.setAttribute("transform", "translate(0 0)");
             _this.element.appendChild(pe);
             _this["pathElement" + i] = pe;
@@ -1861,6 +1861,10 @@ var TrendControl = (function (_super) {
             this.max = devPoint.max;
         if (devPoint.min != null && devPoint.min != this.min)
             this.min = devPoint.min;
+        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+            this["colorLine" + number] = devPoint["colorLine" + number];
+        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+            this["colorLine" + number] = "#ffffff";
         this["value" + number] = devPoint.value;
     };
     Object.defineProperty(TrendControl.prototype, "rect", {

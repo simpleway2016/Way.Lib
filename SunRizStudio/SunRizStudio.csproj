@@ -127,6 +127,7 @@
       <DependentUpon>AnalogPointDocument.xaml</DependentUpon>
     </Compile>
     <Compile Include="Documents\BaseDocument.cs" />
+    <Compile Include="Documents\ColorSelectButton.cs" />
     <Compile Include="Documents\ControlWindowDocument.xaml.cs">
       <DependentUpon>ControlWindowDocument.xaml</DependentUpon>
     </Compile>
