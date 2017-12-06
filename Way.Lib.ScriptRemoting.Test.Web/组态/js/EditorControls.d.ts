@@ -182,6 +182,7 @@ declare class TextControl extends RectControl {
     devicePoint: string;
     onDevicePointValueChanged(devPoint: any): void;
     updateText(value: any): void;
+    private _showedPrompt;
     run(): void;
     getPropertiesCaption(): string[];
     getProperties(): string[];

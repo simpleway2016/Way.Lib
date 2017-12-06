@@ -71,7 +71,6 @@ class PropertyDialog
                 (<any>cell.children[0])._picker = picker;
                 (<any>cell.children[0])._picker.hash = true;
                 (<any>cell.children[0])._picker.fromString(value);
-
                 (<any>cell.children[0]).value = (<any>cell.children[0])._picker.toHEXString();
             }
             else if (pNames[i].indexOf("can") == 0) {

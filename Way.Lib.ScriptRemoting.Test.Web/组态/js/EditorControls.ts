@@ -1168,31 +1168,35 @@ class TextControl extends RectControl {
     {
         this.text = value;
     }
+
+    private _showedPrompt: boolean = false;
     run() {
         super.run();
         if (this.devicePoint.length > 0 && this.canSetValue) {
             this.textElement.style.cursor = "pointer";
             (<HTMLElement>this.element).addEventListener("click", (e) => {
                 e.stopPropagation();
-                var newValue :any= window.prompt("请输入新的数值", "");
-                if (newValue && newValue.length > 0)
-                {
-                    var valueType = typeof this._lastDevPoint.value;
-                    if (valueType == "number")
-                    {
-                        if (newValue.indexOf(".") >= 0)
-                            newValue = parseFloat(newValue);
-                        else
-                            newValue = parseInt(newValue);
+
+                if (!this._showedPrompt) {
+                    this._showedPrompt = true;
+                    var newValue: any = window.prompt("请输入新的数值", "");
+                    this._showedPrompt = false;
+                    if (newValue && newValue.length > 0) {
+                        var valueType = typeof this._lastDevPoint.value;
+                        if (valueType == "number") {
+                            if (newValue.indexOf(".") >= 0)
+                                newValue = parseFloat(newValue);
+                            else
+                                newValue = parseInt(newValue);
+                        }
+                        if (this._lastDevPoint.value != newValue) {
+                            //往设备写入值
+                            this.container.writeValue(this.devicePoint, this._lastDevPoint.addr, newValue);
+                            this.lastSetValueTime = new Date().getTime();
+                            this.updateText(newValue);
+                        }
+
                     }
-                    if (this._lastDevPoint.value != newValue)
-                    {
-                        //往设备写入值
-                        this.container.writeValue(this.devicePoint, this._lastDevPoint.addr, newValue);
-                        this.lastSetValueTime = new Date().getTime();
-                        this.updateText(newValue);
-                    }
-                   
                 }
             }, false);
         }
@@ -1564,8 +1568,8 @@ class TrendControl extends EditorControl {
     pathElement11: SVGPathElement;
     pathElement12: SVGPathElement;
     
-    private _max: number = 100;
-    private _min: number = 0;
+    private _max: number;
+    private _min: number;
 
     values1: any[] = [];
     values2: any[] = [];
@@ -1862,10 +1866,16 @@ class TrendControl extends EditorControl {
         if (number == 0)
             return;
 
-        if (devPoint.max != null && devPoint.max != this.max)
+        if (devPoint.max != null &&  (typeof this.max == "undefined" || isNaN(this.max)))
             this.max = devPoint.max;
-        if (devPoint.min != null && devPoint.min != this.min)
+        else if (devPoint.max != null && devPoint.max > this.max)
+            this.max = devPoint.max;
+
+        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
             this.min = devPoint.min;
+        else if (devPoint.min != null && devPoint.min < this.min)
+            this.min = devPoint.min;
+
 
         if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
             this["colorLine" + number] = devPoint["colorLine" + number];
@@ -2079,7 +2089,14 @@ class TrendControl extends EditorControl {
             }
         }
 
-        var percent = 1 - (valueItem.value - this.min) / (this.max - this.min);
+        var min = this.min;
+        if (typeof min == "undefined" || isNaN(min))
+            min = 0;
+        var max = this.max;
+        if (typeof max == "undefined" || isNaN(max))
+            max = 100;
+
+        var percent = 1 - (valueItem.value - min) / (max - min);
         var y = 10 + (rect.height - 20) * percent;
         if (y < 10)
             y = 10;

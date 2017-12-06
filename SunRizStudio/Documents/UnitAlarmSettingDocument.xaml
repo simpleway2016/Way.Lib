@@ -36,13 +36,19 @@
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmShinePercent,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="状态变化报警颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding AlarmStatusChangeColor,Mode=TwoWay}" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding AlarmStatusChangeColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="控制站超时颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding AlarmTimeoutColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding AlarmTimeoutColor,Mode=TwoWay}" Text="{Binding AlarmTimeoutColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding AlarmTimeoutColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="点超时颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding AlarmPTimeoutColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding AlarmPTimeoutColor,Mode=TwoWay}" Text="{Binding AlarmPTimeoutColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding AlarmPTimeoutColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
+
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -75,28 +81,44 @@
                             </Grid>
 
                             <TextBlock Text="优先级1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor1,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor1,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="1" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级2" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor2,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor2,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor3,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor3,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级4" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor4,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor4,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级5" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor5,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor5,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级6" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor6,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor6,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="6" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级7" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor7,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor7,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="7" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级8" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnConfigAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnConfigAlarmColor8,Mode=TwoWay}" Text="{Binding UnConfigAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnConfigAlarmColor8,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="8" Grid.Column="1"></local:ColorSelectButton>
+
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -129,28 +151,44 @@
                             </Grid>
 
                             <TextBlock Text="优先级1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor1,Mode=TwoWay}" Text="{Binding ConfigAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor1,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="1" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级2" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor2,Mode=TwoWay}" Text="{Binding ConfigAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor2,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor3,Mode=TwoWay}" Text="{Binding ConfigAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor3,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级4" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor4,Mode=TwoWay}" Text="{Binding ConfigAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor4,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级5" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor5,Mode=TwoWay}" Text="{Binding ConfigAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor5,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级6" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor6,Mode=TwoWay}" Text="{Binding ConfigAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor6,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="6" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级7" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor7,Mode=TwoWay}" Text="{Binding ConfigAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor7,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="7" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级8" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ConfigAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding ConfigAlarmColor8,Mode=TwoWay}" Text="{Binding ConfigAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding ConfigAlarmColor8,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="8" Grid.Column="1"></local:ColorSelectButton>
+
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -183,28 +221,44 @@
                             </Grid>
 
                             <TextBlock Text="优先级1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor1,Mode=TwoWay}" Text="{Binding UnBackAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor1,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="1" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级2" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor2,Mode=TwoWay}" Text="{Binding UnBackAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor2,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor3,Mode=TwoWay}" Text="{Binding UnBackAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor3,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级4" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor4,Mode=TwoWay}" Text="{Binding UnBackAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor4,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级5" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor5,Mode=TwoWay}" Text="{Binding UnBackAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor5,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级6" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor6,Mode=TwoWay}" Text="{Binding UnBackAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor6,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="6" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级7" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor7,Mode=TwoWay}" Text="{Binding UnBackAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor7,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="7" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级8" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding UnBackAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding UnBackAlarmColor8,Mode=TwoWay}" Text="{Binding UnBackAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding UnBackAlarmColor8,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="8" Grid.Column="1"></local:ColorSelectButton>
+
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -235,30 +289,45 @@
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
                                 <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                             </Grid>
-
                             <TextBlock Text="优先级1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor1,Mode=TwoWay}" Text="{Binding BackAlarmColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor1,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="1" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级2" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor2,Mode=TwoWay}" Text="{Binding BackAlarmColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor2,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor3,Mode=TwoWay}" Text="{Binding BackAlarmColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor3,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级4" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor4,Mode=TwoWay}" Text="{Binding BackAlarmColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor4,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级5" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor5,Mode=TwoWay}" Text="{Binding BackAlarmColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor5,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级6" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor6,Mode=TwoWay}" Text="{Binding BackAlarmColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor6,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="6" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级7" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor7,Mode=TwoWay}" Text="{Binding BackAlarmColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor7,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="7" Grid.Column="1"></local:ColorSelectButton>
+
 
                             <TextBlock Text="优先级8" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding BackAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <TextBox Padding="2,4,0,0" Background="{Binding BackAlarmColor8,Mode=TwoWay}" Text="{Binding BackAlarmColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding BackAlarmColor8,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="8" Grid.Column="1"></local:ColorSelectButton>
+
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>

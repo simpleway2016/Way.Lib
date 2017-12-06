@@ -1020,6 +1020,7 @@ var TextControl = (function (_super) {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'text')) || this;
         _this._canSetValue = false;
         _this._devicePoint = "";
+        _this._showedPrompt = false;
         _this.textElement = _this.element;
         _this.textElement.textContent = "Text";
         _this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
@@ -1094,19 +1095,23 @@ var TextControl = (function (_super) {
             this.textElement.style.cursor = "pointer";
             this.element.addEventListener("click", function (e) {
                 e.stopPropagation();
-                var newValue = window.prompt("请输入新的数值", "");
-                if (newValue && newValue.length > 0) {
-                    var valueType = typeof _this._lastDevPoint.value;
-                    if (valueType == "number") {
-                        if (newValue.indexOf(".") >= 0)
-                            newValue = parseFloat(newValue);
-                        else
-                            newValue = parseInt(newValue);
-                    }
-                    if (_this._lastDevPoint.value != newValue) {
-                        _this.container.writeValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
-                        _this.lastSetValueTime = new Date().getTime();
-                        _this.updateText(newValue);
+                if (!_this._showedPrompt) {
+                    _this._showedPrompt = true;
+                    var newValue = window.prompt("请输入新的数值", "");
+                    _this._showedPrompt = false;
+                    if (newValue && newValue.length > 0) {
+                        var valueType = typeof _this._lastDevPoint.value;
+                        if (valueType == "number") {
+                            if (newValue.indexOf(".") >= 0)
+                                newValue = parseFloat(newValue);
+                            else
+                                newValue = parseInt(newValue);
+                        }
+                        if (_this._lastDevPoint.value != newValue) {
+                            _this.container.writeValue(_this.devicePoint, _this._lastDevPoint.addr, newValue);
+                            _this.lastSetValueTime = new Date().getTime();
+                            _this.updateText(newValue);
+                        }
                     }
                 }
             }, false);
@@ -1438,8 +1443,6 @@ var TrendControl = (function (_super) {
     __extends(TrendControl, _super);
     function TrendControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
-        _this._max = 100;
-        _this._min = 0;
         _this.values1 = [];
         _this.values2 = [];
         _this.values3 = [];
@@ -1857,9 +1860,13 @@ var TrendControl = (function (_super) {
         }
         if (number == 0)
             return;
-        if (devPoint.max != null && devPoint.max != this.max)
+        if (devPoint.max != null && (typeof this.max == "undefined" || isNaN(this.max)))
             this.max = devPoint.max;
-        if (devPoint.min != null && devPoint.min != this.min)
+        else if (devPoint.max != null && devPoint.max > this.max)
+            this.max = devPoint.max;
+        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
+            this.min = devPoint.min;
+        else if (devPoint.min != null && devPoint.min < this.min)
             this.min = devPoint.min;
         if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
             this["colorLine" + number] = devPoint["colorLine" + number];
@@ -2086,7 +2093,13 @@ var TrendControl = (function (_super) {
                 x = 10;
             }
         }
-        var percent = 1 - (valueItem.value - this.min) / (this.max - this.min);
+        var min = this.min;
+        if (typeof min == "undefined" || isNaN(min))
+            min = 0;
+        var max = this.max;
+        if (typeof max == "undefined" || isNaN(max))
+            max = 100;
+        var percent = 1 - (valueItem.value - min) / (max - min);
         var y = 10 + (rect.height - 20) * percent;
         if (y < 10)
             y = 10;
