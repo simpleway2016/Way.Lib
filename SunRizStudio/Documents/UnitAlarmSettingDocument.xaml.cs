@@ -22,6 +22,7 @@ namespace SunRizStudio.Documents
     /// </summary>
     public partial class UnitAlarmSettingDocument : BaseDocument
     {
+        public string UpdateMethodName = "UpdateControlUnit";
         ControlUnit _originalModel;
         public UnitAlarmSettingDocument()
         {
@@ -65,7 +66,7 @@ namespace SunRizStudio.Documents
         {
             this.Cursor = Cursors.Hand;
 
-            Helper.Remote.Invoke<int>("UpdateControlUnit", (ret, err) => {
+            Helper.Remote.Invoke<int>(this.UpdateMethodName, (ret, err) => {
                 this.Cursor = null;
                 if (err != null)
                 {

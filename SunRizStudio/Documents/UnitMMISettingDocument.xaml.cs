@@ -19,6 +19,7 @@ namespace SunRizStudio.Documents
 {
     public partial class UnitMMISettingDocument : BaseDocument
     {
+        public string UpdateMethodName = "UpdateControlUnit";
         ControlUnit _originalModel;
         public UnitMMISettingDocument()
         {
@@ -62,7 +63,7 @@ namespace SunRizStudio.Documents
         {
             this.Cursor = Cursors.Hand;
 
-            Helper.Remote.Invoke<int>("UpdateControlUnit", (ret, err) => {
+            Helper.Remote.Invoke<int>(this.UpdateMethodName, (ret, err) => {
                 this.Cursor = null;
                 if (err != null)
                 {

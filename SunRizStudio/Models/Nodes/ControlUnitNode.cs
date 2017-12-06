@@ -44,7 +44,7 @@ namespace SunRizStudio.Models.Nodes
             });
 
             //绑定子节点
-            bindChilds();
+            bindChildren();
         }
 
         void addDeviceClick(object sender, RoutedEventArgs e)
@@ -77,7 +77,7 @@ namespace SunRizStudio.Models.Nodes
         /// <summary>
         /// 绑定子节点
         /// </summary>
-        void bindChilds()
+        void bindChildren()
         {
             var settingNode = new SolutionNode()
             {

@@ -241,6 +241,10 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public object GetPointDetails(string[] pointNames)
         {
+            var systemSetting = this.db.SystemSetting.FirstOrDefault();
+            if (systemSetting == null)
+                systemSetting = new SystemSetting();
+
             object[] objs = new object[pointNames.Length];
             for (int i = 0; i < pointNames.Length; i++)
             {
@@ -264,28 +268,44 @@ namespace SunRizServer.Controllers
                     objs[i] = new
                     {
                         name = pointNames[i],
-                        max = devPoint.TransMax??unit.Max,
-                        min = devPoint.TransMin??unit.Min,
+                        max = devPoint.TransMax??unit.Max??systemSetting.Max,
+                        min = devPoint.TransMin??unit.Min??systemSetting.Min,
                         addr = devPoint.Address,
                         deviceId = devPoint.DeviceId,
-                        colorLine1 = unit.LineColor1,
-                        colorLine2 = unit.LineColor2,
-                        colorLine3 = unit.LineColor3,
-                        colorLine4 = unit.LineColor4,
-                        colorLine5 = unit.LineColor5,
-                        colorLine6 = unit.LineColor6,
-                        colorLine7 = unit.LineColor7,
-                        colorLine8 = unit.LineColor8,
-                        colorLine9 = unit.LineColor9,
-                        colorLine10 = unit.LineColor10,
-                        colorLine11 = unit.LineColor11,
-                        colorLine12 = unit.LineColor12,
+                        colorLine1 = unit.LineColor1?? systemSetting.LineColor1,
+                        colorLine2 = unit.LineColor2 ?? systemSetting.LineColor2,
+                        colorLine3 = unit.LineColor3 ?? systemSetting.LineColor3,
+                        colorLine4 = unit.LineColor4 ?? systemSetting.LineColor4,
+                        colorLine5 = unit.LineColor5 ?? systemSetting.LineColor5,
+                        colorLine6 = unit.LineColor6 ?? systemSetting.LineColor6,
+                        colorLine7 = unit.LineColor7 ?? systemSetting.LineColor7,
+                        colorLine8 = unit.LineColor8 ?? systemSetting.LineColor8,
+                        colorLine9 = unit.LineColor9 ?? systemSetting.LineColor9,
+                        colorLine10 = unit.LineColor10 ?? systemSetting.LineColor10,
+                        colorLine11 = unit.LineColor11 ?? systemSetting.LineColor11,
+                        colorLine12 = unit.LineColor12 ?? systemSetting.LineColor12,
                     };
                 }
             }
             return objs;
         }
 
-      
+        [RemotingMethod]
+        public SystemSetting GetSystemSetting()
+        {
+            var data = this.db.SystemSetting.FirstOrDefault();
+            if(data == null)
+            {
+                data = new SystemSetting();
+                this.db.Insert(data);
+            }
+            return data;
+        }
+        [RemotingMethod]
+        public int UpdateSystemSetting(SystemSetting data)
+        {
+            this.db.Update(data);
+            return data.id.Value;
+        }
     }
 }

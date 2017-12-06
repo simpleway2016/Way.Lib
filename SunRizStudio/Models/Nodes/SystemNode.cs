@@ -29,7 +29,7 @@ namespace SunRizStudio.Models.Nodes
             };
             this.Nodes.Add(userNode);
 
-            var setttingNode = new SolutionNode()
+            var setttingNode = new SystemSettingNode()
             {
                 Text = "系统配置"
             };
