@@ -103,6 +103,8 @@ declare class Editor implements IEditorControlContainer {
     private selectingElement;
     undoMgr: UndoManager;
     changed: boolean;
+    windowWidth: any;
+    windowHeight: any;
     colorBG: string;
     imgBg: string;
     bgWidth: string;

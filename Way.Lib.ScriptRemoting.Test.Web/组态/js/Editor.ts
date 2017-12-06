@@ -414,7 +414,8 @@ class Editor implements IEditorControlContainer
     private selectingElement: SVGRectElement;
     undoMgr: UndoManager;
     changed: boolean = false;
-   
+    windowWidth: any;
+    windowHeight: any;
 
     get colorBG() {
         return this.svgContainer.style.backgroundColor;
@@ -470,10 +471,10 @@ class Editor implements IEditorControlContainer
         this._customProperties = v;
     }
     getPropertiesCaption(): string[] {
-        return ["名称","编号","底色", "背景图", "背景图宽", "背景图高","自定义变量"];
+        return ["名称", "编号", "底色", "背景图", "背景图宽", "背景图高", "窗口宽", "窗口高","自定义变量"];
     }
     getProperties(): string[] {
-        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight","customProperties"];
+        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "windowWidth","windowHeight","customProperties"];
     }
 
     constructor(id: string)

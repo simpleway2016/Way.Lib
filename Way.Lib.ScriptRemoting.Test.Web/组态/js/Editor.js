@@ -550,10 +550,10 @@ var Editor = (function () {
         configurable: true
     });
     Editor.prototype.getPropertiesCaption = function () {
-        return ["名称", "编号", "底色", "背景图", "背景图宽", "背景图高", "自定义变量"];
+        return ["名称", "编号", "底色", "背景图", "背景图宽", "背景图高", "窗口宽", "窗口高", "自定义变量"];
     };
     Editor.prototype.getProperties = function () {
-        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "customProperties"];
+        return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "windowWidth", "windowHeight", "customProperties"];
     };
     Editor.prototype.createGroupControl = function (windowid, rect) {
         var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
