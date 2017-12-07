@@ -1,6 +1,6 @@
 declare var fileBrowser: FileBrowser;
 declare var ServerUrl: string;
-declare var windowid: number;
+declare var windowGuid: number;
 declare class ToolBoxItem {
     buildDone: (control: EditorControl) => any;
     readonly supportMove: boolean;

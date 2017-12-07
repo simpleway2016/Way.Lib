@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var ServerUrl;
-var windowid = new Date().getTime();
+var windowGuid = new Date().getTime();
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
@@ -630,14 +630,14 @@ var Editor = (function () {
             copyitems.push(json);
         }
         window.localStorage.setItem("copy", JSON.stringify(copyitems));
-        window.localStorage.setItem("windowid", windowid + "");
+        window.localStorage.setItem("windowGuid", windowGuid + "");
     };
     Editor.prototype.paste = function () {
         var str = window.localStorage.getItem("copy");
         if (str) {
             while (AllSelectedControls.length > 0)
                 AllSelectedControls[0].selected = false;
-            var isSameWindow = parseInt(window.localStorage.getItem("windowid")) == windowid;
+            var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
             var container = this;
             var copyItems = JSON.parse(str);
             for (var i = 0; i < copyItems.length; i++) {

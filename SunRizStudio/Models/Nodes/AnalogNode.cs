@@ -185,48 +185,46 @@ namespace SunRizStudio.Models.Nodes
 
         }
 
-        protected override void OnExpandedChanged()
+        /// <summary>
+        /// 异步加载子节点
+        /// </summary>
+        protected override void LoadChildrenAsync()
         {
-            base.OnExpandedChanged();
+            base.LoadChildrenAsync();
 
-            if (this.IsExpanded && this.Nodes.Any(m => m is LoadingNode))
+            //获取Device对象
+            SunRizServer.Device device = this.GetDevice();
+
+            Helper.Remote.Invoke<DevicePointFolder[]>("GetDevicePointFolders", (ret, err) =>
             {
-                //获取Device对象
-                SunRizServer.Device device = this.GetDevice();
-
-                Helper.Remote.Invoke<DevicePointFolder[]>("GetDevicePointFolders", (ret, err) =>
+                if (err != null)
                 {
-                    if (err != null)
+                    MessageBox.Show(MainWindow.Instance, err);
+                }
+                else
+                {
+                    this.Nodes.Clear();
+                    //加载子节点
+                    foreach (var folder in ret)
                     {
-                        MessageBox.Show(MainWindow.Instance, err);
-                    }
-                    else
-                    {
-                        this.Nodes.Clear();
-                        //加载子节点
-                        foreach (var folder in ret)
+                        AnalogNode newNode = null;
+                        if (FolderType == DevicePointFolder_TypeEnum.Analog)
                         {
-                            AnalogNode newNode = null;
-                            if (FolderType == DevicePointFolder_TypeEnum.Analog)
-                            {
-                                newNode = new AnalogNode();
-                            }
-                            else
-                            {
-                                newNode = new DigitalNode();
-                            }
-                            newNode.FolderModel = folder;
-                            newNode.Text = folder.Name;
-                            this.Nodes.Add(newNode);
+                            newNode = new AnalogNode();
                         }
-
-                        //加载点
-                        loadPoints(device);
+                        else
+                        {
+                            newNode = new DigitalNode();
+                        }
+                        newNode.FolderModel = folder;
+                        newNode.Text = folder.Name;
+                        this.Nodes.Add(newNode);
                     }
-                }, device.id, FolderType, this.FolderModel.id);
 
-
-            }
+                    //加载点
+                    loadPoints(device);
+                }
+            }, device.id, FolderType, this.FolderModel.id);
         }
 
         void loadPoints(SunRizServer.Device device)

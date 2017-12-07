@@ -40,8 +40,8 @@ namespace SunRizStudio.Documents
 
         }
 
-        internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel,bool isRunMode)
-        {           
+        internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel, bool isRunMode)
+        {
             IsRunMode = isRunMode;
             _dataModel = dataModel ?? new SunRizServer.ControlWindow()
             {
@@ -50,7 +50,7 @@ namespace SunRizStudio.Documents
             };
             _parentNode = parent;
             InitializeComponent();
-           
+
             this.Title = "初始化...";
             this.init();
         }
@@ -79,7 +79,7 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("watchPointValues", watchPointValues);
             _gecko.AddMessageEventListener("openRunMode", openRunMode);
             _gecko.AddMessageEventListener("writePointValue", writePointValue);
-
+            _gecko.AddMessageEventListener("go", go);
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
             _gecko.CreateWindow += Gecko_CreateWindow;
@@ -94,7 +94,15 @@ namespace SunRizStudio.Documents
             }
         }
 
-
+        /// <summary>
+        /// 当前页面跳转
+        /// </summary>
+        /// <param name="windowCode">窗口编号</param>
+        void go(string windowCode)
+        {
+            _gecko.Enabled = false;
+            _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowCode={windowCode}");
+        }
         void writePointValue(string arg)
         {
             try
@@ -106,7 +114,7 @@ namespace SunRizStudio.Documents
                 var client = _clients.FirstOrDefault(m => m.WatchingPointNames.Contains(pointName));
                 if (client != null)
                 {
-                    if( client.WriteValue(client.Device.Address, addr, value) == false)
+                    if (client.WriteValue(client.Device.Address, addr, value) == false)
                     {
                         System.Windows.Forms.MessageBox.Show(_gecko, "写入值失败！");
                     }
@@ -116,19 +124,20 @@ namespace SunRizStudio.Documents
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 System.Windows.Forms.MessageBox.Show(_gecko, ex.Message);
             }
         }
         void openRunMode(string arg)
         {
-            var doc = new ControlWindowDocument(_parentNode, _dataModel,true);
+            var doc = new ControlWindowDocument(_parentNode, _dataModel, true);
             MainWindow.Instance.SetActiveDocument(doc);
         }
         void watchPointValues(string jsonStr)
         {
-            Task.Run(()=> {
+            Task.Run(() =>
+            {
                 try
                 {
                     var pointArr = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonStr);
@@ -151,13 +160,14 @@ namespace SunRizStudio.Documents
                         watchDevice(client);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    MainWindow.Instance.Dispatcher.Invoke(() => {
+                    MainWindow.Instance.Dispatcher.Invoke(() =>
+                    {
                         MessageBox.Show(MainWindow.Instance, ex.Message);
                     });
                 }
-            });            
+            });
         }
 
         public override void OnClose(ref bool canceled)
@@ -192,12 +202,12 @@ namespace SunRizStudio.Documents
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
-            
-            foreach( var client in _clients )
+
+            foreach (var client in _clients)
             {
                 client.Released = true;
                 client.NetClient.Close();
@@ -206,18 +216,19 @@ namespace SunRizStudio.Documents
             base.OnClose(ref canceled);
         }
 
-        void watchDevice(MyDriverClient client )
+        void watchDevice(MyDriverClient client)
         {
 
             client.NetClient = client.AddPointToWatch(client.Device.Address, client.WatchingPoints, (point, value) =>
             {
                 try
                 {
-                    _gecko.Invoke(new ThreadStart(()=> {
+                    _gecko.Invoke(new ThreadStart(() =>
+                    {
                         jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = point, value = value }).ToJsonString()})");
-                    }));                    
+                    }));
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
 
                 }
@@ -226,20 +237,21 @@ namespace SunRizStudio.Documents
                 if (client.Released)
                     return;
 
-                Task.Run(() => {
+                Task.Run(() =>
+                {
                     Thread.Sleep(2000);
                     watchDevice(client);
                 });
             });
         }
-        
+
         void loadFinish(string msg)
         {
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
             jsContext = new AutoJSContext(_gecko.Window);
 
-            if(IsRunMode)
+            if (IsRunMode)
             {
                 jsContext.EvaluateScript("run()");
             }
@@ -252,16 +264,17 @@ namespace SunRizStudio.Documents
         void save(string json)
         {
             this.Title = "正在保存...";
-            Helper.Remote.Invoke<SunRizServer.ControlWindow>("SaveWindowContent", (ret, err) => {
-                
+            Helper.Remote.Invoke<SunRizServer.ControlWindow>("SaveWindowContent", (ret, err) =>
+            {
+
                 if (err != null)
-                {                    
+                {
                     MessageBox.Show(err);
                 }
                 else
                 {
                     jsContext.EvaluateScript("editor.changed=false");
-                    
+
                     if (_dataModel.id == null)
                     {
                         _dataModel.CopyValue(ret);
@@ -273,7 +286,7 @@ namespace SunRizStudio.Documents
                     }
                     _dataModel.ChangedProperties.Clear();
                     this.Title = _dataModel.Name;
-                    if(closeAfterSave)
+                    if (closeAfterSave)
                     {
                         closeAfterSave = false;
                         MainWindow.Instance.CloseDocument(this);
@@ -285,7 +298,7 @@ namespace SunRizStudio.Documents
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
         {
-           
+
             // progressBar1.Value = 0;
         }
 
@@ -297,7 +310,7 @@ namespace SunRizStudio.Documents
 
         private void Gecko_ProgressChanged(object sender, GeckoProgressEventArgs e)
         {
-            
+
             if (e.MaximumProgress == 0)
                 return;
 
@@ -308,14 +321,14 @@ namespace SunRizStudio.Documents
         }
     }
 
-    class MyDriverClient:SunRizDriver.SunRizDriverClient
+    class MyDriverClient : SunRizDriver.SunRizDriverClient
     {
         public bool Released = false;
         public Way.Lib.NetStream NetClient;
         public string[] WatchingPoints;
         public string[] WatchingPointNames;
         public SunRizServer.Device Device;
-        public MyDriverClient(string addr,int port) : base(addr , port)
+        public MyDriverClient(string addr, int port) : base(addr, port)
         {
 
         }

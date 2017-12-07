@@ -73,10 +73,15 @@ namespace SunRizStudio
         private void TreeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-            TreeViewItem treeviewitem = sender as TreeViewItem;
-            if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
-                return;
-            Models.SolutionNode data = treeviewitem.DataContext as Models.SolutionNode;
+            FrameworkElement sourceElement = (FrameworkElement)sender;
+            if (sender is TreeViewItem)
+            {
+                TreeViewItem treeviewitem = sender as TreeViewItem;
+                if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
+                    return;
+                sourceElement = treeviewitem;
+            }
+            Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
             if (data.DoublicClickHandler != null)
             {
                 data.DoublicClickHandler(sender, e);
@@ -98,12 +103,16 @@ namespace SunRizStudio
 
         private void TreeViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            TreeViewItem treeviewitem = sender as TreeViewItem;
-            if (!(e.OriginalSource is TextBlock))
-                return;
-            if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
-                return;
-            Models.SolutionNode data = treeviewitem.DataContext as Models.SolutionNode;
+            FrameworkElement sourceElement = (FrameworkElement)sender;
+            if (sender is TreeViewItem)
+            {
+                TreeViewItem treeviewitem = sender as TreeViewItem;
+                if (!(e.OriginalSource is TextBlock))
+                    return;
+                if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
+                    return;
+            }
+            Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
             data.MouseDown(sender, e);
         }
 

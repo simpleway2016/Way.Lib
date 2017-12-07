@@ -1,6 +1,6 @@
 ﻿declare var fileBrowser: FileBrowser;
 var ServerUrl: string;
-var windowid = new Date().getTime();
+var windowGuid = new Date().getTime();
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -740,7 +740,7 @@ class Editor implements IEditorControlContainer
         }
 
         window.localStorage.setItem("copy", JSON.stringify(copyitems));
-        window.localStorage.setItem("windowid", windowid + "");
+        window.localStorage.setItem("windowGuid", windowGuid + "");
     }
     paste()
     {
@@ -749,7 +749,7 @@ class Editor implements IEditorControlContainer
             while (AllSelectedControls.length > 0)
                 AllSelectedControls[0].selected = false;                      
 
-            var isSameWindow = parseInt(window.localStorage.getItem("windowid")) == windowid;
+            var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
             var container: IEditorControlContainer = this;
 
             //var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
