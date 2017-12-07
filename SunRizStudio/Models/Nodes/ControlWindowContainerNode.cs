@@ -123,34 +123,34 @@ namespace SunRizStudio.Models.Nodes
             
         }
 
-        protected override void OnExpandedChanged()
+        /// <summary>
+        /// 异步加载子节点
+        /// </summary>
+        protected override void LoadChildrenAsync()
         {
-            base.OnExpandedChanged();
+            base.LoadChildrenAsync();
 
-            if (this.IsExpanded && this.Nodes.Any(m => m is LoadingNode))
+            Helper.Remote.Invoke<SunRizServer.ControlWindowFolder[]>("GetControlWindowFolders", (ret, err) =>
             {
-                Helper.Remote.Invoke<SunRizServer.ControlWindowFolder[]>("GetControlWindowFolders", (ret, err) =>
+                if (err != null)
                 {
-                    if (err != null)
+                    MessageBox.Show(MainWindow.Instance, err);
+                }
+                else
+                {
+                    this.Nodes.Clear();
+                    //加载子节点
+                    foreach (var folder in ret)
                     {
-                        MessageBox.Show(MainWindow.Instance, err);
+                        var newNode = new ControlWindowContainerNode(_controlUnitId, folder);
+                        this.Nodes.Add(newNode);
                     }
-                    else
-                    {
-                        this.Nodes.Clear();
-                        //加载子节点
-                        foreach (var folder in ret)
-                        {
-                            var newNode = new ControlWindowContainerNode(_controlUnitId, folder);
-                            this.Nodes.Add(newNode);
-                        }
 
-                        //加载监控画面
-                        loadWindows();
-                    }
-                }, _controlUnitId , _folderId);
+                    //加载监控画面
+                    loadWindows();
+                }
+            }, _controlUnitId, _folderId);
 
-            }
         }
 
         void loadWindows()

@@ -20,41 +20,40 @@ namespace SunRizStudio.Models.Nodes
             this.Nodes.Add(new LoadingNode());
         }
         
-
-        protected override void OnExpandedChanged()
+        /// <summary>
+        /// 异步加载子节点
+        /// </summary>
+        protected override void LoadChildrenAsync()
         {
             
-            base.OnExpandedChanged();
-            if (this.Nodes[0] is LoadingNode)
-            {
-                //实际Model类型是SystemSetting，因为字段和ControlUnit相似，所以用ControlUnit
-                Helper.Remote.Invoke<ControlUnit>("GetSystemSetting", (data, err) => {
-                    if(err != null)
+            base.LoadChildrenAsync();
+            //实际Model类型是SystemSetting，因为字段和ControlUnit相似，所以用ControlUnit
+            Helper.Remote.Invoke<ControlUnit>("GetSystemSetting", (data, err) => {
+                if (err != null)
+                {
+                    MessageBox.Show(MainWindow.Instance, "err");
+                }
+                else
+                {
+                    this.Nodes.Clear();
+                    this.Data = data;
+                    this.Nodes.Add(new SolutionNode()
                     {
-                        MessageBox.Show(MainWindow.Instance, "err");
-                    }
-                    else
+                        Text = "报警",
+                        DoublicClickHandler = alarmSetting_doubleClick,
+                    });
+                    this.Nodes.Add(new SolutionNode()
                     {
-                        this.Nodes.Clear();
-                        this.Data = data;
-                        this.Nodes.Add(new SolutionNode()
-                        {
-                            Text = "报警",
-                            DoublicClickHandler = alarmSetting_doubleClick,
-                        });
-                        this.Nodes.Add(new SolutionNode()
-                        {
-                            Text = "趋势",
-                            DoublicClickHandler = trendSetting_doubleClick,
-                        });
-                        this.Nodes.Add(new SolutionNode()
-                        {
-                            Text = "MMI",
-                            DoublicClickHandler = mmiSetting_doubleClick,
-                        });
-                    }
-                });
-            }
+                        Text = "趋势",
+                        DoublicClickHandler = trendSetting_doubleClick,
+                    });
+                    this.Nodes.Add(new SolutionNode()
+                    {
+                        Text = "MMI",
+                        DoublicClickHandler = mmiSetting_doubleClick,
+                    });
+                }
+            });
         }
 
         void alarmSetting_doubleClick(object sender, RoutedEventArgs e)

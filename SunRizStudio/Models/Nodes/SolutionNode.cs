@@ -13,13 +13,14 @@ namespace SunRizStudio.Models
 {
     class SolutionNode : INotifyPropertyChanged
     {
+        public bool ShowInTree = true;
         string _Icon;
         public string Icon
         {
             get => _Icon;
             set
             {
-                if(value != _Icon)
+                if (value != _Icon)
                 {
                     _Icon = value;
                     this.OnPropertyChanged("Icon");
@@ -64,15 +65,10 @@ namespace SunRizStudio.Models
                 if (value != _IsExpanded)
                 {
                     _IsExpanded = value;
-                    OnExpandedChanged();
+                    OnExpandChanged();
                     this.OnPropertyChanged("IsExpanded");
                 }
             }
-        }
-
-        protected virtual void OnExpandedChanged()
-        {
-
         }
 
         bool _IsSelected;
@@ -84,6 +80,7 @@ namespace SunRizStudio.Models
                 if (value != _IsSelected)
                 {
                     _IsSelected = value;
+                    OnSelectChanged();
                     this.OnPropertyChanged("IsSelected");
                 }
             }
@@ -121,12 +118,20 @@ namespace SunRizStudio.Models
         SolutionNodeCollection _Nodes;
         public SolutionNodeCollection Nodes
         {
-            get => _Nodes?? (_Nodes = new SolutionNodeCollection(this));
+            get => _Nodes ?? (_Nodes = new SolutionNodeCollection(this));
         }
+
+        //  TreeNodes不需要InitChildren，所以不用SolutionNodeCollection
+        ObservableCollection<SolutionNode> _TreeNodes;
+        public ObservableCollection<SolutionNode> TreeNodes
+        {
+            get => _TreeNodes ?? (_TreeNodes = new ObservableCollection<SolutionNode>());
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string proName)
         {
-            if(PropertyChanged != null)
+            if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(proName));
             }
@@ -134,9 +139,64 @@ namespace SunRizStudio.Models
 
         public SolutionNode()
         {
-            this.DoublicClickHandler = (s, e) => {
-                OnDoublicClick(s,e);
+            this.Nodes.CollectionChanged += Nodes_CollectionChanged;
+            this.DoublicClickHandler = (s, e) =>
+            {
+                OnDoublicClick(s, e);
             };
+        }
+
+        protected virtual void LoadChildrenAsync()
+        {
+
+        }
+
+        protected virtual void OnExpandChanged()
+        {
+            if (this.Nodes.FirstOrDefault() is Models.Nodes.LoadingNode)
+            {
+                LoadChildrenAsync();
+            }
+        }
+        protected virtual void OnSelectChanged()
+        {
+            if (this.Nodes.FirstOrDefault() is Models.Nodes.LoadingNode)
+            {
+                LoadChildrenAsync();
+            }
+            MainWindow.Instance.lstBottomList.ItemsSource = this.Nodes;
+        }
+        private void Nodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                int index = e.NewStartingIndex;
+                foreach (SolutionNode node in e.NewItems)
+                {
+                    if (node.ShowInTree)
+                    {
+                        this.TreeNodes.Insert(index, node);
+                        index++;
+                    }
+                }
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Move)
+            {
+
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                foreach (SolutionNode node in e.OldItems)
+                {
+                    if (this.TreeNodes.Contains(node))
+                        this.TreeNodes.Remove(node);
+                }
+
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                this.TreeNodes.Clear();
+            }
         }
 
         /// <summary>
@@ -158,7 +218,7 @@ namespace SunRizStudio.Models
         }
     }
 
-    class ContextMenuItem 
+    class ContextMenuItem
     {
         public string Text
         {

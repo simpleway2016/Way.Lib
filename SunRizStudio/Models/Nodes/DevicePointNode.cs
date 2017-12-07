@@ -19,6 +19,7 @@ namespace SunRizStudio.Models.Nodes
             point.PropertyChanged += Point_PropertyChanged;
 
             this.Icon = "/Images/solution/point.png";
+            this.ShowInTree = false;
             this.DoublicClickHandler = doubleClick;
         }
 
