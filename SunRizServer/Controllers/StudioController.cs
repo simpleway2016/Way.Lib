@@ -94,9 +94,14 @@ namespace SunRizServer.Controllers
             return this.db.ControlWindow.Where(m => m.ControlUnitId == controlUnitId && m.FolderId == folderId).OrderBy(m => m.Name).ToArray();
         }
         [RemotingMethod]
-        public string GetWindowContent(int windowid)
+        public string GetWindowContent(int windowid,string windowCode)
         {
-            var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            ControlWindow window = null;
+            if(windowCode != null)
+                window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
+            else
+                window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+
             var editorHtml = System.IO.File.ReadAllText(WebRoot + "editor.html", System.Text.Encoding.UTF8);
             var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
@@ -104,9 +109,13 @@ namespace SunRizServer.Controllers
             return editorHtml;
         }
         [RemotingMethod]
-        public string GetWindowCode(int windowid)
+        public string GetWindowCode(int windowid, string windowCode)
         {
-            var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);          
+            ControlWindow window = null;
+            if (windowCode != null)
+                window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
+            else
+                window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
             var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
             return json;
         }
@@ -154,6 +163,24 @@ namespace SunRizServer.Controllers
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(content);
             window.Name = obj.Value<string>("name");
             window.Code = obj.Value<string>("code");
+            int? width = null;
+            int? height = null;
+            try
+            {
+                width = obj.Value<int?>("windowWidth");
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                height = obj.Value<int?>("windowHeight");
+            }
+            catch
+            {
+
+            }
             var windowids = obj.Value<Newtonsoft.Json.Linq.JArray>("windowids");
 
             if(window.id != null)
