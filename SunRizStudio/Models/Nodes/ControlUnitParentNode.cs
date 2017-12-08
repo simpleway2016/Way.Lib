@@ -44,17 +44,22 @@ namespace SunRizStudio.Models.Nodes
                     foreach (var unit in ret)
                     {
                         ControlUnitNode node = new ControlUnitNode(unit);
-                        node.DoublicClickHandler = editUnitClick;
+                        node.ContextMenuItems.Add(new ContextMenuItem()
+                        {
+                            Text = "重命名",
+                            ClickHandler = editUnitClick,
+                            Tag = node,
+                        });
                         this.Nodes.Add(node);
                     }
                 }
             });
         }
 
-        void editUnitClick(object sender, MouseButtonEventArgs e)
+        void editUnitClick(object sender, RoutedEventArgs e)
         {
-            TreeViewItem treeviewitem = sender as TreeViewItem;
-            var curNode = treeviewitem.DataContext as ControlUnitNode;
+            FrameworkElement treeviewitem = sender as FrameworkElement;
+            var curNode = (treeviewitem.DataContext as ContextMenuItem).Tag as ControlUnitNode;
             Dialogs.InputBox frm = new Dialogs.InputBox("请输入新单元名称", "编辑控制单元");
             frm.Owner = MainWindow.Instance;
             frm.Value = curNode.Data.Name;
@@ -99,7 +104,12 @@ namespace SunRizStudio.Models.Nodes
                         unit.ChangedProperties.Clear();
                         this.IsExpanded = true;
                         ControlUnitNode node = new ControlUnitNode(unit);
-                        node.DoublicClickHandler = editUnitClick;
+                        node.ContextMenuItems.Add(new ContextMenuItem()
+                        {
+                            Text = "重命名",
+                            ClickHandler = editUnitClick,
+                            Tag = node,
+                        });
                         this.Nodes.Add(node);
                     }
                 }, unit);

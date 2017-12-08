@@ -52,6 +52,16 @@ namespace SunRizStudio.Models.Nodes
                         Text = "MMI",
                         DoublicClickHandler = mmiSetting_doubleClick,
                     });
+                    this.Nodes.Add(new SolutionNode()
+                    {
+                        Text = "历史收集",
+                        DoublicClickHandler = history_doubleClick,
+                    });
+                    this.Nodes.Add(new SolutionNode()
+                    {
+                        Text = "系统日志",
+                        DoublicClickHandler = log_doubleClick,
+                    });
                 }
             });
         }
@@ -119,6 +129,46 @@ namespace SunRizStudio.Models.Nodes
             {
                 var doc = new Documents.UnitMMISettingDocument(unit);
                 doc.UpdateMethodName = "UpdateSystemSetting";
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
+        }
+
+        void history_doubleClick(object sender, RoutedEventArgs e)
+        {
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach (TabItem item in MainWindow.Instance.documentContainer.Items)
+            {
+                var doc = item.Content as Documents.BaseDocument;
+                if (item.Content is Documents.HistoryStorageSettingDocument)
+                {
+                    //active
+                    MainWindow.Instance.documentContainer.SelectedItem = item;
+                    return;
+                }
+            }
+            if (true)
+            {
+                var doc = new Documents.HistoryStorageSettingDocument();
+                MainWindow.Instance.SetActiveDocument(doc);
+            }
+        }
+
+        void log_doubleClick(object sender, RoutedEventArgs e)
+        {
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach (TabItem item in MainWindow.Instance.documentContainer.Items)
+            {
+                var doc = item.Content as Documents.BaseDocument;
+                if (item.Content is Documents.LogStorageSettingDocument)
+                {
+                    //active
+                    MainWindow.Instance.documentContainer.SelectedItem = item;
+                    return;
+                }
+            }
+            if (true)
+            {
+                var doc = new Documents.LogStorageSettingDocument();
                 MainWindow.Instance.SetActiveDocument(doc);
             }
         }

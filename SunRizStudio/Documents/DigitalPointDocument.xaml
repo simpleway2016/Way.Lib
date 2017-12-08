@@ -10,13 +10,13 @@
     <Grid>
         <TabControl>
             <TabItem Header="基础参数">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -50,7 +50,7 @@
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -71,13 +71,13 @@
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="报警参数">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -138,7 +138,7 @@
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -155,13 +155,13 @@
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="数据连接">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
                     <StackPanel Orientation="Vertical">
                         <Grid x:Name="gridProperty" gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -178,14 +178,14 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="历史收藏">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <TabItem Header="历史收集">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
                 gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>

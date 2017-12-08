@@ -100,6 +100,13 @@ namespace SunRizStudio.Documents
         /// <param name="windowCode">窗口编号</param>
         void go(string windowCode)
         {
+            foreach (var client in _clients)
+            {
+                client.Released = true;
+                client.NetClient.Close();
+            }
+            _clients.Clear();
+
             _gecko.Enabled = false;
             _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowCode={windowCode}");
         }

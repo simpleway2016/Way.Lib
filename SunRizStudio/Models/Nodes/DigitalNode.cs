@@ -11,7 +11,7 @@ namespace SunRizStudio.Models.Nodes
     {
         protected override DevicePointFolder_TypeEnum FolderType =>  DevicePointFolder_TypeEnum.Digital;
 
-        public DigitalNode()
+        public DigitalNode(SunRizServer.DevicePointFolder folderModel):base(folderModel)
         {
         }
     }
