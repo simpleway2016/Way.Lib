@@ -3709,6 +3709,50 @@ namespace SunRizServer{
                 }
             }
         }
+
+        System.Nullable<Int32> _windowWidth;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> windowWidth
+        {
+            get
+            {
+                return this._windowWidth;
+            }
+            set
+            {
+                if ((this._windowWidth != value))
+                {
+                    var original = this._windowWidth;
+                    this._windowWidth = value;
+                    this.OnPropertyChanged("windowWidth",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _windowHeight;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> windowHeight
+        {
+            get
+            {
+                return this._windowHeight;
+            }
+            set
+            {
+                if ((this._windowHeight != value))
+                {
+                    var original = this._windowHeight;
+                    this._windowHeight = value;
+                    this.OnPropertyChanged("windowHeight",original,value);
+
+                }
+            }
+        }
 }}
 namespace SunRizServer{
 

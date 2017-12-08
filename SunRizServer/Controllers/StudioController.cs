@@ -163,23 +163,21 @@ namespace SunRizServer.Controllers
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(content);
             window.Name = obj.Value<string>("name");
             window.Code = obj.Value<string>("code");
-            int? width = null;
-            int? height = null;
             try
             {
-                width = obj.Value<int?>("windowWidth");
+                window.windowWidth = obj.Value<int?>("windowWidth");
             }
             catch
             {
-
+                throw new Exception("窗口宽度格式错误，请输入整数！");
             }
             try
             {
-                height = obj.Value<int?>("windowHeight");
+                window.windowHeight = obj.Value<int?>("windowHeight");
             }
             catch
             {
-
+                throw new Exception("窗口高度格式错误，请输入整数！");
             }
             var windowids = obj.Value<Newtonsoft.Json.Linq.JArray>("windowids");
 
