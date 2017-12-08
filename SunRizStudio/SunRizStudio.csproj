@@ -245,6 +245,10 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\solution\users.png" />
+    <Resource Include="Images\solution\system.png" />
+    <Resource Include="Images\solution\setting.png" />
+    <Resource Include="Images\solution\key.png" />
     <Resource Include="Images\close1.png" />
     <Resource Include="Images\close2.png" />
     <Resource Include="Images\solution\window.png" />

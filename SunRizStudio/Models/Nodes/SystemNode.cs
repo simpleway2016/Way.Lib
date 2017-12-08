@@ -11,6 +11,10 @@ namespace SunRizStudio.Models.Nodes
     /// </summary>
     class SystemNode : SolutionNode
     {
+        public SystemNode()
+        {
+            Icon = "/Images/solution/system.png";
+        }
         /// <summary>
         /// 初始化子节点
         /// </summary>
@@ -19,19 +23,22 @@ namespace SunRizStudio.Models.Nodes
             base.InitChildren();
 
             var authorizeNode = new SolutionNode() {
-                Text = "授权管理"
+                Text = "授权管理",
+                Icon = "/Images/solution/key.png"
             };
             this.Nodes.Add(authorizeNode);
 
             var userNode = new SolutionNode()
             {
-                Text = "用户权限管理"
+                Text = "用户权限管理",
+                Icon = "/Images/solution/users.png"
             };
             this.Nodes.Add(userNode);
 
             var setttingNode = new SystemSettingNode()
             {
-                Text = "系统配置"
+                Text = "系统配置",
+                Icon = "/Images/solution/setting.png"
             };
             this.Nodes.Add(setttingNode);
 
