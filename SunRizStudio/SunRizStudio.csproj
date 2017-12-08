@@ -90,6 +90,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Documents\LogStorageSettingDocument.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Documents\HistoryStorageSettingDocument.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Documents\UnitMMISettingDocument.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -127,9 +135,16 @@
       <DependentUpon>AnalogPointDocument.xaml</DependentUpon>
     </Compile>
     <Compile Include="Documents\BaseDocument.cs" />
+    <Compile Include="Documents\FolderSelectButton.cs" />
     <Compile Include="Documents\ColorSelectButton.cs" />
     <Compile Include="Documents\ControlWindowDocument.xaml.cs">
       <DependentUpon>ControlWindowDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Documents\LogStorageSettingDocument.xaml.cs">
+      <DependentUpon>LogStorageSettingDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Documents\HistoryStorageSettingDocument.xaml.cs">
+      <DependentUpon>HistoryStorageSettingDocument.xaml</DependentUpon>
     </Compile>
     <Compile Include="Documents\UnitMMISettingDocument.xaml.cs">
       <DependentUpon>UnitMMISettingDocument.xaml</DependentUpon>

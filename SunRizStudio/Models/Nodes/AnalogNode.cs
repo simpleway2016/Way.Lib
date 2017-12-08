@@ -18,10 +18,11 @@ namespace SunRizStudio.Models.Nodes
                 return DevicePointFolder_TypeEnum.Analog;
             }
         }
-        public SunRizServer.DevicePointFolder FolderModel = new DevicePointFolder() { id = 0 };
-        public AnalogNode()
+        public SunRizServer.DevicePointFolder FolderModel;
+        public AnalogNode(SunRizServer.DevicePointFolder folderModel)
         {
-            Icon = "/Images/solution/folder.png";
+            FolderModel = folderModel??new DevicePointFolder() { id = 0};
+               Icon = "/Images/solution/folder.png";
 
             this.ContextMenuItems.Add(new ContextMenuItem()
             {
@@ -36,8 +37,40 @@ namespace SunRizStudio.Models.Nodes
                 ClickHandler = addPointClick,
 
             });
+            if(FolderModel.id != 0)
+            {
+                this.ContextMenuItems.Add(new ContextMenuItem()
+                {
+                    Text = "重命名...",
+                    ClickHandler = renameClick,
 
-            this.DoublicClickHandler = doubleClick;
+                });
+
+                this.ContextMenuItems.Add(new ContextMenuItem()
+                {
+                    Icon = "/Images/solution/delete.png",
+                    Text = "删除",
+                    ClickHandler = (s, e) =>
+                    {
+                        if (MessageBox.Show("确定删除此文件夹，以及它的所有设备点吗？", "系统提示", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                        {
+                            MainWindow.Instance.Cursor = Cursors.Hand;
+                            Helper.Remote.Invoke<int>("DeleteDevicePointFolder", (ret, err) =>
+                            {
+                                MainWindow.Instance.Cursor = null;
+                                if (err != null)
+                                {
+                                    MessageBox.Show(MainWindow.Instance, err);
+                                }
+                                else
+                                {
+                                    this.Parent.Nodes.Remove(this);
+                                }
+                            }, FolderModel.id);
+                        }
+                    },
+                });
+            }
         }
 
         void addPointClick(object sender, RoutedEventArgs e)
@@ -66,7 +99,7 @@ namespace SunRizStudio.Models.Nodes
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void doubleClick(object sender, RoutedEventArgs e)
+        void renameClick(object sender, RoutedEventArgs e)
         {
             if (this.FolderModel.id != 0)
             {
@@ -124,13 +157,12 @@ namespace SunRizStudio.Models.Nodes
                         AnalogNode newNode = null;
                         if (this.FolderType == DevicePointFolder_TypeEnum.Analog)
                         {
-                            newNode = new AnalogNode();
+                            newNode = new AnalogNode(folder);
                         }
                         else
                         {
-                            newNode = new DigitalNode();
+                            newNode = new DigitalNode(folder);
                         }
-                        newNode.FolderModel = folder;
                         newNode.Text = folder.Name;
                         this.Nodes.Insert(0, newNode);
                         this.IsExpanded = true;
@@ -143,33 +175,7 @@ namespace SunRizStudio.Models.Nodes
         {
             this.Nodes.Add(new LoadingNode());
 
-            if (this.FolderModel.id != 0)
-            {
-                this.ContextMenuItems.Add(new ContextMenuItem()
-                {
-                    Icon = "/Images/solution/delete.png",
-                    Text = "删除",
-                    ClickHandler = (s, e) =>
-                    {
-                        if (MessageBox.Show("确定删除此文件夹，以及它的所有设备点吗？", "系统提示", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                        {
-                            MainWindow.Instance.Cursor = Cursors.Hand;
-                            Helper.Remote.Invoke<int>("DeleteDevicePointFolder", (ret, err) =>
-                            {
-                                MainWindow.Instance.Cursor = null;
-                                if (err != null)
-                                {
-                                    MessageBox.Show(MainWindow.Instance, err);
-                                }
-                                else
-                                {
-                                    this.Parent.Nodes.Remove(this);
-                                }
-                            }, FolderModel.id);
-                        }
-                    },
-                });
-            }
+           
         }
 
         Device GetDevice()
@@ -210,13 +216,12 @@ namespace SunRizStudio.Models.Nodes
                         AnalogNode newNode = null;
                         if (FolderType == DevicePointFolder_TypeEnum.Analog)
                         {
-                            newNode = new AnalogNode();
+                            newNode = new AnalogNode(folder);
                         }
                         else
                         {
-                            newNode = new DigitalNode();
+                            newNode = new DigitalNode(folder);
                         }
-                        newNode.FolderModel = folder;
                         newNode.Text = folder.Name;
                         this.Nodes.Add(newNode);
                     }

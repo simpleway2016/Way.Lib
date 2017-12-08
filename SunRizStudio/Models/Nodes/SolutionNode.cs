@@ -98,11 +98,13 @@ namespace SunRizStudio.Models
             set;
         }
 
+
         public MouseButtonEventHandler DoublicClickHandler
         {
             get;
             set;
         }
+
 
         ObservableCollection<ContextMenuItem> _ContextMenuItems = new ObservableCollection<ContextMenuItem>();
         public ObservableCollection<ContextMenuItem> ContextMenuItems
@@ -209,7 +211,11 @@ namespace SunRizStudio.Models
 
         protected virtual void OnDoublicClick(object window, MouseButtonEventArgs e)
         {
-
+            if (this.Nodes.Count > 0)
+            {
+                this.IsExpanded = true;
+                MainWindow.Instance.lstBottomList.ItemsSource = this.Nodes;
+            }
         }
 
         public virtual void MouseDown(object sender, MouseButtonEventArgs e)
@@ -226,6 +232,11 @@ namespace SunRizStudio.Models
             set;
         }
         public string Icon
+        {
+            get;
+            set;
+        }
+        public object Tag
         {
             get;
             set;

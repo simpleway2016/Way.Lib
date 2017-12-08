@@ -67,7 +67,12 @@ namespace SunRizStudio.Models.Nodes
                         device.ChangedProperties.Clear();
                         this.IsExpanded = true;
                         var node = new DeviceNode(device);
-                        node.DoublicClickHandler = editUnitClick;
+                        node.ContextMenuItems.Add(new ContextMenuItem()
+                        {
+                            Text = "重命名",
+                            ClickHandler = editDeviceClick,
+                            Tag = node,
+                        });
                         this.Nodes.Add(node);
                     }
                 }, device);
@@ -120,7 +125,11 @@ namespace SunRizStudio.Models.Nodes
                     foreach (var data in ret)
                     {
                         var node = new DeviceNode(data);
-                        node.DoublicClickHandler = editUnitClick;
+                        node.ContextMenuItems.Add(new ContextMenuItem() {
+                            Text = "重命名",
+                            ClickHandler = editDeviceClick,
+                            Tag = node,
+                        });
                         this.Nodes.Add(node);
                     }
                 }
@@ -190,10 +199,10 @@ namespace SunRizStudio.Models.Nodes
                 MainWindow.Instance.SetActiveDocument(doc);
             }
         }
-        void editUnitClick(object sender, MouseButtonEventArgs e)
+        void editDeviceClick(object sender, RoutedEventArgs e)
         {
-            TreeViewItem treeviewitem = sender as TreeViewItem;
-            var curNode = treeviewitem.DataContext as DeviceNode;
+            FrameworkElement treeviewitem = sender as FrameworkElement;
+            var curNode = ((ContextMenuItem)treeviewitem.DataContext).Tag as DeviceNode;
             Dialogs.InputBox frm = new Dialogs.InputBox("请输入新控制器名称", "编辑控制器");
             frm.Owner = MainWindow.Instance;
             frm.Value = curNode.Data.Name;

@@ -53,8 +53,8 @@ namespace SunRizStudio.Models.Nodes
             tagNode.Text = "标签";
             this.Nodes.Add(tagNode);
 
-            tagNode.Nodes.Add(new AnalogNode() { Text = "模拟量"});
-            tagNode.Nodes.Add(new DigitalNode() { Text = "开关量" });
+            tagNode.Nodes.Add(new AnalogNode(null) { Text = "模拟量"});
+            tagNode.Nodes.Add(new DigitalNode(null) { Text = "开关量" });
 
             this.Nodes.Add(new SolutionNode()
             {
