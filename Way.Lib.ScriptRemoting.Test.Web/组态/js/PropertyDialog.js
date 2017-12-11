@@ -78,6 +78,9 @@ var PropertyDialog = (function () {
             else {
                 cell.innerHTML = "<input type='text'>";
                 cell.children[0].value = value;
+                if (captions[i].indexOf("点") >= 0) {
+                    this.setPointItemEvent(cell.children[0]);
+                }
             }
             cell.children[0]._name = pNames[i];
             this.setInputEvent(cell.children[0]);
@@ -92,6 +95,14 @@ var PropertyDialog = (function () {
         this.rootElement.style.cursor = "move";
         this.setRootEvent();
     }
+    PropertyDialog.prototype.setPointItemEvent = function (ele) {
+        ele.addEventListener("focus", function (e) {
+            editor.editingPointTextbox = ele;
+        }, false);
+        ele.addEventListener("blur", function (e) {
+            editor.editingPointTextbox = null;
+        }, false);
+    };
     PropertyDialog.prototype.setChkItemEvent = function (ele) {
         var _this = this;
         ele.onclick = function () {
@@ -156,6 +167,7 @@ var PropertyDialog = (function () {
         }
     };
     PropertyDialog.prototype.hide = function () {
+        editor.editingPointTextbox = null;
         this.rootElement.style.visibility = "hidden";
     };
     PropertyDialog.prototype.show = function () {

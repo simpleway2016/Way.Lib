@@ -417,6 +417,8 @@ class Editor implements IEditorControlContainer
     changed: boolean = false;
     windowWidth: any;
     windowHeight: any;
+    //正在编辑的设备点输入框
+    editingPointTextbox: any;
 
     get colorBG() {
         return this.svgContainer.style.backgroundColor;
@@ -574,14 +576,26 @@ class Editor implements IEditorControlContainer
         });
         this.svgContainer.addEventListener("drop", (ev: DragEvent) => {
             ev.preventDefault();
-            var data = ev.dataTransfer.getData("Text");
-            //alert(ev.clientX + "," + (ev.clientY - divContainer.offsetTop) + "：" + data);
-            var rect : any = {};
-            rect.x = ev.clientX;
-            rect.y = ev.clientY - this.divContainer.offsetTop;
-            rect.width = null;
-            rect.height = null;
-            var groupControl = this.createGroupControl(data, rect);
+            try {
+                var data = JSON.parse(ev.dataTransfer.getData("Text"));
+                if (data && data.Type == "GroupControl") {
+                    //alert(ev.clientX + "," + (ev.clientY - divContainer.offsetTop) + "：" + data);
+                    var rect: any = {};
+                    rect.x = ev.clientX;
+                    rect.y = ev.clientY - this.divContainer.offsetTop;
+                    rect.width = null;
+                    rect.height = null;
+                    var groupControl = this.createGroupControl(data.id, rect);
+                }
+                else if (data && data.Type == "Point") {
+                    if (this.editingPointTextbox)
+                        this.editingPointTextbox.value = data.Name;
+                }
+            }
+            catch (e)
+            {
+
+            }
          
         });
 

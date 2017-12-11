@@ -3,6 +3,7 @@ declare class PropertyDialog {
     control: EditorControl;
     static CHKNumber: number;
     constructor(control: EditorControl);
+    private setPointItemEvent(ele);
     private setChkItemEvent(ele);
     private setImgItemEvent(ele);
     private setRootEvent();

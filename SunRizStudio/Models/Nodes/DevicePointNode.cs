@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SunRizStudio.Models.Nodes
 {
@@ -67,6 +68,13 @@ namespace SunRizStudio.Models.Nodes
             //获取Device对象
             return ((DeviceNode)parentNode).Data;
 
+        }
+
+        public override void MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement treeviewitem = sender as FrameworkElement;
+            DataObject data = new DataObject("Text", new { Type = "Point", Name = this._point.Name }.ToJsonString());
+            DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
         }
     }
 }

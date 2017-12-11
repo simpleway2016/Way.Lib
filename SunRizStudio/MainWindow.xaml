@@ -79,7 +79,6 @@
                 <ListView x:Name="lstBottomList" BorderThickness="1" BorderBrush="#828790" AllowDrop="True">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick"></EventSetter>
                             <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
                         </Style>
                     </ListView.ItemContainerStyle>

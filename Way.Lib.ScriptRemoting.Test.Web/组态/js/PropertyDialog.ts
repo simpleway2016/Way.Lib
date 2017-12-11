@@ -99,6 +99,12 @@ class PropertyDialog
             else {
                 cell.innerHTML = "<input type='text'>";
                 (<any>cell.children[0]).value = value;
+
+                if (captions[i].indexOf("点") >= 0)
+                {
+                    //设置设备点的textbox
+                    this.setPointItemEvent(<any>cell.children[0]);
+                }
             }
             (<any>cell.children[0])._name = pNames[i];
            
@@ -116,6 +122,15 @@ class PropertyDialog
         this.rootElement.style.cursor = "move";       
 
         this.setRootEvent();
+    }
+    private setPointItemEvent(ele: HTMLElement) {
+        
+        ele.addEventListener("focus", (e) => {
+            editor.editingPointTextbox = ele;
+        }, false);
+        ele.addEventListener("blur", (e) => {
+            editor.editingPointTextbox = null;
+        }, false);
     }
     private setChkItemEvent(ele) {
         ele.onclick = () => {
@@ -192,6 +207,7 @@ class PropertyDialog
 
     hide()
     {
+        editor.editingPointTextbox = null;
         this.rootElement.style.visibility = "hidden";
     }
     show()

@@ -106,6 +106,7 @@ declare class Editor implements IEditorControlContainer {
     changed: boolean;
     windowWidth: any;
     windowHeight: any;
+    editingPointTextbox: any;
     colorBG: string;
     imgBg: string;
     bgWidth: string;

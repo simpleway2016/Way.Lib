@@ -385,13 +385,23 @@ var Editor = (function () {
         });
         this.svgContainer.addEventListener("drop", function (ev) {
             ev.preventDefault();
-            var data = ev.dataTransfer.getData("Text");
-            var rect = {};
-            rect.x = ev.clientX;
-            rect.y = ev.clientY - _this.divContainer.offsetTop;
-            rect.width = null;
-            rect.height = null;
-            var groupControl = _this.createGroupControl(data, rect);
+            try {
+                var data = JSON.parse(ev.dataTransfer.getData("Text"));
+                if (data && data.Type == "GroupControl") {
+                    var rect = {};
+                    rect.x = ev.clientX;
+                    rect.y = ev.clientY - _this.divContainer.offsetTop;
+                    rect.width = null;
+                    rect.height = null;
+                    var groupControl = _this.createGroupControl(data.id, rect);
+                }
+                else if (data && data.Type == "Point") {
+                    if (_this.editingPointTextbox)
+                        _this.editingPointTextbox.value = data.Name;
+                }
+            }
+            catch (e) {
+            }
         });
         document.body.addEventListener("keydown", function (e) {
             if (e.keyCode == 37) {

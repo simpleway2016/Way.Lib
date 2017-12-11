@@ -103,6 +103,7 @@ namespace SunRizStudio
 
         private void TreeViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+           
             FrameworkElement sourceElement = (FrameworkElement)sender;
             if (sender is TreeViewItem)
             {
@@ -111,6 +112,14 @@ namespace SunRizStudio
                     return;
                 if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
                     return;
+            }
+            else
+            {
+                if (e.ClickCount == 2)
+                {
+                    TreeViewItem_MouseDoubleClick(sender, e);
+                    return;
+                }
             }
             Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
             data.MouseDown(sender, e);
