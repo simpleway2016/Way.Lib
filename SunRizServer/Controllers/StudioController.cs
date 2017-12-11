@@ -120,6 +120,16 @@ namespace SunRizServer.Controllers
             return json;
         }
         [RemotingMethod]
+        public ControlWindow GetWindowInfo(int windowid, string windowCode)
+        {
+            ControlWindow window = null;
+            if (windowCode != null)
+                window = this.db.ControlWindow.Select(m=>new ControlWindow { windowWidth=m.windowWidth, windowHeight=m.windowHeight, Name=m.Name,id=m.id }).FirstOrDefault(m => m.Code == windowCode);
+            else
+                window = this.db.ControlWindow.Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault(m => m.id == windowid);
+            return window;
+        }
+        [RemotingMethod]
         public string GetWindowPath(int windowid)
         {
             var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);

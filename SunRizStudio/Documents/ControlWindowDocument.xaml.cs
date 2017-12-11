@@ -1,4 +1,5 @@
 ﻿using Gecko;
+using SunRizServer;
 using SunRizStudio.Models.Nodes;
 using System;
 using System.Collections.Generic;
@@ -80,6 +81,8 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("openRunMode", openRunMode);
             _gecko.AddMessageEventListener("writePointValue", writePointValue);
             _gecko.AddMessageEventListener("go", go);
+            _gecko.AddMessageEventListener("open", open);
+
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
             _gecko.CreateWindow += Gecko_CreateWindow;
@@ -109,6 +112,43 @@ namespace SunRizStudio.Documents
 
             _gecko.Enabled = false;
             _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowCode={windowCode}");
+        }
+
+        /// <summary>
+        /// 打开窗口
+        /// </summary>
+        /// <param name="windowCode">窗口编号</param>
+        void open(string windowCode)
+        {
+            Helper.Remote.Invoke<ControlWindow>("GetWindowInfo", (win, err) => {
+                if(err != null)
+                {
+                    MessageBox.Show(this.GetParentByName<Window>(null), err);
+                }
+                else
+                {
+                    ControlWindowDocument doc = new ControlWindowDocument(null, win, true);
+                    Window window = new Window();
+                    window.Content = doc;
+                    if (win.windowWidth != null)
+                    {
+                        window.Width = win.windowWidth.Value;
+                    }
+                    if (win.windowHeight != null)
+                    {
+                        window.Height = win.windowHeight.Value;
+                    }
+                    if(win.windowWidth == null && win.windowHeight == null)
+                    {
+                        window.WindowState = WindowState.Maximized;
+                    }
+                    else if (win.windowWidth != null && win.windowHeight != null)
+                    {
+                        window.ResizeMode = ResizeMode.NoResize;
+                    }
+                    window.Show();
+                }
+            }, windowCode);
         }
         void writePointValue(string arg)
         {

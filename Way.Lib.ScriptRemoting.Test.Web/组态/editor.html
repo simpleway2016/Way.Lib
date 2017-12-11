@@ -82,6 +82,8 @@
         <div id="divToolbar" style="background-color:#e8e7e3;height:36px;">
             <div id="btnSetting" class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);">
             </div>
+            <div class="toolboxItem" title="显示测量" onclick="rulerChange(this); " style="background-image:url(/images/toolbox/ruler.png);">
+            </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);" _type="ToolBox_Line">
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/circle.png);" _type="ToolBox_Circle">
@@ -153,9 +155,27 @@
     </div>
     
     <script lang="ja">
+        function rulerChange(ele)
+        {
+            if (editor.isWatchingRect)
+            {
+                ele.setAttribute("selected", "0");
+            }
+            else {
+                ele.setAttribute("selected", "1");
+            }
+            editor.isWatchingRect = !editor.isWatchingRect;
+        }
         var lastActiveEle;
         function toolboxClick(ele)
         {
+            if (lastActiveEle == ele)
+            {
+                lastActiveEle.setAttribute("selected", "0");
+                editor.setCurrentToolBoxItem(null);
+                lastActiveEle = null;
+                return;
+            }
             if (lastActiveEle)
             {
                 lastActiveEle.setAttribute("selected", "0");
@@ -386,6 +406,7 @@
         //进入运行模式
         function run()
         {
+            editor.run();
             var divToolbar = document.body.querySelector("#divToolbar");
             divToolbar.parentElement.removeChild(divToolbar);
 

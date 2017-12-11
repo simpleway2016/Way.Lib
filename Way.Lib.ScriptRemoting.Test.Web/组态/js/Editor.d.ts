@@ -94,6 +94,7 @@ declare class Editor implements IEditorControlContainer {
     writeValue(pointName: any, addr: any, value: any): void;
     name: string;
     code: string;
+    private divContainer;
     private svgContainer;
     private currentToolBoxItem;
     private svgContainerMouseUpPosition;
@@ -114,6 +115,10 @@ declare class Editor implements IEditorControlContainer {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);
+    private initDivContainer();
+    isWatchingRect: boolean;
+    isRunMode: boolean;
+    run(): void;
     createGroupControl(windowid: any, rect: any): GroupControl;
     getScript(): string;
     undo(): void;

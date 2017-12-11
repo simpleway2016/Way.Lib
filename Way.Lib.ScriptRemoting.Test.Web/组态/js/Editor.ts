@@ -405,6 +405,7 @@ class Editor implements IEditorControlContainer
 
     name: string = "";
     code: string = "";
+    private divContainer: HTMLElement;
     private svgContainer: SVGSVGElement;
     private currentToolBoxItem: ToolBoxItem;
     private svgContainerMouseUpPosition: any;
@@ -479,7 +480,7 @@ class Editor implements IEditorControlContainer
 
     constructor(id: string)
     {
-        var divContainer: HTMLElement = <HTMLElement>document.body.querySelector("#" + id);
+        this.divContainer = <HTMLElement>document.body.querySelector("#" + id);
         this.undoMgr = new UndoManager();
 
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -489,7 +490,9 @@ class Editor implements IEditorControlContainer
         this.svgContainer.style.backgroundRepeat = "no-repeat";
         this.svgContainer.setAttribute('height', '100%');
         this.svgContainer.style.backgroundColor = "#ffffff";
-        divContainer.appendChild(this.svgContainer);
+        this.divContainer.appendChild(this.svgContainer);
+
+        this.initDivContainer();
 
         this.svgContainer.addEventListener("click", (e) => {
             if ((<any>this.svgContainer)._notClick) {
@@ -506,10 +509,10 @@ class Editor implements IEditorControlContainer
                 (<any>this.svgContainer)._notClick = true;
 
                 this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                (<any>this.selectingElement)._startx = e.clientX - divContainer.offsetLeft;
-                (<any>this.selectingElement)._starty = e.clientY - divContainer.offsetTop;
-                this.selectingElement.setAttribute('x', <any>(e.clientX - divContainer.offsetLeft));
-                this.selectingElement.setAttribute('y', <any>(e.clientY - divContainer.offsetTop));
+                (<any>this.selectingElement)._startx = e.clientX - this.divContainer.offsetLeft;
+                (<any>this.selectingElement)._starty = e.clientY - this.divContainer.offsetTop;
+                this.selectingElement.setAttribute('x', <any>(e.clientX - this.divContainer.offsetLeft));
+                this.selectingElement.setAttribute('y', <any>(e.clientY - this.divContainer.offsetTop));
                 this.selectingElement.setAttribute('width', "0");
                 this.selectingElement.setAttribute('height', "0");
                 this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
@@ -537,16 +540,16 @@ class Editor implements IEditorControlContainer
             }
             else {
                 this.svgContainerMouseUpPosition = {
-                    x: e.clientX - divContainer.offsetLeft,
-                    y: e.clientY - divContainer.offsetTop
+                    x: e.clientX - this.divContainer.offsetLeft,
+                    y: e.clientY - this.divContainer.offsetTop
                 };
             }
             
         });
         this.svgContainer.addEventListener("mousemove", (e) => {
             if (this.selectingElement) {
-                var w = e.clientX - divContainer.offsetLeft - (<any>this.selectingElement)._startx ;
-                var h = e.clientY - divContainer.offsetTop - (<any>this.selectingElement)._starty;
+                var w = e.clientX - this.divContainer.offsetLeft - (<any>this.selectingElement)._startx ;
+                var h = e.clientY - this.divContainer.offsetTop - (<any>this.selectingElement)._starty;
                 if (w < 0)
                 {
                     var x = (<any>this.selectingElement)._startx  + w;
@@ -562,7 +565,7 @@ class Editor implements IEditorControlContainer
                 this.selectingElement.setAttribute("height", <any>h);
             }
             else {
-                this.svgContainerMouseMove(e.clientX - divContainer.offsetLeft, e.clientY - divContainer.offsetTop);
+                this.svgContainerMouseMove(e.clientX - this.divContainer.offsetLeft, e.clientY - this.divContainer.offsetTop);
             }
         });
 
@@ -575,7 +578,7 @@ class Editor implements IEditorControlContainer
             //alert(ev.clientX + "," + (ev.clientY - divContainer.offsetTop) + "：" + data);
             var rect : any = {};
             rect.x = ev.clientX;
-            rect.y = ev.clientY - divContainer.offsetTop;
+            rect.y = ev.clientY - this.divContainer.offsetTop;
             rect.width = null;
             rect.height = null;
             var groupControl = this.createGroupControl(data, rect);
@@ -641,6 +644,47 @@ class Editor implements IEditorControlContainer
                 this.save();
             }
         }, false);
+    }
+
+    private initDivContainer()
+    {
+
+        this.divContainer.style.position = "relative";
+        var border = document.createElement("DIV");
+        border.style.borderRight = "1px solid #eee";
+        border.style.borderBottom = "1px solid #eee";
+        border.style.position = "absolute";
+        border.style.left = "0px";
+        border.style.top = "0px";
+        border.innerHTML = "<div style='position:absolute;right:0;bottom:0;color:#aaa;font-size:12px;'></div>";
+        this.divContainer.insertBefore(border, this.divContainer.children[0]);
+
+        var func = (e) => {
+            if (this.isRunMode) {
+                this.divContainer.removeChild(border);
+                this.divContainer.removeEventListener("mousemove", func, false);
+                return;
+            }
+
+            if (this.isWatchingRect && e.clientY > this.divContainer.offsetTop) {
+                border.style.display = "";
+                border.style.width = e.clientX + "px";
+                border.style.height = (e.clientY - this.divContainer.offsetTop) + "px";
+                border.children[0].innerHTML = e.clientX + "," + (e.clientY - this.divContainer.offsetTop);
+            }
+            else {
+                border.style.display = "none";
+            }
+        };
+
+        this.divContainer.addEventListener("mousemove", func , false);
+    }
+
+    isWatchingRect: boolean = false;
+    isRunMode: boolean = false;
+    run()
+    {
+        this.isRunMode = true;
     }
 
     createGroupControl(windowid,rect): GroupControl
@@ -834,9 +878,8 @@ class Editor implements IEditorControlContainer
 
     setCurrentToolBoxItem(typename: string)
     {
-        if (!typename)
+        if (!typename || typename.length == 0)
         {
-           
             this.currentToolBoxItem = null
             return;
         }
