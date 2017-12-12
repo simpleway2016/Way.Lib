@@ -393,11 +393,13 @@ var Editor = (function () {
                     rect.y = ev.clientY - _this.divContainer.offsetTop;
                     rect.width = null;
                     rect.height = null;
-                    var groupControl = _this.createGroupControl(data.id, rect);
+                    var groupControl = _this.createGroupControl(data.windowCode, rect);
                 }
                 else if (data && data.Type == "Point") {
-                    if (_this.editingPointTextbox)
+                    if (_this.editingPointTextbox) {
                         _this.editingPointTextbox.value = data.Name;
+                        _this.editingPointTextbox.changeFunc();
+                    }
                 }
             }
             catch (e) {
@@ -600,18 +602,23 @@ var Editor = (function () {
     Editor.prototype.run = function () {
         this.isRunMode = true;
     };
-    Editor.prototype.createGroupControl = function (windowid, rect) {
-        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
-        var content;
-        eval("content=" + json);
-        var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        var editor = new GroupControl(groupEle, windowid);
-        eval(content.controlsScript);
-        editor.loadCustomProperties(content.customProperties);
-        this.addControl(editor);
-        editor.rect = rect;
-        this.undoMgr.addUndo(new UndoAddControl(this, editor));
-        return editor;
+    Editor.prototype.createGroupControl = function (windowCode, rect) {
+        try {
+            var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowCode=" + encodeURIComponent(windowCode));
+            var content;
+            eval("content=" + json);
+            var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            var editor = new GroupControl(groupEle, windowCode);
+            eval(content.controlsScript);
+            editor.loadCustomProperties(content.customProperties);
+            this.addControl(editor);
+            editor.rect = rect;
+            this.undoMgr.addUndo(new UndoAddControl(this, editor));
+            return editor;
+        }
+        catch (e) {
+            alert(e.message);
+        }
     };
     Editor.prototype.getScript = function () {
         var properties = this.getProperties();
@@ -651,14 +658,14 @@ var Editor = (function () {
             return;
         }
         var scripts = "";
-        var windowids = [];
+        var windowCodes = [];
         for (var i = 0; i < this.controls.length; i++) {
             scripts += this.controls[i].getScript();
             if (this.controls[i].constructor.name == "GroupControl") {
-                windowids.push(this.controls[i].windowid);
+                windowCodes.push(this.controls[i].windowCode);
             }
         }
-        window.save(this.name, this.code, this.customProperties, this.getScript(), scripts, windowids);
+        window.save(this.name, this.code, this.customProperties, this.getScript(), scripts, windowCodes);
     };
     Editor.prototype.getSaveInfo = function () {
         var scripts = "";
@@ -693,7 +700,7 @@ var Editor = (function () {
                 }
                 var editorctrl;
                 if (controlJson.constructorName == "GroupControl") {
-                    editorctrl = this.createGroupControl(controlJson.windowid, controlJson.rect);
+                    editorctrl = this.createGroupControl(controlJson.windowCode, controlJson.rect);
                     for (var pname in controlJson) {
                         if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
                             editorctrl[pname] = controlJson[pname];

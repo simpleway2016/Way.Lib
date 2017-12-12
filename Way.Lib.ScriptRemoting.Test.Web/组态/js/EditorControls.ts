@@ -2499,11 +2499,11 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     moving: boolean = false;
     startX = 0;
     startY = 0;
-    windowid: any;
+    windowCode: any;
     private _path: string = null;
     get path(): string {
         if (this._path == null)
-            this._path = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowPath?windowid=" + this.windowid);
+            this._path = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowPath?windowCode=" + this.windowCode);
         return this._path;
     }
 
@@ -2581,9 +2581,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return pros;
     }
 
-    constructor(element: any, windowid) {
+    constructor(element: any, windowCode) {
         super(element);
-        this.windowid = windowid;
+        this.windowCode = windowCode;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         this.groupElement = element;
 
@@ -2613,13 +2613,14 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(point: any) {
-        
+
         for (var i = 0; i < this.customProperties.length; i++)
         {
             var proName = this.customProperties[i];
             //如果和自定义变量对应的点一致，那么设置自定义变量值
             if (this[proName + "_devPoint"] == point.name)
             {
+               
                 this[proName + "_devPoint_addr"] = point.addr;
                 this[proName + "_devPoint_max"] = point.max;
                 this[proName + "_devPoint_min"] = point.min;
@@ -2669,7 +2670,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     getJson()
     {
         var json : any = super.getJson();
-        json.windowid = this.windowid;
+        json.windowCode = this.windowCode;
         return json;
     }
 
@@ -2680,7 +2681,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         if (!id || id.length == 0) {
             id = "eCtrl";
         }
-        script += id + " = editor.createGroupControl(" + this.windowid + " , " + JSON.stringify(json.rect) + ");\r\n";
+        script += id + " = editor.createGroupControl(" + JSON.stringify(this.windowCode) + " , " + JSON.stringify(json.rect) + ");\r\n";
         for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
                 continue;
@@ -2754,12 +2755,12 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             }
         }
     }
-    createGroupControl(windowid, rect): GroupControl {
-        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+    createGroupControl(windowCode, rect): GroupControl {
+        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowCode=" + encodeURIComponent(windowCode));
         var content;
         eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        var editor = new GroupControl(groupEle, windowid);
+        var editor = new GroupControl(groupEle, windowCode);
         eval(content.controlsScript);
         editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);

@@ -189,13 +189,17 @@ namespace SunRizServer.Controllers
             {
                 throw new Exception("窗口高度格式错误，请输入整数！");
             }
-            var windowids = obj.Value<Newtonsoft.Json.Linq.JArray>("windowids");
-
-            if(window.id != null)
+            var windowCodes = obj.Value<Newtonsoft.Json.Linq.JArray>("windowCodes");
+            var windowids = new int[windowCodes.Count];
+            for(int i = 0; i < windowids.Length; i ++)
+            {
+                windowids[i] = db.ControlWindow.Where(m => m.Code == windowCodes[i].ToString()).Select(m => m.id).FirstOrDefault().Value;
+            }
+            if (window.id != null)
             {
                 //检查循环嵌套
                 foreach (var item in windowids) {
-                    checkChild(window.id.Value, int.Parse(item.ToString()));
+                    checkChild(window.id.Value, item);
                 }
             }
             var customProperties = obj.Value<string>("customProperties");

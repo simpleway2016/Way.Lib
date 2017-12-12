@@ -198,6 +198,10 @@ class PropertyDialog
             };
         }
         else {
+            input.changeFunc = () => {
+                this.control[input._name] = input.value;
+                editor.changed = true;
+            };
             input.addEventListener("keyup", (e) => {
                 this.control[input._name] = input.value;
                 editor.changed = true;

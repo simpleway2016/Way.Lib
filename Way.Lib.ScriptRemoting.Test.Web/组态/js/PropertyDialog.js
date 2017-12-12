@@ -160,6 +160,10 @@ var PropertyDialog = (function () {
             };
         }
         else {
+            input.changeFunc = function () {
+                _this.control[input._name] = input.value;
+                editor.changed = true;
+            };
             input.addEventListener("keyup", function (e) {
                 _this.control[input._name] = input.value;
                 editor.changed = true;

@@ -56,7 +56,7 @@ namespace SunRizStudio.Models.Nodes
         public override void MouseDown(object sender, MouseButtonEventArgs e)
         {
             FrameworkElement treeviewitem = sender as FrameworkElement;
-            DataObject data = new DataObject("Text", new { Type = "GroupControl", id= _dataModel.id }.ToJsonString());
+            DataObject data = new DataObject("Text", new { Type = "GroupControl", windowCode= _dataModel.Code }.ToJsonString());
             DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
         }
     

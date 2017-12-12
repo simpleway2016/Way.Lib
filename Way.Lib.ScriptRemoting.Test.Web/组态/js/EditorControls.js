@@ -2403,7 +2403,7 @@ var ButtonAreaControl = (function (_super) {
 }(EditorControl));
 var GroupControl = (function (_super) {
     __extends(GroupControl, _super);
-    function GroupControl(element, windowid) {
+    function GroupControl(element, windowCode) {
         var _this = _super.call(this, element) || this;
         _this.controls = [];
         _this.moving = false;
@@ -2413,7 +2413,7 @@ var GroupControl = (function (_super) {
         _this.contentWidth = 0;
         _this.contentHeight = 0;
         _this.customProperties = [];
-        _this.windowid = windowid;
+        _this.windowCode = windowCode;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         _this.groupElement = element;
         if (!_this.virtualRectElement) {
@@ -2474,7 +2474,7 @@ var GroupControl = (function (_super) {
     Object.defineProperty(GroupControl.prototype, "path", {
         get: function () {
             if (this._path == null)
-                this._path = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowPath?windowid=" + this.windowid);
+                this._path = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowPath?windowCode=" + this.windowCode);
             return this._path;
         },
         enumerable: true,
@@ -2598,7 +2598,7 @@ var GroupControl = (function (_super) {
     };
     GroupControl.prototype.getJson = function () {
         var json = _super.prototype.getJson.call(this);
-        json.windowid = this.windowid;
+        json.windowCode = this.windowCode;
         return json;
     };
     GroupControl.prototype.getScript = function () {
@@ -2608,7 +2608,7 @@ var GroupControl = (function (_super) {
         if (!id || id.length == 0) {
             id = "eCtrl";
         }
-        script += id + " = editor.createGroupControl(" + this.windowid + " , " + JSON.stringify(json.rect) + ");\r\n";
+        script += id + " = editor.createGroupControl(" + JSON.stringify(this.windowCode) + " , " + JSON.stringify(json.rect) + ");\r\n";
         for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
                 continue;
@@ -2667,12 +2667,12 @@ var GroupControl = (function (_super) {
             }
         };
     };
-    GroupControl.prototype.createGroupControl = function (windowid, rect) {
-        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowid=" + windowid);
+    GroupControl.prototype.createGroupControl = function (windowCode, rect) {
+        var json = JHttpHelper.downloadUrl(ServerUrl + "/Home/GetWindowCode?windowCode=" + encodeURIComponent(windowCode));
         var content;
         eval("content=" + json);
         var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        var editor = new GroupControl(groupEle, windowid);
+        var editor = new GroupControl(groupEle, windowCode);
         eval(content.controlsScript);
         editor.loadCustomProperties(content.customProperties);
         this.addControl(editor);

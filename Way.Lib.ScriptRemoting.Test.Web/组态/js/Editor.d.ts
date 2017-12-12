@@ -120,7 +120,7 @@ declare class Editor implements IEditorControlContainer {
     isWatchingRect: boolean;
     isRunMode: boolean;
     run(): void;
-    createGroupControl(windowid: any, rect: any): GroupControl;
+    createGroupControl(windowCode: any, rect: any): GroupControl;
     getScript(): string;
     undo(): void;
     redo(): void;

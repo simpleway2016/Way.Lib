@@ -389,7 +389,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     moving: boolean;
     startX: number;
     startY: number;
-    windowid: any;
+    windowCode: any;
     private _path;
     readonly path: string;
     virtualRectElement: SVGRectElement;
@@ -400,7 +400,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     private customProperties;
     getPropertiesCaption(): string[];
     getProperties(): string[];
-    constructor(element: any, windowid: any);
+    constructor(element: any, windowCode: any);
     run(): void;
     isIntersectWith(rect: any): boolean;
     onDevicePointValueChanged(point: any): void;
@@ -410,7 +410,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     loadCustomProperties(properties: string): void;
     private getFuncForCustomProperty(self, name);
     private setFuncForCustomProperty(self, name);
-    createGroupControl(windowid: any, rect: any): GroupControl;
+    createGroupControl(windowCode: any, rect: any): GroupControl;
     onSelectedChange(): void;
     resetPointLocation(): void;
     setEvent(pointEle: any): void;

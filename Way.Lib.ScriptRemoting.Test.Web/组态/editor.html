@@ -224,7 +224,7 @@
             }
         }
 
-        function save(name,code,customProperties,editorScript,controlsScript,windowids) {
+        function save(name, code, customProperties, editorScript, controlsScript, windowCodes) {
             var event = document.createEvent('MessageEvent');
             var origin = window.location.protocol + '//' + window.location.host;
             event.initMessageEvent('save', true, true, JSON.stringify({
@@ -233,7 +233,7 @@
                 "customProperties": customProperties,
                 "editorScript": editorScript,
                 "controlsScript": controlsScript,
-                "windowids": windowids
+                "windowCodes": windowCodes
             }), origin, 1234, window, null);
             document.dispatchEvent(event);
         }
