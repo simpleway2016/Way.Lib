@@ -60,6 +60,7 @@
     <Content Include="组态\images\toolbox\play.png" />
     <Content Include="组态\images\toolbox\redo.png" />
     <Content Include="组态\images\toolbox\ruler.png" />
+    <Content Include="组态\images\toolbox\save.png" />
     <Content Include="组态\images\toolbox\trend.png" />
     <Content Include="组态\images\toolbox\circle.png" />
     <Content Include="组态\images\toolbox\copy.png" />
