@@ -52,6 +52,7 @@ namespace SunRizServer
                 SysDB.RegisterActionCapture(new DBTriggers.ImageFilesTrigger());
                 SysDB.RegisterActionCapture(new DBTriggers.DevicePointFolderTrigger());
                 SysDB.RegisterActionCapture(new DBTriggers.ControlWindowTrigger());
+                SysDB.RegisterActionCapture(new DBTriggers.ControlWindowFolderTrigger());
 
                 using (var db = new SysDB())
                 {
