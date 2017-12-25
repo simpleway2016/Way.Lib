@@ -218,7 +218,7 @@ namespace SunRizStudio.Documents
                 {
                     var pointArr = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonStr);
                     var groups = (from m in pointArr
-                                  group m by m.Value<int>("deviceId") into g
+                                  group m by m.Value<int>("deviceId") into g                                  
                                   select new
                                   {
                                       deviceId = g.Key,

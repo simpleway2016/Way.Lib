@@ -1,6 +1,7 @@
 ﻿var AllSelectedControls: EditorControl[] = [];
 declare var editor: Editor;
 var ManyPointDefined = 999999;//表示EditorControl是否绑定了多个point
+var WatchPointNames: any = [];
 
 function documentElementMouseDown(e: MouseEvent) {
     //while (AllSelectedControls.length > 0) {
@@ -562,6 +563,8 @@ class RectControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
 
     _scriptOnValueChange: string;
@@ -749,6 +752,8 @@ class EllipseControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
 
     _scriptOnValueChange: string;
@@ -951,6 +956,8 @@ class CircleControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
 
     _scriptOnValueChange: string;
@@ -1158,6 +1165,8 @@ class TextControl extends RectControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     onDevicePointValueChanged(devPoint: any) {
         
@@ -1342,6 +1351,8 @@ class CylinderControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     onDevicePointValueChanged(devPoint: any) {
         if (devPoint.max != null && devPoint.max != this.max)
@@ -1775,6 +1786,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint1(v) {
         this._devicePoint1 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint2: string = "";
     get devicePoint2() {
@@ -1782,6 +1795,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint2(v) {
         this._devicePoint2 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint3: string = "";
     get devicePoint3() {
@@ -1789,6 +1804,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint3(v) {
         this._devicePoint3 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint4: string = "";
     get devicePoint4() {
@@ -1796,6 +1813,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint4(v) {
         this._devicePoint4 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint5: string = "";
     get devicePoint5() {
@@ -1803,6 +1822,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint5(v) {
         this._devicePoint5 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint6: string = "";
     get devicePoint6() {
@@ -1810,6 +1831,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint6(v) {
         this._devicePoint6 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint7: string = "";
     get devicePoint7() {
@@ -1817,6 +1840,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint7(v) {
         this._devicePoint7 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint8: string = "";
     get devicePoint8() {
@@ -1824,6 +1849,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint8(v) {
         this._devicePoint8 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint9: string = "";
     get devicePoint9() {
@@ -1831,6 +1858,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint9(v) {
         this._devicePoint9 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint10: string = "";
     get devicePoint10() {
@@ -1838,6 +1867,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint10(v) {
         this._devicePoint10 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint11: string = "";
     get devicePoint11() {
@@ -1845,6 +1876,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint11(v) {
         this._devicePoint11 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     _devicePoint12: string = "";
     get devicePoint12() {
@@ -1852,6 +1885,8 @@ class TrendControl extends EditorControl {
     }
     set devicePoint12(v) {
         this._devicePoint12 = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }
     onDevicePointValueChanged(devPoint: any) {
         var number = 0;
@@ -2277,6 +2312,8 @@ class ButtonAreaControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
+        if (WatchPointNames.indexOf(v) < 0)
+            WatchPointNames.push(v);
     }    
 
     _clickValues: string = null;
@@ -2564,7 +2601,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.resetPointLocation();
     }
 
-    private customProperties: any[] = [];
+    customProperties: any[] = [];
     getPropertiesCaption(): string[] {
         var caps = ["id"];
         for (var i = 0; i < this.customProperties.length; i++)
@@ -2613,7 +2650,6 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(point: any) {
-
         for (var i = 0; i < this.customProperties.length; i++)
         {
             var proName = this.customProperties[i];
@@ -2713,14 +2749,35 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 this[name + "_devPoint_addr"] = null;
                 this[name + "_devPoint_max"] = null;
                 this[name + "_devPoint_min"] = null;
-
+                //_devPoint
                 Object.defineProperty(this, name, {
                     get: this.getFuncForCustomProperty(this,name),
                     set: this.setFuncForCustomProperty(this,name),
                     enumerable: true,
                     configurable: true
                 });
-                
+
+                Object.defineProperty(this, name + "_devPoint", {
+                    get: this.getFuncForCustomProperty_DevPoint(this, name + "_devPoint"),
+                    set: this.setFuncForCustomProperty_DevPoint(this, name + "_devPoint"),
+                    enumerable: true,
+                    configurable: true
+                });
+            }
+        }
+    }
+
+    private getFuncForCustomProperty_DevPoint(self: GroupControl, name): any {
+        return function () {
+            return self["_" + name];
+        }
+    }
+    private setFuncForCustomProperty_DevPoint(self: GroupControl, name): any {
+        return function (v) {
+            if (self["_" + name] !== v) {
+                self["_" + name] = v;
+                if (WatchPointNames.indexOf(v) < 0)
+                    WatchPointNames.push(v);
             }
         }
     }

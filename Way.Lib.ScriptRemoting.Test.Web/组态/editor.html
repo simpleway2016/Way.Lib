@@ -366,22 +366,8 @@
         function initAllDevicePoints()
         {
             devicePoints = [];
-            var pointNames = [];
-            for (var i = 0; i < editor.controls.length; i++)
-            {
-                var ctrl = editor.controls[i];
-                for (var p in ctrl)
-                {
-                    if (p.indexOf("devicePoint") == 0 && ctrl[p] && ctrl[p].length > 0)
-                    {
-                        var pointName = ctrl[p];
-                        if (pointNames.indexOf(pointName) < 0)
-                            pointNames.push(pointName);
-                    }
-                }
-            }
-
-            remoting.server.GetPointDetails(pointNames, function (ret, err) {
+            alert(JSON.stringify(WatchPointNames));
+            remoting.server.GetPointDetails(WatchPointNames, function (ret, err) {
                 if (err)
                     alert(err);
                 else {

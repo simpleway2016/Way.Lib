@@ -1,6 +1,7 @@
 declare var AllSelectedControls: EditorControl[];
 declare var editor: Editor;
 declare var ManyPointDefined: number;
+declare var WatchPointNames: any;
 declare function documentElementMouseDown(e: MouseEvent): void;
 declare class EditorControl {
     container: IEditorControlContainer;
@@ -397,7 +398,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     contentHeight: number;
     private lastRect;
     rect: any;
-    private customProperties;
+    customProperties: any[];
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(element: any, windowCode: any);
@@ -408,6 +409,8 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     getJson(): any;
     getScript(): string;
     loadCustomProperties(properties: string): void;
+    private getFuncForCustomProperty_DevPoint(self, name);
+    private setFuncForCustomProperty_DevPoint(self, name);
     private getFuncForCustomProperty(self, name);
     private setFuncForCustomProperty(self, name);
     createGroupControl(windowCode: any, rect: any): GroupControl;

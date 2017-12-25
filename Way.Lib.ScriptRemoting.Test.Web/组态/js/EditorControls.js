@@ -10,6 +10,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var AllSelectedControls = [];
 var ManyPointDefined = 999999;
+var WatchPointNames = [];
 function documentElementMouseDown(e) {
 }
 document.documentElement.addEventListener("mousedown", documentElementMouseDown, false);
@@ -491,6 +492,8 @@ var RectControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -674,6 +677,8 @@ var EllipseControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -872,6 +877,8 @@ var CircleControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1077,6 +1084,8 @@ var TextControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1264,6 +1273,8 @@ var CylinderControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1736,6 +1747,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint1 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1746,6 +1759,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint2 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1756,6 +1771,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint3 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1766,6 +1783,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint4 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1776,6 +1795,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint5 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1786,6 +1807,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint6 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1796,6 +1819,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint7 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1806,6 +1831,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint8 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1816,6 +1843,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint9 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1826,6 +1855,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint10 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1836,6 +1867,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint11 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -1846,6 +1879,8 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint12 = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -2261,6 +2296,8 @@ var ButtonAreaControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
+            if (WatchPointNames.indexOf(v) < 0)
+                WatchPointNames.push(v);
         },
         enumerable: true,
         configurable: true
@@ -2637,8 +2674,28 @@ var GroupControl = (function (_super) {
                     enumerable: true,
                     configurable: true
                 });
+                Object.defineProperty(this, name + "_devPoint", {
+                    get: this.getFuncForCustomProperty_DevPoint(this, name + "_devPoint"),
+                    set: this.setFuncForCustomProperty_DevPoint(this, name + "_devPoint"),
+                    enumerable: true,
+                    configurable: true
+                });
             }
         }
+    };
+    GroupControl.prototype.getFuncForCustomProperty_DevPoint = function (self, name) {
+        return function () {
+            return self["_" + name];
+        };
+    };
+    GroupControl.prototype.setFuncForCustomProperty_DevPoint = function (self, name) {
+        return function (v) {
+            if (self["_" + name] !== v) {
+                self["_" + name] = v;
+                if (WatchPointNames.indexOf(v) < 0)
+                    WatchPointNames.push(v);
+            }
+        };
     };
     GroupControl.prototype.getFuncForCustomProperty = function (self, name) {
         return function () {
