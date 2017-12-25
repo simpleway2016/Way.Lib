@@ -2749,7 +2749,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 this[name + "_devPoint_addr"] = null;
                 this[name + "_devPoint_max"] = null;
                 this[name + "_devPoint_min"] = null;
-                //_devPoint
+
                 Object.defineProperty(this, name, {
                     get: this.getFuncForCustomProperty(this,name),
                     set: this.setFuncForCustomProperty(this,name),
