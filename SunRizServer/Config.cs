@@ -18,6 +18,10 @@ namespace SunRizServer
             var node = xmldoc.DocumentElement.SelectSingleNode("db");
             ConnectionString = node.Attributes["ConnectionString"].InnerText;
             DbType = Enum.Parse<Way.EntityDB.DatabaseType>(node.Attributes["Type"].InnerText);
+            if(DbType == Way.EntityDB.DatabaseType.Sqlite)
+            {
+                ConnectionString = ConnectionString.Replace(".\\", Way.Lib.PlatformHelper.GetAppDirectory());
+            }
         }
     }
 }

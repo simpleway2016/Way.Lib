@@ -21,12 +21,42 @@ namespace Way.WindowsService
 
         protected override void OnStart(string[] args)
         {
-            process = Process.Start(Config.Application, Config.Args);
+            using (System.IO.FileStream fs = System.IO.File.Create(AppDomain.CurrentDomain.BaseDirectory + "Way.WindowsService.Log.txt"))
+            using (System.IO.StreamWriter sw = new System.IO.StreamWriter(fs))
+            {
+                sw.WriteLine("OnStart");
+                try
+                {
+                    sw.WriteLine("Application:" + Config.Application);
+                    sw.WriteLine("Args:" + Config.Args);
+                    process = Process.Start(Config.Application, Config.Args);
+                   
+                    if (process == null)
+                    {
+                        sw.WriteLine("Process.Start pass. Process is null");
+                    }
+                    else
+                    {
+                        sw.WriteLine("Process.Start pass. ProcessID:" + process.Id);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    sw.WriteLine("error:" + ex.ToString());
+                }
+            }
         }
 
         protected override void OnStop()
         {
-            process.Kill();
+            try
+            {
+                process.Kill();
+            }
+            catch
+            {
+
+            }
         }
     }
 }
