@@ -21,7 +21,7 @@ namespace Way.WindowsService
                 XmlDocument xmldoc = new XmlDocument();
                 xmldoc.Load(appPath + "config.xml");
                 ServiceName = xmldoc.DocumentElement.Attributes["ServiceName"].InnerText.Replace(" " , "");
-                Application = xmldoc.DocumentElement.Attributes["Application"].InnerText;
+                Application = xmldoc.DocumentElement.Attributes["Application"].InnerText.Replace("{0}", AppDomain.CurrentDomain.BaseDirectory);
                 Args = xmldoc.DocumentElement.Attributes["Args"].InnerText.Replace("{0}" , AppDomain.CurrentDomain.BaseDirectory);
                 
             }

@@ -252,11 +252,17 @@
             event.initMessageEvent('openRunMode', true, true, "", origin, 1234, window, null);
             document.dispatchEvent(event);
         }
-        function writeValue(pointName,addr,value) {
+        function writeValue(pointName, addr, value) {
+            if (typeof addr == "undefined" || addr == null)
+                addr = "";
+
             var event = document.createEvent('MessageEvent');
             var origin = window.location.protocol + '//' + window.location.host;
             event.initMessageEvent('writePointValue', true, true, JSON.stringify([pointName,addr, value]), origin, 1234, window, null);
             document.dispatchEvent(event);
+        } 
+        function writePV(pointName,value) {
+            writeValue(pointName, null, value);
         } 
         window.go = function (windowCode)
         {

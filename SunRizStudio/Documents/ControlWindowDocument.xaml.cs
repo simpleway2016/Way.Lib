@@ -31,6 +31,7 @@ namespace SunRizStudio.Documents
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
         bool closeAfterSave = false;
+        Dictionary<string, PointAddrInfo> _PointAddress = new Dictionary<string, PointAddrInfo>();
         /// <summary>
         /// 是否允许模式
         /// </summary>
@@ -157,8 +158,36 @@ namespace SunRizStudio.Documents
                 string[] pointValue = arg.ToJsonObject<string[]>();
                 string pointName = pointValue[0];// /p/a/01
                 string addr = pointValue[1];// 点真实路径
+                if(string.IsNullOrEmpty(addr))
+                {
+                    //查询点真实地址
+                    try
+                    {
+                        if (_PointAddress.ContainsKey(pointName) == false)
+                        {
+                            _PointAddress[pointName] = Helper.Remote.InvokeSync<PointAddrInfo>("GetPointAddr", pointName);
+                        }
+
+                        addr = _PointAddress[pointName].addr;
+                    }
+                    catch
+                    {
+                        throw new Exception($"无法获取点“{pointName}”真实地址");
+                    }
+                }
                 string value = pointValue[2];
                 var client = _clients.FirstOrDefault(m => m.WatchingPointNames.Contains(pointName));
+                if (client == null)
+                {
+                    //构造MyDriverClient
+                    var device = Helper.Remote.InvokeSync<SunRizServer.Device>("GetDeviceAndDriver", _PointAddress[pointName].deviceId);
+                    client = new MyDriverClient(device.Driver.Address, device.Driver.Port.Value);
+                    client.Device = device;
+                    client.WatchingPoints.Add(addr);
+                    client.WatchingPointNames.Add(pointName);
+                    _clients.Add(client);
+                }
+
                 if (client != null)
                 {
                     if (client.WriteValue(client.Device.Address, addr, value) == false)
@@ -200,8 +229,8 @@ namespace SunRizStudio.Documents
                         var device = Helper.Remote.InvokeSync<SunRizServer.Device>("GetDeviceAndDriver", group.deviceId);
 
                         var client = new MyDriverClient(device.Driver.Address, device.Driver.Port.Value);
-                        client.WatchingPoints = group.points.Select(m => m.Value<string>("addr")).ToArray();
-                        client.WatchingPointNames = group.points.Select(m => m.Value<string>("name")).ToArray();
+                        client.WatchingPoints = group.points.Select(m => m.Value<string>("addr")).ToList();
+                        client.WatchingPointNames = group.points.Select(m => m.Value<string>("name")).ToList();
                         client.Device = device;
                         _clients.Add(client);
                         watchDevice(client);
@@ -266,7 +295,7 @@ namespace SunRizStudio.Documents
         void watchDevice(MyDriverClient client)
         {
 
-            client.NetClient = client.AddPointToWatch(client.Device.Address, client.WatchingPoints, (point, value) =>
+            client.NetClient = client.AddPointToWatch(client.Device.Address, client.WatchingPoints.ToArray(), (point, value) =>
             {
                 try
                 {
@@ -372,12 +401,18 @@ namespace SunRizStudio.Documents
     {
         public bool Released = false;
         public Way.Lib.NetStream NetClient;
-        public string[] WatchingPoints;
-        public string[] WatchingPointNames;
+        public List<string> WatchingPoints = new List<string>();
+        public List<string> WatchingPointNames = new List<string>();
         public SunRizServer.Device Device;
         public MyDriverClient(string addr, int port) : base(addr, port)
         {
 
         }
+    }
+
+    class PointAddrInfo
+    {
+        public string addr;
+        public int deviceId;
     }
 }

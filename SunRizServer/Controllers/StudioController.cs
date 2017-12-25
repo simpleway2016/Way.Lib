@@ -276,7 +276,19 @@ namespace SunRizServer.Controllers
         {
             return Guid.NewGuid().ToString("N");
         }
+        [RemotingMethod]
+        public Dictionary<string,object> GetPointAddrDetail(string pointname)
+        {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            var point = this.db.DevicePoint.Where(m => m.Name == pointname).Select(m=>new DevicePoint {
+                Address = m.Address ,
+                DeviceId = m.DeviceId
+            }).FirstOrDefault();
 
+            result["addr"] = point.Address;
+            result["deviceId"] = point.DeviceId;
+            return result;
+        }
         [RemotingMethod]
         public object GetPointDetails(string[] pointNames)
         {
