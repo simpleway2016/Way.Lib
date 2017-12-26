@@ -2599,13 +2599,9 @@ var GroupControl = (function (_super) {
                 this[proName + "_devPoint_max"] = point.max;
                 this[proName + "_devPoint_min"] = point.min;
                 this["_" + proName] = point.value;
-                var proPoint = {
-                    max: self[proName + "_devPoint_max"],
-                    min: self[proName + "_devPoint_min"],
-                    name: proName,
-                    value: point.value,
-                    isCustomProperty: true
-                };
+                var proPoint = JSON.parse(JSON.stringify(point));
+                proPoint.name = proName;
+                proPoint.isCustomProperty = true;
                 for (var i = 0; i < this.controls.length; i++) {
                     var control = this.controls[i];
                     this.onChildrenPointValueChanged(control, proPoint);

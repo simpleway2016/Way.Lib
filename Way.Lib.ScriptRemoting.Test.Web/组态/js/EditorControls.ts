@@ -2663,14 +2663,10 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 this["_" + proName] = point.value;
 
                 //传递自定义属性的变化
-                var proPoint = {
-                    max: self[proName + "_devPoint_max"],
-                    min: self[proName + "_devPoint_min"],
-                    name: proName,
-                    value: point.value,
-                    isCustomProperty: true
-                };
-
+                var proPoint = JSON.parse(JSON.stringify(point));
+                proPoint.name = proName;
+                proPoint.isCustomProperty = true;
+                
                 for (var i = 0; i < this.controls.length; i++) {
                     var control = this.controls[i];
                     this.onChildrenPointValueChanged(control, proPoint);

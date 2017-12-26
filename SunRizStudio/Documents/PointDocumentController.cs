@@ -249,9 +249,15 @@ namespace SunRizStudio.Documents
         /// <param name="closeOnSuccess">成功后是否关闭窗口</param>
         internal void saveToServer(bool closeOnSuccess)
         {
+           
             if (_pointModel.Name.IsBlank() || _pointModel.Desc.IsBlank())
             {
                 MessageBox.Show(MainWindow.Instance, "请输入点名和描述");
+                return;
+            }
+            if (_pointModel.Name.StartsWith("/") == false)
+            {
+                MessageBox.Show(MainWindow.Instance, "点名必须以“/”反斜杠为起始字符");
                 return;
             }
             _container.Cursor = Cursors.Hand;

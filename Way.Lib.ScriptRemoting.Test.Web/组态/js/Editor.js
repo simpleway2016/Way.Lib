@@ -657,6 +657,19 @@ var Editor = (function () {
             alert("请点击左上角设置图标，设置监视画面的编号");
             return;
         }
+        if (this.customProperties && this.customProperties.length > 0) {
+            var items = this.customProperties.split('\n');
+            var reg = /[\W]+/;
+            for (var i = 0; i < items.length; i++) {
+                var name = items[i].trim();
+                if (name.length > 0) {
+                    if (reg.exec(name)) {
+                        alert("自定义变量“" + name + "”包含特殊符合");
+                        return;
+                    }
+                }
+            }
+        }
         var scripts = "";
         var windowCodes = [];
         for (var i = 0; i < this.controls.length; i++) {
