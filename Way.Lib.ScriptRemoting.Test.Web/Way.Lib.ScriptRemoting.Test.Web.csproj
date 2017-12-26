@@ -56,6 +56,7 @@
     <Content Include="组态\images\browser\folder.png" />
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\buttonarea.png" />
+    <Content Include="组态\images\toolbox\code.png" />
     <Content Include="组态\images\toolbox\delete.png" />
     <Content Include="组态\images\toolbox\play.png" />
     <Content Include="组态\images\toolbox\redo.png" />

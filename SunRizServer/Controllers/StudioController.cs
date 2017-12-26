@@ -125,12 +125,23 @@ namespace SunRizServer.Controllers
         public string GetWindowCode(int windowid, string windowCode)
         {
             ControlWindow window = null;
-            if (windowCode != null)
+            if (!string.IsNullOrEmpty( windowCode))
                 window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
             var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
             return json;
+        }
+        [RemotingMethod]
+        public int WriteWindowCode(int windowid, string windowCode,string filecontent)
+        {
+            ControlWindow window = null;
+            if (windowCode != null)
+                window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
+            else
+                window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, filecontent, System.Text.Encoding.UTF8);
+            return 0;
         }
         [RemotingMethod]
         public ControlWindow GetWindowInfo(int windowid, string windowCode)

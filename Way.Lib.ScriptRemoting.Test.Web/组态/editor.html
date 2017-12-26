@@ -84,7 +84,9 @@
             </div>
             <div class="toolboxItem" title="保存(Ctrl+S)" onclick="editor.save(); " style="background-image:url(/images/toolbox/save.png);cursor:pointer;">
             </div>
-            <div class="toolboxItem" title="显示测量" onclick="rulerChange(this); " style="background-image:url(/images/toolbox/ruler.png);">
+            <div class="toolboxItem" title="显示测量" onclick="rulerChange(this); " style="background-image:url(/images/toolbox/ruler.png);cursor:pointer;">
+            </div>
+            <div class="toolboxItem" title="直接修改脚本" onclick="openCode(); " style="background-image:url(/images/toolbox/code.png);cursor:pointer;">
             </div>
             <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);" _type="ToolBox_Line">
             </div>
@@ -203,7 +205,12 @@
             }
         }
 
-        
+        function openCode() {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('openCode', true, true, "", origin, 1234, window, null);
+            document.dispatchEvent(event);
+        }
 
         function copyToClipboard(data) {
             var event = document.createEvent('MessageEvent');

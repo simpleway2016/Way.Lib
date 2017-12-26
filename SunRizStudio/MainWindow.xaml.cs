@@ -30,6 +30,14 @@ namespace SunRizStudio
             Instance = this;
             InitializeComponent();
 
+            try
+            {
+                System.IO.Directory.Delete($"{AppDomain.CurrentDomain.BaseDirectory}temp" , true);
+            }
+            catch
+            {
+
+            }
             // 加载树形节点
             initNodes();
             //new Form1().Show();

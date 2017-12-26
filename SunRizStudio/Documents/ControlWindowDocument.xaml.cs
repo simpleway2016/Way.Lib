@@ -32,6 +32,7 @@ namespace SunRizStudio.Documents
         AutoJSContext jsContext;
         bool closeAfterSave = false;
         Dictionary<string, PointAddrInfo> _PointAddress = new Dictionary<string, PointAddrInfo>();
+        List<System.IO.FileSystemWatcher> _FileWatchers = new List<System.IO.FileSystemWatcher>();
         /// <summary>
         /// 是否允许模式
         /// </summary>
@@ -83,6 +84,7 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("writePointValue", writePointValue);
             _gecko.AddMessageEventListener("go", go);
             _gecko.AddMessageEventListener("open", open);
+            _gecko.AddMessageEventListener("openCode", openCode);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -113,6 +115,36 @@ namespace SunRizStudio.Documents
 
             _gecko.Enabled = false;
             _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowCode={windowCode}");
+        }
+        //脚本直接编辑
+        void openCode(string p)
+        {
+            Helper.Remote.Invoke<string>("GetWindowCode", (fileContent, err) => {
+                if (err != null)
+                {
+                    MessageBox.Show(this.GetParentByName<Window>(null), err);
+                }
+                else
+                {
+                    if(System.IO.Directory.Exists($"{AppDomain.CurrentDomain.BaseDirectory}temp") == false)
+                    {
+                        System.IO.Directory.CreateDirectory($"{AppDomain.CurrentDomain.BaseDirectory}temp");
+                    }
+                    var filename = $"{ Guid.NewGuid().ToString("N") }.txt";
+                      var filepath = $"{AppDomain.CurrentDomain.BaseDirectory}temp\\{filename}";
+                    System.IO.File.WriteAllText(filepath, fileContent, System.Text.Encoding.UTF8);
+                    System.IO.FileSystemWatcher sw = new System.IO.FileSystemWatcher();
+                    sw.Path = System.IO.Path.GetDirectoryName( filepath);
+                    sw.Filter = filename;
+                    sw.NotifyFilter = System.IO.NotifyFilters.LastWrite;
+                    sw.Changed += (s, e) => 
+                    {
+
+                    };
+                    sw.EnableRaisingEvents = true;
+                    _FileWatchers.Add(sw);
+                }
+            }, _dataModel.id,"" );
         }
 
         /// <summary>
@@ -282,6 +314,12 @@ namespace SunRizStudio.Documents
             {
 
             }
+            foreach (var fw in _FileWatchers)
+            {
+                fw.EnableRaisingEvents = false;
+                fw.Dispose();
+            }
+            _FileWatchers.Clear();
 
             foreach (var client in _clients)
             {
