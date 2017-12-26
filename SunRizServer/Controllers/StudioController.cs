@@ -108,6 +108,19 @@ namespace SunRizServer.Controllers
             editorHtml = editorHtml.Replace("//code here", obj.Value<string>("editorScript") + "\r\n" + obj.Value<string>("controlsScript"));
             return editorHtml;
         }
+
+        [RemotingMethod]
+        public int DeleteControlWindowFolder(int folderid)
+        {
+            this.db.Delete(this.db.ControlWindowFolder.Where(m=>m.id == folderid));
+            return 0;
+        }
+        [RemotingMethod]
+        public int DeleteControlWindow(int id)
+        {
+            this.db.Delete(this.db.ControlWindow.Where(m => m.id == id));
+            return 0;
+        }
         [RemotingMethod]
         public string GetWindowCode(int windowid, string windowCode)
         {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SunRizStudio.Models.Nodes
@@ -15,7 +16,7 @@ namespace SunRizStudio.Models.Nodes
         internal int _folderId = 0;
         public ControlWindowContainerNode(int controlUnitId, SunRizServer.ControlWindowFolder folder)
         {
-           
+
             _controlUnitId = controlUnitId;
             _folderModel = folder;
             if (_folderModel != null)
@@ -42,13 +43,31 @@ namespace SunRizStudio.Models.Nodes
 
             });
 
-            if(_folderId != 0)
+            if (_folderId != 0)
             {
+                this.ContextMenuItems.Add(new ContextMenuItem()
+                {
+                    Text = "删除",
+                    ClickHandler = delClick,
+
+                });
                 this.DoublicClickHandler = doubleClick;
             }
         }
 
-        void doubleClick(object sender , RoutedEventArgs e)
+        void delClick(object sender, RoutedEventArgs e)
+        {
+            if( MessageBox.Show("确定删除吗？" , "" , MessageBoxButton.OKCancel , MessageBoxImage.Question) == MessageBoxResult.OK )
+            {
+                MainWindow.Instance.Cursor = Cursors.Hand;
+                Helper.Remote.Invoke<int>("DeleteControlWindowFolder", (ret, err) =>
+                {
+                    MainWindow.Instance.Cursor = null;
+                    this.Parent.Nodes.Remove(this);
+                }, _folderId);
+            }
+        }
+        void doubleClick(object sender, RoutedEventArgs e)
         {
             if (this._folderId != 0)
             {
@@ -80,7 +99,7 @@ namespace SunRizStudio.Models.Nodes
 
         void addWindowClick(object sender, RoutedEventArgs e)
         {
-            var doc = new Documents.ControlWindowDocument(this, null,false);
+            var doc = new Documents.ControlWindowDocument(this, null, false);
             MainWindow.Instance.SetActiveDocument(doc);
         }
 
@@ -90,7 +109,7 @@ namespace SunRizStudio.Models.Nodes
             inputbox.Owner = MainWindow.Instance;
             if (inputbox.ShowDialog() == true && !inputbox.Value.IsBlank())
             {
-                SunRizServer.ControlWindowFolder folder = new  SunRizServer.ControlWindowFolder();
+                SunRizServer.ControlWindowFolder folder = new SunRizServer.ControlWindowFolder();
                 folder.ParentId = _folderId;
                 folder.Name = inputbox.Value.Trim();
                 folder.ControlUnitId = _controlUnitId;
@@ -109,7 +128,7 @@ namespace SunRizStudio.Models.Nodes
                         folder.ChangedProperties.Clear();
 
                         //添加node对象
-                        var newNode =  new ControlWindowContainerNode( _controlUnitId ,  folder);
+                        var newNode = new ControlWindowContainerNode(_controlUnitId, folder);
                         this.Nodes.Insert(0, newNode);
                         this.IsExpanded = true;
                     }
@@ -120,7 +139,7 @@ namespace SunRizStudio.Models.Nodes
         public override void InitChildren()
         {
             this.Nodes.Add(new LoadingNode());
-            
+
         }
 
         /// <summary>
@@ -172,7 +191,7 @@ namespace SunRizStudio.Models.Nodes
                         this.Nodes.Add(newNode);
                     }
                 }
-            }, _controlUnitId , _folderId);
+            }, _controlUnitId, _folderId);
         }
     }
 }

@@ -8,7 +8,7 @@
         Title="MainWindow" Height="625" Width="1280">
     <DockPanel Background="#d6dbe9">
         <Menu Height="25" Margin="0,5,0,0" Background="#d6dbe9" DockPanel.Dock="Top">
-            <MenuItem Header="设置(_F)"></MenuItem>
+            <MenuItem Header="文件(_F)"></MenuItem>
         </Menu>
         <Grid DockPanel.Dock="Top">
             <Grid.RowDefinitions>
@@ -90,6 +90,22 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel x:Name="main_panel" ToolTip="{Binding ToolTip}" Orientation="Horizontal" Height="22">
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu IsEnabled="{Binding HasContextMenu}" ItemsSource="{Binding ContextMenuItems}">
+                                        <ContextMenu.ItemContainerStyle>
+                                            <Style TargetType="{x:Type MenuItem}">
+                                                <Setter Property="Header" Value="{Binding Text}"></Setter>
+                                                <Setter Property="Icon">
+                                                    <Setter.Value>
+                                                        <Image Source="{Binding Icon}"></Image>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <EventSetter Event="Click" Handler="NodeContextMenuItem_Click"></EventSetter>
+
+                                            </Style>
+                                        </ContextMenu.ItemContainerStyle>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
                                 <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
                                 <TextBlock x:Name="main_text" VerticalAlignment="Center" MaxWidth="100" Text="{Binding Text}"></TextBlock>
                             </StackPanel>

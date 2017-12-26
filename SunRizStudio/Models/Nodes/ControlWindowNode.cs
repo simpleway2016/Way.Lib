@@ -19,23 +19,52 @@ namespace SunRizStudio.Models.Nodes
             this.Text = _dataModel.Name + " " + _dataModel.Code;
             this.Icon = "/images/solution/window.png";
             this.DoublicClickHandler = (s,e) =>{
-                //先查看是否已经打开document，如果打开，则激活就可以
-                foreach(TabItem item in MainWindow.Instance.documentContainer.Items )
+                open();
+            };
+
+            this.ContextMenuItems.Add(new ContextMenuItem()
+            {
+                Text = "打开",
+                ClickHandler = (s,e)=> open(),
+
+            });
+            this.ContextMenuItems.Add(new ContextMenuItem()
+            {
+                Text = "删除",
+                ClickHandler = delClick,
+
+            });
+        }
+        void delClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("确定删除吗？", "", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+            {
+                MainWindow.Instance.Cursor = Cursors.Hand;
+                Helper.Remote.Invoke<int>("DeleteControlWindow", (ret, err) =>
                 {
-                    if(item.Content is Documents.ControlWindowDocument)
+                    MainWindow.Instance.Cursor = null;
+                    this.Parent.Nodes.Remove(this);
+                }, _dataModel.id);
+            }
+        }
+        void open()
+        {
+            //先查看是否已经打开document，如果打开，则激活就可以
+            foreach (TabItem item in MainWindow.Instance.documentContainer.Items)
+            {
+                if (item.Content is Documents.ControlWindowDocument)
+                {
+                    var document = item.Content as Documents.ControlWindowDocument;
+                    if (document.IsRunMode == false && document._dataModel.id == _dataModel.id)
                     {
-                        var document = item.Content as Documents.ControlWindowDocument;
-                        if(document.IsRunMode == false && document._dataModel.id == _dataModel.id)
-                        {
-                            //激活document
-                            MainWindow.Instance.documentContainer.SelectedItem = item;
-                            return;
-                        }
+                        //激活document
+                        MainWindow.Instance.documentContainer.SelectedItem = item;
+                        return;
                     }
                 }
-                var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, _dataModel,false);
-                MainWindow.Instance.SetActiveDocument(doc);
-            };
+            }
+            var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, _dataModel, false);
+            MainWindow.Instance.SetActiveDocument(doc);
         }
        
         private void _dataModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -55,9 +84,12 @@ namespace SunRizStudio.Models.Nodes
 
         public override void MouseDown(object sender, MouseButtonEventArgs e)
         {
-            FrameworkElement treeviewitem = sender as FrameworkElement;
-            DataObject data = new DataObject("Text", new { Type = "GroupControl", windowCode= _dataModel.Code }.ToJsonString());
-            DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                FrameworkElement treeviewitem = sender as FrameworkElement;
+                DataObject data = new DataObject("Text", new { Type = "GroupControl", windowCode = _dataModel.Code }.ToJsonString());
+                DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+            }
         }
     
     }
