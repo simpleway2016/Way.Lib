@@ -366,7 +366,7 @@
         function initAllDevicePoints()
         {
             devicePoints = [];
-            alert(JSON.stringify(WatchPointNames));
+
             remoting.server.GetPointDetails(WatchPointNames, function (ret, err) {
                 if (err)
                     alert(err);
