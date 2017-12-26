@@ -136,7 +136,7 @@ namespace SunRizServer.Controllers
         public int WriteWindowCode(int windowid, string windowCode,string filecontent)
         {
             ControlWindow window = null;
-            if (windowCode != null)
+            if (!string.IsNullOrEmpty(windowCode))
                 window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);

@@ -31,8 +31,11 @@ namespace SunRizStudio.Documents
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
         bool closeAfterSave = false;
+        List<System.Diagnostics.Process> _Processes = new List<System.Diagnostics.Process>();
         Dictionary<string, PointAddrInfo> _PointAddress = new Dictionary<string, PointAddrInfo>();
         List<System.IO.FileSystemWatcher> _FileWatchers = new List<System.IO.FileSystemWatcher>();
+        string _changedFilePath;
+        System.Threading.Thread _checkingFileContentThread;
         /// <summary>
         /// 是否允许模式
         /// </summary>
@@ -139,12 +142,73 @@ namespace SunRizStudio.Documents
                     sw.NotifyFilter = System.IO.NotifyFilters.LastWrite;
                     sw.Changed += (s, e) => 
                     {
-
+                        _changedFilePath = filepath;
                     };
                     sw.EnableRaisingEvents = true;
                     _FileWatchers.Add(sw);
+
+                   var process = System.Diagnostics.Process.Start("notepad.exe", filepath);
+                    _Processes.Add(process);
+                    //定义记事本关闭后的事件
+                    process.Exited += (s, e) => {
+                        try
+                        {
+                            sw.EnableRaisingEvents = false;
+                            sw.Dispose();
+                            _FileWatchers.Remove(sw);
+                        }
+                        catch { }
+                    };
+                    process.EnableRaisingEvents = true;
+                    if (_checkingFileContentThread == null)
+                    {
+                        _checkingFileContentThread = new Thread(checkFileContent);
+                        _checkingFileContentThread.Start();
+                    }
                 }
             }, _dataModel.id,"" );
+        }
+
+        void checkFileContent()
+        {
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    if(_changedFilePath != null)
+                    {
+                        string filecontent = null;
+                        while(filecontent == null)
+                        {
+                            try
+                            {
+                                filecontent = System.IO.File.ReadAllText(_changedFilePath, System.Text.Encoding.UTF8);
+                            }
+                            catch
+                            {
+                                Thread.Sleep(500);
+                            }
+                        }
+                        Helper.Remote.Invoke<int>("WriteWindowCode", (ret, err) => {
+                            if (err != null)
+                            {
+                                this.Dispatcher.Invoke(()=> {
+                                    MessageBox.Show(this.GetParentByName<Window>(null), err);
+                                });                                
+                            }
+                            else
+                            {
+                                _changedFilePath = null;
+                            }
+                        }, _dataModel.id, "", filecontent);
+                    }
+                }
+            }
+            catch
+            {
+
+            }
         }
 
         /// <summary>
@@ -320,6 +384,7 @@ namespace SunRizStudio.Documents
                 fw.Dispose();
             }
             _FileWatchers.Clear();
+            _checkingFileContentThread.Abort();
 
             foreach (var client in _clients)
             {
