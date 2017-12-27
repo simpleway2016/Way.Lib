@@ -384,7 +384,11 @@ namespace SunRizStudio.Documents
                 fw.Dispose();
             }
             _FileWatchers.Clear();
-            _checkingFileContentThread.Abort();
+            if (_checkingFileContentThread != null)
+            {
+                _checkingFileContentThread.Abort();
+                _checkingFileContentThread = null;
+            }
 
             foreach (var client in _clients)
             {
