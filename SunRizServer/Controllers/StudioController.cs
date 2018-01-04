@@ -340,6 +340,31 @@ namespace SunRizServer.Controllers
                     //AsTracking防止重复从数据库取值
                     var device = this.db.Device.AsTracking().FirstOrDefault(m => m.id == devPoint.DeviceId);
                     var unit = this.db.ControlUnit.AsTracking().FirstOrDefault(m => m.id == device.UnitId);
+                    var detail = new Dictionary<string, object>();
+                    detail["IsSquare"] = devPoint.IsSquare;
+                    detail["IsTransform"] = devPoint.IsTransform;
+                    detail["IsLinear"] = devPoint.IsLinear;
+                    detail["DPCount"] = devPoint.DPCount;
+                    if (devPoint.IsTransform == true)
+                    {
+                        detail["SensorMax"] = devPoint.SensorMax;
+                        detail["SensorMin"] = devPoint.SensorMin;
+                    }
+                    if (devPoint.IsLinear == true)
+                    {
+                        detail["LinearX1"] = devPoint.LinearX1;
+                        detail["LinearX2"] = devPoint.LinearX2;
+                        detail["LinearX3"] = devPoint.LinearX3;
+                        detail["LinearX4"] = devPoint.LinearX4;
+                        detail["LinearX5"] = devPoint.LinearX5;
+                        detail["LinearX6"] = devPoint.LinearX6;
+                        detail["LinearY1"] = devPoint.LinearY1;
+                        detail["LinearY2"] = devPoint.LinearY2;
+                        detail["LinearY3"] = devPoint.LinearY3;
+                        detail["LinearY4"] = devPoint.LinearY4;
+                        detail["LinearY5"] = devPoint.LinearY5;
+                        detail["LinearY6"] = devPoint.LinearY6;
+                    }
                     objs[i] = new
                     {
                         name = pointNames[i],
@@ -359,6 +384,7 @@ namespace SunRizServer.Controllers
                         colorLine10 = unit.LineColor10 ?? systemSetting.LineColor10,
                         colorLine11 = unit.LineColor11 ?? systemSetting.LineColor11,
                         colorLine12 = unit.LineColor12 ?? systemSetting.LineColor12,
+                        detail = detail
                     };
                 }
             }

@@ -56,6 +56,7 @@
     <Compile Include="CommandHandlers\ReadValueHandler.cs" />
     <Compile Include="CommandHandlers\WriteValueHandler.cs" />
     <Compile Include="Commands\Command.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="PointInfomation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerInfo.cs" />

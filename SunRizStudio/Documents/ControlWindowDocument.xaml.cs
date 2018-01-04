@@ -28,6 +28,7 @@ namespace SunRizStudio.Documents
         GeckoWebBrowser _gecko;
         ControlWindowContainerNode _parentNode;
         internal SunRizServer.ControlWindow _dataModel;
+        List<Newtonsoft.Json.Linq.JToken> _AllPoints = new List<Newtonsoft.Json.Linq.JToken>();
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
         bool closeAfterSave = false;
@@ -286,6 +287,13 @@ namespace SunRizStudio.Documents
 
                 if (client != null)
                 {
+                    var pointObj = _AllPoints.FirstOrDefault(m => m.Value<string>("addr") == addr);
+                    if (pointObj != null)
+                    {
+                        //转换数值
+                        value = SunRizDriver.Helper.GetRealValue(pointObj, value).ToString();
+                    }
+
                     if (client.WriteValue(client.Device.Address, addr, value) == false)
                     {
                         System.Windows.Forms.MessageBox.Show(_gecko, "写入值失败！");
@@ -322,6 +330,8 @@ namespace SunRizStudio.Documents
                                   }).ToArray();
                     foreach (var group in groups)
                     {
+                        _AllPoints.AddRange(group.points);
+
                         var device = Helper.Remote.InvokeSync<SunRizServer.Device>("GetDeviceAndDriver", group.deviceId);
 
                         var client = new MyDriverClient(device.Driver.Address, device.Driver.Port.Value);
@@ -406,6 +416,12 @@ namespace SunRizStudio.Documents
             {
                 try
                 {
+                    var pointObj = _AllPoints.FirstOrDefault(m => m.Value<string>("addr") == point);
+                    if(pointObj != null)
+                    {
+                        //转换数值
+                        value = SunRizDriver.Helper.Transform(pointObj, value);
+                    }
                     _gecko.Invoke(new ThreadStart(() =>
                     {
                         jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = point, value = value }).ToJsonString()})");
