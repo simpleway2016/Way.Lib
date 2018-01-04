@@ -368,6 +368,7 @@ namespace SunRizServer.Controllers
                     objs[i] = new
                     {
                         name = pointNames[i],
+                        isDigital = devPoint.Type == DevicePoint_TypeEnum.Digital,
                         max = devPoint.TransMax??unit.Max??systemSetting.Max,
                         min = devPoint.TransMin??unit.Min??systemSetting.Min,
                         addr = devPoint.Address,

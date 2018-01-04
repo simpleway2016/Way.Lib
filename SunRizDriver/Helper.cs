@@ -68,7 +68,19 @@ namespace SunRizDriver
             {
                 return objValue;
             }
+
+
             var detail = point["detail"];
+            var isDigital = point.Value<bool>("isDigital");
+            if(isDigital)
+            {
+                value = Convert.ToInt32(value);
+                if (value > 1)
+                    return 1;
+                else if (value < 0)
+                    return 0;
+                return value;
+            }
             var isTransform = detail.Value<bool>("IsTransform");
             var isLinear = detail.Value<bool>("IsLinear");
             var isSquare = detail.Value<bool>("IsSquare");
