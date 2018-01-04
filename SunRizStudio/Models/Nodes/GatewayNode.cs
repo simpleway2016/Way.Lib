@@ -30,11 +30,11 @@ namespace SunRizStudio.Models
             UpdateText();
         }
 
-        protected override void OnDoublicClick(object window, MouseButtonEventArgs e)
+        protected override void OnDoublicClick(object sender, MouseButtonEventArgs e)
         {
             var data = this.Gateway.Clone<CommunicationDriver>();
             Dialogs.GatewayDialog dialog = new Dialogs.GatewayDialog(data);
-            dialog.Owner = (Window)window;
+            dialog.Owner = ((FrameworkElement)sender).GetParentByName<Window>(null);
             dialog.Title = this.Text;
             if (dialog.ShowDialog() == true)
             {
