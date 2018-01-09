@@ -22,6 +22,60 @@ namespace SunRizStudio.Models.Nodes
             this.Icon = "/Images/solution/point.png";
             this.ShowInTree = false;
             this.DoublicClickHandler = doubleClick;
+
+            this.ContextMenuItems.Add(new ContextMenuItem() {
+                ClickHandler = (s,e)=>doubleClick(s,e),
+                Text = "属性"
+            });
+
+            this.ContextMenuItems.Add(new ContextMenuItem()
+            {
+                ClickHandler = (s, e) => transformTest(),
+                Text = "值转换测试..."
+            });
+        }
+
+        void transformTest()
+        {
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入初始值", "值转换测试");
+            frm.Owner = MainWindow.Instance;
+            if (frm.ShowDialog() == true)
+            {
+                if (!string.IsNullOrEmpty(frm.Value))
+                {
+                    var detail = new Newtonsoft.Json.Linq.JObject();
+                    detail["IsSquare"] = this._point.IsSquare.GetValueOrDefault();
+                    detail["IsTransform"] = this._point.IsTransform.GetValueOrDefault();
+                    detail["IsLinear"] = this._point.IsLinear.GetValueOrDefault();
+                    detail["DPCount"] = this._point.DPCount;
+                    if (this._point.IsTransform == true)
+                    {
+                        detail["SensorMax"] = this._point.SensorMax;
+                        detail["SensorMin"] = this._point.SensorMin;
+                    }
+                    if (this._point.IsLinear == true)
+                    {
+                        detail["LinearX1"] = this._point.LinearX1;
+                        detail["LinearX2"] = this._point.LinearX2;
+                        detail["LinearX3"] = this._point.LinearX3;
+                        detail["LinearX4"] = this._point.LinearX4;
+                        detail["LinearX5"] = this._point.LinearX5;
+                        detail["LinearX6"] = this._point.LinearX6;
+                        detail["LinearY1"] = this._point.LinearY1;
+                        detail["LinearY2"] = this._point.LinearY2;
+                        detail["LinearY3"] = this._point.LinearY3;
+                        detail["LinearY4"] = this._point.LinearY4;
+                        detail["LinearY5"] = this._point.LinearY5;
+                        detail["LinearY6"] = this._point.LinearY6;
+                    }
+                    var point = new Newtonsoft.Json.Linq.JObject();
+                    point["detail"] = detail;
+                    point["max"] = this._point.TransMax;
+                    point["min"] = this._point.TransMin;
+                    var value = SunRizDriver.Helper.Transform(point, frm.Value);
+                    MessageBox.Show(MainWindow.Instance, $"转换后的值为：{value}");
+                }
+            }
         }
 
         private void Point_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -72,9 +126,12 @@ namespace SunRizStudio.Models.Nodes
 
         public override void MouseDown(object sender, MouseButtonEventArgs e)
         {
-            FrameworkElement treeviewitem = sender as FrameworkElement;
-            DataObject data = new DataObject("Text", new { Type = "Point", Name = this._point.Name }.ToJsonString());
-            DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                FrameworkElement treeviewitem = sender as FrameworkElement;
+                DataObject data = new DataObject("Text", new { Type = "Point", Name = this._point.Name }.ToJsonString());
+                DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+            }
         }
     }
 }
