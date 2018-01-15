@@ -169,6 +169,7 @@
     </Compile>
     <Compile Include="GridHelper.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="LineConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -245,6 +246,8 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\Collapsed.png" />
+    <Resource Include="Images\expanded.png" />
     <Resource Include="Images\solution\users.png" />
     <Resource Include="Images\solution\system.png" />
     <Resource Include="Images\solution\setting.png" />
