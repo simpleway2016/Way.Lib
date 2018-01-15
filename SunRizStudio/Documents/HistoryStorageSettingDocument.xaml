@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="1900" d:DesignWidth="800"> 
     <Grid Background="White">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
             <StackPanel Orientation="Vertical">
                 <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
@@ -22,31 +22,31 @@
                         <RowDefinition Height="26"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
-                        <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                     </Grid>
                     <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
-                        <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                     </Grid>
 
-                    <TextBlock Text="历史文件存储路径" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                    <TextBlock Text="历史文件存储路径" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
                     <TextBox Padding="2,4,0,0" Background="{Binding AlarmStatusChangeColor,Mode=TwoWay}" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
                     <local:FolderSelectButton Content="..." Width="26" Height="20" Tag="{Binding AlarmStatusChangeColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="1" Grid.Column="1"></local:FolderSelectButton>
 
 
-                    <TextBlock Text="硬盘报警阀值(单位：G)" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                    <TextBlock Text="硬盘报警阀值(单位：G)" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
                     <TextBox Padding="2,4,0,0" Background="{Binding AlarmStatusChangeColor,Mode=TwoWay}" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
-
+                    <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                 </Grid>
 
             </StackPanel>
         </ScrollViewer>
 
-        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Margin="580,50,0,0">
-            <Button Content="确 定" x:Name="btnOK" Click="btnOK_Click" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="应 用" x:Name="btnApply" Click="btnApply_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="取 消" x:Name="btnCancel" Click="btnCancel_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Vertical" Margin="0,50,20,0">
+            <Button Content="确 定" x:Name="btnOK" Click="btnOK_Click" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="应 用" x:Name="btnApply" Click="btnApply_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="取 消" x:Name="btnCancel" Click="btnCancel_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
         </StackPanel>
     </Grid>
 </local:BaseDocument>

@@ -50,29 +50,29 @@
                                 <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
-                                <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
 
-                            <TextBlock Text="点名" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="点名" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding Name,Mode=TwoWay}"  BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="点描述" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="点描述" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding Desc,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="工程单位" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="工程单位" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
                             <ComboBox Padding="2,4,0,0" BorderThickness="0" Text="{Binding Unit,Mode=TwoWay}" Grid.Row="3" Grid.Column="1">
                                 <ComboBoxItem Content="mA"></ComboBoxItem>
                                 <ComboBoxItem Content="V"></ComboBoxItem>
                                 <ComboBoxItem Content="Pa"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="初始值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="初始值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding InitValue,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="小数点位数" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="小数点位数" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
                             <ComboBox Padding="2,4,0,0" Text="{Binding DPCount,Mode=TwoWay}" SelectedIndex="0" BorderThickness="0" Grid.Row="5" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -85,70 +85,70 @@
                             
                             <TextBlock Text="量程转换" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
 
-                            <TextBlock Text="量程转换开关" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="量程转换开关" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsTransform,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="7" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="量程上限" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="量程上限" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding TransMax,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="量程下限" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="9" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="量程下限" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="9" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding TransMin,Mode=TwoWay}" BorderThickness="0" Grid.Row="9" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="传感器量程上限" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="10" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="传感器量程上限" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="10" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding SensorMax,Mode=TwoWay}" BorderThickness="0" Grid.Row="10" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="传感器量程下限" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="11" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="传感器量程下限" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="11" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding SensorMin,Mode=TwoWay}" BorderThickness="0" Grid.Row="11" Grid.Column="1"></TextBox>
 
                            
 
                             <TextBlock Text="数据转换" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
                             
-                            <TextBlock Text="开平方" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="13" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="开平方" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="13" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsSquare,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="13" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="分段线性化" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="14" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="14" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsLinear,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="14" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="分段线性化X1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="15" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化X1" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="15" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding LinearX1,Mode=TwoWay}" BorderThickness="0" Grid.Row="15" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化Y1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="16" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化Y1" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="16" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding LinearY1,Mode=TwoWay}" BorderThickness="0" Grid.Row="16" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化X2" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="17" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化X2" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="17" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding LinearX2,Mode=TwoWay}" BorderThickness="0" Grid.Row="17" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化Y2" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="18" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化Y2" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="18" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding LinearY2,Mode=TwoWay}" BorderThickness="0" Grid.Row="18" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化X3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="19" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化X3" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="19" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearX3,Mode=TwoWay}" BorderThickness="0" Grid.Row="19" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化Y3" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="20" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化Y3" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="20" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearY3,Mode=TwoWay}"  BorderThickness="0" Grid.Row="20" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化X4" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="21" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化X4" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="21" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearX4,Mode=TwoWay}" BorderThickness="0" Grid.Row="21" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化Y4" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="22" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化Y4" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="22" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearY4,Mode=TwoWay}" BorderThickness="0" Grid.Row="22" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化X5" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="23" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化X5" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="23" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearX5,Mode=TwoWay}" BorderThickness="0" Grid.Row="23" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化Y5" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="24" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化Y5" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="24" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearY5,Mode=TwoWay}" BorderThickness="0" Grid.Row="24" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化X6" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="25" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化X6" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="25" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearX6,Mode=TwoWay}" BorderThickness="0" Grid.Row="25" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="分段线性化Y6" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="26" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="分段线性化Y6" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="26" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding LinearY6,Mode=TwoWay}" BorderThickness="0" Grid.Row="26" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="安全区配置" Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
                             
-                            <TextBlock Text="安全区" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="28" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="安全区" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="28" Grid.Column="0"></TextBlock>
                             <ComboBox  Text="{Binding SafeArea,Mode=TwoWay}" BorderThickness="0" Grid.Row="28" Grid.Column="1">
                                 <ComboBoxItem Content="A"></ComboBoxItem>
                                 <ComboBoxItem Content="B"></ComboBoxItem>
@@ -210,13 +210,13 @@
                                 <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="报警开关" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="报警开关" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarm,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="低报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="低报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPriority,Mode=TwoWay}" Grid.Row="2" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -228,10 +228,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="低低报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低低报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue2,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="低低报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低低报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPriority2,Mode=TwoWay}"  Grid.Row="4" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -243,10 +243,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="低3报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低3报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue3,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="低3报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低3报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPriority3,Mode=TwoWay}" Grid.Row="6" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -258,10 +258,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="低4报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低4报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmValue4,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="低4报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低4报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPriority4,Mode=TwoWay}" Grid.Row="8" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -273,10 +273,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="低5报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="9" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低5报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="9" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0"  Text="{Binding AlarmValue5,Mode=TwoWay}" BorderThickness="0" Grid.Row="9" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="低5报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="10" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="低5报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="10" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPriority5,Mode=TwoWay}" Grid.Row="10" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -288,10 +288,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="高报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="11" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="11" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding HiAlarmValue,Mode=TwoWay}" BorderThickness="0" Grid.Row="11" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="高报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="12" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="12" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding HiAlarmPriority,Mode=TwoWay}" Grid.Row="12" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -303,10 +303,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="高高报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="13" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高高报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="13" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding HiAlarmValue2,Mode=TwoWay}" BorderThickness="0" Grid.Row="13" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="高高报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="14" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高高报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="14" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding HiAlarmPriority2,Mode=TwoWay}" Grid.Row="14" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -318,10 +318,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="高3报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="15" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高3报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="15" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding HiAlarmValue3,Mode=TwoWay}" BorderThickness="0" Grid.Row="15" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="高3报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="16" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高3报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="16" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding HiAlarmPriority3,Mode=TwoWay}" Grid.Row="16" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -333,10 +333,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="高4报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="17" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高4报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="17" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding HiAlarmValue4,Mode=TwoWay}" BorderThickness="0" Grid.Row="17" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="高4报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="18" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高4报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="18" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding HiAlarmPriority4,Mode=TwoWay}" Grid.Row="18" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -348,10 +348,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="高5报报警值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="19" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高5报报警值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="19" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding HiAlarmValue5,Mode=TwoWay}" BorderThickness="0" Grid.Row="19" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="高5报优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="20" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="高5报优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="20" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding HiAlarmPriority5,Mode=TwoWay}" Grid.Row="20" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -363,10 +363,10 @@
                                 <ComboBoxItem Content="8"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="报警死区" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="21" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="报警死区" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="21" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" BorderThickness="0" Grid.Row="21" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="报警组" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="22" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="报警组" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="22" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmGroup,Mode=TwoWay}" Grid.Row="22" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -388,16 +388,16 @@
                             
                             <TextBlock Text="偏差报警" Grid.Row="23" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
 
-                            <TextBlock Text="偏差报警" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="24" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="偏差报警" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="24" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarmOffset,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="24" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="设定值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="25" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="设定值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="25" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmOffsetOriginalValue,Mode=TwoWay}" BorderThickness="0" Grid.Row="25" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="偏差值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="26" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="偏差值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="26" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding AlarmOffsetValue,Mode=TwoWay}" BorderThickness="0" Grid.Row="26" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="偏差报警优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="27" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="偏差报警优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="27" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmOffsetPriority,Mode=TwoWay}" Grid.Row="27" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -412,16 +412,16 @@
                         <TextBlock Text="变化率报警" Grid.Row="28" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
                       
 
-                            <TextBlock Text="变化率报警" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="29" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="变化率报警" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="29" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarmPercent,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="29" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="变化率值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="30" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="变化率值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="30" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding Percent,Mode=TwoWay}" BorderThickness="0" Grid.Row="30" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="变化率周期" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="31" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="变化率周期" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="31" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding ChangeCycle,Mode=TwoWay}" BorderThickness="0" Grid.Row="31" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="变化率报警优先级" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="32" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="变化率报警优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="32" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPercentPriority,Mode=TwoWay}" Grid.Row="32" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -436,10 +436,10 @@
                         <TextBlock Grid.Row="33" Grid.ColumnSpan="2" Text="" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
                         
 
-                            <TextBlock Text="报警自动确认" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="34" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="报警自动确认" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="34" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoConfirm,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="34" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="报警自动复位" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="35" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="报警自动复位" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="35" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoReset,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="35" Grid.Column="1"></CheckBox>
 
                             <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
@@ -460,10 +460,10 @@
                                 <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
-                                <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
                             <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
@@ -490,16 +490,16 @@
                                 <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
-                                <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
 
-                            <TextBlock Text="数据绝对变化保存" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据绝对变化保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueAbsoluteChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="数据绝对变化值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据绝对变化值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
                             <ComboBox Padding="2,4,0,0" Text="{Binding ValueAbsoluteChangeSetting,Mode=TwoWay}"  BorderThickness="0" Grid.Row="2" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -508,10 +508,10 @@
                                 <ComboBoxItem Content="5"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="数据相对变化保存" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据相对变化保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueRelativeChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="3" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="数据相对变化值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据相对变化值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
                             <ComboBox Padding="2,4,0,0" Text="{Binding ValueRelativeChangeSetting,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>
@@ -520,10 +520,10 @@
                                 <ComboBoxItem Content="5"></ComboBoxItem>
                             </ComboBox>
 
-                            <TextBlock Text="数据定时保存" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据定时保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueOnTimeChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="5" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="数据定时值" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据定时值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
                             <ComboBox Padding="2,4,0,0" Text="{Binding ValueOnTimeChangeSetting,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1">
                                 <ComboBoxItem Content="1"></ComboBoxItem>
                                 <ComboBoxItem Content="2"></ComboBoxItem>

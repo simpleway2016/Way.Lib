@@ -10,13 +10,13 @@
     <Grid>
         <TabControl>
             <TabItem Header="趋势窗口">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -27,43 +27,43 @@
                                 <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
-                                <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
 
-                            <TextBlock Text="默认量程上限" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="默认量程上限" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding Max,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="默认量程下限" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="默认量程下限" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding Min,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="窗口背景色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="窗口背景色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Background="{Binding WinBgColor,Mode=TwoWay}" Text="{Binding WinBgColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
                             <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding WinBgColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="窗口前景色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="窗口前景色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Background="{Binding WinFrontColor,Mode=TwoWay}" Text="{Binding WinFrontColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
                             <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding WinFrontColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
 
 
-                            <TextBlock Text="网格颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="网格颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Background="{Binding GridColor,Mode=TwoWay}" Text="{Binding GridColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
                             <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding GridColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"></local:ColorSelectButton>
-
+                            <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="点颜色">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="350"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -81,47 +81,65 @@
                                 <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="项目" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="1">
-                                <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
 
-                            <TextBlock Text="点1颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点1颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor1,Mode=TwoWay}" Text="{Binding LineColor1,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor1,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="1" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点2颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="点3颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点2颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor2,Mode=TwoWay}" Text="{Binding LineColor2,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor2,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点4颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="点5颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点3颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor3,Mode=TwoWay}" Text="{Binding LineColor3,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor3,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点6颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
 
-                            <TextBlock Text="点7颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点4颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor4,Mode=TwoWay}" Text="{Binding LineColor4,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor4,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="4" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点8颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
-                            
-                            <TextBlock Text="点9颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="9" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor9,Mode=TwoWay}" BorderThickness="0" Grid.Row="9" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点5颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor5,Mode=TwoWay}" Text="{Binding LineColor5,Mode=TwoWay}" BorderThickness="0" Grid.Row="5" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor5,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点10颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="10" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor10,Mode=TwoWay}" BorderThickness="0" Grid.Row="10" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点6颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor6,Mode=TwoWay}" Text="{Binding LineColor6,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor6,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="6" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点11颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="11" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor11,Mode=TwoWay}" BorderThickness="0" Grid.Row="11" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点7颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor7,Mode=TwoWay}" Text="{Binding LineColor7,Mode=TwoWay}" BorderThickness="0" Grid.Row="7" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor7,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="7" Grid.Column="1"></local:ColorSelectButton>
 
-                            <TextBlock Text="点12颜色" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="12" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding LineColor12,Mode=TwoWay}" BorderThickness="0" Grid.Row="12" Grid.Column="1"></TextBox>
+                            <TextBlock Text="点8颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="8" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor8,Mode=TwoWay}" Text="{Binding LineColor8,Mode=TwoWay}" BorderThickness="0" Grid.Row="8" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor8,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="8" Grid.Column="1"></local:ColorSelectButton>
+
+                            <TextBlock Text="点9颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="9" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor9,Mode=TwoWay}" Text="{Binding LineColor9,Mode=TwoWay}" BorderThickness="0" Grid.Row="9" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor9,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="9" Grid.Column="1"></local:ColorSelectButton>
+
+                            <TextBlock Text="点10颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="10" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor10,Mode=TwoWay}" Text="{Binding LineColor10,Mode=TwoWay}" BorderThickness="0" Grid.Row="10" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor10,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="10" Grid.Column="1"></local:ColorSelectButton>
+
+                            <TextBlock Text="点11颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="11" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor11,Mode=TwoWay}" Text="{Binding LineColor11,Mode=TwoWay}" BorderThickness="0" Grid.Row="11" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor11,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="11" Grid.Column="1"></local:ColorSelectButton>
+
+                            <TextBlock Text="点12颜色" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="12" Grid.Column="0"></TextBlock>
+                            <TextBox Padding="2,4,0,0" Background="{Binding LineColor12,Mode=TwoWay}" Text="{Binding LineColor12,Mode=TwoWay}" BorderThickness="0" Grid.Row="12" Grid.Column="1"></TextBox>
+                            <local:ColorSelectButton Content="..." Width="26" Height="20" Tag="{Binding LineColor12,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="12" Grid.Column="1"></local:ColorSelectButton>
+
+
+                            <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
@@ -129,11 +147,11 @@
           
         </TabControl>
 
-        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Margin="580,50,0,0">
-            <Button Content="确 定" x:Name="btnOK" Click="btnOK_Click" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="应 用" x:Name="btnApply" Click="btnApply_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="取 消" x:Name="btnCancel" Click="btnCancel_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Vertical" Margin="0,50,20,0">
+            <Button Content="确 定" x:Name="btnOK" Click="btnOK_Click" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="应 用" x:Name="btnApply" Click="btnApply_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="取 消" x:Name="btnCancel" Click="btnCancel_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
         </StackPanel>
     </Grid>
 </local:BaseDocument>

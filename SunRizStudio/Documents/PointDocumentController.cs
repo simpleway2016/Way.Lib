@@ -110,8 +110,9 @@ namespace SunRizStudio.Documents
 
             TextBlock label = new TextBlock();
             label.Text = name;
-            label.HorizontalAlignment = HorizontalAlignment.Center;
+            label.HorizontalAlignment = HorizontalAlignment.Left;
             label.VerticalAlignment = VerticalAlignment.Center;
+            label.Margin = new Thickness(5, 0, 0, 0);
             label.SetValue(Grid.RowProperty, rowNumber);
             label.SetValue(Grid.ColumnProperty, 0);
             _gridProperty.Children.Add(label);
