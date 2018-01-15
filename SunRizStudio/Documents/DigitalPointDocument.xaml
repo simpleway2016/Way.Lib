@@ -10,7 +10,7 @@
     <Grid>
         <TabControl>
             <TabItem Header="基础参数">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
@@ -19,6 +19,8 @@
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="26"></RowDefinition>
+                                <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -43,35 +45,27 @@
 
                             <TextBlock Text="关状态信息" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding StateCloseInfo,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>
-                        </Grid>
+                       
 
-                        <TextBlock Text="安全区配置" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
-                        <Grid Margin="0,0,0,20" gridHelper:GridHelper.ShowBorder="True"
-            gridHelper:GridHelper.GridLineBrush="#b4b1b1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="26"></RowDefinition>
-                            </Grid.RowDefinitions>
+                        <TextBlock Text="安全区配置" Grid.Row="5" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
+                       
 
-                            <TextBlock Text="安全区" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Text="{Binding SafeArea,Mode=TwoWay}" Grid.Row="0" Grid.Column="1">
+                            <TextBlock Text="安全区" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
+                            <ComboBox BorderThickness="0" Text="{Binding SafeArea,Mode=TwoWay}" Grid.Row="6" Grid.Column="1">
                                 <ComboBoxItem Content="A"></ComboBoxItem>
                                 <ComboBoxItem Content="B"></ComboBoxItem>
                                 <ComboBoxItem Content="C"></ComboBoxItem>
                                 <ComboBoxItem Content="D"></ComboBoxItem>
                             </ComboBox>
 
-
+                            <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
 
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="报警参数">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
@@ -80,6 +74,9 @@
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="26"></RowDefinition>
+                                <RowDefinition Height="26"></RowDefinition>
+                                <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
@@ -131,31 +128,22 @@
                                 <ComboBoxItem Content="15"></ComboBoxItem>
                                 <ComboBoxItem Content="16"></ComboBoxItem>
                             </ComboBox>
-                        </Grid>
 
-                        <TextBlock Text="" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
-                        <Grid gridHelper:GridHelper.ShowBorder="True"
-            gridHelper:GridHelper.GridLineBrush="#b4b1b1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="26"></RowDefinition>
-                                <RowDefinition Height="26"></RowDefinition>
-                            </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
 
-                            <TextBlock Text="报警自动确认" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoConfirm,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1"></CheckBox>
+                            <TextBlock Text="报警自动确认" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoConfirm,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="6" Grid.Column="1"></CheckBox>
 
-                            <TextBlock Text="报警自动复位" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoReset,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
+                            <TextBlock Text="报警自动复位" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="7" Grid.Column="0"></TextBlock>
+                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoReset,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="7" Grid.Column="1"></CheckBox>
+
+                            <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="数据连接">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
                     <StackPanel Orientation="Vertical">
                         <Grid x:Name="gridProperty" gridHelper:GridHelper.ShowBorder="True"
             gridHelper:GridHelper.GridLineBrush="#b4b1b1">
@@ -173,13 +161,14 @@
                                 <TextBlock Text="属性" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                             </Grid>
 
+                            <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
 
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="历史收集">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Left" Width="550">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,170,0">
                     <StackPanel Orientation="Vertical">
                         <Grid gridHelper:GridHelper.ShowBorder="True"
                 gridHelper:GridHelper.GridLineBrush="#b4b1b1">
@@ -238,6 +227,8 @@
                                 <ComboBoxItem Content="4"></ComboBoxItem>
                                 <ComboBoxItem Content="5"></ComboBoxItem>
                             </ComboBox>
+
+                            <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>
 
                     </StackPanel>
@@ -245,11 +236,11 @@
             </TabItem>
         </TabControl>
 
-        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Margin="580,50,0,0">
-            <Button Content="确 定" x:Name="btnOK" Click="btnOK_Click" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="应 用" x:Name="btnApply" Click="btnApply_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="取 消" x:Name="btnCancel" Click="btnCancel_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
-            <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#ffffff" Width="130" Height="40"></Button>
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Vertical" Margin="0,50,20,0">
+            <Button Content="确 定" x:Name="btnOK" Click="btnOK_Click" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="应 用" x:Name="btnApply" Click="btnApply_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="取 消" x:Name="btnCancel" Click="btnCancel_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
+            <Button Content="刷 新" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="0,20,0,0" Cursor="Hand" Background="#eeeaea" Width="130" Height="40"></Button>
         </StackPanel>
     </Grid>
 </local:BaseDocument>
