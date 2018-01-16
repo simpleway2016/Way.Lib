@@ -94,8 +94,8 @@ declare class Editor implements IEditorControlContainer {
     writeValue(pointName: any, addr: any, value: any): void;
     name: string;
     code: string;
-    private divContainer;
-    private svgContainer;
+    divContainer: HTMLElement;
+    svgContainer: SVGSVGElement;
     private currentToolBoxItem;
     private svgContainerMouseUpPosition;
     private beginedToolBoxItem;

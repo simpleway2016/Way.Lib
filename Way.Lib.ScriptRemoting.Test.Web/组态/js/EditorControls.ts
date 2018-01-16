@@ -1121,7 +1121,7 @@ class ImageControl extends RectControl {
 
 }
 
-class TextControl extends RectControl {
+class TextControl extends EditorControl {
     groupElement: SVGGElement;
     textElement: SVGTextElement;
     //选择状态下的边框
@@ -1213,11 +1213,11 @@ class TextControl extends RectControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","文字","大小","颜色","设备点","运行时允许输入值"];
+        return ["id","文字","大小","颜色","旋转角度","设备点","运行时允许输入值"];
     }
 
     getProperties(): string[] {
-        return ["id","text", "size", "colorFill", "devicePoint","canSetValue"];
+        return ["id","text", "size", "colorFill","rotate", "devicePoint","canSetValue"];
     }
 
     get rect() {
@@ -1225,12 +1225,15 @@ class TextControl extends RectControl {
         var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
 
         try {
-            var myrect: SVGRect = (<any>this.textElement).getBBox();
+            var clientRect = this.textElement.getBoundingClientRect();
+            //alert(clientRects.left + "," + clientRects.top + "," + clientRects.width + "," + clientRects.height);
+            //var myrect: SVGRect = (<any>this.groupElement).getBBox();
+
             return {
                 x: parseInt(result[1]),
                 y: parseInt(result[2]),
-                width: myrect.width,
-                height: myrect.height
+                width: clientRect.width,
+                height: clientRect.height
             };
         }
         catch (e)
@@ -1252,6 +1255,18 @@ class TextControl extends RectControl {
         this.resetPointLocation();
     }
 
+    get rotate()
+    {
+        var transform = this.textElement.getAttribute("transform");
+        var result = /rotate\(([0-9]+) /.exec(transform);
+        return parseInt(result[1]);
+    }
+    set rotate(v: any)
+    {
+        this.textElement.setAttribute("transform", "rotate(" + v + " 0,17)");
+        this.resetPointLocation();
+    }
+
     constructor() {
         super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
         this.groupElement = this.element;
@@ -1264,11 +1279,23 @@ class TextControl extends RectControl {
         this.textElement.setAttribute("y", "17");
         this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         this.textElement.setAttribute('font-size', "16");
+        this.textElement.setAttribute("transform", "rotate(0 0,17)");
+        this.rotate = 90;
+    }
+
+    isIntersectWith(rect): boolean {
+        var clientRect = this.textElement.getBoundingClientRect();
+        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+
+
+        return this.isIntersect(myrect, rect);
     }
 
     onSelectedChange() {
         if (this.selected) {
-            var myrect = this.rect;
+            var clientRect = this.textElement.getBoundingClientRect();
+            var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+
             this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
             this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
@@ -1278,10 +1305,10 @@ class TextControl extends RectControl {
             this.selectingElement.onmousedown = (e) => {
                 e.stopPropagation();
             };
-            this.rectElement.parentElement.appendChild(this.selectingElement);
+            this.groupElement.parentElement.appendChild(this.selectingElement);
         }
         else {
-            this.rectElement.parentElement.removeChild(this.selectingElement);
+            this.groupElement.parentElement.removeChild(this.selectingElement);
         }
     }
 
@@ -1289,7 +1316,9 @@ class TextControl extends RectControl {
         if (!this.selected)
             return;
 
-        var myrect = this.rect;
+        var clientRect = this.textElement.getBoundingClientRect();
+        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+
         this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
         this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
         this.selectingElement.setAttribute('width', <any>(myrect.width + 10));

@@ -170,7 +170,7 @@ declare class ImageControl extends RectControl {
     getProperties(): string[];
     constructor();
 }
-declare class TextControl extends RectControl {
+declare class TextControl extends EditorControl {
     groupElement: SVGGElement;
     textElement: SVGTextElement;
     selectingElement: SVGRectElement;
@@ -189,7 +189,9 @@ declare class TextControl extends RectControl {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     rect: any;
+    rotate: any;
     constructor();
+    isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
     resetPointLocation(): void;
     onBeginMoving(): void;

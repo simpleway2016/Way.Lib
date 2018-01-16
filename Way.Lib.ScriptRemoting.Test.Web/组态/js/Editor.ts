@@ -404,8 +404,8 @@ class Editor implements IEditorControlContainer
 
     name: string = "";
     code: string = "";
-    private divContainer: HTMLElement;
-    private svgContainer: SVGSVGElement;
+    divContainer: HTMLElement;
+    svgContainer: SVGSVGElement;
     private currentToolBoxItem: ToolBoxItem;
     private svgContainerMouseUpPosition: any;
     private beginedToolBoxItem: ToolBoxItem = null;

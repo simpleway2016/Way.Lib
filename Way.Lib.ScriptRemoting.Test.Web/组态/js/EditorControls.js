@@ -1037,6 +1037,8 @@ var TextControl = (function (_super) {
         _this.textElement.setAttribute("y", "17");
         _this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         _this.textElement.setAttribute('font-size', "16");
+        _this.textElement.setAttribute("transform", "rotate(0 0,17)");
+        _this.rotate = 90;
         return _this;
     }
     Object.defineProperty(TextControl.prototype, "text", {
@@ -1132,22 +1134,22 @@ var TextControl = (function (_super) {
         }
     };
     TextControl.prototype.getPropertiesCaption = function () {
-        return ["id", "文字", "大小", "颜色", "设备点", "运行时允许输入值"];
+        return ["id", "文字", "大小", "颜色", "旋转角度", "设备点", "运行时允许输入值"];
     };
     TextControl.prototype.getProperties = function () {
-        return ["id", "text", "size", "colorFill", "devicePoint", "canSetValue"];
+        return ["id", "text", "size", "colorFill", "rotate", "devicePoint", "canSetValue"];
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
             var transform = this.groupElement.getAttribute("transform");
             var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
             try {
-                var myrect = this.textElement.getBBox();
+                var clientRect = this.textElement.getBoundingClientRect();
                 return {
                     x: parseInt(result[1]),
                     y: parseInt(result[2]),
-                    width: myrect.width,
-                    height: myrect.height
+                    width: clientRect.width,
+                    height: clientRect.height
                 };
             }
             catch (e) {
@@ -1168,9 +1170,28 @@ var TextControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TextControl.prototype, "rotate", {
+        get: function () {
+            var transform = this.textElement.getAttribute("transform");
+            var result = /rotate\(([0-9]+) /.exec(transform);
+            return parseInt(result[1]);
+        },
+        set: function (v) {
+            this.textElement.setAttribute("transform", "rotate(" + v + " 0,17)");
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TextControl.prototype.isIntersectWith = function (rect) {
+        var clientRect = this.textElement.getBoundingClientRect();
+        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+        return this.isIntersect(myrect, rect);
+    };
     TextControl.prototype.onSelectedChange = function () {
         if (this.selected) {
-            var myrect = this.rect;
+            var clientRect = this.textElement.getBoundingClientRect();
+            var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
             this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             this.selectingElement.setAttribute('x', (myrect.x - 5));
             this.selectingElement.setAttribute('y', (myrect.y - 5));
@@ -1180,16 +1201,17 @@ var TextControl = (function (_super) {
             this.selectingElement.onmousedown = function (e) {
                 e.stopPropagation();
             };
-            this.rectElement.parentElement.appendChild(this.selectingElement);
+            this.groupElement.parentElement.appendChild(this.selectingElement);
         }
         else {
-            this.rectElement.parentElement.removeChild(this.selectingElement);
+            this.groupElement.parentElement.removeChild(this.selectingElement);
         }
     };
     TextControl.prototype.resetPointLocation = function () {
         if (!this.selected)
             return;
-        var myrect = this.rect;
+        var clientRect = this.textElement.getBoundingClientRect();
+        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
         this.selectingElement.setAttribute('x', (myrect.x - 5));
         this.selectingElement.setAttribute('y', (myrect.y - 5));
         this.selectingElement.setAttribute('width', (myrect.width + 10));
@@ -1211,7 +1233,7 @@ var TextControl = (function (_super) {
     TextControl.prototype.onEndMoving = function () {
     };
     return TextControl;
-}(RectControl));
+}(EditorControl));
 var CylinderControl = (function (_super) {
     __extends(CylinderControl, _super);
     function CylinderControl() {
