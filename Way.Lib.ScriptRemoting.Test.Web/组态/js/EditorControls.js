@@ -1024,12 +1024,17 @@ var ImageControl = (function (_super) {
 var TextControl = (function (_super) {
     __extends(TextControl, _super);
     function TextControl() {
-        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'text')) || this;
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
         _this._canSetValue = false;
         _this._devicePoint = "";
         _this._showedPrompt = false;
-        _this.textElement = _this.element;
+        _this.groupElement = _this.element;
+        _this.groupElement.setAttribute("transform", "translate(0 0) scale(1 1)");
+        _this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        _this.groupElement.appendChild(_this.textElement);
         _this.textElement.textContent = "Text";
+        _this.textElement.setAttribute("x", "0");
+        _this.textElement.setAttribute("y", "17");
         _this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         _this.textElement.setAttribute('font-size', "16");
         return _this;
@@ -1134,31 +1139,30 @@ var TextControl = (function (_super) {
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
+            var transform = this.groupElement.getAttribute("transform");
+            var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
             try {
                 var myrect = this.textElement.getBBox();
                 return {
-                    x: myrect.x,
-                    y: myrect.y,
+                    x: parseInt(result[1]),
+                    y: parseInt(result[2]),
                     width: myrect.width,
                     height: myrect.height
                 };
             }
             catch (e) {
                 return {
-                    x: parseInt(this.rectElement.getAttribute("x")),
-                    y: parseInt(this.rectElement.getAttribute("y")) - 17,
+                    x: parseInt(result[1]),
+                    y: parseInt(result[2]),
                     width: 0,
                     height: 0
                 };
             }
         },
         set: function (v) {
-            var y = parseInt(this.textElement.getAttribute("y"));
-            if (isNaN(y))
-                y = 0;
-            var more = 17;
-            this.rectElement.setAttribute("x", v.x);
-            this.rectElement.setAttribute("y", (v.y + more));
+            var x = v.x;
+            var y = v.y;
+            this.groupElement.setAttribute("transform", "translate(" + x + " " + y + ") scale(1 1)");
             this.resetPointLocation();
         },
         enumerable: true,
@@ -1190,6 +1194,21 @@ var TextControl = (function (_super) {
         this.selectingElement.setAttribute('y', (myrect.y - 5));
         this.selectingElement.setAttribute('width', (myrect.width + 10));
         this.selectingElement.setAttribute('height', (myrect.height + 10));
+    };
+    TextControl.prototype.onBeginMoving = function () {
+        var rect = this.rect;
+        this.groupElement._x = rect.x;
+        this.groupElement._y = rect.y;
+    };
+    TextControl.prototype.onMoving = function (downX, downY, nowX, nowY) {
+        var x = (this.groupElement._x + nowX - downX);
+        var y = (this.groupElement._y + nowY - downY);
+        this.rect = { x: x, y: y };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    };
+    TextControl.prototype.onEndMoving = function () {
     };
     return TextControl;
 }(RectControl));

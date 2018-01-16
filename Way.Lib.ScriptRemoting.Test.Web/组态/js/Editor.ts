@@ -220,8 +220,7 @@ class ToolBox_Text extends ToolBoxItem {
     begin(svgContainer: SVGSVGElement, position: any) {
         this.control = new TextControl();
 
-        this.control.element.setAttribute('x', position.x);
-        this.control.element.setAttribute('y', position.y);
+        this.control.rect = position;
        
         svgContainer.appendChild(this.control.element);
 

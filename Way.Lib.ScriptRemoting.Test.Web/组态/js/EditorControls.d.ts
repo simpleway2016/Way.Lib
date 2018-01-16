@@ -171,6 +171,7 @@ declare class ImageControl extends RectControl {
     constructor();
 }
 declare class TextControl extends RectControl {
+    groupElement: SVGGElement;
     textElement: SVGTextElement;
     selectingElement: SVGRectElement;
     text: string;
@@ -191,6 +192,9 @@ declare class TextControl extends RectControl {
     constructor();
     onSelectedChange(): void;
     resetPointLocation(): void;
+    onBeginMoving(): void;
+    onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
+    onEndMoving(): void;
 }
 declare class CylinderControl extends EditorControl {
     private _value;

@@ -193,8 +193,7 @@ var ToolBox_Text = (function (_super) {
     });
     ToolBox_Text.prototype.begin = function (svgContainer, position) {
         this.control = new TextControl();
-        this.control.element.setAttribute('x', position.x);
-        this.control.element.setAttribute('y', position.y);
+        this.control.rect = position;
         svgContainer.appendChild(this.control.element);
         this.control.element.onselectstart = function (e) { e.preventDefault(); e.cancelBubble = true; return false; };
         if (this.buildDone) {

@@ -1122,6 +1122,7 @@ class ImageControl extends RectControl {
 }
 
 class TextControl extends RectControl {
+    groupElement: SVGGElement;
     textElement: SVGTextElement;
     //选择状态下的边框
     selectingElement: SVGRectElement;
@@ -1220,11 +1221,14 @@ class TextControl extends RectControl {
     }
 
     get rect() {
+        var transform = this.groupElement.getAttribute("transform");
+        var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+
         try {
             var myrect: SVGRect = (<any>this.textElement).getBBox();
             return {
-                x: myrect.x,
-                y: myrect.y,
+                x: parseInt(result[1]),
+                y: parseInt(result[2]),
                 width: myrect.width,
                 height: myrect.height
             };
@@ -1232,35 +1236,32 @@ class TextControl extends RectControl {
         catch (e)
         {
             return {
-                x: parseInt(this.rectElement.getAttribute("x")),
-                y: parseInt(this.rectElement.getAttribute("y")) - 17,
+                x: parseInt(result[1]),
+                y: parseInt(result[2]),
                 width: 0,
                 height: 0
             };
         }
     }
     set rect(v: any) {
-        var y = parseInt(this.textElement.getAttribute("y"));
-        if (isNaN(y))
-            y = 0;
+        var x = v.x;
+        var y = v.y ;
 
-        //getBBox().y和this.textElement.getAttribute("y")不相同的，所以要加上y - otherY这个相差值
-        //var otherY = (<any>this.textElement).getBBox().y;        
-        //var more = y - otherY;
-
-        //getBBox()尽量避免使用，因为元素没有渲染之前，会报错
-        var more = 17;
-
-        this.rectElement.setAttribute("x", v.x);
-        this.rectElement.setAttribute("y", <any>(v.y + more));
+        this.groupElement.setAttribute("transform", "translate(" + x + " " + y +") scale(1 1)");
 
         this.resetPointLocation();
     }
 
     constructor() {
-        super(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
-        this.textElement = this.element;
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+        this.groupElement = this.element;
+        this.groupElement.setAttribute("transform", "translate(0 0) scale(1 1)");
+
+        this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        this.groupElement.appendChild(this.textElement);
         this.textElement.textContent = "Text";
+        this.textElement.setAttribute("x", "0");
+        this.textElement.setAttribute("y", "17");
         this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         this.textElement.setAttribute('font-size', "16");
     }
@@ -1295,6 +1296,22 @@ class TextControl extends RectControl {
         this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
     }   
 
+    onBeginMoving() {
+        var rect = this.rect;
+        (<any>this.groupElement)._x = rect.x;
+        (<any>this.groupElement)._y = rect.y;
+    }
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.groupElement)._x + nowX - downX);
+        var y = <any>((<any>this.groupElement)._y + nowY - downY);
+        this.rect = { x: x, y: y };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    }
+    onEndMoving() {
+
+    }
 }
 
 class CylinderControl extends EditorControl {
