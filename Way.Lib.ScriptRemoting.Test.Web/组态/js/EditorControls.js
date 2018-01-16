@@ -1133,10 +1133,10 @@ var TextControl = (function (_super) {
         }
     };
     TextControl.prototype.getPropertiesCaption = function () {
-        return ["id", "文字", "大小", "颜色", "旋转角度", "粗体", "斜体", "下划线", "设备点", "运行时允许输入值"];
+        return ["id", "文字", "大小", "颜色", "旋转角度", "字体", "粗体", "斜体", "下划线", "设备点", "运行时允许输入值"];
     };
     TextControl.prototype.getProperties = function () {
-        return ["id", "text", "size", "colorFill", "rotate", "isBold", "isItalic", "isUnderline", "devicePoint", "canSetValue"];
+        return ["id", "text", "size", "colorFill", "rotate", "fontFamily", "isBold", "isItalic", "isUnderline", "devicePoint", "canSetValue"];
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
@@ -1208,6 +1208,16 @@ var TextControl = (function (_super) {
         },
         set: function (v) {
             this.textElement.setAttribute("font-style", v ? "italic" : "");
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextControl.prototype, "fontFamily", {
+        get: function () {
+            return this.textElement.getAttribute("font-family");
+        },
+        set: function (v) {
+            this.textElement.setAttribute("font-family", v);
         },
         enumerable: true,
         configurable: true

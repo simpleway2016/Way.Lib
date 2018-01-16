@@ -60,6 +60,10 @@ var PropertyDialog = (function () {
                 }
                 cell.children[0]._picker = true;
             }
+            else if (pNames[i].indexOf("fontFamily") == 0) {
+                cell.innerHTML = "<select><option value=''></option><option value='黑体'>黑体</option><option value='宋体'>宋体</option><option value='新宋体'>新宋体</option><option value='仿宋'>仿宋</option><option value='楷体'>楷体</option><option value='雅黑'>雅黑</option></select>";
+                cell.children[0].value = value;
+            }
             else if (pNames[i].indexOf("can") == 0 || pNames[i].indexOf("is") == 0) {
                 captionCell.innerHTML = "&nbsp;";
                 var chknumber = PropertyDialog.CHKNumber++;
@@ -152,6 +156,13 @@ var PropertyDialog = (function () {
     };
     PropertyDialog.prototype.setInputEvent = function (input) {
         var _this = this;
+        if (input.tagName == "SELECT") {
+            input.addEventListener("change", function (e) {
+                _this.control[input._name] = input.value;
+                editor.changed = true;
+            }, false);
+            return;
+        }
         input.addEventListener("keydown", function (e) {
             e.stopPropagation();
         }, false);

@@ -1213,11 +1213,11 @@ class TextControl extends EditorControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","文字","大小","颜色","旋转角度","粗体","斜体","下划线","设备点","运行时允许输入值"];
+        return ["id", "文字", "大小", "颜色", "旋转角度", "字体","粗体","斜体","下划线","设备点","运行时允许输入值"];
     }
 
     getProperties(): string[] {
-        return ["id", "text", "size", "colorFill", "rotate", "isBold", "isItalic", "isUnderline", "devicePoint","canSetValue"];
+        return ["id", "text", "size", "colorFill", "rotate","fontFamily", "isBold", "isItalic", "isUnderline", "devicePoint","canSetValue"];
     }
 
     get rect() {
@@ -1284,6 +1284,13 @@ class TextControl extends EditorControl {
     }
     set isItalic(v: boolean) {
         this.textElement.setAttribute("font-style", v ? "italic" : "");
+    }
+
+    get fontFamily() {
+        return this.textElement.getAttribute("font-family");
+    }
+    set fontFamily(v: string) {
+        this.textElement.setAttribute("font-family", v );
     }
     constructor() {
         super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));

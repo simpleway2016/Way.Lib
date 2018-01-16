@@ -193,6 +193,7 @@ declare class TextControl extends EditorControl {
     isUnderline: boolean;
     isBold: boolean;
     isItalic: boolean;
+    fontFamily: string;
     constructor();
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
