@@ -1,4 +1,11 @@
-﻿
+﻿function rgb(r, g, b)
+{
+    return {
+        "r": r,
+        "g": g,
+        "b":b
+    };
+}
 class PropertyDialog
 {
     rootElement: HTMLElement;
@@ -64,14 +71,12 @@ class PropertyDialog
             cell.style.display = "table-cell";
             cell.style.paddingRight = "30px";
             if (pNames[i].indexOf("color") >= 0) {
-                cell.innerHTML = "<input type='text' class='jscolor'>";
-                var picker;
-                eval("picker = new jscolor(cell.children[0])");
-
-                (<any>cell.children[0])._picker = picker;
-                (<any>cell.children[0])._picker.hash = true;
-                (<any>cell.children[0])._picker.fromString(value);
-                (<any>cell.children[0]).value = (<any>cell.children[0])._picker.toHEXString();
+                cell.innerHTML = "<input type='text'>"; 
+                if (value.indexOf("rgb") >= 0)
+                {
+                    (<any>cell.children[0]).value = "#" + (<any>$).colpick.rgbToHex( eval(value));
+                }
+                (<any>cell.children[0])._picker = true;
             }
             else if (pNames[i].indexOf("can") == 0) {
                 captionCell.innerHTML = "&nbsp;";
@@ -192,10 +197,16 @@ class PropertyDialog
         }, false);
 
         if (input._picker) {
-            input.onchange = () => {
-                this.control[input._name] = input.value;
-                editor.changed = true;
-            };
+            input._control = this.control;
+            (<any>$(input)).colpick({
+                submit: 0,
+                color:input.value,
+                onChange: function (hsb, hex, rgb, el, bySetColor) {
+                    input.value = "#" + hex;
+                    el._control[input._name] = input.value;
+                    editor.changed = true;
+                }
+            });
         }
         else {
             input.changeFunc = () => {

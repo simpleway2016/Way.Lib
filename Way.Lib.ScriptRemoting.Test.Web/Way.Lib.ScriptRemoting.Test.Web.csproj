@@ -74,6 +74,9 @@
     <Content Include="组态\images\toolbox\setting.png" />
     <Content Include="组态\images\toolbox\text.png" />
     <Content Include="组态\images\toolbox\undo.png" />
+    <Content Include="组态\js\colpick\colpick.css" />
+    <Content Include="组态\js\colpick\colpick.js" />
+    <Content Include="组态\js\colpick\jquery.min.js" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
     <Content Include="组态\templates\main.html" />
