@@ -1280,13 +1280,11 @@ class TextControl extends EditorControl {
         this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         this.textElement.setAttribute('font-size', "16");
         this.textElement.setAttribute("transform", "rotate(0 0,17)");
-        this.rotate = 90;
     }
 
     isIntersectWith(rect): boolean {
         var clientRect = this.textElement.getBoundingClientRect();
         var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
-
 
         return this.isIntersect(myrect, rect);
     }

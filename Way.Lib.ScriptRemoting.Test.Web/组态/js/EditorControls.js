@@ -1038,7 +1038,6 @@ var TextControl = (function (_super) {
         _this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         _this.textElement.setAttribute('font-size', "16");
         _this.textElement.setAttribute("transform", "rotate(0 0,17)");
-        _this.rotate = 90;
         return _this;
     }
     Object.defineProperty(TextControl.prototype, "text", {
