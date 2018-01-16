@@ -1226,7 +1226,6 @@ class TextControl extends EditorControl {
 
         try {
             var clientRect = this.textElement.getBoundingClientRect();
-            //alert(clientRects.left + "," + clientRects.top + "," + clientRects.width + "," + clientRects.height);
             //var myrect: SVGRect = (<any>this.groupElement).getBBox();
 
             return {
