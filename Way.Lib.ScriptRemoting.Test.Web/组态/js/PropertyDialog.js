@@ -60,7 +60,7 @@ var PropertyDialog = (function () {
                 }
                 cell.children[0]._picker = true;
             }
-            else if (pNames[i].indexOf("can") == 0) {
+            else if (pNames[i].indexOf("can") == 0 || pNames[i].indexOf("is") == 0) {
                 captionCell.innerHTML = "&nbsp;";
                 var chknumber = PropertyDialog.CHKNumber++;
                 cell.innerHTML = "<input type='checkbox' id='chk" + chknumber + "'><label for='chk" + chknumber + "'>" + captions[i] + "</label>";

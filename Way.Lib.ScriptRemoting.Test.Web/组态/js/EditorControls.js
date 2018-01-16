@@ -1133,10 +1133,10 @@ var TextControl = (function (_super) {
         }
     };
     TextControl.prototype.getPropertiesCaption = function () {
-        return ["id", "文字", "大小", "颜色", "旋转角度", "设备点", "运行时允许输入值"];
+        return ["id", "文字", "大小", "颜色", "旋转角度", "粗体", "斜体", "下划线", "设备点", "运行时允许输入值"];
     };
     TextControl.prototype.getProperties = function () {
-        return ["id", "text", "size", "colorFill", "rotate", "devicePoint", "canSetValue"];
+        return ["id", "text", "size", "colorFill", "rotate", "isBold", "isItalic", "isUnderline", "devicePoint", "canSetValue"];
     };
     Object.defineProperty(TextControl.prototype, "rect", {
         get: function () {
@@ -1178,6 +1178,36 @@ var TextControl = (function (_super) {
         set: function (v) {
             this.textElement.setAttribute("transform", "rotate(" + v + " 0,17)");
             this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextControl.prototype, "isUnderline", {
+        get: function () {
+            return this.textElement.getAttribute("text-decoration") === "underline";
+        },
+        set: function (v) {
+            this.textElement.setAttribute("text-decoration", v ? "underline" : "");
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextControl.prototype, "isBold", {
+        get: function () {
+            return this.textElement.getAttribute("font-weight") === "900";
+        },
+        set: function (v) {
+            this.textElement.setAttribute("font-weight", v ? "900" : "");
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextControl.prototype, "isItalic", {
+        get: function () {
+            return this.textElement.getAttribute("font-style") === "italic";
+        },
+        set: function (v) {
+            this.textElement.setAttribute("font-style", v ? "italic" : "");
         },
         enumerable: true,
         configurable: true

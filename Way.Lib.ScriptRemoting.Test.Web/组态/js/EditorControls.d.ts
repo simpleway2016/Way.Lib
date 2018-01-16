@@ -190,6 +190,9 @@ declare class TextControl extends EditorControl {
     getProperties(): string[];
     rect: any;
     rotate: any;
+    isUnderline: boolean;
+    isBold: boolean;
+    isItalic: boolean;
     constructor();
     isIntersectWith(rect: any): boolean;
     onSelectedChange(): void;
