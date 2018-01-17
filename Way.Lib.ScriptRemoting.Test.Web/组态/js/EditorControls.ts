@@ -1053,6 +1053,43 @@ class CircleControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
+    onSelectedChange() {
+        if (this.selected) {
+           
+            //右角
+            var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height,
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height / 2 - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            
+
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.setEvent(this.pointEles[i]);
+            }
+
+            this.resetPointLocation();
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.element.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+        }
+    }
 
     onBeginMoving() {
         (<any>this.rootElement)._cx = parseInt(this.rootElement.getAttribute("cx"));

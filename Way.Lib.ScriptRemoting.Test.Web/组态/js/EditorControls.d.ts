@@ -138,6 +138,7 @@ declare class CircleControl extends EditorControl {
     getProperties(): string[];
     constructor();
     isIntersectWith(rect: any): boolean;
+    onSelectedChange(): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;

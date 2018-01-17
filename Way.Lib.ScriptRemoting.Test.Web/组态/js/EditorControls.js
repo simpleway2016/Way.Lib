@@ -969,6 +969,39 @@ var CircleControl = (function (_super) {
     CircleControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
+    CircleControl.prototype.onSelectedChange = function () {
+        var _this = this;
+        if (this.selected) {
+            var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height,
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x + rect.width - 3));
+                ele.setAttribute("y", (rect.y + rect.height / 2 - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.setEvent(this.pointEles[i]);
+            }
+            this.resetPointLocation();
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.element.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+        }
+    };
     CircleControl.prototype.onBeginMoving = function () {
         this.rootElement._cx = parseInt(this.rootElement.getAttribute("cx"));
         this.rootElement._cy = parseInt(this.rootElement.getAttribute("cy"));
