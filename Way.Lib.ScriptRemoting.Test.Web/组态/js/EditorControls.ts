@@ -17,6 +17,7 @@ class EditorControl
 {
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
+    pointEles: SVGElement[] = [];
     ctrlKey = false;
     isInGroup = false;
     lastSetValueTime: number = 0;
@@ -227,7 +228,7 @@ class EditorControl
 
     isIntersectWith(rect):boolean
     {
-        return false;
+        return this.isIntersect(this.rect, rect);
     }
 
     isIntersect(rect1, rect): boolean {
@@ -241,10 +242,236 @@ class EditorControl
         this.propertyDialog.show();
     }
 
-    onSelectedChange()
-    {
+    onSelectedChange() {
+        if (this.selected) {
 
+            //左上角
+            var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nwse-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x - 3));
+                ele.setAttribute("y", <any>(rect.y - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //上角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ns-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width / 2 - 3));
+                ele.setAttribute("y", <any>(rect.y - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //右上角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nesw-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //右角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height,
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height / 2 - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //右下角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nwse-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height + (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //下角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ns-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width,
+                    height: ele._value_rect.height + (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width / 2 - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //左下角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nesw-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height + (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //左角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height,
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height / 2 - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.setEvent(this.pointEles[i]);
+            }
+
+            this.resetPointLocation();
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.element.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+        }
     }
+
+    resetPointLocation() {
+        if (!this.selected)
+            return;
+        var rect = this.rect;
+        for (var i = 0; i < this.pointEles.length; i++) {
+            (<any>this.pointEles[i])._setLocation(this.pointEles[i], rect);
+        }
+    }
+
+    setEvent(pointEle) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
+    }
+
+    private undoObj: UndoMoveControls;
+    private movingPoint: boolean = false;
+    pointMouseDown(e: MouseEvent, pointEle) {
+        e.stopPropagation();
+        this.movingPoint = true;
+        pointEle._startX = e.clientX;
+        pointEle._startY = e.clientY;
+
+        pointEle._value_rect = this.rect;
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
+
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    pointMouseMove(e: MouseEvent, pointEle) {
+        if (this.movingPoint) {
+            e.stopPropagation();
+
+            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
+            this.resetPointLocation();
+        }
+    }
+    pointMouseUp(e: MouseEvent, pointEle) {
+        if (this.movingPoint) {
+            e.stopPropagation();
+            this.movingPoint = false;
+            pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
+        }
+    }
+
     onBeginMoving()
     {
 
@@ -264,8 +491,7 @@ class LineControl extends EditorControl
 {
     lineElement: SVGLineElement;
     virtualLineElement: SVGLineElement;
-    pointEles: SVGCircleElement[] = [];
-    moving: boolean = false;
+
     startX: number;
     startY: number;
     valueX: any;
@@ -386,6 +612,99 @@ class LineControl extends EditorControl
     }
 
 
+    onSelectedChange() {
+        if (this.selected) {
+            var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pointEle1.setAttribute("r", "5");
+            pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
+            (<any>pointEle1).xName = "x1";
+            (<any>pointEle1).yName = "y1";
+            this.lineElement.parentElement.appendChild(pointEle1);
+
+            var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pointEle2.setAttribute("r", "5");
+            pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
+            (<any>pointEle2).xName = "x2";
+            (<any>pointEle2).yName = "y2";
+            this.lineElement.parentElement.appendChild(pointEle2);
+
+            this.pointEles.push(pointEle1);
+            this.pointEles.push(pointEle2);
+
+            this.resetPointLocation();
+
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.mySetEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
+            }
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.lineElement.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+
+
+        }
+    }
+
+    resetPointLocation() {
+        if (!this.selected)
+            return;
+
+        this.pointEles[0].setAttribute("cx", <any>this.lineElement.x1.animVal.value);
+        this.pointEles[0].setAttribute("cy", <any>this.lineElement.y1.animVal.value);
+
+        this.pointEles[1].setAttribute("cx", <any>this.lineElement.x2.animVal.value);
+        this.pointEles[1].setAttribute("cy", <any>this.lineElement.y2.animVal.value);
+    }
+
+    mySetEvent(pointEle, xName, yName) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => { this._pointMouseDown(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mousemove", (e) => { this._pointMouseMove(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mouseup", (e) => { this._pointMouseUp(e, pointEle); }, false);
+    }
+
+    private _undoObj: UndoChangeLinePoint = null;
+
+    _pointMouseDown(e: MouseEvent, pointEle, xName: string, yName: string) {
+        e.stopPropagation();
+
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+        this.valueX = parseInt(this.lineElement.getAttribute(xName));
+        this.valueY = parseInt(this.lineElement.getAttribute(yName));
+
+        this._undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
+
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    _pointMouseMove(e: MouseEvent, pointEle, xName: string, yName: string) {
+        if (this._undoObj) {
+            e.stopPropagation();
+            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
+            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
+            this.lineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
+            this.lineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
+
+            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
+            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
+        }
+    }
+    _pointMouseUp(e: MouseEvent, pointEle) {
+        if (this._undoObj) {
+            e.stopPropagation();
+            pointEle.releaseCapture();
+
+            this._undoObj.moveFinish();
+            editor.undoMgr.addUndo(this._undoObj);
+            this._undoObj = null;
+        }
+    }
+
     onBeginMoving() {
         (<any>this.lineElement)._x1 = parseInt(this.lineElement.getAttribute("x1"));
         (<any>this.lineElement)._y1 = parseInt(this.lineElement.getAttribute("y1"));
@@ -418,107 +737,11 @@ class LineControl extends EditorControl
 
     }
 
-    onSelectedChange() {
-        if (this.selected)
-        {
-            var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle1.setAttribute("r", "5");
-            pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
-            (<any>pointEle1).xName = "x1";
-            (<any>pointEle1).yName = "y1";
-            this.lineElement.parentElement.appendChild(pointEle1);
-
-            var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle2.setAttribute("r", "5");
-            pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
-            (<any>pointEle2).xName = "x2";
-            (<any>pointEle2).yName = "y2";
-            this.lineElement.parentElement.appendChild(pointEle2);
-
-            this.pointEles.push(pointEle1);
-            this.pointEles.push(pointEle2);
-
-            this.resetPointLocation();
-
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.setEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
-            }
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++)
-            {
-                this.lineElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-
-            
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        this.pointEles[0].setAttribute("cx", <any>this.lineElement.x1.animVal.value);
-        this.pointEles[0].setAttribute("cy", <any>this.lineElement.y1.animVal.value);
-
-        this.pointEles[1].setAttribute("cx", <any>this.lineElement.x2.animVal.value);
-        this.pointEles[1].setAttribute("cy", <any>this.lineElement.y2.animVal.value);
-    }
-
-    setEvent(pointEle, xName, yName)
-    {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj : UndoChangeLinePoint;
-    pointMouseDown(e: MouseEvent, pointEle, xName: string, yName: string)
-    {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        this.valueX = parseInt(this.lineElement.getAttribute(xName));
-        this.valueY = parseInt(this.lineElement.getAttribute(yName));
-
-        this.undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle, xName: string, yName: string) {
-        if (this.moving) {
-            e.stopPropagation();
-            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
-            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
-            this.lineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
-            this.lineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
-
-            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
-            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
 }
 
 class RectControl extends EditorControl {
     rectElement: SVGGraphicsElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
 
@@ -606,82 +829,7 @@ class RectControl extends EditorControl {
     isIntersectWith(rect): boolean {
         return this.isIntersect(this.rect, rect);
     }
-
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation()
-    {
-        if (!this.selected)
-            return;
-
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
-
+    
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
         (<any>this.rectElement)._y = parseInt(this.rectElement.getAttribute("y"));
@@ -702,8 +850,7 @@ class RectControl extends EditorControl {
 
 class EllipseControl extends EditorControl {
     rootElement: SVGEllipseElement;
-    pointEles: SVGCircleElement[] =[];
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
 
@@ -794,99 +941,7 @@ class EllipseControl extends EditorControl {
 
         return this.isIntersect(this.rect, rect);
     }
-
-    onSelectedChange() {
-        if (this.selected) {
-
-            var pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pRightBottom.setAttribute("r", "5");
-            pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            (<any>pRightBottom)._moveFunc = (ele, x, y) => {
-                (<any>this.rootElement).setAttribute("rx",Math.max(5, ele._value_rx + (x - ele._startX)));
-                (<any>this.rootElement).setAttribute("ry", Math.max(5, ele._value_ry + (y - ele._startY)));
-            }
-            this.rootElement.parentElement.appendChild(pRightBottom);
-            this.pointEles.push(pRightBottom);
-
-            var pCenterBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pCenterBottom.setAttribute("r", "5");
-            pCenterBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ns-resize;');
-            (<any>pCenterBottom)._moveFunc = (ele, x, y) => {
-                (<any>this.rootElement).setAttribute("ry", Math.max(5, ele._value_ry + (y - ele._startY)));
-            }
-            this.rootElement.parentElement.appendChild(pCenterBottom);
-            this.pointEles.push(pCenterBottom);
-
-            for (var i = 0; i < this.pointEles.length; i++)
-            {
-                this.setEvent(this.pointEles[i]);
-            }
-            
-            this.resetPointLocation();
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.rootElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", <any>(this.rootElement.cx.animVal.value + this.rootElement.rx.animVal.value));
-        this.pointEles[0].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
-
-        this.pointEles[1].setAttribute("cx", <any>(this.rootElement.cx.animVal.value));
-        this.pointEles[1].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
-
-        pointEle._value_cx = this.rootElement.cx.animVal.value;
-        pointEle._value_cy = this.rootElement.cy.animVal.value;
-        pointEle._value_rx = this.rootElement.rx.animVal.value;
-        pointEle._value_ry = this.rootElement.ry.animVal.value;
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
+    
 
     onBeginMoving() {
         (<any>this.rootElement)._cx = parseInt(this.rootElement.getAttribute("cx"));
@@ -908,8 +963,7 @@ class EllipseControl extends EditorControl {
 
 class CircleControl extends EditorControl {
     rootElement: SVGCircleElement;
-    pointEles: SVGCircleElement[] = [];
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
 
@@ -997,84 +1051,6 @@ class CircleControl extends EditorControl {
     isIntersectWith(rect): boolean {
 
         return this.isIntersect(this.rect, rect);
-    }
-
-    onSelectedChange() {
-        if (this.selected) {
-
-            var pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pRightBottom.setAttribute("r", "5");
-            pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            (<any>pRightBottom)._moveFunc = (ele, x, y) => {
-                (<any>this.rootElement).setAttribute("r", Math.max(5, ele._value_r + (x - ele._startX)));
-            }
-            this.rootElement.parentElement.appendChild(pRightBottom);
-            this.pointEles.push(pRightBottom);
-
-
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.setEvent(this.pointEles[i]);
-            }
-
-            this.resetPointLocation();
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.rootElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", <any>(this.rootElement.cx.animVal.value + this.rootElement.r.animVal.value));
-        this.pointEles[0].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.r.animVal.value));
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
-
-        pointEle._value_cx = this.rootElement.cx.animVal.value;
-        pointEle._value_cy = this.rootElement.cy.animVal.value;
-        pointEle._value_r = this.rootElement.r.animVal.value;
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
     }
 
 
@@ -1434,8 +1410,6 @@ class CylinderControl extends EditorControl {
     rectElement: SVGRectElement;
     cylinderElement: SVGRectElement;
 
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
     startX = 0;
     startY = 0;
 
@@ -1530,85 +1504,6 @@ class CylinderControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            var width = Math.max(15, pointEle._valueWidth + (e.clientX - this.startX));
-            var height = Math.max(15, pointEle._valueHeight + (e.clientY - this.startY));
-            this.rect = {
-                x: pointEle._valueX,
-                y: pointEle._valueY,
-                width: width,
-                height: height
-            };
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
-
     onBeginMoving() {
         (<any>this.rectElement)._rect = this.rect;
     }
@@ -1630,7 +1525,6 @@ class CylinderControl extends EditorControl {
 
 class TrendControl extends EditorControl {
     rectElement: SVGRectElement;
-    pRightBottom: SVGCircleElement;
 
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
@@ -1989,7 +1883,6 @@ class TrendControl extends EditorControl {
     }
 
     running: boolean = false;
-    moving: boolean = false;
     startX = 0;
     startY = 0;
 
@@ -2145,22 +2038,7 @@ class TrendControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
+   
     //开始画趋势图,values表示已经有的变化值 value结构{ value:12 , time:1221212 }
     run()
     {
@@ -2263,70 +2141,7 @@ class TrendControl extends EditorControl {
             this["pathElement" + k].setAttribute("d", dataStr);
         }
     }
-
-    resetPointLocation() {
-        var rect = this.rect;
-        if (this.selected && this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-
-        this.line_left_Ele.setAttribute("x1", <any>(rect.x + 10));
-        this.line_left_Ele.setAttribute("y1", <any>(rect.y + 10));
-        this.line_left_Ele.setAttribute("x2", <any>(rect.x + 10));
-        this.line_left_Ele.setAttribute("y2", <any>(rect.y + rect.height - 10));
-
-        this.line_bottom_Ele.setAttribute("x1", <any>(rect.x + 10));
-        this.line_bottom_Ele.setAttribute("y1", <any>(rect.y + rect.height - 10));
-        this.line_bottom_Ele.setAttribute("x2", <any>(rect.x + rect.width - 10));
-        this.line_bottom_Ele.setAttribute("y2", <any>(rect.y + rect.height - 10));
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
+    
 
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
@@ -2351,8 +2166,6 @@ class TrendControl extends EditorControl {
 
 class ButtonAreaControl extends EditorControl {
     rectElement: SVGGraphicsElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
     startX = 0;
     startY = 0;
 
@@ -2452,79 +2265,6 @@ class ButtonAreaControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
 
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
@@ -2600,8 +2340,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
 
     groupElement: SVGGElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
     windowCode: any;
@@ -2888,86 +2627,6 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         editor.rect = rect;
         return editor;
     }
-
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.groupElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.groupElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        var rect = this.lastRect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        var rect = this.rect;
-        pointEle._x = rect.x;
-        pointEle._y = rect.y;
-        pointEle._width = rect.width;
-        pointEle._height = rect.height;
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            this.rect = {
-                x: pointEle._x,
-                y: pointEle._y,
-                width: Math.max(15, pointEle._width + (e.clientX - this.startX)),
-                height: Math.max(15, pointEle._height + (e.clientY - this.startY))
-            };
-
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
 
     onBeginMoving() {
         var rect = this.rect;

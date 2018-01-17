@@ -457,6 +457,9 @@ var Editor = (function () {
             else if (e.ctrlKey && e.keyCode == 83) {
                 _this.save();
             }
+            else if (e.keyCode == 46) {
+                _this.delete();
+            }
         }, false);
     }
     Editor.prototype.removeControl = function (ctrl) {

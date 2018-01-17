@@ -6,6 +6,7 @@ declare function documentElementMouseDown(e: MouseEvent): void;
 declare class EditorControl {
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
+    pointEles: SVGElement[];
     ctrlKey: boolean;
     isInGroup: boolean;
     lastSetValueTime: number;
@@ -35,6 +36,13 @@ declare class EditorControl {
     isIntersect(rect1: any, rect: any): boolean;
     showProperty(): void;
     onSelectedChange(): void;
+    resetPointLocation(): void;
+    setEvent(pointEle: any): void;
+    private undoObj;
+    private movingPoint;
+    pointMouseDown(e: MouseEvent, pointEle: any): void;
+    pointMouseMove(e: MouseEvent, pointEle: any): void;
+    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
@@ -42,8 +50,6 @@ declare class EditorControl {
 declare class LineControl extends EditorControl {
     lineElement: SVGLineElement;
     virtualLineElement: SVGLineElement;
-    pointEles: SVGCircleElement[];
-    moving: boolean;
     startX: number;
     startY: number;
     valueX: any;
@@ -62,21 +68,19 @@ declare class LineControl extends EditorControl {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     isIntersectWith(rect: any): boolean;
+    onSelectedChange(): void;
+    resetPointLocation(): void;
+    mySetEvent(pointEle: any, xName: any, yName: any): void;
+    private _undoObj;
+    _pointMouseDown(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
+    _pointMouseMove(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
+    _pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any, xName: any, yName: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
-    pointMouseMove(e: MouseEvent, pointEle: any, xName: string, yName: string): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
 }
 declare class RectControl extends EditorControl {
     rectElement: SVGGraphicsElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean;
     startX: number;
     startY: number;
     rect: any;
@@ -92,21 +96,12 @@ declare class RectControl extends EditorControl {
     getProperties(): string[];
     constructor(element: any);
     isIntersectWith(rect: any): boolean;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
 declare class EllipseControl extends EditorControl {
     rootElement: SVGEllipseElement;
-    pointEles: SVGCircleElement[];
-    moving: boolean;
     startX: number;
     startY: number;
     rect: any;
@@ -122,21 +117,12 @@ declare class EllipseControl extends EditorControl {
     getProperties(): string[];
     constructor();
     isIntersectWith(rect: any): boolean;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
 declare class CircleControl extends EditorControl {
     rootElement: SVGCircleElement;
-    pointEles: SVGCircleElement[];
-    moving: boolean;
     startX: number;
     startY: number;
     rect: any;
@@ -152,13 +138,6 @@ declare class CircleControl extends EditorControl {
     getProperties(): string[];
     constructor();
     isIntersectWith(rect: any): boolean;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
@@ -214,8 +193,6 @@ declare class CylinderControl extends EditorControl {
     onDevicePointValueChanged(devPoint: any): void;
     rectElement: SVGRectElement;
     cylinderElement: SVGRectElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean;
     startX: number;
     startY: number;
     rect: any;
@@ -228,20 +205,12 @@ declare class CylinderControl extends EditorControl {
     constructor();
     resetCylinder(rect: any): void;
     isIntersectWith(rect: any): boolean;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
 declare class TrendControl extends EditorControl {
     rectElement: SVGRectElement;
-    pRightBottom: SVGCircleElement;
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
     pathElement1: SVGPathElement;
@@ -322,7 +291,6 @@ declare class TrendControl extends EditorControl {
     devicePoint12: string;
     onDevicePointValueChanged(devPoint: any): void;
     running: boolean;
-    moving: boolean;
     startX: number;
     startY: number;
     rect: any;
@@ -344,24 +312,15 @@ declare class TrendControl extends EditorControl {
     getProperties(): string[];
     constructor();
     isIntersectWith(rect: any): boolean;
-    onSelectedChange(): void;
     run(): void;
     getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any;
     reDrawTrend(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
 declare class ButtonAreaControl extends EditorControl {
     rectElement: SVGGraphicsElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean;
     startX: number;
     startY: number;
     rect: any;
@@ -379,13 +338,6 @@ declare class ButtonAreaControl extends EditorControl {
     constructor();
     run(): void;
     isIntersectWith(rect: any): boolean;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
@@ -396,8 +348,6 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     addControl(ctrl: EditorControl): void;
     writeValue(pointName: any, addr: any, value: any): void;
     groupElement: SVGGElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean;
     startX: number;
     startY: number;
     windowCode: any;
@@ -424,13 +374,6 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     private getFuncForCustomProperty(self, name);
     private setFuncForCustomProperty(self, name);
     createGroupControl(windowCode: any, rect: any): GroupControl;
-    onSelectedChange(): void;
-    resetPointLocation(): void;
-    setEvent(pointEle: any): void;
-    private undoObj;
-    pointMouseDown(e: MouseEvent, pointEle: any): void;
-    pointMouseMove(e: MouseEvent, pointEle: any): void;
-    pointMouseUp(e: MouseEvent, pointEle: any): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;

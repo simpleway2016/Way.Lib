@@ -663,6 +663,9 @@ class Editor implements IEditorControlContainer
             else if (e.ctrlKey && e.keyCode == 83) {
                 this.save();
             }
+            else if (e.keyCode == 46) {
+                this.delete();
+            }
         }, false);
     }
 

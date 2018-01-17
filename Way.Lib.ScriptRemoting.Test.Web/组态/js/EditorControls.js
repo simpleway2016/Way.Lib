@@ -17,6 +17,7 @@ document.documentElement.addEventListener("mousedown", documentElementMouseDown,
 var EditorControl = (function () {
     function EditorControl(element) {
         var _this = this;
+        this.pointEles = [];
         this.ctrlKey = false;
         this.isInGroup = false;
         this.lastSetValueTime = 0;
@@ -24,6 +25,7 @@ var EditorControl = (function () {
         this.isDesignMode = true;
         this._selected = false;
         this._moveAllSelectedControl = false;
+        this.movingPoint = false;
         this.element = element;
         element._editorControl = this;
         this.element.addEventListener("dragstart", function (e) {
@@ -185,7 +187,7 @@ var EditorControl = (function () {
         return script;
     };
     EditorControl.prototype.isIntersectWith = function (rect) {
-        return false;
+        return this.isIntersect(this.rect, rect);
     };
     EditorControl.prototype.isIntersect = function (rect1, rect) {
         return rect.x < rect1.x + rect1.width && rect1.x < rect.x + rect.width && rect.y < rect1.y + rect1.height && rect1.y < rect.y + rect.height;
@@ -196,6 +198,206 @@ var EditorControl = (function () {
         this.propertyDialog.show();
     };
     EditorControl.prototype.onSelectedChange = function () {
+        var _this = this;
+        if (this.selected) {
+            var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nwse-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x - 3));
+                ele.setAttribute("y", (rect.y - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ns-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x + rect.width / 2 - 3));
+                ele.setAttribute("y", (rect.y - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nesw-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x + rect.width - 3));
+                ele.setAttribute("y", (rect.y - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height,
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x + rect.width - 3));
+                ele.setAttribute("y", (rect.y + rect.height / 2 - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nwse-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height + (y - ele._startY),
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x + rect.width - 3));
+                ele.setAttribute("y", (rect.y + rect.height - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ns-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width,
+                    height: ele._value_rect.height + (y - ele._startY),
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x + rect.width / 2 - 3));
+                ele.setAttribute("y", (rect.y + rect.height - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nesw-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height + (y - ele._startY),
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x - 3));
+                ele.setAttribute("y", (rect.y + rect.height - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            pointEle._moveFunc = function (ele, x, y) {
+                _this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height,
+                };
+            };
+            pointEle._setLocation = function (ele, rect) {
+                ele.setAttribute("x", (rect.x - 3));
+                ele.setAttribute("y", (rect.y + rect.height / 2 - 3));
+            };
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.setEvent(this.pointEles[i]);
+            }
+            this.resetPointLocation();
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.element.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+        }
+    };
+    EditorControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
+        var rect = this.rect;
+        for (var i = 0; i < this.pointEles.length; i++) {
+            this.pointEles[i]._setLocation(this.pointEles[i], rect);
+        }
+    };
+    EditorControl.prototype.setEvent = function (pointEle) {
+        var _this = this;
+        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
+    };
+    EditorControl.prototype.pointMouseDown = function (e, pointEle) {
+        e.stopPropagation();
+        this.movingPoint = true;
+        pointEle._startX = e.clientX;
+        pointEle._startY = e.clientY;
+        pointEle._value_rect = this.rect;
+        this.undoObj = new UndoMoveControls(editor, [this]);
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+    };
+    EditorControl.prototype.pointMouseMove = function (e, pointEle) {
+        if (this.movingPoint) {
+            e.stopPropagation();
+            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
+            this.resetPointLocation();
+        }
+    };
+    EditorControl.prototype.pointMouseUp = function (e, pointEle) {
+        if (this.movingPoint) {
+            e.stopPropagation();
+            this.movingPoint = false;
+            pointEle.releaseCapture();
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
+        }
     };
     EditorControl.prototype.onBeginMoving = function () {
     };
@@ -209,8 +411,7 @@ var LineControl = (function (_super) {
     __extends(LineControl, _super);
     function LineControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
-        _this.pointEles = [];
-        _this.moving = false;
+        _this._undoObj = null;
         _this.lineElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         _this.element.appendChild(_this.lineElement);
         _this.lineElement.setAttribute('style', 'stroke:#aaaaaa;stroke-width:5;');
@@ -319,6 +520,81 @@ var LineControl = (function (_super) {
         var myrect = this.rect;
         return this.isIntersect(myrect, rect);
     };
+    LineControl.prototype.onSelectedChange = function () {
+        if (this.selected) {
+            var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pointEle1.setAttribute("r", "5");
+            pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
+            pointEle1.xName = "x1";
+            pointEle1.yName = "y1";
+            this.lineElement.parentElement.appendChild(pointEle1);
+            var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pointEle2.setAttribute("r", "5");
+            pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
+            pointEle2.xName = "x2";
+            pointEle2.yName = "y2";
+            this.lineElement.parentElement.appendChild(pointEle2);
+            this.pointEles.push(pointEle1);
+            this.pointEles.push(pointEle2);
+            this.resetPointLocation();
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.mySetEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
+            }
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.lineElement.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+        }
+    };
+    LineControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
+        this.pointEles[0].setAttribute("cx", this.lineElement.x1.animVal.value);
+        this.pointEles[0].setAttribute("cy", this.lineElement.y1.animVal.value);
+        this.pointEles[1].setAttribute("cx", this.lineElement.x2.animVal.value);
+        this.pointEles[1].setAttribute("cy", this.lineElement.y2.animVal.value);
+    };
+    LineControl.prototype.mySetEvent = function (pointEle, xName, yName) {
+        var _this = this;
+        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", function (e) { _this._pointMouseDown(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mousemove", function (e) { _this._pointMouseMove(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mouseup", function (e) { _this._pointMouseUp(e, pointEle); }, false);
+    };
+    LineControl.prototype._pointMouseDown = function (e, pointEle, xName, yName) {
+        e.stopPropagation();
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+        this.valueX = parseInt(this.lineElement.getAttribute(xName));
+        this.valueY = parseInt(this.lineElement.getAttribute(yName));
+        this._undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+    };
+    LineControl.prototype._pointMouseMove = function (e, pointEle, xName, yName) {
+        if (this._undoObj) {
+            e.stopPropagation();
+            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
+            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
+            this.lineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
+            this.lineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
+            this.virtualLineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
+            this.virtualLineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
+        }
+    };
+    LineControl.prototype._pointMouseUp = function (e, pointEle) {
+        if (this._undoObj) {
+            e.stopPropagation();
+            pointEle.releaseCapture();
+            this._undoObj.moveFinish();
+            editor.undoMgr.addUndo(this._undoObj);
+            this._undoObj = null;
+        }
+    };
     LineControl.prototype.onBeginMoving = function () {
         this.lineElement._x1 = parseInt(this.lineElement.getAttribute("x1"));
         this.lineElement._y1 = parseInt(this.lineElement.getAttribute("y1"));
@@ -347,89 +623,12 @@ var LineControl = (function (_super) {
     };
     LineControl.prototype.onEndMoving = function () {
     };
-    LineControl.prototype.onSelectedChange = function () {
-        if (this.selected) {
-            var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle1.setAttribute("r", "5");
-            pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
-            pointEle1.xName = "x1";
-            pointEle1.yName = "y1";
-            this.lineElement.parentElement.appendChild(pointEle1);
-            var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle2.setAttribute("r", "5");
-            pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
-            pointEle2.xName = "x2";
-            pointEle2.yName = "y2";
-            this.lineElement.parentElement.appendChild(pointEle2);
-            this.pointEles.push(pointEle1);
-            this.pointEles.push(pointEle2);
-            this.resetPointLocation();
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.setEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
-            }
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.lineElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-        }
-    };
-    LineControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", this.lineElement.x1.animVal.value);
-        this.pointEles[0].setAttribute("cy", this.lineElement.y1.animVal.value);
-        this.pointEles[1].setAttribute("cx", this.lineElement.x2.animVal.value);
-        this.pointEles[1].setAttribute("cy", this.lineElement.y2.animVal.value);
-    };
-    LineControl.prototype.setEvent = function (pointEle, xName, yName) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    LineControl.prototype.pointMouseDown = function (e, pointEle, xName, yName) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        this.valueX = parseInt(this.lineElement.getAttribute(xName));
-        this.valueY = parseInt(this.lineElement.getAttribute(yName));
-        this.undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    LineControl.prototype.pointMouseMove = function (e, pointEle, xName, yName) {
-        if (this.moving) {
-            e.stopPropagation();
-            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
-            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
-            this.lineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
-            this.lineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
-            this.virtualLineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
-            this.virtualLineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
-        }
-    };
-    LineControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    };
     return LineControl;
 }(EditorControl));
 var RectControl = (function (_super) {
     __extends(RectControl, _super);
     function RectControl(element) {
         var _this = _super.call(this, element ? element : document.createElementNS('http://www.w3.org/2000/svg', 'rect')) || this;
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this._devicePoint = "";
@@ -528,67 +727,6 @@ var RectControl = (function (_super) {
     RectControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
-    RectControl.prototype.onSelectedChange = function () {
-        if (this.selected) {
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    };
-    RectControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
-        }
-    };
-    RectControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    RectControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    RectControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.rectElement.setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            this.rectElement.setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    };
-    RectControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    };
     RectControl.prototype.onBeginMoving = function () {
         this.rectElement._x = parseInt(this.rectElement.getAttribute("x"));
         this.rectElement._y = parseInt(this.rectElement.getAttribute("y"));
@@ -610,8 +748,6 @@ var EllipseControl = (function (_super) {
     __extends(EllipseControl, _super);
     function EllipseControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'ellipse')) || this;
-        _this.pointEles = [];
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this._devicePoint = "";
@@ -713,84 +849,6 @@ var EllipseControl = (function (_super) {
     EllipseControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
-    EllipseControl.prototype.onSelectedChange = function () {
-        var _this = this;
-        if (this.selected) {
-            var pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pRightBottom.setAttribute("r", "5");
-            pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            pRightBottom._moveFunc = function (ele, x, y) {
-                _this.rootElement.setAttribute("rx", Math.max(5, ele._value_rx + (x - ele._startX)));
-                _this.rootElement.setAttribute("ry", Math.max(5, ele._value_ry + (y - ele._startY)));
-            };
-            this.rootElement.parentElement.appendChild(pRightBottom);
-            this.pointEles.push(pRightBottom);
-            var pCenterBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pCenterBottom.setAttribute("r", "5");
-            pCenterBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ns-resize;');
-            pCenterBottom._moveFunc = function (ele, x, y) {
-                _this.rootElement.setAttribute("ry", Math.max(5, ele._value_ry + (y - ele._startY)));
-            };
-            this.rootElement.parentElement.appendChild(pCenterBottom);
-            this.pointEles.push(pCenterBottom);
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.setEvent(this.pointEles[i]);
-            }
-            this.resetPointLocation();
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.rootElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-        }
-    };
-    EllipseControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", (this.rootElement.cx.animVal.value + this.rootElement.rx.animVal.value));
-        this.pointEles[0].setAttribute("cy", (this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
-        this.pointEles[1].setAttribute("cx", (this.rootElement.cx.animVal.value));
-        this.pointEles[1].setAttribute("cy", (this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
-    };
-    EllipseControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    EllipseControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
-        pointEle._value_cx = this.rootElement.cx.animVal.value;
-        pointEle._value_cy = this.rootElement.cy.animVal.value;
-        pointEle._value_rx = this.rootElement.rx.animVal.value;
-        pointEle._value_ry = this.rootElement.ry.animVal.value;
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    EllipseControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
-            this.resetPointLocation();
-        }
-    };
-    EllipseControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    };
     EllipseControl.prototype.onBeginMoving = function () {
         this.rootElement._cx = parseInt(this.rootElement.getAttribute("cx"));
         this.rootElement._cy = parseInt(this.rootElement.getAttribute("cy"));
@@ -812,8 +870,6 @@ var CircleControl = (function (_super) {
     __extends(CircleControl, _super);
     function CircleControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'circle')) || this;
-        _this.pointEles = [];
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this._devicePoint = "";
@@ -912,72 +968,6 @@ var CircleControl = (function (_super) {
     };
     CircleControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
-    };
-    CircleControl.prototype.onSelectedChange = function () {
-        var _this = this;
-        if (this.selected) {
-            var pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pRightBottom.setAttribute("r", "5");
-            pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            pRightBottom._moveFunc = function (ele, x, y) {
-                _this.rootElement.setAttribute("r", Math.max(5, ele._value_r + (x - ele._startX)));
-            };
-            this.rootElement.parentElement.appendChild(pRightBottom);
-            this.pointEles.push(pRightBottom);
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.setEvent(this.pointEles[i]);
-            }
-            this.resetPointLocation();
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.rootElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-        }
-    };
-    CircleControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", (this.rootElement.cx.animVal.value + this.rootElement.r.animVal.value));
-        this.pointEles[0].setAttribute("cy", (this.rootElement.cy.animVal.value + this.rootElement.r.animVal.value));
-    };
-    CircleControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    CircleControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
-        pointEle._value_cx = this.rootElement.cx.animVal.value;
-        pointEle._value_cy = this.rootElement.cy.animVal.value;
-        pointEle._value_r = this.rootElement.r.animVal.value;
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    CircleControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
-            this.resetPointLocation();
-        }
-    };
-    CircleControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
     };
     CircleControl.prototype.onBeginMoving = function () {
         this.rootElement._cx = parseInt(this.rootElement.getAttribute("cx"));
@@ -1281,7 +1271,6 @@ var CylinderControl = (function (_super) {
         _this._max = 100;
         _this._min = 0;
         _this._devicePoint = "";
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -1446,73 +1435,6 @@ var CylinderControl = (function (_super) {
     CylinderControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
-    CylinderControl.prototype.onSelectedChange = function () {
-        if (this.selected) {
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    };
-    CylinderControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
-        }
-    };
-    CylinderControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    CylinderControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    CylinderControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            var width = Math.max(15, pointEle._valueWidth + (e.clientX - this.startX));
-            var height = Math.max(15, pointEle._valueHeight + (e.clientY - this.startY));
-            this.rect = {
-                x: pointEle._valueX,
-                y: pointEle._valueY,
-                width: width,
-                height: height
-            };
-            this.resetPointLocation();
-        }
-    };
-    CylinderControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    };
     CylinderControl.prototype.onBeginMoving = function () {
         this.rectElement._rect = this.rect;
     };
@@ -1571,7 +1493,6 @@ var TrendControl = (function (_super) {
         _this._devicePoint11 = "";
         _this._devicePoint12 = "";
         _this.running = false;
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this.rectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -2170,19 +2091,6 @@ var TrendControl = (function (_super) {
     TrendControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
-    TrendControl.prototype.onSelectedChange = function () {
-        if (this.selected) {
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    };
     TrendControl.prototype.run = function () {
         var _this = this;
         _super.prototype.run.call(this);
@@ -2262,60 +2170,6 @@ var TrendControl = (function (_super) {
             this["pathElement" + k].setAttribute("d", dataStr);
         }
     };
-    TrendControl.prototype.resetPointLocation = function () {
-        var rect = this.rect;
-        if (this.selected && this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
-        }
-        this.line_left_Ele.setAttribute("x1", (rect.x + 10));
-        this.line_left_Ele.setAttribute("y1", (rect.y + 10));
-        this.line_left_Ele.setAttribute("x2", (rect.x + 10));
-        this.line_left_Ele.setAttribute("y2", (rect.y + rect.height - 10));
-        this.line_bottom_Ele.setAttribute("x1", (rect.x + 10));
-        this.line_bottom_Ele.setAttribute("y1", (rect.y + rect.height - 10));
-        this.line_bottom_Ele.setAttribute("x2", (rect.x + rect.width - 10));
-        this.line_bottom_Ele.setAttribute("y2", (rect.y + rect.height - 10));
-    };
-    TrendControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    TrendControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    TrendControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.rectElement.setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            this.rectElement.setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    };
-    TrendControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    };
     TrendControl.prototype.onBeginMoving = function () {
         this.rectElement._x = parseInt(this.rectElement.getAttribute("x"));
         this.rectElement._y = parseInt(this.rectElement.getAttribute("y"));
@@ -2340,7 +2194,6 @@ var ButtonAreaControl = (function (_super) {
     __extends(ButtonAreaControl, _super);
     function ButtonAreaControl() {
         var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'rect')) || this;
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this.pointAddr = null;
@@ -2440,67 +2293,6 @@ var ButtonAreaControl = (function (_super) {
     ButtonAreaControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
-    ButtonAreaControl.prototype.onSelectedChange = function () {
-        if (this.selected) {
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    };
-    ButtonAreaControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
-        }
-    };
-    ButtonAreaControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    ButtonAreaControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    ButtonAreaControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.rectElement.setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            this.rectElement.setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    };
-    ButtonAreaControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    };
     ButtonAreaControl.prototype.onBeginMoving = function () {
         this.rectElement._x = parseInt(this.rectElement.getAttribute("x"));
         this.rectElement._y = parseInt(this.rectElement.getAttribute("y"));
@@ -2523,7 +2315,6 @@ var GroupControl = (function (_super) {
     function GroupControl(element, windowCode) {
         var _this = _super.call(this, element) || this;
         _this.controls = [];
-        _this.moving = false;
         _this.startX = 0;
         _this.startY = 0;
         _this._path = null;
@@ -2811,72 +2602,6 @@ var GroupControl = (function (_super) {
         this.addControl(editor);
         editor.rect = rect;
         return editor;
-    };
-    GroupControl.prototype.onSelectedChange = function () {
-        if (this.selected) {
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.groupElement.parentElement.appendChild(this.pRightBottom);
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.groupElement.parentElement.removeChild(this.pRightBottom);
-        }
-    };
-    GroupControl.prototype.resetPointLocation = function () {
-        if (!this.selected)
-            return;
-        var rect = this.lastRect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", (rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", (rect.y + rect.height));
-        }
-    };
-    GroupControl.prototype.setEvent = function (pointEle) {
-        var _this = this;
-        pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
-    };
-    GroupControl.prototype.pointMouseDown = function (e, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        var rect = this.rect;
-        pointEle._x = rect.x;
-        pointEle._y = rect.y;
-        pointEle._width = rect.width;
-        pointEle._height = rect.height;
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
-    };
-    GroupControl.prototype.pointMouseMove = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.rect = {
-                x: pointEle._x,
-                y: pointEle._y,
-                width: Math.max(15, pointEle._width + (e.clientX - this.startX)),
-                height: Math.max(15, pointEle._height + (e.clientY - this.startY))
-            };
-            this.resetPointLocation();
-        }
-    };
-    GroupControl.prototype.pointMouseUp = function (e, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
     };
     GroupControl.prototype.onBeginMoving = function () {
         var rect = this.rect;
