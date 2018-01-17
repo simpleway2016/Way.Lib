@@ -32,7 +32,9 @@ var FileBrowser = (function () {
         this.fileElement = toolDiv.children[1];
         toolDiv.children[0].addEventListener("click", function () { _this.addFolderDialog(); }, false);
         toolDiv.children[2].addEventListener("click", function () { _this.updateFile(); }, false);
-        toolDiv.children[3].addEventListener("click", function () { _this.hide(); }, false);
+        toolDiv.children[3].addEventListener("click", function () {
+            _this.hide();
+        }, false);
         toolDiv.children[4].addEventListener("click", function () { if (_this.onSelectFile) {
             _this.onSelectFile("");
         } _this.hide(); }, false);
@@ -235,6 +237,9 @@ var FileBrowser = (function () {
     FileBrowser.prototype.hide = function () {
         this.backgroundElement.style.visibility = "hidden";
         this.rootElement.style.visibility = "hidden";
+        if (this.onHide) {
+            this.onHide();
+        }
     };
     FileBrowser.prototype.loadImages = function (parentid) {
         var _this = this;

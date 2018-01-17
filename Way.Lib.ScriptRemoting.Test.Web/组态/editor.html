@@ -85,7 +85,7 @@
 <body style="overflow:hidden;" oncontextmenu="return false;">
     <div class="display-flex flex-direction-column" style="position:absolute;width:100%;height:100%;">
         <div id="divToolbar" style="background-color:#e8e7e3;height:36px;">
-            <div id="btnSetting" class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);">
+            <div id="btnSetting" title="设置" class="toolboxItem" onclick="editor.setting(arguments[0]);" style="background-image:url(/images/toolbox/setting.png);cursor:pointer;">
             </div>
             <div class="toolboxItem" title="保存(Ctrl+S)" onclick="editor.save(); " style="background-image:url(/images/toolbox/save.png);cursor:pointer;">
             </div>
@@ -93,23 +93,23 @@
             </div>
             <div class="toolboxItem" title="直接修改脚本" onclick="openCode(); " style="background-image:url(/images/toolbox/code.png);cursor:pointer;">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);" _type="ToolBox_Line">
+            <div class="toolboxItem" title="画直线" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);cursor:pointer;" _type="ToolBox_Line">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/circle.png);" _type="ToolBox_Circle">
+            <div class="toolboxItem" title="画圆" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/circle.png);cursor:pointer;" _type="ToolBox_Circle">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/rect.png);" _type="ToolBox_Rect">
+            <div class="toolboxItem" title="画矩型" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/rect.png);cursor:pointer;" _type="ToolBox_Rect">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/ellipse.png);" _type="ToolBox_Ellipse">
+            <div class="toolboxItem" title="画椭圆型" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/ellipse.png);cursor:pointer;" _type="ToolBox_Ellipse">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/text.png);" _type="ToolBox_Text">
+            <div class="toolboxItem" title="插入文字" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/text.png);cursor:pointer;" _type="ToolBox_Text">
             </div>
-            <div class="toolboxItem" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/img.png);" _type="ToolBox_Image">
+            <div class="toolboxItem" title="插入图片" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/img.png);cursor:pointer;" _type="ToolBox_Image">
             </div>
-            <div class="toolboxItem" title="动态值圆柱" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/cylinder.png);" _type="ToolBox_Cylinder">
+            <div class="toolboxItem" title="插入动态值圆柱" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/cylinder.png);cursor:pointer;" _type="ToolBox_Cylinder">
             </div>
-            <div class="toolboxItem" title="趋势图" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/trend.png);" _type="ToolBox_Trend">
+            <div class="toolboxItem" title="插入趋势图" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/trend.png);cursor:pointer;" _type="ToolBox_Trend">
             </div>
-            <div class="toolboxItem" title="点击区域" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/buttonarea.png);" _type="ToolBox_ButtonArea">
+            <div class="toolboxItem" title="插入点击区域" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/buttonarea.png);cursor:pointer;" _type="ToolBox_ButtonArea">
             </div>
             <!--<input class="jscolor" value="ab2567">-->
             <div class="toolboxItem" title="撤销(Ctrl+Z)" onclick="editor.undo();" style="background-image:url(/images/toolbox/undo.png);margin-left:20px;cursor:pointer;">

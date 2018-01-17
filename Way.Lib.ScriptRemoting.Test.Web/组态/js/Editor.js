@@ -162,6 +162,11 @@ var ToolBox_Image = (function (_super) {
     });
     ToolBox_Image.prototype.begin = function (svgContainer, position) {
         var _this = this;
+        fileBrowser.onHide = function () {
+            if (window.toolboxDone) {
+                window.toolboxDone();
+            }
+        };
         fileBrowser.onSelectFile = function (path) {
             fileBrowser.hide();
             _this.control = new ImageControl();

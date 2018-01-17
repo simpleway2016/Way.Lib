@@ -11,6 +11,7 @@ class FileBrowser
     parentid = 0;
     uploading = false;
     onSelectFile: (filepath: string) => any;
+    onHide: () => any;
     constructor()
     {
         this.backgroundElement = document.createElement("DIV");
@@ -44,7 +45,10 @@ class FileBrowser
         this.fileElement = <HTMLElement>toolDiv.children[1];
         toolDiv.children[0].addEventListener("click", () => { this.addFolderDialog(); }, false);
         toolDiv.children[2].addEventListener("click", () => { this.updateFile(); }, false);
-        toolDiv.children[3].addEventListener("click", () => { this.hide(); }, false);
+        toolDiv.children[3].addEventListener("click", () => {
+            this.hide();
+           
+        }, false);
         toolDiv.children[4].addEventListener("click", () => { if (this.onSelectFile) { this.onSelectFile(""); } this.hide(); }, false);
         this.rootElement.appendChild(toolDiv);
 
@@ -274,6 +278,9 @@ class FileBrowser
     {
         this.backgroundElement.style.visibility = "hidden";
         this.rootElement.style.visibility = "hidden";
+        if (this.onHide) {
+            this.onHide();
+        }
     }
 
     loadImages(parentid)

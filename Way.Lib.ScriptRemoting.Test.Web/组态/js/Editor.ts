@@ -186,6 +186,11 @@ class ToolBox_Image extends ToolBoxItem {
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
+        fileBrowser.onHide = () => {
+            if ((<any>window).toolboxDone) {
+                (<any>window).toolboxDone();
+            }
+        };
         fileBrowser.onSelectFile = (path) => {
             fileBrowser.hide();
             this.control = new ImageControl();
