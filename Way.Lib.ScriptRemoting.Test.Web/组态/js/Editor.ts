@@ -755,6 +755,33 @@ class Editor implements IEditorControlContainer
         this.undoMgr.redo();
     }
 
+    group() {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++)
+            {
+                items.push(AllSelectedControls[i]);
+            }
+            var undoObj = new UndoGroup(this, items);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+    }
+    ungroup() {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                if ((<any>AllSelectedControls[i]).constructor.name == "FreeGroupControl") {
+                    items.push(AllSelectedControls[i]);
+                }
+            }
+            if (items.length > 0) {
+                var undoObj = new UndoUnGroup(this, items);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+            }
+        }
+    }
     delete()
     {
         var ctrls = [];

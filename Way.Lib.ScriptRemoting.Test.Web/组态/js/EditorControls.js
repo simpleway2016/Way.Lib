@@ -2655,4 +2655,187 @@ var GroupControl = (function (_super) {
     };
     return GroupControl;
 }(EditorControl));
+var FreeGroupControl = (function (_super) {
+    __extends(FreeGroupControl, _super);
+    function FreeGroupControl() {
+        var _this = _super.call(this, document.createElementNS('http://www.w3.org/2000/svg', 'g')) || this;
+        _this.controls = [];
+        _this.contentWidth = 0;
+        _this.contentHeight = 0;
+        _this.groupElement = _this.element;
+        _this.groupElement.setAttribute("transform", "translate(0 0)");
+        if (!_this.virtualRectElement) {
+            _this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            _this.groupElement.appendChild(_this.virtualRectElement);
+            _this.virtualRectElement.setAttribute('x', "0");
+            _this.virtualRectElement.setAttribute('y', "0");
+            _this.virtualRectElement.setAttribute('fill-opacity', "0");
+            _this.virtualRectElement.setAttribute('stroke', "green");
+            _this.virtualRectElement.setAttribute('style', 'stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+        }
+        return _this;
+    }
+    FreeGroupControl.prototype.removeControl = function (ctrl) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i] == ctrl) {
+                this.groupElement.removeChild(ctrl.element);
+                ctrl.isInGroup = false;
+                ctrl.container = null;
+                this.controls.splice(i, 1);
+                break;
+            }
+        }
+    };
+    FreeGroupControl.prototype.addControl = function (ctrl) {
+        ctrl.isInGroup = true;
+        ctrl.container = this;
+        this.groupElement.appendChild(ctrl.element);
+        this.controls.push(ctrl);
+    };
+    FreeGroupControl.prototype.addControls = function (ctrls) {
+        this.controls = [];
+        var minLeft = 999999999;
+        var minTop = 999999999;
+        for (var i = 0; i < ctrls.length; i++) {
+            var rect = ctrls[i].rect;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+            if (rect.y < minTop)
+                minTop = rect.y;
+            ctrls[i].selected = false;
+            ctrls[i].container.removeControl(ctrls[i]);
+            this.addControl(ctrls[i]);
+        }
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];
+            var _rect = ctrl.rect;
+            ctrl.rect = {
+                x: _rect.x - minLeft,
+                y: _rect.y - minTop,
+                width: _rect.width,
+                height: _rect.height
+            };
+        }
+        this.contentWidth = 0;
+        this.contentHeight = 0;
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];
+            var _rect = ctrl.rect;
+            if (_rect.x + _rect.width > this.contentWidth)
+                this.contentWidth = _rect.x + _rect.width;
+            if (_rect.y + _rect.height > this.contentHeight)
+                this.contentHeight = _rect.y + _rect.height;
+        }
+        this.groupElement.removeChild(this.virtualRectElement);
+        this.groupElement.appendChild(this.virtualRectElement);
+        this.rect = {
+            x: minLeft,
+            y: minTop,
+            width: this.contentWidth,
+            height: this.contentHeight
+        };
+    };
+    FreeGroupControl.prototype.freeControls = function () {
+        this.selected = false;
+        var rect = this.rect;
+        while (this.controls.length > 0) {
+            var ctrl = this.controls[0];
+            var ctrlRect = ctrl.rect;
+            this.removeControl(ctrl);
+            ctrlRect.x = rect.x + ctrlRect.x;
+            ctrlRect.y = rect.y + ctrlRect.y;
+            this.container.addControl(ctrl);
+            ctrl.rect = ctrlRect;
+        }
+    };
+    FreeGroupControl.prototype.writeValue = function (pointName, addr, value) {
+        window.writeValue(pointName, addr, value);
+    };
+    Object.defineProperty(FreeGroupControl.prototype, "rect", {
+        get: function () {
+            var transform = this.groupElement.getAttribute("transform");
+            var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+            var myrect = {};
+            myrect.x = parseInt(result[1]);
+            myrect.y = parseInt(result[2]);
+            this.virtualRectElement.setAttribute('width', this.contentWidth);
+            this.virtualRectElement.setAttribute('height', this.contentHeight);
+            myrect.width = this.contentWidth;
+            myrect.height = this.contentHeight;
+            this.lastRect = myrect;
+            return myrect;
+        },
+        set: function (v) {
+            if (v.width == null) {
+                this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+                var r = this.rect;
+                return;
+            }
+            if (this.contentWidth == 0) {
+                var r = this.rect;
+            }
+            this.virtualRectElement.setAttribute('width', this.contentWidth);
+            this.virtualRectElement.setAttribute('height', this.contentHeight);
+            this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            this.lastRect = v;
+            this.resetPointLocation();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    FreeGroupControl.prototype.getPropertiesCaption = function () {
+        var caps = ["id"];
+        return caps;
+    };
+    FreeGroupControl.prototype.getProperties = function () {
+        var pros = ["id"];
+        return pros;
+    };
+    FreeGroupControl.prototype.onSelectedChange = function () {
+        this.virtualRectElement.setAttribute('stroke', this.selected ? "red" : "green");
+    };
+    FreeGroupControl.prototype.run = function () {
+        _super.prototype.run.call(this);
+        if (this.virtualRectElement) {
+            this.groupElement.removeChild(this.virtualRectElement);
+        }
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].run();
+        }
+    };
+    FreeGroupControl.prototype.isIntersectWith = function (rect) {
+        return this.isIntersect(this.rect, rect);
+    };
+    FreeGroupControl.prototype.onDevicePointValueChanged = function (point) {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            control.onDevicePointValueChanged(point);
+        }
+    };
+    FreeGroupControl.prototype.getJson = function () {
+        var json = _super.prototype.getJson.call(this);
+        return json;
+    };
+    FreeGroupControl.prototype.getScript = function () {
+        return "";
+    };
+    FreeGroupControl.prototype.onBeginMoving = function () {
+        var rect = this.rect;
+        this.groupElement._x = rect.x;
+        this.groupElement._y = rect.y;
+        this.groupElement._width = rect.width;
+        this.groupElement._height = rect.height;
+    };
+    FreeGroupControl.prototype.onMoving = function (downX, downY, nowX, nowY) {
+        var x = (this.groupElement._x + nowX - downX);
+        var y = (this.groupElement._y + nowY - downY);
+        this.rect = { x: x, y: y, width: this.groupElement._width, height: this.groupElement._height };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    };
+    FreeGroupControl.prototype.onEndMoving = function () {
+    };
+    return FreeGroupControl;
+}(EditorControl));
 //# sourceMappingURL=EditorControls.js.map

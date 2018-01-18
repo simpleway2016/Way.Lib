@@ -379,3 +379,29 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
+declare class FreeGroupControl extends EditorControl implements IEditorControlContainer {
+    controls: any[];
+    removeControl(ctrl: EditorControl): void;
+    addControl(ctrl: EditorControl): void;
+    addControls(ctrls: EditorControl[]): void;
+    freeControls(): void;
+    writeValue(pointName: any, addr: any, value: any): void;
+    groupElement: SVGGElement;
+    virtualRectElement: SVGRectElement;
+    contentWidth: number;
+    contentHeight: number;
+    private lastRect;
+    rect: any;
+    getPropertiesCaption(): string[];
+    getProperties(): string[];
+    constructor();
+    onSelectedChange(): void;
+    run(): void;
+    isIntersectWith(rect: any): boolean;
+    onDevicePointValueChanged(point: any): void;
+    getJson(): any;
+    getScript(): string;
+    onBeginMoving(): void;
+    onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
+    onEndMoving(): void;
+}

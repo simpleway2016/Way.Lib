@@ -48,3 +48,16 @@ declare class UndoChangeLinePoint extends UndoItem {
     undo(): void;
     redo(): void;
 }
+declare class UndoGroup extends UndoItem {
+    controls: EditorControl[];
+    groupCtrl: FreeGroupControl;
+    constructor(_editor: Editor, _controls: EditorControl[]);
+    undo(): void;
+    redo(): void;
+}
+declare class UndoUnGroup extends UndoItem {
+    groups: any[];
+    constructor(_editor: Editor, _controls: FreeGroupControl[]);
+    undo(): void;
+    redo(): void;
+}

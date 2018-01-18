@@ -162,4 +162,54 @@ var UndoChangeLinePoint = (function (_super) {
     };
     return UndoChangeLinePoint;
 }(UndoItem));
+var UndoGroup = (function (_super) {
+    __extends(UndoGroup, _super);
+    function UndoGroup(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.controls = _controls;
+        _this.groupCtrl = new FreeGroupControl();
+        return _this;
+    }
+    UndoGroup.prototype.undo = function () {
+        this.groupCtrl.freeControls();
+        this.editor.removeControl(this.groupCtrl);
+    };
+    UndoGroup.prototype.redo = function () {
+        this.groupCtrl.addControls(this.controls);
+        this.editor.addControl(this.groupCtrl);
+    };
+    return UndoGroup;
+}(UndoItem));
+var UndoUnGroup = (function (_super) {
+    __extends(UndoUnGroup, _super);
+    function UndoUnGroup(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.groups = [];
+        for (var i = 0; i < _controls.length; i++) {
+            var item = {};
+            _this.groups.push(item);
+            item.controls = [];
+            item.group = _controls[i];
+            for (var j = 0; j < _controls[i].controls.length; j++) {
+                item.controls.push(_controls[i].controls[j]);
+            }
+        }
+        return _this;
+    }
+    UndoUnGroup.prototype.undo = function () {
+        for (var i = 0; i < this.groups.length; i++) {
+            var item = this.groups[i];
+            item.group.addControls(item.controls);
+            this.editor.addControl(item.group);
+        }
+    };
+    UndoUnGroup.prototype.redo = function () {
+        for (var i = 0; i < this.groups.length; i++) {
+            var item = this.groups[i];
+            item.group.freeControls();
+            this.editor.removeControl(item.group);
+        }
+    };
+    return UndoUnGroup;
+}(UndoItem));
 //# sourceMappingURL=UndoManager.js.map

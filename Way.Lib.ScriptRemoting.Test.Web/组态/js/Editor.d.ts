@@ -124,6 +124,8 @@ declare class Editor implements IEditorControlContainer {
     getScript(): string;
     undo(): void;
     redo(): void;
+    group(): void;
+    ungroup(): void;
     delete(): void;
     save(): void;
     getSaveInfo(): string;

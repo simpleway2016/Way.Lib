@@ -58,6 +58,7 @@
     <Content Include="组态\images\toolbox\buttonarea.png" />
     <Content Include="组态\images\toolbox\code.png" />
     <Content Include="组态\images\toolbox\delete.png" />
+    <Content Include="组态\images\toolbox\group.png" />
     <Content Include="组态\images\toolbox\play.png" />
     <Content Include="组态\images\toolbox\redo.png" />
     <Content Include="组态\images\toolbox\ruler.png" />
@@ -74,6 +75,7 @@
     <Content Include="组态\images\toolbox\setting.png" />
     <Content Include="组态\images\toolbox\text.png" />
     <Content Include="组态\images\toolbox\undo.png" />
+    <Content Include="组态\images\toolbox\ungroup.png" />
     <Content Include="组态\js\colpick\colpick.css" />
     <Content Include="组态\js\colpick\colpick.js" />
     <Content Include="组态\js\colpick\jquery.min.js" />

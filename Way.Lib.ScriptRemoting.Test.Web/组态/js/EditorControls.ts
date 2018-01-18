@@ -2685,3 +2685,222 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     }
 }
+
+//transform-origin:0 0;transform:scale(6,6)
+class FreeGroupControl extends EditorControl implements IEditorControlContainer {
+    controls: any[] = [];
+    removeControl(ctrl: EditorControl) {
+
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i] == ctrl) {
+                this.groupElement.removeChild(ctrl.element);
+                ctrl.isInGroup = false;
+                ctrl.container = null;
+                this.controls.splice(i, 1);
+                break;
+            }
+        }
+    }
+    addControl(ctrl: EditorControl) {
+        ctrl.isInGroup = true;
+        ctrl.container = this;
+        this.groupElement.appendChild(ctrl.element);
+        this.controls.push(ctrl);
+
+    }
+
+    //组成组
+    addControls(ctrls: EditorControl[]) {
+        this.controls = [];
+
+        var minLeft = 999999999;
+        var minTop = 999999999;
+        for (var i = 0; i < ctrls.length; i++)
+        {
+            var rect = ctrls[i].rect;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+            if (rect.y < minTop)
+                minTop = rect.y;
+            ctrls[i].selected = false;
+            ctrls[i].container.removeControl(ctrls[i]);
+            this.addControl(ctrls[i]);
+        }
+
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];           
+            var _rect = ctrl.rect;
+
+            ctrl.rect = {
+                x: _rect.x - minLeft,
+                y: _rect.y - minTop,
+                width: _rect.width,
+                height:_rect.height
+            };
+        }
+
+        this.contentWidth = 0;
+        this.contentHeight = 0;
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];
+            var _rect = ctrl.rect;
+
+            if (_rect.x + _rect.width > this.contentWidth)
+                this.contentWidth = _rect.x + _rect.width;
+            if (_rect.y + _rect.height > this.contentHeight)
+                this.contentHeight = _rect.y + _rect.height;
+        }
+        this.groupElement.removeChild(this.virtualRectElement);
+        this.groupElement.appendChild(this.virtualRectElement);
+        this.rect = {
+            x: minLeft,
+            y: minTop,
+            width: this.contentWidth,
+            height: this.contentHeight
+        };
+    }
+    //解组
+    freeControls()
+    {
+        this.selected = false;
+        var rect = this.rect;
+        while (this.controls.length > 0) {
+            var ctrl = this.controls[0];            
+            var ctrlRect = ctrl.rect;
+            this.removeControl(ctrl);
+
+            ctrlRect.x = rect.x + ctrlRect.x;
+            ctrlRect.y = rect.y + ctrlRect.y;            
+            this.container.addControl(ctrl);
+            ctrl.rect = ctrlRect;
+        }
+    }
+    writeValue(pointName, addr, value) {
+        (<any>window).writeValue(pointName, addr, value);
+    }
+
+    groupElement: SVGGElement;
+
+
+    virtualRectElement: SVGRectElement;
+    contentWidth = 0;
+    contentHeight = 0;
+    private lastRect: any;
+    get rect() {
+        var transform = this.groupElement.getAttribute("transform");
+        var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+        var myrect: any = {};
+        myrect.x = parseInt(result[1]);
+        myrect.y = parseInt(result[2]);
+       
+
+       
+
+        this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
+        this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
+
+        myrect.width = this.contentWidth;
+        myrect.height = this.contentHeight;
+        this.lastRect = myrect;
+        return myrect;
+    }
+    set rect(v: any) {
+
+        if (v.width == null) {
+            this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            var r = this.rect;//目的是获取contentWidth
+            return;
+        }
+        if (this.contentWidth == 0) {
+            var r = this.rect;//目的是获取contentWidth
+        }
+       
+        this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
+        this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
+
+        this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+        this.lastRect = v;
+        this.resetPointLocation();
+    }
+
+    getPropertiesCaption(): string[] {
+        var caps = ["id"];
+        return caps;
+    }
+    getProperties(): string[] {
+        var pros = ["id"];
+        return pros;
+    }
+
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+       
+        this.groupElement = this.element;
+        this.groupElement.setAttribute("transform", "translate(0 0)");
+
+        if (!this.virtualRectElement) {
+            this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.groupElement.appendChild(this.virtualRectElement);
+            this.virtualRectElement.setAttribute('x', "0");
+            this.virtualRectElement.setAttribute('y', "0");
+            this.virtualRectElement.setAttribute('fill-opacity', "0");
+            this.virtualRectElement.setAttribute('stroke', "green");
+            this.virtualRectElement.setAttribute('style', 'stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+        }
+    }
+    onSelectedChange() {
+        this.virtualRectElement.setAttribute('stroke', this.selected ? "red" : "green");
+    }
+    run() {
+        super.run();
+        if (this.virtualRectElement) {
+            this.groupElement.removeChild(this.virtualRectElement);
+        }
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].run();
+        }
+    }
+    isIntersectWith(rect): boolean {
+        return this.isIntersect(this.rect, rect);
+    }
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(point: any) {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            control.onDevicePointValueChanged(point);
+        }
+    }
+
+
+    getJson() {
+        var json: any = super.getJson();
+        
+        return json;
+    }
+
+    getScript() {
+        return "";
+    }
+    
+
+    onBeginMoving() {
+        var rect = this.rect;
+        (<any>this.groupElement)._x = rect.x;
+        (<any>this.groupElement)._y = rect.y;
+        (<any>this.groupElement)._width = rect.width;
+        (<any>this.groupElement)._height = rect.height;
+    }
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.groupElement)._x + nowX - downX);
+        var y = <any>((<any>this.groupElement)._y + nowY - downY);
+
+        this.rect = { x: x, y: y, width: (<any>this.groupElement)._width, height: (<any>this.groupElement)._height };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    }
+    onEndMoving() {
+
+    }
+}

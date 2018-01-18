@@ -643,6 +643,32 @@ var Editor = (function () {
     Editor.prototype.redo = function () {
         this.undoMgr.redo();
     };
+    Editor.prototype.group = function () {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                items.push(AllSelectedControls[i]);
+            }
+            var undoObj = new UndoGroup(this, items);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+    };
+    Editor.prototype.ungroup = function () {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                if (AllSelectedControls[i].constructor.name == "FreeGroupControl") {
+                    items.push(AllSelectedControls[i]);
+                }
+            }
+            if (items.length > 0) {
+                var undoObj = new UndoUnGroup(this, items);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+            }
+        }
+    };
     Editor.prototype.delete = function () {
         var ctrls = [];
         for (var i = 0; i < AllSelectedControls.length; i++) {

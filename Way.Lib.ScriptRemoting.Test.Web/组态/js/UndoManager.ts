@@ -192,3 +192,58 @@ class UndoChangeLinePoint extends UndoItem
         this.control.resetPointLocation();
     }
 }
+
+class UndoGroup extends UndoItem {
+    controls: EditorControl[];
+    groupCtrl: FreeGroupControl;
+    constructor(_editor: Editor, _controls: EditorControl[]) {
+        super(_editor);
+        this.controls = _controls;
+        this.groupCtrl = new FreeGroupControl();
+    }
+
+    undo() {
+        this.groupCtrl.freeControls();
+        this.editor.removeControl(this.groupCtrl);
+    }
+
+    redo() {
+       
+        this.groupCtrl.addControls(this.controls);
+        this.editor.addControl(this.groupCtrl);
+    }
+}
+class UndoUnGroup extends UndoItem {
+    groups: any[] = [];
+    constructor(_editor: Editor, _controls: FreeGroupControl[]) {
+        super(_editor);
+        for (var i = 0; i < _controls.length; i++)
+        {
+            var item: any = {};
+            this.groups.push(item);
+            item.controls = [];
+            item.group = _controls[i];
+            for (var j = 0; j < _controls[i].controls.length; j++)
+            {
+                item.controls.push(_controls[i].controls[j]);
+            }
+        }
+    }
+
+    undo() {
+        for (var i = 0; i < this.groups.length; i++) {
+            var item = this.groups[i];
+            item.group.addControls(item.controls);
+            this.editor.addControl(item.group);
+        }
+    }
+
+    redo() {
+        for (var i = 0; i < this.groups.length; i++)
+        {
+            var item = this.groups[i];
+            item.group.freeControls();
+            this.editor.removeControl(item.group);
+        }
+    }
+}
