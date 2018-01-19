@@ -2739,6 +2739,17 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
             };
         }
 
+        this.groupChildren();
+
+        this.rect = {
+            x: minLeft,
+            y: minTop,
+            width: this.contentWidth,
+            height: this.contentHeight
+        };
+    }
+    groupChildren()
+    {
         this.contentWidth = 0;
         this.contentHeight = 0;
         for (var i = 0; i < this.controls.length; i++) {
@@ -2750,14 +2761,9 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
             if (_rect.y + _rect.height > this.contentHeight)
                 this.contentHeight = _rect.y + _rect.height;
         }
+        //把virtualRectElement移到最上面
         this.groupElement.removeChild(this.virtualRectElement);
-        this.groupElement.appendChild(this.virtualRectElement);
-        this.rect = {
-            x: minLeft,
-            y: minTop,
-            width: this.contentWidth,
-            height: this.contentHeight
-        };
+        this.groupElement.appendChild(this.virtualRectElement);        
     }
     //解组
     freeControls()
@@ -2832,6 +2838,16 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         return pros;
     }
 
+    set childScripts(scripts:string[])
+    {
+        var my = this;
+        for (var i = 0; i < scripts.length; i++)
+        {
+            eval("(function(editor){" + scripts[i] + "})(my)");
+        }
+        this.groupChildren();
+    }
+
     constructor() {
         super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
        
@@ -2873,14 +2889,50 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
     }
 
 
+    /**
+     * 获取描述本控件属性的一个json对象
+     */
     getJson() {
-        var json: any = super.getJson();
-        
-        return json;
+        var obj = {
+            rect: this.rect,
+            constructorName: (<any>this).constructor.name
+        };
+        var properites = this.getProperties();
+        for (var i = 0; i < properites.length; i++) {
+            obj[properites[i]] = this[properites[i]];
+        }
+        var childscripts = [];
+        for (var i = 0; i < this.controls.length; i++) {
+            var childScript = this.controls[i].getScript();
+            childscripts.push(childScript);
+        }
+        obj["childScripts"] = childscripts;
+        return obj;
     }
 
+    /**
+     * 获取运行时的执行脚本
+     */
     getScript() {
-        return "";
+        var rect = this.rect;
+        var script = "";
+        var id = this.id;
+        if (!id || id.length == 0) {
+            id = "eCtrl";
+        }
+        script += id + " = new FreeGroupControl();\r\n"; 
+        script += "editor.addControl(" + id + ");\r\n";
+        script += id + ".id = " + JSON.stringify(this.id) + ";\r\n";
+
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            var childScript = this.controls[i].getScript();
+            script += "(function(editor){\r\n" + childScript + "\r\n})(" + id + ");\r\n";
+        }
+
+        script += id + ".rect = " + JSON.stringify(rect) + ";\r\n";
+        script += id + ".groupChildren();\r\n";
+        return script;
     }
     
 

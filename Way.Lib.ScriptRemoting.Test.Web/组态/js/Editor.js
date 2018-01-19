@@ -738,35 +738,9 @@ var Editor = (function () {
             var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
             var container = this;
             var copyItems = JSON.parse(str);
-            for (var i = 0; i < copyItems.length; i++) {
-                var controlJson = copyItems[i];
-                if (isSameWindow) {
-                    controlJson.rect.x += 10;
-                    controlJson.rect.y += 10;
-                }
-                var editorctrl;
-                if (controlJson.constructorName == "GroupControl") {
-                    editorctrl = this.createGroupControl(controlJson.windowCode, controlJson.rect);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
-                }
-                else {
-                    eval("editorctrl = new " + controlJson.constructorName + "()");
-                    container.addControl(editorctrl);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
-                    editorctrl.rect = controlJson.rect;
-                }
-                editorctrl.ctrlKey = true;
-                editorctrl.selected = true;
-                editorctrl.ctrlKey = false;
-            }
+            var undoObj = new UndoPaste(this, copyItems, isSameWindow);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
         }
     };
     Editor.prototype.fireBodyEvent = function (event) {

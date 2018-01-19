@@ -247,3 +247,64 @@ class UndoUnGroup extends UndoItem {
         }
     }
 }
+
+class UndoPaste extends UndoItem {
+    copyItems: any[] = [];
+    controls: any[] = null;
+    isSameWindow: boolean;
+    constructor(_editor: Editor, _copyItems: any[], isSameWindow: boolean) {
+        super(_editor);
+        this.copyItems = _copyItems;
+        this.isSameWindow = isSameWindow;
+    }
+
+    undo() {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selected = false;
+            this.editor.removeControl(this.controls[i]);
+        }
+    }
+
+    redo() {
+        if (!this.controls) {
+            this.controls = [];
+            for (var i = 0; i < this.copyItems.length; i++) {
+                var controlJson = this.copyItems[i];
+                if (this.isSameWindow) {
+                    controlJson.rect.x += 10;
+                    controlJson.rect.y += 10;
+                }
+                var editorctrl;
+                if (controlJson.constructorName == "GroupControl") {
+                    editorctrl = this.editor.createGroupControl(controlJson.windowCode, controlJson.rect);
+                    for (var pname in controlJson) {
+                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                            editorctrl[pname] = controlJson[pname];
+                        }
+                    }
+                }
+                else {
+                    eval("editorctrl = new " + controlJson.constructorName + "()");
+                    this.editor.addControl(editorctrl);
+                    for (var pname in controlJson) {
+                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                            editorctrl[pname] = controlJson[pname];
+                        }
+                    }
+                    editorctrl.rect = controlJson.rect;
+                }
+                editorctrl.ctrlKey = true;
+                editorctrl.selected = true;
+                editorctrl.ctrlKey = false;
+                this.controls.push(editorctrl);
+
+            }
+        }
+        else {
+            for (var i = 0; i < this.controls.length; i++)
+            {
+                this.editor.addControl(this.controls[i]);
+            }
+        }
+    }
+}

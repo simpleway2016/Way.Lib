@@ -2716,6 +2716,15 @@ var FreeGroupControl = (function (_super) {
                 height: _rect.height
             };
         }
+        this.groupChildren();
+        this.rect = {
+            x: minLeft,
+            y: minTop,
+            width: this.contentWidth,
+            height: this.contentHeight
+        };
+    };
+    FreeGroupControl.prototype.groupChildren = function () {
         this.contentWidth = 0;
         this.contentHeight = 0;
         for (var i = 0; i < this.controls.length; i++) {
@@ -2728,12 +2737,6 @@ var FreeGroupControl = (function (_super) {
         }
         this.groupElement.removeChild(this.virtualRectElement);
         this.groupElement.appendChild(this.virtualRectElement);
-        this.rect = {
-            x: minLeft,
-            y: minTop,
-            width: this.contentWidth,
-            height: this.contentHeight
-        };
     };
     FreeGroupControl.prototype.freeControls = function () {
         this.selected = false;
@@ -2791,6 +2794,17 @@ var FreeGroupControl = (function (_super) {
         var pros = ["id"];
         return pros;
     };
+    Object.defineProperty(FreeGroupControl.prototype, "childScripts", {
+        set: function (scripts) {
+            var my = this;
+            for (var i = 0; i < scripts.length; i++) {
+                eval("(function(editor){" + scripts[i] + "})(my)");
+            }
+            this.groupChildren();
+        },
+        enumerable: true,
+        configurable: true
+    });
     FreeGroupControl.prototype.onSelectedChange = function () {
         this.virtualRectElement.setAttribute('stroke', this.selected ? "red" : "green");
     };
@@ -2813,11 +2827,39 @@ var FreeGroupControl = (function (_super) {
         }
     };
     FreeGroupControl.prototype.getJson = function () {
-        var json = _super.prototype.getJson.call(this);
-        return json;
+        var obj = {
+            rect: this.rect,
+            constructorName: this.constructor.name
+        };
+        var properites = this.getProperties();
+        for (var i = 0; i < properites.length; i++) {
+            obj[properites[i]] = this[properites[i]];
+        }
+        var childscripts = [];
+        for (var i = 0; i < this.controls.length; i++) {
+            var childScript = this.controls[i].getScript();
+            childscripts.push(childScript);
+        }
+        obj["childScripts"] = childscripts;
+        return obj;
     };
     FreeGroupControl.prototype.getScript = function () {
-        return "";
+        var rect = this.rect;
+        var script = "";
+        var id = this.id;
+        if (!id || id.length == 0) {
+            id = "eCtrl";
+        }
+        script += id + " = new FreeGroupControl();\r\n";
+        script += "editor.addControl(" + id + ");\r\n";
+        script += id + ".id = " + JSON.stringify(this.id) + ";\r\n";
+        for (var i = 0; i < this.controls.length; i++) {
+            var childScript = this.controls[i].getScript();
+            script += "(function(editor){\r\n" + childScript + "\r\n})(" + id + ");\r\n";
+        }
+        script += id + ".rect = " + JSON.stringify(rect) + ";\r\n";
+        script += id + ".groupChildren();\r\n";
+        return script;
     };
     FreeGroupControl.prototype.onBeginMoving = function () {
         var rect = this.rect;

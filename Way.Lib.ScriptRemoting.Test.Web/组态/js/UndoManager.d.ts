@@ -61,3 +61,11 @@ declare class UndoUnGroup extends UndoItem {
     undo(): void;
     redo(): void;
 }
+declare class UndoPaste extends UndoItem {
+    copyItems: any[];
+    controls: any[];
+    isSameWindow: boolean;
+    constructor(_editor: Editor, _copyItems: any[], isSameWindow: boolean);
+    undo(): void;
+    redo(): void;
+}

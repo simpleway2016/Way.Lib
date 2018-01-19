@@ -384,6 +384,7 @@ declare class FreeGroupControl extends EditorControl implements IEditorControlCo
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
     addControls(ctrls: EditorControl[]): void;
+    groupChildren(): void;
     freeControls(): void;
     writeValue(pointName: any, addr: any, value: any): void;
     groupElement: SVGGElement;
@@ -394,12 +395,16 @@ declare class FreeGroupControl extends EditorControl implements IEditorControlCo
     rect: any;
     getPropertiesCaption(): string[];
     getProperties(): string[];
+    childScripts: string[];
     constructor();
     onSelectedChange(): void;
     run(): void;
     isIntersectWith(rect: any): boolean;
     onDevicePointValueChanged(point: any): void;
-    getJson(): any;
+    getJson(): {
+        rect: any;
+        constructorName: any;
+    };
     getScript(): string;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
