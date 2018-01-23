@@ -28,6 +28,7 @@
     <Content Include="admin\login.html" />
     <Content Include="controlTest0.html" />
     <Content Include="css\flex.css" />
+    <Content Include="组态\abc.html" />
     <Content Include="组态\css\flex.css" />
     <Content Include="组态\editor.html" />
     <Content Include="Global.asax" />

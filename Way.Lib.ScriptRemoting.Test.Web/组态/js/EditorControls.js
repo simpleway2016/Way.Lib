@@ -56,8 +56,8 @@ var EditorControl = (function () {
                 _this.selected = !_this.selected;
             else
                 _this.selected = true;
-            _this.mouseDownX = e.clientX;
-            _this.mouseDownY = e.clientY;
+            _this.mouseDownX = e.layerX;
+            _this.mouseDownY = e.layerY;
             var movingCtrls = [];
             if (_this._moveAllSelectedControl) {
                 for (var i = 0; i < AllSelectedControls.length; i++) {
@@ -78,11 +78,11 @@ var EditorControl = (function () {
                 e.stopPropagation();
                 if (_this._moveAllSelectedControl) {
                     for (var i = 0; i < AllSelectedControls.length; i++) {
-                        AllSelectedControls[i].onMoving(_this.mouseDownX, _this.mouseDownY, e.clientX, e.clientY);
+                        AllSelectedControls[i].onMoving(_this.mouseDownX, _this.mouseDownY, e.layerX, e.layerY);
                     }
                 }
                 else {
-                    _this.onMoving(_this.mouseDownX, _this.mouseDownY, e.clientX, e.clientY);
+                    _this.onMoving(_this.mouseDownX, _this.mouseDownY, e.layerX, e.layerY);
                 }
             }
         }, false);
@@ -226,7 +226,7 @@ var EditorControl = (function () {
                 _this.rect = {
                     x: ele._value_rect.x,
                     y: ele._value_rect.y + (y - ele._startY),
-                    width: ele._value_rect.width - (x - ele._startX),
+                    width: ele._value_rect.width,
                     height: ele._value_rect.height - (y - ele._startY),
                 };
             };
@@ -374,8 +374,8 @@ var EditorControl = (function () {
     EditorControl.prototype.pointMouseDown = function (e, pointEle) {
         e.stopPropagation();
         this.movingPoint = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
+        pointEle._startX = e.layerX;
+        pointEle._startY = e.layerY;
         pointEle._value_rect = this.rect;
         this.undoObj = new UndoMoveControls(editor, [this]);
         if (pointEle.setCapture)
@@ -386,7 +386,7 @@ var EditorControl = (function () {
     EditorControl.prototype.pointMouseMove = function (e, pointEle) {
         if (this.movingPoint) {
             e.stopPropagation();
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
+            pointEle._moveFunc(pointEle, e.layerX, e.layerY);
             this.resetPointLocation();
         }
     };
@@ -565,8 +565,8 @@ var LineControl = (function (_super) {
     };
     LineControl.prototype._pointMouseDown = function (e, pointEle, xName, yName) {
         e.stopPropagation();
-        this.startX = e.clientX;
-        this.startY = e.clientY;
+        this.startX = e.layerX;
+        this.startY = e.layerY;
         this.valueX = parseInt(this.lineElement.getAttribute(xName));
         this.valueY = parseInt(this.lineElement.getAttribute(yName));
         this._undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
@@ -578,12 +578,12 @@ var LineControl = (function (_super) {
     LineControl.prototype._pointMouseMove = function (e, pointEle, xName, yName) {
         if (this._undoObj) {
             e.stopPropagation();
-            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
-            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
-            this.lineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
-            this.lineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
-            this.virtualLineElement.setAttribute(xName, (this.valueX + e.clientX - this.startX));
-            this.virtualLineElement.setAttribute(yName, (this.valueY + e.clientY - this.startY));
+            pointEle.setAttribute("cx", this.valueX + e.layerX - this.startX);
+            pointEle.setAttribute("cy", this.valueY + e.layerY - this.startY);
+            this.lineElement.setAttribute(xName, (this.valueX + e.layerX - this.startX));
+            this.lineElement.setAttribute(yName, (this.valueY + e.layerY - this.startY));
+            this.virtualLineElement.setAttribute(xName, (this.valueX + e.layerX - this.startX));
+            this.virtualLineElement.setAttribute(yName, (this.valueY + e.layerY - this.startY));
         }
     };
     LineControl.prototype._pointMouseUp = function (e, pointEle) {

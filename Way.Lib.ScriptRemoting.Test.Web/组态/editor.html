@@ -33,10 +33,14 @@
             background-repeat:no-repeat;
             background-position:center;
         }
-        .toolboxItem[selected='1'] {
-            border: 1px solid #b8b7b5;
-            background-color:#f6d39c;
-        }
+            .toolboxItem:active {
+                border:1px solid #808080;
+                background-color:#b8b7b5;
+            }
+            .toolboxItem[selected='1'] {
+                border: 1px solid #b8b7b5;
+                background-color: #f6d39c;
+            }
         .toolboxItem img{
             width:16px;
             height:16px;

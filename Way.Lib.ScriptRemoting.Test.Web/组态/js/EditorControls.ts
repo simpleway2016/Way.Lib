@@ -111,8 +111,8 @@ class EditorControl
             else
                 this.selected = true;
 
-            this.mouseDownX = e.clientX;
-            this.mouseDownY = e.clientY;
+            this.mouseDownX = e.layerX;
+            this.mouseDownY = e.layerY;
             var movingCtrls = [];
             if (this._moveAllSelectedControl) {
                 for (var i = 0; i < AllSelectedControls.length; i++) {
@@ -136,11 +136,11 @@ class EditorControl
                 if (this._moveAllSelectedControl) {
                     for (var i = 0; i < AllSelectedControls.length; i++)
                     {
-                        AllSelectedControls[i].onMoving(this.mouseDownX, this.mouseDownY, e.clientX, e.clientY);
+                        AllSelectedControls[i].onMoving(this.mouseDownX, this.mouseDownY, e.layerX, e.layerY);
                     }
                 }
                 else {
-                    this.onMoving(this.mouseDownX, this.mouseDownY, e.clientX, e.clientY);
+                    this.onMoving(this.mouseDownX, this.mouseDownY, e.layerX, e.layerY);
                 }
             }
         }, false);
@@ -274,7 +274,7 @@ class EditorControl
                 this.rect = {
                     x: ele._value_rect.x,
                     y: ele._value_rect.y + (y - ele._startY),
-                    width: ele._value_rect.width - (x - ele._startX),
+                    width: ele._value_rect.width,
                     height: ele._value_rect.height - (y - ele._startY),
                 }
             }
@@ -441,8 +441,8 @@ class EditorControl
     pointMouseDown(e: MouseEvent, pointEle) {
         e.stopPropagation();
         this.movingPoint = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
+        pointEle._startX = e.layerX;
+        pointEle._startY = e.layerY;
 
         pointEle._value_rect = this.rect;
 
@@ -457,7 +457,7 @@ class EditorControl
         if (this.movingPoint) {
             e.stopPropagation();
 
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
+            pointEle._moveFunc(pointEle, e.layerX, e.layerY);
             this.resetPointLocation();
         }
     }
@@ -670,8 +670,8 @@ class LineControl extends EditorControl
     _pointMouseDown(e: MouseEvent, pointEle, xName: string, yName: string) {
         e.stopPropagation();
 
-        this.startX = e.clientX;
-        this.startY = e.clientY;
+        this.startX = e.layerX;
+        this.startY = e.layerY;
         this.valueX = parseInt(this.lineElement.getAttribute(xName));
         this.valueY = parseInt(this.lineElement.getAttribute(yName));
 
@@ -685,13 +685,13 @@ class LineControl extends EditorControl
     _pointMouseMove(e: MouseEvent, pointEle, xName: string, yName: string) {
         if (this._undoObj) {
             e.stopPropagation();
-            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
-            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
-            this.lineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
-            this.lineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
+            pointEle.setAttribute("cx", this.valueX + e.layerX - this.startX);
+            pointEle.setAttribute("cy", this.valueY + e.layerY - this.startY);
+            this.lineElement.setAttribute(xName, <any>(this.valueX + e.layerX - this.startX));
+            this.lineElement.setAttribute(yName, <any>(this.valueY + e.layerY - this.startY));
 
-            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
-            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
+            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.layerX - this.startX));
+            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.layerY - this.startY));
         }
     }
     _pointMouseUp(e: MouseEvent, pointEle) {

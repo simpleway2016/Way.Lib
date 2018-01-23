@@ -319,54 +319,60 @@ var Editor = (function () {
         this.divContainer.appendChild(this.svgContainer);
         this.initDivContainer();
         this.svgContainer.addEventListener("click", function (e) {
-            if (_this.svgContainer._notClick) {
-                _this.svgContainer._notClick = false;
-                return;
+            if (e.button == 0) {
+                if (_this.svgContainer._notClick) {
+                    _this.svgContainer._notClick = false;
+                    return;
+                }
+                _this.svgContainerClick(e);
             }
-            _this.svgContainerClick(e);
         });
         this.svgContainer.addEventListener("mousedown", function (e) {
-            if (!_this.currentToolBoxItem) {
-                _this.svgContainer._notClick = true;
-                _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                _this.selectingElement._startx = e.clientX - _this.divContainer.offsetLeft;
-                _this.selectingElement._starty = e.clientY - _this.divContainer.offsetTop;
-                _this.selectingElement.setAttribute('x', (e.clientX - _this.divContainer.offsetLeft));
-                _this.selectingElement.setAttribute('y', (e.clientY - _this.divContainer.offsetTop));
-                _this.selectingElement.setAttribute('width', "0");
-                _this.selectingElement.setAttribute('height', "0");
-                _this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
-                _this.svgContainer.appendChild(_this.selectingElement);
-                _this.svgContainer.setCapture();
+            if (e.button == 0) {
+                if (!_this.currentToolBoxItem) {
+                    _this.svgContainer._notClick = true;
+                    _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    _this.selectingElement._startx = e.layerX;
+                    _this.selectingElement._starty = e.layerY;
+                    _this.selectingElement.setAttribute('x', (e.layerX));
+                    _this.selectingElement.setAttribute('y', (e.layerY));
+                    _this.selectingElement.setAttribute('width', "0");
+                    _this.selectingElement.setAttribute('height', "0");
+                    _this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+                    _this.svgContainer.appendChild(_this.selectingElement);
+                    _this.svgContainer.setCapture();
+                }
             }
         });
         this.svgContainer.addEventListener("mouseup", function (e) {
-            if (_this.selectingElement) {
-                _this.svgContainer.releaseCapture();
-                var rect = {
-                    x: parseInt(_this.selectingElement.getAttribute("x")),
-                    y: parseInt(_this.selectingElement.getAttribute("y")),
-                    width: parseInt(_this.selectingElement.getAttribute("width")),
-                    height: parseInt(_this.selectingElement.getAttribute("height")),
-                };
-                _this.svgContainer.removeChild(_this.selectingElement);
-                _this.selectingElement = null;
-                _this.selectControlsByRect(rect, e.ctrlKey);
-                setTimeout(function () {
-                    _this.svgContainer._notClick = false;
-                }, 500);
-            }
-            else {
-                _this.svgContainerMouseUpPosition = {
-                    x: e.clientX - _this.divContainer.offsetLeft,
-                    y: e.clientY - _this.divContainer.offsetTop
-                };
+            if (e.button == 0) {
+                if (_this.selectingElement) {
+                    _this.svgContainer.releaseCapture();
+                    var rect = {
+                        x: parseInt(_this.selectingElement.getAttribute("x")),
+                        y: parseInt(_this.selectingElement.getAttribute("y")),
+                        width: parseInt(_this.selectingElement.getAttribute("width")),
+                        height: parseInt(_this.selectingElement.getAttribute("height")),
+                    };
+                    _this.svgContainer.removeChild(_this.selectingElement);
+                    _this.selectingElement = null;
+                    _this.selectControlsByRect(rect, e.ctrlKey);
+                    setTimeout(function () {
+                        _this.svgContainer._notClick = false;
+                    }, 500);
+                }
+                else {
+                    _this.svgContainerMouseUpPosition = {
+                        x: e.layerX,
+                        y: e.layerY
+                    };
+                }
             }
         });
         this.svgContainer.addEventListener("mousemove", function (e) {
             if (_this.selectingElement) {
-                var w = e.clientX - _this.divContainer.offsetLeft - _this.selectingElement._startx;
-                var h = e.clientY - _this.divContainer.offsetTop - _this.selectingElement._starty;
+                var w = e.layerX - _this.selectingElement._startx;
+                var h = e.layerY - _this.selectingElement._starty;
                 if (w < 0) {
                     var x = _this.selectingElement._startx + w;
                     w = -w;
@@ -381,7 +387,7 @@ var Editor = (function () {
                 _this.selectingElement.setAttribute("height", h);
             }
             else {
-                _this.svgContainerMouseMove(e.clientX - _this.divContainer.offsetLeft, e.clientY - _this.divContainer.offsetTop);
+                _this.svgContainerMouseMove(e.layerX, e.layerY);
             }
         });
         this.svgContainer.addEventListener("dragover", function (ev) {
@@ -393,8 +399,8 @@ var Editor = (function () {
                 var data = JSON.parse(ev.dataTransfer.getData("Text"));
                 if (data && data.Type == "GroupControl") {
                     var rect = {};
-                    rect.x = ev.clientX;
-                    rect.y = ev.clientY - _this.divContainer.offsetTop;
+                    rect.x = ev.layerX;
+                    rect.y = ev.layerY;
                     rect.width = null;
                     rect.height = null;
                     var groupControl = _this.createGroupControl(data.windowCode, rect);
@@ -594,11 +600,11 @@ var Editor = (function () {
                 _this.divContainer.removeEventListener("mousemove", func, false);
                 return;
             }
-            if (_this.isWatchingRect && e.clientY > _this.divContainer.offsetTop) {
+            if (_this.isWatchingRect && e.layerY > 0) {
                 border.style.display = "";
-                border.style.width = e.clientX + "px";
-                border.style.height = (e.clientY - _this.divContainer.offsetTop) + "px";
-                border.children[0].innerHTML = e.clientX + "," + (e.clientY - _this.divContainer.offsetTop);
+                border.style.width = e.layerX + "px";
+                border.style.height = (e.layerY) + "px";
+                border.children[0].innerHTML = e.layerX + "," + (e.layerY);
             }
             else {
                 border.style.display = "none";

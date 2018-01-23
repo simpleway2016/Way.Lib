@@ -501,61 +501,65 @@ class Editor implements IEditorControlContainer
         this.initDivContainer();
 
         this.svgContainer.addEventListener("click", (e) => {
-            if ((<any>this.svgContainer)._notClick) {
-                (<any>this.svgContainer)._notClick = false;
-                return;
-            }
+            if (e.button == 0) {
+                //左键
+                if ((<any>this.svgContainer)._notClick) {
+                    (<any>this.svgContainer)._notClick = false;
+                    return;
+                }
 
-            this.svgContainerClick(e);
+                this.svgContainerClick(e);
+            }
         });
         this.svgContainer.addEventListener("mousedown", (e) => {
-    
-            if (!this.currentToolBoxItem)
-            {
-                (<any>this.svgContainer)._notClick = true;
+            if (e.button == 0) {
+                if (!this.currentToolBoxItem) {
+                    (<any>this.svgContainer)._notClick = true;
 
-                this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                (<any>this.selectingElement)._startx = e.clientX - this.divContainer.offsetLeft;
-                (<any>this.selectingElement)._starty = e.clientY - this.divContainer.offsetTop;
-                this.selectingElement.setAttribute('x', <any>(e.clientX - this.divContainer.offsetLeft));
-                this.selectingElement.setAttribute('y', <any>(e.clientY - this.divContainer.offsetTop));
-                this.selectingElement.setAttribute('width', "0");
-                this.selectingElement.setAttribute('height', "0");
-                this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
-                this.svgContainer.appendChild(this.selectingElement);
-                (<any>this.svgContainer).setCapture();
+                    this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    (<any>this.selectingElement)._startx = e.layerX;
+                    (<any>this.selectingElement)._starty = e.layerY;
+                    this.selectingElement.setAttribute('x', <any>(e.layerX));
+                    this.selectingElement.setAttribute('y', <any>(e.layerY));
+                    this.selectingElement.setAttribute('width', "0");
+                    this.selectingElement.setAttribute('height', "0");
+                    this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+                    this.svgContainer.appendChild(this.selectingElement);
+                    (<any>this.svgContainer).setCapture();
+                }
             }
         });
         this.svgContainer.addEventListener("mouseup", (e) => {
-          
-            if (this.selectingElement) {
-                (<any>this.svgContainer).releaseCapture();
-                var rect = {
-                    x: parseInt(this.selectingElement.getAttribute("x")),
-                    y: parseInt(this.selectingElement.getAttribute("y")),
-                    width: parseInt(this.selectingElement.getAttribute("width")),
-                    height: parseInt(this.selectingElement.getAttribute("height")),
-                };
-                this.svgContainer.removeChild(this.selectingElement);
-                this.selectingElement = null;
-                this.selectControlsByRect(rect, e.ctrlKey);
+            if (e.button == 0) {
+                if (this.selectingElement) {
+                    (<any>this.svgContainer).releaseCapture();
+                    var rect = {
+                        x: parseInt(this.selectingElement.getAttribute("x")),
+                        y: parseInt(this.selectingElement.getAttribute("y")),
+                        width: parseInt(this.selectingElement.getAttribute("width")),
+                        height: parseInt(this.selectingElement.getAttribute("height")),
+                    };
+                    this.svgContainer.removeChild(this.selectingElement);
+                    this.selectingElement = null;
+                    this.selectControlsByRect(rect, e.ctrlKey);
 
-                setTimeout(() => {
-                    (<any>this.svgContainer)._notClick = false;
-                }, 500);
-            }
-            else {
-                this.svgContainerMouseUpPosition = {
-                    x: e.clientX - this.divContainer.offsetLeft,
-                    y: e.clientY - this.divContainer.offsetTop
-                };
+                    setTimeout(() => {
+                        (<any>this.svgContainer)._notClick = false;
+                    }, 500);
+                }
+                else {
+                    this.svgContainerMouseUpPosition = {
+                        x: e.layerX,
+                        y: e.layerY
+                    };
+                }
             }
             
         });
         this.svgContainer.addEventListener("mousemove", (e) => {
             if (this.selectingElement) {
-                var w = e.clientX - this.divContainer.offsetLeft - (<any>this.selectingElement)._startx ;
-                var h = e.clientY - this.divContainer.offsetTop - (<any>this.selectingElement)._starty;
+                var w = e.layerX - (<any>this.selectingElement)._startx ;
+                var h = e.layerY - (<any>this.selectingElement)._starty;
                 if (w < 0)
                 {
                     var x = (<any>this.selectingElement)._startx  + w;
@@ -571,7 +575,7 @@ class Editor implements IEditorControlContainer
                 this.selectingElement.setAttribute("height", <any>h);
             }
             else {
-                this.svgContainerMouseMove(e.clientX - this.divContainer.offsetLeft, e.clientY - this.divContainer.offsetTop);
+                this.svgContainerMouseMove(e.layerX, e.layerY);
             }
         });
 
@@ -583,10 +587,10 @@ class Editor implements IEditorControlContainer
             try {
                 var data = JSON.parse(ev.dataTransfer.getData("Text"));
                 if (data && data.Type == "GroupControl") {
-                    //alert(ev.clientX + "," + (ev.clientY - divContainer.offsetTop) + "：" + data);
+                    //alert(ev.layerX + "," + (ev.layerY) + "：" + data);
                     var rect: any = {};
-                    rect.x = ev.clientX;
-                    rect.y = ev.clientY - this.divContainer.offsetTop;
+                    rect.x = ev.layerX;
+                    rect.y = ev.layerY;
                     rect.width = null;
                     rect.height = null;
                     var groupControl = this.createGroupControl(data.windowCode, rect);
@@ -689,11 +693,11 @@ class Editor implements IEditorControlContainer
                 return;
             }
 
-            if (this.isWatchingRect && e.clientY > this.divContainer.offsetTop) {
+            if (this.isWatchingRect && e.layerY > 0) {
                 border.style.display = "";
-                border.style.width = e.clientX + "px";
-                border.style.height = (e.clientY - this.divContainer.offsetTop) + "px";
-                border.children[0].innerHTML = e.clientX + "," + (e.clientY - this.divContainer.offsetTop);
+                border.style.width = e.layerX + "px";
+                border.style.height = (e.layerY) + "px";
+                border.children[0].innerHTML = e.layerX + "," + (e.layerY);
             }
             else {
                 border.style.display = "none";
