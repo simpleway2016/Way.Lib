@@ -311,11 +311,11 @@ var Editor = (function () {
         this.divContainer = document.body.querySelector("#" + id);
         this.undoMgr = new UndoManager();
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.svgContainer.setAttribute('width', '100%');
         this.svgContainer.style.backgroundSize = "100% 100%";
         this.svgContainer.style.backgroundRepeat = "no-repeat";
-        this.svgContainer.setAttribute('height', '100%');
         this.svgContainer.style.backgroundColor = "#ffffff";
+        this.svgContainer.style.height = "8000px";
+        this.svgContainer.style.width = "8000px";
         this.divContainer.appendChild(this.svgContainer);
         this.initDivContainer();
         this.svgContainer.addEventListener("click", function (e) {
@@ -642,6 +642,10 @@ var Editor = (function () {
             }
         }
         return script;
+    };
+    Editor.prototype.scale = function (_scale) {
+        this.svgContainer.style.transformOrigin = "0 0";
+        this.svgContainer.style.transform = "scale(" + _scale + "," + _scale + ")";
     };
     Editor.prototype.undo = function () {
         this.undoMgr.undo();

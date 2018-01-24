@@ -181,8 +181,15 @@
             </div>
             <div class="toolboxItem" title="移到底层" onclick="editor.layerBottom();" style="background-image:url(/images/toolbox/bringtobottom.png);cursor:pointer;margin-left:0px;">
             </div>
+            <div class="toolboxItem">
+                <select id="sel1">
+                    <option value="1">100%</option>
+                    <option value="2">200%</option>
+                    <option value="3">300%</option>
+                </select>
+            </div>
         </div>
-        <div class="flex-1" id="svgContainer">
+        <div class="flex-1" id="svgContainer" style="overflow:auto;">
         </div>
     </div>
 
@@ -193,6 +200,9 @@
     </div>
     
     <script lang="ja">
+        document.body.querySelector("#sel1").addEventListener("change", function (e) {
+            editor.scale(document.body.querySelector("#sel1").value);
+        });
         function rulerChange(ele)
         {
             if (editor.isWatchingRect)

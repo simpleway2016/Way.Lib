@@ -122,6 +122,7 @@ declare class Editor implements IEditorControlContainer {
     run(): void;
     createGroupControl(windowCode: any, rect: any): GroupControl;
     getScript(): string;
+    scale(_scale: any): void;
     undo(): void;
     redo(): void;
     group(): void;

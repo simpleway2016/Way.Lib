@@ -491,11 +491,12 @@ class Editor implements IEditorControlContainer
 
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-        this.svgContainer.setAttribute('width', '100%');
+        
         this.svgContainer.style.backgroundSize = "100% 100%";
         this.svgContainer.style.backgroundRepeat = "no-repeat";
-        this.svgContainer.setAttribute('height', '100%');
         this.svgContainer.style.backgroundColor = "#ffffff";
+        this.svgContainer.style.height = "8000px";
+        this.svgContainer.style.width = "8000px";
         this.divContainer.appendChild(this.svgContainer);
 
         this.initDivContainer();
@@ -747,6 +748,12 @@ class Editor implements IEditorControlContainer
             }
         }
         return script;
+    }
+
+    scale(_scale)
+    {
+        this.svgContainer.style.transformOrigin = "0 0";
+        this.svgContainer.style.transform = "scale(" + _scale + "," + _scale + ")";
     }
 
     undo()
