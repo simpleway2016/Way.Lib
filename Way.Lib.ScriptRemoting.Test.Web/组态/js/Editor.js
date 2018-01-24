@@ -308,6 +308,7 @@ var Editor = (function () {
         this._customProperties = "";
         this.isWatchingRect = false;
         this.isRunMode = false;
+        this.currentScale = 1;
         this.divContainer = document.body.querySelector("#" + id);
         this.undoMgr = new UndoManager();
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -318,6 +319,8 @@ var Editor = (function () {
         this.svgContainer.style.width = "8000px";
         this.divContainer.appendChild(this.svgContainer);
         this.initDivContainer();
+        this.initScaleEvent();
+        this.initMoveToScrollEvent();
         this.svgContainer.addEventListener("click", function (e) {
             if (e.button == 0) {
                 if (_this.svgContainer._notClick) {
@@ -583,6 +586,99 @@ var Editor = (function () {
     Editor.prototype.getProperties = function () {
         return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "windowWidth", "windowHeight", "customProperties"];
     };
+    Editor.prototype.initMoveToScrollEvent = function () {
+        var svg1 = this.svgContainer;
+        var scrolling = false;
+        var downY;
+        var downX;
+        var scrollInfo;
+        svg1.addEventListener("mousedown", function (e) {
+            if (e.button == 2) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.setCapture();
+                svg1.style.cursor = "-moz-grab";
+                scrolling = true;
+                downX = e.clientX;
+                downY = e.clientY;
+                scrollInfo = {
+                    x: svg1.parentElement.scrollLeft,
+                    y: svg1.parentElement.scrollTop,
+                };
+            }
+        }, false);
+        svg1.addEventListener("mouseup", function (e) {
+            if (scrolling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scrolling = false;
+                svg1.releaseCapture();
+                svg1.style.cursor = "default";
+            }
+        }, false);
+        svg1.addEventListener("mousemove", function (e) {
+            if (scrolling) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.parentElement.scrollTo(Math.max(0, scrollInfo.x + downX - e.clientX), Math.max(0, scrollInfo.y + downY - e.clientY));
+            }
+        }, false);
+    };
+    Editor.prototype.initScaleEvent = function () {
+        var _this = this;
+        var svg1 = this.svgContainer;
+        svg1.style.transformOrigin = "0 0";
+        var scaleFlag = 1;
+        var scaling = false;
+        var downY;
+        var downX;
+        var downClientRect;
+        var downScroll;
+        var downScaleFlag;
+        svg1.addEventListener("mousedown", function (e) {
+            if (e.button == 1) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.style.cursor = "none";
+                svg1.setCapture();
+                scaling = true;
+                scaleFlag = _this.currentScale;
+                downY = e.layerY;
+                downX = e.layerX;
+                downScroll = {
+                    h: svg1.parentElement.scrollLeft,
+                    v: svg1.parentElement.scrollTop
+                };
+                downClientRect = {
+                    x: e.clientX,
+                    y: e.clientY - svg1.parentElement.offsetTop
+                };
+                downScaleFlag = scaleFlag;
+            }
+        }, false);
+        svg1.addEventListener("mouseup", function (e) {
+            if (scaling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scaling = false;
+                svg1.style.cursor = "default";
+                svg1.releaseCapture();
+            }
+        }, false);
+        svg1.addEventListener("mousemove", function (e) {
+            if (scaling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scaleFlag = downScaleFlag + parseFloat((downY - e.layerY)) / 200;
+                if (scaleFlag < 1)
+                    scaleFlag = 1;
+                _this.scale(scaleFlag);
+                var pointX = downX * scaleFlag;
+                var pointY = downY * scaleFlag;
+                svg1.parentElement.scrollTo(Math.max(0, pointX - downClientRect.x), Math.max(0, pointY - downClientRect.y));
+            }
+        }, false);
+    };
     Editor.prototype.initDivContainer = function () {
         var _this = this;
         this.divContainer.style.position = "relative";
@@ -644,8 +740,8 @@ var Editor = (function () {
         return script;
     };
     Editor.prototype.scale = function (_scale) {
-        this.svgContainer.style.transformOrigin = "0 0";
-        this.svgContainer.style.transform = "scale(" + _scale + "," + _scale + ")";
+        this.currentScale = _scale;
+        this.svgContainer.style.transform = "scale(" + this.currentScale + "," + this.currentScale + ")";
     };
     Editor.prototype.undo = function () {
         this.undoMgr.undo();

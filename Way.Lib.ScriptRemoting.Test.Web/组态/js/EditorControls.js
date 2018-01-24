@@ -45,9 +45,7 @@ var EditorControl = (function () {
             _this.showProperty();
         }, false);
         this.element.addEventListener("mousedown", function (e) {
-            if (_this.isInGroup || !_this.container || !_this.isDesignMode)
-                return;
-            if (e.button == 2)
+            if (_this.isInGroup || !_this.container || !_this.isDesignMode || e.button != 0)
                 return;
             _this._moveAllSelectedControl = _this.selected;
             e.stopPropagation();
@@ -87,7 +85,7 @@ var EditorControl = (function () {
             }
         }, false);
         document.body.addEventListener("mouseup", function (e) {
-            if (_this.isInGroup || !_this.container || !_this.isDesignMode)
+            if (_this.isInGroup || !_this.container || !_this.isDesignMode || e.button != 0)
                 return;
             if (_this.mouseDownX >= 0) {
                 e.stopPropagation();
@@ -367,9 +365,17 @@ var EditorControl = (function () {
     EditorControl.prototype.setEvent = function (pointEle) {
         var _this = this;
         pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousedown", function (e) {
+            if (e.button == 0) {
+                _this.pointMouseDown(e, pointEle);
+            }
+        }, false);
         pointEle.addEventListener("mousemove", function (e) { _this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this.pointMouseUp(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", function (e) {
+            if (e.button == 0) {
+                _this.pointMouseUp(e, pointEle);
+            }
+        }, false);
     };
     EditorControl.prototype.pointMouseDown = function (e, pointEle) {
         e.stopPropagation();
@@ -559,9 +565,17 @@ var LineControl = (function (_super) {
     LineControl.prototype.mySetEvent = function (pointEle, xName, yName) {
         var _this = this;
         pointEle.addEventListener("click", function (e) { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", function (e) { _this._pointMouseDown(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mousedown", function (e) {
+            if (e.button == 0) {
+                _this._pointMouseDown(e, pointEle, xName, yName);
+            }
+        }, false);
         pointEle.addEventListener("mousemove", function (e) { _this._pointMouseMove(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mouseup", function (e) { _this._pointMouseUp(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", function (e) {
+            if (e.button == 0) {
+                _this._pointMouseUp(e, pointEle);
+            }
+        }, false);
     };
     LineControl.prototype._pointMouseDown = function (e, pointEle, xName, yName) {
         e.stopPropagation();
@@ -1170,8 +1184,8 @@ var TextControl = (function (_super) {
                 return {
                     x: parseInt(result[1]),
                     y: parseInt(result[2]),
-                    width: clientRect.width,
-                    height: clientRect.height
+                    width: clientRect.width / editor.currentScale,
+                    height: clientRect.height / editor.currentScale
                 };
             }
             catch (e) {
@@ -1247,13 +1261,22 @@ var TextControl = (function (_super) {
     });
     TextControl.prototype.isIntersectWith = function (rect) {
         var clientRect = this.textElement.getBoundingClientRect();
-        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
         return this.isIntersect(myrect, rect);
     };
     TextControl.prototype.onSelectedChange = function () {
         if (this.selected) {
             var clientRect = this.textElement.getBoundingClientRect();
-            var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+            var myrect = {
+                x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+                y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+                width: clientRect.width / editor.currentScale,
+                height: clientRect.height / editor.currentScale
+            };
             this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             this.selectingElement.setAttribute('x', (myrect.x - 5));
             this.selectingElement.setAttribute('y', (myrect.y - 5));
@@ -1261,7 +1284,9 @@ var TextControl = (function (_super) {
             this.selectingElement.setAttribute('height', (myrect.height + 10));
             this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
             this.selectingElement.onmousedown = function (e) {
-                e.stopPropagation();
+                if (e.button != 1) {
+                    e.stopPropagation();
+                }
             };
             this.groupElement.parentElement.appendChild(this.selectingElement);
         }
@@ -1273,7 +1298,12 @@ var TextControl = (function (_super) {
         if (!this.selected)
             return;
         var clientRect = this.textElement.getBoundingClientRect();
-        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale,
+            height: clientRect.height / editor.currentScale
+        };
         this.selectingElement.setAttribute('x', (myrect.x - 5));
         this.selectingElement.setAttribute('y', (myrect.y - 5));
         this.selectingElement.setAttribute('width', (myrect.width + 10));

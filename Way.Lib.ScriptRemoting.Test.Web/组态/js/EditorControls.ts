@@ -96,11 +96,9 @@ class EditorControl
         }, false);        
 
         (<HTMLElement>this.element).addEventListener("mousedown", (e) => {
-            if (this.isInGroup || !this.container || !this.isDesignMode)
+            if (this.isInGroup || !this.container || !this.isDesignMode || e.button != 0)
                 return;
 
-            if (e.button == 2)
-                return;
             this._moveAllSelectedControl = this.selected;
 
             e.stopPropagation();
@@ -145,7 +143,7 @@ class EditorControl
             }
         }, false);
         document.body.addEventListener("mouseup", (e) => {
-            if (this.isInGroup || !this.container || !this.isDesignMode)
+            if (this.isInGroup || !this.container || !this.isDesignMode || e.button != 0)
                 return;
 
             if (this.mouseDownX >= 0) {
@@ -431,9 +429,17 @@ class EditorControl
 
     setEvent(pointEle) {
         pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
+        pointEle.addEventListener("mousedown", (e) => {
+            if (e.button == 0) {
+                this.pointMouseDown(e, pointEle);
+            }
+        }, false);
         pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => {
+            if (e.button == 0) {
+                this.pointMouseUp(e, pointEle);
+            }
+        }, false);
     }
 
     private undoObj: UndoMoveControls;
@@ -660,9 +666,17 @@ class LineControl extends EditorControl
 
     mySetEvent(pointEle, xName, yName) {
         pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this._pointMouseDown(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mousedown", (e) => {
+            if (e.button == 0) {
+                this._pointMouseDown(e, pointEle, xName, yName);
+            }
+        }, false);
         pointEle.addEventListener("mousemove", (e) => { this._pointMouseMove(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this._pointMouseUp(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => {
+            if (e.button == 0) {
+                this._pointMouseUp(e, pointEle);
+            }
+        }, false);
     }
 
     private _undoObj: UndoChangeLinePoint = null;
@@ -1242,10 +1256,10 @@ class TextControl extends EditorControl {
             //var myrect: SVGRect = (<any>this.groupElement).getBBox();
 
             return {
-                x: parseInt(result[1]),
+                x: parseInt(result[1]) ,
                 y: parseInt(result[2]),
-                width: clientRect.width,
-                height: clientRect.height
+                width: clientRect.width / editor.currentScale,
+                height: clientRect.height / editor.currentScale
             };
         }
         catch (e)
@@ -1321,7 +1335,11 @@ class TextControl extends EditorControl {
 
     isIntersectWith(rect): boolean {
         var clientRect = this.textElement.getBoundingClientRect();
-        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
 
         return this.isIntersect(myrect, rect);
     }
@@ -1329,7 +1347,12 @@ class TextControl extends EditorControl {
     onSelectedChange() {
         if (this.selected) {
             var clientRect = this.textElement.getBoundingClientRect();
-            var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+            var myrect = {
+                x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+                y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+                width: clientRect.width / editor.currentScale,
+                height: clientRect.height / editor.currentScale
+            };
 
             this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
@@ -1338,7 +1361,9 @@ class TextControl extends EditorControl {
             this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
             this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
             this.selectingElement.onmousedown = (e) => {
-                e.stopPropagation();
+                if (e.button != 1) {
+                    e.stopPropagation();
+                }
             };
             this.groupElement.parentElement.appendChild(this.selectingElement);
         }
@@ -1352,7 +1377,12 @@ class TextControl extends EditorControl {
             return;
 
         var clientRect = this.textElement.getBoundingClientRect();
-        var myrect = { x: clientRect.left, y: clientRect.top - editor.divContainer.offsetTop, width: clientRect.width, height: clientRect.height };
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale,
+            height: clientRect.height / editor.currentScale
+        };
 
         this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
         this.selectingElement.setAttribute('y', <any>(myrect.y - 5));

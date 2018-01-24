@@ -116,12 +116,15 @@ declare class Editor implements IEditorControlContainer {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);
+    private initMoveToScrollEvent();
+    private initScaleEvent();
     private initDivContainer();
     isWatchingRect: boolean;
     isRunMode: boolean;
     run(): void;
     createGroupControl(windowCode: any, rect: any): GroupControl;
     getScript(): string;
+    currentScale: number;
     scale(_scale: any): void;
     undo(): void;
     redo(): void;
