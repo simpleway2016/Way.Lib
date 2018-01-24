@@ -48,6 +48,7 @@ var PropertyDialog = (function () {
             cell.style.display = "table-cell";
             cell.style.whiteSpace = "nowrap";
             cell.innerHTML = captions[i] + "：";
+            cell.title = pNames[i];
             row.appendChild(cell);
             var captionCell = cell;
             cell = document.createElement("DIV");
