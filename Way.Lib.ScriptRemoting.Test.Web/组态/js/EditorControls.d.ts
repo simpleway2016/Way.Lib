@@ -367,6 +367,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     constructor(element: any, windowCode: any);
     run(): void;
     isIntersectWith(rect: any): boolean;
+    resetPointLocation(): void;
     onDevicePointValueChanged(point: any): void;
     private onChildrenPointValueChanged(control, point);
     getJson(): any;

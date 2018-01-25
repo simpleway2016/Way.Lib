@@ -2541,7 +2541,26 @@ var GroupControl = (function (_super) {
         }
     };
     GroupControl.prototype.isIntersectWith = function (rect) {
-        return this.isIntersect(this.rect, rect);
+        var clientRect = this.childGroupElement.getBoundingClientRect();
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
+        return this.isIntersect(myrect, rect);
+    };
+    GroupControl.prototype.resetPointLocation = function () {
+        if (!this.selected)
+            return;
+        var clientRect = this.childGroupElement.getBoundingClientRect();
+        var rect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
+        for (var i = 0; i < this.pointEles.length; i++) {
+            this.pointEles[i]._setLocation(this.pointEles[i], rect);
+        }
     };
     GroupControl.prototype.onDevicePointValueChanged = function (point) {
         for (var i = 0; i < this.customProperties.length; i++) {
