@@ -2387,6 +2387,9 @@ var GroupControl = (function (_super) {
         _this.windowCode = windowCode;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         _this.groupElement = element;
+        _this.childGroupElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        _this.childGroupElement.style.transform = "rotate(0deg)";
+        _this.groupElement.appendChild(_this.childGroupElement);
         if (!_this.virtualRectElement) {
             _this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             _this.groupElement.appendChild(_this.virtualRectElement);
@@ -2410,7 +2413,7 @@ var GroupControl = (function (_super) {
     GroupControl.prototype.addControl = function (ctrl) {
         ctrl.isInGroup = true;
         ctrl.container = this;
-        this.groupElement.appendChild(ctrl.element);
+        this.childGroupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
         if (ctrl.constructor.name == "GroupControl") {
             var groupControl = ctrl;
@@ -2493,14 +2496,28 @@ var GroupControl = (function (_super) {
             this.virtualRectElement.setAttribute('width', this.contentWidth);
             this.virtualRectElement.setAttribute('height', this.contentHeight);
             this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
+            this.childGroupElement.style.transformOrigin = ((this.contentWidth * scalex) / 2) + "px " + ((this.contentHeight * scalex) / 2) + "px";
             this.lastRect = v;
             this.resetPointLocation();
         },
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(GroupControl.prototype, "rotate", {
+        get: function () {
+            var transform = this.childGroupElement.style.transform;
+            var result = /rotate\(([0-9]+)deg\)/.exec(transform);
+            return parseInt(result[1]);
+        },
+        set: function (v) {
+            this.childGroupElement.style.transform = "rotate(" + v + "deg)";
+        },
+        enumerable: true,
+        configurable: true
+    });
     GroupControl.prototype.getPropertiesCaption = function () {
         var caps = ["id"];
+        caps.push("旋转角度");
         for (var i = 0; i < this.customProperties.length; i++) {
             caps.push(this.customProperties[i] + "设备点");
         }
@@ -2508,6 +2525,7 @@ var GroupControl = (function (_super) {
     };
     GroupControl.prototype.getProperties = function () {
         var pros = ["id"];
+        pros.push("rotate");
         for (var i = 0; i < this.customProperties.length; i++) {
             pros.push(this.customProperties[i] + "_devPoint");
         }

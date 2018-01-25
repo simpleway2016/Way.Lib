@@ -2368,7 +2368,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     addControl(ctrl: EditorControl) {
         ctrl.isInGroup = true;
         ctrl.container = this;
-        this.groupElement.appendChild(ctrl.element);
+        this.childGroupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
 
         if ((<any>ctrl).constructor.name == "GroupControl") {
@@ -2407,7 +2407,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
 
     groupElement: SVGGElement;
-
+    childGroupElement: SVGGElement;
     startX = 0;
     startY = 0;
     windowCode: any;
@@ -2471,13 +2471,24 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
         this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
+        this.childGroupElement.style.transformOrigin = ((this.contentWidth * scalex) / 2) + "px " + ((this.contentHeight * scalex) / 2) +"px";
         this.lastRect = v;
         this.resetPointLocation();
+    }
+
+    get rotate() {
+        var transform = this.childGroupElement.style.transform;
+        var result = /rotate\(([0-9]+)deg\)/.exec(transform);
+        return parseInt(result[1]);
+    }
+    set rotate(v: any) {
+        this.childGroupElement.style.transform = "rotate("+ v +"deg)";
     }
 
     customProperties: any[] = [];
     getPropertiesCaption(): string[] {
         var caps = ["id"];
+        caps.push("旋转角度");
         for (var i = 0; i < this.customProperties.length; i++)
         {
             caps.push(this.customProperties[i] + "设备点");
@@ -2486,6 +2497,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
     getProperties(): string[] {
         var pros = ["id"];
+        pros.push("rotate");
         for (var i = 0; i < this.customProperties.length; i++) {
             pros.push(this.customProperties[i] + "_devPoint");
         }
@@ -2497,7 +2509,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.windowCode = windowCode;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         this.groupElement = element;
-
+        this.childGroupElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        this.childGroupElement.style.transform = "rotate(0deg)";
+        this.groupElement.appendChild(this.childGroupElement);
 
         if (!this.virtualRectElement) {
             this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');

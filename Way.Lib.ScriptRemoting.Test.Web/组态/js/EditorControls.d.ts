@@ -349,6 +349,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     addControl(ctrl: EditorControl): void;
     writeValue(pointName: any, addr: any, value: any): void;
     groupElement: SVGGElement;
+    childGroupElement: SVGGElement;
     startX: number;
     startY: number;
     windowCode: any;
@@ -359,6 +360,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     contentHeight: number;
     private lastRect;
     rect: any;
+    rotate: any;
     customProperties: any[];
     getPropertiesCaption(): string[];
     getProperties(): string[];
