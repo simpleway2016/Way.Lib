@@ -133,7 +133,7 @@ namespace SunRizServer.Controllers
             return json;
         }
         [RemotingMethod]
-        public int WriteWindowCode(int windowid, string windowCode,string filecontent)
+        public int WriteWindowCode(int windowid, string windowCode, string filecontent)
         {
             ControlWindow window = null;
             if (!string.IsNullOrEmpty(windowCode))
@@ -141,6 +141,25 @@ namespace SunRizServer.Controllers
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
             System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, filecontent, System.Text.Encoding.UTF8);
+            return 0;
+        }
+
+        [RemotingMethod]
+        public string GetWindowScript(int windowid)
+        {
+            ControlWindow window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            return obj.Value<string>("controlsScript");
+        }
+        [RemotingMethod]
+        public int WriteWindowScript(int windowid, string script)
+        {
+            ControlWindow window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            obj["controlsScript"] = script;
+            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, obj.ToString(), System.Text.Encoding.UTF8);
             return 0;
         }
         [RemotingMethod]

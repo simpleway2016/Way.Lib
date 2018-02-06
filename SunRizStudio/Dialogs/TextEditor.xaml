@@ -19,6 +19,17 @@
             <Button x:Name="btnReplace" Margin="10,5,0,5" Width="50"  Content="替换" Click="btnReplace_Click"></Button>
             <Button x:Name="btnReplaceAll" Margin="10,5,0,5" Width="90"  Content="全部替换" Click="btnReplaceAll_Click"></Button>
         </StackPanel>
-        <RichTextBox x:Name="txtEditor" PreviewKeyDown="txtEditor_PreviewKeyDown" SelectionChanged="txtEditor_SelectionChanged" FontFamily="新宋体" FontSize="14" Grid.Row="1"></RichTextBox>
+        <RichTextBox x:Name="txtEditor" PreviewKeyDown="txtEditor_PreviewKeyDown" SelectionChanged="txtEditor_SelectionChanged" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" FontFamily="新宋体" FontSize="14" Grid.Row="1">
+            <RichTextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </RichTextBox.Resources>
+            <RichTextBox.Document>
+                <FlowDocument PageWidth="2048">
+                </FlowDocument>
+            </RichTextBox.Document>
+            
+        </RichTextBox>
     </Grid>
 </Window>

@@ -190,7 +190,7 @@ namespace SunRizStudio.Dialogs
         {
             TextRange textRange = new TextRange(txtEditor.Document.ContentStart, txtEditor.Document.ContentEnd);
 
-            Helper.Remote.Invoke<int>("WriteWindowCode", (ret, err) => {
+            Helper.Remote.Invoke<int>("WriteWindowScript", (ret, err) => {
                 if (err != null)
                 {
                     MessageBox.Show(this, err);
@@ -199,7 +199,7 @@ namespace SunRizStudio.Dialogs
                 {
                     MessageBox.Show(this, "保存成功！");
                 }
-            }, _windowId, "", textRange.Text);
+            }, _windowId, textRange.Text);
         }
     }
 }

@@ -74,18 +74,18 @@ namespace SunRizStudio.Models.Nodes
         }
         void openCode()
         {            
-            Helper.Remote.Invoke<string>("GetWindowCode", (fileContent, err) => {
+            Helper.Remote.Invoke<string>("GetWindowScript", (script, err) => {
                 if (err != null)
                 {
                     MessageBox.Show(MainWindow.Instance, err);
                 }
                 else
                 {
-                    Dialogs.TextEditor frm = new Dialogs.TextEditor(fileContent, _dataModel.id.Value);
+                    Dialogs.TextEditor frm = new Dialogs.TextEditor(script, _dataModel.id.Value);
                     frm.Title = _dataModel.Name;
                     frm.ShowDialog();
                 }
-            }, _dataModel.id, "");
+            }, _dataModel.id);
         }
         private void _dataModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

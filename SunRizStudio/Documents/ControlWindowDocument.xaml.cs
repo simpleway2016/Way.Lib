@@ -121,18 +121,18 @@ namespace SunRizStudio.Documents
         //脚本直接编辑
         void openCode(string p)
         {
-            Helper.Remote.Invoke<string>("GetWindowCode", (fileContent, err) => {
+            Helper.Remote.Invoke<string>("GetWindowScript", (script, err) => {
                 if (err != null)
                 {
                     MessageBox.Show(this.GetParentByName<Window>(null), err);
                 }
                 else
                 {
-                    Dialogs.TextEditor frm = new Dialogs.TextEditor(fileContent,_dataModel.id.Value);
+                    Dialogs.TextEditor frm = new Dialogs.TextEditor(script, _dataModel.id.Value);
                     frm.Title = this.Title;
                     frm.ShowDialog();
                 }
-            }, _dataModel.id,"" );
+            }, _dataModel.id);
         }
 
         /// <summary>
