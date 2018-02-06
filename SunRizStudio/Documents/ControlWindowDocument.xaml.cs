@@ -32,11 +32,9 @@ namespace SunRizStudio.Documents
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
         bool closeAfterSave = false;
-        List<System.Diagnostics.Process> _Processes = new List<System.Diagnostics.Process>();
+
         Dictionary<string, PointAddrInfo> _PointAddress = new Dictionary<string, PointAddrInfo>();
-        List<System.IO.FileSystemWatcher> _FileWatchers = new List<System.IO.FileSystemWatcher>();
-        string _changedFilePath;
-        System.Threading.Thread _checkingFileContentThread;
+
         /// <summary>
         /// 是否允许模式
         /// </summary>
@@ -130,86 +128,11 @@ namespace SunRizStudio.Documents
                 }
                 else
                 {
-                    if(System.IO.Directory.Exists($"{AppDomain.CurrentDomain.BaseDirectory}temp") == false)
-                    {
-                        System.IO.Directory.CreateDirectory($"{AppDomain.CurrentDomain.BaseDirectory}temp");
-                    }
-                    var filename = $"{ Guid.NewGuid().ToString("N") }.txt";
-                      var filepath = $"{AppDomain.CurrentDomain.BaseDirectory}temp\\{filename}";
-                    System.IO.File.WriteAllText(filepath, fileContent, System.Text.Encoding.UTF8);
-                    System.IO.FileSystemWatcher sw = new System.IO.FileSystemWatcher();
-                    sw.Path = System.IO.Path.GetDirectoryName( filepath);
-                    sw.Filter = filename;
-                    sw.NotifyFilter = System.IO.NotifyFilters.LastWrite;
-                    sw.Changed += (s, e) => 
-                    {
-                        _changedFilePath = filepath;
-                    };
-                    sw.EnableRaisingEvents = true;
-                    _FileWatchers.Add(sw);
-
-                   var process = System.Diagnostics.Process.Start("notepad.exe", filepath);
-                    _Processes.Add(process);
-                    //定义记事本关闭后的事件
-                    process.Exited += (s, e) => {
-                        try
-                        {
-                            sw.EnableRaisingEvents = false;
-                            sw.Dispose();
-                            _FileWatchers.Remove(sw);
-                        }
-                        catch { }
-                    };
-                    process.EnableRaisingEvents = true;
-                    if (_checkingFileContentThread == null)
-                    {
-                        _checkingFileContentThread = new Thread(checkFileContent);
-                        _checkingFileContentThread.Start();
-                    }
+                    Dialogs.TextEditor frm = new Dialogs.TextEditor(fileContent,_dataModel.id.Value);
+                    frm.Title = this.Title;
+                    frm.ShowDialog();
                 }
             }, _dataModel.id,"" );
-        }
-
-        void checkFileContent()
-        {
-            try
-            {
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                    if(_changedFilePath != null)
-                    {
-                        string filecontent = null;
-                        while(filecontent == null)
-                        {
-                            try
-                            {
-                                filecontent = System.IO.File.ReadAllText(_changedFilePath, System.Text.Encoding.UTF8);
-                            }
-                            catch
-                            {
-                                Thread.Sleep(500);
-                            }
-                        }
-                        Helper.Remote.Invoke<int>("WriteWindowCode", (ret, err) => {
-                            if (err != null)
-                            {
-                                this.Dispatcher.Invoke(()=> {
-                                    MessageBox.Show(this.GetParentByName<Window>(null), err);
-                                });                                
-                            }
-                            else
-                            {
-                                _changedFilePath = null;
-                            }
-                        }, _dataModel.id, "", filecontent);
-                    }
-                }
-            }
-            catch
-            {
-
-            }
         }
 
         /// <summary>
@@ -388,18 +311,8 @@ namespace SunRizStudio.Documents
             {
 
             }
-            foreach (var fw in _FileWatchers)
-            {
-                fw.EnableRaisingEvents = false;
-                fw.Dispose();
-            }
-            _FileWatchers.Clear();
-            if (_checkingFileContentThread != null)
-            {
-                _checkingFileContentThread.Abort();
-                _checkingFileContentThread = null;
-            }
 
+           
             foreach (var client in _clients)
             {
                 client.Released = true;

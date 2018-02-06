@@ -30,6 +30,12 @@ namespace SunRizStudio.Models.Nodes
             });
             this.ContextMenuItems.Add(new ContextMenuItem()
             {
+                Text = "代码编辑",
+                ClickHandler = (s, e) => openCode(),
+
+            });
+            this.ContextMenuItems.Add(new ContextMenuItem()
+            {
                 Text = "删除",
                 ClickHandler = delClick,
 
@@ -66,7 +72,21 @@ namespace SunRizStudio.Models.Nodes
             var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, _dataModel, false);
             MainWindow.Instance.SetActiveDocument(doc);
         }
-       
+        void openCode()
+        {            
+            Helper.Remote.Invoke<string>("GetWindowCode", (fileContent, err) => {
+                if (err != null)
+                {
+                    MessageBox.Show(MainWindow.Instance, err);
+                }
+                else
+                {
+                    Dialogs.TextEditor frm = new Dialogs.TextEditor(fileContent, _dataModel.id.Value);
+                    frm.Title = _dataModel.Name;
+                    frm.ShowDialog();
+                }
+            }, _dataModel.id, "");
+        }
         private void _dataModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
            if(e.PropertyName == "Name" || e.PropertyName == "Code")

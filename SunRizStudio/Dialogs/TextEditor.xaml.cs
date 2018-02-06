@@ -22,11 +22,15 @@ namespace SunRizStudio.Dialogs
         List<TextRange> _findedRanges = new List<TextRange>();
         object _findedRange_Foreground;
         object _findedRange_Background;
-        public TextEditor()
+        int _windowId;
+        public TextEditor(string content,int windowid)
         {
             InitializeComponent();
+            _windowId = windowid;
             txtEditor.AcceptsReturn = false;
-            LoadText(txtEditor, "test hel\r\nlo test");
+            LoadText(txtEditor, content);
+
+          
         }
         private void LoadText(RichTextBox richTextBox, string txtContent)
         {
@@ -180,6 +184,22 @@ namespace SunRizStudio.Dialogs
                 txtEditor.CaretPosition = txtEditor.CaretPosition.InsertLineBreak();
                 e.Handled = true;
             }
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            TextRange textRange = new TextRange(txtEditor.Document.ContentStart, txtEditor.Document.ContentEnd);
+
+            Helper.Remote.Invoke<int>("WriteWindowCode", (ret, err) => {
+                if (err != null)
+                {
+                    MessageBox.Show(this, err);
+                }
+                else
+                {
+                    MessageBox.Show(this, "保存成功！");
+                }
+            }, _windowId, "", textRange.Text);
         }
     }
 }
