@@ -26,6 +26,7 @@ namespace SunRizStudio.Documents
     {
         static bool InitFireFoxed = false;
         GeckoWebBrowser _gecko;
+        Window fullScreenWindow = null;
         ControlWindowContainerNode _parentNode;
         internal SunRizServer.ControlWindow _dataModel;
         List<Newtonsoft.Json.Linq.JToken> _AllPoints = new List<Newtonsoft.Json.Linq.JToken>();
@@ -87,6 +88,8 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("go", go);
             _gecko.AddMessageEventListener("open", open);
             _gecko.AddMessageEventListener("openCode", openCode);
+            _gecko.AddMessageEventListener("fullScreen", fullScreen);
+            _gecko.AddMessageEventListener("exitFullScreen", exitFullScreen);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -101,6 +104,36 @@ namespace SunRizStudio.Documents
                 _gecko.Navigate($"{Helper.Url}/editor");
             }
         }
+
+        /// <summary>
+        /// 全屏显示
+        /// </summary>
+        /// <param name="param"></param>
+        void fullScreen(string param)
+        {
+            this.TabItem.Content = null;
+            fullScreenWindow = new Window();
+            fullScreenWindow.Content = this;
+            fullScreenWindow.Owner = MainWindow.Instance;
+            fullScreenWindow.GoFullscreen();
+            fullScreenWindow.ShowDialog();
+        }
+        void exitFullScreen(string pa)
+        {
+            var window = this.GetParentByName<Window>(null);
+            if (window != null && window.IsFullscreen())
+            {               
+                window.ExitFullscreen();
+                window.Content = null;
+                window.Close();
+                window = null;
+                if (this.TabItem != null)
+                {
+                    this.TabItem.Content = this;
+                }
+            }
+        }
+      
 
         /// <summary>
         /// 当前页面跳转
@@ -235,7 +268,11 @@ namespace SunRizStudio.Documents
         void openRunMode(string arg)
         {
             var doc = new ControlWindowDocument(_parentNode, _dataModel, true);
-            MainWindow.Instance.SetActiveDocument(doc);
+            fullScreenWindow = new Window();
+            fullScreenWindow.Content = doc;
+            fullScreenWindow.Owner = this.GetParentByName<Window>(null);
+            fullScreenWindow.GoFullscreen();
+            fullScreenWindow.ShowDialog();
         }
         void watchPointValues(string jsonStr)
         {

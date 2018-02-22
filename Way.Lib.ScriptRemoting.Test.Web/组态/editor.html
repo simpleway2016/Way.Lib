@@ -110,6 +110,8 @@
             <div class="leftBorder"></div>
             <div class="toolboxItem" title="直接修改脚本" onclick="openCode(); " style="background-image:url(/images/toolbox/code.png);cursor:pointer;">
             </div>
+            <div class="toolboxItem" id="btnFullScreen" title="全屏" onclick="fullScreen(); " style="background-image:url(/images/toolbox/fullscreen.png);cursor:pointer;">
+            </div>
             <div class="leftBorder"></div>
             <div class="toolboxItem" title="画直线" onclick="toolboxClick(this);" style="background-image:url(/images/toolbox/line.png);cursor:pointer;" _type="ToolBox_Line">
             </div>
@@ -293,6 +295,32 @@
             var origin = window.location.protocol + '//' + window.location.host;
             event.initMessageEvent('openRunMode', true, true, "", origin, 1234, window, null);
             document.dispatchEvent(event);
+        }
+        function fullScreen()
+        {
+            var btn = document.body.querySelector("#btnFullScreen");
+            btn.title = "退出全屏"; 
+            btn.setAttribute("onclick", "exitFullScreen()");
+            btn.style.backgroundImage = "url(/images/toolbox/fullscreen_exit.png)";
+
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('fullScreen', true, true, "", origin, 1234, window, null);
+            document.dispatchEvent(event);            
+        }
+        function exitFullScreen() {
+            var btn = document.body.querySelector("#btnFullScreen");
+            if (!btn || btn.title == "退出全屏") {
+                if (btn) {
+                    btn.title = "全屏";
+                    btn.setAttribute("onclick", "fullScreen()");
+                    btn.style.backgroundImage = "url(/images/toolbox/fullscreen.png)";
+                }
+                var event = document.createEvent('MessageEvent');
+                var origin = window.location.protocol + '//' + window.location.host;
+                event.initMessageEvent('exitFullScreen', true, true, "", origin, 1234, window, null);
+                document.dispatchEvent(event);
+            }
         }
         function writeValue(pointName, addr, value) {
             if (typeof addr == "undefined" || addr == null)

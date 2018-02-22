@@ -25,17 +25,20 @@ var FileBrowser = (function () {
         toolDiv.style.position = "absolute";
         toolDiv.style.borderBottom = "1px solid #ccc";
         var html = "<div style='position:absolute;right:70px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/folder.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>添加文件夹</div>";
-        html += "<input type='file'><input type='button' value='上传'>";
+        html += "<label style='font-size:12px;background:#e1e1e1;border:1px solid #adadad;padding:2px;margin-left:3px;' for='xFile_1234889'>选择文件</label><div style='width:130px;height:22px;position:absolute;left:60px;top:4px;font-size:12px;'></div><input style='width:0px;' id='xFile_1234889' type='file'><input style='margin-left:135px;' type='button' value='上传'>";
         html += "<div style='position:absolute;right:10px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/close.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>关闭</div>";
         html += "<div style='position:absolute;right:180px;top:5px;cursor:pointer;background-repeat:no-repeat;background-image:url(/images/browser/clear.png);background-size:16px 16px;padding-left:20px;font-size:12px;'>选择空图片</div>";
         toolDiv.innerHTML = html;
-        this.fileElement = toolDiv.children[1];
+        this.fileElement = toolDiv.children[3];
+        this.fileElement.addEventListener("change", function () {
+            toolDiv.children[2].innerHTML = (_this.fileElement.value);
+        }, false);
         toolDiv.children[0].addEventListener("click", function () { _this.addFolderDialog(); }, false);
-        toolDiv.children[2].addEventListener("click", function () { _this.updateFile(); }, false);
-        toolDiv.children[3].addEventListener("click", function () {
+        toolDiv.children[4].addEventListener("click", function () { _this.updateFile(); }, false);
+        toolDiv.children[5].addEventListener("click", function () {
             _this.hide();
         }, false);
-        toolDiv.children[4].addEventListener("click", function () { if (_this.onSelectFile) {
+        toolDiv.children[6].addEventListener("click", function () { if (_this.onSelectFile) {
             _this.onSelectFile("");
         } _this.hide(); }, false);
         this.rootElement.appendChild(toolDiv);

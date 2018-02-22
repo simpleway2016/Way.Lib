@@ -674,6 +674,9 @@ class Editor implements IEditorControlContainer
             else if (e.keyCode == 46) {
                 this.delete();
             }
+            else if (e.keyCode == 27) {
+                (<any>window).exitFullScreen();
+            }
         }, false);
     }
 

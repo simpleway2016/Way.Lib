@@ -469,6 +469,9 @@ var Editor = (function () {
             else if (e.keyCode == 46) {
                 _this.delete();
             }
+            else if (e.keyCode == 27) {
+                window.exitFullScreen();
+            }
         }, false);
     }
     Editor.prototype.removeControl = function (ctrl) {

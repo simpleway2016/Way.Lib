@@ -59,6 +59,8 @@
     <Content Include="组态\images\toolbox\buttonarea.png" />
     <Content Include="组态\images\toolbox\code.png" />
     <Content Include="组态\images\toolbox\delete.png" />
+    <Content Include="组态\images\toolbox\fullscreen.png" />
+    <Content Include="组态\images\toolbox\fullscreen_exit.png" />
     <Content Include="组态\images\toolbox\group.png" />
     <Content Include="组态\images\toolbox\play.png" />
     <Content Include="组态\images\toolbox\redo.png" />
