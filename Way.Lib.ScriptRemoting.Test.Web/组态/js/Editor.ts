@@ -664,6 +664,10 @@ class Editor implements IEditorControlContainer
                 this.copy();
 
             }
+            else if (e.ctrlKey && e.keyCode == 88) {
+                this.cut();
+
+            }
             else if (e.ctrlKey && e.keyCode == 86) 
             {
                 this.paste();
@@ -676,6 +680,9 @@ class Editor implements IEditorControlContainer
             }
             else if (e.keyCode == 27) {
                 (<any>window).exitFullScreen();
+            }
+            else {
+                
             }
         }, false);
     }
@@ -881,6 +888,15 @@ class Editor implements IEditorControlContainer
     {
         this.undoMgr.redo();
     }
+    selectAll()
+    {
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            this.controls[i].ctrlKey = true;
+            this.controls[i].selected = true;
+            this.controls[i].ctrlKey = false;
+        }
+    }
 
     group() {
         if (AllSelectedControls.length > 0) {
@@ -974,41 +990,80 @@ class Editor implements IEditorControlContainer
      
         return JSON.stringify({ "name": this.name, "code": this.code, "editorScript": this.getScript(), "controlsScript": scripts });
     }
+    cut()
+    {
+        try {
+            var copyitems = [];
+            var ctrls = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+                ctrls.push(control);
+            }
 
+            window.localStorage.setItem("copy", "");
+            window.localStorage.setItem("cut", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
+
+            //删除组件
+            var undoObj = new UndoRemoveControls(this, ctrls);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    }
     copy()
     {
-        var copyitems = [];
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var json = control.getJson();
-            copyitems.push(json);
+        try {
+            var copyitems = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+            }
+            window.localStorage.setItem("cut", "");
+            window.localStorage.setItem("copy", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
         }
-
-        window.localStorage.setItem("copy", JSON.stringify(copyitems));
-        window.localStorage.setItem("windowGuid", windowGuid + "");
+        catch (e)
+        {
+            alert(e.message);
+        }
     }
     paste()
     {
-        var str = window.localStorage.getItem("copy");
-        if (str) {
-            while (AllSelectedControls.length > 0)
-                AllSelectedControls[0].selected = false;                      
+        try {
+            var str = window.localStorage.getItem("copy");
+            if (!str || str.length == 0) {
+                str = window.localStorage.getItem("cut");
+            }
+            if (str && str.length > 0) {
+                while (AllSelectedControls.length > 0)
+                    AllSelectedControls[0].selected = false;
 
-            var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
-            var container: IEditorControlContainer = this;
+                var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
+                var container: IEditorControlContainer = this;
 
-            //var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            //isSameWindow = false;
-            //var groupCtrl = new GroupControl(groupEle);
-            //this.addControl(groupCtrl);
-            //container = groupCtrl;
+                //var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                //isSameWindow = false;
+                //var groupCtrl = new GroupControl(groupEle);
+                //this.addControl(groupCtrl);
+                //container = groupCtrl;
 
-            var copyItems = JSON.parse(str);
+                var copyItems = JSON.parse(str);
 
-            var undoObj = new UndoPaste(this, copyItems, isSameWindow);
-            undoObj.redo();
-            this.undoMgr.addUndo(undoObj);
-            
+                var undoObj = new UndoPaste(this, copyItems, isSameWindow);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+
+            }
+        }
+        catch (e)
+        {
+            alert(e.message);
         }
     }
 

@@ -30,6 +30,65 @@ namespace SunRizStudio.Documents
                 }
             }
         }
+
+        /// <summary>
+        /// 内容是否有修改
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool HasChanged()
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 保存内容
+        /// </summary>
+        /// <returns>成功返回true</returns>
+        public virtual bool Save()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// 撤销
+        /// </summary>
+        public virtual void Undo()
+        {
+
+        }
+        public virtual void Redo()
+        {
+
+        }
+        /// <summary>
+        /// 剪切
+        /// </summary>
+        public virtual void Cut()
+        {
+
+        }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        public virtual void Copy()
+        {
+
+        }
+        /// <summary>
+        /// 粘贴
+        /// </summary>
+        public virtual void Paste()
+        {
+
+        }
+        /// <summary>
+        /// 全选
+        /// </summary>
+        public virtual void SelectAll()
+        {
+
+        }
+
         /// <summary>
         /// onclose事件
         /// </summary>

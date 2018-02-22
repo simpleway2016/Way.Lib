@@ -60,13 +60,22 @@ namespace SunRizStudio.Models.Nodes
         {
             FrameworkElement treeviewitem = sender as FrameworkElement;
             var curNode = (treeviewitem.DataContext as ContextMenuItem).Tag as ControlUnitNode;
-            Dialogs.InputBox frm = new Dialogs.InputBox("请输入新单元名称", "编辑控制单元");
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入单元编号，如01、02等数字编号形式", "编辑控制单元");
             frm.Owner = MainWindow.Instance;
-            frm.Value = curNode.Data.Name;
+            var match = System.Text.RegularExpressions.Regex.Match(curNode.Data.Name, @"[0-9]+");
+            frm.Value = match.Value;
             if (frm.ShowDialog() == true && !string.IsNullOrEmpty(frm.Value))
             {
+                match = System.Text.RegularExpressions.Regex.Match(frm.Value, @"[0-9]+");
+                if (match.Value != frm.Value)
+                {
+                    MessageBox.Show(MainWindow.Instance, "必须是01、02等数字编号形式");
+                    editUnitClick(sender, e);
+                    return;
+                }
+
                 SunRizServer.ControlUnit unit = curNode.Data.Clone<SunRizServer.ControlUnit>();
-                unit.Name = frm.Value;
+                unit.Name ="UNIT" + frm.Value;
                 Helper.Remote.Invoke<int>("UpdateControlUnit", (ret, err) => {
                     if (err != null)
                     {
@@ -83,12 +92,19 @@ namespace SunRizStudio.Models.Nodes
 
         void addControlUnitClick(object sender, RoutedEventArgs e)
         {
-            Dialogs.InputBox frm = new Dialogs.InputBox("请输入单元名称" , "新建控制单元");
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入单元编号，如01、02等数字编号形式", "新建控制单元");
             frm.Owner = MainWindow.Instance;
             if(frm.ShowDialog() == true && !string.IsNullOrEmpty(frm.Value))
             {
+                var match = System.Text.RegularExpressions.Regex.Match(frm.Value, @"[0-9]+");
+                if ( match.Value != frm.Value )
+                {
+                    MessageBox.Show(MainWindow.Instance, "必须是01、02等数字编号形式");
+                    addControlUnitClick(sender, e);
+                    return;
+                }
                 var unit = new SunRizServer.ControlUnit();
-                unit.Name = frm.Value;
+                unit.Name = "UNIT" + frm.Value;
                 MainWindow.Instance.Cursor = Cursors.Hand;
 
                 //异步调用服务器方法

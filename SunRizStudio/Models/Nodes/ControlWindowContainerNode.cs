@@ -29,12 +29,12 @@ namespace SunRizStudio.Models.Nodes
             {
                 Icon = "/Images/solution/graphic.png";
             }
-            this.ContextMenuItems.Add(new ContextMenuItem()
-            {
-                Icon = "/Images/solution/folder.png",
-                Text = "添加文件夹...",
-                ClickHandler = addFolderClick,
-            });
+            //this.ContextMenuItems.Add(new ContextMenuItem()
+            //{
+            //    Icon = "/Images/solution/folder.png",
+            //    Text = "添加文件夹...",
+            //    ClickHandler = addFolderClick,
+            //});
             this.ContextMenuItems.Add(new ContextMenuItem()
             {
                 Icon = "/Images/solution/window.png",

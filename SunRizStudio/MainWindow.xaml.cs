@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SunRizStudio.Models.Nodes;
 using SunRizStudio.Models;
+using System.ComponentModel;
 
 namespace SunRizStudio
 {
@@ -133,5 +134,71 @@ namespace SunRizStudio
             data.MouseDown(sender, e);
         }
 
+        private void menuExitApp_Click(object sender, RoutedEventArgs e)
+        {
+            
+            this.Close();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            foreach (Documents.DocTabItem tab in documentContainer.Items)
+            {
+                if (tab.Document.HasChanged())
+                {
+                    var dialogResult = MessageBox.Show(MainWindow.Instance, "“" + tab.Document.Title + "”已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
+                    if (dialogResult == MessageBoxResult.Yes)
+                    {
+                        if (!tab.Document.Save())
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+                    else if(dialogResult == MessageBoxResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+            base.OnClosing(e);
+        }
+
+        private void menuUndo_Click(object sender, RoutedEventArgs e)
+        {
+            var doc =  (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Undo();
+        }
+
+        private void menuRedo_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Redo();
+        }
+
+        private void menuCut_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Cut();
+        }
+
+        private void menuCopy_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Copy();
+        }
+
+        private void menuPaste_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Paste();
+        }
+
+        private void menuSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.SelectAll();
+        }
     }
 }

@@ -293,7 +293,7 @@ class UndoPaste extends UndoItem {
                     }
                     editorctrl.rect = controlJson.rect;
                 }
-                editorctrl.ctrlKey = true;
+                editorctrl.ctrlKey = true;//这样才能多个选中
                 editorctrl.selected = true;
                 editorctrl.ctrlKey = false;
                 this.controls.push(editorctrl);

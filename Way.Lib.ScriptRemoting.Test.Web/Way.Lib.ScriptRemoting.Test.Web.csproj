@@ -58,6 +58,7 @@
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\buttonarea.png" />
     <Content Include="组态\images\toolbox\code.png" />
+    <Content Include="组态\images\toolbox\cut.png" />
     <Content Include="组态\images\toolbox\delete.png" />
     <Content Include="组态\images\toolbox\fullscreen.png" />
     <Content Include="组态\images\toolbox\fullscreen_exit.png" />

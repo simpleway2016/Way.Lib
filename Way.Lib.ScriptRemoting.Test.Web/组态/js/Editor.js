@@ -460,6 +460,9 @@ var Editor = (function () {
             else if (e.ctrlKey && e.keyCode == 67) {
                 _this.copy();
             }
+            else if (e.ctrlKey && e.keyCode == 88) {
+                _this.cut();
+            }
             else if (e.ctrlKey && e.keyCode == 86) {
                 _this.paste();
             }
@@ -471,6 +474,8 @@ var Editor = (function () {
             }
             else if (e.keyCode == 27) {
                 window.exitFullScreen();
+            }
+            else {
             }
         }, false);
     }
@@ -752,6 +757,13 @@ var Editor = (function () {
     Editor.prototype.redo = function () {
         this.undoMgr.redo();
     };
+    Editor.prototype.selectAll = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].ctrlKey = true;
+            this.controls[i].selected = true;
+            this.controls[i].ctrlKey = false;
+        }
+    };
     Editor.prototype.group = function () {
         if (AllSelectedControls.length > 0) {
             var items = [];
@@ -829,27 +841,62 @@ var Editor = (function () {
         }
         return JSON.stringify({ "name": this.name, "code": this.code, "editorScript": this.getScript(), "controlsScript": scripts });
     };
-    Editor.prototype.copy = function () {
-        var copyitems = [];
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var json = control.getJson();
-            copyitems.push(json);
-        }
-        window.localStorage.setItem("copy", JSON.stringify(copyitems));
-        window.localStorage.setItem("windowGuid", windowGuid + "");
-    };
-    Editor.prototype.paste = function () {
-        var str = window.localStorage.getItem("copy");
-        if (str) {
-            while (AllSelectedControls.length > 0)
-                AllSelectedControls[0].selected = false;
-            var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
-            var container = this;
-            var copyItems = JSON.parse(str);
-            var undoObj = new UndoPaste(this, copyItems, isSameWindow);
+    Editor.prototype.cut = function () {
+        try {
+            var copyitems = [];
+            var ctrls = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+                ctrls.push(control);
+            }
+            window.localStorage.setItem("copy", "");
+            window.localStorage.setItem("cut", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
+            var undoObj = new UndoRemoveControls(this, ctrls);
             undoObj.redo();
             this.undoMgr.addUndo(undoObj);
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    };
+    Editor.prototype.copy = function () {
+        try {
+            var copyitems = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+            }
+            window.localStorage.setItem("cut", "");
+            window.localStorage.setItem("copy", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    };
+    Editor.prototype.paste = function () {
+        try {
+            var str = window.localStorage.getItem("copy");
+            if (!str || str.length == 0) {
+                str = window.localStorage.getItem("cut");
+            }
+            if (str && str.length > 0) {
+                while (AllSelectedControls.length > 0)
+                    AllSelectedControls[0].selected = false;
+                var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
+                var container = this;
+                var copyItems = JSON.parse(str);
+                var undoObj = new UndoPaste(this, copyItems, isSameWindow);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+            }
+        }
+        catch (e) {
+            alert(e.message);
         }
     };
     Editor.prototype.fireBodyEvent = function (event) {

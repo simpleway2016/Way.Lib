@@ -78,6 +78,7 @@ namespace SunRizStudio.Documents
             _gecko.CreateControl();
             _gecko.Enabled = false;
             _gecko.AllowDrop = true;
+
             //_gecko.NoDefaultContextMenu = true; //禁用右键菜单
             _gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
             _gecko.AddMessageEventListener("save", save);
@@ -312,6 +313,122 @@ namespace SunRizStudio.Documents
             });
         }
 
+        public override bool HasChanged()
+        {
+            string changed;
+            try
+            {
+                jsContext.EvaluateScript("editor.changed", out changed);
+                if (changed == "true" && IsRunMode == false)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
+        public override void Undo()
+        {
+            try
+            {
+                string info;
+                jsContext.EvaluateScript("editor.undo()", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
+        }
+        public override void Redo()
+        {
+            try
+            {
+                string info;
+                jsContext.EvaluateScript("editor.redo()", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
+        }
+        public override void Cut()
+        {
+            try
+            {
+                string info;
+                //直接调用editor.cut()会出现the operation is insecure错误
+                jsContext.EvaluateScript("btnCut.click()", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
+        }
+        public override void Copy()
+        {
+            try
+            {
+                string info;
+                //直接调用editor.copy()会出现the operation is insecure错误
+                jsContext.EvaluateScript("btnCopy.click()", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
+        }
+        public override void Paste()
+        {
+            try
+            {
+                string info;
+                //直接调用editor.paste()会出现the operation is insecure错误
+                jsContext.EvaluateScript("btnPaste.click()", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
+        }
+        public override void SelectAll()
+        {
+            try
+            {
+                string info;
+                jsContext.EvaluateScript("editor.selectAll()", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
+        }
+        public override bool Save()
+        {
+            try
+            {
+                string info;
+                jsContext.EvaluateScript("editor.getSaveInfo()", out info);
+                var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
+                if (json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
+                {
+                    MessageBox.Show(this.GetParentByName<Window>(null), "请点击左上角设置图标，设置监视画面的名称、编号！");
+                    return false;
+                }
+
+                Helper.Remote.InvokeSync<SunRizServer.ControlWindow>("SaveWindowContent", _dataModel, json);
+
+                return true;
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+                return false;
+            }
+        }
+
         public override void OnClose(ref bool canceled)
         {
             string changed;
@@ -320,7 +437,7 @@ namespace SunRizStudio.Documents
                 jsContext.EvaluateScript("editor.changed", out changed);
                 if (changed == "true" && IsRunMode == false)
                 {
-                    var dialogResult = MessageBox.Show(MainWindow.Instance, "窗口已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
+                    var dialogResult = MessageBox.Show(MainWindow.Instance, $"“{this.Title}”已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
                     if (dialogResult == MessageBoxResult.Yes)
                     {
                         string info;
@@ -328,7 +445,7 @@ namespace SunRizStudio.Documents
                         var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
                         if (json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
                         {
-                            MessageBox.Show("请点击左上角设置图标，设置监视画面的名称、编号！");
+                            MessageBox.Show(this.GetParentByName<Window>(null), "请点击左上角设置图标，设置监视画面的名称、编号！");
                             canceled = true;
                             return;
                         }

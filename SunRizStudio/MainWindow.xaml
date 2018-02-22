@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SunRizStudio"
         mc:Ignorable="d"
-        Title="MainWindow" Height="625" Width="1280">
+        Title="SunRiz Studio" Height="625" Width="1280">
     <Window.Resources>
         <local:TreeViewLineConverter x:Key="LineConverter"/>
 
@@ -219,7 +219,49 @@
     
 <DockPanel Background="#d6dbe9">
         <Menu Height="25" Margin="0,5,0,0" Background="#d6dbe9" DockPanel.Dock="Top">
-            <MenuItem Header="文件(_F)"></MenuItem>
+            <MenuItem Header="文件(_F)">
+                <MenuItem Header="打印设置(_U)..."></MenuItem>
+                <MenuItem Header="打印(_P)..."></MenuItem>
+                <MenuItem Header="预览(_V)..."></MenuItem>
+                <MenuItem Header="退出" x:Name="menuExitApp" Click="menuExitApp_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="编辑(_E)">
+                <MenuItem Header="撤销(_U)" x:Name="menuUndo" Click="menuUndo_Click"></MenuItem>
+                <MenuItem Header="重做(_R)" x:Name="menuRedo" Click="menuRedo_Click"></MenuItem>
+                <MenuItem Header="剪切(_T)" x:Name="menuCut" Click="menuCut_Click"></MenuItem>
+                <MenuItem Header="复制(_C)" x:Name="menuCopy" Click="menuCopy_Click"></MenuItem>
+                <MenuItem Header="粘贴(_P)" x:Name="menuPaste" Click="menuPaste_Click"></MenuItem>
+                <MenuItem Header="全选(_A)" x:Name="menuSelectAll" Click="menuSelectAll_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="操作(_O)">
+                <MenuItem Header="新建(_N)"></MenuItem>
+                <MenuItem Header="打开(_O)"></MenuItem>
+                <MenuItem Header="删除(_D)"></MenuItem>
+                <MenuItem Header="查找...(_F)"></MenuItem>
+                <MenuItem Header="交叉引用(_R)"></MenuItem>
+                <MenuItem Header="控制任务...(_M)"></MenuItem>
+                <MenuItem Header="一致性检查...(_C)"></MenuItem>
+                <MenuItem Header="组态下装(_X)"></MenuItem>
+                <MenuItem Header="配置下装(_Z)"></MenuItem>
+                <MenuItem Header="比较(_B)"></MenuItem>
+                <MenuItem Header="上载(_U)"></MenuItem>
+                <MenuItem Header="数据擦除(_E)"></MenuItem>
+                <MenuItem Header="导入...(_I)"></MenuItem>
+                <MenuItem Header="导出...(_Q)"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="浏览(_B)">
+                <MenuItem Header="展开(_E)"></MenuItem>
+                <MenuItem Header="收起(_C)"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="视图(_V)">
+                <MenuItem Header="全局窗口(_G)"></MenuItem>
+                <MenuItem Header="工作窗口(_W)"></MenuItem>
+                <MenuItem Header="详细配置窗口(_D)"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="帮助(_H)">
+                <MenuItem Header="帮助主题(_T)"></MenuItem>
+                <MenuItem Header="关于(_A)"></MenuItem>
+            </MenuItem>
         </Menu>
         <Grid DockPanel.Dock="Top">
             <Grid.RowDefinitions>

@@ -128,11 +128,13 @@ declare class Editor implements IEditorControlContainer {
     scale(_scale: any): void;
     undo(): void;
     redo(): void;
+    selectAll(): void;
     group(): void;
     ungroup(): void;
     delete(): void;
     save(): void;
     getSaveInfo(): string;
+    cut(): void;
     copy(): void;
     paste(): void;
     fireBodyEvent(event: any): void;
