@@ -30,7 +30,7 @@ namespace SunRizStudio.Models.Nodes
             });
             this.ContextMenuItems.Add(new ContextMenuItem()
             {
-                Text = "代码编辑",
+                Text = "脚本编辑",
                 ClickHandler = (s, e) => openCode(),
 
             });
