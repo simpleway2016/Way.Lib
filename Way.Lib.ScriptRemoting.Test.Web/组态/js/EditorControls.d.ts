@@ -7,7 +7,6 @@ declare class EditorControl {
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
     pointEles: SVGElement[];
-    ctrlKey: boolean;
     isInGroup: boolean;
     lastSetValueTime: number;
     updatePointValueTimeoutFlag: number;
@@ -34,6 +33,7 @@ declare class EditorControl {
     getScript(): string;
     isIntersectWith(rect: any): boolean;
     isIntersect(rect1: any, rect: any): boolean;
+    selectByPointName(pointName: string): void;
     showProperty(): void;
     onSelectedChange(): void;
     resetPointLocation(): void;
@@ -89,6 +89,7 @@ declare class RectControl extends EditorControl {
     colorFill: string;
     _devicePoint: string;
     devicePoint: string;
+    selectByPointName(pointName: string): void;
     _scriptOnValueChange: string;
     scriptOnValueChange: string;
     onDevicePointValueChanged(devPoint: any): void;
@@ -117,6 +118,7 @@ declare class EllipseControl extends EditorControl {
     getProperties(): string[];
     constructor();
     isIntersectWith(rect: any): boolean;
+    selectByPointName(pointName: string): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
@@ -131,6 +133,7 @@ declare class CircleControl extends EditorControl {
     colorFill: string;
     _devicePoint: string;
     devicePoint: string;
+    selectByPointName(pointName: string): void;
     _scriptOnValueChange: string;
     scriptOnValueChange: string;
     onDevicePointValueChanged(devPoint: any): void;
@@ -176,6 +179,7 @@ declare class TextControl extends EditorControl {
     fontFamily: string;
     constructor();
     isIntersectWith(rect: any): boolean;
+    selectByPointName(pointName: string): void;
     onSelectedChange(): void;
     resetPointLocation(): void;
     onBeginMoving(): void;
@@ -191,6 +195,7 @@ declare class CylinderControl extends EditorControl {
     min: any;
     _devicePoint: string;
     devicePoint: string;
+    selectByPointName(pointName: string): void;
     onDevicePointValueChanged(devPoint: any): void;
     rectElement: SVGRectElement;
     cylinderElement: SVGRectElement;
@@ -314,6 +319,7 @@ declare class TrendControl extends EditorControl {
     constructor();
     isIntersectWith(rect: any): boolean;
     run(): void;
+    selectByPointName(pointName: string): void;
     getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any;
     reDrawTrend(): void;
     onBeginMoving(): void;
@@ -329,6 +335,7 @@ declare class ButtonAreaControl extends EditorControl {
     private pointValue;
     _devicePoint: string;
     devicePoint: string;
+    selectByPointName(pointName: string): void;
     _clickValues: string;
     clickValues: string;
     _scriptOnClick: string;
@@ -370,6 +377,7 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     run(): void;
     isIntersectWith(rect: any): boolean;
     resetPointLocation(): void;
+    selectByPointName(pointName: string): void;
     onDevicePointValueChanged(point: any): void;
     private onChildrenPointValueChanged(control, point);
     getJson(): any;
@@ -404,6 +412,7 @@ declare class FreeGroupControl extends EditorControl implements IEditorControlCo
     getProperties(): string[];
     childScripts: string[];
     constructor();
+    selectByPointName(pointName: string): void;
     onSelectedChange(): void;
     run(): void;
     isIntersectWith(rect: any): boolean;

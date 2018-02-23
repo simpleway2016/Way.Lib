@@ -33,7 +33,10 @@ namespace SunRizStudio.Documents
         List<MyDriverClient> _clients = new List<MyDriverClient>();
         AutoJSContext jsContext;
         bool closeAfterSave = false;
-
+        /// <summary>
+        /// 页面加载完毕，选中pointName
+        /// </summary>
+        string _SelectWebControlByPointNameTask = null;
         Dictionary<string, PointAddrInfo> _PointAddress = new Dictionary<string, PointAddrInfo>();
 
         /// <summary>
@@ -183,7 +186,20 @@ namespace SunRizStudio.Documents
 
         public void SelectWebControlByPointName(string pointName)
         {
-
+            if(jsContext == null)
+            {
+                _SelectWebControlByPointNameTask = pointName;
+                return;
+            }
+            try
+            {
+                string info;
+                jsContext.EvaluateScript($"editor.selectWebControlByPointName({pointName.ToJson()})", out info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
         }
 
         /// <summary>
@@ -534,6 +550,11 @@ namespace SunRizStudio.Documents
             _gecko.Enabled = true;
             jsContext = new AutoJSContext(_gecko.Window);
 
+            if(_SelectWebControlByPointNameTask != null)
+            {
+                this.SelectWebControlByPointName(_SelectWebControlByPointNameTask);
+                _SelectWebControlByPointNameTask = null;
+            }
             if (IsRunMode)
             {
                 jsContext.EvaluateScript("run()");

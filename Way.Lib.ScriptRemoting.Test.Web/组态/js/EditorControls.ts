@@ -18,7 +18,7 @@ class EditorControl
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
     pointEles: SVGElement[] = [];
-    ctrlKey = false;
+
     isInGroup = false;
     lastSetValueTime: number = 0;
     updatePointValueTimeoutFlag: number = 0;
@@ -30,11 +30,11 @@ class EditorControl
         return this._selected;
     }
     set selected(value: boolean) {
-        if (this._selected !== value && this.isDesignMode) {
+        if (this.container && this.container == editor && this._selected !== value && this.isDesignMode) {
             this._selected = value;
             if (value)
             {
-                if (!this.ctrlKey) {
+                if (!CtrlKey) {
                     while (AllSelectedControls.length > 0) {
                         AllSelectedControls[0].selected = false;
                     }
@@ -111,8 +111,8 @@ class EditorControl
 
             e.stopPropagation();
 
-            this.ctrlKey = e.ctrlKey;
-            if (this.ctrlKey)
+            CtrlKey = e.ctrlKey;
+            if (CtrlKey)
                 this.selected = !this.selected;
             else
                 this.selected = true;
@@ -240,6 +240,15 @@ class EditorControl
 
     isIntersect(rect1, rect): boolean {
         return rect.x < rect1.x + rect1.width && rect1.x < rect.x + rect.width && rect.y < rect1.y + rect1.height && rect1.y < rect.y + rect.height;
+    }
+
+    /**
+     * 如果点名和自己引用的点名一致，那么选中自己
+     * @param pointName 点名
+     */
+    selectByPointName(pointName: string)
+    {
+
     }
 
     showProperty()
@@ -812,6 +821,16 @@ class RectControl extends EditorControl {
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rectElement.scrollIntoView();
+        }
+    }
 
     _scriptOnValueChange: string;
     get scriptOnValueChange() {
@@ -964,7 +983,18 @@ class EllipseControl extends EditorControl {
 
         return this.isIntersect(this.rect, rect);
     }
-    
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint)
+        {
+            this.selected = true;
+            this.rootElement.scrollIntoView();
+        }
+    }
 
     onBeginMoving() {
         (<any>this.rootElement)._cx = parseInt(this.rootElement.getAttribute("cx"));
@@ -1035,6 +1065,17 @@ class CircleControl extends EditorControl {
         this._devicePoint = v;
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
+    }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rootElement.scrollIntoView();
+        }
     }
 
     _scriptOnValueChange: string;
@@ -1353,6 +1394,17 @@ class TextControl extends EditorControl {
         return this.isIntersect(myrect, rect);
     }
 
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.textElement.scrollIntoView();
+        }
+    }
+
     onSelectedChange() {
         if (this.selected) {
             var clientRect = this.textElement.getBoundingClientRect();
@@ -1474,6 +1526,18 @@ class CylinderControl extends EditorControl {
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.cylinderElement.scrollIntoView();
+        }
+    }
+
     onDevicePointValueChanged(devPoint: any) {
         if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
@@ -2133,6 +2197,28 @@ class TrendControl extends EditorControl {
         this.element._interval = setInterval(() => this.reDrawTrend(), 1000);
     }
 
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint1 || 
+            pointName == this.devicePoint2 ||
+            pointName == this.devicePoint3 ||
+            pointName == this.devicePoint4 ||
+            pointName == this.devicePoint5 ||
+            pointName == this.devicePoint6 ||
+            pointName == this.devicePoint7 ||
+            pointName == this.devicePoint8 ||
+            pointName == this.devicePoint9 ||
+            pointName == this.devicePoint10 ||
+            pointName == this.devicePoint11 ||
+            pointName == this.devicePoint12) {
+            this.selected = true;
+            this.element.scrollIntoView();
+        }
+    }
+
     getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any {
         var x = rect.width - 10 - ((now - valueItem.time) / 1000) * 2;//1秒占2个像素
         if (x < 10) {
@@ -2272,6 +2358,17 @@ class ButtonAreaControl extends EditorControl {
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }    
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rectElement.scrollIntoView();
+        }
+    }
 
     _clickValues: string = null;
     get clickValues() {
@@ -2594,6 +2691,30 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         
         for (var i = 0; i < this.pointEles.length; i++) {
             (<any>this.pointEles[i])._setLocation(this.pointEles[i], rect);
+        }
+    }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        for (var i = 0; i < this.customProperties.length; i++) {
+            var proName = this.customProperties[i];
+            //如果和自定义变量对应的点一致，那么设置自定义变量值
+            if (this[proName + "_devPoint"] == pointName) {
+                this.selected = true;
+                var root = this.groupElement;
+                while (root.children.length > 0) {
+                    root = <any>root.children[0];
+                }
+                root.scrollIntoView();
+                return;
+            }
+        }
+
+        for (var i = 0; i < this.controls.length; i++) {
+            (<EditorControl>this.controls[i]).selectByPointName(pointName);
         }
     }
 
@@ -2990,6 +3111,18 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
             this.virtualRectElement.setAttribute('style', 'stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
         }
     }
+
+    /**
+     * 如果点名和自己引用的点名一致，那么选中自己
+     * @param pointName 点名
+     */
+    selectByPointName(pointName: string) {
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            (<EditorControl>this.controls[i]).selectByPointName(pointName);
+        }
+    }
+
     onSelectedChange() {
         this.virtualRectElement.setAttribute('stroke', this.selected ? "red" : "green");
     }

@@ -1,6 +1,8 @@
 ﻿declare var fileBrowser: FileBrowser;
 var ServerUrl: string;
 var windowGuid = new Date().getTime();
+var CtrlKey: boolean = false;
+
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -565,7 +567,9 @@ class Editor implements IEditorControlContainer
                     };
                     this.svgContainer.removeChild(this.selectingElement);
                     this.selectingElement = null;
-                    this.selectControlsByRect(rect, e.ctrlKey);
+                    CtrlKey = e.ctrlKey;
+                    this.selectControlsByRect(rect);
+                    CtrlKey = false;
 
                     setTimeout(() => {
                         (<any>this.svgContainer)._notClick = false;
@@ -910,14 +914,24 @@ class Editor implements IEditorControlContainer
     }
     selectAll()
     {
+        CtrlKey = true;
         for (var i = 0; i < this.controls.length; i++)
         {
-            this.controls[i].ctrlKey = true;
             this.controls[i].selected = true;
-            this.controls[i].ctrlKey = false;
         }
+        CtrlKey = false;
     }
-
+    selectWebControlByPointName(pointName: string)
+    {        
+        for (var i = 0; i < this.controls.length; i++) {
+            (<EditorControl>this.controls[i]).selected = false;
+        }
+        CtrlKey = true;
+        for (var i = 0; i < this.controls.length; i++) {
+            (<EditorControl>this.controls[i]).selectByPointName(pointName);
+        }
+        CtrlKey = false;
+    }
     group() {
         if (AllSelectedControls.length > 0) {
             var items = [];
@@ -1111,17 +1125,15 @@ class Editor implements IEditorControlContainer
         //document.body.dispatchEvent(evt);
     }
 
-    selectControlsByRect(rect, ctrlKey)
+    selectControlsByRect(rect)
     {
         for (var i = 0; i < this.controls.length; i++)
         {
-            var original = this.controls[i].ctrlKey;
-            this.controls[i].ctrlKey = true;//表示ctrl按下，否则，会把其他control的selected设为false
             var intersect = this.controls[i].isIntersectWith(rect);
            
             if (intersect)
             {
-                if (ctrlKey && this.controls[i].selected)
+                if (CtrlKey && this.controls[i].selected)
                 {
                     this.controls[i].selected = false;
                 }
@@ -1130,12 +1142,11 @@ class Editor implements IEditorControlContainer
                 }
             }
             else {
-                if (!ctrlKey)
+                if (!CtrlKey)
                 {
                     this.controls[i].selected = false;
                 }
             }
-            this.controls[i].ctrlKey = original;
         }
     }
 

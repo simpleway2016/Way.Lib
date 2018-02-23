@@ -1,6 +1,7 @@
 declare var fileBrowser: FileBrowser;
 declare var ServerUrl: string;
 declare var windowGuid: number;
+declare var CtrlKey: boolean;
 declare class ToolBoxItem {
     buildDone: (control: EditorControl) => any;
     readonly supportMove: boolean;
@@ -132,6 +133,7 @@ declare class Editor implements IEditorControlContainer {
     undo(): void;
     redo(): void;
     selectAll(): void;
+    selectWebControlByPointName(pointName: string): void;
     group(): void;
     ungroup(): void;
     delete(): void;
@@ -142,7 +144,7 @@ declare class Editor implements IEditorControlContainer {
     paste(): void;
     isIdExist(id: string): boolean;
     fireBodyEvent(event: any): void;
-    selectControlsByRect(rect: any, ctrlKey: any): void;
+    selectControlsByRect(rect: any): void;
     setCurrentToolBoxItem(typename: string): void;
     svgContainerClick(e: MouseEvent): void;
     svgContainerMouseMove(x: any, y: any): void;

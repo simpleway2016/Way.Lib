@@ -10,6 +10,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var ServerUrl;
 var windowGuid = new Date().getTime();
+var CtrlKey = false;
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
@@ -359,7 +360,9 @@ var Editor = (function () {
                     };
                     _this.svgContainer.removeChild(_this.selectingElement);
                     _this.selectingElement = null;
-                    _this.selectControlsByRect(rect, e.ctrlKey);
+                    CtrlKey = e.ctrlKey;
+                    _this.selectControlsByRect(rect);
+                    CtrlKey = false;
                     setTimeout(function () {
                         _this.svgContainer._notClick = false;
                     }, 500);
@@ -774,11 +777,21 @@ var Editor = (function () {
         this.undoMgr.redo();
     };
     Editor.prototype.selectAll = function () {
+        CtrlKey = true;
         for (var i = 0; i < this.controls.length; i++) {
-            this.controls[i].ctrlKey = true;
             this.controls[i].selected = true;
-            this.controls[i].ctrlKey = false;
         }
+        CtrlKey = false;
+    };
+    Editor.prototype.selectWebControlByPointName = function (pointName) {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selected = false;
+        }
+        CtrlKey = true;
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selectByPointName(pointName);
+        }
+        CtrlKey = false;
     };
     Editor.prototype.group = function () {
         if (AllSelectedControls.length > 0) {
@@ -929,13 +942,11 @@ var Editor = (function () {
     };
     Editor.prototype.fireBodyEvent = function (event) {
     };
-    Editor.prototype.selectControlsByRect = function (rect, ctrlKey) {
+    Editor.prototype.selectControlsByRect = function (rect) {
         for (var i = 0; i < this.controls.length; i++) {
-            var original = this.controls[i].ctrlKey;
-            this.controls[i].ctrlKey = true;
             var intersect = this.controls[i].isIntersectWith(rect);
             if (intersect) {
-                if (ctrlKey && this.controls[i].selected) {
+                if (CtrlKey && this.controls[i].selected) {
                     this.controls[i].selected = false;
                 }
                 else {
@@ -943,11 +954,10 @@ var Editor = (function () {
                 }
             }
             else {
-                if (!ctrlKey) {
+                if (!CtrlKey) {
                     this.controls[i].selected = false;
                 }
             }
-            this.controls[i].ctrlKey = original;
         }
     };
     Editor.prototype.setCurrentToolBoxItem = function (typename) {

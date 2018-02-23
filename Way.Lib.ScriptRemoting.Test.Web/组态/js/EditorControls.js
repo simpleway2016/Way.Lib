@@ -18,7 +18,6 @@ var EditorControl = (function () {
     function EditorControl(element) {
         var _this = this;
         this.pointEles = [];
-        this.ctrlKey = false;
         this.isInGroup = false;
         this.lastSetValueTime = 0;
         this.updatePointValueTimeoutFlag = 0;
@@ -49,8 +48,8 @@ var EditorControl = (function () {
                 return;
             _this._moveAllSelectedControl = _this.selected;
             e.stopPropagation();
-            _this.ctrlKey = e.ctrlKey;
-            if (_this.ctrlKey)
+            CtrlKey = e.ctrlKey;
+            if (CtrlKey)
                 _this.selected = !_this.selected;
             else
                 _this.selected = true;
@@ -101,10 +100,10 @@ var EditorControl = (function () {
             return this._selected;
         },
         set: function (value) {
-            if (this._selected !== value && this.isDesignMode) {
+            if (this.container && this.container == editor && this._selected !== value && this.isDesignMode) {
                 this._selected = value;
                 if (value) {
-                    if (!this.ctrlKey) {
+                    if (!CtrlKey) {
                         while (AllSelectedControls.length > 0) {
                             AllSelectedControls[0].selected = false;
                         }
@@ -192,6 +191,8 @@ var EditorControl = (function () {
     };
     EditorControl.prototype.isIntersect = function (rect1, rect) {
         return rect.x < rect1.x + rect1.width && rect1.x < rect.x + rect.width && rect.y < rect1.y + rect1.height && rect1.y < rect.y + rect.height;
+    };
+    EditorControl.prototype.selectByPointName = function (pointName) {
     };
     EditorControl.prototype.showProperty = function () {
         if (!this.propertyDialog)
@@ -714,6 +715,12 @@ var RectControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    RectControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rectElement.scrollIntoView();
+        }
+    };
     Object.defineProperty(RectControl.prototype, "scriptOnValueChange", {
         get: function () {
             return this._scriptOnValueChange;
@@ -866,6 +873,12 @@ var EllipseControl = (function (_super) {
     EllipseControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
+    EllipseControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rootElement.scrollIntoView();
+        }
+    };
     EllipseControl.prototype.onBeginMoving = function () {
         this.rootElement._cx = parseInt(this.rootElement.getAttribute("cx"));
         this.rootElement._cy = parseInt(this.rootElement.getAttribute("cy"));
@@ -956,6 +969,12 @@ var CircleControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    CircleControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rootElement.scrollIntoView();
+        }
+    };
     Object.defineProperty(CircleControl.prototype, "scriptOnValueChange", {
         get: function () {
             return this._scriptOnValueChange;
@@ -1271,6 +1290,12 @@ var TextControl = (function (_super) {
         };
         return this.isIntersect(myrect, rect);
     };
+    TextControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.textElement.scrollIntoView();
+        }
+    };
     TextControl.prototype.onSelectedChange = function () {
         if (this.selected) {
             var clientRect = this.textElement.getBoundingClientRect();
@@ -1414,6 +1439,12 @@ var CylinderControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    CylinderControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.cylinderElement.scrollIntoView();
+        }
+    };
     CylinderControl.prototype.onDevicePointValueChanged = function (devPoint) {
         if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
@@ -2170,6 +2201,23 @@ var TrendControl = (function (_super) {
         this.reDrawTrend();
         this.element._interval = setInterval(function () { return _this.reDrawTrend(); }, 1000);
     };
+    TrendControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint1 ||
+            pointName == this.devicePoint2 ||
+            pointName == this.devicePoint3 ||
+            pointName == this.devicePoint4 ||
+            pointName == this.devicePoint5 ||
+            pointName == this.devicePoint6 ||
+            pointName == this.devicePoint7 ||
+            pointName == this.devicePoint8 ||
+            pointName == this.devicePoint9 ||
+            pointName == this.devicePoint10 ||
+            pointName == this.devicePoint11 ||
+            pointName == this.devicePoint12) {
+            this.selected = true;
+            this.element.scrollIntoView();
+        }
+    };
     TrendControl.prototype.getDrawLocation = function (valueItem, canDel, rect, now) {
         var x = rect.width - 10 - ((now - valueItem.time) / 1000) * 2;
         if (x < 10) {
@@ -2301,6 +2349,12 @@ var ButtonAreaControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    ButtonAreaControl.prototype.selectByPointName = function (pointName) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rectElement.scrollIntoView();
+        }
+    };
     Object.defineProperty(ButtonAreaControl.prototype, "clickValues", {
         get: function () {
             return this._clickValues;
@@ -2591,6 +2645,23 @@ var GroupControl = (function (_super) {
         };
         for (var i = 0; i < this.pointEles.length; i++) {
             this.pointEles[i]._setLocation(this.pointEles[i], rect);
+        }
+    };
+    GroupControl.prototype.selectByPointName = function (pointName) {
+        for (var i = 0; i < this.customProperties.length; i++) {
+            var proName = this.customProperties[i];
+            if (this[proName + "_devPoint"] == pointName) {
+                this.selected = true;
+                var root = this.groupElement;
+                while (root.children.length > 0) {
+                    root = root.children[0];
+                }
+                root.scrollIntoView();
+                return;
+            }
+        }
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selectByPointName(pointName);
         }
     };
     GroupControl.prototype.onDevicePointValueChanged = function (point) {
@@ -2920,6 +2991,11 @@ var FreeGroupControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    FreeGroupControl.prototype.selectByPointName = function (pointName) {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selectByPointName(pointName);
+        }
+    };
     FreeGroupControl.prototype.onSelectedChange = function () {
         this.virtualRectElement.setAttribute('stroke', this.selected ? "red" : "green");
     };
