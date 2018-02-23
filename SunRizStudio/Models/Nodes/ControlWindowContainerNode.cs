@@ -187,7 +187,21 @@ namespace SunRizStudio.Models.Nodes
                     //加载子节点
                     foreach (var window in ret)
                     {
-                        var newNode = new ControlWindowNode(window);
+                        SunRizServer.ControlWindow curWin = window;
+                        foreach( Documents.DocTabItem item in MainWindow.Instance.documentContainer.Items )
+                        {
+                            if(item.Content is Documents.ControlWindowDocument)
+                            {
+                                var doc = item.Content as Documents.ControlWindowDocument;
+                                if(doc._dataModel.id == curWin.id)
+                                {
+                                    //采用现有打开窗口的_dataModel
+                                    curWin = doc._dataModel;
+                                    break;
+                                }
+                            }
+                        }
+                        var newNode = new ControlWindowNode(curWin);
                         this.Nodes.Add(newNode);
                     }
                 }

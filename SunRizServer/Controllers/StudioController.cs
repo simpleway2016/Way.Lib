@@ -4,6 +4,7 @@ using System.Text;
 using Way.Lib.ScriptRemoting;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace SunRizServer.Controllers
 {
@@ -152,6 +153,59 @@ namespace SunRizServer.Controllers
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
             return obj.Value<string>("controlsScript");
         }
+
+        /// <summary>
+        /// 在窗口中查找引用的点
+        /// </summary>
+        /// <param name="pointName"></param>
+        /// <returns></returns>
+        [RemotingMethod]
+        public List<object> FindDevicePointInWindow(string pointName)
+        {
+            List<object> findedWindows = new List<object>();
+            foreach(var window in this.db.ControlWindow )
+            {
+                var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+                var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+                string script = obj.Value<string>("controlsScript");
+                //var ms = Regex.Matches(script, @"devicePoint[0-9]*[ ]*=[ ]*['""]([\w\/]+)['""]");
+                //因为GroupControl会自定义变量，所以不能匹配devicePoint字眼
+                var ms = Regex.Matches(script, @"=[ ]*['""]([\w\/]+)['""]");
+                foreach (Match m in ms)
+                {
+                    var name = m.Groups[1].Value;
+                    if (CompareString(name, pointName))
+                    {
+                        var windowPath = GetWindowPath(window.id.Value); 
+                        findedWindows.Add(new {
+                            id = window.id.Value,
+                            path = windowPath,
+                            content = name
+                        });     
+                    }
+                }
+            }
+            return findedWindows;
+        }
+
+        /// <summary>
+        /// 比较字符串
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="str">匹配的字符串，支持通配符*</param>
+        /// <returns>如果content包含str，返回true</returns>
+        bool CompareString(string content,string str)
+        {
+            if(str.Contains("*") == false)
+            {
+                return string.Equals(content, str, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else
+            {
+                return Regex.IsMatch(content, str.Replace("*", @"[\w\/]+"));
+            }
+        }
+
         [RemotingMethod]
         public int WriteWindowScript(int windowid, string script)
         {

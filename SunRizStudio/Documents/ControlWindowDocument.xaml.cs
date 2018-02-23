@@ -46,6 +46,12 @@ namespace SunRizStudio.Documents
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parent">如果不是新建的窗口，此参数可以为空</param>
+        /// <param name="dataModel"></param>
+        /// <param name="isRunMode"></param>
         internal ControlWindowDocument(ControlWindowContainerNode parent, SunRizServer.ControlWindow dataModel, bool isRunMode)
         {
             IsRunMode = isRunMode;
@@ -173,6 +179,11 @@ namespace SunRizStudio.Documents
                     frm.ShowDialog();
                 }
             }, _dataModel.id);
+        }
+
+        public void SelectWebControlByPointName(string pointName)
+        {
+
         }
 
         /// <summary>

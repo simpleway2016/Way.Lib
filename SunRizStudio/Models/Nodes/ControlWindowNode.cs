@@ -11,12 +11,13 @@ namespace SunRizStudio.Models.Nodes
 {
     class ControlWindowNode : SolutionNode
     {
-        SunRizServer.ControlWindow _dataModel;
+        internal SunRizServer.ControlWindow DataModel;
+
         public ControlWindowNode(SunRizServer.ControlWindow dataModel)
         {
-            _dataModel = dataModel;
-            _dataModel.PropertyChanged += _dataModel_PropertyChanged;
-            this.Text = _dataModel.Name + " " + _dataModel.Code;
+            DataModel = dataModel;
+            DataModel.PropertyChanged += _dataModel_PropertyChanged;
+            this.Text = DataModel.Name + " " + DataModel.Code;
             this.Icon = "/images/solution/window.png";
             this.DoublicClickHandler = (s,e) =>{
                 open();
@@ -50,7 +51,7 @@ namespace SunRizStudio.Models.Nodes
                 {
                     MainWindow.Instance.Cursor = null;
                     this.Parent.Nodes.Remove(this);
-                }, _dataModel.id);
+                }, DataModel.id);
             }
         }
         void open()
@@ -61,7 +62,7 @@ namespace SunRizStudio.Models.Nodes
                 if (item.Content is Documents.ControlWindowDocument)
                 {
                     var document = item.Content as Documents.ControlWindowDocument;
-                    if (document.IsRunMode == false && document._dataModel.id == _dataModel.id)
+                    if (document.IsRunMode == false && document._dataModel.id == DataModel.id)
                     {
                         //激活document
                         MainWindow.Instance.documentContainer.SelectedItem = item;
@@ -69,7 +70,7 @@ namespace SunRizStudio.Models.Nodes
                     }
                 }
             }
-            var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, _dataModel, false);
+            var doc = new Documents.ControlWindowDocument(this.Parent as ControlWindowContainerNode, DataModel, false);
             MainWindow.Instance.SetActiveDocument(doc);
         }
         void openCode()
@@ -81,11 +82,11 @@ namespace SunRizStudio.Models.Nodes
                 }
                 else
                 {
-                    Dialogs.TextEditor frm = new Dialogs.TextEditor(script, _dataModel.id.Value);
-                    frm.Title = _dataModel.Name;
+                    Dialogs.TextEditor frm = new Dialogs.TextEditor(script, DataModel.id.Value);
+                    frm.Title = DataModel.Name;
                     frm.ShowDialog();
                 }
-            }, _dataModel.id);
+            }, DataModel.id);
         }
         private void _dataModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -93,11 +94,11 @@ namespace SunRizStudio.Models.Nodes
             {
                 try
                 {
-                    this.Text = _dataModel.Name + " " + _dataModel.Code;
+                    this.Text = DataModel.Name + " " + DataModel.Code;
                 }
                 catch
                 {
-                    _dataModel.PropertyChanged -= _dataModel_PropertyChanged;
+                    DataModel.PropertyChanged -= _dataModel_PropertyChanged;
                 }
             }
         }
@@ -107,7 +108,7 @@ namespace SunRizStudio.Models.Nodes
             if (e.ChangedButton == MouseButton.Left)
             {
                 FrameworkElement treeviewitem = sender as FrameworkElement;
-                DataObject data = new DataObject("Text", new { Type = "GroupControl", windowCode = _dataModel.Code }.ToJsonString());
+                DataObject data = new DataObject("Text", new { Type = "GroupControl", windowCode = DataModel.Code }.ToJsonString());
                 DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
             }
         }
