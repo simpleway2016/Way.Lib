@@ -52,8 +52,18 @@ namespace SunRizServer.HistoryRecord
                         for(int i = 0; i < points.Length; i ++)
                         {
                             pointAddrs[i] = points[i].Address;
+                            if(points[i].ValueOnTimeChange == true)
+                            {
+                                client.SaveOnTimeInfos.Add(new SaveOnTimeInfo() {
+                                    PointObj = points[i],
+                                    PointId = points[i].id.Value,
+                                    Interval = points[i].ValueOnTimeChangeSetting.GetValueOrDefault(),
+                                });
+                            }
                         }
                         watchClient(client, device, pointAddrs);
+                        //启动定时保存的线程
+                        saveClientOnTimeThread(client, device);
                     }
                 }
             }
@@ -101,6 +111,32 @@ namespace SunRizServer.HistoryRecord
             return data;
         }
 
+        static void WriteHistory(DevicePoint point,object value)
+        {
+
+        }
+
+        static void saveClientOnTimeThread(MyDriverClient client, Device device)
+        {
+            if (client.SaveOnTimeInfos.Count == 0)
+                return;
+            Task.Run(()=> {
+                while(client.Released == false)
+                {                    
+                    foreach ( var itemInfo in client.SaveOnTimeInfos )
+                    {
+                        if(itemInfo.CurrentValue != itemInfo.SaveValue && (DateTime.Now - itemInfo.SaveTime).TotalSeconds >= itemInfo.PointObj.ValueOnTimeChangeSetting)
+                        {
+                            WriteHistory(itemInfo.PointObj, itemInfo.CurrentValue);
+                            itemInfo.SaveValue = itemInfo.CurrentValue;
+                            itemInfo.SaveTime = DateTime.Now;
+                        }
+                    }
+                    Thread.Sleep(1000);
+                }
+            });
+        }
+
         static void watchClient(MyDriverClient client , Device device , string[] pointAddrs)
         {
             client.NetClient = client.AddPointToWatch(device.Address, pointAddrs, (addr, value) => 
@@ -110,7 +146,20 @@ namespace SunRizServer.HistoryRecord
                 {
                     var jobj = GetJsonObject(point);
                     value = SunRizDriver.Helper.Transform(jobj, value);
-                    System.Diagnostics.Debug.WriteLine($"name:{addr} value:{value}");
+                    if (point.ValueOnTimeChange == true)
+                    {
+                        //定时保存
+                        var timeInfo = client.SaveOnTimeInfos.FirstOrDefault(m => m.PointId == point.id);
+                        if (timeInfo != null)
+                        {
+                            timeInfo.CurrentValue = value;
+                        }
+                    }
+                    else
+                    {
+                        WriteHistory(point, value);
+                    }
+                    //System.Diagnostics.Debug.WriteLine($"name:{addr} value:{value}");
                 }
                
             }, (err) => {
@@ -125,11 +174,29 @@ namespace SunRizServer.HistoryRecord
         }
     }
 
+    class SaveOnTimeInfo
+    {
+        public int PointId;
+        /// <summary>
+        /// 上次保存的值
+        /// </summary>
+        public object SaveValue;
+        /// <summary>
+        /// 上次保存的时间
+        /// </summary>
+        public DateTime SaveTime = new DateTime(2000,1,1);
+        public object CurrentValue;
+        public DevicePoint PointObj;
+        //保存间隔
+        public double Interval;
+    }
+
     class MyDriverClient : SunRizDriver.SunRizDriverClient
     {
         public bool Released = false;
         public Way.Lib.NetStream NetClient;
         public DevicePoint[] Points;
+        public List<SaveOnTimeInfo> SaveOnTimeInfos = new List<SaveOnTimeInfo>();
         public MyDriverClient(string addr, int port) : base(addr, port)
         {
 

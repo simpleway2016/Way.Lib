@@ -275,7 +275,7 @@
                 </Grid.ColumnDefinitions>
                 <Grid Background="#f0f0f0" Grid.Column="0">
                     
-                    <Border BorderThickness="1" BorderBrush="#828790" Height="28" VerticalAlignment="Top" Margin="0,4,5,0" ></Border>
+                    <Border BorderThickness="1" Background="White" BorderBrush="#828790" Height="28" VerticalAlignment="Top" Margin="0,4,5,0" ></Border>
                     <Image Width="16" Height="16" Source="/images/search.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,10,12,0"></Image>
                     <TextBox x:Name="txtSearch" KeyDown="txtSearch_KeyDown" Background="Transparent" FontSize="13" BorderThickness="0" Height="20" VerticalAlignment="Top" Margin="2,8,25,0" ></TextBox>
                     <TreeView x:Name="tree" Margin="0,35,5,0" AllowDrop="True">
