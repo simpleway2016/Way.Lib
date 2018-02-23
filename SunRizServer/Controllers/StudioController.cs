@@ -364,7 +364,18 @@ namespace SunRizServer.Controllers
             else if (point.id == null && this.db.DevicePointFolder.Any(m => m.id != point.id && m.Name == point.Name))
                 throw new Exception("点名已存在");
 
+            bool needRestartHistory = false;
+            if(point.ChangedProperties.Any(m=>m.Key.Contains("ValueOnTimeChange") || m.Key.Contains("ValueAbsoluteChange") || m.Key.Contains("ValueRelativeChange") ))
+            {
+                //需要重新启动历史保存
+                needRestartHistory = true;
+            }
+
             this.db.Update(point);
+            if (needRestartHistory)
+            {
+                HistoryRecord.HistoryAutoRec.ReStart();
+            }
             return point.id.Value;
         }
 

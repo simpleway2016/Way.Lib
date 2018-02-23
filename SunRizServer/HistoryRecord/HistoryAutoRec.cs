@@ -34,6 +34,22 @@ namespace SunRizServer.HistoryRecord
             {
                 using (SysDB db = new SysDB())
                 {
+                    var sysSetting = db.SystemSetting.FirstOrDefault();
+                    if (string.IsNullOrEmpty(sysSetting.HistoryPath))
+                        return;
+                    try
+                    {
+                        //目录不存在，创建目录
+                        if(System.IO.Directory.Exists(sysSetting.HistoryPath) == false)
+                        {
+                            System.IO.Directory.CreateDirectory(sysSetting.HistoryPath);
+                        }
+                    }
+                    catch
+                    {
+                        return;
+                    }
+
                     var pointGroups = from m in db.DevicePoint
                                      where m.ValueRelativeChange == true || m.ValueAbsoluteChange == true || m.ValueOnTimeChange == true
                                      group m by m.DeviceId into g
@@ -51,6 +67,8 @@ namespace SunRizServer.HistoryRecord
                         string[] pointAddrs = new string[points.Length];
                         for(int i = 0; i < points.Length; i ++)
                         {
+                            //利用InitValue保存上一次变化的值
+                            points[i].InitValue = null;
                             pointAddrs[i] = points[i].Address;
                             if(points[i].ValueOnTimeChange == true)
                             {
@@ -116,9 +134,9 @@ namespace SunRizServer.HistoryRecord
         /// </summary>
         /// <param name="point"></param>
         /// <param name="value"></param>
-        static void WriteHistory(DevicePoint point,object value)
+        static void WriteHistory(DevicePoint point,double value)
         {
-
+            
         }
 
         /// <summary>
@@ -161,19 +179,50 @@ namespace SunRizServer.HistoryRecord
                 if(point != null)
                 {
                     var jobj = GetJsonObject(point);
+                    double dblValue;
                     value = SunRizDriver.Helper.Transform(jobj, value);
-                    if (point.ValueOnTimeChange == true)
+                    try
+                    {
+                        dblValue = Convert.ToDouble(value);
+                    }
+                    catch
+                    {
+                        return;
+                    }
+
+                    if (point.Type == DevicePoint_TypeEnum.Digital)
+                    {
+                        //开关量，直接保存
+                        WriteHistory(point, dblValue);
+                    }
+                    else if (point.ValueOnTimeChange == true)
                     {
                         //定时保存
                         var timeInfo = client.SaveOnTimeInfos.FirstOrDefault(m => m.PointId == point.id);
                         if (timeInfo != null)
                         {
-                            timeInfo.CurrentValue = value;
+                            timeInfo.CurrentValue = dblValue;
                         }
                     }
-                    else
+                    else if( point.ValueAbsoluteChange == true )
                     {
-                        WriteHistory(point, value);
+                        //绝对变化是指这个变量当前值与前一个历史值比较，变化超过设定数值后进行历史保存
+                        //利用InitValue保存上一次变化的值
+                        if (point.InitValue == null || Math.Abs(dblValue - point.InitValue.GetValueOrDefault()) >= point.ValueAbsoluteChangeSetting)
+                        {
+                            WriteHistory(point, dblValue);
+                            point.InitValue = dblValue;
+                        }
+                    }
+                    else if (point.ValueRelativeChange == true)
+                    {
+                        //相对变化是指这个变量当前值与前一个历史值比较，变化超过设定值（这个值是该变量量程的百分比）后进行历史保存
+                        //利用InitValue保存上一次变化的值
+                        if (point.InitValue == null || point.InitValue == 0 || Math.Abs(dblValue - point.InitValue.GetValueOrDefault())*100 /point.InitValue >= point.ValueRelativeChangeSetting)
+                        {
+                            WriteHistory(point, dblValue);
+                            point.InitValue = dblValue;
+                        }
                     }
                     //System.Diagnostics.Debug.WriteLine($"name:{addr} value:{value}");
                 }
@@ -196,12 +245,12 @@ namespace SunRizServer.HistoryRecord
         /// <summary>
         /// 上次保存的值
         /// </summary>
-        public object SaveValue;
+        public double? SaveValue;
         /// <summary>
         /// 上次保存的时间
         /// </summary>
         public DateTime SaveTime = new DateTime(2000,1,1);
-        public object CurrentValue;
+        public double CurrentValue;
         public DevicePoint PointObj;
         //保存间隔
         public double Interval;

@@ -45,13 +45,32 @@ namespace SunRizStudio.Documents
             //复制一份，给刷新按钮使用
             _pointModel = OriginalModel.Clone<DevicePoint>();
             _container.DataContext = _pointModel;
-            if(_pointModel.AddrSetting.IsBlank() == false)
+            _pointModel.PropertyChanged += _pointModel_PropertyChanged;
+            if (_pointModel.AddrSetting.IsBlank() == false)
             {
                 _PointJsonDict = _pointModel.AddrSetting.JsonToObject<Dictionary<string, string>>();
             }
             setPointPropertyInput();
         }
 
+        private void _pointModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ValueAbsoluteChange" && _pointModel.ValueAbsoluteChange == true)
+            {
+                _pointModel.ValueOnTimeChange = false;
+                _pointModel.ValueRelativeChange = false;
+            }
+            else if (e.PropertyName == "ValueOnTimeChange" && _pointModel.ValueOnTimeChange == true)
+            {
+                _pointModel.ValueAbsoluteChange = false;
+                _pointModel.ValueRelativeChange = false;
+            }
+            else if (e.PropertyName == "ValueRelativeChange" && _pointModel.ValueRelativeChange == true)
+            {
+                _pointModel.ValueAbsoluteChange = false;
+                _pointModel.ValueOnTimeChange = false;
+            }
+        }
 
         /// <summary>
         /// 设置数据连接相关的属性输入框

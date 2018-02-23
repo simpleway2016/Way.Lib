@@ -179,11 +179,6 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="26"></RowDefinition>
                                 <RowDefinition Height="26"></RowDefinition>
-                                <RowDefinition Height="26"></RowDefinition>
-                                <RowDefinition Height="26"></RowDefinition>
-                                <RowDefinition Height="26"></RowDefinition>
-                                <RowDefinition Height="26"></RowDefinition>
-                                <RowDefinition Height="26"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Grid Background="#dcdcdc"  Grid.Row="0" Grid.Column="0">
                                 <TextBlock Text="项目" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
@@ -192,41 +187,9 @@
                                 <TextBlock Text="属性" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"></TextBlock>
                             </Grid>
 
-                            <TextBlock Text="数据绝对变化保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
+                            <TextBlock Text="数据变化保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueAbsoluteChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="1" Grid.Column="1"></CheckBox>
-
-                            <TextBlock Text="数据绝对变化值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" Text="{Binding ValueAbsoluteChangeSetting,Mode=TwoWay}"  BorderThickness="0" Grid.Row="2" Grid.Column="1">
-                                <ComboBoxItem Content="1"></ComboBoxItem>
-                                <ComboBoxItem Content="2"></ComboBoxItem>
-                                <ComboBoxItem Content="3"></ComboBoxItem>
-                                <ComboBoxItem Content="4"></ComboBoxItem>
-                                <ComboBoxItem Content="5"></ComboBoxItem>
-                            </ComboBox>
-
-                            <TextBlock Text="数据相对变化保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueRelativeChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="3" Grid.Column="1"></CheckBox>
-
-                            <TextBlock Text="数据相对变化值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" Text="{Binding ValueRelativeChangeSetting,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1">
-                                <ComboBoxItem Content="1"></ComboBoxItem>
-                                <ComboBoxItem Content="2"></ComboBoxItem>
-                                <ComboBoxItem Content="3"></ComboBoxItem>
-                                <ComboBoxItem Content="4"></ComboBoxItem>
-                                <ComboBoxItem Content="5"></ComboBoxItem>
-                            </ComboBox>
-
-                            <TextBlock Text="数据定时保存" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="5" Grid.Column="0"></TextBlock>
-                            <CheckBox Padding="2,4,0,0" IsChecked="{Binding ValueOnTimeChange,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="5" Grid.Column="1"></CheckBox>
-
-                            <TextBlock Text="数据定时值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" Text="{Binding ValueOnTimeChangeSetting,Mode=TwoWay}" BorderThickness="0" Grid.Row="6" Grid.Column="1">
-                                <ComboBoxItem Content="1"></ComboBoxItem>
-                                <ComboBoxItem Content="2"></ComboBoxItem>
-                                <ComboBoxItem Content="3"></ComboBoxItem>
-                                <ComboBoxItem Content="4"></ComboBoxItem>
-                                <ComboBoxItem Content="5"></ComboBoxItem>
-                            </ComboBox>
+                          
                             
                                 <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                         </Grid>

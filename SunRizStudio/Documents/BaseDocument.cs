@@ -95,7 +95,6 @@ namespace SunRizStudio.Documents
         /// <param name="canceled">是否取消</param>
         public virtual void  OnClose(ref bool canceled)
         {
-            
         }
     }
 }
