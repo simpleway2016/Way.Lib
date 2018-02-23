@@ -63,7 +63,7 @@ namespace SunRizServer.HistoryRecord
                         }
                         watchClient(client, device, pointAddrs);
                         //启动定时保存的线程
-                        saveClientOnTimeThread(client, device);
+                        saveValueOnTime_Thread(client, device);
                     }
                 }
             }
@@ -111,12 +111,22 @@ namespace SunRizServer.HistoryRecord
             return data;
         }
 
+        /// <summary>
+        /// 写历史记录
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="value"></param>
         static void WriteHistory(DevicePoint point,object value)
         {
 
         }
 
-        static void saveClientOnTimeThread(MyDriverClient client, Device device)
+        /// <summary>
+        /// 定时保存值到历史记录
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="device"></param>
+        static void saveValueOnTime_Thread(MyDriverClient client, Device device)
         {
             if (client.SaveOnTimeInfos.Count == 0)
                 return;
@@ -137,6 +147,12 @@ namespace SunRizServer.HistoryRecord
             });
         }
 
+        /// <summary>
+        /// 实时监测设备值变化
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="device"></param>
+        /// <param name="pointAddrs"></param>
         static void watchClient(MyDriverClient client , Device device , string[] pointAddrs)
         {
             client.NetClient = client.AddPointToWatch(device.Address, pointAddrs, (addr, value) => 
