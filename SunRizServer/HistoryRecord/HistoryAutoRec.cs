@@ -11,6 +11,52 @@ namespace SunRizServer.HistoryRecord
     class HistoryAutoRec
     {
         static List<MyDriverClient> AllClients = new List<MyDriverClient>();
+        static SunRizServer.DB.SunRizHistory hisDB;
+        static DateTime LastHisTime;
+
+        static HistoryAutoRec()
+        {
+            //检查历史记录剩余空间
+            Task.Run(() => {
+                while (true)
+                {
+                    
+                    try
+                    {
+                        using (SysDB db = new SysDB())
+                        {
+                            var info = (from m in db.SystemSetting
+                                              select new { path = m.HistoryPath,g = m.HistoryStoreAlarm }).FirstOrDefault();
+                            if (info == null || string.IsNullOrEmpty(info.path) || info.path.Length < 2 || info.g == null || info.g == 0 || info.path[1] != ':')
+                                continue;
+                            System.IO.DriveInfo[] drives = System.IO.DriveInfo.GetDrives();
+                            foreach (System.IO.DriveInfo drive in drives)
+                            {
+                                if (drive.Name.ToLower()[0] == info.path.ToLower()[0])
+                                {
+                                    var gb = Math.Round( drive.TotalFreeSpace / (double)(1024 * 1024 * 1024) , 2);
+                                    if (gb <= info.g.GetValueOrDefault())
+                                    {
+                                        AlarmHelper.AddAlarm($"历史路径{info.path}剩余空间只有{gb}GB了，请尽快扩展磁盘！");
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        using (Way.Lib.CLog log = new Way.Lib.CLog("HistoryAutoRec 检查磁盘剩余空间 error "))
+                        {
+                            log.Log(ex.ToString());
+                        }
+
+                    }
+                    Thread.Sleep(1000 * 60);
+                }
+            });
+        }
+
         /// <summary>
         /// 开始记录历史
         /// </summary>
@@ -32,6 +78,15 @@ namespace SunRizServer.HistoryRecord
         {
             try
             {
+                if(hisDB != null)
+                {
+                    lock (hisDB)
+                    {
+                        hisDB.CommitTransaction();
+                        hisDB.Dispose();
+                    }
+                    hisDB = null;
+                }
                 using (SysDB db = new SysDB())
                 {
                     var sysSetting = db.SystemSetting.FirstOrDefault();
@@ -44,11 +99,15 @@ namespace SunRizServer.HistoryRecord
                         {
                             System.IO.Directory.CreateDirectory(sysSetting.HistoryPath);
                         }
+                        hisDB = new DB.SunRizHistory($"data source=\"{sysSetting.HistoryPath.Replace("\\","/")}/data.db\"", Way.EntityDB.DatabaseType.Sqlite);
+                        LastHisTime = DateTime.Now;
+                        hisDB.BeginTransaction();
                     }
                     catch
                     {
                         return;
                     }
+                 
 
                     var pointGroups = from m in db.DevicePoint
                                      where m.ValueRelativeChange == true || m.ValueAbsoluteChange == true || m.ValueOnTimeChange == true
@@ -136,7 +195,37 @@ namespace SunRizServer.HistoryRecord
         /// <param name="value"></param>
         static void WriteHistory(DevicePoint point,double value)
         {
-            
+            if (hisDB == null)
+                return;
+            try
+            {
+                lock (hisDB)
+                {
+                    var data = new SunRizServer.History();
+                    data.PointId = point.id;
+                    data.Address = point.Name;
+                    data.Time = DateTime.Now;
+                    data.Value = value;
+                    hisDB.Insert(data);
+
+                    if ((DateTime.Now - LastHisTime).TotalMinutes >= 2)
+                    {
+                        hisDB.CommitTransaction();
+                        LastHisTime = DateTime.Now;
+                        hisDB.BeginTransaction();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                using (Way.Lib.CLog log = new Way.Lib.CLog("HistoryAutoRec WriteHistory error"))
+                {
+                    log.Log(ex.ToString());
+                }
+                hisDB.Dispose();
+                hisDB = null;
+                AlarmHelper.AddAlarm($"记录历史时，发生错误，错误信息：{ex.Message}");
+            }
         }
 
         /// <summary>

@@ -31,7 +31,7 @@ namespace SunRizStudio.Models.Nodes
             Helper.Remote.Invoke<ControlUnit>("GetSystemSetting", (data, err) => {
                 if (err != null)
                 {
-                    MessageBox.Show(MainWindow.Instance, "err");
+                    MessageBox.Show(MainWindow.Instance, err);
                 }
                 else
                 {

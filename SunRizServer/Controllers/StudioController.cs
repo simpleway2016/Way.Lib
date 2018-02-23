@@ -490,7 +490,17 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int UpdateSystemSetting(SystemSetting data)
         {
+            var needRestartHistory = false;
+            if (data.ChangedProperties.Any(m=>m.Key == "HistoryPath"))
+            {
+                //历史保存路径修改了
+                needRestartHistory = true;
+            }
             this.db.Update(data);
+            if (needRestartHistory)
+            {
+                HistoryRecord.HistoryAutoRec.ReStart();
+            }
             return data.id.Value;
         }
     }
