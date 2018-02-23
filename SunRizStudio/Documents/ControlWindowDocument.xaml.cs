@@ -132,6 +132,12 @@ namespace SunRizStudio.Documents
                 {
                     this.TabItem.Content = this;
                 }
+                else
+                {
+                    //没有tab，那就是要关闭窗口了
+                    bool canceled = false;
+                    this.OnClose(ref canceled);
+                }
             }
         }
       

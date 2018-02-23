@@ -345,6 +345,8 @@ declare class ButtonAreaControl extends EditorControl {
 }
 declare class GroupControl extends EditorControl implements IEditorControlContainer {
     controls: any[];
+    getControl(id: string): EditorControl;
+    isIdExist(id: string): boolean;
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
     writeValue(pointName: any, addr: any, value: any): void;
@@ -384,6 +386,8 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
 }
 declare class FreeGroupControl extends EditorControl implements IEditorControlContainer {
     controls: any[];
+    getControl(id: string): EditorControl;
+    isIdExist(id: string): boolean;
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
     addControls(ctrls: EditorControl[]): void;

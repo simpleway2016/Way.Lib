@@ -479,6 +479,14 @@ var Editor = (function () {
             }
         }, false);
     }
+    Editor.prototype.getControl = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    };
     Editor.prototype.removeControl = function (ctrl) {
         for (var i = 0; i < this.controls.length; i++) {
             if (this.controls[i] == ctrl) {
@@ -512,6 +520,14 @@ var Editor = (function () {
                 rect.y -= mintop;
                 child.rect = rect;
             }
+        }
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = ctrl.constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
         }
         this.controls.push(ctrl);
         ctrl.container = this;
@@ -898,6 +914,18 @@ var Editor = (function () {
         catch (e) {
             alert(e.message);
         }
+    };
+    Editor.prototype.isIdExist = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = this.controls[i].isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if (this.controls[i].id == id)
+                return true;
+        }
+        return false;
     };
     Editor.prototype.fireBodyEvent = function (event) {
     };

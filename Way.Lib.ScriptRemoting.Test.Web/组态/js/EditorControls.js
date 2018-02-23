@@ -137,7 +137,13 @@ var EditorControl = (function () {
             return this._id;
         },
         set: function (v) {
-            this._id = v;
+            if (v != this._id) {
+                if (this.container && this.container.isIdExist(v)) {
+                    alert("id“" + v + "”已存在");
+                    return;
+                }
+                this._id = v;
+            }
         },
         enumerable: true,
         configurable: true
@@ -167,10 +173,7 @@ var EditorControl = (function () {
     EditorControl.prototype.getScript = function () {
         var json = this.getJson();
         var script = "";
-        var id = this.id;
-        if (!id || id.length == 0) {
-            id = "eCtrl";
-        }
+        var id = "eCtrl";
         script += id + " = new " + json.constructorName + "();\r\n";
         script += "editor.addControl(" + id + ");\r\n";
         for (var proName in json) {
@@ -2399,6 +2402,26 @@ var GroupControl = (function (_super) {
         }
         return _this;
     }
+    GroupControl.prototype.getControl = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    };
+    GroupControl.prototype.isIdExist = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = this.controls[i].isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if (this.controls[i].id == id)
+                return true;
+        }
+        return false;
+    };
     GroupControl.prototype.removeControl = function (ctrl) {
         for (var i = 0; i < this.controls.length; i++) {
             if (this.controls[i] == ctrl) {
@@ -2411,6 +2434,14 @@ var GroupControl = (function (_super) {
         }
     };
     GroupControl.prototype.addControl = function (ctrl) {
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = ctrl.constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
+        }
         ctrl.isInGroup = true;
         ctrl.container = this;
         this.childGroupElement.appendChild(ctrl.element);
@@ -2608,10 +2639,7 @@ var GroupControl = (function (_super) {
     GroupControl.prototype.getScript = function () {
         var json = this.getJson();
         var script = "";
-        var id = this.id;
-        if (!id || id.length == 0) {
-            id = "eCtrl";
-        }
+        var id = "eCtrl";
         script += id + " = editor.createGroupControl(" + JSON.stringify(this.windowCode) + " , " + JSON.stringify(json.rect) + ");\r\n";
         for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
@@ -2742,6 +2770,26 @@ var FreeGroupControl = (function (_super) {
         }
         return _this;
     }
+    FreeGroupControl.prototype.getControl = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    };
+    FreeGroupControl.prototype.isIdExist = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = this.controls[i].isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if (this.controls[i].id == id)
+                return true;
+        }
+        return false;
+    };
     FreeGroupControl.prototype.removeControl = function (ctrl) {
         for (var i = 0; i < this.controls.length; i++) {
             if (this.controls[i] == ctrl) {

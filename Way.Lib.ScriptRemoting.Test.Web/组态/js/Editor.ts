@@ -354,10 +354,21 @@ interface IEditorControlContainer
     addControl(ctrl: EditorControl);
     removeControl(ctrl: EditorControl);
     writeValue(pointName, addr, value);
+    isIdExist(id: string): boolean;
+    getControl(id: string): EditorControl;
 }
 
 class Editor implements IEditorControlContainer
 {
+    getControl(id: string): EditorControl
+    {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    }
     removeControl(ctrl: EditorControl) {
        
         for (var i = 0; i < this.controls.length; i++)
@@ -397,6 +408,15 @@ class Editor implements IEditorControlContainer
                 rect.y -= mintop;
                 child.rect = rect;
             }
+        }
+
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = (<any>ctrl).constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
         }
 
         this.controls.push(ctrl);
@@ -1065,6 +1085,21 @@ class Editor implements IEditorControlContainer
         {
             alert(e.message);
         }
+    }
+
+    isIdExist(id: string): boolean
+    {
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = (<IEditorControlContainer>this.controls[i]).isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if ((<EditorControl>this.controls[i]).id == id)
+                return true;           
+        }
+        return false;
     }
 
     fireBodyEvent(event)

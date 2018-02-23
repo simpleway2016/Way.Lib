@@ -74,6 +74,7 @@ namespace SunRizDriver
             var isDigital = point.Value<bool>("isDigital");
             if(isDigital)
             {
+                //开关量，只能是1或者0
                 value = Convert.ToInt32(value);
                 if (value > 1)
                     return 1;

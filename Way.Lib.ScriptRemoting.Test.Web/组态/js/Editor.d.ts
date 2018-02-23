@@ -87,8 +87,11 @@ interface IEditorControlContainer {
     addControl(ctrl: EditorControl): any;
     removeControl(ctrl: EditorControl): any;
     writeValue(pointName: any, addr: any, value: any): any;
+    isIdExist(id: string): boolean;
+    getControl(id: string): EditorControl;
 }
 declare class Editor implements IEditorControlContainer {
+    getControl(id: string): EditorControl;
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
     writeValue(pointName: any, addr: any, value: any): void;
@@ -137,6 +140,7 @@ declare class Editor implements IEditorControlContainer {
     cut(): void;
     copy(): void;
     paste(): void;
+    isIdExist(id: string): boolean;
     fireBodyEvent(event: any): void;
     selectControlsByRect(rect: any, ctrlKey: any): void;
     setCurrentToolBoxItem(typename: string): void;

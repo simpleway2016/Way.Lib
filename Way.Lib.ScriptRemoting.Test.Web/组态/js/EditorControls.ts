@@ -65,7 +65,14 @@ class EditorControl
         return this._id;
     }
     set id(v) {
-        this._id = v;
+        if (v != this._id) {            
+            if (this.container && this.container.isIdExist(v))
+            {
+                alert("id“"+v+"”已存在");
+                return;
+            }
+            this._id = v;
+        }
     }
 
     private mouseDownX;
@@ -76,6 +83,7 @@ class EditorControl
     {
         this.element = element;
         element._editorControl = this;
+
         (<HTMLElement>this.element).addEventListener("dragstart", (e) => {
             if (this.isInGroup || !this.container || !this.isDesignMode)
                 return;
@@ -204,11 +212,12 @@ class EditorControl
     {
         var json = this.getJson();
         var script = "";
-        var id = this.id;
-        if (!id || id.length == 0)
-        {
-            id = "eCtrl";
-        }
+        //var id = this.id;
+        //if (!id || id.length == 0)
+        //{
+        //    id = "eCtrl";
+        //}
+        var id = "eCtrl";
         script += id + " = new " + json.constructorName + "();\r\n";
         script += "editor.addControl(" + id + ");\r\n";
         for (var proName in json)
@@ -2353,6 +2362,26 @@ class ButtonAreaControl extends EditorControl {
 
 class GroupControl extends EditorControl implements IEditorControlContainer {
     controls: any[] = [];
+    getControl(id: string): EditorControl {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    }
+    isIdExist(id: string): boolean {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = (<IEditorControlContainer>this.controls[i]).isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if ((<EditorControl>this.controls[i]).id == id)
+                return true;
+        }
+        return false;
+    }
     removeControl(ctrl: EditorControl) {
 
         for (var i = 0; i < this.controls.length; i++) {
@@ -2366,6 +2395,15 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
     addControl(ctrl: EditorControl) {
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = (<any>ctrl).constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
+        }
+
         ctrl.isInGroup = true;
         ctrl.container = this;
         this.childGroupElement.appendChild(ctrl.element);
@@ -2620,10 +2658,11 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     getScript() {
         var json = this.getJson();
         var script = "";
-        var id = this.id;
-        if (!id || id.length == 0) {
-            id = "eCtrl";
-        }
+        //var id = this.id;
+        //if (!id || id.length == 0) {
+        //    id = "eCtrl";
+        //}
+        var id = "eCtrl";
         script += id + " = editor.createGroupControl(" + JSON.stringify(this.windowCode) + " , " + JSON.stringify(json.rect) + ");\r\n";
         for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
@@ -2756,6 +2795,26 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 //transform-origin:0 0;transform:scale(6,6)
 class FreeGroupControl extends EditorControl implements IEditorControlContainer {
     controls: any[] = [];
+    getControl(id: string): EditorControl {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    }
+    isIdExist(id: string): boolean {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = (<IEditorControlContainer>this.controls[i]).isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if ((<EditorControl>this.controls[i]).id == id)
+                return true;
+        }
+        return false;
+    }
     removeControl(ctrl: EditorControl) {
 
         for (var i = 0; i < this.controls.length; i++) {
