@@ -183,7 +183,28 @@ namespace Way.Lib.ScriptRemoting.Net
 
         byte[] getBytes(string content)
         {
-            return System.Text.Encoding.UTF8.GetBytes(content);
+            string contentType = null;
+            string charset = null;
+            if (this.Headers.ContainsKey("Content-Type"))
+            {
+                contentType = this.Headers["Content-Type"];
+                if(contentType.Contains(";charset="))
+                {
+                    try
+                    {
+                        var charsetGroup = contentType.Split(';').FirstOrDefault(m => m.Trim().StartsWith("charset="));
+                        charset = charsetGroup.Substring(charsetGroup.IndexOf("=") + 1);
+                        if (charset.Length == 0 || charset == "utf-8")
+                            charset = null;
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            var encoding = charset == null ? System.Text.Encoding.UTF8 : System.Text.Encoding.GetEncoding(charset);
+            return encoding.GetBytes(content);
         }
         internal void WriteStringBody(string content)
         {
@@ -411,7 +432,7 @@ namespace Way.Lib.ScriptRemoting.Net
                     setHeaderIfNot("Content-Length", contentLength.ToString());
                 }
             }
-            setHeaderIfNot("Content-Type", "text/html");
+            setHeaderIfNot("Content-Type", "text/html;charset=utf-8");
             if (range >= 0)
             {
                 setHeaderIfNot("Content-Range", "bytes " + range + "-" + rangeend + "/" + contentLength);
