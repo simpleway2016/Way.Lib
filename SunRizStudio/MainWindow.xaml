@@ -5,33 +5,107 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SunRizStudio"
         mc:Ignorable="d"
-        Title="MainWindow" Height="625" Width="1280">
-    <DockPanel Background="#d6dbe9">
-        <Menu Height="25" Margin="0,5,0,0" Background="#d6dbe9" DockPanel.Dock="Top">
-            <MenuItem Header="设置(_F)"></MenuItem>
-        </Menu>
-        <Grid DockPanel.Dock="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="150"></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Margin="0,0,0,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid Background="Aquamarine" Grid.Column="0">
-                    <TreeView x:Name="tree" Margin="0,0,5,0" AllowDrop="True">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="{x:Type TreeViewItem}">
-                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"></Setter>
-                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick"></EventSetter>
-                                <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate  ItemsSource="{Binding Path=TreeNodes}">
+        Title="SunRiz Studio" Height="625" Width="1280">
+    <Window.Resources>
+        <local:TreeViewLineConverter x:Key="LineConverter"/>
+
+        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
+
+        <!--=================================================================
+      TreeViewItem
+  ==================================================================-->
+        <Style x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid
+              Width="15"
+              Height="13"
+              Background="White" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            <Image RenderOptions.BitmapScalingMode="NearestNeighbor" UseLayoutRounding="True" Margin="3,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="ExpandPath" Source="images/Collapsed.png" Width="9" Height="9" SnapsToDevicePixels="True"></Image>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked"
+                   Value="True">
+                                <Setter Property="Source"
+                    TargetName="ExpandPath"
+                    Value="images/expanded.png"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TreeViewItemFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Border>
+                            <Rectangle Margin="0,0,0,0"
+                     StrokeThickness="5"
+                     Stroke="Black"
+                     StrokeDashArray="1 2"
+                     Opacity="0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="{x:Type TreeViewItem}"
+         TargetType="{x:Type TreeViewItem}">
+            <Setter Property="ItemsSource" Value="{Binding TreeNodes}"></Setter>
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"></Setter>
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick"></EventSetter>
+            <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
+            
+            <Setter Property="Background"
+          Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment"
+          Value="{Binding Path=HorizontalContentAlignment,
+              RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="VerticalContentAlignment"
+          Value="{Binding Path=VerticalContentAlignment,
+              RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="Padding"
+          Value="1,0,0,0"/>
+            <Setter Property="Foreground"
+          Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="FocusVisualStyle"
+          Value="{StaticResource TreeViewItemFocusVisual}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="19"
+                          Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Connecting Lines -->
+                            <Rectangle x:Name="HorLn" Height="1" Stroke="#8888" StrokeDashArray="2,4" Margin="10,0,0,0" SnapsToDevicePixels="true"/>
+                            <Rectangle x:Name="VerLn" Width="1" Stroke="#8888" StrokeDashArray="2,4" Grid.RowSpan="2" SnapsToDevicePixels="true"/>
+                            <ToggleButton x:Name="Expander"
+                      Style="{StaticResource ExpandCollapseToggleStyle}"
+                      IsChecked="{Binding Path=IsExpanded,
+                              RelativeSource={RelativeSource TemplatedParent}}"
+                      ClickMode="Press"/>
+                            <Border Name="Bd"
+                  Grid.Column="1"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Padding="{TemplateBinding Padding}">
+                                <!--<ContentPresenter x:Name="PART_Header"
+                          ContentSource="Header"
+                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>-->
                                 <StackPanel x:Name="main_panel" ToolTip="{Binding ToolTip}" Orientation="Horizontal" Height="22">
                                     <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
                                     <TextBlock x:Name="main_text" VerticalAlignment="Center" Text="{Binding Text}"></TextBlock>
@@ -52,20 +126,160 @@
                                         </ContextMenu>
                                     </StackPanel.ContextMenu>
                                 </StackPanel>
-                                <HierarchicalDataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                        <Setter TargetName="main_panel" Property="Background" Value="#3399ff"></Setter>
-                                        <Setter TargetName="main_text" Property="Foreground" Value="White"></Setter>
-                                    </DataTrigger>
-                                    <!--<DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
+                            </Border>
+                            <ItemsPresenter x:Name="ItemsHost"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      Grid.ColumnSpan="2"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="main_panel" Property="Background" Value="#3399ff"></Setter>
+                                <Setter TargetName="main_text" Property="Foreground" Value="White"></Setter>
+                            </DataTrigger>
+                            <!--<DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
                                     <Setter TargetName="main_img" Property="Visibility" Value="Collapsed"></Setter>
                                 </DataTrigger>-->
-                                    <DataTrigger Binding="{Binding HasContextMenu}" Value="False">
-                                        <Setter TargetName="main_panel" Property="ContextMenu" Value="{x:Null}"></Setter>
-                                    </DataTrigger>
-                                </HierarchicalDataTemplate.Triggers>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
+                            <DataTrigger Binding="{Binding HasContextMenu}" Value="False">
+                                <Setter TargetName="main_panel" Property="ContextMenu" Value="{x:Null}"></Setter>
+                            </DataTrigger>
+                            
+                            <!-- This trigger changes the connecting lines if the item is the last in the list -->
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource LineConverter}}" Value="true">
+                                <Setter TargetName="VerLn"
+                    Property="Height"
+                    Value="6"/>
+                                <Setter TargetName="VerLn"
+                    Property="VerticalAlignment"
+                    Value="Top"/>
+                            </DataTrigger>
+                            <Trigger Property="IsExpanded"
+                   Value="false">
+                                <Setter TargetName="ItemsHost"
+                    Property="Visibility"
+                    Value="Collapsed"/>
+                            </Trigger>
+                            <Trigger Property="HasItems"
+                   Value="false">
+                                <Setter TargetName="Expander"
+                    Property="Visibility"
+                    Value="Hidden"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="HasHeader"
+                         Value="false"/>
+                                    <Condition Property="Width"
+                         Value="Auto"/>
+                                </MultiTrigger.Conditions>
+                                
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="HasHeader"
+                         Value="false"/>
+                                    <Condition Property="Height"
+                         Value="Auto"/>
+                                </MultiTrigger.Conditions>
+                                
+                            </MultiTrigger>
+                            <Trigger Property="IsSelected"
+                   Value="true">
+                                <Setter TargetName="Bd"
+                    Property="Background"
+                    Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                <Setter Property="Foreground"
+                    Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected"
+                         Value="true"/>
+                                    <Condition Property="IsSelectionActive"
+                         Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Bd"
+                    Property="Background"
+                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                <Setter Property="Foreground"
+                    Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                            </MultiTrigger>
+                            <Trigger Property="IsEnabled"
+                   Value="false">
+                                <Setter Property="Foreground"
+                    Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+    
+<DockPanel Background="#d6dbe9">
+        <Menu Height="25" Margin="0,5,0,0" Background="#d6dbe9" DockPanel.Dock="Top">
+            <MenuItem Header="文件(_F)">
+                <MenuItem Header="打印设置(_U)..."></MenuItem>
+                <MenuItem Header="打印(_P)..."></MenuItem>
+                <MenuItem Header="预览(_V)..."></MenuItem>
+                <MenuItem Header="退出" x:Name="menuExitApp" Click="menuExitApp_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="编辑(_E)">
+                <MenuItem Header="撤销(_U)" x:Name="menuUndo" Click="menuUndo_Click"></MenuItem>
+                <MenuItem Header="重做(_R)" x:Name="menuRedo" Click="menuRedo_Click"></MenuItem>
+                <MenuItem Header="剪切(_T)" x:Name="menuCut" Click="menuCut_Click"></MenuItem>
+                <MenuItem Header="复制(_C)" x:Name="menuCopy" Click="menuCopy_Click"></MenuItem>
+                <MenuItem Header="粘贴(_P)" x:Name="menuPaste" Click="menuPaste_Click"></MenuItem>
+                <MenuItem Header="全选(_A)" x:Name="menuSelectAll" Click="menuSelectAll_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="操作(_O)">
+                <MenuItem Header="新建(_N)"></MenuItem>
+                <MenuItem Header="打开(_O)"></MenuItem>
+                <MenuItem Header="删除(_D)"></MenuItem>
+                <MenuItem Header="查找...(_F)"></MenuItem>
+                <MenuItem Header="交叉引用(_R)"></MenuItem>
+                <MenuItem Header="控制任务...(_M)"></MenuItem>
+                <MenuItem Header="一致性检查...(_C)"></MenuItem>
+                <MenuItem Header="组态下装(_X)"></MenuItem>
+                <MenuItem Header="配置下装(_Z)"></MenuItem>
+                <MenuItem Header="比较(_B)"></MenuItem>
+                <MenuItem Header="上载(_U)"></MenuItem>
+                <MenuItem Header="数据擦除(_E)"></MenuItem>
+                <MenuItem Header="导入...(_I)"></MenuItem>
+                <MenuItem Header="导出...(_Q)"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="浏览(_B)">
+                <MenuItem Header="展开(_E)"></MenuItem>
+                <MenuItem Header="收起(_C)"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="视图(_V)">
+                <MenuItem Header="全局窗口(_G)"></MenuItem>
+                <MenuItem Header="工作窗口(_W)"></MenuItem>
+                <MenuItem Header="详细配置窗口(_D)"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="帮助(_H)">
+                <MenuItem Header="帮助主题(_T)"></MenuItem>
+                <MenuItem Header="关于(_A)"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="150"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid Background="#f0f0f0" Grid.Column="0">
+                    
+                    <Border BorderThickness="1" Background="White" BorderBrush="#828790" Height="28" VerticalAlignment="Top" Margin="0,4,5,0" ></Border>
+                    <Image Width="16" Height="16" Source="/images/search.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,10,12,0"></Image>
+                    <TextBox x:Name="txtSearch" KeyDown="txtSearch_KeyDown" Background="Transparent" FontSize="13" BorderThickness="0" Height="20" VerticalAlignment="Top" Margin="2,8,25,0" ></TextBox>
+                    <TreeView x:Name="tree" Margin="0,35,5,0" AllowDrop="True">
+                        
                     </TreeView>
                 </Grid>
                 <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Width="5"/>
@@ -90,6 +304,22 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel x:Name="main_panel" ToolTip="{Binding ToolTip}" Orientation="Horizontal" Height="22">
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu IsEnabled="{Binding HasContextMenu}" ItemsSource="{Binding ContextMenuItems}">
+                                        <ContextMenu.ItemContainerStyle>
+                                            <Style TargetType="{x:Type MenuItem}">
+                                                <Setter Property="Header" Value="{Binding Text}"></Setter>
+                                                <Setter Property="Icon">
+                                                    <Setter.Value>
+                                                        <Image Source="{Binding Icon}"></Image>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <EventSetter Event="Click" Handler="NodeContextMenuItem_Click"></EventSetter>
+
+                                            </Style>
+                                        </ContextMenu.ItemContainerStyle>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
                                 <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
                                 <TextBlock x:Name="main_text" VerticalAlignment="Center" MaxWidth="100" Text="{Binding Text}"></TextBlock>
                             </StackPanel>

@@ -208,7 +208,29 @@ namespace Way.Lib
                     }
                     else
                     {
+#if NET46
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(System.Web.HttpRuntime.BinDirectory))
+                            {
+                                var bin = System.Web.HttpRuntime.BinDirectory;
+                                while (bin.EndsWith("\\"))
+                                    bin = bin.Substring(0, bin.Length - 1);
+                                bin = System.IO.Path.GetDirectoryName(bin);
+                                _SavePath = bin + "\\App_Data\\CLog";
+                            }
+                            else
+                            {
+                                _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
+                            }
+                        }
+                        catch
+                        {
+                            _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
+                        }
+#else
                         _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
+#endif
                     }
                     
                     if (_mSavePath == null)

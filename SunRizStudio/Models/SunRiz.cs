@@ -5234,4 +5234,48 @@ namespace SunRizServer{
                 }
             }
         }
+
+        String _HistoryPath;
+        /// <summary>
+        /// 历史保存路径
+        /// </summary>
+        public virtual String HistoryPath
+        {
+            get
+            {
+                return this._HistoryPath;
+            }
+            set
+            {
+                if ((this._HistoryPath != value))
+                {
+                    var original = this._HistoryPath;
+                    this._HistoryPath = value;
+                    this.OnPropertyChanged("HistoryPath",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _HistoryStoreAlarm;
+        /// <summary>
+        /// 历史路径剩余空间报警阀门(单位：G)
+        /// </summary>
+        public virtual System.Nullable<Int32> HistoryStoreAlarm
+        {
+            get
+            {
+                return this._HistoryStoreAlarm;
+            }
+            set
+            {
+                if ((this._HistoryStoreAlarm != value))
+                {
+                    var original = this._HistoryStoreAlarm;
+                    this._HistoryStoreAlarm = value;
+                    this.OnPropertyChanged("HistoryStoreAlarm",original,value);
+
+                }
+            }
+        }
 }}

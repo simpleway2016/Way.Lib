@@ -59,6 +59,9 @@ namespace SunRizServer
                     db.ImageFiles.FirstOrDefault();
                 }
                 Console.WriteLine($"database ready");
+
+                //记录历史
+                HistoryRecord.HistoryAutoRec.ReStart();
             }
             catch (Exception ex)
             {

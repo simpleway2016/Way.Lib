@@ -120,6 +120,9 @@ var UndoMoveControls = (function (_super) {
         if (!isdifferent) {
             this.enable = false;
         }
+        else {
+            editor.resetScrollbar();
+        }
     };
     UndoMoveControls.prototype.undo = function () {
         for (var i = 0; i < this.controls.length; i++) {
@@ -161,5 +164,113 @@ var UndoChangeLinePoint = (function (_super) {
         this.control.resetPointLocation();
     };
     return UndoChangeLinePoint;
+}(UndoItem));
+var UndoGroup = (function (_super) {
+    __extends(UndoGroup, _super);
+    function UndoGroup(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.controls = _controls;
+        _this.groupCtrl = new FreeGroupControl();
+        return _this;
+    }
+    UndoGroup.prototype.undo = function () {
+        this.groupCtrl.freeControls();
+        this.editor.removeControl(this.groupCtrl);
+    };
+    UndoGroup.prototype.redo = function () {
+        this.groupCtrl.addControls(this.controls);
+        this.editor.addControl(this.groupCtrl);
+    };
+    return UndoGroup;
+}(UndoItem));
+var UndoUnGroup = (function (_super) {
+    __extends(UndoUnGroup, _super);
+    function UndoUnGroup(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.groups = [];
+        for (var i = 0; i < _controls.length; i++) {
+            var item = {};
+            _this.groups.push(item);
+            item.controls = [];
+            item.group = _controls[i];
+            for (var j = 0; j < _controls[i].controls.length; j++) {
+                item.controls.push(_controls[i].controls[j]);
+            }
+        }
+        return _this;
+    }
+    UndoUnGroup.prototype.undo = function () {
+        for (var i = 0; i < this.groups.length; i++) {
+            var item = this.groups[i];
+            item.group.addControls(item.controls);
+            this.editor.addControl(item.group);
+        }
+    };
+    UndoUnGroup.prototype.redo = function () {
+        for (var i = 0; i < this.groups.length; i++) {
+            var item = this.groups[i];
+            item.group.freeControls();
+            this.editor.removeControl(item.group);
+        }
+    };
+    return UndoUnGroup;
+}(UndoItem));
+var UndoPaste = (function (_super) {
+    __extends(UndoPaste, _super);
+    function UndoPaste(_editor, _copyItems, isSameWindow) {
+        var _this = _super.call(this, _editor) || this;
+        _this.copyItems = [];
+        _this.controls = null;
+        _this.copyItems = _copyItems;
+        _this.isSameWindow = isSameWindow;
+        return _this;
+    }
+    UndoPaste.prototype.undo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selected = false;
+            this.editor.removeControl(this.controls[i]);
+        }
+    };
+    UndoPaste.prototype.redo = function () {
+        if (!this.controls) {
+            this.controls = [];
+            for (var i = 0; i < this.copyItems.length; i++) {
+                var controlJson = this.copyItems[i];
+                if (this.isSameWindow) {
+                    controlJson.rect.x += 10;
+                    controlJson.rect.y += 10;
+                }
+                var editorctrl;
+                if (controlJson.constructorName == "GroupControl") {
+                    editorctrl = this.editor.createGroupControl(controlJson.windowCode, controlJson.rect);
+                    for (var pname in controlJson) {
+                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                            editorctrl[pname] = controlJson[pname];
+                        }
+                    }
+                }
+                else {
+                    eval("editorctrl = new " + controlJson.constructorName + "()");
+                    this.editor.addControl(editorctrl);
+                    for (var pname in controlJson) {
+                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                            editorctrl[pname] = controlJson[pname];
+                        }
+                    }
+                    editorctrl.rect = controlJson.rect;
+                }
+                editorctrl.ctrlKey = true;
+                editorctrl.selected = true;
+                editorctrl.ctrlKey = false;
+                this.controls.push(editorctrl);
+            }
+        }
+        else {
+            for (var i = 0; i < this.controls.length; i++) {
+                this.editor.addControl(this.controls[i]);
+            }
+        }
+    };
+    return UndoPaste;
 }(UndoItem));
 //# sourceMappingURL=UndoManager.js.map

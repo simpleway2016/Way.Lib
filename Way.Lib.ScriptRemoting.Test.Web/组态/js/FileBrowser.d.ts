@@ -9,6 +9,7 @@ declare class FileBrowser {
     parentid: number;
     uploading: boolean;
     onSelectFile: (filepath: string) => any;
+    onHide: () => any;
     constructor();
     updateFile(): void;
     addFile(filename: any): void;

@@ -49,12 +49,19 @@ namespace SunRizStudio.Models.Nodes
 
         void addDeviceClick(object sender, RoutedEventArgs e)
         {
-            Dialogs.InputBox frm = new Dialogs.InputBox("请输入控制器名称", "添加控制器");
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入控制器编号，如01、02等数字编号形式", "添加控制器");
             frm.Owner = MainWindow.Instance;
             if (frm.ShowDialog() == true && !string.IsNullOrEmpty(frm.Value))
             {
+                var match = System.Text.RegularExpressions.Regex.Match(frm.Value, @"[0-9]+");
+                if (match.Value != frm.Value)
+                {
+                    MessageBox.Show(MainWindow.Instance, "必须是01、02等数字编号形式");
+                    addDeviceClick(sender, e);
+                    return;
+                }
                 var device = new SunRizServer.Device();
-                device.Name = frm.Value;
+                device.Name = "DROP" + frm.Value;
                 device.UnitId = this.Data.id;
                 Helper.Remote.Invoke<int>("UpdateDevice", (ret, err) => {
                     if (err != null)
@@ -203,13 +210,22 @@ namespace SunRizStudio.Models.Nodes
         {
             FrameworkElement treeviewitem = sender as FrameworkElement;
             var curNode = ((ContextMenuItem)treeviewitem.DataContext).Tag as DeviceNode;
-            Dialogs.InputBox frm = new Dialogs.InputBox("请输入新控制器名称", "编辑控制器");
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入新控制器编号，如01、02等数字编号形式", "编辑控制器");
             frm.Owner = MainWindow.Instance;
-            frm.Value = curNode.Data.Name;
+            var match = System.Text.RegularExpressions.Regex.Match(curNode.Data.Name, @"[0-9]+");
+            frm.Value = match.Value;
             if (frm.ShowDialog() == true && !string.IsNullOrEmpty(frm.Value))
             {
+                match = System.Text.RegularExpressions.Regex.Match(frm.Value, @"[0-9]+");
+                if (match.Value != frm.Value)
+                {
+                    MessageBox.Show(MainWindow.Instance, "必须是01、02等数字编号形式");
+                    editDeviceClick(sender, e);
+                    return;
+                }
+
                 var device = curNode.Data.Clone<SunRizServer.Device>();
-                device.Name = frm.Value;
+                device.Name = "DROP" + frm.Value;
               
                 MainWindow.Instance.Cursor = Cursors.Hand;
 

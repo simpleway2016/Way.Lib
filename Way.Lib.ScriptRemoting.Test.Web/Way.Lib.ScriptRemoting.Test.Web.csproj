@@ -28,6 +28,7 @@
     <Content Include="admin\login.html" />
     <Content Include="controlTest0.html" />
     <Content Include="css\flex.css" />
+    <Content Include="组态\abc.html" />
     <Content Include="组态\css\flex.css" />
     <Content Include="组态\editor.html" />
     <Content Include="Global.asax" />
@@ -56,7 +57,12 @@
     <Content Include="组态\images\browser\folder.png" />
     <Content Include="组态\images\browser\loading.gif" />
     <Content Include="组态\images\toolbox\buttonarea.png" />
+    <Content Include="组态\images\toolbox\code.png" />
+    <Content Include="组态\images\toolbox\cut.png" />
     <Content Include="组态\images\toolbox\delete.png" />
+    <Content Include="组态\images\toolbox\fullscreen.png" />
+    <Content Include="组态\images\toolbox\fullscreen_exit.png" />
+    <Content Include="组态\images\toolbox\group.png" />
     <Content Include="组态\images\toolbox\play.png" />
     <Content Include="组态\images\toolbox\redo.png" />
     <Content Include="组态\images\toolbox\ruler.png" />
@@ -73,6 +79,10 @@
     <Content Include="组态\images\toolbox\setting.png" />
     <Content Include="组态\images\toolbox\text.png" />
     <Content Include="组态\images\toolbox\undo.png" />
+    <Content Include="组态\images\toolbox\ungroup.png" />
+    <Content Include="组态\js\colpick\colpick.css" />
+    <Content Include="组态\js\colpick\colpick.js" />
+    <Content Include="组态\js\colpick\jquery.min.js" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
     <Content Include="组态\templates\main.html" />

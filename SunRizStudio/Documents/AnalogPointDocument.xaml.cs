@@ -24,19 +24,43 @@ namespace SunRizStudio.Documents
     public partial class AnalogPointDocument : BaseDocument
     {
         internal PointDocumentController Controller;
+        DevicePoint _dataModel;
         public AnalogPointDocument()
         {
             InitializeComponent();
         }
         internal AnalogPointDocument(Device device, SolutionNode parent, DevicePoint dataModel , int folderId)
         {
-           
+            _dataModel = dataModel;
             InitializeComponent();
+            List<object> items = new List<object>();
+            for(double i = 0; i <= 100; i ++)
+            {
+                items.Add(new {
+                    text = i + "%",
+                    value = i
+                });
+            }
+            cmd_ValueRelativeChangeOptions.ItemsSource = items;
+
+            items = new List<object>();
+            for (double i = 1; i <= 120; i++)
+            {
+                items.Add(new
+                {
+                    text = i + "秒",
+                    value = i
+                });
+            }
+            cmd_ValueOnTimeChangeOptions.ItemsSource = items;
 
             Controller = new PointDocumentController(this,gridProperty, device , DevicePoint_TypeEnum.Analog , parent , dataModel , folderId);
             this.Title = Controller.OriginalModel.Desc;
+
+            
         }
 
+     
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
             Controller.saveToServer(true);

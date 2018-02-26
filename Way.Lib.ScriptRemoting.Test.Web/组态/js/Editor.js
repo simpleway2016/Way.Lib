@@ -10,6 +10,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var ServerUrl;
 var windowGuid = new Date().getTime();
+var CtrlKey = false;
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
@@ -162,6 +163,11 @@ var ToolBox_Image = (function (_super) {
     });
     ToolBox_Image.prototype.begin = function (svgContainer, position) {
         var _this = this;
+        fileBrowser.onHide = function () {
+            if (window.toolboxDone) {
+                window.toolboxDone();
+            }
+        };
         fileBrowser.onSelectFile = function (path) {
             fileBrowser.hide();
             _this.control = new ImageControl();
@@ -193,8 +199,7 @@ var ToolBox_Text = (function (_super) {
     });
     ToolBox_Text.prototype.begin = function (svgContainer, position) {
         this.control = new TextControl();
-        this.control.element.setAttribute('x', position.x);
-        this.control.element.setAttribute('y', position.y);
+        this.control.rect = position;
         svgContainer.appendChild(this.control.element);
         this.control.element.onselectstart = function (e) { e.preventDefault(); e.cancelBubble = true; return false; };
         if (this.buildDone) {
@@ -304,65 +309,77 @@ var Editor = (function () {
         this._customProperties = "";
         this.isWatchingRect = false;
         this.isRunMode = false;
+        this.currentScale = 1;
         this.divContainer = document.body.querySelector("#" + id);
         this.undoMgr = new UndoManager();
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.svgContainer.setAttribute('width', '100%');
         this.svgContainer.style.backgroundSize = "100% 100%";
         this.svgContainer.style.backgroundRepeat = "no-repeat";
-        this.svgContainer.setAttribute('height', '100%');
         this.svgContainer.style.backgroundColor = "#ffffff";
+        this.svgContainer.style.height = "8000px";
+        this.svgContainer.style.width = "8000px";
         this.divContainer.appendChild(this.svgContainer);
         this.initDivContainer();
+        this.initScaleEvent();
+        this.initMoveToScrollEvent();
+        this.resetScrollbar();
         this.svgContainer.addEventListener("click", function (e) {
-            if (_this.svgContainer._notClick) {
-                _this.svgContainer._notClick = false;
-                return;
+            if (e.button == 0) {
+                if (_this.svgContainer._notClick) {
+                    _this.svgContainer._notClick = false;
+                    return;
+                }
+                _this.svgContainerClick(e);
             }
-            _this.svgContainerClick(e);
         });
         this.svgContainer.addEventListener("mousedown", function (e) {
-            if (!_this.currentToolBoxItem) {
-                _this.svgContainer._notClick = true;
-                _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                _this.selectingElement._startx = e.clientX - _this.divContainer.offsetLeft;
-                _this.selectingElement._starty = e.clientY - _this.divContainer.offsetTop;
-                _this.selectingElement.setAttribute('x', (e.clientX - _this.divContainer.offsetLeft));
-                _this.selectingElement.setAttribute('y', (e.clientY - _this.divContainer.offsetTop));
-                _this.selectingElement.setAttribute('width', "0");
-                _this.selectingElement.setAttribute('height', "0");
-                _this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
-                _this.svgContainer.appendChild(_this.selectingElement);
-                _this.svgContainer.setCapture();
+            if (e.button == 0) {
+                if (!_this.currentToolBoxItem) {
+                    _this.svgContainer._notClick = true;
+                    _this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    _this.selectingElement._startx = e.layerX;
+                    _this.selectingElement._starty = e.layerY;
+                    _this.selectingElement.setAttribute('x', (e.layerX));
+                    _this.selectingElement.setAttribute('y', (e.layerY));
+                    _this.selectingElement.setAttribute('width', "0");
+                    _this.selectingElement.setAttribute('height', "0");
+                    _this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+                    _this.svgContainer.appendChild(_this.selectingElement);
+                    _this.svgContainer.setCapture();
+                }
             }
         });
         this.svgContainer.addEventListener("mouseup", function (e) {
-            if (_this.selectingElement) {
-                _this.svgContainer.releaseCapture();
-                var rect = {
-                    x: parseInt(_this.selectingElement.getAttribute("x")),
-                    y: parseInt(_this.selectingElement.getAttribute("y")),
-                    width: parseInt(_this.selectingElement.getAttribute("width")),
-                    height: parseInt(_this.selectingElement.getAttribute("height")),
-                };
-                _this.svgContainer.removeChild(_this.selectingElement);
-                _this.selectingElement = null;
-                _this.selectControlsByRect(rect, e.ctrlKey);
-                setTimeout(function () {
-                    _this.svgContainer._notClick = false;
-                }, 500);
-            }
-            else {
-                _this.svgContainerMouseUpPosition = {
-                    x: e.clientX - _this.divContainer.offsetLeft,
-                    y: e.clientY - _this.divContainer.offsetTop
-                };
+            if (e.button == 0) {
+                if (_this.selectingElement) {
+                    _this.svgContainer.releaseCapture();
+                    var rect = {
+                        x: parseInt(_this.selectingElement.getAttribute("x")),
+                        y: parseInt(_this.selectingElement.getAttribute("y")),
+                        width: parseInt(_this.selectingElement.getAttribute("width")),
+                        height: parseInt(_this.selectingElement.getAttribute("height")),
+                    };
+                    _this.svgContainer.removeChild(_this.selectingElement);
+                    _this.selectingElement = null;
+                    CtrlKey = e.ctrlKey;
+                    _this.selectControlsByRect(rect);
+                    CtrlKey = false;
+                    setTimeout(function () {
+                        _this.svgContainer._notClick = false;
+                    }, 500);
+                }
+                else {
+                    _this.svgContainerMouseUpPosition = {
+                        x: e.layerX,
+                        y: e.layerY
+                    };
+                }
             }
         });
         this.svgContainer.addEventListener("mousemove", function (e) {
             if (_this.selectingElement) {
-                var w = e.clientX - _this.divContainer.offsetLeft - _this.selectingElement._startx;
-                var h = e.clientY - _this.divContainer.offsetTop - _this.selectingElement._starty;
+                var w = e.layerX - _this.selectingElement._startx;
+                var h = e.layerY - _this.selectingElement._starty;
                 if (w < 0) {
                     var x = _this.selectingElement._startx + w;
                     w = -w;
@@ -377,7 +394,7 @@ var Editor = (function () {
                 _this.selectingElement.setAttribute("height", h);
             }
             else {
-                _this.svgContainerMouseMove(e.clientX - _this.divContainer.offsetLeft, e.clientY - _this.divContainer.offsetTop);
+                _this.svgContainerMouseMove(e.layerX, e.layerY);
             }
         });
         this.svgContainer.addEventListener("dragover", function (ev) {
@@ -389,8 +406,8 @@ var Editor = (function () {
                 var data = JSON.parse(ev.dataTransfer.getData("Text"));
                 if (data && data.Type == "GroupControl") {
                     var rect = {};
-                    rect.x = ev.clientX;
-                    rect.y = ev.clientY - _this.divContainer.offsetTop;
+                    rect.x = ev.layerX;
+                    rect.y = ev.layerY;
                     rect.width = null;
                     rect.height = null;
                     var groupControl = _this.createGroupControl(data.windowCode, rect);
@@ -447,14 +464,33 @@ var Editor = (function () {
             else if (e.ctrlKey && e.keyCode == 67) {
                 _this.copy();
             }
+            else if (e.ctrlKey && e.keyCode == 88) {
+                _this.cut();
+            }
             else if (e.ctrlKey && e.keyCode == 86) {
                 _this.paste();
             }
             else if (e.ctrlKey && e.keyCode == 83) {
                 _this.save();
             }
+            else if (e.keyCode == 46) {
+                _this.delete();
+            }
+            else if (e.keyCode == 27) {
+                window.exitFullScreen();
+            }
+            else {
+            }
         }, false);
     }
+    Editor.prototype.getControl = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    };
     Editor.prototype.removeControl = function (ctrl) {
         for (var i = 0; i < this.controls.length; i++) {
             if (this.controls[i] == ctrl) {
@@ -488,6 +524,14 @@ var Editor = (function () {
                 rect.y -= mintop;
                 child.rect = rect;
             }
+        }
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = ctrl.constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
         }
         this.controls.push(ctrl);
         ctrl.container = this;
@@ -570,6 +614,99 @@ var Editor = (function () {
     Editor.prototype.getProperties = function () {
         return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "windowWidth", "windowHeight", "customProperties"];
     };
+    Editor.prototype.initMoveToScrollEvent = function () {
+        var svg1 = this.svgContainer;
+        var scrolling = false;
+        var downY;
+        var downX;
+        var scrollInfo;
+        svg1.addEventListener("mousedown", function (e) {
+            if (e.button == 2) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.setCapture();
+                svg1.style.cursor = "-moz-grab";
+                scrolling = true;
+                downX = e.clientX;
+                downY = e.clientY;
+                scrollInfo = {
+                    x: svg1.parentElement.scrollLeft,
+                    y: svg1.parentElement.scrollTop,
+                };
+            }
+        }, false);
+        svg1.addEventListener("mouseup", function (e) {
+            if (scrolling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scrolling = false;
+                svg1.releaseCapture();
+                svg1.style.cursor = "default";
+            }
+        }, false);
+        svg1.addEventListener("mousemove", function (e) {
+            if (scrolling) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.parentElement.scrollTo(Math.max(0, scrollInfo.x + downX - e.clientX), Math.max(0, scrollInfo.y + downY - e.clientY));
+            }
+        }, false);
+    };
+    Editor.prototype.initScaleEvent = function () {
+        var _this = this;
+        var svg1 = this.svgContainer;
+        svg1.style.transformOrigin = "0 0";
+        var scaleFlag = 1;
+        var scaling = false;
+        var downY;
+        var downX;
+        var downClientRect;
+        var downScroll;
+        var downScaleFlag;
+        svg1.addEventListener("mousedown", function (e) {
+            if (e.button == 1) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.style.cursor = "none";
+                svg1.setCapture();
+                scaling = true;
+                scaleFlag = _this.currentScale;
+                downY = e.layerY;
+                downX = e.layerX;
+                downScroll = {
+                    h: svg1.parentElement.scrollLeft,
+                    v: svg1.parentElement.scrollTop
+                };
+                downClientRect = {
+                    x: e.clientX,
+                    y: e.clientY - svg1.parentElement.offsetTop
+                };
+                downScaleFlag = scaleFlag;
+            }
+        }, false);
+        svg1.addEventListener("mouseup", function (e) {
+            if (scaling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scaling = false;
+                svg1.style.cursor = "default";
+                svg1.releaseCapture();
+            }
+        }, false);
+        svg1.addEventListener("mousemove", function (e) {
+            if (scaling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scaleFlag = downScaleFlag + parseFloat((downY - e.layerY)) / 200;
+                if (scaleFlag < 1)
+                    scaleFlag = 1;
+                _this.scale(scaleFlag);
+                var pointX = downX * scaleFlag;
+                var pointY = downY * scaleFlag;
+                svg1.parentElement.scrollTo(Math.max(0, pointX - downClientRect.x), Math.max(0, pointY - downClientRect.y));
+            }
+        }, false);
+    };
     Editor.prototype.initDivContainer = function () {
         var _this = this;
         this.divContainer.style.position = "relative";
@@ -587,11 +724,11 @@ var Editor = (function () {
                 _this.divContainer.removeEventListener("mousemove", func, false);
                 return;
             }
-            if (_this.isWatchingRect && e.clientY > _this.divContainer.offsetTop) {
+            if (_this.isWatchingRect && e.layerY > 0) {
                 border.style.display = "";
-                border.style.width = e.clientX + "px";
-                border.style.height = (e.clientY - _this.divContainer.offsetTop) + "px";
-                border.children[0].innerHTML = e.clientX + "," + (e.clientY - _this.divContainer.offsetTop);
+                border.style.width = e.layerX + "px";
+                border.style.height = (e.layerY) + "px";
+                border.children[0].innerHTML = e.layerX + "," + (e.layerY);
             }
             else {
                 border.style.display = "none";
@@ -630,11 +767,58 @@ var Editor = (function () {
         }
         return script;
     };
+    Editor.prototype.scale = function (_scale) {
+        this.currentScale = _scale;
+        this.svgContainer.style.transform = "scale(" + this.currentScale + "," + this.currentScale + ")";
+    };
     Editor.prototype.undo = function () {
         this.undoMgr.undo();
     };
     Editor.prototype.redo = function () {
         this.undoMgr.redo();
+    };
+    Editor.prototype.selectAll = function () {
+        CtrlKey = true;
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selected = true;
+        }
+        CtrlKey = false;
+    };
+    Editor.prototype.selectWebControlByPointName = function (pointName) {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selected = false;
+        }
+        CtrlKey = true;
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selectByPointName(pointName);
+        }
+        CtrlKey = false;
+    };
+    Editor.prototype.group = function () {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                items.push(AllSelectedControls[i]);
+            }
+            var undoObj = new UndoGroup(this, items);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+    };
+    Editor.prototype.ungroup = function () {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                if (AllSelectedControls[i].constructor.name == "FreeGroupControl") {
+                    items.push(AllSelectedControls[i]);
+                }
+            }
+            if (items.length > 0) {
+                var undoObj = new UndoUnGroup(this, items);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+            }
+        }
     };
     Editor.prototype.delete = function () {
         var ctrls = [];
@@ -648,6 +832,31 @@ var Editor = (function () {
             this.undoMgr.addUndo(undoObj);
         }
     };
+    Editor.prototype.resetScrollbar = function () {
+        var maxWidth = 0;
+        var maxHeight = 0;
+        for (var i = 0; i < this.controls.length; i++) {
+            var rect = this.controls[i].rect;
+            if (rect.x + rect.width > maxWidth)
+                maxWidth = rect.x + rect.width;
+            if (rect.y + rect.height > maxHeight)
+                maxHeight = rect.y + rect.height;
+        }
+        if (maxWidth < this.svgContainer.parentElement.offsetWidth) {
+            this.svgContainer.parentElement.style.overflowX = "hidden";
+            this.svgContainer.parentElement.scrollLeft = 0;
+        }
+        else {
+            this.svgContainer.parentElement.style.overflowX = "auto";
+        }
+        if (maxHeight < this.svgContainer.parentElement.offsetHeight) {
+            this.svgContainer.parentElement.style.overflowY = "hidden";
+            this.svgContainer.parentElement.scrollTop = 0;
+        }
+        else {
+            this.svgContainer.parentElement.style.overflowY = "auto";
+        }
+    };
     Editor.prototype.save = function () {
         if (this.name.length == 0) {
             alert("请点击左上角设置图标，设置监视画面的名称");
@@ -656,6 +865,19 @@ var Editor = (function () {
         if (this.code.length == 0) {
             alert("请点击左上角设置图标，设置监视画面的编号");
             return;
+        }
+        if (this.customProperties && this.customProperties.length > 0) {
+            var items = this.customProperties.split('\n');
+            var reg = /[\W]+/;
+            for (var i = 0; i < items.length; i++) {
+                var name = items[i].trim();
+                if (name.length > 0) {
+                    if (reg.exec(name)) {
+                        alert("自定义变量“" + name + "”包含特殊符合");
+                        return;
+                    }
+                }
+            }
         }
         var scripts = "";
         var windowCodes = [];
@@ -674,64 +896,83 @@ var Editor = (function () {
         }
         return JSON.stringify({ "name": this.name, "code": this.code, "editorScript": this.getScript(), "controlsScript": scripts });
     };
-    Editor.prototype.copy = function () {
-        var copyitems = [];
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var json = control.getJson();
-            copyitems.push(json);
+    Editor.prototype.cut = function () {
+        try {
+            var copyitems = [];
+            var ctrls = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+                ctrls.push(control);
+            }
+            window.localStorage.setItem("copy", "");
+            window.localStorage.setItem("cut", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
+            var undoObj = new UndoRemoveControls(this, ctrls);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
         }
-        window.localStorage.setItem("copy", JSON.stringify(copyitems));
-        window.localStorage.setItem("windowGuid", windowGuid + "");
+        catch (e) {
+            alert(e.message);
+        }
+    };
+    Editor.prototype.copy = function () {
+        try {
+            var copyitems = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+            }
+            window.localStorage.setItem("cut", "");
+            window.localStorage.setItem("copy", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
+        }
+        catch (e) {
+            alert(e.message);
+        }
     };
     Editor.prototype.paste = function () {
-        var str = window.localStorage.getItem("copy");
-        if (str) {
-            while (AllSelectedControls.length > 0)
-                AllSelectedControls[0].selected = false;
-            var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
-            var container = this;
-            var copyItems = JSON.parse(str);
-            for (var i = 0; i < copyItems.length; i++) {
-                var controlJson = copyItems[i];
-                if (isSameWindow) {
-                    controlJson.rect.x += 10;
-                    controlJson.rect.y += 10;
-                }
-                var editorctrl;
-                if (controlJson.constructorName == "GroupControl") {
-                    editorctrl = this.createGroupControl(controlJson.windowCode, controlJson.rect);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
-                }
-                else {
-                    eval("editorctrl = new " + controlJson.constructorName + "()");
-                    container.addControl(editorctrl);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
-                    editorctrl.rect = controlJson.rect;
-                }
-                editorctrl.ctrlKey = true;
-                editorctrl.selected = true;
-                editorctrl.ctrlKey = false;
+        try {
+            var str = window.localStorage.getItem("copy");
+            if (!str || str.length == 0) {
+                str = window.localStorage.getItem("cut");
+            }
+            if (str && str.length > 0) {
+                while (AllSelectedControls.length > 0)
+                    AllSelectedControls[0].selected = false;
+                var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
+                var container = this;
+                var copyItems = JSON.parse(str);
+                var undoObj = new UndoPaste(this, copyItems, isSameWindow);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
             }
         }
+        catch (e) {
+            alert(e.message);
+        }
+    };
+    Editor.prototype.isIdExist = function (id) {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = this.controls[i].isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if (this.controls[i].id == id)
+                return true;
+        }
+        return false;
     };
     Editor.prototype.fireBodyEvent = function (event) {
     };
-    Editor.prototype.selectControlsByRect = function (rect, ctrlKey) {
+    Editor.prototype.selectControlsByRect = function (rect) {
         for (var i = 0; i < this.controls.length; i++) {
-            var original = this.controls[i].ctrlKey;
-            this.controls[i].ctrlKey = true;
             var intersect = this.controls[i].isIntersectWith(rect);
             if (intersect) {
-                if (ctrlKey && this.controls[i].selected) {
+                if (CtrlKey && this.controls[i].selected) {
                     this.controls[i].selected = false;
                 }
                 else {
@@ -739,11 +980,10 @@ var Editor = (function () {
                 }
             }
             else {
-                if (!ctrlKey) {
+                if (!CtrlKey) {
                     this.controls[i].selected = false;
                 }
             }
-            this.controls[i].ctrlKey = original;
         }
     };
     Editor.prototype.setCurrentToolBoxItem = function (typename) {

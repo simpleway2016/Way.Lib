@@ -75,6 +75,24 @@ namespace SunRizStudio
         }
         #endregion
 
+        static int getColumnSpan(Grid grid,int row,int cell)
+        {
+            int span = 0;
+            foreach(FrameworkElement ele in grid.Children)
+            {
+                int myrow = Convert.ToInt32(ele.GetValue(Grid.RowProperty));
+                int mycell = Convert.ToInt32(ele.GetValue(Grid.ColumnProperty));
+                int myspan = Convert.ToInt32(ele.GetValue(Grid.ColumnSpanProperty));
+                if (myrow == row && mycell <= cell && mycell + myspan >= cell)
+                {
+                    myspan -= cell - mycell;
+                    if (myspan > span)
+                        span = myspan;
+                }
+            }
+            return span;
+        }
+
         private static void GridLoaded(object sender, RoutedEventArgs e)
         {
             Grid grid = sender as Grid;
@@ -104,7 +122,8 @@ namespace SunRizStudio
                         thickness.Left = 1;
                     }
                     thickness.Bottom = 1;
-                    thickness.Right = 1;
+                    int columnSpan = getColumnSpan(grid, i, j);
+                    thickness.Right = columnSpan > 1 ? 0 : 1;
                     border.BorderThickness = thickness;
 
                     Grid.SetRow(border, i);

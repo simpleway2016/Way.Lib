@@ -209,7 +209,7 @@ namespace SunRizStudio.Models
 
         }
 
-        protected virtual void OnDoublicClick(object window, MouseButtonEventArgs e)
+        protected virtual void OnDoublicClick(object sender, MouseButtonEventArgs e)
         {
             if (this.Nodes.Count > 0)
             {

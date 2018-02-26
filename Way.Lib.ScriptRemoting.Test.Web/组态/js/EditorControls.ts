@@ -17,7 +17,8 @@ class EditorControl
 {
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
-    ctrlKey = false;
+    pointEles: SVGElement[] = [];
+
     isInGroup = false;
     lastSetValueTime: number = 0;
     updatePointValueTimeoutFlag: number = 0;
@@ -29,11 +30,11 @@ class EditorControl
         return this._selected;
     }
     set selected(value: boolean) {
-        if (this._selected !== value && this.isDesignMode) {
+        if (this.container && this.container == editor && this._selected !== value && this.isDesignMode) {
             this._selected = value;
             if (value)
             {
-                if (!this.ctrlKey) {
+                if (!CtrlKey) {
                     while (AllSelectedControls.length > 0) {
                         AllSelectedControls[0].selected = false;
                     }
@@ -64,7 +65,14 @@ class EditorControl
         return this._id;
     }
     set id(v) {
-        this._id = v;
+        if (v != this._id) {            
+            if (this.container && this.container.isIdExist(v))
+            {
+                alert("id“"+v+"”已存在");
+                return;
+            }
+            this._id = v;
+        }
     }
 
     private mouseDownX;
@@ -75,6 +83,7 @@ class EditorControl
     {
         this.element = element;
         element._editorControl = this;
+
         (<HTMLElement>this.element).addEventListener("dragstart", (e) => {
             if (this.isInGroup || !this.container || !this.isDesignMode)
                 return;
@@ -95,23 +104,21 @@ class EditorControl
         }, false);        
 
         (<HTMLElement>this.element).addEventListener("mousedown", (e) => {
-            if (this.isInGroup || !this.container || !this.isDesignMode)
+            if (this.isInGroup || !this.container || !this.isDesignMode || e.button != 0)
                 return;
 
-            if (e.button == 2)
-                return;
             this._moveAllSelectedControl = this.selected;
 
             e.stopPropagation();
 
-            this.ctrlKey = e.ctrlKey;
-            if (this.ctrlKey)
+            CtrlKey = e.ctrlKey;
+            if (CtrlKey)
                 this.selected = !this.selected;
             else
                 this.selected = true;
 
-            this.mouseDownX = e.clientX;
-            this.mouseDownY = e.clientY;
+            this.mouseDownX = e.layerX;
+            this.mouseDownY = e.layerY;
             var movingCtrls = [];
             if (this._moveAllSelectedControl) {
                 for (var i = 0; i < AllSelectedControls.length; i++) {
@@ -135,16 +142,16 @@ class EditorControl
                 if (this._moveAllSelectedControl) {
                     for (var i = 0; i < AllSelectedControls.length; i++)
                     {
-                        AllSelectedControls[i].onMoving(this.mouseDownX, this.mouseDownY, e.clientX, e.clientY);
+                        AllSelectedControls[i].onMoving(this.mouseDownX, this.mouseDownY, e.layerX, e.layerY);
                     }
                 }
                 else {
-                    this.onMoving(this.mouseDownX, this.mouseDownY, e.clientX, e.clientY);
+                    this.onMoving(this.mouseDownX, this.mouseDownY, e.layerX, e.layerY);
                 }
             }
         }, false);
         document.body.addEventListener("mouseup", (e) => {
-            if (this.isInGroup || !this.container || !this.isDesignMode)
+            if (this.isInGroup || !this.container || !this.isDesignMode || e.button != 0)
                 return;
 
             if (this.mouseDownX >= 0) {
@@ -205,11 +212,12 @@ class EditorControl
     {
         var json = this.getJson();
         var script = "";
-        var id = this.id;
-        if (!id || id.length == 0)
-        {
-            id = "eCtrl";
-        }
+        //var id = this.id;
+        //if (!id || id.length == 0)
+        //{
+        //    id = "eCtrl";
+        //}
+        var id = "eCtrl";
         script += id + " = new " + json.constructorName + "();\r\n";
         script += "editor.addControl(" + id + ");\r\n";
         for (var proName in json)
@@ -227,11 +235,20 @@ class EditorControl
 
     isIntersectWith(rect):boolean
     {
-        return false;
+        return this.isIntersect(this.rect, rect);
     }
 
     isIntersect(rect1, rect): boolean {
         return rect.x < rect1.x + rect1.width && rect1.x < rect.x + rect.width && rect.y < rect1.y + rect1.height && rect1.y < rect.y + rect.height;
+    }
+
+    /**
+     * 如果点名和自己引用的点名一致，那么选中自己
+     * @param pointName 点名
+     */
+    selectByPointName(pointName: string)
+    {
+
     }
 
     showProperty()
@@ -241,10 +258,244 @@ class EditorControl
         this.propertyDialog.show();
     }
 
-    onSelectedChange()
-    {
+    onSelectedChange() {
+        if (this.selected) {
 
+            //左上角
+            var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nwse-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x - 3));
+                ele.setAttribute("y", <any>(rect.y - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //上角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ns-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width,
+                    height: ele._value_rect.height - (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width / 2 - 3));
+                ele.setAttribute("y", <any>(rect.y - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //右上角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nesw-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y + (y - ele._startY),
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height - (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //右角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height,
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height / 2 - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //右下角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nwse-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height + (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //下角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ns-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width,
+                    height: ele._value_rect.height + (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width / 2 - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //左下角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:nesw-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height + (y - ele._startY),
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+            //左角
+            pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x + (x - ele._startX),
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width - (x - ele._startX),
+                    height: ele._value_rect.height,
+                }
+            }
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height / 2 - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+
+
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.setEvent(this.pointEles[i]);
+            }
+
+            this.resetPointLocation();
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.element.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+        }
     }
+
+    resetPointLocation() {
+        if (!this.selected)
+            return;
+        var rect = this.rect;
+        for (var i = 0; i < this.pointEles.length; i++) {
+            (<any>this.pointEles[i])._setLocation(this.pointEles[i], rect);
+        }
+    }
+
+    setEvent(pointEle) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => {
+            if (e.button == 0) {
+                this.pointMouseDown(e, pointEle);
+            }
+        }, false);
+        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
+        pointEle.addEventListener("mouseup", (e) => {
+            if (e.button == 0) {
+                this.pointMouseUp(e, pointEle);
+            }
+        }, false);
+    }
+
+    private undoObj: UndoMoveControls;
+    private movingPoint: boolean = false;
+    pointMouseDown(e: MouseEvent, pointEle) {
+        e.stopPropagation();
+        this.movingPoint = true;
+        pointEle._startX = e.layerX;
+        pointEle._startY = e.layerY;
+
+        pointEle._value_rect = this.rect;
+
+        this.undoObj = new UndoMoveControls(editor, [this]);
+
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    pointMouseMove(e: MouseEvent, pointEle) {
+        if (this.movingPoint) {
+            e.stopPropagation();
+
+            pointEle._moveFunc(pointEle, e.layerX, e.layerY);
+            this.resetPointLocation();
+        }
+    }
+    pointMouseUp(e: MouseEvent, pointEle) {
+        if (this.movingPoint) {
+            e.stopPropagation();
+            this.movingPoint = false;
+            pointEle.releaseCapture();
+
+            this.undoObj.moveFinish();
+            editor.undoMgr.addUndo(this.undoObj);
+        }
+    }
+
     onBeginMoving()
     {
 
@@ -264,8 +515,7 @@ class LineControl extends EditorControl
 {
     lineElement: SVGLineElement;
     virtualLineElement: SVGLineElement;
-    pointEles: SVGCircleElement[] = [];
-    moving: boolean = false;
+
     startX: number;
     startY: number;
     valueX: any;
@@ -386,6 +636,107 @@ class LineControl extends EditorControl
     }
 
 
+    onSelectedChange() {
+        if (this.selected) {
+            var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pointEle1.setAttribute("r", "5");
+            pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
+            (<any>pointEle1).xName = "x1";
+            (<any>pointEle1).yName = "y1";
+            this.lineElement.parentElement.appendChild(pointEle1);
+
+            var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pointEle2.setAttribute("r", "5");
+            pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
+            (<any>pointEle2).xName = "x2";
+            (<any>pointEle2).yName = "y2";
+            this.lineElement.parentElement.appendChild(pointEle2);
+
+            this.pointEles.push(pointEle1);
+            this.pointEles.push(pointEle2);
+
+            this.resetPointLocation();
+
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.mySetEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
+            }
+        }
+        else {
+            for (var i = 0; i < this.pointEles.length; i++) {
+                this.lineElement.parentElement.removeChild(this.pointEles[i]);
+            }
+            this.pointEles = [];
+
+
+        }
+    }
+
+    resetPointLocation() {
+        if (!this.selected)
+            return;
+
+        this.pointEles[0].setAttribute("cx", <any>this.lineElement.x1.animVal.value);
+        this.pointEles[0].setAttribute("cy", <any>this.lineElement.y1.animVal.value);
+
+        this.pointEles[1].setAttribute("cx", <any>this.lineElement.x2.animVal.value);
+        this.pointEles[1].setAttribute("cy", <any>this.lineElement.y2.animVal.value);
+    }
+
+    mySetEvent(pointEle, xName, yName) {
+        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
+        pointEle.addEventListener("mousedown", (e) => {
+            if (e.button == 0) {
+                this._pointMouseDown(e, pointEle, xName, yName);
+            }
+        }, false);
+        pointEle.addEventListener("mousemove", (e) => { this._pointMouseMove(e, pointEle, xName, yName); }, false);
+        pointEle.addEventListener("mouseup", (e) => {
+            if (e.button == 0) {
+                this._pointMouseUp(e, pointEle);
+            }
+        }, false);
+    }
+
+    private _undoObj: UndoChangeLinePoint = null;
+
+    _pointMouseDown(e: MouseEvent, pointEle, xName: string, yName: string) {
+        e.stopPropagation();
+
+        this.startX = e.layerX;
+        this.startY = e.layerY;
+        this.valueX = parseInt(this.lineElement.getAttribute(xName));
+        this.valueY = parseInt(this.lineElement.getAttribute(yName));
+
+        this._undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
+
+        if (pointEle.setCapture)
+            pointEle.setCapture();
+        else if (window.captureEvents)
+            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+    }
+    _pointMouseMove(e: MouseEvent, pointEle, xName: string, yName: string) {
+        if (this._undoObj) {
+            e.stopPropagation();
+            pointEle.setAttribute("cx", this.valueX + e.layerX - this.startX);
+            pointEle.setAttribute("cy", this.valueY + e.layerY - this.startY);
+            this.lineElement.setAttribute(xName, <any>(this.valueX + e.layerX - this.startX));
+            this.lineElement.setAttribute(yName, <any>(this.valueY + e.layerY - this.startY));
+
+            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.layerX - this.startX));
+            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.layerY - this.startY));
+        }
+    }
+    _pointMouseUp(e: MouseEvent, pointEle) {
+        if (this._undoObj) {
+            e.stopPropagation();
+            pointEle.releaseCapture();
+
+            this._undoObj.moveFinish();
+            editor.undoMgr.addUndo(this._undoObj);
+            this._undoObj = null;
+        }
+    }
+
     onBeginMoving() {
         (<any>this.lineElement)._x1 = parseInt(this.lineElement.getAttribute("x1"));
         (<any>this.lineElement)._y1 = parseInt(this.lineElement.getAttribute("y1"));
@@ -418,107 +769,11 @@ class LineControl extends EditorControl
 
     }
 
-    onSelectedChange() {
-        if (this.selected)
-        {
-            var pointEle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle1.setAttribute("r", "5");
-            pointEle1.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
-            (<any>pointEle1).xName = "x1";
-            (<any>pointEle1).yName = "y1";
-            this.lineElement.parentElement.appendChild(pointEle1);
-
-            var pointEle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pointEle2.setAttribute("r", "5");
-            pointEle2.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ew-resize;');
-            (<any>pointEle2).xName = "x2";
-            (<any>pointEle2).yName = "y2";
-            this.lineElement.parentElement.appendChild(pointEle2);
-
-            this.pointEles.push(pointEle1);
-            this.pointEles.push(pointEle2);
-
-            this.resetPointLocation();
-
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.setEvent(this.pointEles[i], "x" + (i + 1), "y" + (i + 1));
-            }
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++)
-            {
-                this.lineElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
-
-            
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        this.pointEles[0].setAttribute("cx", <any>this.lineElement.x1.animVal.value);
-        this.pointEles[0].setAttribute("cy", <any>this.lineElement.y1.animVal.value);
-
-        this.pointEles[1].setAttribute("cx", <any>this.lineElement.x2.animVal.value);
-        this.pointEles[1].setAttribute("cy", <any>this.lineElement.y2.animVal.value);
-    }
-
-    setEvent(pointEle, xName, yName)
-    {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle, xName, yName); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj : UndoChangeLinePoint;
-    pointMouseDown(e: MouseEvent, pointEle, xName: string, yName: string)
-    {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        this.valueX = parseInt(this.lineElement.getAttribute(xName));
-        this.valueY = parseInt(this.lineElement.getAttribute(yName));
-
-        this.undoObj = new UndoChangeLinePoint(editor, this, xName, yName);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle, xName: string, yName: string) {
-        if (this.moving) {
-            e.stopPropagation();
-            pointEle.setAttribute("cx", this.valueX + e.clientX - this.startX);
-            pointEle.setAttribute("cy", this.valueY + e.clientY - this.startY);
-            this.lineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
-            this.lineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
-
-            this.virtualLineElement.setAttribute(xName, <any>(this.valueX + e.clientX - this.startX));
-            this.virtualLineElement.setAttribute(yName, <any>(this.valueY + e.clientY - this.startY));
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
 }
 
 class RectControl extends EditorControl {
     rectElement: SVGGraphicsElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
 
@@ -566,6 +821,16 @@ class RectControl extends EditorControl {
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rectElement.scrollIntoView();
+        }
+    }
 
     _scriptOnValueChange: string;
     get scriptOnValueChange() {
@@ -606,82 +871,7 @@ class RectControl extends EditorControl {
     isIntersectWith(rect): boolean {
         return this.isIntersect(this.rect, rect);
     }
-
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation()
-    {
-        if (!this.selected)
-            return;
-
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
-
+    
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
         (<any>this.rectElement)._y = parseInt(this.rectElement.getAttribute("y"));
@@ -702,8 +892,7 @@ class RectControl extends EditorControl {
 
 class EllipseControl extends EditorControl {
     rootElement: SVGEllipseElement;
-    pointEles: SVGCircleElement[] =[];
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
 
@@ -795,98 +984,17 @@ class EllipseControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            var pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pRightBottom.setAttribute("r", "5");
-            pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            (<any>pRightBottom)._moveFunc = (ele, x, y) => {
-                (<any>this.rootElement).setAttribute("rx",Math.max(5, ele._value_rx + (x - ele._startX)));
-                (<any>this.rootElement).setAttribute("ry", Math.max(5, ele._value_ry + (y - ele._startY)));
-            }
-            this.rootElement.parentElement.appendChild(pRightBottom);
-            this.pointEles.push(pRightBottom);
-
-            var pCenterBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pCenterBottom.setAttribute("r", "5");
-            pCenterBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:ns-resize;');
-            (<any>pCenterBottom)._moveFunc = (ele, x, y) => {
-                (<any>this.rootElement).setAttribute("ry", Math.max(5, ele._value_ry + (y - ele._startY)));
-            }
-            this.rootElement.parentElement.appendChild(pCenterBottom);
-            this.pointEles.push(pCenterBottom);
-
-            for (var i = 0; i < this.pointEles.length; i++)
-            {
-                this.setEvent(this.pointEles[i]);
-            }
-            
-            this.resetPointLocation();
-        }
-        else {
-            for (var i = 0; i < this.pointEles.length; i++) {
-                this.rootElement.parentElement.removeChild(this.pointEles[i]);
-            }
-            this.pointEles = [];
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint)
+        {
+            this.selected = true;
+            this.rootElement.scrollIntoView();
         }
     }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", <any>(this.rootElement.cx.animVal.value + this.rootElement.rx.animVal.value));
-        this.pointEles[0].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
-
-        this.pointEles[1].setAttribute("cx", <any>(this.rootElement.cx.animVal.value));
-        this.pointEles[1].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.ry.animVal.value));
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
-
-        pointEle._value_cx = this.rootElement.cx.animVal.value;
-        pointEle._value_cy = this.rootElement.cy.animVal.value;
-        pointEle._value_rx = this.rootElement.rx.animVal.value;
-        pointEle._value_ry = this.rootElement.ry.animVal.value;
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
 
     onBeginMoving() {
         (<any>this.rootElement)._cx = parseInt(this.rootElement.getAttribute("cx"));
@@ -908,8 +1016,7 @@ class EllipseControl extends EditorControl {
 
 class CircleControl extends EditorControl {
     rootElement: SVGCircleElement;
-    pointEles: SVGCircleElement[] = [];
-    moving: boolean = false;
+
     startX = 0;
     startY = 0;
 
@@ -960,6 +1067,17 @@ class CircleControl extends EditorControl {
             WatchPointNames.push(v);
     }
 
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rootElement.scrollIntoView();
+        }
+    }
+
     _scriptOnValueChange: string;
     get scriptOnValueChange() {
         return this._scriptOnValueChange;
@@ -1001,16 +1119,27 @@ class CircleControl extends EditorControl {
 
     onSelectedChange() {
         if (this.selected) {
-
-            var pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pRightBottom.setAttribute("r", "5");
-            pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            (<any>pRightBottom)._moveFunc = (ele, x, y) => {
-                (<any>this.rootElement).setAttribute("r", Math.max(5, ele._value_r + (x - ele._startX)));
+           
+            //右角
+            var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            pointEle.setAttribute("width", "6");
+            pointEle.setAttribute("height", "6");
+            pointEle.setAttribute('style', 'fill:red;cursor:ew-resize;');
+            (<any>pointEle)._moveFunc = (ele, x, y) => {
+                this.rect = {
+                    x: ele._value_rect.x,
+                    y: ele._value_rect.y,
+                    width: ele._value_rect.width + (x - ele._startX),
+                    height: ele._value_rect.height,
+                }
             }
-            this.rootElement.parentElement.appendChild(pRightBottom);
-            this.pointEles.push(pRightBottom);
-
+            (<any>pointEle)._setLocation = (ele, rect) => {
+                ele.setAttribute("x", <any>(rect.x + rect.width - 3));
+                ele.setAttribute("y", <any>(rect.y + rect.height / 2 - 3));
+            }
+            this.element.parentElement.appendChild(pointEle);
+            this.pointEles.push(pointEle);
+            
 
             for (var i = 0; i < this.pointEles.length; i++) {
                 this.setEvent(this.pointEles[i]);
@@ -1020,63 +1149,11 @@ class CircleControl extends EditorControl {
         }
         else {
             for (var i = 0; i < this.pointEles.length; i++) {
-                this.rootElement.parentElement.removeChild(this.pointEles[i]);
+                this.element.parentElement.removeChild(this.pointEles[i]);
             }
             this.pointEles = [];
         }
     }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-        this.pointEles[0].setAttribute("cx", <any>(this.rootElement.cx.animVal.value + this.rootElement.r.animVal.value));
-        this.pointEles[0].setAttribute("cy", <any>(this.rootElement.cy.animVal.value + this.rootElement.r.animVal.value));
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        pointEle._startX = e.clientX;
-        pointEle._startY = e.clientY;
-
-        pointEle._value_cx = this.rootElement.cx.animVal.value;
-        pointEle._value_cy = this.rootElement.cy.animVal.value;
-        pointEle._value_r = this.rootElement.r.animVal.value;
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            pointEle._moveFunc(pointEle, e.clientX, e.clientY);
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
 
     onBeginMoving() {
         (<any>this.rootElement)._cx = parseInt(this.rootElement.getAttribute("cx"));
@@ -1121,7 +1198,8 @@ class ImageControl extends RectControl {
 
 }
 
-class TextControl extends RectControl {
+class TextControl extends EditorControl {
+    groupElement: SVGGElement;
     textElement: SVGTextElement;
     //选择状态下的边框
     selectingElement: SVGRectElement;
@@ -1212,62 +1290,131 @@ class TextControl extends RectControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","文字","大小","颜色","设备点","运行时允许输入值"];
+        return ["id", "文字", "大小", "颜色", "旋转角度", "字体","粗体","斜体","下划线","设备点","运行时允许输入值"];
     }
 
     getProperties(): string[] {
-        return ["id","text", "size", "colorFill", "devicePoint","canSetValue"];
+        return ["id", "text", "size", "colorFill", "rotate","fontFamily", "isBold", "isItalic", "isUnderline", "devicePoint","canSetValue"];
     }
 
     get rect() {
+        var transform = this.groupElement.getAttribute("transform");
+        var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+
         try {
-            var myrect: SVGRect = (<any>this.textElement).getBBox();
+            var clientRect = this.textElement.getBoundingClientRect();
+            //var myrect: SVGRect = (<any>this.groupElement).getBBox();
+
             return {
-                x: myrect.x,
-                y: myrect.y,
-                width: myrect.width,
-                height: myrect.height
+                x: parseInt(result[1]) ,
+                y: parseInt(result[2]),
+                width: clientRect.width / editor.currentScale,
+                height: clientRect.height / editor.currentScale
             };
         }
         catch (e)
         {
             return {
-                x: parseInt(this.rectElement.getAttribute("x")),
-                y: parseInt(this.rectElement.getAttribute("y")) - 17,
+                x: parseInt(result[1]),
+                y: parseInt(result[2]),
                 width: 0,
                 height: 0
             };
         }
     }
     set rect(v: any) {
-        var y = parseInt(this.textElement.getAttribute("y"));
-        if (isNaN(y))
-            y = 0;
+        var x = v.x;
+        var y = v.y ;
 
-        //getBBox().y和this.textElement.getAttribute("y")不相同的，所以要加上y - otherY这个相差值
-        //var otherY = (<any>this.textElement).getBBox().y;        
-        //var more = y - otherY;
-
-        //getBBox()尽量避免使用，因为元素没有渲染之前，会报错
-        var more = 17;
-
-        this.rectElement.setAttribute("x", v.x);
-        this.rectElement.setAttribute("y", <any>(v.y + more));
+        this.groupElement.setAttribute("transform", "translate(" + x + " " + y +") scale(1 1)");
 
         this.resetPointLocation();
     }
 
+    get rotate()
+    {
+        var transform = this.textElement.getAttribute("transform");
+        var result = /rotate\(([0-9]+) /.exec(transform);
+        return parseInt(result[1]);
+    }
+    set rotate(v: any)
+    {
+        this.textElement.setAttribute("transform", "rotate(" + v + " 0,17)");
+        this.resetPointLocation();
+    }
+
+    get isUnderline() {
+       return this.textElement.getAttribute("text-decoration") === "underline";
+    }
+    set isUnderline(v: boolean) {
+        this.textElement.setAttribute("text-decoration", v ?"underline":"");
+    }
+    get isBold() {
+        return this.textElement.getAttribute("font-weight") === "900";
+    }
+    set isBold(v: boolean) {
+        this.textElement.setAttribute("font-weight", v ? "900" : "");
+    }
+    get isItalic() {
+        return this.textElement.getAttribute("font-style") === "italic";
+    }
+    set isItalic(v: boolean) {
+        this.textElement.setAttribute("font-style", v ? "italic" : "");
+    }
+
+    get fontFamily() {
+        return this.textElement.getAttribute("font-family");
+    }
+    set fontFamily(v: string) {
+        this.textElement.setAttribute("font-family", v );
+    }
     constructor() {
-        super(document.createElementNS('http://www.w3.org/2000/svg', 'text'));
-        this.textElement = this.element;
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+        this.groupElement = this.element;
+        this.groupElement.setAttribute("transform", "translate(0 0) scale(1 1)");
+
+        this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        this.groupElement.appendChild(this.textElement);
         this.textElement.textContent = "Text";
+        this.textElement.setAttribute("x", "0");
+        this.textElement.setAttribute("y", "17");
         this.textElement.setAttribute('style', 'fill:#111111;cursor:default;-moz-user-select:none;');
         this.textElement.setAttribute('font-size', "16");
+        this.textElement.setAttribute("transform", "rotate(0 0,17)");
+    }
+
+    isIntersectWith(rect): boolean {
+        var clientRect = this.textElement.getBoundingClientRect();
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
+
+        return this.isIntersect(myrect, rect);
+    }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.textElement.scrollIntoView();
+        }
     }
 
     onSelectedChange() {
         if (this.selected) {
-            var myrect = this.rect;
+            var clientRect = this.textElement.getBoundingClientRect();
+            var myrect = {
+                x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+                y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+                width: clientRect.width / editor.currentScale,
+                height: clientRect.height / editor.currentScale
+            };
+
             this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
             this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
@@ -1275,12 +1422,14 @@ class TextControl extends RectControl {
             this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
             this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
             this.selectingElement.onmousedown = (e) => {
-                e.stopPropagation();
+                if (e.button != 1) {
+                    e.stopPropagation();
+                }
             };
-            this.rectElement.parentElement.appendChild(this.selectingElement);
+            this.groupElement.parentElement.appendChild(this.selectingElement);
         }
         else {
-            this.rectElement.parentElement.removeChild(this.selectingElement);
+            this.groupElement.parentElement.removeChild(this.selectingElement);
         }
     }
 
@@ -1288,13 +1437,36 @@ class TextControl extends RectControl {
         if (!this.selected)
             return;
 
-        var myrect = this.rect;
+        var clientRect = this.textElement.getBoundingClientRect();
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale,
+            height: clientRect.height / editor.currentScale
+        };
+
         this.selectingElement.setAttribute('x', <any>(myrect.x - 5));
         this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
         this.selectingElement.setAttribute('width', <any>(myrect.width + 10));
         this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
     }   
 
+    onBeginMoving() {
+        var rect = this.rect;
+        (<any>this.groupElement)._x = rect.x;
+        (<any>this.groupElement)._y = rect.y;
+    }
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.groupElement)._x + nowX - downX);
+        var y = <any>((<any>this.groupElement)._y + nowY - downY);
+        this.rect = { x: x, y: y };
+        if (this.selected) {
+            this.resetPointLocation();
+        }
+    }
+    onEndMoving() {
+
+    }
 }
 
 class CylinderControl extends EditorControl {
@@ -1354,6 +1526,18 @@ class CylinderControl extends EditorControl {
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.cylinderElement.scrollIntoView();
+        }
+    }
+
     onDevicePointValueChanged(devPoint: any) {
         if (devPoint.max != null && devPoint.max != this.max)
             this.max = devPoint.max;
@@ -1366,8 +1550,6 @@ class CylinderControl extends EditorControl {
     rectElement: SVGRectElement;
     cylinderElement: SVGRectElement;
 
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
     startX = 0;
     startY = 0;
 
@@ -1462,85 +1644,6 @@ class CylinderControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            var width = Math.max(15, pointEle._valueWidth + (e.clientX - this.startX));
-            var height = Math.max(15, pointEle._valueHeight + (e.clientY - this.startY));
-            this.rect = {
-                x: pointEle._valueX,
-                y: pointEle._valueY,
-                width: width,
-                height: height
-            };
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
-
     onBeginMoving() {
         (<any>this.rectElement)._rect = this.rect;
     }
@@ -1562,7 +1665,6 @@ class CylinderControl extends EditorControl {
 
 class TrendControl extends EditorControl {
     rectElement: SVGRectElement;
-    pRightBottom: SVGCircleElement;
 
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
@@ -1921,7 +2023,6 @@ class TrendControl extends EditorControl {
     }
 
     running: boolean = false;
-    moving: boolean = false;
     startX = 0;
     startY = 0;
 
@@ -2077,22 +2178,7 @@ class TrendControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
+   
     //开始画趋势图,values表示已经有的变化值 value结构{ value:12 , time:1221212 }
     run()
     {
@@ -2109,6 +2195,28 @@ class TrendControl extends EditorControl {
         this.running = true;
         this.reDrawTrend();
         this.element._interval = setInterval(() => this.reDrawTrend(), 1000);
+    }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint1 || 
+            pointName == this.devicePoint2 ||
+            pointName == this.devicePoint3 ||
+            pointName == this.devicePoint4 ||
+            pointName == this.devicePoint5 ||
+            pointName == this.devicePoint6 ||
+            pointName == this.devicePoint7 ||
+            pointName == this.devicePoint8 ||
+            pointName == this.devicePoint9 ||
+            pointName == this.devicePoint10 ||
+            pointName == this.devicePoint11 ||
+            pointName == this.devicePoint12) {
+            this.selected = true;
+            this.element.scrollIntoView();
+        }
     }
 
     getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any {
@@ -2195,70 +2303,7 @@ class TrendControl extends EditorControl {
             this["pathElement" + k].setAttribute("d", dataStr);
         }
     }
-
-    resetPointLocation() {
-        var rect = this.rect;
-        if (this.selected && this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-
-        this.line_left_Ele.setAttribute("x1", <any>(rect.x + 10));
-        this.line_left_Ele.setAttribute("y1", <any>(rect.y + 10));
-        this.line_left_Ele.setAttribute("x2", <any>(rect.x + 10));
-        this.line_left_Ele.setAttribute("y2", <any>(rect.y + rect.height - 10));
-
-        this.line_bottom_Ele.setAttribute("x1", <any>(rect.x + 10));
-        this.line_bottom_Ele.setAttribute("y1", <any>(rect.y + rect.height - 10));
-        this.line_bottom_Ele.setAttribute("x2", <any>(rect.x + rect.width - 10));
-        this.line_bottom_Ele.setAttribute("y2", <any>(rect.y + rect.height - 10));
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
+    
 
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
@@ -2283,8 +2328,6 @@ class TrendControl extends EditorControl {
 
 class ButtonAreaControl extends EditorControl {
     rectElement: SVGGraphicsElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
     startX = 0;
     startY = 0;
 
@@ -2315,6 +2358,17 @@ class ButtonAreaControl extends EditorControl {
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }    
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        if (pointName == this.devicePoint) {
+            this.selected = true;
+            this.rectElement.scrollIntoView();
+        }
+    }
 
     _clickValues: string = null;
     get clickValues() {
@@ -2384,79 +2438,6 @@ class ButtonAreaControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.rectElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.rectElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        var rect = this.rect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
-        pointEle._valueX = parseInt(this.rectElement.getAttribute("x"));
-        pointEle._valueY = parseInt(this.rectElement.getAttribute("y"));
-        pointEle._valueWidth = parseInt(this.rectElement.getAttribute("width"));
-        pointEle._valueHeight = parseInt(this.rectElement.getAttribute("height"));
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
-    }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-
-            (<any>this.rectElement).setAttribute("width", Math.max(15, pointEle._valueWidth + (e.clientX - this.startX)));
-            (<any>this.rectElement).setAttribute("height", Math.max(15, pointEle._valueHeight + (e.clientY - this.startY)));
-            this.resetPointLocation();
-        }
-    }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
-
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
-        }
-    }
-
 
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
@@ -2478,6 +2459,26 @@ class ButtonAreaControl extends EditorControl {
 
 class GroupControl extends EditorControl implements IEditorControlContainer {
     controls: any[] = [];
+    getControl(id: string): EditorControl {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    }
+    isIdExist(id: string): boolean {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = (<IEditorControlContainer>this.controls[i]).isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if ((<EditorControl>this.controls[i]).id == id)
+                return true;
+        }
+        return false;
+    }
     removeControl(ctrl: EditorControl) {
 
         for (var i = 0; i < this.controls.length; i++) {
@@ -2491,9 +2492,18 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
     addControl(ctrl: EditorControl) {
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = (<any>ctrl).constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
+        }
+
         ctrl.isInGroup = true;
         ctrl.container = this;
-        this.groupElement.appendChild(ctrl.element);
+        this.childGroupElement.appendChild(ctrl.element);
         this.controls.push(ctrl);
 
         if ((<any>ctrl).constructor.name == "GroupControl") {
@@ -2532,8 +2542,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
 
     groupElement: SVGGElement;
-    pRightBottom: SVGCircleElement;
-    moving: boolean = false;
+    childGroupElement: SVGGElement;
     startX = 0;
     startY = 0;
     windowCode: any;
@@ -2597,13 +2606,24 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
         this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
+        this.childGroupElement.style.transformOrigin = ((this.contentWidth * scalex) / 2) + "px " + ((this.contentHeight * scalex) / 2) +"px";
         this.lastRect = v;
         this.resetPointLocation();
+    }
+
+    get rotate() {
+        var transform = this.childGroupElement.style.transform;
+        var result = /rotate\(([0-9]+)deg\)/.exec(transform);
+        return parseInt(result[1]);
+    }
+    set rotate(v: any) {
+        this.childGroupElement.style.transform = "rotate("+ v +"deg)";
     }
 
     customProperties: any[] = [];
     getPropertiesCaption(): string[] {
         var caps = ["id"];
+        caps.push("旋转角度");
         for (var i = 0; i < this.customProperties.length; i++)
         {
             caps.push(this.customProperties[i] + "设备点");
@@ -2612,6 +2632,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
     getProperties(): string[] {
         var pros = ["id"];
+        pros.push("rotate");
         for (var i = 0; i < this.customProperties.length; i++) {
             pros.push(this.customProperties[i] + "_devPoint");
         }
@@ -2623,7 +2644,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.windowCode = windowCode;
         element.setAttribute("transform", "translate(0 0) scale(1 1)");
         this.groupElement = element;
-
+        this.childGroupElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        this.childGroupElement.style.transform = "rotate(0deg)";
+        this.groupElement.appendChild(this.childGroupElement);
 
         if (!this.virtualRectElement) {
             this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -2645,7 +2668,54 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
     isIntersectWith(rect): boolean {
-        return this.isIntersect(this.rect, rect);
+        var clientRect = this.childGroupElement.getBoundingClientRect();
+        var myrect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
+
+        return this.isIntersect(myrect, rect);
+    }
+
+
+    resetPointLocation() {
+        if (!this.selected)
+            return;
+        var clientRect = this.childGroupElement.getBoundingClientRect();
+        var rect = {
+            x: (clientRect.left + editor.svgContainer.parentElement.scrollLeft) / editor.currentScale,
+            y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
+            width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
+        };
+        
+        for (var i = 0; i < this.pointEles.length; i++) {
+            (<any>this.pointEles[i])._setLocation(this.pointEles[i], rect);
+        }
+    }
+
+    /**
+    * 如果点名和自己引用的点名一致，那么选中自己
+    * @param pointName 点名
+    */
+    selectByPointName(pointName: string) {
+        for (var i = 0; i < this.customProperties.length; i++) {
+            var proName = this.customProperties[i];
+            //如果和自定义变量对应的点一致，那么设置自定义变量值
+            if (this[proName + "_devPoint"] == pointName) {
+                this.selected = true;
+                var root = this.groupElement;
+                while (root.children.length > 0) {
+                    root = <any>root.children[0];
+                }
+                root.scrollIntoView();
+                return;
+            }
+        }
+
+        for (var i = 0; i < this.controls.length; i++) {
+            (<EditorControl>this.controls[i]).selectByPointName(pointName);
+        }
     }
 
     //当关联的设备点值方式变化时触发
@@ -2663,14 +2733,10 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 this["_" + proName] = point.value;
 
                 //传递自定义属性的变化
-                var proPoint = {
-                    max: self[proName + "_devPoint_max"],
-                    min: self[proName + "_devPoint_min"],
-                    name: proName,
-                    value: point.value,
-                    isCustomProperty: true
-                };
-
+                var proPoint = JSON.parse(JSON.stringify(point));
+                proPoint.name = proName;
+                proPoint.isCustomProperty = true;
+                
                 for (var i = 0; i < this.controls.length; i++) {
                     var control = this.controls[i];
                     this.onChildrenPointValueChanged(control, proPoint);
@@ -2713,10 +2779,11 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     getScript() {
         var json = this.getJson();
         var script = "";
-        var id = this.id;
-        if (!id || id.length == 0) {
-            id = "eCtrl";
-        }
+        //var id = this.id;
+        //if (!id || id.length == 0) {
+        //    id = "eCtrl";
+        //}
+        var id = "eCtrl";
         script += id + " = editor.createGroupControl(" + JSON.stringify(this.windowCode) + " , " + JSON.stringify(json.rect) + ");\r\n";
         for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
@@ -2825,85 +2892,308 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return editor;
     }
 
-    onSelectedChange() {
-        if (this.selected) {
-
-            this.pRightBottom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            this.pRightBottom.setAttribute("r", "5");
-            this.pRightBottom.setAttribute('style', 'stroke:black;stroke-width:2;fill:white;cursor:nwse-resize;');
-            this.groupElement.parentElement.appendChild(this.pRightBottom);
-
-            this.setEvent(this.pRightBottom);
-            this.resetPointLocation();
-        }
-        else {
-            this.groupElement.parentElement.removeChild(this.pRightBottom);
-        }
-    }
-
-    resetPointLocation() {
-        if (!this.selected)
-            return;
-
-        var rect = this.lastRect;
-        if (this.pRightBottom) {
-            this.pRightBottom.setAttribute("cx", <any>(rect.x + rect.width));
-            this.pRightBottom.setAttribute("cy", <any>(rect.y + rect.height));
-        }
-    }
-
-    setEvent(pointEle) {
-        pointEle.addEventListener("click", (e: Event) => { e.stopPropagation(); }, false);
-        pointEle.addEventListener("mousedown", (e) => { this.pointMouseDown(e, pointEle); }, false);
-        pointEle.addEventListener("mousemove", (e) => { this.pointMouseMove(e, pointEle); }, false);
-        pointEle.addEventListener("mouseup", (e) => { this.pointMouseUp(e, pointEle); }, false);
-    }
-
-    private undoObj: UndoMoveControls;
-    pointMouseDown(e: MouseEvent, pointEle) {
-        e.stopPropagation();
-        this.moving = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-
+    onBeginMoving() {
         var rect = this.rect;
-        pointEle._x = rect.x;
-        pointEle._y = rect.y;
-        pointEle._width = rect.width;
-        pointEle._height = rect.height;
-
-        this.undoObj = new UndoMoveControls(editor, [this]);
-
-        if (pointEle.setCapture)
-            pointEle.setCapture();
-        else if (window.captureEvents)
-            (<any>window).captureEvents((<any>Event).MOUSEMOVE | (<any>Event).MOUSEUP);
+        (<any>this.groupElement)._x = rect.x;
+        (<any>this.groupElement)._y = rect.y;
+        (<any>this.groupElement)._width = rect.width;
+        (<any>this.groupElement)._height = rect.height;
     }
-    pointMouseMove(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
+    onMoving(downX, downY, nowX, nowY) {
+        var x = <any>((<any>this.groupElement)._x + nowX - downX);
+        var y = <any>((<any>this.groupElement)._y + nowY - downY);
 
-            this.rect = {
-                x: pointEle._x,
-                y: pointEle._y,
-                width: Math.max(15, pointEle._width + (e.clientX - this.startX)),
-                height: Math.max(15, pointEle._height + (e.clientY - this.startY))
-            };
-
+        this.rect = { x: x, y: y, width: (<any>this.groupElement)._width, height: (<any>this.groupElement)._height };
+        if (this.selected) {
             this.resetPointLocation();
         }
     }
-    pointMouseUp(e: MouseEvent, pointEle) {
-        if (this.moving) {
-            e.stopPropagation();
-            this.moving = false;
-            pointEle.releaseCapture();
+    onEndMoving() {
 
-            this.undoObj.moveFinish();
-            editor.undoMgr.addUndo(this.undoObj);
+    }
+}
+
+//transform-origin:0 0;transform:scale(6,6)
+class FreeGroupControl extends EditorControl implements IEditorControlContainer {
+    controls: any[] = [];
+    getControl(id: string): EditorControl {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    }
+    isIdExist(id: string): boolean {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = (<IEditorControlContainer>this.controls[i]).isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if ((<EditorControl>this.controls[i]).id == id)
+                return true;
+        }
+        return false;
+    }
+    removeControl(ctrl: EditorControl) {
+
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i] == ctrl) {
+                this.groupElement.removeChild(ctrl.element);
+                ctrl.isInGroup = false;
+                ctrl.container = null;
+                this.controls.splice(i, 1);
+                break;
+            }
+        }
+    }
+    addControl(ctrl: EditorControl) {
+        ctrl.isInGroup = true;
+        ctrl.container = this;
+        this.groupElement.appendChild(ctrl.element);
+        this.controls.push(ctrl);
+
+    }
+
+    //组成组
+    addControls(ctrls: EditorControl[]) {
+        this.controls = [];
+
+        var minLeft = 999999999;
+        var minTop = 999999999;
+        for (var i = 0; i < ctrls.length; i++)
+        {
+            var rect = ctrls[i].rect;
+            if (rect.x < minLeft)
+                minLeft = rect.x;
+            if (rect.y < minTop)
+                minTop = rect.y;
+            ctrls[i].selected = false;
+            ctrls[i].container.removeControl(ctrls[i]);
+            this.addControl(ctrls[i]);
+        }
+
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];           
+            var _rect = ctrl.rect;
+
+            ctrl.rect = {
+                x: _rect.x - minLeft,
+                y: _rect.y - minTop,
+                width: _rect.width,
+                height:_rect.height
+            };
+        }
+
+        this.groupChildren();
+
+        this.rect = {
+            x: minLeft,
+            y: minTop,
+            width: this.contentWidth,
+            height: this.contentHeight
+        };
+    }
+    groupChildren()
+    {
+        this.contentWidth = 0;
+        this.contentHeight = 0;
+        for (var i = 0; i < this.controls.length; i++) {
+            var ctrl = this.controls[i];
+            var _rect = ctrl.rect;
+
+            if (_rect.x + _rect.width > this.contentWidth)
+                this.contentWidth = _rect.x + _rect.width;
+            if (_rect.y + _rect.height > this.contentHeight)
+                this.contentHeight = _rect.y + _rect.height;
+        }
+        //把virtualRectElement移到最上面
+        this.groupElement.removeChild(this.virtualRectElement);
+        this.groupElement.appendChild(this.virtualRectElement);        
+    }
+    //解组
+    freeControls()
+    {
+        this.selected = false;
+        var rect = this.rect;
+        while (this.controls.length > 0) {
+            var ctrl = this.controls[0];            
+            var ctrlRect = ctrl.rect;
+            this.removeControl(ctrl);
+
+            ctrlRect.x = rect.x + ctrlRect.x;
+            ctrlRect.y = rect.y + ctrlRect.y;            
+            this.container.addControl(ctrl);
+            ctrl.rect = ctrlRect;
+        }
+    }
+    writeValue(pointName, addr, value) {
+        (<any>window).writeValue(pointName, addr, value);
+    }
+
+    groupElement: SVGGElement;
+
+
+    virtualRectElement: SVGRectElement;
+    contentWidth = 0;
+    contentHeight = 0;
+    private lastRect: any;
+    get rect() {
+        var transform = this.groupElement.getAttribute("transform");
+        var result = /translate\(([0-9]+) ([0-9]+)\)/.exec(transform);
+        var myrect: any = {};
+        myrect.x = parseInt(result[1]);
+        myrect.y = parseInt(result[2]);
+       
+
+       
+
+        this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
+        this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
+
+        myrect.width = this.contentWidth;
+        myrect.height = this.contentHeight;
+        this.lastRect = myrect;
+        return myrect;
+    }
+    set rect(v: any) {
+
+        if (v.width == null) {
+            this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            var r = this.rect;//目的是获取contentWidth
+            return;
+        }
+        if (this.contentWidth == 0) {
+            var r = this.rect;//目的是获取contentWidth
+        }
+       
+        this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
+        this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
+
+        this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+        this.lastRect = v;
+        this.resetPointLocation();
+    }
+
+    getPropertiesCaption(): string[] {
+        var caps = ["id"];
+        return caps;
+    }
+    getProperties(): string[] {
+        var pros = ["id"];
+        return pros;
+    }
+
+    set childScripts(scripts:string[])
+    {
+        var my = this;
+        for (var i = 0; i < scripts.length; i++)
+        {
+            eval("(function(editor){" + scripts[i] + "})(my)");
+        }
+        this.groupChildren();
+    }
+
+    constructor() {
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
+       
+        this.groupElement = this.element;
+        this.groupElement.setAttribute("transform", "translate(0 0)");
+
+        if (!this.virtualRectElement) {
+            this.virtualRectElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.groupElement.appendChild(this.virtualRectElement);
+            this.virtualRectElement.setAttribute('x', "0");
+            this.virtualRectElement.setAttribute('y', "0");
+            this.virtualRectElement.setAttribute('fill-opacity', "0");
+            this.virtualRectElement.setAttribute('stroke', "green");
+            this.virtualRectElement.setAttribute('style', 'stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
         }
     }
 
+    /**
+     * 如果点名和自己引用的点名一致，那么选中自己
+     * @param pointName 点名
+     */
+    selectByPointName(pointName: string) {
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            (<EditorControl>this.controls[i]).selectByPointName(pointName);
+        }
+    }
+
+    onSelectedChange() {
+        this.virtualRectElement.setAttribute('stroke', this.selected ? "red" : "green");
+    }
+    run() {
+        super.run();
+        if (this.virtualRectElement) {
+            this.groupElement.removeChild(this.virtualRectElement);
+        }
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].run();
+        }
+    }
+    isIntersectWith(rect): boolean {
+        return this.isIntersect(this.rect, rect);
+    }
+
+    //当关联的设备点值方式变化时触发
+    onDevicePointValueChanged(point: any) {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            control.onDevicePointValueChanged(point);
+        }
+    }
+
+
+    /**
+     * 获取描述本控件属性的一个json对象
+     */
+    getJson() {
+        var obj = {
+            rect: this.rect,
+            constructorName: (<any>this).constructor.name
+        };
+        var properites = this.getProperties();
+        for (var i = 0; i < properites.length; i++) {
+            obj[properites[i]] = this[properites[i]];
+        }
+        var childscripts = [];
+        for (var i = 0; i < this.controls.length; i++) {
+            var childScript = this.controls[i].getScript();
+            childscripts.push(childScript);
+        }
+        obj["childScripts"] = childscripts;
+        return obj;
+    }
+
+    /**
+     * 获取运行时的执行脚本
+     */
+    getScript() {
+        var rect = this.rect;
+        var script = "";
+        var id = this.id;
+        if (!id || id.length == 0) {
+            id = "eCtrl";
+        }
+        script += id + " = new FreeGroupControl();\r\n"; 
+        script += "editor.addControl(" + id + ");\r\n";
+        script += id + ".id = " + JSON.stringify(this.id) + ";\r\n";
+
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            var childScript = this.controls[i].getScript();
+            script += "(function(editor){\r\n" + childScript + "\r\n})(" + id + ");\r\n";
+        }
+
+        script += id + ".rect = " + JSON.stringify(rect) + ";\r\n";
+        script += id + ".groupChildren();\r\n";
+        return script;
+    }
+    
 
     onBeginMoving() {
         var rect = this.rect;

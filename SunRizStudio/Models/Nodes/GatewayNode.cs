@@ -28,13 +28,18 @@ namespace SunRizStudio.Models
             this.Icon = "/Images/solution/gateway.png";
            
             UpdateText();
+
+            this.ContextMenuItems.Add(new ContextMenuItem() {
+                Text = "属性",
+                ClickHandler = (s,e)=>OnDoublicClick(s,null),
+            });
         }
 
-        protected override void OnDoublicClick(object window, MouseButtonEventArgs e)
+        protected override void OnDoublicClick(object sender, MouseButtonEventArgs e)
         {
             var data = this.Gateway.Clone<CommunicationDriver>();
             Dialogs.GatewayDialog dialog = new Dialogs.GatewayDialog(data);
-            dialog.Owner = (Window)window;
+            dialog.Owner = MainWindow.Instance;
             dialog.Title = this.Text;
             if (dialog.ShowDialog() == true)
             {

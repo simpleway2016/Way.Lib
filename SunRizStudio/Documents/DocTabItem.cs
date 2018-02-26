@@ -23,8 +23,14 @@ namespace SunRizStudio.Documents
         }
         internal void Close()
         {
-            Document.TitleChanged -= Document_TitleChanged;
-            MainWindow.Instance.documentContainer.Items.Remove(this);
+            bool cancel = false;
+
+            Document.OnClose(ref cancel);
+            if (!cancel)
+            {
+                Document.TitleChanged -= Document_TitleChanged;
+                MainWindow.Instance.documentContainer.Items.Remove(this);
+            }
         }
         public override void OnApplyTemplate()
         {

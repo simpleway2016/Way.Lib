@@ -1,3 +1,8 @@
+declare function rgb(r: any, g: any, b: any): {
+    "r": any;
+    "g": any;
+    "b": any;
+};
 declare class PropertyDialog {
     rootElement: HTMLElement;
     control: EditorControl;

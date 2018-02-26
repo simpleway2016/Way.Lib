@@ -45,13 +45,32 @@ namespace SunRizStudio.Documents
             //复制一份，给刷新按钮使用
             _pointModel = OriginalModel.Clone<DevicePoint>();
             _container.DataContext = _pointModel;
-            if(_pointModel.AddrSetting.IsBlank() == false)
+            _pointModel.PropertyChanged += _pointModel_PropertyChanged;
+            if (_pointModel.AddrSetting.IsBlank() == false)
             {
                 _PointJsonDict = _pointModel.AddrSetting.JsonToObject<Dictionary<string, string>>();
             }
             setPointPropertyInput();
         }
 
+        private void _pointModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ValueAbsoluteChange" && _pointModel.ValueAbsoluteChange == true)
+            {
+                _pointModel.ValueOnTimeChange = false;
+                _pointModel.ValueRelativeChange = false;
+            }
+            else if (e.PropertyName == "ValueOnTimeChange" && _pointModel.ValueOnTimeChange == true)
+            {
+                _pointModel.ValueAbsoluteChange = false;
+                _pointModel.ValueRelativeChange = false;
+            }
+            else if (e.PropertyName == "ValueRelativeChange" && _pointModel.ValueRelativeChange == true)
+            {
+                _pointModel.ValueAbsoluteChange = false;
+                _pointModel.ValueOnTimeChange = false;
+            }
+        }
 
         /// <summary>
         /// 设置数据连接相关的属性输入框
@@ -110,8 +129,9 @@ namespace SunRizStudio.Documents
 
             TextBlock label = new TextBlock();
             label.Text = name;
-            label.HorizontalAlignment = HorizontalAlignment.Center;
+            label.HorizontalAlignment = HorizontalAlignment.Left;
             label.VerticalAlignment = VerticalAlignment.Center;
+            label.Margin = new Thickness(5, 0, 0, 0);
             label.SetValue(Grid.RowProperty, rowNumber);
             label.SetValue(Grid.ColumnProperty, 0);
             _gridProperty.Children.Add(label);
@@ -249,9 +269,15 @@ namespace SunRizStudio.Documents
         /// <param name="closeOnSuccess">成功后是否关闭窗口</param>
         internal void saveToServer(bool closeOnSuccess)
         {
+           
             if (_pointModel.Name.IsBlank() || _pointModel.Desc.IsBlank())
             {
                 MessageBox.Show(MainWindow.Instance, "请输入点名和描述");
+                return;
+            }
+            if (_pointModel.Name.StartsWith("/") == false)
+            {
+                MessageBox.Show(MainWindow.Instance, "点名必须以“/”反斜杠为起始字符");
                 return;
             }
             _container.Cursor = Cursors.Hand;

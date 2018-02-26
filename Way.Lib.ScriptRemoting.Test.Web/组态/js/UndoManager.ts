@@ -140,6 +140,9 @@ class UndoMoveControls extends UndoItem {
             //如果没有移动，那么不用添加undo
             this.enable = false;
         }
+        else {
+            editor.resetScrollbar();
+        }
     }
 
     undo() {
@@ -190,5 +193,121 @@ class UndoChangeLinePoint extends UndoItem
         this.control.lineElement.setAttribute(this.xname, this.newvalueX);
         this.control.lineElement.setAttribute(this.yname, this.newvalueY);
         this.control.resetPointLocation();
+    }
+}
+
+class UndoGroup extends UndoItem {
+    controls: EditorControl[];
+    groupCtrl: FreeGroupControl;
+    constructor(_editor: Editor, _controls: EditorControl[]) {
+        super(_editor);
+        this.controls = _controls;
+        this.groupCtrl = new FreeGroupControl();
+    }
+
+    undo() {
+        this.groupCtrl.freeControls();
+        this.editor.removeControl(this.groupCtrl);
+    }
+
+    redo() {
+       
+        this.groupCtrl.addControls(this.controls);
+        this.editor.addControl(this.groupCtrl);
+    }
+}
+class UndoUnGroup extends UndoItem {
+    groups: any[] = [];
+    constructor(_editor: Editor, _controls: FreeGroupControl[]) {
+        super(_editor);
+        for (var i = 0; i < _controls.length; i++)
+        {
+            var item: any = {};
+            this.groups.push(item);
+            item.controls = [];
+            item.group = _controls[i];
+            for (var j = 0; j < _controls[i].controls.length; j++)
+            {
+                item.controls.push(_controls[i].controls[j]);
+            }
+        }
+    }
+
+    undo() {
+        for (var i = 0; i < this.groups.length; i++) {
+            var item = this.groups[i];
+            item.group.addControls(item.controls);
+            this.editor.addControl(item.group);
+        }
+    }
+
+    redo() {
+        for (var i = 0; i < this.groups.length; i++)
+        {
+            var item = this.groups[i];
+            item.group.freeControls();
+            this.editor.removeControl(item.group);
+        }
+    }
+}
+
+class UndoPaste extends UndoItem {
+    copyItems: any[] = [];
+    controls: any[] = null;
+    isSameWindow: boolean;
+    constructor(_editor: Editor, _copyItems: any[], isSameWindow: boolean) {
+        super(_editor);
+        this.copyItems = _copyItems;
+        this.isSameWindow = isSameWindow;
+    }
+
+    undo() {
+        for (var i = 0; i < this.controls.length; i++) {
+            this.controls[i].selected = false;
+            this.editor.removeControl(this.controls[i]);
+        }
+    }
+
+    redo() {
+        if (!this.controls) {
+            this.controls = [];
+            for (var i = 0; i < this.copyItems.length; i++) {
+                var controlJson = this.copyItems[i];
+                if (this.isSameWindow) {
+                    controlJson.rect.x += 10;
+                    controlJson.rect.y += 10;
+                }
+                var editorctrl;
+                if (controlJson.constructorName == "GroupControl") {
+                    editorctrl = this.editor.createGroupControl(controlJson.windowCode, controlJson.rect);
+                    for (var pname in controlJson) {
+                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                            editorctrl[pname] = controlJson[pname];
+                        }
+                    }
+                }
+                else {
+                    eval("editorctrl = new " + controlJson.constructorName + "()");
+                    this.editor.addControl(editorctrl);
+                    for (var pname in controlJson) {
+                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                            editorctrl[pname] = controlJson[pname];
+                        }
+                    }
+                    editorctrl.rect = controlJson.rect;
+                }
+                editorctrl.ctrlKey = true;//这样才能多个选中
+                editorctrl.selected = true;
+                editorctrl.ctrlKey = false;
+                this.controls.push(editorctrl);
+
+            }
+        }
+        else {
+            for (var i = 0; i < this.controls.length; i++)
+            {
+                this.editor.addControl(this.controls[i]);
+            }
+        }
     }
 }

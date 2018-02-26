@@ -1,6 +1,8 @@
 ﻿declare var fileBrowser: FileBrowser;
 var ServerUrl: string;
 var windowGuid = new Date().getTime();
+var CtrlKey: boolean = false;
+
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
     alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
@@ -186,6 +188,11 @@ class ToolBox_Image extends ToolBoxItem {
     }
 
     begin(svgContainer: SVGSVGElement, position: any) {
+        fileBrowser.onHide = () => {
+            if ((<any>window).toolboxDone) {
+                (<any>window).toolboxDone();
+            }
+        };
         fileBrowser.onSelectFile = (path) => {
             fileBrowser.hide();
             this.control = new ImageControl();
@@ -220,8 +227,7 @@ class ToolBox_Text extends ToolBoxItem {
     begin(svgContainer: SVGSVGElement, position: any) {
         this.control = new TextControl();
 
-        this.control.element.setAttribute('x', position.x);
-        this.control.element.setAttribute('y', position.y);
+        this.control.rect = position;
        
         svgContainer.appendChild(this.control.element);
 
@@ -350,10 +356,21 @@ interface IEditorControlContainer
     addControl(ctrl: EditorControl);
     removeControl(ctrl: EditorControl);
     writeValue(pointName, addr, value);
+    isIdExist(id: string): boolean;
+    getControl(id: string): EditorControl;
 }
 
 class Editor implements IEditorControlContainer
 {
+    getControl(id: string): EditorControl
+    {
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i].id == id) {
+                return this.controls[i];
+            }
+        }
+        return null;
+    }
     removeControl(ctrl: EditorControl) {
        
         for (var i = 0; i < this.controls.length; i++)
@@ -395,6 +412,15 @@ class Editor implements IEditorControlContainer
             }
         }
 
+        if (!ctrl.id || ctrl.id.length == 0) {
+            var controlId = (<any>ctrl).constructor.name;
+            var index = 1;
+            while (this.isIdExist(controlId + index)) {
+                index++;
+            }
+            ctrl.id = controlId + index;
+        }
+
         this.controls.push(ctrl);
         ctrl.container = this;
     }
@@ -405,8 +431,8 @@ class Editor implements IEditorControlContainer
 
     name: string = "";
     code: string = "";
-    private divContainer: HTMLElement;
-    private svgContainer: SVGSVGElement;
+    divContainer: HTMLElement;
+    svgContainer: SVGSVGElement;
     private currentToolBoxItem: ToolBoxItem;
     private svgContainerMouseUpPosition: any;
     private beginedToolBoxItem: ToolBoxItem = null;
@@ -487,71 +513,82 @@ class Editor implements IEditorControlContainer
 
         this.svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-        this.svgContainer.setAttribute('width', '100%');
+        
         this.svgContainer.style.backgroundSize = "100% 100%";
         this.svgContainer.style.backgroundRepeat = "no-repeat";
-        this.svgContainer.setAttribute('height', '100%');
         this.svgContainer.style.backgroundColor = "#ffffff";
+        this.svgContainer.style.height = "8000px";
+        this.svgContainer.style.width = "8000px";
         this.divContainer.appendChild(this.svgContainer);
 
         this.initDivContainer();
 
-        this.svgContainer.addEventListener("click", (e) => {
-            if ((<any>this.svgContainer)._notClick) {
-                (<any>this.svgContainer)._notClick = false;
-                return;
-            }
+        this.initScaleEvent();
+        this.initMoveToScrollEvent();
+        this.resetScrollbar();
 
-            this.svgContainerClick(e);
+        this.svgContainer.addEventListener("click", (e) => {
+            if (e.button == 0) {
+                //左键
+                if ((<any>this.svgContainer)._notClick) {
+                    (<any>this.svgContainer)._notClick = false;
+                    return;
+                }
+
+                this.svgContainerClick(e);
+            }
         });
         this.svgContainer.addEventListener("mousedown", (e) => {
-    
-            if (!this.currentToolBoxItem)
-            {
-                (<any>this.svgContainer)._notClick = true;
+            if (e.button == 0) {
+                if (!this.currentToolBoxItem) {
+                    (<any>this.svgContainer)._notClick = true;
 
-                this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                (<any>this.selectingElement)._startx = e.clientX - this.divContainer.offsetLeft;
-                (<any>this.selectingElement)._starty = e.clientY - this.divContainer.offsetTop;
-                this.selectingElement.setAttribute('x', <any>(e.clientX - this.divContainer.offsetLeft));
-                this.selectingElement.setAttribute('y', <any>(e.clientY - this.divContainer.offsetTop));
-                this.selectingElement.setAttribute('width', "0");
-                this.selectingElement.setAttribute('height', "0");
-                this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
-                this.svgContainer.appendChild(this.selectingElement);
-                (<any>this.svgContainer).setCapture();
+                    this.selectingElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    (<any>this.selectingElement)._startx = e.layerX;
+                    (<any>this.selectingElement)._starty = e.layerY;
+                    this.selectingElement.setAttribute('x', <any>(e.layerX));
+                    this.selectingElement.setAttribute('y', <any>(e.layerY));
+                    this.selectingElement.setAttribute('width', "0");
+                    this.selectingElement.setAttribute('height', "0");
+                    this.selectingElement.setAttribute('style', 'fill:none;stroke:black;stroke-width:1;stroke-dasharray:2;stroke-dashoffset:2;');
+                    this.svgContainer.appendChild(this.selectingElement);
+                    (<any>this.svgContainer).setCapture();
+                }
             }
         });
         this.svgContainer.addEventListener("mouseup", (e) => {
-          
-            if (this.selectingElement) {
-                (<any>this.svgContainer).releaseCapture();
-                var rect = {
-                    x: parseInt(this.selectingElement.getAttribute("x")),
-                    y: parseInt(this.selectingElement.getAttribute("y")),
-                    width: parseInt(this.selectingElement.getAttribute("width")),
-                    height: parseInt(this.selectingElement.getAttribute("height")),
-                };
-                this.svgContainer.removeChild(this.selectingElement);
-                this.selectingElement = null;
-                this.selectControlsByRect(rect, e.ctrlKey);
+            if (e.button == 0) {
+                if (this.selectingElement) {
+                    (<any>this.svgContainer).releaseCapture();
+                    var rect = {
+                        x: parseInt(this.selectingElement.getAttribute("x")),
+                        y: parseInt(this.selectingElement.getAttribute("y")),
+                        width: parseInt(this.selectingElement.getAttribute("width")),
+                        height: parseInt(this.selectingElement.getAttribute("height")),
+                    };
+                    this.svgContainer.removeChild(this.selectingElement);
+                    this.selectingElement = null;
+                    CtrlKey = e.ctrlKey;
+                    this.selectControlsByRect(rect);
+                    CtrlKey = false;
 
-                setTimeout(() => {
-                    (<any>this.svgContainer)._notClick = false;
-                }, 500);
-            }
-            else {
-                this.svgContainerMouseUpPosition = {
-                    x: e.clientX - this.divContainer.offsetLeft,
-                    y: e.clientY - this.divContainer.offsetTop
-                };
+                    setTimeout(() => {
+                        (<any>this.svgContainer)._notClick = false;
+                    }, 500);
+                }
+                else {
+                    this.svgContainerMouseUpPosition = {
+                        x: e.layerX,
+                        y: e.layerY
+                    };
+                }
             }
             
         });
         this.svgContainer.addEventListener("mousemove", (e) => {
             if (this.selectingElement) {
-                var w = e.clientX - this.divContainer.offsetLeft - (<any>this.selectingElement)._startx ;
-                var h = e.clientY - this.divContainer.offsetTop - (<any>this.selectingElement)._starty;
+                var w = e.layerX - (<any>this.selectingElement)._startx ;
+                var h = e.layerY - (<any>this.selectingElement)._starty;
                 if (w < 0)
                 {
                     var x = (<any>this.selectingElement)._startx  + w;
@@ -567,7 +604,7 @@ class Editor implements IEditorControlContainer
                 this.selectingElement.setAttribute("height", <any>h);
             }
             else {
-                this.svgContainerMouseMove(e.clientX - this.divContainer.offsetLeft, e.clientY - this.divContainer.offsetTop);
+                this.svgContainerMouseMove(e.layerX, e.layerY);
             }
         });
 
@@ -579,10 +616,10 @@ class Editor implements IEditorControlContainer
             try {
                 var data = JSON.parse(ev.dataTransfer.getData("Text"));
                 if (data && data.Type == "GroupControl") {
-                    //alert(ev.clientX + "," + (ev.clientY - divContainer.offsetTop) + "：" + data);
+                    //alert(ev.layerX + "," + (ev.layerY) + "：" + data);
                     var rect: any = {};
-                    rect.x = ev.clientX;
-                    rect.y = ev.clientY - this.divContainer.offsetTop;
+                    rect.x = ev.layerX;
+                    rect.y = ev.layerY;
                     rect.width = null;
                     rect.height = null;
                     var groupControl = this.createGroupControl(data.windowCode, rect);
@@ -652,12 +689,134 @@ class Editor implements IEditorControlContainer
                 this.copy();
 
             }
+            else if (e.ctrlKey && e.keyCode == 88) {
+                this.cut();
+
+            }
             else if (e.ctrlKey && e.keyCode == 86) 
             {
                 this.paste();
             }
             else if (e.ctrlKey && e.keyCode == 83) {
                 this.save();
+            }
+            else if (e.keyCode == 46) {
+                this.delete();
+            }
+            else if (e.keyCode == 27) {
+                (<any>window).exitFullScreen();
+            }
+            else {
+                
+            }
+        }, false);
+    }
+
+    private initMoveToScrollEvent() {
+        var svg1 = this.svgContainer;
+
+        var scrolling = false;
+        var downY;
+        var downX;
+        var scrollInfo;
+        svg1.addEventListener("mousedown", (e) => {
+            if (e.button == 2) {
+                e.stopPropagation();
+                e.preventDefault();
+                (<any>svg1).setCapture();
+                svg1.style.cursor = "-moz-grab";
+                scrolling = true;
+
+                downX = e.clientX;
+                downY = e.clientY;
+                scrollInfo = {
+                    x: svg1.parentElement.scrollLeft,
+                    y: svg1.parentElement.scrollTop,
+                };
+            }
+        }, false);
+
+        svg1.addEventListener("mouseup", (e) => {
+            if (scrolling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scrolling = false;
+                (<any>svg1).releaseCapture();
+                svg1.style.cursor = "default";
+            }
+        }, false);
+
+        svg1.addEventListener("mousemove", (e) => {
+            if (scrolling) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                svg1.parentElement.scrollTo(
+                    Math.max(0, scrollInfo.x + downX - e.clientX),
+                    Math.max(0,scrollInfo.y + downY - e.clientY)
+                );
+            }
+        }, false);
+    }
+
+    private initScaleEvent()
+    {
+        var svg1 = this.svgContainer;
+        svg1.style.transformOrigin = "0 0";
+
+        var scaleFlag = 1;
+
+        var scaling = false;
+        var downY;
+        var downX;
+        var downClientRect;
+        var downScroll;
+        var downScaleFlag;
+        svg1.addEventListener("mousedown", (e) => {
+            if (e.button == 1) {
+                e.stopPropagation();
+                e.preventDefault();
+                svg1.style.cursor = "none";
+                (<any>svg1).setCapture();
+                scaling = true;
+                scaleFlag = this.currentScale;
+                downY = e.layerY;
+                downX = e.layerX;
+                downScroll = {
+                    h: svg1.parentElement.scrollLeft,
+                    v: svg1.parentElement.scrollTop
+                };
+                downClientRect = {
+                    x: e.clientX,
+                    y: e.clientY - svg1.parentElement.offsetTop
+                };
+                downScaleFlag = scaleFlag;
+            }
+        }, false);
+
+        svg1.addEventListener("mouseup", (e) => {
+            if (scaling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scaling = false;
+                svg1.style.cursor = "default";
+                (<any>svg1).releaseCapture();
+            }
+        }, false);
+
+        svg1.addEventListener("mousemove", (e)=> {
+            if(scaling) {
+                e.stopPropagation();
+                e.preventDefault();
+                scaleFlag = downScaleFlag + parseFloat(<any>(downY - e.layerY)) / 200;
+                if (scaleFlag < 1)
+                    scaleFlag = 1;
+
+                this.scale(scaleFlag);
+
+                var pointX = downX * scaleFlag;
+                var pointY = downY * scaleFlag;
+                svg1.parentElement.scrollTo(Math.max(0, pointX - downClientRect.x), Math.max(0, pointY - downClientRect.y));
             }
         }, false);
     }
@@ -682,11 +841,11 @@ class Editor implements IEditorControlContainer
                 return;
             }
 
-            if (this.isWatchingRect && e.clientY > this.divContainer.offsetTop) {
+            if (this.isWatchingRect && e.layerY > 0) {
                 border.style.display = "";
-                border.style.width = e.clientX + "px";
-                border.style.height = (e.clientY - this.divContainer.offsetTop) + "px";
-                border.children[0].innerHTML = e.clientX + "," + (e.clientY - this.divContainer.offsetTop);
+                border.style.width = e.layerX + "px";
+                border.style.height = (e.layerY) + "px";
+                border.children[0].innerHTML = e.layerX + "," + (e.layerY);
             }
             else {
                 border.style.display = "none";
@@ -738,6 +897,13 @@ class Editor implements IEditorControlContainer
         return script;
     }
 
+    currentScale: number = 1;
+    scale(_scale)
+    {
+        this.currentScale = _scale;
+        this.svgContainer.style.transform = "scale(" + this.currentScale + "," + this.currentScale + ")";
+    }
+
     undo()
     {
         this.undoMgr.undo();
@@ -747,7 +913,53 @@ class Editor implements IEditorControlContainer
     {
         this.undoMgr.redo();
     }
-
+    selectAll()
+    {
+        CtrlKey = true;
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            this.controls[i].selected = true;
+        }
+        CtrlKey = false;
+    }
+    selectWebControlByPointName(pointName: string)
+    {        
+        for (var i = 0; i < this.controls.length; i++) {
+            (<EditorControl>this.controls[i]).selected = false;
+        }
+        CtrlKey = true;
+        for (var i = 0; i < this.controls.length; i++) {
+            (<EditorControl>this.controls[i]).selectByPointName(pointName);
+        }
+        CtrlKey = false;
+    }
+    group() {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++)
+            {
+                items.push(AllSelectedControls[i]);
+            }
+            var undoObj = new UndoGroup(this, items);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+    }
+    ungroup() {
+        if (AllSelectedControls.length > 0) {
+            var items = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                if ((<any>AllSelectedControls[i]).constructor.name == "FreeGroupControl") {
+                    items.push(AllSelectedControls[i]);
+                }
+            }
+            if (items.length > 0) {
+                var undoObj = new UndoUnGroup(this, items);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+            }
+        }
+    }
     delete()
     {
         var ctrls = [];
@@ -763,6 +975,42 @@ class Editor implements IEditorControlContainer
         }
     }
 
+    /**
+     *重新设置editor是否显示滚动条
+     */
+    resetScrollbar()
+    {
+        var maxWidth = 0;
+        var maxHeight = 0;
+
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            var rect = this.controls[i].rect;
+            if (rect.x + rect.width > maxWidth)
+                maxWidth = rect.x + rect.width;
+
+            if (rect.y + rect.height > maxHeight)
+                maxHeight = rect.y + rect.height;
+        }
+
+        if (maxWidth < this.svgContainer.parentElement.offsetWidth)
+        {
+            this.svgContainer.parentElement.style.overflowX = "hidden";
+            this.svgContainer.parentElement.scrollLeft = 0;
+        }
+        else {
+            this.svgContainer.parentElement.style.overflowX = "auto";
+        }
+
+        if (maxHeight < this.svgContainer.parentElement.offsetHeight) {
+            this.svgContainer.parentElement.style.overflowY = "hidden";
+            this.svgContainer.parentElement.scrollTop = 0;
+        }
+        else {
+            this.svgContainer.parentElement.style.overflowY = "auto";
+        }
+    }
+
     save()
     {
         if (this.name.length == 0)
@@ -773,6 +1021,23 @@ class Editor implements IEditorControlContainer
         if (this.code.length == 0) {
             alert("请点击左上角设置图标，设置监视画面的编号");
             return;
+        }
+        if (this.customProperties && this.customProperties.length > 0)
+        {
+            var items = this.customProperties.split('\n');
+            var reg = /[\W]+/;
+            for (var i = 0; i < items.length; i++)
+            {
+                var name = items[i].trim();
+                if (name.length > 0)
+                {
+                    if (reg.exec(name))
+                    {
+                        alert("自定义变量“"+name+"”包含特殊符合");
+                        return;
+                    }
+                }
+            }
         }
         var scripts = "";
         var windowCodes = [];
@@ -796,70 +1061,96 @@ class Editor implements IEditorControlContainer
      
         return JSON.stringify({ "name": this.name, "code": this.code, "editorScript": this.getScript(), "controlsScript": scripts });
     }
+    cut()
+    {
+        try {
+            var copyitems = [];
+            var ctrls = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+                ctrls.push(control);
+            }
 
+            window.localStorage.setItem("copy", "");
+            window.localStorage.setItem("cut", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
+
+            //删除组件
+            var undoObj = new UndoRemoveControls(this, ctrls);
+            undoObj.redo();
+            this.undoMgr.addUndo(undoObj);
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    }
     copy()
     {
-        var copyitems = [];
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var json = control.getJson();
-            copyitems.push(json);
+        try {
+            var copyitems = [];
+            for (var i = 0; i < AllSelectedControls.length; i++) {
+                var control = AllSelectedControls[i];
+                var json = control.getJson();
+                copyitems.push(json);
+            }
+            window.localStorage.setItem("cut", "");
+            window.localStorage.setItem("copy", JSON.stringify(copyitems));
+            window.localStorage.setItem("windowGuid", windowGuid + "");
         }
-
-        window.localStorage.setItem("copy", JSON.stringify(copyitems));
-        window.localStorage.setItem("windowGuid", windowGuid + "");
+        catch (e)
+        {
+            alert(e.message);
+        }
     }
     paste()
     {
-        var str = window.localStorage.getItem("copy");
-        if (str) {
-            while (AllSelectedControls.length > 0)
-                AllSelectedControls[0].selected = false;                      
-
-            var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
-            var container: IEditorControlContainer = this;
-
-            //var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            //isSameWindow = false;
-            //var groupCtrl = new GroupControl(groupEle);
-            //this.addControl(groupCtrl);
-            //container = groupCtrl;
-
-            var copyItems = JSON.parse(str);
-
-            for (var i = 0; i < copyItems.length; i++) {
-                var controlJson = copyItems[i];
-                if (isSameWindow) {
-                    controlJson.rect.x += 10;
-                    controlJson.rect.y += 10;
-                }
-                var editorctrl;
-                if (controlJson.constructorName == "GroupControl") {
-                    editorctrl = this.createGroupControl(controlJson.windowCode, controlJson.rect);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
-                }
-                else {
-                    eval("editorctrl = new " + controlJson.constructorName + "()");
-                    container.addControl(editorctrl);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
-                    editorctrl.rect = controlJson.rect;
-                }
-                editorctrl.ctrlKey = true;
-                editorctrl.selected = true;
-                editorctrl.ctrlKey = false;
-
-                
+        try {
+            var str = window.localStorage.getItem("copy");
+            if (!str || str.length == 0) {
+                str = window.localStorage.getItem("cut");
             }
-            
+            if (str && str.length > 0) {
+                while (AllSelectedControls.length > 0)
+                    AllSelectedControls[0].selected = false;
+
+                var isSameWindow = parseInt(window.localStorage.getItem("windowGuid")) == windowGuid;
+                var container: IEditorControlContainer = this;
+
+                //var groupEle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                //isSameWindow = false;
+                //var groupCtrl = new GroupControl(groupEle);
+                //this.addControl(groupCtrl);
+                //container = groupCtrl;
+
+                var copyItems = JSON.parse(str);
+
+                var undoObj = new UndoPaste(this, copyItems, isSameWindow);
+                undoObj.redo();
+                this.undoMgr.addUndo(undoObj);
+
+            }
         }
+        catch (e)
+        {
+            alert(e.message);
+        }
+    }
+
+    isIdExist(id: string): boolean
+    {
+        for (var i = 0; i < this.controls.length; i++)
+        {
+            if (typeof this.controls[i].isIdExist == "function") {
+                var result = (<IEditorControlContainer>this.controls[i]).isIdExist(id);
+                if (result)
+                    return true;
+            }
+            if ((<EditorControl>this.controls[i]).id == id)
+                return true;           
+        }
+        return false;
     }
 
     fireBodyEvent(event)
@@ -871,17 +1162,15 @@ class Editor implements IEditorControlContainer
         //document.body.dispatchEvent(evt);
     }
 
-    selectControlsByRect(rect, ctrlKey)
+    selectControlsByRect(rect)
     {
         for (var i = 0; i < this.controls.length; i++)
         {
-            var original = this.controls[i].ctrlKey;
-            this.controls[i].ctrlKey = true;//表示ctrl按下，否则，会把其他control的selected设为false
             var intersect = this.controls[i].isIntersectWith(rect);
            
             if (intersect)
             {
-                if (ctrlKey && this.controls[i].selected)
+                if (CtrlKey && this.controls[i].selected)
                 {
                     this.controls[i].selected = false;
                 }
@@ -890,12 +1179,11 @@ class Editor implements IEditorControlContainer
                 }
             }
             else {
-                if (!ctrlKey)
+                if (!CtrlKey)
                 {
                     this.controls[i].selected = false;
                 }
             }
-            this.controls[i].ctrlKey = original;
         }
     }
 

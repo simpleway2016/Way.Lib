@@ -1,6 +1,7 @@
 declare var fileBrowser: FileBrowser;
 declare var ServerUrl: string;
 declare var windowGuid: number;
+declare var CtrlKey: boolean;
 declare class ToolBoxItem {
     buildDone: (control: EditorControl) => any;
     readonly supportMove: boolean;
@@ -87,15 +88,18 @@ interface IEditorControlContainer {
     addControl(ctrl: EditorControl): any;
     removeControl(ctrl: EditorControl): any;
     writeValue(pointName: any, addr: any, value: any): any;
+    isIdExist(id: string): boolean;
+    getControl(id: string): EditorControl;
 }
 declare class Editor implements IEditorControlContainer {
+    getControl(id: string): EditorControl;
     removeControl(ctrl: EditorControl): void;
     addControl(ctrl: EditorControl): void;
     writeValue(pointName: any, addr: any, value: any): void;
     name: string;
     code: string;
-    private divContainer;
-    private svgContainer;
+    divContainer: HTMLElement;
+    svgContainer: SVGSVGElement;
     private currentToolBoxItem;
     private svgContainerMouseUpPosition;
     private beginedToolBoxItem;
@@ -116,21 +120,32 @@ declare class Editor implements IEditorControlContainer {
     getPropertiesCaption(): string[];
     getProperties(): string[];
     constructor(id: string);
+    private initMoveToScrollEvent();
+    private initScaleEvent();
     private initDivContainer();
     isWatchingRect: boolean;
     isRunMode: boolean;
     run(): void;
     createGroupControl(windowCode: any, rect: any): GroupControl;
     getScript(): string;
+    currentScale: number;
+    scale(_scale: any): void;
     undo(): void;
     redo(): void;
+    selectAll(): void;
+    selectWebControlByPointName(pointName: string): void;
+    group(): void;
+    ungroup(): void;
     delete(): void;
+    resetScrollbar(): void;
     save(): void;
     getSaveInfo(): string;
+    cut(): void;
     copy(): void;
     paste(): void;
+    isIdExist(id: string): boolean;
     fireBodyEvent(event: any): void;
-    selectControlsByRect(rect: any, ctrlKey: any): void;
+    selectControlsByRect(rect: any): void;
     setCurrentToolBoxItem(typename: string): void;
     svgContainerClick(e: MouseEvent): void;
     svgContainerMouseMove(x: any, y: any): void;

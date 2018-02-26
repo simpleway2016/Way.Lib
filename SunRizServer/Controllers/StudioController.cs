@@ -4,6 +4,7 @@ using System.Text;
 using Way.Lib.ScriptRemoting;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace SunRizServer.Controllers
 {
@@ -108,16 +109,112 @@ namespace SunRizServer.Controllers
             editorHtml = editorHtml.Replace("//code here", obj.Value<string>("editorScript") + "\r\n" + obj.Value<string>("controlsScript"));
             return editorHtml;
         }
+
+        [RemotingMethod]
+        public int DeleteControlWindowFolder(int folderid)
+        {
+            this.db.Delete(this.db.ControlWindowFolder.Where(m=>m.id == folderid));
+            return 0;
+        }
+        [RemotingMethod]
+        public int DeleteControlWindow(int id)
+        {
+            this.db.Delete(this.db.ControlWindow.Where(m => m.id == id));
+            return 0;
+        }
         [RemotingMethod]
         public string GetWindowCode(int windowid, string windowCode)
         {
             ControlWindow window = null;
-            if (windowCode != null)
+            if (!string.IsNullOrEmpty( windowCode))
                 window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
             var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
             return json;
+        }
+        [RemotingMethod]
+        public int WriteWindowCode(int windowid, string windowCode, string filecontent)
+        {
+            ControlWindow window = null;
+            if (!string.IsNullOrEmpty(windowCode))
+                window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
+            else
+                window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, filecontent, System.Text.Encoding.UTF8);
+            return 0;
+        }
+
+        [RemotingMethod]
+        public string GetWindowScript(int windowid)
+        {
+            ControlWindow window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            return obj.Value<string>("controlsScript");
+        }
+
+        /// <summary>
+        /// 在窗口中查找引用的点
+        /// </summary>
+        /// <param name="pointName"></param>
+        /// <returns></returns>
+        [RemotingMethod]
+        public List<object> FindDevicePointInWindow(string pointName)
+        {
+            List<object> findedWindows = new List<object>();
+            foreach(var window in this.db.ControlWindow )
+            {
+                var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+                var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+                string script = obj.Value<string>("controlsScript");
+                //var ms = Regex.Matches(script, @"devicePoint[0-9]*[ ]*=[ ]*['""]([\w\/]+)['""]");
+                //因为GroupControl会自定义变量，所以不能匹配devicePoint字眼
+                var ms = Regex.Matches(script, @"=[ ]*['""]([\w\/]+)['""]");
+                foreach (Match m in ms)
+                {
+                    var name = m.Groups[1].Value;
+                    if (CompareString(name, pointName))
+                    {
+                        var windowPath = GetWindowPath(window.id.Value); 
+                        findedWindows.Add(new {
+                            id = window.id.Value,
+                            path = windowPath,
+                            content = name
+                        });     
+                    }
+                }
+            }
+            return findedWindows;
+        }
+
+        /// <summary>
+        /// 比较字符串
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="str">匹配的字符串，支持通配符*</param>
+        /// <returns>如果content包含str，返回true</returns>
+        bool CompareString(string content,string str)
+        {
+            if(str.Contains("*") == false)
+            {
+                return string.Equals(content, str, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else
+            {
+                return Regex.IsMatch(content, str.Replace("*", @"[\w\/]+"));
+            }
+        }
+
+        [RemotingMethod]
+        public int WriteWindowScript(int windowid, string script)
+        {
+            ControlWindow window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+            var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
+            var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            obj["controlsScript"] = script;
+            System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, obj.ToString(), System.Text.Encoding.UTF8);
+            return 0;
         }
         [RemotingMethod]
         public ControlWindow GetWindowInfo(int windowid, string windowCode)
@@ -267,7 +364,18 @@ namespace SunRizServer.Controllers
             else if (point.id == null && this.db.DevicePointFolder.Any(m => m.id != point.id && m.Name == point.Name))
                 throw new Exception("点名已存在");
 
+            bool needRestartHistory = false;
+            if(point.ChangedProperties.Any(m=>m.Key.Contains("ValueOnTimeChange") || m.Key.Contains("ValueAbsoluteChange") || m.Key.Contains("ValueRelativeChange") ))
+            {
+                //需要重新启动历史保存
+                needRestartHistory = true;
+            }
+
             this.db.Update(point);
+            if (needRestartHistory)
+            {
+                HistoryRecord.HistoryAutoRec.ReStart();
+            }
             return point.id.Value;
         }
 
@@ -316,9 +424,35 @@ namespace SunRizServer.Controllers
                     //AsTracking防止重复从数据库取值
                     var device = this.db.Device.AsTracking().FirstOrDefault(m => m.id == devPoint.DeviceId);
                     var unit = this.db.ControlUnit.AsTracking().FirstOrDefault(m => m.id == device.UnitId);
+                    var detail = new Dictionary<string, object>();
+                    detail["IsSquare"] = devPoint.IsSquare;
+                    detail["IsTransform"] = devPoint.IsTransform;
+                    detail["IsLinear"] = devPoint.IsLinear;
+                    detail["DPCount"] = devPoint.DPCount;
+                    if (devPoint.IsTransform == true)
+                    {
+                        detail["SensorMax"] = devPoint.SensorMax;
+                        detail["SensorMin"] = devPoint.SensorMin;
+                    }
+                    if (devPoint.IsLinear == true)
+                    {
+                        detail["LinearX1"] = devPoint.LinearX1;
+                        detail["LinearX2"] = devPoint.LinearX2;
+                        detail["LinearX3"] = devPoint.LinearX3;
+                        detail["LinearX4"] = devPoint.LinearX4;
+                        detail["LinearX5"] = devPoint.LinearX5;
+                        detail["LinearX6"] = devPoint.LinearX6;
+                        detail["LinearY1"] = devPoint.LinearY1;
+                        detail["LinearY2"] = devPoint.LinearY2;
+                        detail["LinearY3"] = devPoint.LinearY3;
+                        detail["LinearY4"] = devPoint.LinearY4;
+                        detail["LinearY5"] = devPoint.LinearY5;
+                        detail["LinearY6"] = devPoint.LinearY6;
+                    }
                     objs[i] = new
                     {
                         name = pointNames[i],
+                        isDigital = devPoint.Type == DevicePoint_TypeEnum.Digital,
                         max = devPoint.TransMax??unit.Max??systemSetting.Max,
                         min = devPoint.TransMin??unit.Min??systemSetting.Min,
                         addr = devPoint.Address,
@@ -335,6 +469,7 @@ namespace SunRizServer.Controllers
                         colorLine10 = unit.LineColor10 ?? systemSetting.LineColor10,
                         colorLine11 = unit.LineColor11 ?? systemSetting.LineColor11,
                         colorLine12 = unit.LineColor12 ?? systemSetting.LineColor12,
+                        detail = detail
                     };
                 }
             }
@@ -355,7 +490,17 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int UpdateSystemSetting(SystemSetting data)
         {
+            var needRestartHistory = false;
+            if (data.ChangedProperties.Any(m=>m.Key == "HistoryPath"))
+            {
+                //历史保存路径修改了
+                needRestartHistory = true;
+            }
             this.db.Update(data);
+            if (needRestartHistory)
+            {
+                HistoryRecord.HistoryAutoRec.ReStart();
+            }
             return data.id.Value;
         }
     }

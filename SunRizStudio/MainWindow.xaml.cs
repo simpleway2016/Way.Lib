@@ -15,6 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SunRizStudio.Models.Nodes;
 using SunRizStudio.Models;
+using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace SunRizStudio
 {
@@ -25,11 +27,28 @@ namespace SunRizStudio
     {
         public static MainWindow Instance;
         Models.SolutionNodeCollection Nodes = new Models.SolutionNodeCollection(null);
+
+        Dialogs.SearchResultDialog _SearchResultDialog;
+        Dialogs.SearchResultDialog SearchResultDialog
+        {
+            get
+            {
+                return _SearchResultDialog ?? (_SearchResultDialog = new Dialogs.SearchResultDialog());
+            }
+        }
         public MainWindow()
         {
             Instance = this;
             InitializeComponent();
 
+            try
+            {
+                System.IO.Directory.Delete($"{AppDomain.CurrentDomain.BaseDirectory}temp" , true);
+            }
+            catch
+            {
+
+            }
             // 加载树形节点
             initNodes();
             //new Form1().Show();
@@ -125,5 +144,164 @@ namespace SunRizStudio
             data.MouseDown(sender, e);
         }
 
+        private void menuExitApp_Click(object sender, RoutedEventArgs e)
+        {
+            
+            this.Close();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            foreach (Documents.DocTabItem tab in documentContainer.Items)
+            {
+                if (tab.Document.HasChanged())
+                {
+                    var dialogResult = MessageBox.Show(MainWindow.Instance, "“" + tab.Document.Title + "”已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
+                    if (dialogResult == MessageBoxResult.Yes)
+                    {
+                        if (!tab.Document.Save())
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+                    else if(dialogResult == MessageBoxResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+            base.OnClosing(e);
+        }
+
+        private void menuUndo_Click(object sender, RoutedEventArgs e)
+        {
+            var doc =  (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Undo();
+        }
+
+        private void menuRedo_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Redo();
+        }
+
+        private void menuCut_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Cut();
+        }
+
+        private void menuCopy_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Copy();
+        }
+
+        private void menuPaste_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.Paste();
+        }
+
+        private void menuSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            var doc = (Documents.BaseDocument)documentContainer.SelectedContent;
+            doc.SelectAll();
+        }
+
+      
+        /// <summary>
+        /// 打开窗口，并且定位到引用了指定点名的组件上
+        /// </summary>
+        /// <param name="windowid"></param>
+        /// <param name="pointName"></param>
+        public void OpenWindow(int windowid , string pointName)
+        {
+            //查看已经打开的窗口
+            foreach (Documents.DocTabItem item in documentContainer.Items)
+            {
+                if(item.Content is Documents.ControlWindowDocument)
+                {
+                    var doc = item.Content as Documents.ControlWindowDocument;
+                    if(  doc._dataModel.id == windowid)
+                    {
+                        MainWindow.Instance.documentContainer.SelectedItem = item;
+                        doc.SelectWebControlByPointName(pointName);
+                        return;
+                    }
+                }
+            }
+
+            var node = this.Nodes.FindWindowNode(windowid);
+            if(node != null)
+            {
+                var doc = new Documents.ControlWindowDocument(node.Parent as ControlWindowContainerNode, node.DataModel, false);
+                doc.SelectWebControlByPointName(pointName);
+                MainWindow.Instance.SetActiveDocument(doc);
+                return;
+            }
+            this.Cursor = Cursors.Wait;
+            Helper.Remote.Invoke<SunRizServer.ControlWindow>("GetWindowInfo", (datamodel, err) => {
+                this.Cursor = null;
+                if (err != null)
+                {
+                    MessageBox.Show(this, err);
+                }
+                else
+                {
+                    var doc = new Documents.ControlWindowDocument(null, datamodel, false);
+                    doc.SelectWebControlByPointName(pointName);
+                    MainWindow.Instance.SetActiveDocument(doc);
+                }
+            }, windowid, null);            
+        }
+
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                search();
+            }
+        }
+
+        void search()
+        {
+            string key = txtSearch.Text;
+            this.Cursor = Cursors.Wait;
+            Helper.Remote.Invoke<SearchResult[]>("FindDevicePointInWindow", (result, err) => {
+                this.Cursor = null;
+                if (err != null)
+                {
+                    MessageBox.Show(this, err);
+                }
+                else
+                {
+                    this.SearchResultDialog.SetResult(key, result);
+                    this.SearchResultDialog.Owner = this;
+                    this.SearchResultDialog.Show();
+                }
+            }, key);
+        }
+    }
+
+    /// <summary>
+    /// 搜索结果
+    /// </summary>
+    class SearchResult
+    {
+        /// <summary>
+        /// 画面id
+        /// </summary>
+        public int id { get; set; }
+        /// <summary>
+        /// 画面路径
+        /// </summary>
+        public string path { get; set; }
+        /// <summary>
+        /// 匹配的内容
+        /// </summary>
+        public string content { get; set; }
     }
 }

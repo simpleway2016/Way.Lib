@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SunRizStudio.Models.Nodes;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -25,6 +26,26 @@ namespace SunRizStudio.Models
             var item = this[index];
             item.Parent = null;
             base.RemoveItem(index);
+        }
+
+        internal ControlWindowNode FindWindowNode(int windowid)
+        {
+            foreach( var node in this )
+            {
+                if(node is ControlWindowNode)
+                {
+                    var winNode = (ControlWindowNode)node;
+                    if (winNode.DataModel.id.GetValueOrDefault() == windowid)
+                        return winNode;
+                }
+                else
+                {
+                    var result = node.Nodes.FindWindowNode(windowid);
+                    if (result != null)
+                        return result;
+                }
+            }
+            return null;
         }
     }
 }
