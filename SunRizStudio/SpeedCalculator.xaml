@@ -1,0 +1,13 @@
+﻿<Window x:Class="SunRizStudio.SpeedCalculator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SunRizStudio"
+        mc:Ignorable="d"
+        Title="歌曲速度计算器" Height="112.338" Width="378.309" ResizeMode="CanMinimize">
+    <Grid>
+        <TextBlock Text="根据歌曲节奏，按键盘的任意键将自动计算速度" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0"></TextBlock>
+        <TextBlock Text="{Binding speed,StringFormat='{}当前速度：{0}BPM'}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,38,0,0"></TextBlock>
+    </Grid>
+</Window>
