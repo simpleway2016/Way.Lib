@@ -22,8 +22,8 @@ namespace SunRizStudio
     {
         class Model: INotifyPropertyChanged
         {
-            string _speed;
-            public string speed {
+            double _speed;
+            public double speed {
                 get
                 {
                     return _speed;
@@ -76,7 +76,7 @@ namespace SunRizStudio
                 _count++;
                 if(_count >= 3)
                 {
-                    _model.speed = Math.Round((_count * 1000 * 60.0) / (_lastElapsedMilliseconds - _startElapsedMilliseconds),2).ToString();
+                    _model.speed = (_count * 1000 * 60.0) / (_lastElapsedMilliseconds - _startElapsedMilliseconds);
                 }
             }
             base.OnPreviewKeyDown(e);
