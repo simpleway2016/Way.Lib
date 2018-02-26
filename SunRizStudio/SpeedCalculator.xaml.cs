@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,33 +47,49 @@ namespace SunRizStudio
             }
             public event PropertyChangedEventHandler PropertyChanged;
         }
+
+        [DllImport("winmm")]
+        static extern uint timeGetTime();
+        [DllImport("winmm")]
+        static extern void timeBeginPeriod(int t);
+        [DllImport("winmm")]
+        static extern void timeEndPeriod(int t);
+
         Model _model;
-        System.Diagnostics.Stopwatch _stopWatch = new System.Diagnostics.Stopwatch();
-        long _lastElapsedMilliseconds;
-        long _startElapsedMilliseconds;
+        uint _lastElapsedMilliseconds;
+        uint _startElapsedMilliseconds;
         int _count = 0;
         public SpeedCalculator()
         {
             InitializeComponent();
             _model = new Model();
-            _stopWatch.Start();
-            _lastElapsedMilliseconds = _stopWatch.ElapsedMilliseconds;
+            timeBeginPeriod(1);
+
+
+            _lastElapsedMilliseconds = timeGetTime();
             _startElapsedMilliseconds = _lastElapsedMilliseconds;
             this.DataContext = _model;
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            timeEndPeriod(1);
+            base.OnClosing(e);
+        }
+
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
-            if( _count >= 3 || _stopWatch.ElapsedMilliseconds - _lastElapsedMilliseconds >= 1500)
+            uint time = timeGetTime();
+            if ( _count >= 3 || time - _lastElapsedMilliseconds >= 1500)
             {
                 //重新计算
-                _startElapsedMilliseconds = _stopWatch.ElapsedMilliseconds;
+                _startElapsedMilliseconds = time;
                 _lastElapsedMilliseconds = _startElapsedMilliseconds;
                 _count = 0;
             }
             else
             {
-                _lastElapsedMilliseconds = _stopWatch.ElapsedMilliseconds;
+                _lastElapsedMilliseconds = time;
                 _count++;
                 if(_count >= 3)
                 {
