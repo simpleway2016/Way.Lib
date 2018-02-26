@@ -322,6 +322,7 @@ var Editor = (function () {
         this.initDivContainer();
         this.initScaleEvent();
         this.initMoveToScrollEvent();
+        this.resetScrollbar();
         this.svgContainer.addEventListener("click", function (e) {
             if (e.button == 0) {
                 if (_this.svgContainer._notClick) {
@@ -829,6 +830,31 @@ var Editor = (function () {
             var undoObj = new UndoRemoveControls(this, ctrls);
             undoObj.redo();
             this.undoMgr.addUndo(undoObj);
+        }
+    };
+    Editor.prototype.resetScrollbar = function () {
+        var maxWidth = 0;
+        var maxHeight = 0;
+        for (var i = 0; i < this.controls.length; i++) {
+            var rect = this.controls[i].rect;
+            if (rect.x + rect.width > maxWidth)
+                maxWidth = rect.x + rect.width;
+            if (rect.y + rect.height > maxHeight)
+                maxHeight = rect.y + rect.height;
+        }
+        if (maxWidth < this.svgContainer.parentElement.offsetWidth) {
+            this.svgContainer.parentElement.style.overflowX = "hidden";
+            this.svgContainer.parentElement.scrollLeft = 0;
+        }
+        else {
+            this.svgContainer.parentElement.style.overflowX = "auto";
+        }
+        if (maxHeight < this.svgContainer.parentElement.offsetHeight) {
+            this.svgContainer.parentElement.style.overflowY = "hidden";
+            this.svgContainer.parentElement.scrollTop = 0;
+        }
+        else {
+            this.svgContainer.parentElement.style.overflowY = "auto";
         }
     };
     Editor.prototype.save = function () {

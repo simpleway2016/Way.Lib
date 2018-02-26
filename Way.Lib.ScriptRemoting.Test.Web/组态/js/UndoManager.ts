@@ -140,6 +140,9 @@ class UndoMoveControls extends UndoItem {
             //如果没有移动，那么不用添加undo
             this.enable = false;
         }
+        else {
+            editor.resetScrollbar();
+        }
     }
 
     undo() {

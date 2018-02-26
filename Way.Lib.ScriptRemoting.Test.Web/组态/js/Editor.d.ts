@@ -137,6 +137,7 @@ declare class Editor implements IEditorControlContainer {
     group(): void;
     ungroup(): void;
     delete(): void;
+    resetScrollbar(): void;
     save(): void;
     getSaveInfo(): string;
     cut(): void;

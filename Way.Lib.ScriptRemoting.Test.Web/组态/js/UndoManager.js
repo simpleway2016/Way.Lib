@@ -120,6 +120,9 @@ var UndoMoveControls = (function (_super) {
         if (!isdifferent) {
             this.enable = false;
         }
+        else {
+            editor.resetScrollbar();
+        }
     };
     UndoMoveControls.prototype.undo = function () {
         for (var i = 0; i < this.controls.length; i++) {
