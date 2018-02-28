@@ -371,6 +371,14 @@ namespace SunRizServer.Controllers
                 needRestartHistory = true;
             }
 
+            if (point.Type == DevicePoint_TypeEnum.Analog)
+            {
+                if (point.ValueAbsoluteChangeSetting < point.TransMin || point.ValueAbsoluteChangeSetting > point.TransMax)
+                {
+                    throw new Exception($"历史数据变化定义中，绝对值变化定义超出量程范围，量程范围目前为{point.TransMin } - {point.TransMax}");
+                }
+            }
+
             this.db.Update(point);
             if (needRestartHistory)
             {
