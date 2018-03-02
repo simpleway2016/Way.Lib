@@ -1603,7 +1603,7 @@ var TrendControl = (function (_super) {
         _this.element.appendChild(_this.line_bottom_Ele);
         for (var i = 1; i <= 12; i++) {
             var pe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            pe.setAttribute('style', 'stroke-width:1;fill:none;');
+            pe.setAttribute('style', 'stroke-width:1;fill:none;stroke:#ffffff;');
             pe.setAttribute("transform", "translate(0 0)");
             _this.element.appendChild(pe);
             _this["pathElement" + i] = pe;
@@ -2310,27 +2310,60 @@ var HistoryTrendControl = (function (_super) {
         return _super.call(this) || this;
     }
     HistoryTrendControl.prototype.run = function () {
+        var _this = this;
         this.isDesignMode = false;
-        this.setData(new Date(1262311200000), new Date(1267408800000), [
-            [
-                {
-                    seconds: 1263780180,
-                    value: 23
-                },
-                {
-                    seconds: 1263780180,
-                    value: 3
-                },
-                {
-                    seconds: 1264989960,
-                    value: 32
-                },
-                {
-                    seconds: 1264989960,
-                    value: 65
+        var clientRect = this.rectElement.getBoundingClientRect();
+        var div = document.createElement("DIV");
+        div.style.padding = "3px";
+        div.innerHTML = "<input type=text placeholder='请选择起始日期'>至<input type=text placeholder='请选择结束日期'><input type=button value='查询历史'>";
+        div.style.position = "absolute";
+        div.style.left = clientRect.left + "px";
+        div.style.visibility = "hidden";
+        editor.svgContainer.parentElement.appendChild(div);
+        div.style.top = (clientRect.top - div.offsetHeight) + "px";
+        div.style.visibility = "";
+        var picker1 = new Pikaday({
+            field: div.children[0],
+            firstDay: 1,
+            minDate: new Date('2018-01-01'),
+            maxDate: new Date('2060-12-31'),
+            yearRange: [2018, 2060]
+        });
+        var picker2 = new Pikaday({
+            field: div.children[1],
+            firstDay: 1,
+            minDate: new Date('2018-01-01'),
+            maxDate: new Date('2060-12-31'),
+            yearRange: [2018, 2060]
+        });
+        div.children[2].addEventListener("click", function () {
+            var startDate = div.children[0].value;
+            var endDate = div.children[1].value;
+            if (startDate.length == 0) {
+                alert("请选择起始日期");
+                return;
+            }
+            if (endDate.length == 0) {
+                alert("请选择结束日期");
+                return;
+            }
+            var pointNames = [];
+            for (var i = 1; i <= 12; i++) {
+                var point = _this["devicePoint" + i];
+                if (point && point.length > 0) {
+                    pointNames.push(point);
                 }
-            ]
-        ]);
+            }
+            div.children[2].value = "正在查询...";
+            window.remoting.server.SearchHistory(pointNames, startDate, endDate, function (ret, err) {
+                div.children[2].value = "查询历史";
+                if (err)
+                    alert(err);
+                else {
+                    _this.setData(new Date(startDate), new Date(endDate), ret);
+                }
+            });
+        }, false);
     };
     HistoryTrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
         var number = 0;
@@ -2380,8 +2413,10 @@ var HistoryTrendControl = (function (_super) {
         }
         if (result.maxValue == null && result.minValue == null)
             return null;
-        if (result.maxValue == result.minValue)
+        if (result.maxValue == result.minValue) {
+            result.minValueBefore = false;
             result.minValue = null;
+        }
         return result;
     };
     HistoryTrendControl.prototype.setData = function (startTime, endTime, datas) {

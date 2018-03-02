@@ -30,6 +30,7 @@
     <Content Include="css\flex.css" />
     <Content Include="组态\abc.html" />
     <Content Include="组态\css\flex.css" />
+    <Content Include="组态\css\pikaday.css" />
     <Content Include="组态\editor.html" />
     <Content Include="Global.asax" />
     <Content Include="master.html" />
@@ -85,6 +86,7 @@
     <Content Include="组态\js\colpick\jquery.min.js" />
     <Content Include="组态\js\jscolor.js" />
     <Content Include="组态\js\jscolor.min.js" />
+    <Content Include="组态\js\pikaday.min.js" />
     <Content Include="组态\templates\main.html" />
     <Content Include="组态\templates\system.html" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 ﻿var AllSelectedControls: EditorControl[] = [];
 declare var editor: Editor;
+declare var Pikaday;
 var ManyPointDefined = 999999;//表示EditorControl是否绑定了多个point
 var WatchPointNames: any = [];
 
@@ -2165,7 +2166,7 @@ class TrendControl extends EditorControl {
 
         for (var i = 1; i <= 12; i++) {
             var pe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            pe.setAttribute('style', 'stroke-width:1;fill:none;');
+            pe.setAttribute('style', 'stroke-width:1;fill:none;stroke:#ffffff;');
             pe.setAttribute("transform", "translate(0 0)");
             this.element.appendChild(pe);
             this["pathElement" + i] = pe;
@@ -2328,6 +2329,7 @@ class TrendControl extends EditorControl {
 
 class HistoryTrendControl extends TrendControl
 {
+
     constructor() {
         super();
     }
@@ -2336,26 +2338,69 @@ class HistoryTrendControl extends TrendControl
     {
         this.isDesignMode = false;
 
-        this.setData(new Date(1262311200000), new Date(1267408800000), [
-            [
+        var clientRect = this.rectElement.getBoundingClientRect();
+        var div = document.createElement("DIV");
+        div.style.padding = "3px";
+        div.innerHTML = "<input type=text placeholder='请选择起始日期'>至<input type=text placeholder='请选择结束日期'><input type=button value='查询历史'>";
+        div.style.position = "absolute";
+        div.style.left = clientRect.left + "px";
+        div.style.visibility = "hidden";
+        editor.svgContainer.parentElement.appendChild(div);
+        div.style.top = (clientRect.top - div.offsetHeight) + "px";
+        div.style.visibility = "";
+
+        var picker1 = new Pikaday(
+            {
+                field: div.children[0],
+                firstDay: 1,
+                minDate: new Date('2018-01-01'),
+                maxDate: new Date('2060-12-31'),
+                yearRange: [2018, 2060]
+            });
+
+        var picker2 = new Pikaday(
+            {
+                field: div.children[1],
+                firstDay: 1,
+                minDate: new Date('2018-01-01'),
+                maxDate: new Date('2060-12-31'),
+                yearRange: [2018, 2060]
+            });
+
+        div.children[2].addEventListener("click", ()=> {
+            var startDate = (<any>div.children[0]).value;
+            var endDate = (<any>div.children[1]).value;
+            if (startDate.length == 0)
+            {
+                alert("请选择起始日期");
+                return;
+            }
+            if (endDate.length == 0) {
+                alert("请选择结束日期");
+                return;
+            }
+
+            var pointNames = [];
+            for (var i = 1; i <= 12; i++)
+            {
+                var point = this["devicePoint" + i];
+                if (point && point.length > 0)
                 {
-                    seconds: 1263780180,
-                    value: 23
-                },
-                {
-                    seconds: 1263780180,
-                    value: 3
-                },
-                {
-                    seconds: 1264989960,
-                    value: 32
-                },
-                {
-                    seconds: 1264989960,
-                    value: 65
+                    pointNames.push(point);
                 }
-            ]
-        ]);
+            }
+
+            (<any>div.children[2]).value = "正在查询...";
+            (<any>window).remoting.server.SearchHistory(pointNames, startDate, endDate, (ret, err) => {
+                (<any>div.children[2]).value = "查询历史";
+                if (err)
+                    alert(err);
+                else
+                {
+                    this.setData(new Date(startDate), new Date(endDate) , ret);
+                }
+            });
+        }, false);
     }
 
     onDevicePointValueChanged(devPoint: any) {
@@ -2424,8 +2469,10 @@ class HistoryTrendControl extends TrendControl
         if (result.maxValue == null && result.minValue == null)
             return null;
         
-        if (result.maxValue == result.minValue)
+        if (result.maxValue == result.minValue) {
+            result.minValueBefore = false;
             result.minValue = null;
+        }
 
         return result;
     }
@@ -2519,6 +2566,7 @@ class HistoryTrendControl extends TrendControl
             var position = 0;
 
             var lastY = rect.height - 10;
+
             for (var j = 0; j < lineObject.datas.length; j ++)
             {
                 var valueItem = lineObject.datas[j];

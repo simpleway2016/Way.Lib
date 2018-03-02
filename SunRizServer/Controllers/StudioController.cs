@@ -511,5 +511,31 @@ namespace SunRizServer.Controllers
             }
             return data.id.Value;
         }
+
+        [RemotingMethod]
+        public object SearchHistory(string[] pointNames,DateTime startTime,DateTime endTime)
+        {
+            using (DB.SunRizHistory hisDB = new DB.SunRizHistory(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
+            {
+                List<object> result = new List<object>();
+                foreach (string pointName in pointNames)
+                {
+                    var data = (from m in hisDB.History
+                                where m.Time >= startTime && m.Time <= endTime && m.Address == pointName
+                                orderby m.Time
+                                select m).ToArray();
+                    var resultData = new object[data.Length];
+                    for(int i = 0; i < resultData.Length; i ++)
+                    {
+                        resultData[i] = new {
+                            seconds = Helper.ConvertDateTimeInt(data[i].Time.GetValueOrDefault()),
+                            value = data[i].Value.GetValueOrDefault()
+                        };
+                    }
+                    result.Add(resultData);
+                }
+                return result;
+            }
+        }
     }
 }

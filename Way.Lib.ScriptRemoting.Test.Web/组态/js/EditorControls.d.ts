@@ -1,5 +1,6 @@
 declare var AllSelectedControls: EditorControl[];
 declare var editor: Editor;
+declare var Pikaday: any;
 declare var ManyPointDefined: number;
 declare var WatchPointNames: any;
 declare function documentElementMouseDown(e: MouseEvent): void;

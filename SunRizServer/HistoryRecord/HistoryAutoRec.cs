@@ -13,7 +13,7 @@ namespace SunRizServer.HistoryRecord
         static List<MyDriverClient> AllClients = new List<MyDriverClient>();
         static SunRizServer.DB.SunRizHistory hisDB;
         static DateTime LastHisTime;
-
+        public static string HistoryDataPath;
         static HistoryAutoRec()
         {
             //检查历史记录剩余空间
@@ -99,7 +99,8 @@ namespace SunRizServer.HistoryRecord
                         {
                             System.IO.Directory.CreateDirectory(sysSetting.HistoryPath);
                         }
-                        hisDB = new DB.SunRizHistory($"data source=\"{sysSetting.HistoryPath.Replace("\\","/")}/data.db\"", Way.EntityDB.DatabaseType.Sqlite);
+                        HistoryDataPath = $"data source=\"{sysSetting.HistoryPath.Replace("\\", "/")}/data.db\"";
+                        hisDB = new DB.SunRizHistory(HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite);
                         LastHisTime = DateTime.Now;
                         hisDB.BeginTransaction();
                     }
