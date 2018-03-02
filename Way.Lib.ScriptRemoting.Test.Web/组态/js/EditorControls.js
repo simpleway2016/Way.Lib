@@ -2023,6 +2023,14 @@ var TrendControl = (function (_super) {
             this.rectElement.setAttribute("height", v.height);
             for (var i = 1; i <= 12; i++)
                 this["pathElement" + i].setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            this.line_left_Ele.setAttribute("x1", (v.x + 10));
+            this.line_left_Ele.setAttribute("y1", (v.y + 10));
+            this.line_left_Ele.setAttribute("x2", (v.x + 10));
+            this.line_left_Ele.setAttribute("y2", (v.y + v.height - 10));
+            this.line_bottom_Ele.setAttribute("x1", (v.x + 10));
+            this.line_bottom_Ele.setAttribute("y1", (v.y + v.height - 10));
+            this.line_bottom_Ele.setAttribute("x2", (v.x + v.width - 10));
+            this.line_bottom_Ele.setAttribute("y2", (v.y + v.height - 10));
             this.resetPointLocation();
         },
         enumerable: true,

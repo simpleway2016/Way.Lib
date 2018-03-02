@@ -2044,6 +2044,16 @@ class TrendControl extends EditorControl {
         for (var i = 1; i <= 12; i ++)
             this["pathElement" + i].setAttribute("transform", "translate("+v.x+" "+v.y+")");
 
+        this.line_left_Ele.setAttribute("x1", <any>(v.x + 10));
+        this.line_left_Ele.setAttribute("y1", <any>(v.y + 10));
+        this.line_left_Ele.setAttribute("x2", <any>(v.x + 10));
+        this.line_left_Ele.setAttribute("y2", <any>(v.y + v.height - 10));
+
+        this.line_bottom_Ele.setAttribute("x1", <any>(v.x + 10));
+        this.line_bottom_Ele.setAttribute("y1", <any>(v.y + v.height - 10));
+        this.line_bottom_Ele.setAttribute("x2", <any>(v.x + v.width - 10));
+        this.line_bottom_Ele.setAttribute("y2", <any>(v.y + v.height - 10));
+
         this.resetPointLocation();
     }
 
