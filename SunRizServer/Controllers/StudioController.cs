@@ -461,8 +461,8 @@ namespace SunRizServer.Controllers
                     {
                         name = pointNames[i],
                         isDigital = devPoint.Type == DevicePoint_TypeEnum.Digital,
-                        max = devPoint.TransMax??unit.Max??systemSetting.Max,
-                        min = devPoint.TransMin??unit.Min??systemSetting.Min,
+                        max = devPoint.Type == DevicePoint_TypeEnum.Digital ? 1 : ( devPoint.TransMax??unit.Max??systemSetting.Max),
+                        min = devPoint.Type == DevicePoint_TypeEnum.Digital ? 0 : (devPoint.TransMin??unit.Min??systemSetting.Min),
                         addr = devPoint.Address,
                         deviceId = devPoint.DeviceId,
                         colorLine1 = unit.LineColor1?? systemSetting.LineColor1,
