@@ -557,7 +557,14 @@ namespace SunRizStudio.Documents
             }
             if (IsRunMode)
             {
-                jsContext.EvaluateScript("run()");
+                try
+                {
+                    jsContext.EvaluateScript("run()");
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show( this.GetParentByName<Window>(null), ex.Message);
+                }
             }
         }
         void copyToClipboard(string message)
@@ -573,7 +580,7 @@ namespace SunRizStudio.Documents
 
                 if (err != null)
                 {
-                    MessageBox.Show(err);
+                    MessageBox.Show(this.GetParentByName<Window>(null), err);
                 }
                 else
                 {

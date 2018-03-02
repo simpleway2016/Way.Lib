@@ -2311,6 +2311,26 @@ var HistoryTrendControl = (function (_super) {
     }
     HistoryTrendControl.prototype.run = function () {
         this.isDesignMode = false;
+        this.setData(new Date(1262311200000), new Date(1267408800000), [
+            [
+                {
+                    seconds: 1263780180,
+                    value: 23
+                },
+                {
+                    seconds: 1263780180,
+                    value: 3
+                },
+                {
+                    seconds: 1264989960,
+                    value: 32
+                },
+                {
+                    seconds: 1264989960,
+                    value: 65
+                }
+            ]
+        ]);
     };
     HistoryTrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
         var number = 0;
@@ -2399,8 +2419,9 @@ var HistoryTrendControl = (function (_super) {
         }
         for (var i = 0; i < 12; i++) {
             var lineObject = null;
-            if (i < curPointLineResults.length)
+            if (i < curPointLineResults.length) {
                 lineObject = curPointLineResults[i];
+            }
             else
                 lineObject = {
                     datas: []
@@ -2453,7 +2474,7 @@ var HistoryTrendControl = (function (_super) {
             if (dataStr.length > 0) {
                 dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
             }
-            this["pathElement" + i].setAttribute("d", dataStr);
+            this["pathElement" + (i + 1)].setAttribute("d", dataStr);
         }
     };
     return HistoryTrendControl;

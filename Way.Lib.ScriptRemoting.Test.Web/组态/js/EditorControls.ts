@@ -2335,6 +2335,27 @@ class HistoryTrendControl extends TrendControl
     run()
     {
         this.isDesignMode = false;
+
+        this.setData(new Date(1262311200000), new Date(1267408800000), [
+            [
+                {
+                    seconds: 1263780180,
+                    value: 23
+                },
+                {
+                    seconds: 1263780180,
+                    value: 3
+                },
+                {
+                    seconds: 1264989960,
+                    value: 32
+                },
+                {
+                    seconds: 1264989960,
+                    value: 65
+                }
+            ]
+        ]);
     }
 
     onDevicePointValueChanged(devPoint: any) {
@@ -2402,7 +2423,7 @@ class HistoryTrendControl extends TrendControl
 
         if (result.maxValue == null && result.minValue == null)
             return null;
-
+        
         if (result.maxValue == result.minValue)
             result.minValue = null;
 
@@ -2445,7 +2466,6 @@ class HistoryTrendControl extends TrendControl
         if (typeof max == "undefined" || isNaN(max))
             max = 100;
 
-
         var rect = this.rect;
         //计算一共有多少秒
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
@@ -2487,7 +2507,9 @@ class HistoryTrendControl extends TrendControl
         {
             var lineObject = null;
             if (i < curPointLineResults.length)
+            {
                 lineObject = curPointLineResults[i];
+            }
             else
                 lineObject = {
                     datas: []
@@ -2504,7 +2526,6 @@ class HistoryTrendControl extends TrendControl
                 {
                     continue;
                 }
-
 
                 dataStr += dataStr.length == 0 ? "M" : "L";
                 dataStr += (j + 10) + " " + lastY + " ";
@@ -2565,8 +2586,8 @@ class HistoryTrendControl extends TrendControl
                  //延伸到最后              
                 dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
             }
-
-            this["pathElement" + i].setAttribute("d", dataStr);
+            
+            this["pathElement" + (i + 1)].setAttribute("d", dataStr);
         }
     }
 }
