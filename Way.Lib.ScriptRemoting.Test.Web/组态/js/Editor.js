@@ -267,6 +267,37 @@ var ToolBox_Trend = (function (_super) {
     };
     return ToolBox_Trend;
 }(ToolBoxItem));
+var ToolBox_HistoryTrend = (function (_super) {
+    __extends(ToolBox_HistoryTrend, _super);
+    function ToolBox_HistoryTrend() {
+        return _super.call(this) || this;
+    }
+    ToolBox_HistoryTrend.prototype.begin = function (svgContainer, position) {
+        this.control = new HistoryTrendControl();
+        this.control.rectElement.setAttribute('x', position.x);
+        this.control.rectElement.setAttribute('y', position.y);
+        this.control.rectElement.setAttribute('width', "0");
+        this.control.rectElement.setAttribute('height', "0");
+        this.startx = position.x;
+        this.starty = position.y;
+        svgContainer.appendChild(this.control.element);
+    };
+    ToolBox_HistoryTrend.prototype.mousemove = function (x, y) {
+        this.control.rect = {
+            x: Math.min(x, this.startx),
+            y: Math.min(y, this.starty),
+            width: Math.abs(x - this.startx),
+            height: Math.abs(y - this.starty)
+        };
+    };
+    ToolBox_HistoryTrend.prototype.end = function () {
+        if (this.control.rectElement.getAttribute("width") == 0 || this.control.rectElement.getAttribute("height") == 0) {
+            return null;
+        }
+        return this.control;
+    };
+    return ToolBox_HistoryTrend;
+}(ToolBoxItem));
 var ToolBox_ButtonArea = (function (_super) {
     __extends(ToolBox_ButtonArea, _super);
     function ToolBox_ButtonArea() {

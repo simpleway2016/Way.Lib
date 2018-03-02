@@ -2304,6 +2304,162 @@ var TrendControl = (function (_super) {
     };
     return TrendControl;
 }(EditorControl));
+var HistoryTrendControl = (function (_super) {
+    __extends(HistoryTrendControl, _super);
+    function HistoryTrendControl() {
+        return _super.call(this) || this;
+    }
+    HistoryTrendControl.prototype.run = function () {
+        this.isDesignMode = false;
+    };
+    HistoryTrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
+        var number = 0;
+        for (var i = 1; i <= 12; i++) {
+            if (devPoint.name == this["devicePoint" + i]) {
+                number = i;
+                break;
+            }
+        }
+        if (number == 0)
+            return;
+        if (devPoint.max != null && (typeof this.max == "undefined" || isNaN(this.max)))
+            this.max = devPoint.max;
+        else if (devPoint.max != null && devPoint.max > this.max)
+            this.max = devPoint.max;
+        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
+            this.min = devPoint.min;
+        else if (devPoint.min != null && devPoint.min < this.min)
+            this.min = devPoint.min;
+        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+            this["colorLine" + number] = devPoint["colorLine" + number];
+        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+            this["colorLine" + number] = "#ffffff";
+    };
+    HistoryTrendControl.prototype.parseData = function (dataStartSecs, dataEndSecs, valueDatas) {
+        var result = {
+            minValue: null,
+            maxValue: null,
+            minValueBefore: true,
+        };
+        for (var i = 0; i < valueDatas.length; i++) {
+            var item = valueDatas[i];
+            var mySec = item.seconds;
+            if (mySec >= dataStartSecs && mySec <= dataEndSecs) {
+                var value = item.value;
+                if (result.minValue == null || value < result.minValue) {
+                    result.minValueBefore = false;
+                    result.minValue = value;
+                }
+                if (result.maxValue == null || value > result.maxValue) {
+                    result.minValueBefore = true;
+                    result.maxValue = value;
+                }
+            }
+            else if (mySec > dataEndSecs)
+                break;
+        }
+        if (result.maxValue == null && result.minValue == null)
+            return null;
+        if (result.maxValue == result.minValue)
+            result.minValue = null;
+        return result;
+    };
+    HistoryTrendControl.prototype.setData = function (startTime, endTime, datas) {
+        var min = this.min;
+        if (typeof min == "undefined" || isNaN(min))
+            min = 0;
+        var max = this.max;
+        if (typeof max == "undefined" || isNaN(max))
+            max = 100;
+        var rect = this.rect;
+        var totalSeconds = (startTime.getTime() - endTime.getTime()) / 1000 + 1;
+        var secsPerPixel = totalSeconds / (rect.width - 20);
+        if (secsPerPixel < 1)
+            secsPerPixel = 1;
+        var curPointLineResults = [];
+        for (var i = 0; i < 12; i++) {
+            var lineResult = {
+                datas: []
+            };
+            var pointDatas;
+            if (i < datas.length) {
+                pointDatas = datas[i];
+                curPointLineResults.push(lineResult);
+            }
+            else
+                break;
+            var dataStartSecs = startTime.getTime() / 1000;
+            var dataEndSecs = dataStartSecs + secsPerPixel - 1;
+            for (var j = 0; j < rect.width - 20; j++) {
+                var valueResult = this.parseData(dataStartSecs, dataEndSecs, pointDatas);
+                lineResult.datas.push(valueResult);
+                dataStartSecs += secsPerPixel;
+                dataEndSecs = dataStartSecs + secsPerPixel - 1;
+            }
+        }
+        for (var i = 0; i < 12; i++) {
+            var lineObject = null;
+            if (i < curPointLineResults.length)
+                lineObject = curPointLineResults[i];
+            else
+                lineObject = {
+                    datas: []
+                };
+            var dataStr = "";
+            var position = 0;
+            var lastX = 0;
+            var lastY = rect.height - 10;
+            for (var j = 0; j < lineObject.datas.length; j++) {
+                var valueItem = lineObject.datas[j];
+                if (valueItem == null) {
+                    continue;
+                }
+                dataStr += dataStr.length == 0 ? "M" : "L";
+                dataStr += (j + 10) + " " + lastY + " ";
+                if (valueItem.maxValue != null) {
+                    var percent = 1 - (valueItem.maxValue - min) / (max - min);
+                    var y = 10 + (rect.height - 20) * percent;
+                    if (y < 10)
+                        y = 10;
+                    else if (y > rect.height - 10)
+                        y = rect.height - 10;
+                    valueItem.maxValueY = y;
+                }
+                if (valueItem.minValue != null) {
+                    var percent = 1 - (valueItem.minValue - min) / (max - min);
+                    var y = 10 + (rect.height - 20) * percent;
+                    if (y < 10)
+                        y = 10;
+                    else if (y > rect.height - 10)
+                        y = rect.height - 10;
+                    valueItem.minValueY = y;
+                }
+                if (valueItem.minValueBefore && valueItem.minValue != null) {
+                    dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
+                    lastY = valueItem.minValueY;
+                    if (valueItem.maxValue != null) {
+                        dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
+                        lastY = valueItem.maxValueY;
+                    }
+                }
+                else if (valueItem.minValueBefore == false && valueItem.maxValue != null) {
+                    dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
+                    lastY = valueItem.maxValueY;
+                    if (valueItem.minValueY != null) {
+                        dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
+                        lastY = valueItem.minValueY;
+                    }
+                }
+            }
+            if (dataStr.length > 0) {
+                dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
+            }
+            alert(dataStr);
+            this["pathElement" + i].setAttribute("d", dataStr);
+        }
+    };
+    return HistoryTrendControl;
+}(TrendControl));
 var ButtonAreaControl = (function (_super) {
     __extends(ButtonAreaControl, _super);
     function ButtonAreaControl() {

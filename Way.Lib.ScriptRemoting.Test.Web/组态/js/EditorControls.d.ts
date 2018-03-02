@@ -326,6 +326,13 @@ declare class TrendControl extends EditorControl {
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;
     onEndMoving(): void;
 }
+declare class HistoryTrendControl extends TrendControl {
+    constructor();
+    run(): void;
+    onDevicePointValueChanged(devPoint: any): void;
+    private parseData(dataStartSecs, dataEndSecs, valueDatas);
+    setData(startTime: Date, endTime: Date, datas: any[]): void;
+}
 declare class ButtonAreaControl extends EditorControl {
     rectElement: SVGGraphicsElement;
     startX: number;
