@@ -2372,8 +2372,8 @@ var HistoryTrendControl = (function (_super) {
         if (typeof max == "undefined" || isNaN(max))
             max = 100;
         var rect = this.rect;
-        var totalSeconds = (startTime.getTime() - endTime.getTime()) / 1000 + 1;
-        var secsPerPixel = totalSeconds / (rect.width - 20);
+        var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
+        var secsPerPixel = parseInt((totalSeconds / (rect.width - 20)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
         var curPointLineResults = [];
@@ -2407,7 +2407,6 @@ var HistoryTrendControl = (function (_super) {
                 };
             var dataStr = "";
             var position = 0;
-            var lastX = 0;
             var lastY = rect.height - 10;
             for (var j = 0; j < lineObject.datas.length; j++) {
                 var valueItem = lineObject.datas[j];
@@ -2454,7 +2453,6 @@ var HistoryTrendControl = (function (_super) {
             if (dataStr.length > 0) {
                 dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
             }
-            alert(dataStr);
             this["pathElement" + i].setAttribute("d", dataStr);
         }
     };

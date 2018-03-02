@@ -2409,6 +2409,33 @@ class HistoryTrendControl extends TrendControl
         return result;
     }
 
+    /**
+     *
+     * @param startTime
+     * @param endTime
+     * @param datas
+    格式如下
+    [
+            [
+                {
+                    seconds: new Date("2010-1-18 10:03:00").getTime() / 1000,
+                    value:23
+                },
+                {
+                    seconds: new Date("2010-1-18 10:03:00").getTime() / 1000,
+                    value: 3
+                },
+                {
+                    seconds: new Date("2010-2-1 10:06:00").getTime() / 1000,
+                    value: 32
+                },
+                {
+                    seconds: new Date("2010-2-1 10:06:00").getTime() / 1000,
+                    value: 65
+                }
+            ]
+        ]
+     */
     setData(startTime: Date, endTime: Date, datas:any[])
     {
         var min = this.min;
@@ -2421,10 +2448,10 @@ class HistoryTrendControl extends TrendControl
 
         var rect = this.rect;
         //计算一共有多少秒
-        var totalSeconds = (startTime.getTime() - endTime.getTime()) / 1000 + 1;
+        var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
 
         //计算一个像素显示多少秒的数据
-        var secsPerPixel = totalSeconds / (rect.width - 20);
+        var secsPerPixel = parseInt( <any>(totalSeconds / (rect.width - 20)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
 
@@ -2468,7 +2495,7 @@ class HistoryTrendControl extends TrendControl
 
             var dataStr = "";
             var position = 0;
-            var lastX = 0;
+
             var lastY = rect.height - 10;
             for (var j = 0; j < lineObject.datas.length; j ++)
             {
@@ -2539,7 +2566,6 @@ class HistoryTrendControl extends TrendControl
                 dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
             }
 
-            alert(dataStr);
             this["pathElement" + i].setAttribute("d", dataStr);
         }
     }
