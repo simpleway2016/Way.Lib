@@ -111,31 +111,29 @@ namespace SunRizServer.HistoryRecord
                  
 
                     var pointGroups = from m in db.DevicePoint
-                                     where m.ValueRelativeChange == true || m.ValueAbsoluteChange == true || m.ValueOnTimeChange == true
+                                     where m.ValueRelativeChange == true || m.ValueAbsoluteChange == true || m.ValueOnTimeChange == true || m.IsAlarm == true
                                      group m by m.DeviceId into g
                                      select g;
-                    foreach( var group in pointGroups )
+                    foreach( var pointArr in pointGroups )
                     {
-                        var deviceId = group.Key.GetValueOrDefault();
+                        var deviceId = pointArr.Key.GetValueOrDefault();
                         var device = db.Device.AsTracking().FirstOrDefault(m => m.id == deviceId);
                         var driver = db.CommunicationDriver.AsTracking().FirstOrDefault(m => m.id == device.DriverID);
 
-                        var points = group.ToArray();
                         MyDriverClient client = new MyDriverClient(driver.Address , driver.Port.Value);
-                        client.Points = points;
+                        client.Points = (from m in pointArr
+                                         select new MyDevicePoint(m)).ToArray();
                         AllClients.Add(client);
-                        string[] pointAddrs = new string[points.Length];
-                        for(int i = 0; i < points.Length; i ++)
+                        string[] pointAddrs = new string[client.Points.Length];
+                        for(int i = 0; i < client.Points.Length; i ++)
                         {
-                            //利用InitValue保存上一次变化的值
-                            points[i].InitValue = null;
-                            pointAddrs[i] = points[i].Address;
-                            if(points[i].ValueOnTimeChange == true)
+                            pointAddrs[i] = client.Points[i].DevicePoint.Address;
+                            if(client.Points[i].DevicePoint.ValueOnTimeChange == true)
                             {
                                 client.SaveOnTimeInfos.Add(new SaveOnTimeInfo() {
-                                    PointObj = points[i],
-                                    PointId = points[i].id.Value,
-                                    Interval = points[i].ValueOnTimeChangeSetting.GetValueOrDefault(),
+                                    PointObj = client.Points[i],
+                                    PointId = client.Points[i].DevicePoint.id.Value,
+                                    Interval = client.Points[i].DevicePoint.ValueOnTimeChangeSetting.GetValueOrDefault(),
                                 });
                             }
                         }
@@ -243,9 +241,9 @@ namespace SunRizServer.HistoryRecord
                 {                    
                     foreach ( var itemInfo in client.SaveOnTimeInfos )
                     {
-                        if(itemInfo.CurrentValue != itemInfo.SaveValue && (DateTime.Now - itemInfo.SaveTime).TotalSeconds >= itemInfo.PointObj.ValueOnTimeChangeSetting)
+                        if(itemInfo.CurrentValue != itemInfo.SaveValue && (DateTime.Now - itemInfo.SaveTime).TotalSeconds >= itemInfo.PointObj.DevicePoint.ValueOnTimeChangeSetting)
                         {
-                            WriteHistory(itemInfo.PointObj, itemInfo.CurrentValue);
+                            WriteHistory(itemInfo.PointObj.DevicePoint, itemInfo.CurrentValue);
                             itemInfo.SaveValue = itemInfo.CurrentValue;
                             itemInfo.SaveTime = DateTime.Now;
                         }
@@ -265,9 +263,11 @@ namespace SunRizServer.HistoryRecord
         {
             client.NetClient = client.AddPointToWatch(device.Address, pointAddrs, (addr, value) => 
             {
-                var point = client.Points.FirstOrDefault(m => m.Address == addr);
-                if(point != null)
+                var myPoint = client.Points.FirstOrDefault(m => m.DevicePoint.Address == addr);
+                
+                if (myPoint != null)
                 {
+                    var point = myPoint.DevicePoint;
                     var jobj = GetJsonObject(point);
                     double dblValue;
                     value = SunRizDriver.Helper.Transform(jobj, value);
@@ -297,22 +297,63 @@ namespace SunRizServer.HistoryRecord
                     else if( point.ValueAbsoluteChange == true )
                     {
                         //绝对变化是指这个变量当前值与前一个历史值比较，变化超过设定数值后进行历史保存
-                        //利用InitValue保存上一次变化的值
-                        if (point.InitValue == null || Math.Abs(dblValue - point.InitValue.GetValueOrDefault()) >= point.ValueAbsoluteChangeSetting)
+                        if (myPoint.LastValue == null || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) >= point.ValueAbsoluteChangeSetting)
                         {
                             WriteHistory(point, dblValue);
-                            point.InitValue = dblValue;
+                            myPoint.LastValue = dblValue;
                         }
                     }
                     else if (point.ValueRelativeChange == true)
                     {
                         //相对变化是指这个变量当前值与前一个历史值比较，变化超过设定值（这个值是该变量量程的百分比）后进行历史保存
-                        //利用InitValue保存上一次变化的值
-                        if (point.InitValue == null || point.InitValue == 0 || Math.Abs(dblValue - point.InitValue.GetValueOrDefault())*100 /point.InitValue >= point.ValueRelativeChangeSetting)
+                        if (myPoint.LastValue == null || myPoint.LastValue == 0 || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault())*100 / myPoint.LastValue >= point.ValueRelativeChangeSetting)
                         {
                             WriteHistory(point, dblValue);
-                            point.InitValue = dblValue;
+                            myPoint.LastValue = dblValue;
                         }
+                    }
+
+                    if(point.IsAlarm == true)
+                    {
+                        foreach( var lowAlarm in myPoint.LowAlarmConfig )
+                        {
+                            if (dblValue < lowAlarm.Value)
+                            {
+                                AlarmHelper.AddAlarm($"触发低报，当前值为:{dblValue}");
+                            }
+                        }
+                        foreach (var hiAlarm in myPoint.HiAlarmConfig)
+                        {
+                            if (dblValue > hiAlarm.Value)
+                            {
+                                AlarmHelper.AddAlarm($"触发高报，当前值为:{dblValue}");
+                            }
+                        }
+
+                        if ( point.IsAlarmOffset == true )
+                        {
+                            if (dblValue - point.AlarmOffsetOriginalValue > point.AlarmOffsetValue)
+                            {
+                                AlarmHelper.AddAlarm($"偏差报警，当前值为:{dblValue}");
+                            }
+                        }
+                        else if (point.IsAlarmPercent == true)
+                        {
+                            if (myPoint.LastValue == null)
+                                myPoint.LastValue = 0;
+
+                            if (Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) * 100 / myPoint.LastValue > point.Percent)
+                            {
+                                if ((DateTime.Now - myPoint.LastValueTime).TotalSeconds < point.ChangeCycle)
+                                {                                    
+                                    AlarmHelper.AddAlarm($"变化率报警，当前值为:{dblValue}");
+                                }
+                                myPoint.LastValue = dblValue;
+                                myPoint.LastValueTime = DateTime.Now;
+                            }
+                        }
+
+                      
                     }
                     //System.Diagnostics.Debug.WriteLine($"name:{addr} value:{value}");
                 }
@@ -341,16 +382,81 @@ namespace SunRizServer.HistoryRecord
         /// </summary>
         public DateTime SaveTime = new DateTime(2000,1,1);
         public double CurrentValue;
-        public DevicePoint PointObj;
+        public MyDevicePoint PointObj;
         //保存间隔
         public double Interval;
+    }
+
+    class AlarmConfig
+    {
+        public double? Value;
+        public int? Priority;
+    }
+
+    class MyDevicePoint
+    {
+        public double? LastValue;
+        public DateTime LastValueTime = DateTime.Now;
+        public AlarmConfig[] LowAlarmConfig;
+        public AlarmConfig[] HiAlarmConfig;
+        public DevicePoint DevicePoint;
+        public MyDevicePoint(DevicePoint point)
+        {
+            DevicePoint = point;
+            LowAlarmConfig = (new AlarmConfig[] {
+                new AlarmConfig(){
+                    Value = point.AlarmValue,
+                    Priority = point.AlarmPriority,
+                },
+                new AlarmConfig(){
+                    Value = point.AlarmValue2,
+                    Priority = point.AlarmPriority2,
+                },
+                new AlarmConfig(){
+                    Value = point.AlarmValue3,
+                    Priority = point.AlarmPriority3,
+                },
+                new AlarmConfig(){
+                    Value = point.AlarmValue4,
+                    Priority = point.AlarmPriority4,
+                },
+                new AlarmConfig(){
+                    Value = point.AlarmValue5,
+                    Priority = point.AlarmPriority5,
+                }
+            }).Where(m=>m.Value != null && m.Priority != null).OrderBy(m=>m.Value).ToArray();
+
+
+            HiAlarmConfig = (new AlarmConfig[] {
+                new AlarmConfig(){
+                    Value = point.HiAlarmValue,
+                    Priority = point.HiAlarmPriority,
+                },
+                new AlarmConfig(){
+                    Value = point.HiAlarmValue2,
+                    Priority = point.HiAlarmPriority2,
+                },
+                new AlarmConfig(){
+                    Value = point.HiAlarmValue3,
+                    Priority = point.HiAlarmPriority3,
+                },
+                new AlarmConfig(){
+                    Value = point.HiAlarmValue4,
+                    Priority = point.HiAlarmPriority4,
+                },
+                new AlarmConfig(){
+                    Value = point.HiAlarmValue5,
+                    Priority = point.HiAlarmPriority5,
+                }
+            }).Where(m => m.Value != null && m.Priority != null).OrderByDescending(m => m.Value).ToArray();
+        }
     }
 
     class MyDriverClient : SunRizDriver.SunRizDriverClient
     {
         public bool Released = false;
         public Way.Lib.NetStream NetClient;
-        public DevicePoint[] Points;
+        public MyDevicePoint[] Points;
         public List<SaveOnTimeInfo> SaveOnTimeInfos = new List<SaveOnTimeInfo>();
         public MyDriverClient(string addr, int port) : base(addr, port)
         {

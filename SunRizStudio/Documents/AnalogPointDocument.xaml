@@ -416,10 +416,12 @@
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding IsAlarmPercent,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="29" Grid.Column="1"></CheckBox>
 
                             <TextBlock Text="变化率值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="30" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding Percent,Mode=TwoWay}" BorderThickness="0" Grid.Row="30" Grid.Column="1"></TextBox>
+                            <ComboBox x:Name="cmd_Percent"  SelectedValuePath="value" DisplayMemberPath="text"  Padding="2,4,0,0" SelectedValue="{Binding Percent,Mode=TwoWay}" BorderThickness="0" Grid.Row="30" Grid.Column="1">
+                            </ComboBox>
 
                             <TextBlock Text="变化率周期" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="31" Grid.Column="0"></TextBlock>
-                            <TextBox Padding="2,4,0,0" Text="{Binding ChangeCycle,Mode=TwoWay}" BorderThickness="0" Grid.Row="31" Grid.Column="1"></TextBox>
+                            <ComboBox x:Name="cmd_ChangeCycle"  SelectedValuePath="value" DisplayMemberPath="text"  Padding="2,4,0,0" SelectedValue="{Binding ChangeCycle,Mode=TwoWay}" BorderThickness="0" Grid.Row="31" Grid.Column="1">
+                            </ComboBox>
 
                             <TextBlock Text="变化率报警优先级" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="32" Grid.Column="0"></TextBlock>
                             <ComboBox BorderThickness="0" Text="{Binding AlarmPercentPriority,Mode=TwoWay}" Grid.Row="32" Grid.Column="1">

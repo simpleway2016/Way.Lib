@@ -34,7 +34,7 @@ namespace SunRizStudio.Documents
             _dataModel = dataModel;
             InitializeComponent();
             List<object> items = new List<object>();
-            for(double i = 0; i <= 100; i ++)
+            for(double i = 1; i <= 100; i ++)
             {
                 items.Add(new {
                     text = i + "%",
@@ -42,6 +42,17 @@ namespace SunRizStudio.Documents
                 });
             }
             cmd_ValueRelativeChangeOptions.ItemsSource = items;
+
+            items = new List<object>();
+            for (double i = 1; i <= 100; i++)
+            {
+                items.Add(new
+                {
+                    text = i + "%",
+                    value = i
+                });
+            }
+            cmd_Percent.ItemsSource = items;
 
             items = new List<object>();
             for (double i = 1; i <= 120; i++)
@@ -53,6 +64,17 @@ namespace SunRizStudio.Documents
                 });
             }
             cmd_ValueOnTimeChangeOptions.ItemsSource = items;
+
+            items = new List<object>();
+            for (double i = 1; i <= 120; i++)
+            {
+                items.Add(new
+                {
+                    text = i + "秒",
+                    value = i
+                });
+            }
+            cmd_ChangeCycle.ItemsSource = items;
 
             Controller = new PointDocumentController(this,gridProperty, device , DevicePoint_TypeEnum.Analog , parent , dataModel , folderId);
             this.Title = Controller.OriginalModel.Desc;
