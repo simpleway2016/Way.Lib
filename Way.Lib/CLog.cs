@@ -28,17 +28,21 @@ namespace Way.Lib
             get;
             set;
         }
+
         /// <summary>
         /// 文件最大大小
         /// </summary>
         const int MAXFILESIZE = 1024 * 1024 * 2;
         bool _autoclose;
         DateTime _createFileTime;
+        Action<string> _writeContentFunc;
         static List<CodeLog> RunningLogs = new List<CodeLog>();
         public CodeLog(string name)
             : this(name, true)
         {
         }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -65,17 +69,25 @@ namespace Way.Lib
                             m_writer = existLog.m_writer;
                             m_file = existLog.m_file;
                             lockObj = existLog.lockObj;
+                            _writeContentFunc = existLog._writeContentFunc;
                             return;
                         }
                         else
                         {
+                            lockObj = new object();
+                            createFileStream();
+                            _writeContentFunc = (content) => writelogAction(content);
                             RunningLogs.Add(this);
                         }
                     }
                 }
-
-                lockObj = new object();
-                createFileStream();
+                else
+                {
+                    lockObj = new object();
+                    createFileStream();
+                    _writeContentFunc = (content) => writelogAction(content);
+                }
+               
             }
         }
 
@@ -115,24 +127,29 @@ namespace Way.Lib
         /// <param name="content"></param>
         public void Log(string content)
         {
-            if (m_writer == null || content == null)
+            if (ENABLED == false || m_writer == null || content == null)
                 return;
             lock (lockObj)
             {
-                m_writer.WriteLine(string.Format("{0} {1}", DateTime.Now, content));
-                m_writer.Flush();
-                if (m_file.Length >= MAXFILESIZE || (DateTime.Now - _createFileTime).Days > 0 || DateTime.Now.Day != _createFileTime.Day)
-                {
-                    m_writer.Dispose();
-                    m_file.Dispose();
-                    createFileStream();
-                }
+                _writeContentFunc(content);
             }
         }
       
+        void writelogAction(string content)
+        {
+            m_writer.WriteLine(string.Format("{0} {1}", DateTime.Now, content));
+            m_writer.Flush();
+            if (m_file.Length >= MAXFILESIZE || (DateTime.Now - _createFileTime).Days > 0 || DateTime.Now.Day != _createFileTime.Day)
+            {
+                m_writer.Dispose();
+                m_file.Dispose();
+                createFileStream();
+            }
+        }
+
         public void LogJson(object obj)
         {
-            if (m_writer == null || obj == null)
+            if (ENABLED == false || m_writer == null || obj == null)
                 return;
             this.Log(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
         }
@@ -147,7 +164,7 @@ namespace Way.Lib
 
         public void Close()
         {
-            if (m_writer != null)
+            if (_autoclose && m_writer != null)
             {
                 try
                 {
@@ -159,12 +176,7 @@ namespace Way.Lib
                 }
                 m_writer = null;
             }
-            if (_autoclose == false)
-            {
-                CodeLog existLog = RunningLogs.FirstOrDefault(m => m.Name == this.Name);
-                if (existLog != null)
-                    RunningLogs.Remove(existLog);
-            }
+            
         }
         void IDisposable.Dispose()
         {
