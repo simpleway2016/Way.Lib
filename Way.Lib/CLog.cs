@@ -57,17 +57,20 @@ namespace Way.Lib
                 this.Name = name;
                 if (autoClose == false)
                 {
-                    CodeLog existLog = RunningLogs.FirstOrDefault(m => m.Name == name);
-                    if (existLog != null)
+                    lock (RunningLogs)
                     {
-                        m_writer = existLog.m_writer;
-                        m_file = existLog.m_file;
-                        lockObj = existLog.lockObj;
-                        return;
-                    }
-                    else
-                    {
-                        RunningLogs.Add(this);
+                        CodeLog existLog = RunningLogs.FirstOrDefault(m => m.Name == name);
+                        if (existLog != null)
+                        {
+                            m_writer = existLog.m_writer;
+                            m_file = existLog.m_file;
+                            lockObj = existLog.lockObj;
+                            return;
+                        }
+                        else
+                        {
+                            RunningLogs.Add(this);
+                        }
                     }
                 }
 
@@ -287,6 +290,12 @@ namespace Way.Lib
             : base(name)
         {
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="autoDispose">如果是false，表示不会生成多个日志文件</param>
         public CLog(string name, bool autoDispose)
             : base(name, autoDispose)
         {
