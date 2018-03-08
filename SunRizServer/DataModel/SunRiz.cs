@@ -5772,6 +5772,413 @@ namespace SunRizServer{
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 报警记录
+	/// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.Table("alarm")]
+    [Way.EntityDB.Attributes.Table("id")]
+    public class Alarm :Way.EntityDB.DataItem
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  Alarm()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+[System.ComponentModel.DataAnnotations.Key]
+        [System.ComponentModel.DataAnnotations.Schema.Column("id")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="id",Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    this.SendPropertyChanging("id",this._id,value);
+                    this._id = value;
+                    this.SendPropertyChanged("id");
+
+                }
+            }
+        }
+
+        String _Address;
+        /// <summary>
+        /// 报警地址
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("address")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="address",Comment="",Caption="报警地址",Storage = "_Address",DbType="varchar(100)")]
+        public virtual String Address
+        {
+            get
+            {
+                return this._Address;
+            }
+            set
+            {
+                if ((this._Address != value))
+                {
+                    this.SendPropertyChanging("Address",this._Address,value);
+                    this._Address = value;
+                    this.SendPropertyChanged("Address");
+
+                }
+            }
+        }
+
+        String _AddressDesc;
+        /// <summary>
+        /// 地址描述
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("addressdesc")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="addressdesc",Comment="",Caption="地址描述",Storage = "_AddressDesc",DbType="varchar(100)")]
+        public virtual String AddressDesc
+        {
+            get
+            {
+                return this._AddressDesc;
+            }
+            set
+            {
+                if ((this._AddressDesc != value))
+                {
+                    this.SendPropertyChanging("AddressDesc",this._AddressDesc,value);
+                    this._AddressDesc = value;
+                    this.SendPropertyChanged("AddressDesc");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _PointId;
+        /// <summary>
+        /// 点id
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("pointid")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="pointid",Comment="",Caption="点id",Storage = "_PointId",DbType="int")]
+        public virtual System.Nullable<Int32> PointId
+        {
+            get
+            {
+                return this._PointId;
+            }
+            set
+            {
+                if ((this._PointId != value))
+                {
+                    this.SendPropertyChanging("PointId",this._PointId,value);
+                    this._PointId = value;
+                    this.SendPropertyChanged("PointId");
+
+                }
+            }
+        }
+
+        String _Content;
+        /// <summary>
+        /// 报警内容
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("content")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="content",Comment="",Caption="报警内容",Storage = "_Content",DbType="varchar(200)")]
+        public virtual String Content
+        {
+            get
+            {
+                return this._Content;
+            }
+            set
+            {
+                if ((this._Content != value))
+                {
+                    this.SendPropertyChanging("Content",this._Content,value);
+                    this._Content = value;
+                    this.SendPropertyChanged("Content");
+
+                }
+            }
+        }
+
+        System.Nullable<Boolean> _IsConfirm=false;
+        /// <summary>
+        /// 是否已经确认
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("isconfirm")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="isconfirm",Comment="",Caption="是否已经确认",Storage = "_IsConfirm",DbType="bit")]
+        public virtual System.Nullable<Boolean> IsConfirm
+        {
+            get
+            {
+                return this._IsConfirm;
+            }
+            set
+            {
+                if ((this._IsConfirm != value))
+                {
+                    this.SendPropertyChanging("IsConfirm",this._IsConfirm,value);
+                    this._IsConfirm = value;
+                    this.SendPropertyChanged("IsConfirm");
+
+                }
+            }
+        }
+
+        System.Nullable<Boolean> _IsReset=false;
+        /// <summary>
+        /// 是否已经复位
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("isreset")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="isreset",Comment="",Caption="是否已经复位",Storage = "_IsReset",DbType="bit")]
+        public virtual System.Nullable<Boolean> IsReset
+        {
+            get
+            {
+                return this._IsReset;
+            }
+            set
+            {
+                if ((this._IsReset != value))
+                {
+                    this.SendPropertyChanging("IsReset",this._IsReset,value);
+                    this._IsReset = value;
+                    this.SendPropertyChanged("IsReset");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ConfirmUserId;
+        /// <summary>
+        /// 确认人员id
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("confirmuserid")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="confirmuserid",Comment="",Caption="确认人员id",Storage = "_ConfirmUserId",DbType="int")]
+        public virtual System.Nullable<Int32> ConfirmUserId
+        {
+            get
+            {
+                return this._ConfirmUserId;
+            }
+            set
+            {
+                if ((this._ConfirmUserId != value))
+                {
+                    this.SendPropertyChanging("ConfirmUserId",this._ConfirmUserId,value);
+                    this._ConfirmUserId = value;
+                    this.SendPropertyChanged("ConfirmUserId");
+
+                }
+            }
+        }
+
+        System.Nullable<DateTime> _ConfirmTime;
+        /// <summary>
+        /// 确认时间
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("confirmtime")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="confirmtime",Comment="",Caption="确认时间",Storage = "_ConfirmTime",DbType="datetime")]
+        public virtual System.Nullable<DateTime> ConfirmTime
+        {
+            get
+            {
+                return this._ConfirmTime;
+            }
+            set
+            {
+                if ((this._ConfirmTime != value))
+                {
+                    this.SendPropertyChanging("ConfirmTime",this._ConfirmTime,value);
+                    this._ConfirmTime = value;
+                    this.SendPropertyChanged("ConfirmTime");
+
+                }
+            }
+        }
+
+        System.Nullable<DateTime> _ResetTime;
+        /// <summary>
+        /// 复位时间
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("resettime")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="resettime",Comment="",Caption="复位时间",Storage = "_ResetTime",DbType="datetime")]
+        public virtual System.Nullable<DateTime> ResetTime
+        {
+            get
+            {
+                return this._ResetTime;
+            }
+            set
+            {
+                if ((this._ResetTime != value))
+                {
+                    this.SendPropertyChanging("ResetTime",this._ResetTime,value);
+                    this._ResetTime = value;
+                    this.SendPropertyChanged("ResetTime");
+
+                }
+            }
+        }
+}}
+namespace SunRizServer{
+
+/// <summary>
+/// 
+/// </summary>
+public enum UserInfo_RoleEnum:int
+{
+    
+
+/// <summary>
+/// 
+/// </summary>
+None = 0,
+
+/// <summary>
+/// 
+/// </summary>
+
+Admin = 1,
+
+/// <summary>
+/// 
+/// </summary>
+
+Designer = 2,
+
+/// <summary>
+/// 
+/// </summary>
+
+User = 3,
+}
+
+
+    /// <summary>
+	/// 
+	/// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.Table("userinfo")]
+    [Way.EntityDB.Attributes.Table("id")]
+    public class UserInfo :Way.EntityDB.DataItem
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  UserInfo()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+[System.ComponentModel.DataAnnotations.Key]
+        [System.ComponentModel.DataAnnotations.Schema.Column("id")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="id",Comment="",Caption="",Storage = "_id",DbType="int" ,IsPrimaryKey=true,IsDbGenerated=true,CanBeNull=false)]
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    this.SendPropertyChanging("id",this._id,value);
+                    this._id = value;
+                    this.SendPropertyChanged("id");
+
+                }
+            }
+        }
+
+        String _Name;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("name")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="name",Comment="",Caption="",Storage = "_Name",DbType="varchar(50)")]
+        public virtual String Name
+        {
+            get
+            {
+                return this._Name;
+            }
+            set
+            {
+                if ((this._Name != value))
+                {
+                    this.SendPropertyChanging("Name",this._Name,value);
+                    this._Name = value;
+                    this.SendPropertyChanged("Name");
+
+                }
+            }
+        }
+
+        String _Password;
+        /// <summary>
+        /// 
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("password")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="password",Comment="",Caption="",Storage = "_Password",DbType="varchar(50)")]
+        public virtual String Password
+        {
+            get
+            {
+                return this._Password;
+            }
+            set
+            {
+                if ((this._Password != value))
+                {
+                    this.SendPropertyChanging("Password",this._Password,value);
+                    this._Password = value;
+                    this.SendPropertyChanged("Password");
+
+                }
+            }
+        }
+
+        System.Nullable<UserInfo_RoleEnum> _Role=(System.Nullable<UserInfo_RoleEnum>)(0);
+        /// <summary>
+        /// 角色
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("role")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="role",Comment="",Caption="角色",Storage = "_Role",DbType="int")]
+        public virtual System.Nullable<UserInfo_RoleEnum> Role
+        {
+            get
+            {
+                return this._Role;
+            }
+            set
+            {
+                if ((this._Role != value))
+                {
+                    this.SendPropertyChanging("Role",this._Role,value);
+                    this._Role = value;
+                    this.SendPropertyChanged("Role");
+
+                }
+            }
+        }
+}}
 
 namespace SunRizServer.DB{
     /// <summary>
@@ -5977,6 +6384,8 @@ modelBuilder.Entity<SunRizServer.ControlWindow>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ControlWindowFolder>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.ChildWindow>().HasKey(m => m.id);
 modelBuilder.Entity<SunRizServer.SystemSetting>().HasKey(m => m.id);
+modelBuilder.Entity<SunRizServer.Alarm>().HasKey(m => m.id);
+modelBuilder.Entity<SunRizServer.UserInfo>().HasKey(m => m.id);
 }
 
         System.Linq.IQueryable<SunRizServer.ImageFiles> _ImageFiles;
@@ -6136,6 +6545,38 @@ modelBuilder.Entity<SunRizServer.SystemSetting>().HasKey(m => m.id);
                     _SystemSetting = this.Set<SunRizServer.SystemSetting>();
                 }
                 return _SystemSetting;
+            }
+        }
+
+        System.Linq.IQueryable<SunRizServer.Alarm> _Alarm;
+        /// <summary>
+        /// 报警记录
+        /// </summary>
+        public virtual System.Linq.IQueryable<SunRizServer.Alarm> Alarm
+        {
+             get
+            {
+                if (_Alarm == null)
+                {
+                    _Alarm = this.Set<SunRizServer.Alarm>();
+                }
+                return _Alarm;
+            }
+        }
+
+        System.Linq.IQueryable<SunRizServer.UserInfo> _UserInfo;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Linq.IQueryable<SunRizServer.UserInfo> UserInfo
+        {
+             get
+            {
+                if (_UserInfo == null)
+                {
+                    _UserInfo = this.Set<SunRizServer.UserInfo>();
+                }
+                return _UserInfo;
             }
         }
 
@@ -7713,8 +8154,35 @@ result.Append("IixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkY
 result.Append("W3tcImlkXCI6MjU3LFwiY2FwdGlvblwiOlwi5Y6G5Y+y5L+d5a2Y6Lev5b6EXCIsXCJOYW1lXCI6XCJIaXN0b3J5UGF0aFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6");
 result.Append("XCIxMDBcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjU4fSx7XCJpZFwiOjI1OCxcImNhcHRpb25cIjpcIuWOhuWPsui3r+W+hOWJqeS9meepuumXtOaKpeitpumYgOmXqCjljZXkvY3vvJpHKVwiLFwiTmFtZVwiOlwiSGlzdG9y");
 result.Append("eVN0b3JlQWxhcm1cIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNCxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjU5fV0sXCJjaGFuZ2Vk");
-result.Append("Q29sdW1uc1wiOltdLFwiZGVsZXRlZENvbHVtbnNcIjpbXSxcIklEWENvbmZpZ3NcIjpbXSxcIklEXCI6MH0ifSx7Ik5hbWUiOiJkYXRhYmFzZWlkIiwiVmFsdWUiOjJ9XSwiUm93U3RhdGUiOjB9XSwiQ29sdW1ucyI6W3siQ29sdW1uTmFtZSI6ImlkIiwiRGF0YVR5");
-result.Append("cGUiOiJTeXN0ZW0uSW50NjQifSx7IkNvbHVtbk5hbWUiOiJ0eXBlIiwiRGF0YVR5cGUiOiJTeXN0ZW0uU3RyaW5nIn0seyJDb2x1bW5OYW1lIjoiY29udGVudCIsIkRhdGFUeXBlIjoiU3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImRhdGFiYXNlaWQiLCJE");
-result.Append("YXRhVHlwZSI6IlN5c3RlbS5JbnQ2NCJ9XX1dLCJEYXRhU2V0TmFtZSI6IjQzNzdiMGQ2LWVmZjktNDMzMC1hYmViLWYwYWEzYWYyNmVhZSJ9");
+result.Append("Q29sdW1uc1wiOltdLFwiZGVsZXRlZENvbHVtbnNcIjpbXSxcIklEWENvbmZpZ3NcIjpbXSxcIklEXCI6MH0ifSx7Ik5hbWUiOiJkYXRhYmFzZWlkIiwiVmFsdWUiOjJ9XSwiUm93U3RhdGUiOjB9LHsiSXRlbXMiOlt7Ik5hbWUiOiJpZCIsIlZhbHVlIjo3NX0seyJO");
+result.Append("YW1lIjoidHlwZSIsIlZhbHVlIjoiQ3JlYXRlVGFibGVBY3Rpb24ifSx7Ik5hbWUiOiJjb250ZW50IiwiVmFsdWUiOiJ7XCJUYWJsZVwiOntcImlkXCI6MTYsXCJjYXB0aW9uXCI6XCLmiqXoraborrDlvZVcIixcIk5hbWVcIjpcIkFsYXJtXCIsXCJEYXRhYmFzZUlE");
+result.Append("XCI6MixcImlMb2NrXCI6MH0sXCJDb2x1bW5zXCI6W3tcImlkXCI6MjY0LFwiTmFtZVwiOlwiaWRcIixcIklzQXV0b0luY3JlbWVudFwiOnRydWUsXCJDYW5OdWxsXCI6ZmFsc2UsXCJkYlR5cGVcIjpcImludFwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6dHJ1");
+result.Append("ZSxcIm9yZGVyaWRcIjowfSx7XCJpZFwiOjI2NSxcImNhcHRpb25cIjpcIuaKpeitpuWcsOWdgFwiLFwiTmFtZVwiOlwiQWRkcmVzc1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVu");
+result.Append("Z3RoXCI6XCIxMDBcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjF9LHtcImlkXCI6MjY2LFwiY2FwdGlvblwiOlwi5Zyw5Z2A5o+P6L+wXCIsXCJOYW1lXCI6XCJBZGRyZXNzRGVzY1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFs");
+result.Append("c2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCIxMDBcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjJ9LHtcImlkXCI6MjY3LFwiY2FwdGlvblwiOlwi54K5aWRcIixcIk5hbWVc");
+result.Append("IjpcIlBvaW50SWRcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjN9LHtcImlkXCI6MjY4");
+result.Append("LFwiY2FwdGlvblwiOlwi5oql6K2m5YaF5a65XCIsXCJOYW1lXCI6XCJDb250ZW50XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjIwMFwiLFwiVGFibGVJRFwiOjE2");
+result.Append("LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NH0se1wiaWRcIjoyNjksXCJjYXB0aW9uXCI6XCLmmK/lkKblt7Lnu4/noa7orqRcIixcIk5hbWVcIjpcIklzQ29uZmlybVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRi");
+result.Append("VHlwZVwiOlwiYml0XCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVlXCI6XCIwXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo1fSx7XCJpZFwiOjI3MCxcImNhcHRpb25cIjpcIuaYr+WQpuW3sue7j+WkjeS9jVwiLFwi");
+result.Append("TmFtZVwiOlwiSXNSZXNldFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiYml0XCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVlXCI6XCIwXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxz");
+result.Append("ZSxcIm9yZGVyaWRcIjo2fSx7XCJpZFwiOjI3MSxcImNhcHRpb25cIjpcIuehruiupOS6uuWRmGlkXCIsXCJOYW1lXCI6XCJDb25maXJtVXNlcklkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixc");
+result.Append("Imxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo3fSx7XCJpZFwiOjI3MixcImNhcHRpb25cIjpcIuehruiupOaXtumXtFwiLFwiTmFtZVwiOlwiQ29uZmlybVRpbWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZh");
+result.Append("bHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRhdGV0aW1lXCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6OH0se1wiaWRcIjoyNzMsXCJjYXB0aW9uXCI6XCLlpI3kvY3ml7bpl7RcIixc");
+result.Append("Ik5hbWVcIjpcIlJlc2V0VGltZVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiZGF0ZXRpbWVcIixcImxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo5");
+result.Append("fV0sXCJJRFhDb25maWdzXCI6W10sXCJJRFwiOjB9In0seyJOYW1lIjoiZGF0YWJhc2VpZCIsIlZhbHVlIjoyfV0sIlJvd1N0YXRlIjowfSx7Ikl0ZW1zIjpbeyJOYW1lIjoiaWQiLCJWYWx1ZSI6NzZ9LHsiTmFtZSI6InR5cGUiLCJWYWx1ZSI6IkNyZWF0ZVRhYmxl");
+result.Append("QWN0aW9uIn0seyJOYW1lIjoiY29udGVudCIsIlZhbHVlIjoie1wiVGFibGVcIjp7XCJpZFwiOjE3LFwiTmFtZVwiOlwiVXNlckluZm9cIixcIkRhdGFiYXNlSURcIjoyLFwiaUxvY2tcIjowfSxcIkNvbHVtbnNcIjpbe1wiaWRcIjoyNzQsXCJOYW1lXCI6XCJpZFwi");
+result.Append("LFwiSXNBdXRvSW5jcmVtZW50XCI6dHJ1ZSxcIkNhbk51bGxcIjpmYWxzZSxcImRiVHlwZVwiOlwiaW50XCIsXCJUYWJsZUlEXCI6MTcsXCJJc1BLSURcIjp0cnVlLFwib3JkZXJpZFwiOjB9LHtcImlkXCI6Mjc1LFwiTmFtZVwiOlwiTmFtZVwiLFwiSXNBdXRvSW5j");
+result.Append("cmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE3LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MX0se1wiaWRcIjoyNzYsXCJOYW1lXCI6XCJQYXNzd29y");
+result.Append("ZFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCI1MFwiLFwiVGFibGVJRFwiOjE3LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6Mn1dLFwiSURYQ29uZmlnc1wi");
+result.Append("OltdLFwiSURcIjowfSJ9LHsiTmFtZSI6ImRhdGFiYXNlaWQiLCJWYWx1ZSI6Mn1dLCJSb3dTdGF0ZSI6MH0seyJJdGVtcyI6W3siTmFtZSI6ImlkIiwiVmFsdWUiOjc3fSx7Ik5hbWUiOiJ0eXBlIiwiVmFsdWUiOiJDaGFuZ2VUYWJsZUFjdGlvbiJ9LHsiTmFtZSI6");
+result.Append("ImNvbnRlbnQiLCJWYWx1ZSI6IntcIk9sZFRhYmxlTmFtZVwiOlwiVXNlckluZm9cIixcIk5ld1RhYmxlTmFtZVwiOlwiVXNlckluZm9cIixcIm90aGVyQ29sdW1uc1wiOlt7XCJpZFwiOjI3NCxcIk5hbWVcIjpcImlkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjp0cnVl");
+result.Append("LFwiQ2FuTnVsbFwiOmZhbHNlLFwiZGJUeXBlXCI6XCJpbnRcIixcIlRhYmxlSURcIjoxNyxcIklzUEtJRFwiOnRydWUsXCJvcmRlcmlkXCI6MH0se1wiaWRcIjoyNzUsXCJOYW1lXCI6XCJOYW1lXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxc");
+result.Append("Ijp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTcsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoxfSx7XCJpZFwiOjI3NixcIk5hbWVcIjpcIlBhc3N3b3JkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpm");
+result.Append("YWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTcsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyfV0sXCJuZXdDb2x1bW5zXCI6W3tcImlkXCI6Mjc3LFwiY2FwdGlvblwi");
+result.Append("Olwi6KeS6ImyXCIsXCJOYW1lXCI6XCJSb2xlXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcIkVudW1EZWZpbmVcIjpcIk5vbmUgPSAwLFxcbkFkbWluID0gMSxcXG5EZXNpZ25lciA9IDIsXFxu");
+result.Append("VXNlciA9IDNcIixcImxlbmd0aFwiOlwiXCIsXCJkZWZhdWx0VmFsdWVcIjpcIjBcIixcIlRhYmxlSURcIjoxNyxcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjN9XSxcImNoYW5nZWRDb2x1bW5zXCI6W10sXCJkZWxldGVkQ29sdW1uc1wiOltdLFwiSURYQ29u");
+result.Append("Zmlnc1wiOltdLFwiSURcIjowfSJ9LHsiTmFtZSI6ImRhdGFiYXNlaWQiLCJWYWx1ZSI6Mn1dLCJSb3dTdGF0ZSI6MH1dLCJDb2x1bW5zIjpbeyJDb2x1bW5OYW1lIjoiaWQiLCJEYXRhVHlwZSI6IlN5c3RlbS5JbnQ2NCJ9LHsiQ29sdW1uTmFtZSI6InR5cGUiLCJE");
+result.Append("YXRhVHlwZSI6IlN5c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5hbWUiOiJjb250ZW50IiwiRGF0YVR5cGUiOiJTeXN0ZW0uU3RyaW5nIn0seyJDb2x1bW5OYW1lIjoiZGF0YWJhc2VpZCIsIkRhdGFUeXBlIjoiU3lzdGVtLkludDY0In1dfV0sIkRhdGFTZXROYW1lIjoi");
+result.Append("NDM3N2IwZDYtZWZmOS00MzMwLWFiZWItZjBhYTNhZjI2ZWFlIn0=");
 return result.ToString();}
 }}

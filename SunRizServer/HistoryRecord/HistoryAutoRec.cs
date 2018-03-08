@@ -315,41 +315,51 @@ namespace SunRizServer.HistoryRecord
 
                     if(point.IsAlarm == true)
                     {
-                        foreach( var lowAlarm in myPoint.LowAlarmConfig )
+                        if (point.Type == DevicePoint_TypeEnum.Analog)
                         {
-                            if (dblValue < lowAlarm.Value)
+                            foreach (var lowAlarm in myPoint.LowAlarmConfig)
                             {
-                                AlarmHelper.AddAlarm($"触发低报，当前值为:{dblValue}");
-                            }
-                        }
-                        foreach (var hiAlarm in myPoint.HiAlarmConfig)
-                        {
-                            if (dblValue > hiAlarm.Value)
-                            {
-                                AlarmHelper.AddAlarm($"触发高报，当前值为:{dblValue}");
-                            }
-                        }
-
-                        if ( point.IsAlarmOffset == true )
-                        {
-                            if (dblValue - point.AlarmOffsetOriginalValue > point.AlarmOffsetValue)
-                            {
-                                AlarmHelper.AddAlarm($"偏差报警，当前值为:{dblValue}");
-                            }
-                        }
-                        else if (point.IsAlarmPercent == true)
-                        {
-                            if (myPoint.LastValue == null)
-                                myPoint.LastValue = 0;
-
-                            if (Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) * 100 / myPoint.LastValue > point.Percent)
-                            {
-                                if ((DateTime.Now - myPoint.LastValueTime).TotalSeconds < point.ChangeCycle)
-                                {                                    
-                                    AlarmHelper.AddAlarm($"变化率报警，当前值为:{dblValue}");
+                                if (dblValue < lowAlarm.Value)
+                                {
+                                    AlarmHelper.AddAlarm($"触发低报，当前值为:{dblValue}");
                                 }
-                                myPoint.LastValue = dblValue;
-                                myPoint.LastValueTime = DateTime.Now;
+                            }
+                            foreach (var hiAlarm in myPoint.HiAlarmConfig)
+                            {
+                                if (dblValue > hiAlarm.Value)
+                                {
+                                    AlarmHelper.AddAlarm($"触发高报，当前值为:{dblValue}");
+                                }
+                            }
+
+                            if (point.IsAlarmOffset == true)
+                            {
+                                if (dblValue - point.AlarmOffsetOriginalValue > point.AlarmOffsetValue)
+                                {
+                                    AlarmHelper.AddAlarm($"偏差报警，当前值为:{dblValue}");
+                                }
+                            }
+                            else if (point.IsAlarmPercent == true)
+                            {
+                                if (myPoint.LastValue == null)
+                                    myPoint.LastValue = 0;
+
+                                if (Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) * 100 / myPoint.LastValue > point.Percent)
+                                {
+                                    if ((DateTime.Now - myPoint.LastValueTime).TotalSeconds < point.ChangeCycle)
+                                    {
+                                        AlarmHelper.AddAlarm($"变化率报警，当前值为:{dblValue}");
+                                    }
+                                    myPoint.LastValue = dblValue;
+                                    myPoint.LastValueTime = DateTime.Now;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if(point.AlarmValue == dblValue)
+                            {
+                                AlarmHelper.AddAlarm($"触发报警，当前值为:{dblValue}");
                             }
                         }
 

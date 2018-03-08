@@ -5279,3 +5279,376 @@ namespace SunRizServer{
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 报警记录
+	/// </summary>
+    public class Alarm :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  Alarm()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        String _Address;
+        /// <summary>
+        /// 报警地址
+        /// </summary>
+        public virtual String Address
+        {
+            get
+            {
+                return this._Address;
+            }
+            set
+            {
+                if ((this._Address != value))
+                {
+                    var original = this._Address;
+                    this._Address = value;
+                    this.OnPropertyChanged("Address",original,value);
+
+                }
+            }
+        }
+
+        String _AddressDesc;
+        /// <summary>
+        /// 地址描述
+        /// </summary>
+        public virtual String AddressDesc
+        {
+            get
+            {
+                return this._AddressDesc;
+            }
+            set
+            {
+                if ((this._AddressDesc != value))
+                {
+                    var original = this._AddressDesc;
+                    this._AddressDesc = value;
+                    this.OnPropertyChanged("AddressDesc",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _PointId;
+        /// <summary>
+        /// 点id
+        /// </summary>
+        public virtual System.Nullable<Int32> PointId
+        {
+            get
+            {
+                return this._PointId;
+            }
+            set
+            {
+                if ((this._PointId != value))
+                {
+                    var original = this._PointId;
+                    this._PointId = value;
+                    this.OnPropertyChanged("PointId",original,value);
+
+                }
+            }
+        }
+
+        String _Content;
+        /// <summary>
+        /// 报警内容
+        /// </summary>
+        public virtual String Content
+        {
+            get
+            {
+                return this._Content;
+            }
+            set
+            {
+                if ((this._Content != value))
+                {
+                    var original = this._Content;
+                    this._Content = value;
+                    this.OnPropertyChanged("Content",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Boolean> _IsConfirm=false;
+        /// <summary>
+        /// 是否已经确认
+        /// </summary>
+        public virtual System.Nullable<Boolean> IsConfirm
+        {
+            get
+            {
+                return this._IsConfirm;
+            }
+            set
+            {
+                if ((this._IsConfirm != value))
+                {
+                    var original = this._IsConfirm;
+                    this._IsConfirm = value;
+                    this.OnPropertyChanged("IsConfirm",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Boolean> _IsReset=false;
+        /// <summary>
+        /// 是否已经复位
+        /// </summary>
+        public virtual System.Nullable<Boolean> IsReset
+        {
+            get
+            {
+                return this._IsReset;
+            }
+            set
+            {
+                if ((this._IsReset != value))
+                {
+                    var original = this._IsReset;
+                    this._IsReset = value;
+                    this.OnPropertyChanged("IsReset",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _ConfirmUserId;
+        /// <summary>
+        /// 确认人员id
+        /// </summary>
+        public virtual System.Nullable<Int32> ConfirmUserId
+        {
+            get
+            {
+                return this._ConfirmUserId;
+            }
+            set
+            {
+                if ((this._ConfirmUserId != value))
+                {
+                    var original = this._ConfirmUserId;
+                    this._ConfirmUserId = value;
+                    this.OnPropertyChanged("ConfirmUserId",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<DateTime> _ConfirmTime;
+        /// <summary>
+        /// 确认时间
+        /// </summary>
+        public virtual System.Nullable<DateTime> ConfirmTime
+        {
+            get
+            {
+                return this._ConfirmTime;
+            }
+            set
+            {
+                if ((this._ConfirmTime != value))
+                {
+                    var original = this._ConfirmTime;
+                    this._ConfirmTime = value;
+                    this.OnPropertyChanged("ConfirmTime",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<DateTime> _ResetTime;
+        /// <summary>
+        /// 复位时间
+        /// </summary>
+        public virtual System.Nullable<DateTime> ResetTime
+        {
+            get
+            {
+                return this._ResetTime;
+            }
+            set
+            {
+                if ((this._ResetTime != value))
+                {
+                    var original = this._ResetTime;
+                    this._ResetTime = value;
+                    this.OnPropertyChanged("ResetTime",original,value);
+
+                }
+            }
+        }
+}}
+namespace SunRizServer{
+
+/// <summary>
+/// 
+/// </summary>
+public enum UserInfo_RoleEnum:int
+{
+    
+
+/// <summary>
+/// 
+/// </summary>
+None = 0,
+
+/// <summary>
+/// 
+/// </summary>
+
+Admin = 1,
+
+/// <summary>
+/// 
+/// </summary>
+
+Designer = 2,
+
+/// <summary>
+/// 
+/// </summary>
+
+User = 3,
+}
+
+
+    /// <summary>
+	/// 
+	/// </summary>
+    public class UserInfo :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  UserInfo()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        String _Name;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String Name
+        {
+            get
+            {
+                return this._Name;
+            }
+            set
+            {
+                if ((this._Name != value))
+                {
+                    var original = this._Name;
+                    this._Name = value;
+                    this.OnPropertyChanged("Name",original,value);
+
+                }
+            }
+        }
+
+        String _Password;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual String Password
+        {
+            get
+            {
+                return this._Password;
+            }
+            set
+            {
+                if ((this._Password != value))
+                {
+                    var original = this._Password;
+                    this._Password = value;
+                    this.OnPropertyChanged("Password",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<UserInfo_RoleEnum> _Role=(System.Nullable<UserInfo_RoleEnum>)(0);
+        /// <summary>
+        /// 角色
+        /// </summary>
+        public virtual System.Nullable<UserInfo_RoleEnum> Role
+        {
+            get
+            {
+                return this._Role;
+            }
+            set
+            {
+                if ((this._Role != value))
+                {
+                    var original = this._Role;
+                    this._Role = value;
+                    this.OnPropertyChanged("Role",original,value);
+
+                }
+            }
+        }
+}}

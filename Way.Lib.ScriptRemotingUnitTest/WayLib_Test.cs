@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Way.Lib.ScriptRemotingUnitTest
 {
@@ -22,6 +24,15 @@ namespace Way.Lib.ScriptRemotingUnitTest
         [TestMethod]
         public void CLog_Test()
         {
+            Way.Lib.CLog.SaveFolder = AppDomain.CurrentDomain.BaseDirectory + "\\CLogTest";
+            try
+            {
+                System.IO.Directory.Delete(Way.Lib.CLog.SaveFolder, true);
+            }
+            catch
+            {
+
+            }
             int count = 100;
             int doneCount = 0;
             for (int i = 0; i < count; i++)
@@ -31,13 +42,37 @@ namespace Way.Lib.ScriptRemotingUnitTest
                 {
                     using (Way.Lib.CLog log = new CLog("Test", false))
                     {
-                        log.Log($"a{index}" );
+                        log.Log($"a{index}");
                         System.Threading.Interlocked.Increment(ref doneCount);
                     }
                 });
             }
             while (doneCount < count)
                 System.Threading.Thread.Sleep(10);
+
+            List<int> compareList = new List<int>();
+            for (int i = 0; i < count; i++)
+            {
+                compareList.Add(i + 1);
+            }
+
+            //查看日志文件内容，是否有a1至a100
+            using (var stream = new FileStream(System.IO.Directory.GetFiles(Way.Lib.CLog.SaveFolder)[0], FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (System.IO.StreamReader sr = new System.IO.StreamReader(stream))
+            {
+                while(true)
+                {
+                    string line = sr.ReadLine();
+                    if (line == null)
+                        break;
+                    var m = Regex.Match(line, @"a([0-9]+)");
+                    int number = Convert.ToInt32(m.Groups[1].Value);
+                    compareList.Remove(number);
+                }
+            }
+            if (compareList.Count > 0)
+                throw new Exception("结果错误");
+
         }
     }
 }
