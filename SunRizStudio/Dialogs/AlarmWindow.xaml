@@ -1,0 +1,36 @@
+﻿<Window x:Class="SunRizStudio.Dialogs.AlarmWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SunRizStudio.Dialogs"
+        mc:Ignorable="d"
+        Title="报警窗口" Height="500" Width="800">
+    <Grid>
+        <ListView x:Name="list" SelectionChanged="list_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="报警内容" Width="220" DisplayMemberBinding="{Binding content}"/>
+                    <GridViewColumn Header="点名称" Width="auto" DisplayMemberBinding="{Binding pointName}"/>
+                    <GridViewColumn Header="点描述" Width="auto" DisplayMemberBinding="{Binding desc}"/>
+                    <GridViewColumn Header="点值" Width="auto" DisplayMemberBinding="{Binding value}"/>
+                    <GridViewColumn Header="">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="确认报警" Width="100" Height="22" Margin="5,5,5,5"></Button>
+                                    <Button Content="报警重置" Width="100" Height="22" Margin="0,5,5,5"></Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="Background" Value="{Binding bgColor}"></Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+    </Grid>
+</Window>
