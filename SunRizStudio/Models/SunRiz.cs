@@ -5559,6 +5559,8 @@ namespace SunRizServer{
                 }
             }
         }
+
+        public virtual DevicePoint PointObject { get; set; }
 }}
 namespace SunRizServer{
 
