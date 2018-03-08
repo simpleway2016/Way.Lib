@@ -5515,6 +5515,50 @@ namespace SunRizServer{
                 }
             }
         }
+
+        System.Nullable<DateTime> _AlarmTime;
+        /// <summary>
+        /// 报警时间
+        /// </summary>
+        public virtual System.Nullable<DateTime> AlarmTime
+        {
+            get
+            {
+                return this._AlarmTime;
+            }
+            set
+            {
+                if ((this._AlarmTime != value))
+                {
+                    var original = this._AlarmTime;
+                    this._AlarmTime = value;
+                    this.OnPropertyChanged("AlarmTime",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _PointValue;
+        /// <summary>
+        /// 报警时点值
+        /// </summary>
+        public virtual System.Nullable<double> PointValue
+        {
+            get
+            {
+                return this._PointValue;
+            }
+            set
+            {
+                if ((this._PointValue != value))
+                {
+                    var original = this._PointValue;
+                    this._PointValue = value;
+                    this.OnPropertyChanged("PointValue",original,value);
+
+                }
+            }
+        }
 }}
 namespace SunRizServer{
 

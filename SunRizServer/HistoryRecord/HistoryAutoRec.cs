@@ -37,7 +37,9 @@ namespace SunRizServer.HistoryRecord
                                     var gb = Math.Round( drive.TotalFreeSpace / (double)(1024 * 1024 * 1024) , 2);
                                     if (gb <= info.g.GetValueOrDefault())
                                     {
-                                        AlarmHelper.AddAlarm($"历史路径{info.path}剩余空间只有{gb}GB了，请尽快扩展磁盘！");
+                                        AlarmHelper.AddAlarm(new Alarm() {
+                                            Content = $"历史路径{info.path}剩余空间只有{gb}GB了，请尽快扩展磁盘！",
+                                        });
                                     }
                                     break;
                                 }
@@ -223,7 +225,9 @@ namespace SunRizServer.HistoryRecord
                 }
                 hisDB.Dispose();
                 hisDB = null;
-                AlarmHelper.AddAlarm($"记录历史时，发生错误，错误信息：{ex.Message}");
+                AlarmHelper.AddAlarm(new Alarm() {
+                    Content = $"记录历史时，发生错误，错误信息：{ex.Message}"
+                });
             }
         }
 
@@ -321,14 +325,25 @@ namespace SunRizServer.HistoryRecord
                             {
                                 if (dblValue < lowAlarm.Value)
                                 {
-                                    AlarmHelper.AddAlarm($"触发低报，当前值为:{dblValue}");
+                                    AlarmHelper.AddAlarm(new Alarm() {
+                                        Content = $"触发低报{lowAlarm.Number}",
+                                        Address = point.Name,
+                                        AddressDesc = point.Desc,    
+                                        PointValue = dblValue,
+                                    });
                                 }
                             }
                             foreach (var hiAlarm in myPoint.HiAlarmConfig)
                             {
                                 if (dblValue > hiAlarm.Value)
                                 {
-                                    AlarmHelper.AddAlarm($"触发高报，当前值为:{dblValue}");
+                                    AlarmHelper.AddAlarm(new Alarm()
+                                    {
+                                        Content = $"触发高报{hiAlarm.Number}",
+                                        Address = point.Name,
+                                        AddressDesc = point.Desc,
+                                        PointValue = dblValue,
+                                    });
                                 }
                             }
 
@@ -336,7 +351,13 @@ namespace SunRizServer.HistoryRecord
                             {
                                 if (dblValue - point.AlarmOffsetOriginalValue > point.AlarmOffsetValue)
                                 {
-                                    AlarmHelper.AddAlarm($"偏差报警，当前值为:{dblValue}");
+                                    AlarmHelper.AddAlarm(new Alarm()
+                                    {
+                                        Content = $"偏差报警",
+                                        Address = point.Name,
+                                        AddressDesc = point.Desc,
+                                        PointValue = dblValue,
+                                    });
                                 }
                             }
                             else if (point.IsAlarmPercent == true)
@@ -348,7 +369,13 @@ namespace SunRizServer.HistoryRecord
                                 {
                                     if ((DateTime.Now - myPoint.LastValueTime).TotalSeconds < point.ChangeCycle)
                                     {
-                                        AlarmHelper.AddAlarm($"变化率报警，当前值为:{dblValue}");
+                                        AlarmHelper.AddAlarm(new Alarm()
+                                        {
+                                            Content = $"变化率报警",
+                                            Address = point.Name,
+                                            AddressDesc = point.Desc,
+                                            PointValue = dblValue,
+                                        });
                                     }
                                     myPoint.LastValue = dblValue;
                                     myPoint.LastValueTime = DateTime.Now;
@@ -359,7 +386,13 @@ namespace SunRizServer.HistoryRecord
                         {
                             if(point.AlarmValue == dblValue)
                             {
-                                AlarmHelper.AddAlarm($"触发报警，当前值为:{dblValue}");
+                                AlarmHelper.AddAlarm(new Alarm()
+                                {
+                                    Content = $"触发报警",
+                                    Address = point.Name,
+                                    AddressDesc = point.Desc,
+                                    PointValue = dblValue,
+                                });
                             }
                         }
 
@@ -401,6 +434,7 @@ namespace SunRizServer.HistoryRecord
     {
         public double? Value;
         public int? Priority;
+        public int Number;
     }
 
     class MyDevicePoint
@@ -417,22 +451,27 @@ namespace SunRizServer.HistoryRecord
                 new AlarmConfig(){
                     Value = point.AlarmValue,
                     Priority = point.AlarmPriority,
+                    Number = 1,
                 },
                 new AlarmConfig(){
                     Value = point.AlarmValue2,
                     Priority = point.AlarmPriority2,
+                      Number = 2,
                 },
                 new AlarmConfig(){
                     Value = point.AlarmValue3,
                     Priority = point.AlarmPriority3,
+                      Number = 3,
                 },
                 new AlarmConfig(){
                     Value = point.AlarmValue4,
                     Priority = point.AlarmPriority4,
+                      Number = 4,
                 },
                 new AlarmConfig(){
                     Value = point.AlarmValue5,
                     Priority = point.AlarmPriority5,
+                      Number = 5,
                 }
             }).Where(m=>m.Value != null && m.Priority != null).OrderBy(m=>m.Value).ToArray();
 
@@ -441,22 +480,27 @@ namespace SunRizServer.HistoryRecord
                 new AlarmConfig(){
                     Value = point.HiAlarmValue,
                     Priority = point.HiAlarmPriority,
+                      Number = 1,
                 },
                 new AlarmConfig(){
                     Value = point.HiAlarmValue2,
                     Priority = point.HiAlarmPriority2,
+                      Number = 2,
                 },
                 new AlarmConfig(){
                     Value = point.HiAlarmValue3,
                     Priority = point.HiAlarmPriority3,
+                      Number = 3,
                 },
                 new AlarmConfig(){
                     Value = point.HiAlarmValue4,
                     Priority = point.HiAlarmPriority4,
+                      Number = 4,
                 },
                 new AlarmConfig(){
                     Value = point.HiAlarmValue5,
                     Priority = point.HiAlarmPriority5,
+                      Number = 5,
                 }
             }).Where(m => m.Value != null && m.Priority != null).OrderByDescending(m => m.Value).ToArray();
         }
