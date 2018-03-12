@@ -119,7 +119,15 @@ namespace SunRizStudio
             documentContainer.Items.Add(newItem);
             documentContainer.SelectedItem = newItem;           
         }
-
+        private void TreeViewItem_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                e.Handled = true;
+                TreeViewItem_MouseDoubleClick(sender, e);
+                return;
+            }
+        }
 
         private void TreeViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -135,11 +143,10 @@ namespace SunRizStudio
             }
             else
             {
-                if (e.ClickCount == 2)
-                {
-                    TreeViewItem_MouseDoubleClick(sender, e);
-                    return;
-                }
+                //if (e.ClickCount == 2)
+                //{
+                //    return;
+                //}
             }
             Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
             data.MouseDown(sender, e);
@@ -286,16 +293,15 @@ namespace SunRizStudio
             }, key);
         }
 
-        private void menuAlarmWindow_Click(object sender, RoutedEventArgs e)
-        {
-            ShowAlarmWindow();
-        }
-
         public void ShowAlarmWindow()
         {
             if (_alarmWindow == null)
                 _alarmWindow = new Dialogs.AlarmWindow();
             _alarmWindow.Show();
+        }
+        public void ShowUserMgrWindow()
+        {
+            new Dialogs.UserManager().Show();
         }
     }
 

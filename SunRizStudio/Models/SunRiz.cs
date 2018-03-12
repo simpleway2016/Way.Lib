@@ -5560,6 +5560,28 @@ namespace SunRizServer{
             }
         }
 
+        System.Nullable<Int32> _AlarmGroup;
+        /// <summary>
+        /// 所属报警组
+        /// </summary>
+        public virtual System.Nullable<Int32> AlarmGroup
+        {
+            get
+            {
+                return this._AlarmGroup;
+            }
+            set
+            {
+                if ((this._AlarmGroup != value))
+                {
+                    var original = this._AlarmGroup;
+                    this._AlarmGroup = value;
+                    this.OnPropertyChanged("AlarmGroup",original,value);
+
+                }
+            }
+        }
+
         public virtual DevicePoint PointObject { get; set; }
 }}
 namespace SunRizServer{
@@ -5693,6 +5715,28 @@ User = 3,
                     var original = this._Role;
                     this._Role = value;
                     this.OnPropertyChanged("Role",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _AlarmGroups;
+        /// <summary>
+        /// 关注哪些报警组
+        /// </summary>
+        public virtual System.Nullable<Int32> AlarmGroups
+        {
+            get
+            {
+                return this._AlarmGroups;
+            }
+            set
+            {
+                if ((this._AlarmGroups != value))
+                {
+                    var original = this._AlarmGroups;
+                    this._AlarmGroups = value;
+                    this.OnPropertyChanged("AlarmGroups",original,value);
 
                 }
             }

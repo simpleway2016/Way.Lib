@@ -15,7 +15,12 @@ namespace SunRizServer.Controllers
         {
             get
             {
+                int userGroups = 0;
+                if (this.User != null)
+                    userGroups = this.User.AlarmGroups.GetValueOrDefault();
+
                 return from m in db.Alarm
+                       where m.AlarmGroup == null || (userGroups & m.AlarmGroup.Value) == m.AlarmGroup.Value
                        orderby m.IsConfirm, m.AlarmTime descending
                        select m;
             }
@@ -571,6 +576,47 @@ namespace SunRizServer.Controllers
             if(this.User != null)
                 alarm.ConfirmUserId = this.User.id;
             db.Update(alarm);
+        }
+
+        [RemotingMethod]
+        public UserInfo[] GetUserInfos()
+        {
+#if DEBUG
+#else
+            if (this.User == null || this.User.Role != UserInfo_RoleEnum.Admin)
+                throw new Exception("权限不足");
+#endif
+            return (from m in db.UserInfo
+                    select new UserInfo
+                    {
+                        AlarmGroups = m.AlarmGroups,
+                        id = m.id,
+                        Name = m.Name,
+                        Role = m.Role
+                    }).ToArray();
+        }
+
+        [RemotingMethod]
+        public int SaveUserInfo(UserInfo user)
+        {
+#if DEBUG
+#else
+            if (this.User == null || this.User.Role != UserInfo_RoleEnum.Admin)
+                throw new Exception("权限不足");
+#endif
+            db.Update(user);
+            return user.id.Value;
+        }
+
+        [RemotingMethod]
+        public void DeleteUserInfo(UserInfo user)
+        {
+#if DEBUG
+#else
+            if (this.User == null || this.User.Role != UserInfo_RoleEnum.Admin)
+                throw new Exception("权限不足");
+#endif
+            db.Delete(user);
         }
     }
 }

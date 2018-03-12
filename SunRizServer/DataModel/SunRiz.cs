@@ -6080,6 +6080,30 @@ namespace SunRizServer{
             }
         }
 
+        System.Nullable<Int32> _AlarmGroup;
+        /// <summary>
+        /// 所属报警组
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("alarmgroup")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="alarmgroup",Comment="",Caption="所属报警组",Storage = "_AlarmGroup",DbType="int")]
+        public virtual System.Nullable<Int32> AlarmGroup
+        {
+            get
+            {
+                return this._AlarmGroup;
+            }
+            set
+            {
+                if ((this._AlarmGroup != value))
+                {
+                    this.SendPropertyChanging("AlarmGroup",this._AlarmGroup,value);
+                    this._AlarmGroup = value;
+                    this.SendPropertyChanged("AlarmGroup");
+
+                }
+            }
+        }
+
         [System.ComponentModel.DataAnnotations.Schema.ForeignKey("PointId")]
         public virtual DevicePoint PointObject { get; set; }
 }}
@@ -6225,6 +6249,30 @@ User = 3,
                     this.SendPropertyChanging("Role",this._Role,value);
                     this._Role = value;
                     this.SendPropertyChanged("Role");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _AlarmGroups;
+        /// <summary>
+        /// 关注哪些报警组
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("alarmgroups")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="alarmgroups",Comment="",Caption="关注哪些报警组",Storage = "_AlarmGroups",DbType="int")]
+        public virtual System.Nullable<Int32> AlarmGroups
+        {
+            get
+            {
+                return this._AlarmGroups;
+            }
+            set
+            {
+                if ((this._AlarmGroups != value))
+                {
+                    this.SendPropertyChanging("AlarmGroups",this._AlarmGroups,value);
+                    this._AlarmGroups = value;
+                    this.SendPropertyChanged("AlarmGroups");
 
                 }
             }
@@ -8301,8 +8349,36 @@ result.Append("dWUsXCJkYlR5cGVcIjpcImRhdGV0aW1lXCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFib
 result.Append("bWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRhdGV0aW1lXCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6Nn0se1wiaWRcIjoyNzksXCJj");
 result.Append("YXB0aW9uXCI6XCLmiqXorabml7bngrnlgLxcIixcIk5hbWVcIjpcIlBvaW50VmFsdWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRvdWJsZVwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNixc");
 result.Append("IklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjN9XSxcIm5ld0NvbHVtbnNcIjpbXSxcImNoYW5nZWRDb2x1bW5zXCI6W10sXCJkZWxldGVkQ29sdW1uc1wiOltdLFwiSURYQ29uZmlnc1wiOlt7XCJJc1VuaXF1ZVwiOmZhbHNlLFwiSXNDbHVzdGVyZWRcIjpmYWxz");
-result.Append("ZSxcIkNvbHVtbk5hbWVzXCI6W1wiQWRkcmVzc1wiXSxcIk5hbWVcIjpudWxsfV0sXCJJRFwiOjB9In0seyJOYW1lIjoiZGF0YWJhc2VpZCIsIlZhbHVlIjoyfV0sIlJvd1N0YXRlIjowfV0sIkNvbHVtbnMiOlt7IkNvbHVtbk5hbWUiOiJpZCIsIkRhdGFUeXBlIjoi");
-result.Append("U3lzdGVtLkludDY0In0seyJDb2x1bW5OYW1lIjoidHlwZSIsIkRhdGFUeXBlIjoiU3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImNvbnRlbnQiLCJEYXRhVHlwZSI6IlN5c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5hbWUiOiJkYXRhYmFzZWlkIiwiRGF0YVR5");
-result.Append("cGUiOiJTeXN0ZW0uSW50NjQifV19XSwiRGF0YVNldE5hbWUiOiI0Mzc3YjBkNi1lZmY5LTQzMzAtYWJlYi1mMGFhM2FmMjZlYWUifQ==");
+result.Append("ZSxcIkNvbHVtbk5hbWVzXCI6W1wiQWRkcmVzc1wiXSxcIk5hbWVcIjpudWxsfV0sXCJJRFwiOjB9In0seyJOYW1lIjoiZGF0YWJhc2VpZCIsIlZhbHVlIjoyfV0sIlJvd1N0YXRlIjowfSx7Ikl0ZW1zIjpbeyJOYW1lIjoiaWQiLCJWYWx1ZSI6ODJ9LHsiTmFtZSI6");
+result.Append("InR5cGUiLCJWYWx1ZSI6IkNoYW5nZVRhYmxlQWN0aW9uIn0seyJOYW1lIjoiY29udGVudCIsIlZhbHVlIjoie1wiT2xkVGFibGVOYW1lXCI6XCJBbGFybVwiLFwiTmV3VGFibGVOYW1lXCI6XCJBbGFybVwiLFwib3RoZXJDb2x1bW5zXCI6W3tcImlkXCI6MjY0LFwi");
+result.Append("TmFtZVwiOlwiaWRcIixcIklzQXV0b0luY3JlbWVudFwiOnRydWUsXCJDYW5OdWxsXCI6ZmFsc2UsXCJkYlR5cGVcIjpcImludFwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6dHJ1ZSxcIm9yZGVyaWRcIjowfSx7XCJpZFwiOjI2NSxcImNhcHRpb25cIjpcIuaK");
+result.Append("peitpuWcsOWdgFwiLFwiTmFtZVwiOlwiQWRkcmVzc1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwibGVuZ3RoXCI6XCIxMDBcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNl");
+result.Append("LFwib3JkZXJpZFwiOjF9LHtcImlkXCI6MjY2LFwiY2FwdGlvblwiOlwi5Zyw5Z2A5o+P6L+wXCIsXCJOYW1lXCI6XCJBZGRyZXNzRGVzY1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwidmFyY2hhclwiLFwi");
+result.Append("bGVuZ3RoXCI6XCIxMDBcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjJ9LHtcImlkXCI6MjY3LFwiY2FwdGlvblwiOlwi54K5aWRcIixcIk5hbWVcIjpcIlBvaW50SWRcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2Fu");
+result.Append("TnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjR9LHtcImlkXCI6MjY4LFwiY2FwdGlvblwiOlwi5oql6K2m5YaF5a65XCIsXCJOYW1lXCI6XCJDb250");
+result.Append("ZW50XCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjIwMFwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NX0se1wiaWRcIjoyNjks");
+result.Append("XCJjYXB0aW9uXCI6XCLmmK/lkKblt7Lnu4/noa7orqRcIixcIk5hbWVcIjpcIklzQ29uZmlybVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiYml0XCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVl");
+result.Append("XCI6XCIwXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo3fSx7XCJpZFwiOjI3MCxcImNhcHRpb25cIjpcIuaYr+WQpuW3sue7j+WkjeS9jVwiLFwiTmFtZVwiOlwiSXNSZXNldFwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2Us");
+result.Append("XCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiYml0XCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVlXCI6XCIwXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjo4fSx7XCJpZFwiOjI3MSxcImNhcHRpb25cIjpcIueh");
+result.Append("ruiupOS6uuWRmGlkXCIsXCJOYW1lXCI6XCJDb25maXJtVXNlcklkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcImxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MTYsXCJJc1BLSURcIjpmYWxz");
+result.Append("ZSxcIm9yZGVyaWRcIjo5fSx7XCJpZFwiOjI3MixcImNhcHRpb25cIjpcIuehruiupOaXtumXtFwiLFwiTmFtZVwiOlwiQ29uZmlybVRpbWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRhdGV0aW1lXCIs");
+result.Append("XCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MTB9LHtcImlkXCI6MjczLFwiY2FwdGlvblwiOlwi5aSN5L2N5pe26Ze0XCIsXCJOYW1lXCI6XCJSZXNldFRpbWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZh");
+result.Append("bHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRhdGV0aW1lXCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6MTF9LHtcImlkXCI6Mjc4LFwiY2FwdGlvblwiOlwi5oql6K2m5pe26Ze0XCIs");
+result.Append("XCJOYW1lXCI6XCJBbGFybVRpbWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRhdGV0aW1lXCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE2LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6");
+result.Append("Nn0se1wiaWRcIjoyNzksXCJjYXB0aW9uXCI6XCLmiqXorabml7bngrnlgLxcIixcIk5hbWVcIjpcIlBvaW50VmFsdWVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImRvdWJsZVwiLFwibGVuZ3RoXCI6XCJc");
+result.Append("IixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjN9XSxcIm5ld0NvbHVtbnNcIjpbe1wiaWRcIjoyODAsXCJjYXB0aW9uXCI6XCLmiYDlsZ7miqXorabnu4RcIixcIk5hbWVcIjpcIkFsYXJtR3JvdXBcIixcIklzQXV0b0luY3JlbWVu");
+result.Append("dFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoxNixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjEyfV0sXCJjaGFuZ2VkQ29sdW1uc1wiOltdLFwiZGVsZXRlZENvbHVtbnNc");
+result.Append("IjpbXSxcIklEWENvbmZpZ3NcIjpbe1wiSXNVbmlxdWVcIjpmYWxzZSxcIklzQ2x1c3RlcmVkXCI6ZmFsc2UsXCJDb2x1bW5OYW1lc1wiOltcIkFkZHJlc3NcIl0sXCJOYW1lXCI6bnVsbH1dLFwiSURcIjowfSJ9LHsiTmFtZSI6ImRhdGFiYXNlaWQiLCJWYWx1ZSI6");
+result.Append("Mn1dLCJSb3dTdGF0ZSI6MH0seyJJdGVtcyI6W3siTmFtZSI6ImlkIiwiVmFsdWUiOjgzfSx7Ik5hbWUiOiJ0eXBlIiwiVmFsdWUiOiJDaGFuZ2VUYWJsZUFjdGlvbiJ9LHsiTmFtZSI6ImNvbnRlbnQiLCJWYWx1ZSI6IntcIk9sZFRhYmxlTmFtZVwiOlwiVXNlcklu");
+result.Append("Zm9cIixcIk5ld1RhYmxlTmFtZVwiOlwiVXNlckluZm9cIixcIm90aGVyQ29sdW1uc1wiOlt7XCJpZFwiOjI3NCxcIk5hbWVcIjpcImlkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjp0cnVlLFwiQ2FuTnVsbFwiOmZhbHNlLFwiZGJUeXBlXCI6XCJpbnRcIixcIlRhYmxl");
+result.Append("SURcIjoxNyxcIklzUEtJRFwiOnRydWUsXCJvcmRlcmlkXCI6MH0se1wiaWRcIjoyNzUsXCJOYW1lXCI6XCJOYW1lXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUw");
+result.Append("XCIsXCJUYWJsZUlEXCI6MTcsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoxfSx7XCJpZFwiOjI3NixcIk5hbWVcIjpcIlBhc3N3b3JkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIs");
+result.Append("XCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MTcsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjoyfSx7XCJpZFwiOjI3NyxcImNhcHRpb25cIjpcIuinkuiJslwiLFwiTmFtZVwiOlwiUm9sZVwiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFsc2UsXCJDYW5O");
+result.Append("dWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiaW50XCIsXCJFbnVtRGVmaW5lXCI6XCJOb25lID0gMCxcXG5BZG1pbiA9IDEsXFxuRGVzaWduZXIgPSAyLFxcblVzZXIgPSAzXCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVlXCI6XCIwXCIsXCJUYWJsZUlEXCI6");
+result.Append("MTcsXCJJc1BLSURcIjpmYWxzZSxcIm9yZGVyaWRcIjozfV0sXCJuZXdDb2x1bW5zXCI6W3tcImlkXCI6MjgxLFwiY2FwdGlvblwiOlwi5YWz5rOo5ZOq5Lqb5oql6K2m57uEXCIsXCJOYW1lXCI6XCJBbGFybUdyb3Vwc1wiLFwiSXNBdXRvSW5jcmVtZW50XCI6ZmFs");
+result.Append("c2UsXCJDYW5OdWxsXCI6dHJ1ZSxcImRiVHlwZVwiOlwiaW50XCIsXCJsZW5ndGhcIjpcIlwiLFwiVGFibGVJRFwiOjE3LFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NH1dLFwiY2hhbmdlZENvbHVtbnNcIjpbXSxcImRlbGV0ZWRDb2x1bW5zXCI6W10sXCJJ");
+result.Append("RFhDb25maWdzXCI6W10sXCJJRFwiOjB9In0seyJOYW1lIjoiZGF0YWJhc2VpZCIsIlZhbHVlIjoyfV0sIlJvd1N0YXRlIjowfV0sIkNvbHVtbnMiOlt7IkNvbHVtbk5hbWUiOiJpZCIsIkRhdGFUeXBlIjoiU3lzdGVtLkludDY0In0seyJDb2x1bW5OYW1lIjoidHlw");
+result.Append("ZSIsIkRhdGFUeXBlIjoiU3lzdGVtLlN0cmluZyJ9LHsiQ29sdW1uTmFtZSI6ImNvbnRlbnQiLCJEYXRhVHlwZSI6IlN5c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5hbWUiOiJkYXRhYmFzZWlkIiwiRGF0YVR5cGUiOiJTeXN0ZW0uSW50NjQifV19XSwiRGF0YVNldE5h");
+result.Append("bWUiOiI0Mzc3YjBkNi1lZmY5LTQzMzAtYWJlYi1mMGFhM2FmMjZlYWUifQ==");
 return result.ToString();}
 }}

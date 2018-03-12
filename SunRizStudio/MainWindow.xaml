@@ -258,9 +258,7 @@
                 <MenuItem Header="工作窗口(_W)"></MenuItem>
                 <MenuItem Header="详细配置窗口(_D)"></MenuItem>
             </MenuItem>
-            <MenuItem Header="窗口(_W)">
-                <MenuItem Header="报警窗口(_A)" x:Name="menuAlarmWindow" Click="menuAlarmWindow_Click"></MenuItem>
-            </MenuItem>
+           
             <MenuItem Header="帮助(_H)">
                 <MenuItem Header="帮助主题(_T)"></MenuItem>
                 <MenuItem Header="关于(_A)"></MenuItem>
@@ -297,6 +295,7 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
                             <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
+                            <EventSetter Event="PreviewMouseUp" Handler="TreeViewItem_PreviewMouseUp"></EventSetter>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemsPanel>

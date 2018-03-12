@@ -31,14 +31,28 @@ namespace SunRizStudio.Models.Nodes
             var userNode = new SolutionNode()
             {
                 Text = "用户权限管理",
-                Icon = "/Images/solution/users.png"
+                Icon = "/Images/solution/users.png",
+                DoublicClickHandler = (s, e) => {
+                    MainWindow.Instance.ShowUserMgrWindow();
+                },
             };
             this.Nodes.Add(userNode);
+
+            var alarmNode = new SolutionNode()
+            {
+                Text = "报警查询",
+                Icon = "/Images/solution/alarm.png",
+                DoublicClickHandler = (s, e) => {
+                    MainWindow.Instance.ShowAlarmWindow();
+                },
+
+            };
+            this.Nodes.Add(alarmNode);
 
             var setttingNode = new SystemSettingNode()
             {
                 Text = "系统配置",
-                Icon = "/Images/solution/setting.png"
+                Icon = "/Images/solution/setting.png",                
             };
             this.Nodes.Add(setttingNode);
 

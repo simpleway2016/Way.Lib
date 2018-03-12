@@ -47,12 +47,20 @@ namespace SunRizStudio.Dialogs
             var screen = System.Windows.Forms.Screen.FromHandle(handle);
 
             _pageSize = 5 + screen.Bounds.Height / 22;
-            _pageSize = 2;
             list.ItemsSource = _dataSource;
             reload();
 
             var scrollViewer = list.GetChildByName<ScrollViewer>(null);
             scrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
+
+            //窗口一出来就被主窗口挡着，所以这么处理一下
+            this.Topmost = true;
+
+            Task.Run(() =>
+            {
+                System.Threading.Thread.Sleep(500);
+                this.Dispatcher.Invoke(() => { this.Topmost = false; });
+            });
         }
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)

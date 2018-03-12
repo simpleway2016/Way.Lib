@@ -110,26 +110,10 @@
                             </ComboBox>
 
                             <TextBlock Text="报警组" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Text="{Binding AlarmGroup,Mode=TwoWay}" Grid.Row="4" Grid.Column="1">
-                                <ComboBoxItem Content="1"></ComboBoxItem>
-                                <ComboBoxItem Content="2"></ComboBoxItem>
-                                <ComboBoxItem Content="3"></ComboBoxItem>
-                                <ComboBoxItem Content="4"></ComboBoxItem>
-                                <ComboBoxItem Content="5"></ComboBoxItem>
-                                <ComboBoxItem Content="6"></ComboBoxItem>
-                                <ComboBoxItem Content="7"></ComboBoxItem>
-                                <ComboBoxItem Content="8"></ComboBoxItem>
-                                <ComboBoxItem Content="9"></ComboBoxItem>
-                                <ComboBoxItem Content="10"></ComboBoxItem>
-                                <ComboBoxItem Content="11"></ComboBoxItem>
-                                <ComboBoxItem Content="12"></ComboBoxItem>
-                                <ComboBoxItem Content="13"></ComboBoxItem>
-                                <ComboBoxItem Content="14"></ComboBoxItem>
-                                <ComboBoxItem Content="15"></ComboBoxItem>
-                                <ComboBoxItem Content="16"></ComboBoxItem>
+                            <ComboBox x:Name="cmd_AlarmGroup"  SelectedValuePath="value" DisplayMemberPath="text"  Padding="2,4,0,0" SelectedValue="{Binding AlarmGroup,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1">
                             </ComboBox>
 
-                        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
+                            <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
 
                             <TextBlock Text="报警自动确认" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
                             <CheckBox Padding="2,4,0,0" IsChecked="{Binding AlarmAutoConfirm,Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="6" Grid.Column="1"></CheckBox>

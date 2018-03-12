@@ -165,6 +165,8 @@ namespace Way.Lib
         /// <param name="source"></param>
         public void CopyValue(DataModel source)
         {
+            if (this == source)
+                return;
             var properties = source.GetType().GetProperties();
             foreach( var p in properties )
             {

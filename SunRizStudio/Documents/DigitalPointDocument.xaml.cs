@@ -32,6 +32,18 @@ namespace SunRizStudio.Documents
 
             InitializeComponent();
 
+            //报警组
+            var items = new List<object>();
+            for (int i = 0; i < 16; i++)
+            {
+                items.Add(new
+                {
+                    text = (i + 1).ToString(),
+                    value = (1 << i)
+                });
+            }
+            cmd_AlarmGroup.ItemsSource = items;
+
             Controller = new PointDocumentController(this, gridProperty, device, DevicePoint_TypeEnum.Digital, parent, dataModel, folderId);
             this.Title = Controller.OriginalModel.Name;
         }
