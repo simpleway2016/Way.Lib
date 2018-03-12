@@ -126,6 +126,28 @@ namespace SunRizStudio.Documents
             fullScreenWindow.Content = this;
             fullScreenWindow.Owner = MainWindow.Instance;
             fullScreenWindow.GoFullscreen();
+            if (this.TabItem != null)
+            {
+                //是设计模式，不能直接关闭窗口
+                fullScreenWindow.Closing += (s, e) =>
+                {
+                    if (this.TabItem != null)
+                    {
+                        this.TabItem.Content = this;
+                        //设置网页editor为已经退出全屏状态
+                        jsContext.EvaluateScript("setExitedFullScreen()");
+                    }
+                    else
+                    {
+                        bool canceled = false;
+                        this.OnClose(ref canceled);
+                        if (canceled)
+                        {
+                            e.Cancel = true;
+                        }
+                    }
+                };
+            }
             fullScreenWindow.ShowDialog();
         }
         void exitFullScreen(string pa)
@@ -304,9 +326,10 @@ namespace SunRizStudio.Documents
             var doc = new ControlWindowDocument(_parentNode, _dataModel, true);
             fullScreenWindow = new Window();
             fullScreenWindow.Content = doc;
-            fullScreenWindow.Owner = this.GetParentByName<Window>(null);
+            fullScreenWindow.Owner = this.GetParentByName<Window>(null);            
             fullScreenWindow.GoFullscreen();
             fullScreenWindow.ShowDialog();
+
         }
         void watchPointValues(string jsonStr)
         {

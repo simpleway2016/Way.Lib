@@ -315,7 +315,8 @@
             event.initMessageEvent('fullScreen', true, true, "", origin, 1234, window, null);
             document.dispatchEvent(event);            
         }
-        function exitFullScreen() {
+        function setExitedFullScreen()
+        {
             var btn = document.body.querySelector("#btnFullScreen");
             if (!btn || btn.title == "退出全屏") {
                 if (btn) {
@@ -323,6 +324,12 @@
                     btn.setAttribute("onclick", "fullScreen()");
                     btn.style.backgroundImage = "url(/images/toolbox/fullscreen.png)";
                 }
+            }
+        }
+        function exitFullScreen() {
+            var btn = document.body.querySelector("#btnFullScreen");
+            if (!btn || btn.title == "退出全屏") {
+                setExitedFullScreen();
                 var event = document.createEvent('MessageEvent');
                 var origin = window.location.protocol + '//' + window.location.host;
                 event.initMessageEvent('exitFullScreen', true, true, "", origin, 1234, window, null);

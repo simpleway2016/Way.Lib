@@ -5,22 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SunRizStudio.Dialogs"
         mc:Ignorable="d"
-        Title="报警窗口" Height="500" Width="800">
+        Title="报警窗口" Height="500" Width="800" Loaded="Window_Loaded">
     <Grid>
         <ListView x:Name="list" SelectionChanged="list_SelectionChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="报警内容" Width="220" DisplayMemberBinding="{Binding content}"/>
-                    <GridViewColumn Header="点名称" Width="auto" DisplayMemberBinding="{Binding pointName}"/>
-                    <GridViewColumn Header="点描述" Width="auto" DisplayMemberBinding="{Binding desc}"/>
-                    <GridViewColumn Header="点值" Width="auto" DisplayMemberBinding="{Binding value}"/>
+                    <GridViewColumn Header="报警内容" Width="220" DisplayMemberBinding="{Binding Content}"/>
+                    <GridViewColumn Header="点名称" Width="auto" DisplayMemberBinding="{Binding Address}"/>
+                    <GridViewColumn Header="点描述" Width="auto" DisplayMemberBinding="{Binding AddressDesc}"/>
+                    <GridViewColumn Header="点值" Width="auto" DisplayMemberBinding="{Binding PointValue}"/>
+                    <GridViewColumn Header="报警时间" Width="auto" DisplayMemberBinding="{Binding AlarmTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                    <GridViewColumn Header="确认时间" Width="auto" DisplayMemberBinding="{Binding ConfirmTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
                     <GridViewColumn Header="">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="确认报警" Width="100" Height="22" Margin="5,5,5,5"></Button>
+                                    <Button Content="确认报警" Width="100" Height="22" Margin="5,5,5,5" x:Name="btnConfirm" Click="btnConfirm_Click"></Button>
                                     <Button Content="报警重置" Width="100" Height="22" Margin="0,5,5,5"></Button>
                                 </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsConfirm}" Value="True">
+                                        <Setter TargetName="btnConfirm" Property="Visibility" Value="Hidden"></Setter>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -28,7 +35,7 @@
             </ListView.View>
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="Background" Value="{Binding bgColor}"></Setter>
+                    <Setter Property="Background" Value="{Binding BgColor}"></Setter>
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>

@@ -25,6 +25,7 @@ namespace SunRizStudio
     /// </summary>
     public partial class MainWindow : Window
     {
+        Dialogs.AlarmWindow _alarmWindow;
         public static MainWindow Instance;
         Models.SolutionNodeCollection Nodes = new Models.SolutionNodeCollection(null);
 
@@ -283,6 +284,18 @@ namespace SunRizStudio
                     this.SearchResultDialog.Show();
                 }
             }, key);
+        }
+
+        private void menuAlarmWindow_Click(object sender, RoutedEventArgs e)
+        {
+            ShowAlarmWindow();
+        }
+
+        public void ShowAlarmWindow()
+        {
+            if (_alarmWindow == null)
+                _alarmWindow = new Dialogs.AlarmWindow();
+            _alarmWindow.Show();
         }
     }
 

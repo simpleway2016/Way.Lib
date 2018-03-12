@@ -15,6 +15,12 @@ namespace SunRizServer.Controllers
                 return _db ?? (_db = new SysDB());
             }
         }
+
+        public UserInfo User
+        {
+            get;
+            set;
+        }
         protected override void OnUnLoad()
         {
             if (_db != null)

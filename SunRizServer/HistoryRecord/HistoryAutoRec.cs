@@ -310,7 +310,11 @@ namespace SunRizServer.HistoryRecord
                     else if (point.ValueRelativeChange == true)
                     {
                         //相对变化是指这个变量当前值与前一个历史值比较，变化超过设定值（这个值是该变量量程的百分比）后进行历史保存
-                        if (myPoint.LastValue == null || myPoint.LastValue == 0 || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault())*100 / myPoint.LastValue >= point.ValueRelativeChangeSetting)
+                        if(myPoint.LastValue == null)
+                        {
+                            myPoint.LastValue = dblValue;
+                        }
+                        else if (myPoint.LastValue == 0 || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault())*100 / myPoint.LastValue >= point.ValueRelativeChangeSetting)
                         {
                             WriteHistory(point, dblValue);
                             myPoint.LastValue = dblValue;
@@ -326,11 +330,12 @@ namespace SunRizServer.HistoryRecord
                                 if (dblValue < lowAlarm.Value)
                                 {
                                     AlarmHelper.AddAlarm(new Alarm() {
-                                        Content = $"触发低报{lowAlarm.Number}",
+                                        Content = $"触发低{lowAlarm.Number}报警",
                                         Address = point.Name,
                                         AddressDesc = point.Desc,    
                                         PointValue = dblValue,
                                     });
+                                    break;
                                 }
                             }
                             foreach (var hiAlarm in myPoint.HiAlarmConfig)
@@ -339,17 +344,18 @@ namespace SunRizServer.HistoryRecord
                                 {
                                     AlarmHelper.AddAlarm(new Alarm()
                                     {
-                                        Content = $"触发高报{hiAlarm.Number}",
+                                        Content = $"触发高{hiAlarm.Number}报警",
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
                                         PointValue = dblValue,
                                     });
+                                    break;
                                 }
                             }
 
                             if (point.IsAlarmOffset == true)
                             {
-                                if (dblValue - point.AlarmOffsetOriginalValue > point.AlarmOffsetValue)
+                                if (Math.Abs( dblValue - point.AlarmOffsetOriginalValue.GetValueOrDefault()) > point.AlarmOffsetValue)
                                 {
                                     AlarmHelper.AddAlarm(new Alarm()
                                     {
@@ -363,9 +369,11 @@ namespace SunRizServer.HistoryRecord
                             else if (point.IsAlarmPercent == true)
                             {
                                 if (myPoint.LastValue == null)
-                                    myPoint.LastValue = 0;
-
-                                if (Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) * 100 / myPoint.LastValue > point.Percent)
+                                {
+                                    myPoint.LastValue = dblValue;
+                                    myPoint.LastValueTime = DateTime.Now;
+                                }
+                                else if (myPoint.LastValue == 0 || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) * 100 / myPoint.LastValue > point.Percent)
                                 {
                                     if ((DateTime.Now - myPoint.LastValueTime).TotalSeconds < point.ChangeCycle)
                                     {

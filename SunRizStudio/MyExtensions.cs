@@ -65,7 +65,7 @@ namespace SunRizStudio
 
             //变成无边窗体 
             window.WindowState = WindowState.Normal;//假如已经是Maximized，就不能进入全屏，所以这里先调整状态 
-            window.WindowStyle = WindowStyle.None;
+            //window.WindowStyle = WindowStyle.None;
             window.ResizeMode = ResizeMode.NoResize;
             //window.Topmost = true;//最大化后总是在最上面 
 
@@ -75,8 +75,8 @@ namespace SunRizStudio
             Screen screen = Screen.FromHandle(handle);
 
             //调整窗口最大化,全屏的关键代码就是下面3句 
-            window.MaxWidth = screen.Bounds.Width;
-            window.MaxHeight = screen.Bounds.Height;
+            //window.MaxWidth = screen.Bounds.Width;
+            //window.MaxHeight = screen.Bounds.Height;
             window.WindowState = WindowState.Maximized;
 
             //解决切换应用程序的问题

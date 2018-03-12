@@ -10,7 +10,16 @@ namespace SunRizServer.Controllers
 {
     [RemotingUrl("Home")]
     public class StudioController : BaseController
-    { 
+    {
+        public IQueryable<Alarm> Alarms
+        {
+            get
+            {
+                return from m in db.Alarm
+                       orderby m.IsConfirm, m.AlarmTime descending
+                       select m;
+            }
+        }
 
         [RemotingMethod]
         public int UpdateGateway(CommunicationDriver driver)
@@ -34,7 +43,7 @@ namespace SunRizServer.Controllers
         public Device GetDeviceAndDriver(int deviceId)
         {
             //必须using Microsoft.EntityFrameworkCore;才有include
-            var device = this.db.Device.Include(m=>m.Driver).FirstOrDefault(m => m.id == deviceId);
+            var device = this.db.Device.Include(m => m.Driver).FirstOrDefault(m => m.id == deviceId);
             return device;
         }
 
@@ -95,10 +104,10 @@ namespace SunRizServer.Controllers
             return this.db.ControlWindow.Where(m => m.ControlUnitId == controlUnitId && m.FolderId == folderId).OrderBy(m => m.Name).ToArray();
         }
         [RemotingMethod]
-        public string GetWindowContent(int windowid,string windowCode)
+        public string GetWindowContent(int windowid, string windowCode)
         {
             ControlWindow window = null;
-            if(windowCode != null)
+            if (windowCode != null)
                 window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
@@ -113,7 +122,7 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int DeleteControlWindowFolder(int folderid)
         {
-            this.db.Delete(this.db.ControlWindowFolder.Where(m=>m.id == folderid));
+            this.db.Delete(this.db.ControlWindowFolder.Where(m => m.id == folderid));
             return 0;
         }
         [RemotingMethod]
@@ -126,7 +135,7 @@ namespace SunRizServer.Controllers
         public string GetWindowCode(int windowid, string windowCode)
         {
             ControlWindow window = null;
-            if (!string.IsNullOrEmpty( windowCode))
+            if (!string.IsNullOrEmpty(windowCode))
                 window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
@@ -163,7 +172,7 @@ namespace SunRizServer.Controllers
         public List<object> FindDevicePointInWindow(string pointName)
         {
             List<object> findedWindows = new List<object>();
-            foreach(var window in this.db.ControlWindow )
+            foreach (var window in this.db.ControlWindow)
             {
                 var json = System.IO.File.ReadAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, System.Text.Encoding.UTF8);
                 var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
@@ -176,12 +185,13 @@ namespace SunRizServer.Controllers
                     var name = m.Groups[1].Value;
                     if (CompareString(name, pointName))
                     {
-                        var windowPath = GetWindowPath(window.id.Value); 
-                        findedWindows.Add(new {
+                        var windowPath = GetWindowPath(window.id.Value);
+                        findedWindows.Add(new
+                        {
                             id = window.id.Value,
                             path = windowPath,
                             content = name
-                        });     
+                        });
                     }
                 }
             }
@@ -194,9 +204,9 @@ namespace SunRizServer.Controllers
         /// <param name="content"></param>
         /// <param name="str">匹配的字符串，支持通配符*</param>
         /// <returns>如果content包含str，返回true</returns>
-        bool CompareString(string content,string str)
+        bool CompareString(string content, string str)
         {
-            if(str.Contains("*") == false)
+            if (str.Contains("*") == false)
             {
                 return string.Equals(content, str, StringComparison.CurrentCultureIgnoreCase);
             }
@@ -221,7 +231,7 @@ namespace SunRizServer.Controllers
         {
             ControlWindow window = null;
             if (windowCode != null)
-                window = this.db.ControlWindow.Select(m=>new ControlWindow { windowWidth=m.windowWidth, windowHeight=m.windowHeight, Name=m.Name,id=m.id }).FirstOrDefault(m => m.Code == windowCode);
+                window = this.db.ControlWindow.Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault(m => m.id == windowid);
             return window;
@@ -230,7 +240,7 @@ namespace SunRizServer.Controllers
         public string GetWindowPath(int windowid)
         {
             var window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
-           
+
             StringBuilder path = new StringBuilder();
             path.Append(window.Name);
             var folder = this.db.ControlWindowFolder.FirstOrDefault(m => m.id == window.FolderId);
@@ -247,7 +257,7 @@ namespace SunRizServer.Controllers
             return path.ToString();
         }
 
-        void checkChild(int windowId,int childid)
+        void checkChild(int windowId, int childid)
         {
             if (this.db.ChildWindow.Any(m => m.WindowId == childid && m.ChildWindowId == windowId))
             {
@@ -257,7 +267,7 @@ namespace SunRizServer.Controllers
             else
             {
                 var myChildrens = this.db.ChildWindow.Where(m => m.WindowId == childid).Select(m => m.ChildWindowId).ToArray();
-                foreach( var c in myChildrens )
+                foreach (var c in myChildrens)
                 {
                     checkChild(windowId, c.Value);
                 }
@@ -288,14 +298,15 @@ namespace SunRizServer.Controllers
             }
             var windowCodes = obj.Value<Newtonsoft.Json.Linq.JArray>("windowCodes");
             var windowids = new int[windowCodes.Count];
-            for(int i = 0; i < windowids.Length; i ++)
+            for (int i = 0; i < windowids.Length; i++)
             {
                 windowids[i] = db.ControlWindow.Where(m => m.Code == windowCodes[i].ToString()).Select(m => m.id).FirstOrDefault().Value;
             }
             if (window.id != null)
             {
                 //检查循环嵌套
-                foreach (var item in windowids) {
+                foreach (var item in windowids)
+                {
                     checkChild(window.id.Value, item);
                 }
             }
@@ -365,7 +376,7 @@ namespace SunRizServer.Controllers
                 throw new Exception("点名已存在");
 
             bool needRestartHistory = false;
-            if(point.ChangedProperties.Any(m=>m.Key.Contains("ValueOnTimeChange") || m.Key.Contains("ValueAbsoluteChange") || m.Key.Contains("ValueRelativeChange") ))
+            if (point.ChangedProperties.Any(m => m.Key.Contains("ValueOnTimeChange") || m.Key.Contains("ValueAbsoluteChange") || m.Key.Contains("ValueRelativeChange") || m.Key.Contains("IsAlarm")))
             {
                 //需要重新启动历史保存
                 needRestartHistory = true;
@@ -393,11 +404,12 @@ namespace SunRizServer.Controllers
             return Guid.NewGuid().ToString("N");
         }
         [RemotingMethod]
-        public Dictionary<string,object> GetPointAddrDetail(string pointname)
+        public Dictionary<string, object> GetPointAddrDetail(string pointname)
         {
             Dictionary<string, object> result = new Dictionary<string, object>();
-            var point = this.db.DevicePoint.Where(m => m.Name == pointname).Select(m=>new DevicePoint {
-                Address = m.Address ,
+            var point = this.db.DevicePoint.Where(m => m.Name == pointname).Select(m => new DevicePoint
+            {
+                Address = m.Address,
                 DeviceId = m.DeviceId
             }).FirstOrDefault();
 
@@ -461,11 +473,11 @@ namespace SunRizServer.Controllers
                     {
                         name = pointNames[i],
                         isDigital = devPoint.Type == DevicePoint_TypeEnum.Digital,
-                        max = devPoint.Type == DevicePoint_TypeEnum.Digital ? 1 : ( devPoint.TransMax??unit.Max??systemSetting.Max),
-                        min = devPoint.Type == DevicePoint_TypeEnum.Digital ? 0 : (devPoint.TransMin??unit.Min??systemSetting.Min),
+                        max = devPoint.Type == DevicePoint_TypeEnum.Digital ? 1 : (devPoint.TransMax ?? unit.Max ?? systemSetting.Max),
+                        min = devPoint.Type == DevicePoint_TypeEnum.Digital ? 0 : (devPoint.TransMin ?? unit.Min ?? systemSetting.Min),
                         addr = devPoint.Address,
                         deviceId = devPoint.DeviceId,
-                        colorLine1 = unit.LineColor1?? systemSetting.LineColor1,
+                        colorLine1 = unit.LineColor1 ?? systemSetting.LineColor1,
                         colorLine2 = unit.LineColor2 ?? systemSetting.LineColor2,
                         colorLine3 = unit.LineColor3 ?? systemSetting.LineColor3,
                         colorLine4 = unit.LineColor4 ?? systemSetting.LineColor4,
@@ -488,7 +500,7 @@ namespace SunRizServer.Controllers
         public SystemSetting GetSystemSetting()
         {
             var data = this.db.SystemSetting.FirstOrDefault();
-            if(data == null)
+            if (data == null)
             {
                 data = new SystemSetting();
                 this.db.Insert(data);
@@ -499,7 +511,7 @@ namespace SunRizServer.Controllers
         public int UpdateSystemSetting(SystemSetting data)
         {
             var needRestartHistory = false;
-            if (data.ChangedProperties.Any(m=>m.Key == "HistoryPath"))
+            if (data.ChangedProperties.Any(m => m.Key == "HistoryPath"))
             {
                 //历史保存路径修改了
                 needRestartHistory = true;
@@ -513,7 +525,7 @@ namespace SunRizServer.Controllers
         }
 
         [RemotingMethod]
-        public object SearchHistory(string[] pointNames,DateTime startTime,DateTime endTime)
+        public object SearchHistory(string[] pointNames, DateTime startTime, DateTime endTime)
         {
             using (DB.SunRizHistory hisDB = new DB.SunRizHistory(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
             {
@@ -525,9 +537,10 @@ namespace SunRizServer.Controllers
                                 orderby m.Time
                                 select m).ToArray();
                     var resultData = new object[data.Length];
-                    for(int i = 0; i < resultData.Length; i ++)
+                    for (int i = 0; i < resultData.Length; i++)
                     {
-                        resultData[i] = new {
+                        resultData[i] = new
+                        {
                             seconds = Helper.ConvertDateTimeInt(data[i].Time.GetValueOrDefault()),
                             value = data[i].Value.GetValueOrDefault()
                         };
@@ -536,6 +549,28 @@ namespace SunRizServer.Controllers
                 }
                 return result;
             }
+        }
+
+        /// <summary>
+        /// get last alarm item time
+        /// </summary>
+        /// <param name="myLastAlarmId">clien last alarm raise time</param>
+        /// <returns></returns>
+        [RemotingMethod]
+        public DateTime? GetLastAlarmTime(DateTime? myLastAlarmTime)
+        {
+            return (from m in db.Alarm where m.AlarmTime > myLastAlarmTime select m.AlarmTime).FirstOrDefault();
+        }
+
+        [RemotingMethod]
+        public void ConfirmAlarm(int id)
+        {
+            var alarm = db.Alarm.FirstOrDefault(m => m.id == id);
+            alarm.IsConfirm = true;
+            alarm.ConfirmTime = DateTime.Now;
+            if(this.User != null)
+                alarm.ConfirmUserId = this.User.id;
+            db.Update(alarm);
         }
     }
 }
