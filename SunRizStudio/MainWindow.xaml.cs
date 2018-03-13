@@ -119,15 +119,6 @@ namespace SunRizStudio
             documentContainer.Items.Add(newItem);
             documentContainer.SelectedItem = newItem;           
         }
-        private void TreeViewItem_PreviewMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-            {
-                e.Handled = true;
-                TreeViewItem_MouseDoubleClick(sender, e);
-                return;
-            }
-        }
 
         private void TreeViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -143,10 +134,13 @@ namespace SunRizStudio
             }
             else
             {
-                //if (e.ClickCount == 2)
-                //{
-                //    return;
-                //}
+                //list里面，因为devicePoint在MouseDown会实现drop，所以MouseDoubleClick无法触发，只能这里触发了
+                if (e.ClickCount == 2)
+                {
+                    e.Handled = true;
+                    TreeViewItem_MouseDoubleClick(sender, e);
+                    return;
+                }
             }
             Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
             data.MouseDown(sender, e);
@@ -293,15 +287,35 @@ namespace SunRizStudio
             }, key);
         }
 
+        void showWindow(Window window)
+        {
+            window.Show();
+
+            var originalTopmost = window.Topmost;
+            //窗口一出来就被主窗口挡着，所以这么处理一下
+            window.Topmost = true;
+
+            Task.Run(() =>
+            {
+                System.Threading.Thread.Sleep(100);
+                window.Dispatcher.Invoke(() => { window.Topmost = originalTopmost; });
+            });
+        }
+
         public void ShowAlarmWindow()
         {
             if (_alarmWindow == null)
                 _alarmWindow = new Dialogs.AlarmWindow();
-            _alarmWindow.Show();
+            showWindow(_alarmWindow);
         }
         public void ShowUserMgrWindow()
         {
-            new Dialogs.UserManager().Show();
+            showWindow(new Dialogs.UserManager());
+        }
+
+        private void menuModifyPwd_Click(object sender, RoutedEventArgs e)
+        {
+            showWindow(new Dialogs.ModifyPwd());
         }
     }
 

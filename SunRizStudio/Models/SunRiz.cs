@@ -1858,28 +1858,6 @@ Digital = 2,
             }
         }
 
-        String _SafeArea;
-        /// <summary>
-        /// 安全区
-        /// </summary>
-        public virtual String SafeArea
-        {
-            get
-            {
-                return this._SafeArea;
-            }
-            set
-            {
-                if ((this._SafeArea != value))
-                {
-                    var original = this._SafeArea;
-                    this._SafeArea = value;
-                    this.OnPropertyChanged("SafeArea",original,value);
-
-                }
-            }
-        }
-
         System.Nullable<double> _HiAlarmValue;
         /// <summary>
         /// 高报警值
@@ -2095,6 +2073,28 @@ Digital = 2,
                     var original = this._HiAlarmPriority5;
                     this._HiAlarmPriority5 = value;
                     this.OnPropertyChanged("HiAlarmPriority5",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _SafeArea;
+        /// <summary>
+        /// 安全区
+        /// </summary>
+        public virtual System.Nullable<Int32> SafeArea
+        {
+            get
+            {
+                return this._SafeArea;
+            }
+            set
+            {
+                if ((this._SafeArea != value))
+                {
+                    var original = this._SafeArea;
+                    this._SafeArea = value;
+                    this.OnPropertyChanged("SafeArea",original,value);
 
                 }
             }
@@ -5737,6 +5737,28 @@ User = 3,
                     var original = this._AlarmGroups;
                     this._AlarmGroups = value;
                     this.OnPropertyChanged("AlarmGroups",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _SafeArea;
+        /// <summary>
+        /// 哪些安全区
+        /// </summary>
+        public virtual System.Nullable<Int32> SafeArea
+        {
+            get
+            {
+                return this._SafeArea;
+            }
+            set
+            {
+                if ((this._SafeArea != value))
+                {
+                    var original = this._SafeArea;
+                    this._SafeArea = value;
+                    this.OnPropertyChanged("SafeArea",original,value);
 
                 }
             }

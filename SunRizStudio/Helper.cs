@@ -8,6 +8,7 @@ namespace SunRizStudio
 {
     class Helper
     {
+        public static SunRizServer.UserInfo CurrentUser;
         public static byte[] Exponent;
         public static byte[] Modulus;
         static RemotingClient _Remote;

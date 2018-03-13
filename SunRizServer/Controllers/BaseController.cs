@@ -18,8 +18,14 @@ namespace SunRizServer.Controllers
 
         public UserInfo User
         {
-            get;
-            set;
+            get
+            {
+                return Session["user"] as UserInfo;
+            }
+            set
+            {
+                Session["user"] = value;
+            }
         }
         protected override void OnUnLoad()
         {

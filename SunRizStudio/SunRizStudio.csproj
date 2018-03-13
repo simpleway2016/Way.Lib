@@ -74,6 +74,12 @@
     <Compile Include="Dialogs\AlarmWindow.xaml.cs">
       <DependentUpon>AlarmWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\LoginDialog.xaml.cs">
+      <DependentUpon>LoginDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ModifyPwd.xaml.cs">
+      <DependentUpon>ModifyPwd.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SearchResultDialog.xaml.cs">
       <DependentUpon>SearchResultDialog.xaml</DependentUpon>
     </Compile>
@@ -100,6 +106,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\InputBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\LoginDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ModifyPwd.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

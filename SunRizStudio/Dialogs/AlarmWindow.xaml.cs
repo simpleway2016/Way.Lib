@@ -53,14 +53,7 @@ namespace SunRizStudio.Dialogs
             var scrollViewer = list.GetChildByName<ScrollViewer>(null);
             scrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
 
-            //窗口一出来就被主窗口挡着，所以这么处理一下
-            this.Topmost = true;
-
-            Task.Run(() =>
-            {
-                System.Threading.Thread.Sleep(500);
-                this.Dispatcher.Invoke(() => { this.Topmost = false; });
-            });
+            
         }
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)

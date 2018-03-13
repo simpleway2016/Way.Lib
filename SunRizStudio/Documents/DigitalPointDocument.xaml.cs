@@ -44,6 +44,18 @@ namespace SunRizStudio.Documents
             }
             cmd_AlarmGroup.ItemsSource = items;
 
+            //安全区
+            items = new List<object>();
+            for (int i = 0; i < 26; i++)
+            {
+                items.Add(new
+                {
+                    text = ((char)(((int)('A')) + i)).ToString(),
+                    value = (1 << i)
+                });
+            }
+            cmbSafeArea.ItemsSource = items;
+
             Controller = new PointDocumentController(this, gridProperty, device, DevicePoint_TypeEnum.Digital, parent, dataModel, folderId);
             this.Title = Controller.OriginalModel.Name;
         }

@@ -222,7 +222,11 @@
             <MenuItem Header="文件(_F)">
                 <MenuItem Header="打印设置(_U)..."></MenuItem>
                 <MenuItem Header="打印(_P)..."></MenuItem>
+                <Separator></Separator>
                 <MenuItem Header="预览(_V)..."></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="修改密码(_P)..." x:Name="menuModifyPwd" Click="menuModifyPwd_Click"></MenuItem>
+                <Separator></Separator>
                 <MenuItem Header="退出" x:Name="menuExitApp" Click="menuExitApp_Click"></MenuItem>
             </MenuItem>
             <MenuItem Header="编辑(_E)">
@@ -295,7 +299,6 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
                             <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
-                            <EventSetter Event="PreviewMouseUp" Handler="TreeViewItem_PreviewMouseUp"></EventSetter>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemsPanel>

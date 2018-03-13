@@ -51,11 +51,7 @@
                        
 
                             <TextBlock Text="安全区" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="6" Grid.Column="0"></TextBlock>
-                            <ComboBox BorderThickness="0" Text="{Binding SafeArea,Mode=TwoWay}" Grid.Row="6" Grid.Column="1">
-                                <ComboBoxItem Content="A"></ComboBoxItem>
-                                <ComboBoxItem Content="B"></ComboBoxItem>
-                                <ComboBoxItem Content="C"></ComboBoxItem>
-                                <ComboBoxItem Content="D"></ComboBoxItem>
+                            <ComboBox x:Name="cmbSafeArea" BorderThickness="0" DisplayMemberPath="text" SelectedValuePath="value" SelectedValue="{Binding SafeArea,Mode=TwoWay}" Grid.Row="6" Grid.Column="1">
                             </ComboBox>
 
                             <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>

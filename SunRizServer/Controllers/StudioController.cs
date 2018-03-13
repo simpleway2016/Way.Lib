@@ -5,6 +5,7 @@ using Way.Lib.ScriptRemoting;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace SunRizServer.Controllers
 {
@@ -24,6 +25,16 @@ namespace SunRizServer.Controllers
                        orderby m.IsConfirm, m.AlarmTime descending
                        select m;
             }
+        }
+
+        protected override void OnBeforeInvokeMethod(MethodInfo method)
+        {
+            if(method.Name != "Login")
+            {
+                if (this.User == null)
+                    throw new Exception("请重新登录");
+            }
+            base.OnBeforeInvokeMethod(method);
         }
 
         [RemotingMethod]
@@ -573,27 +584,33 @@ namespace SunRizServer.Controllers
             var alarm = db.Alarm.FirstOrDefault(m => m.id == id);
             alarm.IsConfirm = true;
             alarm.ConfirmTime = DateTime.Now;
-            if(this.User != null)
+            if (this.User != null)
                 alarm.ConfirmUserId = this.User.id;
+            db.Update(alarm);
+        }
+
+        [RemotingMethod]
+        public void ResetAlarm(int id)
+        {
+            var alarm = db.Alarm.FirstOrDefault(m => m.id == id);
+            alarm.IsReset = true;
+            alarm.ResetTime = DateTime.Now;
             db.Update(alarm);
         }
 
         [RemotingMethod]
         public UserInfo[] GetUserInfos()
         {
-#if DEBUG
-#else
             if (this.User == null || this.User.Role != UserInfo_RoleEnum.Admin)
                 throw new Exception("权限不足");
-#endif
-            return (from m in db.UserInfo
-                    select new UserInfo
-                    {
-                        AlarmGroups = m.AlarmGroups,
-                        id = m.id,
-                        Name = m.Name,
-                        Role = m.Role
-                    }).ToArray();
+
+            var result = db.UserInfo.ToArray();
+            foreach (var item in result)
+            {
+                item.Password = null;
+                item.ChangedProperties.Clear();
+            }
+            return result;
         }
 
         [RemotingMethod]
@@ -617,6 +634,32 @@ namespace SunRizServer.Controllers
                 throw new Exception("权限不足");
 #endif
             db.Delete(user);
+        }
+
+        [RemotingMethod]
+        public UserInfo Login(string name,string pwd)
+        {
+            var user = this.db.UserInfo.FirstOrDefault(m => m.Name == name);
+            if (user == null)
+                throw new Exception("用户不存在");
+            if(user.Password != pwd)
+                throw new Exception("密码错误");
+            this.User = user;
+            user.Password = null;
+            user.ChangedProperties.Clear();
+            return user;
+        }
+
+        [RemotingMethod]
+        public int ModifyPassword(string old, string pwd)
+        {
+            var user = this.db.UserInfo.FirstOrDefault(m => m.id == this.User.id);
+            if (user.Password != old)
+                throw new Exception("旧密码不正确");
+            user.Password = pwd;
+            db.Update(user);
+            this.User = user;
+            return user.id.Value;
         }
     }
 }
