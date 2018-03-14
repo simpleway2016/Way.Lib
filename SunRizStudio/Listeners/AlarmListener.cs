@@ -46,7 +46,7 @@ namespace SunRizStudio.Listeners
                                 if(err == null)
                                 {
                                     lastAlarmTime = ret;
-                                    if(Alarmed != null)
+                                    if(Alarmed != null && ret != null)
                                     {
                                         Alarmed(null, null);
                                     }

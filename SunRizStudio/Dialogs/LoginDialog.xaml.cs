@@ -22,12 +22,14 @@ namespace SunRizStudio.Dialogs
         public LoginDialog()
         {
             InitializeComponent();
+            this.DataContext = Helper.Config;
         }
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
 
             this.Cursor = Cursors.Wait;
+
             Helper.Remote.Invoke<SunRizServer.UserInfo>("Login", (ret, err) =>
             {
                 this.Cursor = null;
@@ -37,6 +39,7 @@ namespace SunRizStudio.Dialogs
                 }
                 else
                 {
+                    Helper.Config.Save();
                     Helper.CurrentUser = ret;
                     App.Current.MainWindow = new MainWindow();
                     App.Current.MainWindow.Show();

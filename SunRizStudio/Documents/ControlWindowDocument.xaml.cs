@@ -87,7 +87,14 @@ namespace SunRizStudio.Documents
             _gecko.CreateControl();
             _gecko.Enabled = false;
             _gecko.AllowDrop = true;
+            
 
+            var uri = new Uri(Helper.Config.ServerUrl);
+            //often cookies are stored on domain level, so ".google.com", not "www.google.com" (leading dot is important)
+            string host = uri.Host.Replace("www", "");
+            CookieManager.Add(host, "/", "WayScriptRemoting", RemotingClient.SessionID, false, false, false, Helper.ConvertDateTimeInt(DateTime.Now.AddYears(3)));
+
+            //WayScriptRemoting
             //_gecko.NoDefaultContextMenu = true; //禁用右键菜单
             _gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
             _gecko.AddMessageEventListener("save", save);
@@ -107,11 +114,11 @@ namespace SunRizStudio.Documents
             _gecko.DocumentCompleted += Gecko_DocumentCompleted;
             if (_dataModel.id != null)
             {
-                _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowid={_dataModel.id}");
+                _gecko.Navigate($"{Helper.Config.ServerUrl}/Home/GetWindowContent?windowid={_dataModel.id}");
             }
             else
             {
-                _gecko.Navigate($"{Helper.Url}/editor");
+                _gecko.Navigate($"{Helper.Config.ServerUrl}/editor");
             }
         }
 
@@ -187,7 +194,7 @@ namespace SunRizStudio.Documents
             _clients.Clear();
 
             _gecko.Enabled = false;
-            _gecko.Navigate($"{Helper.Url}/Home/GetWindowContent?windowCode={windowCode}");
+            _gecko.Navigate($"{Helper.Config.ServerUrl}/Home/GetWindowContent?windowCode={windowCode}");
         }
         //脚本直接编辑
         void openCode(string p)

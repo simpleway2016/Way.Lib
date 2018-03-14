@@ -75,24 +75,26 @@ namespace SunRizStudio
                 _sessionid = value;
             }
         }
-       
-        string _ServerUrl;
-        public RemotingClient(string serverUrl)
+
+        Config _config;
+        public RemotingClient(Config config)
         {
-               _ServerUrl = serverUrl + "/wayscriptremoting_invoke?a=1";
+            _config = config;
+             
         }
         public delegate void CallbackHandler<T>(T result, string error);
 
 
         public void Init(out byte[] exponent, out byte[] modulus)
         {
+            var serverUrl = _config.ServerUrl + "/wayscriptremoting_invoke?a=1";
             Dictionary<string, string> values = new Dictionary<string, string>();
             HttpClient client = new HttpClient();
             values["m"] = (new  {
                 Action= "init",
                 ClassFullName = "SunRizServer.Controllers.StudioController",
             }).ToJsonString() ;
-            var resultTask = client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
+            var resultTask = client.PostAsync(serverUrl, new FormUrlEncodedContent(values));
             resultTask.Wait();
             var result = resultTask.Result;
             if (result.StatusCode != System.Net.HttpStatusCode.OK)
@@ -181,7 +183,8 @@ namespace SunRizStudio
                     SessionID = SessionID
                 }).ToJsonString();
 
-                var result = await client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
+                var serverUrl = _config.ServerUrl + "/wayscriptremoting_invoke?a=1";
+                var result = await client.PostAsync(serverUrl, new FormUrlEncodedContent(values));
                 if (result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     callback(default(T), result.ReasonPhrase);
@@ -306,7 +309,9 @@ namespace SunRizStudio
                 ParameterJson = parameterJson,
                 SessionID = SessionID
             }).ToJsonString();
-            var resultTask = client.PostAsync(_ServerUrl, new FormUrlEncodedContent(values));
+
+            var serverUrl = _config.ServerUrl + "/wayscriptremoting_invoke?a=1";
+            var resultTask = client.PostAsync(serverUrl, new FormUrlEncodedContent(values));
             resultTask.Wait();
             var result = resultTask.Result;
             if (result.StatusCode != System.Net.HttpStatusCode.OK)

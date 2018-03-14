@@ -71,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Config.cs" />
     <Compile Include="Dialogs\AlarmWindow.xaml.cs">
       <DependentUpon>AlarmWindow.xaml</DependentUpon>
     </Compile>

@@ -17,6 +17,7 @@ using SunRizStudio.Models.Nodes;
 using SunRizStudio.Models;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using SunRizStudio.Listeners;
 
 namespace SunRizStudio
 {
@@ -41,6 +42,9 @@ namespace SunRizStudio
         {
             Instance = this;
             InitializeComponent();
+
+            //为了服务器session不过时，启动一个listener
+            AlarmListener.Start();
 
             try
             {
