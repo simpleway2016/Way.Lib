@@ -317,6 +317,38 @@ namespace SunRizStudio
         {
             showWindow(new Dialogs.ModifyPwd());
         }
+
+        private void TreeViewItem_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            FrameworkElement sourceElement = (FrameworkElement)sender;
+            if (sender is TreeViewItem)
+            {
+                TreeViewItem treeviewitem = sender as TreeViewItem;
+                if (!(e.OriginalSource is TextBlock))
+                    return;
+                if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
+                    return;
+            }
+            
+            Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
+            data.MouseMove(sender, e);
+        }
+
+        private void TreeViewItem_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement sourceElement = (FrameworkElement)sender;
+            if (sender is TreeViewItem)
+            {
+                TreeViewItem treeviewitem = sender as TreeViewItem;
+                if (!(e.OriginalSource is TextBlock))
+                    return;
+                if (((FrameworkElement)e.OriginalSource).GetParentByName<TreeViewItem>(null) != treeviewitem)
+                    return;
+            }
+
+            Models.SolutionNode data = sourceElement.DataContext as Models.SolutionNode;
+            data.MouseUp(sender, e);
+        }
     }
 
     /// <summary>

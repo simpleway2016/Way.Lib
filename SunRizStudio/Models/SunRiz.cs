@@ -3753,6 +3753,28 @@ namespace SunRizServer{
                 }
             }
         }
+
+        System.Nullable<Boolean> _IsStartup=false;
+        /// <summary>
+        /// 是否是启动画面
+        /// </summary>
+        public virtual System.Nullable<Boolean> IsStartup
+        {
+            get
+            {
+                return this._IsStartup;
+            }
+            set
+            {
+                if ((this._IsStartup != value))
+                {
+                    var original = this._IsStartup;
+                    this._IsStartup = value;
+                    this.OnPropertyChanged("IsStartup",original,value);
+
+                }
+            }
+        }
 }}
 namespace SunRizServer{
 

@@ -742,7 +742,10 @@ class Editor implements IEditorControlContainer
                 this.delete();
             }
             else if (e.keyCode == 27) {
-                (<any>window).exitFullScreen();
+                if (this.isRunMode == false) {
+                    //设计模式，可以退出全屏
+                    (<any>window).exitFullScreen();
+                }
             }
             else {
                 

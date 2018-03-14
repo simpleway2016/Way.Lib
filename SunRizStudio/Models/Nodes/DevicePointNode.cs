@@ -171,14 +171,43 @@ namespace SunRizStudio.Models.Nodes
 
         }
 
+      
         public override void MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
+                //记录鼠标按下的位置
                 FrameworkElement treeviewitem = sender as FrameworkElement;
-                DataObject data = new DataObject("Text", new { Type = "Point", Name = this._point.Name }.ToJsonString());
-                DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+                var window = treeviewitem.GetParentByName<Window>(null);
+                _downPoint = e.GetPosition(window);
+                _mouseDowned = true;
             }
+        }
+
+        bool _mouseDowned = false;
+        Point _downPoint;
+        public override void MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_mouseDowned)
+            {
+                FrameworkElement treeviewitem = sender as FrameworkElement;
+                var window = treeviewitem.GetParentByName<Window>(null);
+                var point = e.GetPosition(window);
+
+                //如果移动过大，则是拖拽
+                if (Math.Abs(point.X - _downPoint.X) > 20 || Math.Abs(point.Y - _downPoint.Y) > 20)
+                {
+                    DataObject data = new DataObject("Text", new { Type = "Point", Name = this._point.Name }.ToJsonString());
+                    DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);
+
+                    _mouseDowned = false;
+                }
+            }
+        }
+
+        public override void MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _mouseDowned = false;
         }
     }
 }

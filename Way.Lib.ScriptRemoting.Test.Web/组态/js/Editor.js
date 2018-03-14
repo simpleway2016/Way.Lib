@@ -508,7 +508,9 @@ var Editor = (function () {
                 _this.delete();
             }
             else if (e.keyCode == 27) {
-                window.exitFullScreen();
+                if (_this.isRunMode == false) {
+                    window.exitFullScreen();
+                }
             }
             else {
             }

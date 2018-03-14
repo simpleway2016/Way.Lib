@@ -41,7 +41,22 @@ namespace SunRizStudio.Models
                 }
             }
         }
-
+        FontWeight _FontWeight = FontWeights.Normal;
+        /// <summary>
+        /// 是否是粗体
+        /// </summary>
+        public virtual FontWeight FontWeight
+        {
+            get => _FontWeight;
+            set
+            {
+                if (value != _FontWeight)
+                {
+                    _FontWeight = value;
+                    this.OnPropertyChanged("FontWeight");
+                }
+            }
+        }
         string _ToolTip;
         public virtual string ToolTip
         {
@@ -219,6 +234,14 @@ namespace SunRizStudio.Models
         }
 
         public virtual void MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        public virtual void MouseUp(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        public virtual void MouseMove(object sender, MouseEventArgs e)
         {
 
         }

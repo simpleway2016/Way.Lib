@@ -661,5 +661,22 @@ namespace SunRizServer.Controllers
             this.User = user;
             return user.id.Value;
         }
+
+        [RemotingMethod]
+        public int SetStartupWindow(int windowId)
+        {
+            var window = db.ControlWindow.FirstOrDefault(m => m.IsStartup == true);
+            if(window != null)
+            {
+                window.IsStartup = false;
+                db.Update(window);
+            }
+
+            window = db.ControlWindow.FirstOrDefault(m => m.id == windowId);
+            window.IsStartup = true;
+            db.Update(window);
+
+            return 0;
+        }
     }
 }

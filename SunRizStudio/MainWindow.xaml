@@ -59,7 +59,8 @@
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
             <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick"></EventSetter>
             <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
-            
+            <EventSetter Event="PreviewMouseMove" Handler="TreeViewItem_PreviewMouseMove"></EventSetter>
+            <EventSetter Event="PreviewMouseUp" Handler="TreeViewItem_PreviewMouseUp"></EventSetter>
             <Setter Property="Background"
           Value="Transparent"/>
             <Setter Property="HorizontalContentAlignment"
@@ -108,7 +109,7 @@
                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>-->
                                 <StackPanel x:Name="main_panel" ToolTip="{Binding ToolTip}" Orientation="Horizontal" Height="22">
                                     <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
-                                    <TextBlock x:Name="main_text" VerticalAlignment="Center" Text="{Binding Text}"></TextBlock>
+                                    <TextBlock x:Name="main_text" FontWeight="{Binding FontWeight}" VerticalAlignment="Center" Text="{Binding Text}"></TextBlock>
                                     <StackPanel.ContextMenu>
                                         <ContextMenu IsEnabled="{Binding HasContextMenu}" ItemsSource="{Binding ContextMenuItems}">
                                             <ContextMenu.ItemContainerStyle>
@@ -143,7 +144,6 @@
                             <DataTrigger Binding="{Binding HasContextMenu}" Value="False">
                                 <Setter TargetName="main_panel" Property="ContextMenu" Value="{x:Null}"></Setter>
                             </DataTrigger>
-                            
                             <!-- This trigger changes the connecting lines if the item is the last in the list -->
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource LineConverter}}" Value="true">
                                 <Setter TargetName="VerLn"
@@ -299,6 +299,8 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
                             <EventSetter Event="PreviewMouseDown" Handler="TreeViewItem_PreviewMouseDown"></EventSetter>
+                            <EventSetter Event="PreviewMouseMove" Handler="TreeViewItem_PreviewMouseMove"></EventSetter>
+                            <EventSetter Event="PreviewMouseUp" Handler="TreeViewItem_PreviewMouseUp"></EventSetter>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemsPanel>
@@ -326,7 +328,7 @@
                                     </ContextMenu>
                                 </StackPanel.ContextMenu>
                                 <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
-                                <TextBlock x:Name="main_text" VerticalAlignment="Center" MaxWidth="100" Text="{Binding Text}"></TextBlock>
+                                <TextBlock x:Name="main_text" FontWeight="{Binding FontWeight}" VerticalAlignment="Center" MaxWidth="100" Text="{Binding Text}"></TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
