@@ -5624,19 +5624,19 @@ None = 0,
 /// 
 /// </summary>
 
-Admin = 1,
+Designer = 1,
 
 /// <summary>
 /// 
 /// </summary>
 
-Designer = 2,
+User = 1<<1,
 
 /// <summary>
 /// 
 /// </summary>
 
-User = 3,
+Admin = 1<<30 | Designer,
 }
 
 

@@ -52,6 +52,8 @@ namespace SunRizStudio
 
             var info = new FullScreenWindowInfo(window);
             Infos.Add(info);
+           
+
             //存储窗体信息       
             info.windowState = window.WindowState;
             info.windowStyle = window.WindowStyle;
@@ -62,12 +64,15 @@ namespace SunRizStudio
             info.windowRect.Width = window.Width;
             info.windowRect.Height = window.Height;
 
+            window.WindowState = WindowState.Maximized;
+            return;
 
+            /*
             //变成无边窗体 
             window.WindowState = WindowState.Normal;//假如已经是Maximized，就不能进入全屏，所以这里先调整状态 
-            //window.WindowStyle = WindowStyle.None;
+            window.WindowStyle = WindowStyle.None;
             window.ResizeMode = ResizeMode.NoResize;
-            //window.Topmost = true;//最大化后总是在最上面 
+            window.Topmost = true;//最大化后总是在最上面 
 
             //获取窗口句柄 
             var handle = new WindowInteropHelper(window).Handle;
@@ -75,14 +80,14 @@ namespace SunRizStudio
             Screen screen = Screen.FromHandle(handle);
 
             //调整窗口最大化,全屏的关键代码就是下面3句 
-            //window.MaxWidth = screen.Bounds.Width;
-            //window.MaxHeight = screen.Bounds.Height;
+            window.MaxWidth = screen.Bounds.Width;
+            window.MaxHeight = screen.Bounds.Height;
             window.WindowState = WindowState.Maximized;
 
             //解决切换应用程序的问题
             //window.Activated += new EventHandler(window_Activated);
             //window.Deactivated += new EventHandler(window_Deactivated);
-
+            */
         }
 
         static void window_Deactivated(object sender, EventArgs e)

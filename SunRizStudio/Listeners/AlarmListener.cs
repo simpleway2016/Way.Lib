@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace SunRizStudio.Listeners
 {
@@ -19,13 +20,13 @@ namespace SunRizStudio.Listeners
             Pause = 2
         }
         static AlarmListenerState State = AlarmListenerState.Stopped;
-        public static EventHandler Alarmed;
+        public static event EventHandler Alarmed;
         public static void Pause()
         {
             State = AlarmListenerState.Pause;
         }
 
-        public static void Start()
+        public static void Start(Dispatcher dispatcher)
         {
             if(State != AlarmListenerState.Stopped)
             {
@@ -48,7 +49,10 @@ namespace SunRizStudio.Listeners
                                     lastAlarmTime = ret;
                                     if(Alarmed != null && ret != null)
                                     {
-                                        Alarmed(null, null);
+                                        dispatcher.Invoke(()=> {
+                                            Alarmed(null, null);
+                                        });
+                                        
                                     }
                                 }
                             }, lastAlarmTime);

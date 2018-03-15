@@ -350,9 +350,14 @@ namespace Way.Lib.ScriptRemoting
             Expression totalExpression = null;
             foreach (var searchKeyPair in searchModel)
             {
+                if (searchKeyPair.Value == null)
+                    continue;
 
                 PropertyInfo pinfo;
                 Expression paramExpression = ResultHelper.GetPropertyExpression(param, dataItemType, searchKeyPair.Key, out pinfo);
+                if (pinfo == null)
+                    continue;
+
                 Type ptype = pinfo.PropertyType;
 
                 if (ptype.GetTypeInfo().IsGenericType)
@@ -363,7 +368,11 @@ namespace Way.Lib.ScriptRemoting
                 List<Expression> doneExpressions = new List<Expression>();
                 if (ptype == typeof(string))
                 {
-                    if (searchKeyPair.Value.ToSafeString().StartsWith("="))
+                    var strValue = searchKeyPair.Value.ToSafeString();
+                    if (strValue.Length == 0)
+                        continue;
+
+                    if (strValue.StartsWith("="))
                     {
                         Expression right = Expression.Constant(searchKeyPair.Value.ToString().Substring(1));
                         doneExpressions.Add(Expression.Equal(paramExpression, right));
@@ -372,7 +381,7 @@ namespace Way.Lib.ScriptRemoting
                     {
                         doneExpressions.Add(Expression.Call(paramExpression,
                             typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
-                            Expression.Constant(searchKeyPair.Value)));
+                            Expression.Constant(strValue)));
                     }
                 }
                 else if (ptype == typeof(DateTime))
@@ -414,6 +423,25 @@ namespace Way.Lib.ScriptRemoting
                             //等式右边的值
                             Expression right = Expression.Constant(changeValue(value, ptype));
                             doneExpressions.Add(Expression.LessThan(paramExpression, right));
+                        }
+                        else
+                        {
+                            if(i == 0)//第一个当作 >=
+                            {
+                                //等式右边的值
+                                Expression right = Expression.Constant(changeValue(value, ptype));
+                                doneExpressions.Add(Expression.GreaterThanOrEqual(paramExpression, right));
+                            }
+                            else if(value.Contains(":") == false)//第二个加上1天，然后当作 <
+                            {
+                                Expression right = Expression.Constant(Convert.ToDateTime(Convert.ToDateTime(value).AddDays(1).ToString("yyyy-MM-dd")));
+                                doneExpressions.Add(Expression.LessThan(paramExpression, right));
+                            }
+                            else  //第二个如果有时间格式，加上1秒，然后当作 <
+                            {
+                                Expression right = Expression.Constant(Convert.ToDateTime(value).AddSeconds(1));
+                                doneExpressions.Add(Expression.LessThan(paramExpression, right));
+                            }
                         }
                     }
                 }
@@ -531,6 +559,10 @@ namespace Way.Lib.ScriptRemoting
                     {
                     }
                 }
+            }
+            else
+            {
+                return source;
             }
             return result;
         }

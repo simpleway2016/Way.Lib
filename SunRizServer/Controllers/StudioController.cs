@@ -575,7 +575,7 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public DateTime? GetLastAlarmTime(DateTime? myLastAlarmTime)
         {
-            return (from m in db.Alarm where m.AlarmTime > myLastAlarmTime select m.AlarmTime).FirstOrDefault();
+            return (from m in db.Alarm where myLastAlarmTime == null || m.AlarmTime > myLastAlarmTime select m.AlarmTime).FirstOrDefault();
         }
 
         [RemotingMethod]
@@ -677,6 +677,12 @@ namespace SunRizServer.Controllers
             db.Update(window);
 
             return 0;
+        }
+
+        [RemotingMethod]
+        public ControlWindow GetStartupWindow()
+        {
+            return db.ControlWindow.FirstOrDefault(m => m.IsStartup == true);
         }
     }
 }

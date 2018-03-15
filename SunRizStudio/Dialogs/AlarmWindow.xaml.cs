@@ -103,7 +103,7 @@ namespace SunRizStudio.Dialogs
 
                     _canLoadMoreData = (ret.Length == _pageSize);
                 }
-            } , "Alarms" , pageindex*_pageSize, _pageSize , _searchModel);
+            } , "Alarms" , pageindex*_pageSize, _pageSize , _searchModel.ToJsonString());
         }
 
         void loadMore()
@@ -147,7 +147,25 @@ namespace SunRizStudio.Dialogs
 
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
+            reload();
+        }
 
+        private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (((DatePicker)sender).SelectedDate == null)
+                _searchModel.AlarmTime[0] = "";
+            else
+                _searchModel.AlarmTime[0] = ((DatePicker)sender).SelectedDate.Value.ToString("yyyy-MM-dd");
+            _searchModel.setTimeChanged();
+        }
+
+        private void DatePicker_SelectedDateChanged_1(object sender, SelectionChangedEventArgs e)
+        {
+            if (((DatePicker)sender).SelectedDate == null)
+                _searchModel.AlarmTime[1] = "";
+            else
+                _searchModel.AlarmTime[1] = ((DatePicker)sender).SelectedDate.Value.ToString("yyyy-MM-dd");
+            _searchModel.setTimeChanged();
         }
     }
     class SearchModel:Way.Lib.DataModel
@@ -164,9 +182,13 @@ namespace SunRizStudio.Dialogs
                 if(_Address != value)
                 {
                     _Address = value;
-                    this.OnPropertyChanged("Address",null,value);
                 }
             }
+        }
+
+        public void setTimeChanged()
+        {
+            this.OnPropertyChanged("AlarmTime", null, null);
         }
 
         string[] _AlarmTime = new string[] { "",""};

@@ -13,6 +13,7 @@ namespace SunRizStudio
         public static byte[] Modulus;
         static RemotingClient _Remote;
         public static Config Config = new Config();
+
         public static RemotingClient Remote
         {
             get

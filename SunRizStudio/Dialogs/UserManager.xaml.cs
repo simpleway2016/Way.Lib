@@ -102,8 +102,18 @@ namespace SunRizStudio.Dialogs
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             this.Cursor = Cursors.Wait;
+            if (((MyUserInfo)ctrlEditor.DataContext).id == null && string.IsNullOrEmpty(txtPwd.Password))
+            {
+                MessageBox.Show(this, "请设置密码");
+                return;
+            }
             if (string.IsNullOrEmpty(txtPwd.Password) == false)
             {
+                if(txtPwd2.Password != txtPwd.Password)
+                {
+                    MessageBox.Show(this , "密码确认不一致");
+                    return;
+                }
                 //如果已经修改密码
                 ((MyUserInfo)ctrlEditor.DataContext).Password = txtPwd.Password;
             }

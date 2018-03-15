@@ -44,7 +44,7 @@ namespace SunRizStudio
             InitializeComponent();
 
             //为了服务器session不过时，启动一个listener
-            AlarmListener.Start();
+            AlarmListener.Start(this.Dispatcher);
 
             try
             {
@@ -291,7 +291,7 @@ namespace SunRizStudio
             }, key);
         }
 
-        void showWindow(Window window)
+        internal static void showWindow(Window window)
         {
             window.Show();
 
