@@ -319,16 +319,36 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        static object search(object result, Type dataItemType, Newtonsoft.Json.Linq.JObject searchModel)
+        /// <summary>
+        /// 在query里查找指定数据
+        /// </summary>
+        /// <param name="query">IQueryable对象</param>
+        /// <param name="searchModel">过滤属性描述，
+        /// 如{ name:"test" }，表示query.Where(m=>m.name.Contains("test"))
+        /// 如{ name:"=test" , count :">10 <=100" }，表示query.Where(m=>m.name=="test" && m.count > 10 && m.count <= 100)
+        /// 如{ time :[">=2018-8-8" , "<2018-8-9"] }，表示query.Where(m=>m.time >=2018-8-8  && time<2018-8-9 ) time是DateTime类型
+        /// </param>
+        /// <returns></returns>
+        public static object FindData(object query, Newtonsoft.Json.Linq.JObject searchModel)
         {
-            Dictionary<string, object> dic = new Dictionary<string, object>();
-            getSearchingDictionary(dic, "", searchModel);
-            if (dic.Count == 0)
-                return result;
+            Type dataItemType = query.GetType();
+            if (dataItemType.IsArray)
+            {
+                dataItemType = dataItemType.GetElementType();
+            }
+            else if (dataItemType.GetTypeInfo().IsGenericType)
+            {
+                dataItemType = dataItemType.GetGenericArguments()[0];
+            }
+            return search(query, dataItemType, searchModel);
+        }
+
+        static object search(object source, Type dataItemType, Newtonsoft.Json.Linq.JObject searchModel)
+        {
 
             ParameterExpression param = Expression.Parameter(dataItemType, "n");
             Expression totalExpression = null;
-            foreach (var searchKeyPair in dic)
+            foreach (var searchKeyPair in searchModel)
             {
 
                 PropertyInfo pinfo;
@@ -355,10 +375,52 @@ namespace Way.Lib.ScriptRemoting
                             Expression.Constant(searchKeyPair.Value)));
                     }
                 }
+                else if (ptype == typeof(DateTime))
+                {
+                    Newtonsoft.Json.Linq.JArray jarr = searchKeyPair.Value as Newtonsoft.Json.Linq.JArray;
+                    if (jarr == null)
+                        continue;
+
+                    for (int i = 0; i < jarr.Count; i++)
+                    {
+                        string value = jarr[i].ToString();
+                        
+                        if (string.IsNullOrEmpty(value))
+                            continue;
+                        if (value.StartsWith(">="))
+                        {
+                            value = value.Substring(2);
+                            //等式右边的值
+                            Expression right = Expression.Constant(changeValue(value, ptype));
+                            doneExpressions.Add(Expression.GreaterThanOrEqual(paramExpression, right));
+                        }
+                        else if (value.StartsWith(">"))
+                        {
+                            value = value.Substring(1);
+                            //等式右边的值
+                            Expression right = Expression.Constant(changeValue(value, ptype));
+                            doneExpressions.Add(Expression.GreaterThan(paramExpression, right));
+                        }
+                        else if (value.StartsWith("<="))
+                        {
+                            value = value.Substring(2);
+                            //等式右边的值
+                            Expression right = Expression.Constant(changeValue(value, ptype));
+                            doneExpressions.Add(Expression.LessThanOrEqual(paramExpression, right));
+                        }
+                        else if (value.StartsWith("<"))
+                        {
+                            value = value.Substring(1);
+                            //等式右边的值
+                            Expression right = Expression.Constant(changeValue(value, ptype));
+                            doneExpressions.Add(Expression.LessThan(paramExpression, right));
+                        }
+                    }
+                }
                 else if (ptype.GetTypeInfo().IsEnum || ptype == typeof(int) || ptype == typeof(double) || ptype == typeof(decimal) || ptype == typeof(float) || ptype == typeof(short) || ptype == typeof(long))
                 {
                     string[] pairValues = searchKeyPair.Value.ToString().Split(' ');
-                    for(int i = 0; i < pairValues.Length; i ++)
+                    for (int i = 0; i < pairValues.Length; i++)
                     {
                         string value = pairValues[i].Trim();
 
@@ -421,7 +483,7 @@ namespace Way.Lib.ScriptRemoting
                             try
                             {
                                 //替换开头的n个=号
-                                value = Regex.Replace(value, @"^(\=| )+" , "");
+                                value = Regex.Replace(value, @"^(\=| )+", "");
                                 Expression right = Expression.Constant(changeValue(value, ptype));
                                 doneExpressions.Add(Expression.Equal(paramExpression, right));
                             }
@@ -431,105 +493,8 @@ namespace Way.Lib.ScriptRemoting
                             }
                         }
                     }
-                    
-                }
-                //else if (control is System.Web.UI.WebControls.ListControl || control is TextBoxList || control is ParentToChildSelector)
-                //{
-                //    if (ptype.IsEnum)
-                //    {
-                //        //等式右边的值
-                //        Expression right = Expression.Constant(Enum.Parse(ptype, value));
-                //        left = Expression.Equal(left, right);
-                //    }
-                //    else
-                //    {
-                //        //等式右边的值
-                //        Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //        left = Expression.Equal(left, right);
-                //    }
 
-
-                //}
-                //else if (control.Attributes["_IsDate"] == "1")
-                //{
-                //    if (control.Attributes["_IsFrom"] == "1")
-                //    {
-                //        if (control.Attributes["_IsTo"] == "1")
-                //        {
-                //            //应该是指定月份，或者年份
-                //            var ms = System.Text.RegularExpressions.Regex.Matches(value, @"[0-9]+");
-                //            if (ms.Count == 1)
-                //            {
-                //                //只有年份
-                //                Expression expression1;
-
-                //                //等式右边的值
-                //                value = string.Format("{0}-1-1", ms[0]);
-                //                Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //                expression1 = Expression.GreaterThanOrEqual(left, right);
-
-                //                value = string.Format("{0}-1-1", ms[0].Value.ToInt() + 1);
-                //                right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //                right = Expression.LessThan(left, right);
-
-                //                left = Expression.And(expression1, right);
-                //            }
-                //            else if (ms.Count == 2)
-                //            {
-                //                //有月份
-                //                DateTime monthdate = Convert.ToDateTime(value);
-
-                //                Expression expression1;
-                //                //等式右边的值
-                //                value = monthdate.ToString("yyyy-MM-01");
-                //                Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //                expression1 = Expression.GreaterThanOrEqual(left, right);
-
-                //                value = monthdate.AddMonths(1).ToString("yyyy-MM-01");
-                //                right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //                right = Expression.LessThan(left, right);
-
-                //                left = Expression.And(expression1, right);
-                //            }
-                //            else if (ms.Count == 3)
-                //            {
-                //                //有日
-                //                DateTime day = Convert.ToDateTime(value);
-                //                Expression expression1;
-                //                //等式右边的值
-                //                value = day.ToString("yyyy-MM-dd");
-                //                Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //                expression1 = Expression.GreaterThanOrEqual(left, right);
-
-                //                value = day.AddDays(1).ToString("yyyy-MM-dd");
-                //                right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //                right = Expression.LessThan(left, right);
-
-                //                left = Expression.AndAlso(expression1, right);
-                //            }
-                //        }
-                //        else
-                //        {
-                //            //等式右边的值
-                //            Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //            left = Expression.GreaterThanOrEqual(left, right);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        if (value.Contains(":"))
-                //        {
-                //            value = value.ToDateTime().AddSeconds(1).ToString("yyyy-MM-dd HH:mm:ss");
-                //        }
-                //        else
-                //        {
-                //            value = value.ToDateTime().ToString("yyyy-MM-dd").ToDateTime().AddDays(1).ToString("yyyy-MM-dd");
-                //        }
-                //        //等式右边的值
-                //        Expression right = Expression.Constant(Convert.ChangeType(value, ptype));
-                //        left = Expression.LessThan(left, right);
-                //    }
-                //}
+                }               
 
                foreach( var itemexpression in doneExpressions )
                 {
@@ -540,18 +505,26 @@ namespace Way.Lib.ScriptRemoting
                         totalExpression = Expression.AndAlso(totalExpression, itemexpression);
                 }
             }
-
-            Type queryableType = (result is System.Linq.IQueryable) ? typeof(System.Linq.Queryable) : typeof(System.Linq.Enumerable);
+            object result = null;
+            Type queryableType = typeof(System.Linq.Queryable);
+            if ( !(source is IQueryable) )
+            {
+                //把IEnumerable转为IQueryable
+                var method = queryableType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Where(m => m.Name == "AsQueryable" && m.IsGenericMethod).FirstOrDefault();
+                System.Reflection.MethodInfo mmm = method.MakeGenericMethod(dataItemType);
+                source = mmm.Invoke(null, new object[] { source });
+            }
+            
             if (totalExpression != null)
             {
                 totalExpression = Expression.Lambda(totalExpression, param);
-                var methods = queryableType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Where(m => m.Name == "Where");
+                var methods = queryableType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Where(m => m.Name == "Where" && m.IsGenericMethod);
                 foreach (System.Reflection.MethodInfo method in methods)
                 {
                     try
                     {
                         System.Reflection.MethodInfo mmm = method.MakeGenericMethod(dataItemType);
-                        result = mmm.Invoke(null, new object[] { result, totalExpression });
+                        result = mmm.Invoke(null, new object[] { source, totalExpression });
                         break;
                     }
                     catch (Exception ex)

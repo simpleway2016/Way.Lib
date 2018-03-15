@@ -7,7 +7,16 @@
         mc:Ignorable="d"
         Title="报警窗口" Height="500" Width="800" Loaded="Window_Loaded">
     <Grid>
-        <ListView x:Name="list" SelectionChanged="list_SelectionChanged">
+        <StackPanel x:Name="panelSearch" VerticalAlignment="Top" Height="30" Orientation="Horizontal">
+            <TextBlock Text="起始时间：" Margin="3,7,0,-7"></TextBlock>
+            <TextBox Text="{Binding AlarmTime[0]}" Height="22" Width="80"></TextBox>
+            <TextBlock Text="结束时间：" Margin="3,7,0,-7"></TextBlock>
+            <TextBox Text="{Binding AlarmTime[0]}" Height="22" Width="80"></TextBox>
+            <TextBlock Text="点名：" Margin="3,7,0,-7"></TextBlock>
+            <TextBox Text="{Binding Address}" Height="22" Width="80"></TextBox>
+            <Button Content="搜索" Height="22" Width="50" Margin="5,0,0,0" x:Name="btnSearch" Click="btnSearch_Click"></Button>
+        </StackPanel>
+        <ListView x:Name="list" Margin="0,30,0,0" SelectionChanged="list_SelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="报警内容" Width="220" DisplayMemberBinding="{Binding Content}"/>

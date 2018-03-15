@@ -33,6 +33,7 @@ namespace SunRizStudio.Dialogs
         /// 是否正在从服务器获取数据
         /// </summary>
         bool _isLoading = false;
+        SearchModel _searchModel = new SearchModel();
         ObservableCollection<object> _dataSource = new ObservableCollection<object>();
         public AlarmWindow()
         {
@@ -41,6 +42,8 @@ namespace SunRizStudio.Dialogs
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            panelSearch.DataContext = _searchModel;
+
             //获取窗口句柄 
             var handle = new WindowInteropHelper(this).Handle;
             //获取当前显示器屏幕
@@ -100,7 +103,7 @@ namespace SunRizStudio.Dialogs
 
                     _canLoadMoreData = (ret.Length == _pageSize);
                 }
-            } , "Alarms" , pageindex*_pageSize, _pageSize , "");
+            } , "Alarms" , pageindex*_pageSize, _pageSize , _searchModel);
         }
 
         void loadMore()
@@ -142,9 +145,39 @@ namespace SunRizStudio.Dialogs
             }, data.id);
         }
 
-       
-    }
+        private void btnSearch_Click(object sender, RoutedEventArgs e)
+        {
 
+        }
+    }
+    class SearchModel:Way.Lib.DataModel
+    {
+        string _Address;
+        public string Address
+        {
+            get
+            {
+                return _Address;
+            }
+            set
+            {
+                if(_Address != value)
+                {
+                    _Address = value;
+                    this.OnPropertyChanged("Address",null,value);
+                }
+            }
+        }
+
+        string[] _AlarmTime = new string[] { "",""};
+        public string[] AlarmTime
+        {
+            get
+            {
+                return _AlarmTime;
+            }
+        }
+    }
     class MyAlarm: SunRizServer.Alarm
     {
         public override bool? IsConfirm
