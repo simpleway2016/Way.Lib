@@ -30,7 +30,7 @@ namespace EJClient.Forms
                 throw new Exception("密码确认不一致");
 
             this.Cursor = Cursors.Wait;
-            Helper.Client.Invoke<int>("ChangePassword", Net.RemotingClient.RSAApplyScene.EncryptResultAndParameters, (r, err) => {
+            Helper.Client.Invoke<int>("ChangePassword", (r, err) => {
                 this.Cursor = null;
                 if (err != null)
                     Helper.ShowError(this, err);

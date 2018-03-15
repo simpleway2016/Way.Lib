@@ -49,7 +49,7 @@ namespace EJClient
         }
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-            this.Cursor = Cursors.Wait;
+            
             try
             {
                
@@ -57,11 +57,13 @@ namespace EJClient
                 string url = txtAddress.Text;
                 while (url.EndsWith("/"))
                     url = url.Substring(0, url.Length - 1);
+                if (url.StartsWith("https://") == false)
+                    throw new Exception("url must start with https://");
                 Helper.Client = new Net.RemotingClient(url);
 
-              
+                this.Cursor = Cursors.Wait;
 
-                Helper.Client.Invoke<int[]>("Login", Net.RemotingClient.RSAApplyScene.EncryptResultAndParameters, (result, error) =>
+                Helper.Client.Invoke<int[]>("Login", (result, error) =>
                {
                    this.Cursor = null;
                    if (error != null)

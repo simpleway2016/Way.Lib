@@ -37,7 +37,7 @@ namespace Way.EJServer
             base.OnBeforeInvokeMethod(method);
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public int[] Login(string name, string pwd)
         {
             using (EJDB db = new EJDB())
@@ -204,7 +204,7 @@ namespace Way.EJServer
             }
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public int ChangePassword(string oldpwd, string newpwd)
         {
             if (this.User.Password != oldpwd)

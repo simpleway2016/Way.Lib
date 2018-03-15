@@ -122,46 +122,17 @@ namespace EJClient.Net
             modulus = Way.Lib.RSA.HexStringToBytes( initInfo.rsa.Modulus);
             exponent = Way.Lib.RSA.HexStringToBytes(initInfo.rsa.Exponent);
         }
-        public async void Invoke<T>(string name,  CallbackHandler<T> callback, params object[] methodParams)
-        {
-            Invoke<T>(name, RSAApplyScene.None, callback, methodParams);
-        }
-        public async void Invoke<T>(string name, RSAApplyScene rsaScene, CallbackHandler<T> callback , params object[] methodParams )
+        public async void Invoke<T>(string name, CallbackHandler<T> callback , params object[] methodParams )
         {
             
             try
             {
-                if (name == "Login")
-                {
-                    Exception err = null;
-                    await Task.Run(() => {
-                        try
-                        {
-                            Helper.Client.Init(out Helper.Exponent, out Helper.Modulus);
-                        }
-                        catch (Exception ex)
-                        {
-                            err = ex.InnerException != null ? ex.InnerException : ex;
-                        }
-                    });
-                    if (err != null)
-                    {
-                        callback(default(T), err.Message);
-                        return;
-                    }
-                }
+                
                 Dictionary<string, string> values = new Dictionary<string, string>();
                 string parameterJson;
                 if (methodParams != null)
                 {
-                    if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
-                    {
-                        parameterJson = Way.Lib.RSA.EncryptByKey(System.Text.Encoding.UTF8.GetBytes(methodParams.ToJsonString()).ToJsonString(), Helper.Exponent, Helper.Modulus);
-                    }
-                    else
-                    {
-                        parameterJson = methodParams.ToJsonString();
-                    }
+                    parameterJson = methodParams.ToJsonString();
                 }
                 else
                 {
@@ -204,18 +175,18 @@ namespace EJClient.Net
                     return;
                 }
                 var responseString = await result.Content.ReadAsStringAsync();
-                if(responseString.StartsWith("{") == false)
-                {
-                    responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
-                    responseString = responseString.Replace("\\u", "");
-                    byte[] bs = new byte[responseString.Length / 2];
-                    for (int i = 0; i < bs.Length; i += 2)
-                    {
-                        bs[i + 1] = (byte)Convert.ToInt32(responseString.Substring(i * 2, 2), 16);
-                        bs[i] = (byte)Convert.ToInt32(responseString.Substring(i * 2 + 2, 2), 16);
-                    }
-                    responseString = System.Text.Encoding.Unicode.GetString(bs);
-                }
+                //if(responseString.StartsWith("{") == false)
+                //{
+                //    responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
+                //    responseString = responseString.Replace("\\u", "");
+                //    byte[] bs = new byte[responseString.Length / 2];
+                //    for (int i = 0; i < bs.Length; i += 2)
+                //    {
+                //        bs[i + 1] = (byte)Convert.ToInt32(responseString.Substring(i * 2, 2), 16);
+                //        bs[i] = (byte)Convert.ToInt32(responseString.Substring(i * 2 + 2, 2), 16);
+                //    }
+                //    responseString = System.Text.Encoding.Unicode.GetString(bs);
+                //}
                 try
                 {
                     var response = responseString.ToJsonObject<ResultInfo<T>>();
@@ -292,24 +263,21 @@ namespace EJClient.Net
            
         }
 
-        public T InvokeSync<T>(string name, params object[] methodParams)
-        {
-            return InvokeSync<T>(name, RSAApplyScene.None, methodParams);
-        }
-         public T InvokeSync<T>(string name,RSAApplyScene rsaScene, params object[] methodParams)
+         public T InvokeSync<T>(string name,params object[] methodParams)
         {
             Dictionary<string, string> values = new Dictionary<string, string>();
             string parameterJson;
             if (methodParams != null)
             {
-                if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
-                {
-                    parameterJson = Way.Lib.RSA.EncryptByKey(System.Text.Encoding.UTF8.GetBytes(methodParams.ToJsonString()).ToJsonString(), Helper.Exponent, Helper.Modulus);
-                }
-                else
-                {
-                    parameterJson = methodParams.ToJsonString();
-                }
+                //if (rsaScene.HasFlag(RSAApplyScene.EncryptParameters))
+                //{
+                //    parameterJson = Way.Lib.RSA.EncryptByKey(System.Text.Encoding.UTF8.GetBytes(methodParams.ToJsonString()).ToJsonString(), Helper.Exponent, Helper.Modulus);
+                //}
+                //else
+                //{
+                //    parameterJson = methodParams.ToJsonString();
+                //}
+                parameterJson = methodParams.ToJsonString();
             }
             else
             {
@@ -335,19 +303,19 @@ namespace EJClient.Net
             var responseStringTask = result.Content.ReadAsStringAsync();
             responseStringTask.Wait();
             var responseString = responseStringTask.Result;
-            if (responseString.StartsWith("{") == false)
-            {
+            //if (responseString.StartsWith("{") == false)
+            //{
                 
-                responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
-                responseString = responseString.Replace("\\u", "");
-                byte[] bs = new byte[responseString.Length / 2];
-                for (int i = 0; i < bs.Length; i += 2)
-                {
-                    bs[i + 1] = (byte)Convert.ToInt32(responseString.Substring(i * 2, 2), 16);
-                    bs[i] = (byte)Convert.ToInt32(responseString.Substring(i * 2 + 2, 2), 16);
-                }
-                responseString = System.Text.Encoding.Unicode.GetString(bs);
-            }
+            //    responseString = Way.Lib.RSA.DecryptContentFromDEncrypt(responseString, Helper.Exponent, Helper.Modulus);
+            //    responseString = responseString.Replace("\\u", "");
+            //    byte[] bs = new byte[responseString.Length / 2];
+            //    for (int i = 0; i < bs.Length; i += 2)
+            //    {
+            //        bs[i + 1] = (byte)Convert.ToInt32(responseString.Substring(i * 2, 2), 16);
+            //        bs[i] = (byte)Convert.ToInt32(responseString.Substring(i * 2 + 2, 2), 16);
+            //    }
+            //    responseString = System.Text.Encoding.Unicode.GetString(bs);
+            //}
 
             try
             {
