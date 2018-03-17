@@ -311,6 +311,7 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\solution\history.png" />
     <Resource Include="Images\solution\alarm.png" />
     <Resource Include="Images\search.png" />
     <Resource Include="Images\Collapsed.png" />

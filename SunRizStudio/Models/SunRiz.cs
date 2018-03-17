@@ -5604,6 +5604,28 @@ namespace SunRizServer{
             }
         }
 
+        System.Nullable<Int32> _Priority;
+        /// <summary>
+        /// 优先级
+        /// </summary>
+        public virtual System.Nullable<Int32> Priority
+        {
+            get
+            {
+                return this._Priority;
+            }
+            set
+            {
+                if ((this._Priority != value))
+                {
+                    var original = this._Priority;
+                    this._Priority = value;
+                    this.OnPropertyChanged("Priority",original,value);
+
+                }
+            }
+        }
+
         public virtual DevicePoint PointObject { get; set; }
 }}
 namespace SunRizServer{

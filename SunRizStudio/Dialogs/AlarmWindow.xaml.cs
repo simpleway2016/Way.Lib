@@ -36,6 +36,7 @@ namespace SunRizStudio.Dialogs
         SearchModel _searchModel = new SearchModel();
         string _orderBy;
         ObservableCollection<object> _dataSource = new ObservableCollection<object>();
+        SunRizServer.SystemSetting _sysSetting;
         public AlarmWindow()
         {
             InitializeComponent();
@@ -52,11 +53,24 @@ namespace SunRizStudio.Dialogs
 
             _pageSize = 5 + screen.Bounds.Height / 22;
             list.ItemsSource = _dataSource;
-            reload();
+          
 
             var scrollViewer = list.GetChildByName<ScrollViewer>(null);
             scrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
 
+            this.Cursor = Cursors.Wait;
+            Helper.Remote.Invoke<SunRizServer.SystemSetting>("GetSystemSetting", (ret, err) => {
+                this.Cursor = null;
+                if(err != null)
+                {
+                    MessageBox.Show(this, err);
+                }
+                else
+                {
+                    _sysSetting = ret;
+                    reload();
+                }
+            });
             
         }
 
@@ -100,7 +114,10 @@ namespace SunRizStudio.Dialogs
                     }
 
                     foreach (var data in ret)
+                    {
+                        data.SysSetting = _sysSetting;
                         _dataSource.Add(data);
+                    }                   
 
                     _canLoadMoreData = (ret.Length == _pageSize);
                 }
@@ -208,6 +225,8 @@ namespace SunRizStudio.Dialogs
 
         class MyAlarm : SunRizServer.Alarm
         {
+            public SunRizServer.SystemSetting SysSetting;
+            public static Type SysSettingType = typeof(SunRizServer.SystemSetting);
             public override bool? IsConfirm
             {
                 get => base.IsConfirm;
@@ -225,8 +244,34 @@ namespace SunRizStudio.Dialogs
                 get
                 {
                     if (this.IsConfirm == false)
+                    {
+                        string color = null;
+                           var pro = SysSettingType.GetProperty("UnConfigAlarmColor" + this.Priority);
+                        if(pro != null)
+                        {
+                            color = pro.GetValue(SysSetting).ToSafeString();
+                        }
+                        if (!string.IsNullOrEmpty(color))
+                            return color;
+                        color = SysSetting.AlarmStatusChangeColor;
+                        if (!string.IsNullOrEmpty(color))
+                            return color;
+
                         return "#f2abb7";
-                    return "#ffffff";
+                    }
+                    else 
+                    {
+                        //确认报警
+                        string color = null;
+                        var pro = SysSettingType.GetProperty("ConfigAlarmColor" + this.Priority);
+                        if (pro != null)
+                        {
+                            color = pro.GetValue(SysSetting).ToSafeString();
+                        }
+                        if (!string.IsNullOrEmpty(color))
+                            return color;
+                        return "#ffffff";
+                    }
                 }
             }
         }

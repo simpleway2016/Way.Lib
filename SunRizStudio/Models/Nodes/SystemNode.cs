@@ -49,6 +49,17 @@ namespace SunRizStudio.Models.Nodes
             };
             this.Nodes.Add(alarmNode);
 
+            var historyNode = new SolutionNode()
+            {
+                Text = "历史查询",
+                Icon = "/Images/solution/history.png",
+                DoublicClickHandler = (s, e) => {
+                    MainWindow.Instance.ShowHistoryWindow();
+                },
+
+            };
+            this.Nodes.Add(historyNode);
+
             var setttingNode = new SystemSettingNode()
             {
                 Text = "系统配置",

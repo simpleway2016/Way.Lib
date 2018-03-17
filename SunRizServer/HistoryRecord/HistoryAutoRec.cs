@@ -334,6 +334,7 @@ namespace SunRizServer.HistoryRecord
                                         Address = point.Name,
                                         AddressDesc = point.Desc,    
                                         PointValue = dblValue,
+                                        Priority = lowAlarm.Priority
                                     });
                                     break;
                                 }
@@ -348,6 +349,7 @@ namespace SunRizServer.HistoryRecord
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
                                         PointValue = dblValue,
+                                        Priority = hiAlarm.Priority
                                     });
                                     break;
                                 }
@@ -363,6 +365,7 @@ namespace SunRizServer.HistoryRecord
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
                                         PointValue = dblValue,
+                                        Priority = point.AlarmOffsetPriority
                                     });
                                 }
                             }
@@ -383,6 +386,7 @@ namespace SunRizServer.HistoryRecord
                                             Address = point.Name,
                                             AddressDesc = point.Desc,
                                             PointValue = dblValue,
+                                            Priority = point.AlarmPercentPriority
                                         });
                                     }
                                     myPoint.LastValue = dblValue;
