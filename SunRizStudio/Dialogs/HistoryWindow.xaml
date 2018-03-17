@@ -1,0 +1,34 @@
+﻿<Window x:Class="SunRizStudio.Dialogs.HistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SunRizStudio.Dialogs"
+        xmlns:ext="clr-namespace:SunRizStudio.Extention"
+        mc:Ignorable="d"
+        Title="历史查询" Height="600" Width="800" Loaded="Window_Loaded">
+    <Grid>
+        <StackPanel x:Name="panelSearch" VerticalAlignment="Top" Height="30" Orientation="Horizontal">
+            <TextBlock Text="起始时间：" Margin="3,7,0,-7"></TextBlock>
+            <TextBox Text="{Binding Time[0]}" Height="22" Width="120"></TextBox>
+            <DatePicker Height="22" Width="22" SelectedDateChanged="DatePicker_SelectedDateChanged" Style="{StaticResource DatePickerStyle1}">
+            </DatePicker>
+            <TextBlock Text="结束时间：" Margin="3,7,0,-7"></TextBlock>
+            <TextBox Text="{Binding Time[1]}" Height="22" Width="120"></TextBox>
+            <DatePicker Height="22" Width="22" SelectedDateChanged="DatePicker_SelectedDateChanged_1" Style="{StaticResource DatePickerStyle1}"></DatePicker>
+            <TextBlock Text="点名：" Margin="3,7,0,-7"></TextBlock>
+            <TextBox Text="{Binding Address}" Height="22" Width="260"></TextBox>
+            <Button Content="搜索" Height="22" Width="50" Margin="5,0,0,0" x:Name="btnSearch" Click="btnSearch_Click"></Button>
+        </StackPanel>
+        <ext:SortableListView x:Name="list" Margin="0,30,0,0" ext:ListViewBehavior.HeaderSort="True" Sort="list_Sort">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="点名称" Width="auto" DisplayMemberBinding="{Binding Address}" ext:ListViewBehavior.SortField="Address"/>
+                    <GridViewColumn Header="点描述" Width="auto" DisplayMemberBinding="{Binding AddressDesc}"/>
+                    <GridViewColumn Header="点值" Width="auto" DisplayMemberBinding="{Binding Value}" ext:ListViewBehavior.SortField="Value"/>
+                    <GridViewColumn Header="时间" Width="auto"  ext:ListViewBehavior.SortField="Time" DisplayMemberBinding="{Binding Time,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                </GridView>
+            </ListView.View>
+        </ext:SortableListView>
+    </Grid>
+</Window>

@@ -2323,7 +2323,7 @@ var HistoryTrendControl = (function (_super) {
         var clientRect = this.rectElement.getBoundingClientRect();
         var div = document.createElement("DIV");
         div.style.padding = "3px";
-        div.innerHTML = "<input type=text placeholder='请选择起始日期'>至<input type=text placeholder='请选择结束日期'><input type=button value='查询历史'>";
+        div.innerHTML = "<input type=text placeholder='请选择起始日期'>至<input type=text placeholder='请选择结束日期'><input type=button value='查询历史'><input style='margin-left:2px;' type=button value='列表窗口'>";
         div.style.position = "absolute";
         div.style.left = clientRect.left + "px";
         div.style.visibility = "hidden";
@@ -2371,6 +2371,18 @@ var HistoryTrendControl = (function (_super) {
                     _this.setData(new Date(startDate), new Date(endDate), ret);
                 }
             });
+        }, false);
+        div.children[3].addEventListener("click", function () {
+            var str = "";
+            for (var i = 1; i <= 12; i++) {
+                var point = _this["devicePoint" + i];
+                if (point && point.length > 0) {
+                    if (str.length > 0)
+                        str += " ";
+                    str += "=" + point;
+                }
+            }
+            window.showHistoryWindow(str);
         }, false);
     };
     HistoryTrendControl.prototype.onDevicePointValueChanged = function (devPoint) {

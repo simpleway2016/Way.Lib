@@ -372,17 +372,32 @@ namespace Way.Lib.ScriptRemoting
                     if (strValue.Length == 0)
                         continue;
 
-                    if (strValue.StartsWith("="))
+                    var strArr = strValue.Split(' ');
+                    System.Linq.Expressions.Expression strExpression = null;
+                    foreach (var strKey in strArr)
                     {
-                        Expression right = Expression.Constant(searchKeyPair.Value.ToString().Substring(1));
-                        doneExpressions.Add(Expression.Equal(paramExpression, right));
+                        if (strKey.StartsWith("="))
+                        {
+                            Expression right = Expression.Constant(strKey.Substring(1));
+                            if (strExpression == null)
+                                strExpression = Expression.Equal(paramExpression, right);
+                            else
+                                strExpression = Expression.Or(strExpression, Expression.Equal(paramExpression, right));
+                        }
+                        else
+                        {
+                            var express = Expression.Call(paramExpression,
+                                typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
+                                Expression.Constant(strKey));
+
+                            if (strExpression == null)
+                                strExpression = express;
+                            else
+                                strExpression = Expression.Or(strExpression, express);
+                        }
                     }
-                    else
-                    {
-                        doneExpressions.Add(Expression.Call(paramExpression,
-                            typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
-                            Expression.Constant(strValue)));
-                    }
+                    if (strExpression != null)
+                        doneExpressions.Add(strExpression);
                 }
                 else if (ptype == typeof(DateTime))
                 {
@@ -677,6 +692,12 @@ namespace Way.Lib.ScriptRemoting
         [RemotingMethod]
         public object LoadData(string propertyName , int skip ,int take, string searchJsonStr)
         {
+            return LoadData(propertyName, skip, take, searchJsonStr, null);
+        }
+
+        [RemotingMethod]
+        public object LoadData(string propertyName, int skip, int take, string searchJsonStr,string orderBy)
+        {
             Type classtype = this.GetType();
             var pro = classtype.GetProperty(propertyName);
             if (pro == null)
@@ -697,7 +718,11 @@ namespace Way.Lib.ScriptRemoting
                 dataItemType = dataItemType.GetGenericArguments()[0];
             }
 
-            if (query is IQueryable && !(query is IOrderedQueryable))
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                query = ResultHelper.GetQueryForOrderBy(query, orderBy);
+            }
+            else if (query is IQueryable && !(query is IOrderedQueryable))
             {
                 //获取主键名
                 if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
@@ -714,13 +739,14 @@ namespace Way.Lib.ScriptRemoting
                     }
                 }
             }
+
             if (searchJsonStr.IsNullOrEmpty() == false)
             {
                 var searchModel = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(searchJsonStr);
                 query = search(query, dataItemType, searchModel);
             }
-           
-            if(skip > 0)
+            
+            if (skip > 0)
             {
                 query = ResultHelper.InvokeSkip(query, skip);
             }

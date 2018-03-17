@@ -75,6 +75,9 @@
     <Compile Include="Dialogs\AlarmWindow.xaml.cs">
       <DependentUpon>AlarmWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\HistoryWindow.xaml.cs">
+      <DependentUpon>HistoryWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\LoginDialog.xaml.cs">
       <DependentUpon>LoginDialog.xaml</DependentUpon>
     </Compile>
@@ -90,7 +93,13 @@
     <Compile Include="Dialogs\UserManager.xaml.cs">
       <DependentUpon>UserManager.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extention\ListSortDirector.cs" />
+    <Compile Include="Extention\ListViewBehavior.cs" />
+    <Compile Include="Extention\SortableListView.cs" />
+    <Compile Include="Extention\SortInfo.cs" />
+    <Compile Include="Extention\UIElementAdorner.cs" />
     <Compile Include="Listeners\AlarmListener.cs" />
+    <Compile Include="Models\SunRizHistory.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
@@ -103,6 +112,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\GatewayDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\HistoryWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

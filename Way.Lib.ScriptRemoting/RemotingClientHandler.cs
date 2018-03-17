@@ -504,63 +504,77 @@ namespace Way.Lib.ScriptRemoting
 
                 try
                 {
-                    MethodInfo methodinfo = pageDefine.Methods.SingleOrDefault(m => m.Name == msgBag.MethodName);
-                    if (methodinfo == null)
+                    MethodInfo[] methodinfos = pageDefine.Methods.Where(m => m.Name == msgBag.MethodName).ToArray();
+                    if (methodinfos.Length == 0)
                         throw new Exception($"没有找到方法{msgBag.MethodName},可能因为此方法没有定义[RemotingMethod]");
-                    currentPage._OnBeforeInvokeMethod(methodinfo);
-                    RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
-                    var pInfos = methodinfo.GetParameters();
 
-                    object[] jsParameters = null;
-                    if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptParameters))
-                    {
-                        jsParameters = DecrptRSA(this.Session, msgBag.ParameterJson).FromJson<object[]>();
-                    }
-                    else
-                    {
-                        jsParameters = msgBag.ParameterJson.FromJson<object[]>();
-                    }
 
-                    if (pInfos.Length != jsParameters.Length)
-                        throw new Exception($"{msgBag.MethodName}参数个数不相符");
-                    object[] parameters = new object[pInfos.Length];
-                    for (int i = 0; i < parameters.Length; i++)
+                    for(int k = 0; k < methodinfos.Length;k++)
                     {
-                        if (jsParameters[i] == null)
-                            continue;
-
-                        Type pType = pInfos[i].ParameterType;
-                        
-                        if(jsParameters[i] is Newtonsoft.Json.Linq.JToken)
+                        var methodinfo = methodinfos[k];
+                        RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
+                        object[] jsParameters = null;
+                        if (msgBag.ParameterJson.StartsWith("[") )
                         {
-                            parameters[i] = (jsParameters[i] as Newtonsoft.Json.Linq.JToken).ToObject(pType);
-                        }
-                        else if(pType.GetTypeInfo().IsEnum || (pType.GetTypeInfo().IsGenericType && pType.GetGenericTypeDefinition() == typeof(Nullable<>) && pType.GetGenericArguments()[0].GetTypeInfo().IsEnum))
-                        {
-                            Type enumType = pType;
-                            if(pType.GetTypeInfo().IsGenericType)
-                            {
-                                enumType = pType.GetGenericArguments()[0];
-                            }
-                            parameters[i] = Enum.Parse(enumType, jsParameters[i].ToSafeString());
+                            jsParameters = msgBag.ParameterJson.FromJson<object[]>();                            
                         }
                         else
                         {
-                            parameters[i] = Convert.ChangeType(jsParameters[i], pType);
+                            jsParameters = DecrptRSA(this.Session, msgBag.ParameterJson).FromJson<object[]>();
                         }
-                    }
-                    object result = null;
 
-                    result = methodinfo.Invoke(currentPage, parameters);
+                        var pInfos = methodinfo.GetParameters();
+                        if (pInfos.Length != jsParameters.Length)
+                        {
+                            if (k == methodinfos.Length - 1)
+                                throw new Exception($"{msgBag.MethodName}参数数量与服务器不一致");
+                            continue;
+                        }
 
-                    if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
-                    {
-                        SendData(MessageType.Result, result, Session.SessionID, encryptToReturn);
+                        object[] parameters = new object[pInfos.Length];
+
+                        currentPage._OnBeforeInvokeMethod(methodinfo);                      
+
+                        for (int i = 0; i < parameters.Length; i++)
+                        {
+                            if (jsParameters[i] == null)
+                                continue;
+
+                            Type pType = pInfos[i].ParameterType;
+
+                            if (jsParameters[i] is Newtonsoft.Json.Linq.JToken)
+                            {
+                                parameters[i] = (jsParameters[i] as Newtonsoft.Json.Linq.JToken).ToObject(pType);
+                            }
+                            else if (pType.GetTypeInfo().IsEnum || (pType.GetTypeInfo().IsGenericType && pType.GetGenericTypeDefinition() == typeof(Nullable<>) && pType.GetGenericArguments()[0].GetTypeInfo().IsEnum))
+                            {
+                                Type enumType = pType;
+                                if (pType.GetTypeInfo().IsGenericType)
+                                {
+                                    enumType = pType.GetGenericArguments()[0];
+                                }
+                                parameters[i] = Enum.Parse(enumType, jsParameters[i].ToSafeString());
+                            }
+                            else
+                            {
+                                parameters[i] = Convert.ChangeType(jsParameters[i], pType);
+                            }
+                        }
+                        object result = null;
+
+                        result = methodinfo.Invoke(currentPage, parameters);
+
+                        if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
+                        {
+                            SendData(MessageType.Result, result, Session.SessionID, encryptToReturn);
+                        }
+                        else
+                        {
+                            SendData(MessageType.Result, result, Session.SessionID);
+                        }
+                        break;
                     }
-                    else
-                    {
-                        SendData(MessageType.Result, result, Session.SessionID);
-                    }
+                    
                 }
                 catch
                 {

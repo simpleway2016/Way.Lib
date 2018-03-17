@@ -107,6 +107,7 @@ namespace SunRizStudio.Documents
             _gecko.AddMessageEventListener("openCode", openCode);
             _gecko.AddMessageEventListener("fullScreen", fullScreen);
             _gecko.AddMessageEventListener("exitFullScreen", exitFullScreen);
+            _gecko.AddMessageEventListener("showHistoryWindow", showHistoryWindow);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -212,8 +213,11 @@ namespace SunRizStudio.Documents
                 }
             }, _dataModel.id);
         }
-
-        public void SelectWebControlByPointName(string pointName)
+        public void showHistoryWindow(string pointNames)
+        {
+            new Dialogs.HistoryWindow(pointNames).Show();
+        }
+            public void SelectWebControlByPointName(string pointName)
         {
             if(jsContext == null)
             {

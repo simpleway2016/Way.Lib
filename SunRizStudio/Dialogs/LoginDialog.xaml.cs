@@ -54,6 +54,10 @@ namespace SunRizStudio.Dialogs
                     }
                     else if (ret.Role.Value.HasFlag(SunRizServer.UserInfo_RoleEnum.User))//拥有用户资格
                     {
+                        //App.Current.MainWindow = new Dialogs.HistoryWindow();
+                        //App.Current.MainWindow.Show();
+                        //this.Close();
+
                         Helper.Remote.Invoke<ControlWindow>("GetStartupWindow", (startupDataModel, error) =>
                         {
                             if (error != null)
@@ -87,11 +91,17 @@ namespace SunRizStudio.Dialogs
         }
 
         static Dialogs.AlarmWindow alarmWindow;
+        /// <summary>
+        /// 发现有新的报警
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void AlarmListener_Alarmed(object sender, EventArgs e)
         {
             if (alarmWindow == null)
             {
                 alarmWindow = new Dialogs.AlarmWindow();
+
                 //获取窗口句柄 
                 var handle = new WindowInteropHelper(alarmWindow).Handle;
                 //获取当前显示器屏幕
@@ -100,9 +110,10 @@ namespace SunRizStudio.Dialogs
                 alarmWindow.Height = 300;
                 alarmWindow.Left = 0;
                 alarmWindow.Top = screen.WorkingArea.Height - alarmWindow.Height;
-            }
 
+            }
             MainWindow.showWindow(alarmWindow);
+           
         }
     }
 }

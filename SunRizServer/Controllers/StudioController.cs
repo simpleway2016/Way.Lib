@@ -12,6 +12,7 @@ namespace SunRizServer.Controllers
     [RemotingUrl("Home")]
     public class StudioController : BaseController
     {
+        DB.SunRizHistory _hisDB;
         public IQueryable<Alarm> Alarms
         {
             get
@@ -27,6 +28,33 @@ namespace SunRizServer.Controllers
             }
         }
 
+        public IQueryable<MyHistory> Histories
+        {
+            get
+            {
+                if (_hisDB == null)
+                    _hisDB = new DB.SunRizHistory(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite);
+                return from m in _hisDB.History
+                       orderby m.Time descending
+                       select new MyHistory {
+                           Address = m.Address,
+                           id = m.id,
+                           PointId = m.PointId,
+                           Time = m.Time,
+                           Value = m.Value
+                       };
+            }
+        }
+        protected override void OnUnLoad()
+        {
+            if (_hisDB != null)
+            {
+                _hisDB.Dispose();
+                _hisDB = null;
+            }
+            base.OnUnLoad();
+
+        }
         protected override void OnBeforeInvokeMethod(MethodInfo method)
         {
             if(method.Name != "Login")
@@ -683,6 +711,26 @@ namespace SunRizServer.Controllers
         public ControlWindow GetStartupWindow()
         {
             return db.ControlWindow.FirstOrDefault(m => m.IsStartup == true);
+        }
+
+        [RemotingMethod]
+        public object GetHistories(int skip,int take,string searchModel,string orderBy)
+        {
+            IEnumerable<MyHistory> histories = (IEnumerable<MyHistory>)this.LoadData("Histories", skip, take, searchModel,orderBy);
+            foreach( var item in histories)
+            {
+                item.AddressDesc = db.DevicePoint.Where(m => m.id == item.PointId).Select(m => m.Desc).FirstOrDefault();
+            }
+            return histories;
+        }
+    }
+
+    public class MyHistory:History
+    {
+        public string AddressDesc
+        {
+            get;
+            set;
         }
     }
 }

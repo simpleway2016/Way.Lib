@@ -355,6 +355,14 @@
             event.initMessageEvent('go', true, true, windowCode, origin, 1234, window, null);
             document.dispatchEvent(event);
         }
+
+        function showHistoryWindow(address)
+        {
+            var event = document.createEvent('MessageEvent');
+            var origin = window.location.protocol + '//' + window.location.host;
+            event.initMessageEvent('showHistoryWindow', true, true, address, origin, 1234, window, null);
+            document.dispatchEvent(event);
+        }
        
         function startTest()
         {
