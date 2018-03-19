@@ -5626,6 +5626,50 @@ namespace SunRizServer{
             }
         }
 
+        System.Nullable<Boolean> _IsBack=false;
+        /// <summary>
+        /// 是否已经自动返回（已经不再报警）
+        /// </summary>
+        public virtual System.Nullable<Boolean> IsBack
+        {
+            get
+            {
+                return this._IsBack;
+            }
+            set
+            {
+                if ((this._IsBack != value))
+                {
+                    var original = this._IsBack;
+                    this._IsBack = value;
+                    this.OnPropertyChanged("IsBack",original,value);
+
+                }
+            }
+        }
+
+        String _Expression;
+        /// <summary>
+        /// 判断报警的公式
+        /// </summary>
+        public virtual String Expression
+        {
+            get
+            {
+                return this._Expression;
+            }
+            set
+            {
+                if ((this._Expression != value))
+                {
+                    var original = this._Expression;
+                    this._Expression = value;
+                    this.OnPropertyChanged("Expression",original,value);
+
+                }
+            }
+        }
+
         public virtual DevicePoint PointObject { get; set; }
 }}
 namespace SunRizServer{

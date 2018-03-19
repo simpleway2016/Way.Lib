@@ -246,16 +246,41 @@ namespace SunRizStudio.Dialogs
                     if (this.IsConfirm == false)
                     {
                         string color = null;
-                           var pro = SysSettingType.GetProperty("UnConfigAlarmColor" + this.Priority);
-                        if(pro != null)
+                        if (this.IsBack == true)
                         {
-                            color = pro.GetValue(SysSetting).ToSafeString();
+                            //取报警返回颜色
+                            var pro = SysSettingType.GetProperty("BackAlarmColor" + this.Priority);
+                            if (pro != null)
+                            {
+                                color = pro.GetValue(SysSetting).ToSafeString();
+                            }
+                            if (!string.IsNullOrEmpty(color))
+                                return color;
                         }
-                        if (!string.IsNullOrEmpty(color))
-                            return color;
-                        color = SysSetting.AlarmStatusChangeColor;
-                        if (!string.IsNullOrEmpty(color))
-                            return color;
+                        else
+                        {
+                            //取未确认颜色
+                            var pro = SysSettingType.GetProperty("UnConfigAlarmColor" + this.Priority);
+                            if (pro != null)
+                            {
+                                color = pro.GetValue(SysSetting).ToSafeString();
+                            }
+                            if (!string.IsNullOrEmpty(color))
+                                return color;
+
+                            //取未返回颜色
+                            pro = SysSettingType.GetProperty("UnBackAlarmColor" + this.Priority);
+                            if (pro != null)
+                            {
+                                color = pro.GetValue(SysSetting).ToSafeString();
+                            }
+                            if (!string.IsNullOrEmpty(color))
+                                return color;
+
+                            color = SysSetting.AlarmStatusChangeColor;
+                            if (!string.IsNullOrEmpty(color))
+                                return color;
+                        }
 
                         return "#f2abb7";
                     }

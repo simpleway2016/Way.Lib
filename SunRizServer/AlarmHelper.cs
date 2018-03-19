@@ -36,5 +36,41 @@ namespace SunRizServer
                 }
             });           
         }
+
+        /// <summary>
+        /// 如果不符合报警条件，则自动返回
+        /// </summary>
+        /// <param name="pointId"></param>
+        /// <param name="value"></param>
+        public static void AutoBackAlarm( int pointId , double value)
+        {
+            Task.Run(() => {
+                try
+                {
+                    using (SysDB db = new SysDB())
+                    {
+                        var arr = db.Alarm.Where(m => m.IsConfirm == false && m.IsBack == false && m.PointId == pointId && m.Expression != null).ToArray();
+                        foreach( var alarm in arr )
+                        {
+                            var expression = string.Format(alarm.Expression, value);
+                            var result = Convert.ToBoolean( db.Database.ExecSqlString($"select ({expression})"));
+                            if(result == false)
+                            {
+                                //不符合报警条件，可以返回
+                                alarm.IsBack = true;
+                                db.Update(alarm);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    using (Way.Lib.CLog log = new Way.Lib.CLog("AutoBackAlarm error"))
+                    {
+                        log.Log(ex.ToString());
+                    }
+                }
+            });
+        }
     }
 }

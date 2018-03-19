@@ -323,6 +323,7 @@ namespace SunRizServer.HistoryRecord
 
                     if(point.IsAlarm == true)
                     {
+                        AlarmHelper.AutoBackAlarm(point.id.Value, dblValue);
                         if (point.Type == DevicePoint_TypeEnum.Analog)
                         {
                             foreach (var lowAlarm in myPoint.LowAlarmConfig)
@@ -334,7 +335,8 @@ namespace SunRizServer.HistoryRecord
                                         Address = point.Name,
                                         AddressDesc = point.Desc,    
                                         PointValue = dblValue,
-                                        Priority = lowAlarm.Priority
+                                        Priority = lowAlarm.Priority,
+                                        Expression = "{0}<" + lowAlarm.Value
                                     });
                                     break;
                                 }
@@ -349,7 +351,8 @@ namespace SunRizServer.HistoryRecord
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
                                         PointValue = dblValue,
-                                        Priority = hiAlarm.Priority
+                                        Priority = hiAlarm.Priority,
+                                        Expression = "{0}>" + hiAlarm.Value
                                     });
                                     break;
                                 }
@@ -365,7 +368,8 @@ namespace SunRizServer.HistoryRecord
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
                                         PointValue = dblValue,
-                                        Priority = point.AlarmOffsetPriority
+                                        Priority = point.AlarmOffsetPriority,
+                                        Expression = "{0}-"+ point.AlarmOffsetOriginalValue + ">" + point.AlarmOffsetValue + " or {0}-" + point.AlarmOffsetOriginalValue + "<-" + point.AlarmOffsetValue
                                     });
                                 }
                             }
@@ -404,6 +408,7 @@ namespace SunRizServer.HistoryRecord
                                     Address = point.Name,
                                     AddressDesc = point.Desc,
                                     PointValue = dblValue,
+                                    Expression = "{0}=" + point.AlarmValue
                                 });
                             }
                         }
