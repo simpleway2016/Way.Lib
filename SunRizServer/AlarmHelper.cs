@@ -19,7 +19,7 @@ namespace SunRizServer
                 {
                     using (SysDB db = new SysDB())
                     {
-                        if (db.Alarm.Any(m => m.IsConfirm == false && m.IsReset == false && m.Address == alarm.Address && m.Content == alarm.Content))
+                        if (db.Alarm.Any(m => m.IsConfirm == false && m.IsReset == false && m.IsBack == false && m.Address == alarm.Address && m.Content == alarm.Content))
                         {
                             //有同样的报警，而且没有确认
                             return;

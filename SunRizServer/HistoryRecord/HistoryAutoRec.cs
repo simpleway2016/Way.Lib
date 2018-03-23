@@ -17,16 +17,17 @@ namespace SunRizServer.HistoryRecord
         static HistoryAutoRec()
         {
             //检查历史记录剩余空间
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 while (true)
                 {
-                    
+
                     try
                     {
                         using (SysDB db = new SysDB())
                         {
                             var info = (from m in db.SystemSetting
-                                              select new { path = m.HistoryPath,g = m.HistoryStoreAlarm }).FirstOrDefault();
+                                        select new { path = m.HistoryPath, g = m.HistoryStoreAlarm }).FirstOrDefault();
                             if (info == null || string.IsNullOrEmpty(info.path) || info.path.Length < 2 || info.g == null || info.g == 0 || info.path[1] != ':')
                                 continue;
                             System.IO.DriveInfo[] drives = System.IO.DriveInfo.GetDrives();
@@ -34,10 +35,11 @@ namespace SunRizServer.HistoryRecord
                             {
                                 if (drive.Name.ToLower()[0] == info.path.ToLower()[0])
                                 {
-                                    var gb = Math.Round( drive.TotalFreeSpace / (double)(1024 * 1024 * 1024) , 2);
+                                    var gb = Math.Round(drive.TotalFreeSpace / (double)(1024 * 1024 * 1024), 2);
                                     if (gb <= info.g.GetValueOrDefault())
                                     {
-                                        AlarmHelper.AddAlarm(new Alarm() {
+                                        AlarmHelper.AddAlarm(new Alarm()
+                                        {
                                             Content = $"历史路径{info.path}剩余空间只有{gb}GB了，请尽快扩展磁盘！",
                                         });
                                     }
@@ -46,7 +48,7 @@ namespace SunRizServer.HistoryRecord
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         using (Way.Lib.CLog log = new Way.Lib.CLog("HistoryAutoRec 检查磁盘剩余空间 error "))
                         {
@@ -64,9 +66,9 @@ namespace SunRizServer.HistoryRecord
         /// </summary>
         public static void ReStart()
         {
-            if(AllClients.Count > 0)
+            if (AllClients.Count > 0)
             {
-                foreach( var c in AllClients )
+                foreach (var c in AllClients)
                 {
                     c.Released = true;
                     c.NetClient.Close();
@@ -80,7 +82,7 @@ namespace SunRizServer.HistoryRecord
         {
             try
             {
-                if(hisDB != null)
+                if (hisDB != null)
                 {
                     lock (hisDB)
                     {
@@ -97,7 +99,7 @@ namespace SunRizServer.HistoryRecord
                     try
                     {
                         //目录不存在，创建目录
-                        if(System.IO.Directory.Exists(sysSetting.HistoryPath) == false)
+                        if (System.IO.Directory.Exists(sysSetting.HistoryPath) == false)
                         {
                             System.IO.Directory.CreateDirectory(sysSetting.HistoryPath);
                         }
@@ -110,29 +112,30 @@ namespace SunRizServer.HistoryRecord
                     {
                         return;
                     }
-                 
+
 
                     var pointGroups = from m in db.DevicePoint
-                                     where m.ValueRelativeChange == true || m.ValueAbsoluteChange == true || m.ValueOnTimeChange == true || m.IsAlarm == true
-                                     group m by m.DeviceId into g
-                                     select g;
-                    foreach( var pointArr in pointGroups )
+                                      where m.ValueRelativeChange == true || m.ValueAbsoluteChange == true || m.ValueOnTimeChange == true || m.IsAlarm == true
+                                      group m by m.DeviceId into g
+                                      select g;
+                    foreach (var pointArr in pointGroups)
                     {
                         var deviceId = pointArr.Key.GetValueOrDefault();
                         var device = db.Device.AsTracking().FirstOrDefault(m => m.id == deviceId);
                         var driver = db.CommunicationDriver.AsTracking().FirstOrDefault(m => m.id == device.DriverID);
 
-                        MyDriverClient client = new MyDriverClient(driver.Address , driver.Port.Value);
+                        MyDriverClient client = new MyDriverClient(driver.Address, driver.Port.Value);
                         client.Points = (from m in pointArr
                                          select new MyDevicePoint(m)).ToArray();
                         AllClients.Add(client);
                         string[] pointAddrs = new string[client.Points.Length];
-                        for(int i = 0; i < client.Points.Length; i ++)
+                        for (int i = 0; i < client.Points.Length; i++)
                         {
                             pointAddrs[i] = client.Points[i].DevicePoint.Address;
-                            if(client.Points[i].DevicePoint.ValueOnTimeChange == true)
+                            if (client.Points[i].DevicePoint.ValueOnTimeChange == true)
                             {
-                                client.SaveOnTimeInfos.Add(new SaveOnTimeInfo() {
+                                client.SaveOnTimeInfos.Add(new SaveOnTimeInfo()
+                                {
                                     PointObj = client.Points[i],
                                     PointId = client.Points[i].DevicePoint.id.Value,
                                     Interval = client.Points[i].DevicePoint.ValueOnTimeChangeSetting.GetValueOrDefault(),
@@ -145,7 +148,7 @@ namespace SunRizServer.HistoryRecord
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 using (Way.Lib.CLog log = new Way.Lib.CLog("HistoryAutoRec error "))
                 {
@@ -194,7 +197,7 @@ namespace SunRizServer.HistoryRecord
         /// </summary>
         /// <param name="point"></param>
         /// <param name="value"></param>
-        static void WriteHistory(DevicePoint point,double value)
+        static void WriteHistory(DevicePoint point, double value)
         {
             if (hisDB == null)
                 return;
@@ -217,7 +220,7 @@ namespace SunRizServer.HistoryRecord
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 using (Way.Lib.CLog log = new Way.Lib.CLog("HistoryAutoRec WriteHistory error"))
                 {
@@ -225,7 +228,8 @@ namespace SunRizServer.HistoryRecord
                 }
                 hisDB.Dispose();
                 hisDB = null;
-                AlarmHelper.AddAlarm(new Alarm() {
+                AlarmHelper.AddAlarm(new Alarm()
+                {
                     Content = $"记录历史时，发生错误，错误信息：{ex.Message}"
                 });
             }
@@ -240,12 +244,13 @@ namespace SunRizServer.HistoryRecord
         {
             if (client.SaveOnTimeInfos.Count == 0)
                 return;
-            Task.Run(()=> {
-                while(client.Released == false)
-                {                    
-                    foreach ( var itemInfo in client.SaveOnTimeInfos )
+            Task.Run(() =>
+            {
+                while (client.Released == false)
+                {
+                    foreach (var itemInfo in client.SaveOnTimeInfos)
                     {
-                        if(itemInfo.CurrentValue != itemInfo.SaveValue && (DateTime.Now - itemInfo.SaveTime).TotalSeconds >= itemInfo.PointObj.DevicePoint.ValueOnTimeChangeSetting)
+                        if (itemInfo.CurrentValue != itemInfo.SaveValue && (DateTime.Now - itemInfo.SaveTime).TotalSeconds >= itemInfo.PointObj.DevicePoint.ValueOnTimeChangeSetting)
                         {
                             WriteHistory(itemInfo.PointObj.DevicePoint, itemInfo.CurrentValue);
                             itemInfo.SaveValue = itemInfo.CurrentValue;
@@ -263,12 +268,12 @@ namespace SunRizServer.HistoryRecord
         /// <param name="client"></param>
         /// <param name="device"></param>
         /// <param name="pointAddrs"></param>
-        static void watchClient(MyDriverClient client , Device device , string[] pointAddrs)
+        static void watchClient(MyDriverClient client, Device device, string[] pointAddrs)
         {
-            client.NetClient = client.AddPointToWatch(device.Address, pointAddrs, (addr, value) => 
+            client.NetClient = client.AddPointToWatch(device.Address, pointAddrs, (addr, value) =>
             {
                 var myPoint = client.Points.FirstOrDefault(m => m.DevicePoint.Address == addr);
-                
+
                 if (myPoint != null)
                 {
                     var point = myPoint.DevicePoint;
@@ -298,7 +303,7 @@ namespace SunRizServer.HistoryRecord
                             timeInfo.CurrentValue = dblValue;
                         }
                     }
-                    else if( point.ValueAbsoluteChange == true )
+                    else if (point.ValueAbsoluteChange == true)
                     {
                         //绝对变化是指这个变量当前值与前一个历史值比较，变化超过设定数值后进行历史保存
                         if (myPoint.LastValue == null || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) >= point.ValueAbsoluteChangeSetting)
@@ -310,18 +315,18 @@ namespace SunRizServer.HistoryRecord
                     else if (point.ValueRelativeChange == true)
                     {
                         //相对变化是指这个变量当前值与前一个历史值比较，变化超过设定值（这个值是该变量量程的百分比）后进行历史保存
-                        if(myPoint.LastValue == null)
+                        if (myPoint.LastValue == null)
                         {
                             myPoint.LastValue = dblValue;
                         }
-                        else if (myPoint.LastValue == 0 || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault())*100 / myPoint.LastValue >= point.ValueRelativeChangeSetting)
+                        else if (myPoint.LastValue == 0 || Math.Abs(dblValue - myPoint.LastValue.GetValueOrDefault()) * 100 / myPoint.LastValue >= point.ValueRelativeChangeSetting)
                         {
                             WriteHistory(point, dblValue);
                             myPoint.LastValue = dblValue;
                         }
                     }
 
-                    if(point.IsAlarm == true)
+                    if (point.IsAlarm == true)
                     {
                         AlarmHelper.AutoBackAlarm(point.id.Value, dblValue);
                         if (point.Type == DevicePoint_TypeEnum.Analog)
@@ -330,10 +335,12 @@ namespace SunRizServer.HistoryRecord
                             {
                                 if (dblValue < lowAlarm.Value)
                                 {
-                                    AlarmHelper.AddAlarm(new Alarm() {
+                                    AlarmHelper.AddAlarm(new Alarm()
+                                    {
                                         Content = $"触发低{lowAlarm.Number}报警",
                                         Address = point.Name,
-                                        AddressDesc = point.Desc,    
+                                        AddressDesc = point.Desc,
+                                        PointId = point.id,
                                         PointValue = dblValue,
                                         Priority = lowAlarm.Priority,
                                         Expression = "{0}<" + lowAlarm.Value
@@ -350,6 +357,7 @@ namespace SunRizServer.HistoryRecord
                                         Content = $"触发高{hiAlarm.Number}报警",
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
+                                        PointId = point.id,
                                         PointValue = dblValue,
                                         Priority = hiAlarm.Priority,
                                         Expression = "{0}>" + hiAlarm.Value
@@ -360,16 +368,17 @@ namespace SunRizServer.HistoryRecord
 
                             if (point.IsAlarmOffset == true)
                             {
-                                if (Math.Abs( dblValue - point.AlarmOffsetOriginalValue.GetValueOrDefault()) > point.AlarmOffsetValue)
+                                if (Math.Abs(dblValue - point.AlarmOffsetOriginalValue.GetValueOrDefault()) > point.AlarmOffsetValue)
                                 {
                                     AlarmHelper.AddAlarm(new Alarm()
                                     {
                                         Content = $"偏差报警",
                                         Address = point.Name,
                                         AddressDesc = point.Desc,
+                                        PointId = point.id,
                                         PointValue = dblValue,
                                         Priority = point.AlarmOffsetPriority,
-                                        Expression = "{0}-"+ point.AlarmOffsetOriginalValue + ">" + point.AlarmOffsetValue + " or {0}-" + point.AlarmOffsetOriginalValue + "<-" + point.AlarmOffsetValue
+                                        Expression = "{0}-" + point.AlarmOffsetOriginalValue + ">" + point.AlarmOffsetValue + " or {0}-" + point.AlarmOffsetOriginalValue + "<-" + point.AlarmOffsetValue
                                     });
                                 }
                             }
@@ -389,6 +398,7 @@ namespace SunRizServer.HistoryRecord
                                             Content = $"变化率报警",
                                             Address = point.Name,
                                             AddressDesc = point.Desc,
+                                            PointId = point.id,
                                             PointValue = dblValue,
                                             Priority = point.AlarmPercentPriority
                                         });
@@ -400,29 +410,32 @@ namespace SunRizServer.HistoryRecord
                         }
                         else
                         {
-                            if(point.AlarmValue == dblValue)
+                            if (point.AlarmValue == dblValue)
                             {
                                 AlarmHelper.AddAlarm(new Alarm()
                                 {
                                     Content = $"触发报警",
                                     Address = point.Name,
                                     AddressDesc = point.Desc,
+                                    PointId = point.id,
                                     PointValue = dblValue,
                                     Expression = "{0}=" + point.AlarmValue
                                 });
                             }
                         }
 
-                      
+
                     }
                     //System.Diagnostics.Debug.WriteLine($"name:{addr} value:{value}");
                 }
-               
-            }, (err) => {
+
+            }, (err) =>
+            {
                 if (client.Released)
                     return;
 
-                Task.Run(()=> {
+                Task.Run(() =>
+                {
                     Thread.Sleep(2000);
                     watchClient(client, device, pointAddrs);
                 });
@@ -440,7 +453,7 @@ namespace SunRizServer.HistoryRecord
         /// <summary>
         /// 上次保存的时间
         /// </summary>
-        public DateTime SaveTime = new DateTime(2000,1,1);
+        public DateTime SaveTime = new DateTime(2000, 1, 1);
         public double CurrentValue;
         public MyDevicePoint PointObj;
         //保存间隔
@@ -490,7 +503,7 @@ namespace SunRizServer.HistoryRecord
                     Priority = point.AlarmPriority5,
                       Number = 5,
                 }
-            }).Where(m=>m.Value != null && m.Priority != null).OrderBy(m=>m.Value).ToArray();
+            }).Where(m => m.Value != null && m.Priority != null).OrderBy(m => m.Value).ToArray();
 
 
             HiAlarmConfig = (new AlarmConfig[] {

@@ -58,11 +58,18 @@ namespace SunRizStudio.Dialogs
                         //App.Current.MainWindow.Show();
                         //this.Close();
 
+                        this.Cursor = Cursors.Wait;
                         Helper.Remote.Invoke<ControlWindow>("GetStartupWindow", (startupDataModel, error) =>
                         {
+                            this.Cursor = null;
                             if (error != null)
                             {
                                 MessageBox.Show(this, err);
+                                return;
+                            }
+                            if(startupDataModel == null)
+                            {
+                                MessageBox.Show(this, "请先将某一个监控画面设置为启动画面！");
                                 return;
                             }
                             var doc = new ControlWindowDocument(null, startupDataModel, true);

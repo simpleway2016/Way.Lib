@@ -37,7 +37,7 @@
                     <TextBox Padding="2,4,0,0" Text="{Binding MaxOpen,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
                     <TextBlock Text="弹出窗口数量" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                    <TextBox Padding="2,4,0,0" Background="{Binding DialogCount,Mode=TwoWay}" Text="{Binding WinBgColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                    <TextBox Padding="2,4,0,0" Text="{Binding DialogCount,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
                     
 
                     <TextBlock Text="锁定弹出窗口" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>

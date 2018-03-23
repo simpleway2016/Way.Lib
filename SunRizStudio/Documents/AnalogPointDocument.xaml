@@ -149,7 +149,7 @@
                             <TextBlock Text="安全区配置" Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14" Margin="5"></TextBlock>
                             
                             <TextBlock Text="安全区" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="28" Grid.Column="0"></TextBlock>
-                            <ComboBox x:Name="cmbSafeArea"  DisplayMemberPath="text" SelectedValuePath="value" SelectedValue="{Binding Role,Mode=TwoWay}" BorderThickness="0" Grid.Row="28" Grid.Column="1">
+                            <ComboBox x:Name="cmbSafeArea"  DisplayMemberPath="text" SelectedValuePath="value" SelectedValue="{Binding SafeArea,Mode=TwoWay}" BorderThickness="0" Grid.Row="28" Grid.Column="1">
                             </ComboBox>
 
                             <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>

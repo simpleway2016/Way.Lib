@@ -79,6 +79,8 @@ namespace SunRizStudio.Extention
                 return;
 
             GridViewColumnHeader header = e.OriginalSource as GridViewColumnHeader;
+            if (header == null)
+                return;
             var proName = header.Column.GetValue(SortFieldProperty) as string;
             if (proName == null)
                 return;

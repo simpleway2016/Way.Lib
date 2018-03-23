@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SunRizStudio.Dialogs"
         xmlns:ext="clr-namespace:SunRizStudio.Extention"
         mc:Ignorable="d"
-        Title="报警窗口" Height="500" Width="800" Loaded="Window_Loaded">
+        Title="报警窗口" Height="500" Width="900" Loaded="Window_Loaded">
     <Grid>
         <StackPanel x:Name="panelSearch" VerticalAlignment="Top" Height="30" Orientation="Horizontal">
             <TextBlock Text="起始时间：" Margin="3,7,0,-7"></TextBlock>
@@ -27,6 +27,22 @@
                     <GridViewColumn Header="点名称" Width="auto" DisplayMemberBinding="{Binding Address}" ext:ListViewBehavior.SortField="Address"/>
                     <GridViewColumn Header="点描述" Width="auto" DisplayMemberBinding="{Binding AddressDesc}"/>
                     <GridViewColumn Header="点值" Width="auto" DisplayMemberBinding="{Binding PointValue}" ext:ListViewBehavior.SortField="PointValue"/>
+                    <GridViewColumn Header="优先级" Width="auto" DisplayMemberBinding="{Binding Priority}" ext:ListViewBehavior.SortField="Priority"/>
+                    <GridViewColumn Header="已返回" Width="auto"  ext:ListViewBehavior.SortField="IsBack">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsEnabled="False" IsChecked="{Binding IsBack}"></CheckBox>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="已确认" Width="auto"  ext:ListViewBehavior.SortField="IsConfirm">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsEnabled="False" IsChecked="{Binding IsConfirm}"></CheckBox>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    
                     <GridViewColumn Header="报警时间" Width="auto" DisplayMemberBinding="{Binding AlarmTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"  ext:ListViewBehavior.SortField="AlarmTime"/>
                     <GridViewColumn Header="确认时间" Width="auto" DisplayMemberBinding="{Binding ConfirmTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" ext:ListViewBehavior.SortField="ConfirmTime"/>
                     <GridViewColumn Header="">
@@ -34,7 +50,6 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="确认报警" Width="100" Height="22" Margin="5,5,5,5" x:Name="btnConfirm" Click="btnConfirm_Click"></Button>
-                                    <Button Content="报警重置" Width="100" Height="22" Margin="0,5,5,5"></Button>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsConfirm}" Value="True">
