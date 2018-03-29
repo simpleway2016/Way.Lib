@@ -105,6 +105,9 @@ var PropertyDialog = (function () {
         this.rootElement.style.cursor = "move";
         this.setRootEvent();
     }
+    PropertyDialog.prototype.dispose = function () {
+        this.rootElement.parentElement.removeChild(this.rootElement);
+    };
     PropertyDialog.prototype.setPointItemEvent = function (ele) {
         ele.addEventListener("focus", function (e) {
             editor.editingPointTextbox = ele;
@@ -116,7 +119,14 @@ var PropertyDialog = (function () {
     PropertyDialog.prototype.setChkItemEvent = function (ele) {
         var _this = this;
         ele.onclick = function () {
-            _this.control[ele._name] = !_this.control[ele._name];
+            var undo = new UndoChangeProperty(editor, _this.control, ele._name, !_this.control[ele._name]);
+            try {
+                undo.redo();
+                editor.undoMgr.addUndo(undo);
+            }
+            catch (e) {
+                alert(e.message);
+            }
         };
     };
     PropertyDialog.prototype.setImgItemEvent = function (ele) {
@@ -124,7 +134,14 @@ var PropertyDialog = (function () {
         ele.onclick = function () {
             fileBrowser.onSelectFile = function (path) {
                 ele.value = path;
-                _this.control[ele._name] = path;
+                var undo = new UndoChangeProperty(editor, _this.control, ele._name, path);
+                try {
+                    undo.redo();
+                    editor.undoMgr.addUndo(undo);
+                }
+                catch (e) {
+                    alert(e.message);
+                }
                 fileBrowser.hide();
             };
             fileBrowser.show();
@@ -159,7 +176,9 @@ var PropertyDialog = (function () {
         var _this = this;
         if (input.tagName == "SELECT") {
             input.addEventListener("change", function (e) {
-                _this.control[input._name] = input.value;
+                var undo = new UndoChangeProperty(editor, _this.control, input._name, input.value);
+                undo.redo();
+                editor.undoMgr.addUndo(undo);
                 editor.changed = true;
             }, false);
             return;
@@ -177,18 +196,40 @@ var PropertyDialog = (function () {
                 color: input.value,
                 onChange: function (hsb, hex, rgb, el, bySetColor) {
                     input.value = "#" + hex;
-                    el._control[input._name] = input.value;
+                    var undo = new UndoChangeProperty(editor, el._control, input._name, input.value);
+                    try {
+                        undo.redo();
+                        editor.undoMgr.addUndo(undo);
+                    }
+                    catch (e) {
+                        alert(e.message);
+                    }
                     editor.changed = true;
                 }
             });
         }
         else {
             input.changeFunc = function () {
-                _this.control[input._name] = input.value;
+                var undo = new UndoChangeProperty(editor, _this.control, input._name, input.value);
+                try {
+                    undo.redo();
+                    editor.undoMgr.addUndo(undo);
+                }
+                catch (e) {
+                    alert(e.message);
+                }
                 editor.changed = true;
             };
             input.addEventListener("keyup", function (e) {
-                _this.control[input._name] = input.value;
+                var undo = new UndoChangeProperty(editor, _this.control, input._name, input.value);
+                try {
+                    undo.redo();
+                    editor.undoMgr.addUndo(undo);
+                }
+                catch (e) {
+                    input.value = undo.originalValue;
+                    alert(e.message);
+                }
                 editor.changed = true;
             }, false);
         }

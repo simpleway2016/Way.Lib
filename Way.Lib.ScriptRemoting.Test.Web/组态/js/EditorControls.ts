@@ -3,15 +3,17 @@ declare var editor: Editor;
 declare var Pikaday;
 var ManyPointDefined = 999999;//表示EditorControl是否绑定了多个point
 var WatchPointNames: any = [];
+var menuDiv1: HTMLElement = null;
 
-function documentElementMouseDown(e: MouseEvent) {
-    //while (AllSelectedControls.length > 0) {
-    //    AllSelectedControls[0].selected = false;
-    //}
+function documentElementClick(e: MouseEvent) {
+    if (menuDiv1) {
+        document.body.removeChild(menuDiv1);
+        menuDiv1 = null;
+    }
 }
 
 
-document.documentElement.addEventListener("mousedown", documentElementMouseDown, false);
+document.documentElement.addEventListener("click", documentElementClick, false);
 
 
 class EditorControl
@@ -69,8 +71,7 @@ class EditorControl
         if (v != this._id) {            
             if (this.container && this.container.isIdExist(v))
             {
-                alert("id“"+v+"”已存在");
-                return;
+                throw new Error("id“" + v + "”已存在");
             }
             this._id = v;
         }
@@ -111,6 +112,64 @@ class EditorControl
             this._moveAllSelectedControl = this.selected;
 
             e.stopPropagation();
+
+            if (e.shiftKey)
+            {
+                //告诉client，显示一个周边控件的列表
+                var myrect = this.rect;
+                var ids = [];
+                for (var i = 0; i < this.container.controls.length; i++)
+                {
+                    var ctrl = <EditorControl>this.container.controls[i];
+                    if (ctrl != this && ctrl.isIntersectWith(myrect))
+                    {
+                        //这个控件与this相交
+                        ids.push(ctrl.id);
+                    }
+                }
+                if (ids.length > 0)
+                {
+                    
+                    menuDiv1 = document.createElement("DIV");
+                    menuDiv1.style.visibility = "hidden";
+                    document.body.appendChild(menuDiv1);
+                    menuDiv1.style.background = "#fff";
+                    menuDiv1.style.cursor = "pointer";
+                    menuDiv1.style.fontSize = "12px";
+                    menuDiv1.style.padding = "3px;"
+                    menuDiv1.style.border = "1px solid black";
+                    for (var i = 0; i < ids.length; i++)
+                    {
+                        var itemEle = document.createElement("DIV");
+                        itemEle.innerHTML = ids[i];
+                        itemEle.style.marginBottom = "4px";
+                        itemEle.style.marginLeft = "2px";
+                        itemEle.style.marginRight = "2px";
+                        itemEle.addEventListener("click", (e) => {
+                            CtrlKey = false;
+                            var t = this.container.getControl((<any>e.target).innerHTML);
+                            if (t)
+                            {
+                                t.selected = true;
+                            }
+                        }, false);
+                        menuDiv1.appendChild(itemEle);
+                    }
+                    menuDiv1.style.position = "absolute";
+                   
+                    var x = e.clientX;
+                    if (x + editor.scrollLeft + menuDiv1.offsetWidth > window.innerWidth)
+                        x = window.innerWidth - editor.scrollLeft - menuDiv1.offsetWidth;
+                   
+                    var y = e.clientY; 
+                    if (y + editor.scrollTop + menuDiv1.offsetHeight > window.innerHeight)
+                        y = window.innerHeight - editor.scrollTop - menuDiv1.offsetHeight;
+                    menuDiv1.style.left = x + "px";
+                    menuDiv1.style.top = y + "px";
+                    menuDiv1.style.visibility = "";
+                }
+                return;
+            }
 
             CtrlKey = e.ctrlKey;
             if (CtrlKey)
@@ -254,8 +313,10 @@ class EditorControl
 
     showProperty()
     {
-        if (!this.propertyDialog)
-            this.propertyDialog = new PropertyDialog(this);
+        if (this.propertyDialog)
+            this.propertyDialog.dispose();
+
+        this.propertyDialog = new PropertyDialog(this);
         this.propertyDialog.show();
     }
 
@@ -2317,20 +2378,17 @@ class TrendControl extends EditorControl {
     
 
     onBeginMoving() {
-        (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
-        (<any>this.rectElement)._y = parseInt(this.rectElement.getAttribute("y"));
+        (<any>this.rectElement)._rect = this.rect;
     }
     onMoving(downX, downY, nowX, nowY) {
-        var x = <any>((<any>this.rectElement)._x + nowX - downX);
-        var y = <any>((<any>this.rectElement)._y + nowY - downY);
-        this.rectElement.setAttribute("x", x);
-        this.rectElement.setAttribute("y", y);
-        for (var i = 1; i <= 12; i++) {
-            this["pathElement" + i].setAttribute("transform", "translate(" + x + " " + y + ")");
-        }
-        if (this.selected) {
-            this.resetPointLocation();
-        }
+        var x = <any>((<any>this.rectElement)._rect.x + nowX - downX);
+        var y = <any>((<any>this.rectElement)._rect.y + nowY - downY);
+        this.rect = {
+            x: x,
+            y: y,
+            width: (<any>this.rectElement)._rect.width,
+            height: (<any>this.rectElement)._rect.height
+        };
     }
     onEndMoving() {
 

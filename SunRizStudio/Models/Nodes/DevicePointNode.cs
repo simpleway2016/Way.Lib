@@ -195,7 +195,7 @@ namespace SunRizStudio.Models.Nodes
                 var point = e.GetPosition(window);
 
                 //如果移动过大，则是拖拽
-                if (Math.Abs(point.X - _downPoint.X) > 20 || Math.Abs(point.Y - _downPoint.Y) > 20)
+                if (Math.Abs(point.X - _downPoint.X) > 3 || Math.Abs(point.Y - _downPoint.Y) > 3)
                 {
                     DataObject data = new DataObject("Text", new { Type = "Point", Name = this._point.Name }.ToJsonString());
                     DragDrop.DoDragDrop(treeviewitem, data, DragDropEffects.Move);

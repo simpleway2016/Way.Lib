@@ -3,7 +3,8 @@ declare var editor: Editor;
 declare var Pikaday: any;
 declare var ManyPointDefined: number;
 declare var WatchPointNames: any;
-declare function documentElementMouseDown(e: MouseEvent): void;
+declare var menuDiv1: HTMLElement;
+declare function documentElementClick(e: MouseEvent): void;
 declare class EditorControl {
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;

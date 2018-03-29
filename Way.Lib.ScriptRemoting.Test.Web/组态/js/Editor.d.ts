@@ -128,6 +128,8 @@ declare class Editor implements IEditorControlContainer {
     customProperties: string;
     getPropertiesCaption(): string[];
     getProperties(): string[];
+    scrollTop: number;
+    scrollLeft: number;
     constructor(id: string);
     private initMoveToScrollEvent();
     private initScaleEvent();
@@ -136,6 +138,7 @@ declare class Editor implements IEditorControlContainer {
     isRunMode: boolean;
     run(): void;
     createGroupControl(windowCode: any, rect: any): GroupControl;
+    rebuildControls(): void;
     getScript(): string;
     currentScale: number;
     scale(_scale: any): void;

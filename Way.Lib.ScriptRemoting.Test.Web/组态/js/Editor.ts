@@ -4,7 +4,7 @@ var windowGuid = new Date().getTime();
 var CtrlKey: boolean = false;
 
 window.onerror = (errorMessage, scriptURI, lineNumber) => {
-    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
+    alert("发生错误:\r\n" + errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 }
 
 if (true)
@@ -544,6 +544,20 @@ class Editor implements IEditorControlContainer
         return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "windowWidth","windowHeight","customProperties"];
     }
 
+    get scrollTop(): number
+    {
+        return this.svgContainer.parentElement.scrollTop;
+    }
+    set scrollTop(v: number)
+    {
+        this.svgContainer.parentElement.scrollTop = v;
+    }
+    get scrollLeft(): number {
+        return this.svgContainer.parentElement.scrollLeft;
+    }
+    set scrollLeft(v: number) {
+        this.svgContainer.parentElement.scrollLeft = v;
+    }
     constructor(id: string)
     {
         this.divContainer = <HTMLElement>document.body.querySelector("#" + id);
@@ -676,10 +690,23 @@ class Editor implements IEditorControlContainer
          
         });
 
+
+        var movingUndo: UndoMoveControls = null;
+        document.body.addEventListener("keyup", (e: KeyboardEvent) => {
+            if (movingUndo)
+            {
+                movingUndo.moveFinish();
+                this.undoMgr.addUndo(movingUndo);
+                movingUndo = null;
+            }
+        }, false);
         document.body.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.keyCode == 37)
             {
                 //left
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -689,6 +716,9 @@ class Editor implements IEditorControlContainer
             }
             else if (e.keyCode == 38) {
                 //top
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -698,6 +728,9 @@ class Editor implements IEditorControlContainer
             }
             else if (e.keyCode == 39) {
                 //right
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -707,6 +740,9 @@ class Editor implements IEditorControlContainer
             }
             else if (e.keyCode == 40) {
                 //bottom
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -926,6 +962,25 @@ class Editor implements IEditorControlContainer
         }
     }
 
+    /**
+     * 根据element实际的序列，重新排列controls
+     */
+    rebuildControls()
+    {
+        //重组controls
+        var newControls = [];
+        for (var i = 0; i < this.svgContainer.children.length; i++) {
+            var ele: any = this.svgContainer.children[i];
+            if (ele._editorControl && this.controls.indexOf(ele._editorControl) >= 0)
+            {
+                newControls.push(ele._editorControl);
+            }
+        }
+        if (newControls.length != this.controls.length)
+            alert("rebuildControls失败");
+        this.controls = newControls;
+    }
+
     getScript() {
         var properties = this.getProperties();
         var script = "";
@@ -1084,7 +1139,7 @@ class Editor implements IEditorControlContainer
         var windowCodes = [];
         for (var i = 0; i < this.controls.length; i++)
         {
-            scripts += this.controls[i].getScript();
+            scripts += this.controls[i].getScript() + "\r\n";
             if (this.controls[i].constructor.name == "GroupControl")
             {
                 windowCodes.push(this.controls[i].windowCode);
@@ -1532,50 +1587,25 @@ class Editor implements IEditorControlContainer
     }
     layerUp()
     {
-        for (var i = 0; i < AllSelectedControls.length; i++)
-        {
-            var control = AllSelectedControls[i];
-            var nextEle :any = (<Element>control.element).nextElementSibling;
-            while (nextEle && !nextEle._editorControl)
-            {
-                nextEle = nextEle.nextElementSibling;
-            }
-            if (nextEle) {
-                this.svgContainer.removeChild(nextEle);
-                this.svgContainer.insertBefore(nextEle, <any>control.element);
-            }
-        }
+        var undo = new UndoMoveControlsLayerUp(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     }
     layerDown()
     {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var preEle: any = (<Element>control.element).previousElementSibling;
-            while (preEle && !preEle._editorControl) {
-                preEle = preEle.previousElementSibling;
-            }
-            if (preEle) {
-                this.svgContainer.removeChild(control.element);
-                this.svgContainer.insertBefore(<any>control.element, preEle);
-            }
-        }
+        var undo = new UndoMoveControlsLayerDown(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     }
     layerFront() {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            this.svgContainer.removeChild(control.element);
-            this.svgContainer.appendChild(control.element);
-        }
+        var undo = new UndoMoveControlsLayerFront(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     }
     layerBottom() {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            if (this.svgContainer.children[0] != control.element)
-            {
-                this.svgContainer.removeChild(control.element);
-                this.svgContainer.insertBefore(<any>control.element, <any>this.svgContainer.children[0]);
-            }
-        }
+        var undo = new UndoMoveControlsLayerBottom(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     }
     getIndex(element)
     {

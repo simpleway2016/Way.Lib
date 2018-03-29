@@ -11,9 +11,14 @@ var __extends = (this && this.__extends) || (function () {
 var AllSelectedControls = [];
 var ManyPointDefined = 999999;
 var WatchPointNames = [];
-function documentElementMouseDown(e) {
+var menuDiv1 = null;
+function documentElementClick(e) {
+    if (menuDiv1) {
+        document.body.removeChild(menuDiv1);
+        menuDiv1 = null;
+    }
 }
-document.documentElement.addEventListener("mousedown", documentElementMouseDown, false);
+document.documentElement.addEventListener("click", documentElementClick, false);
 var EditorControl = (function () {
     function EditorControl(element) {
         var _this = this;
@@ -48,6 +53,52 @@ var EditorControl = (function () {
                 return;
             _this._moveAllSelectedControl = _this.selected;
             e.stopPropagation();
+            if (e.shiftKey) {
+                var myrect = _this.rect;
+                var ids = [];
+                for (var i = 0; i < _this.container.controls.length; i++) {
+                    var ctrl = _this.container.controls[i];
+                    if (ctrl != _this && ctrl.isIntersectWith(myrect)) {
+                        ids.push(ctrl.id);
+                    }
+                }
+                if (ids.length > 0) {
+                    menuDiv1 = document.createElement("DIV");
+                    menuDiv1.style.visibility = "hidden";
+                    document.body.appendChild(menuDiv1);
+                    menuDiv1.style.background = "#fff";
+                    menuDiv1.style.cursor = "pointer";
+                    menuDiv1.style.fontSize = "12px";
+                    menuDiv1.style.padding = "3px;";
+                    menuDiv1.style.border = "1px solid black";
+                    for (var i = 0; i < ids.length; i++) {
+                        var itemEle = document.createElement("DIV");
+                        itemEle.innerHTML = ids[i];
+                        itemEle.style.marginBottom = "4px";
+                        itemEle.style.marginLeft = "2px";
+                        itemEle.style.marginRight = "2px";
+                        itemEle.addEventListener("click", function (e) {
+                            CtrlKey = false;
+                            var t = _this.container.getControl(e.target.innerHTML);
+                            if (t) {
+                                t.selected = true;
+                            }
+                        }, false);
+                        menuDiv1.appendChild(itemEle);
+                    }
+                    menuDiv1.style.position = "absolute";
+                    var x = e.clientX;
+                    if (x + editor.scrollLeft + menuDiv1.offsetWidth > window.innerWidth)
+                        x = window.innerWidth - editor.scrollLeft - menuDiv1.offsetWidth;
+                    var y = e.clientY;
+                    if (y + editor.scrollTop + menuDiv1.offsetHeight > window.innerHeight)
+                        y = window.innerHeight - editor.scrollTop - menuDiv1.offsetHeight;
+                    menuDiv1.style.left = x + "px";
+                    menuDiv1.style.top = y + "px";
+                    menuDiv1.style.visibility = "";
+                }
+                return;
+            }
             CtrlKey = e.ctrlKey;
             if (CtrlKey)
                 _this.selected = !_this.selected;
@@ -138,8 +189,7 @@ var EditorControl = (function () {
         set: function (v) {
             if (v != this._id) {
                 if (this.container && this.container.isIdExist(v)) {
-                    alert("id“" + v + "”已存在");
-                    return;
+                    throw new Error("id“" + v + "”已存在");
                 }
                 this._id = v;
             }
@@ -195,8 +245,9 @@ var EditorControl = (function () {
     EditorControl.prototype.selectByPointName = function (pointName) {
     };
     EditorControl.prototype.showProperty = function () {
-        if (!this.propertyDialog)
-            this.propertyDialog = new PropertyDialog(this);
+        if (this.propertyDialog)
+            this.propertyDialog.dispose();
+        this.propertyDialog = new PropertyDialog(this);
         this.propertyDialog.show();
     };
     EditorControl.prototype.onSelectedChange = function () {
@@ -2293,20 +2344,17 @@ var TrendControl = (function (_super) {
         }
     };
     TrendControl.prototype.onBeginMoving = function () {
-        this.rectElement._x = parseInt(this.rectElement.getAttribute("x"));
-        this.rectElement._y = parseInt(this.rectElement.getAttribute("y"));
+        this.rectElement._rect = this.rect;
     };
     TrendControl.prototype.onMoving = function (downX, downY, nowX, nowY) {
-        var x = (this.rectElement._x + nowX - downX);
-        var y = (this.rectElement._y + nowY - downY);
-        this.rectElement.setAttribute("x", x);
-        this.rectElement.setAttribute("y", y);
-        for (var i = 1; i <= 12; i++) {
-            this["pathElement" + i].setAttribute("transform", "translate(" + x + " " + y + ")");
-        }
-        if (this.selected) {
-            this.resetPointLocation();
-        }
+        var x = (this.rectElement._rect.x + nowX - downX);
+        var y = (this.rectElement._rect.y + nowY - downY);
+        this.rect = {
+            x: x,
+            y: y,
+            width: this.rectElement._rect.width,
+            height: this.rectElement._rect.height
+        };
     };
     TrendControl.prototype.onEndMoving = function () {
     };

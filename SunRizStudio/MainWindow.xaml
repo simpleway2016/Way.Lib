@@ -328,7 +328,7 @@
                                     </ContextMenu>
                                 </StackPanel.ContextMenu>
                                 <Image x:Name="main_img" Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,2,0"></Image>
-                                <TextBlock x:Name="main_text" FontWeight="{Binding FontWeight}" VerticalAlignment="Center" MaxWidth="100" Text="{Binding Text}"></TextBlock>
+                                <TextBlock x:Name="main_text" FontWeight="{Binding FontWeight}" VerticalAlignment="Center" Text="{Binding Text}"></TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

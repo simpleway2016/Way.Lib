@@ -133,6 +133,11 @@ class PropertyDialog
 
         this.setRootEvent();
     }
+
+    dispose()
+    {
+        this.rootElement.parentElement.removeChild(this.rootElement);
+    }
     private setPointItemEvent(ele: HTMLElement) {
         
         ele.addEventListener("focus", (e) => {
@@ -144,7 +149,14 @@ class PropertyDialog
     }
     private setChkItemEvent(ele) {
         ele.onclick = () => {
-            this.control[ele._name] = !this.control[ele._name];
+            var undo = new UndoChangeProperty(editor, this.control, ele._name, !this.control[ele._name]);
+            try {
+                undo.redo();
+                editor.undoMgr.addUndo(undo);
+            }
+            catch (e) {
+                alert(e.message);
+            }
         };
     }
     private setImgItemEvent(ele)
@@ -152,7 +164,16 @@ class PropertyDialog
         ele.onclick = () => {
             fileBrowser.onSelectFile = (path) => {
                 ele.value = path;
-                this.control[ele._name] = path;
+
+                var undo = new UndoChangeProperty(editor, this.control, ele._name, path);
+                try {
+                    undo.redo();
+                    editor.undoMgr.addUndo(undo);
+                }
+                catch (e) {
+                    alert(e.message);
+                }
+
                 fileBrowser.hide();
             };
             fileBrowser.show();
@@ -197,7 +218,11 @@ class PropertyDialog
         if (input.tagName == "SELECT")
         {
             input.addEventListener("change", (e) => {
-                this.control[input._name] = input.value;
+
+                var undo = new UndoChangeProperty(editor, this.control, input._name, input.value);
+                undo.redo();
+                editor.undoMgr.addUndo(undo);
+
                 editor.changed = true;
             }, false);
             return;
@@ -216,18 +241,45 @@ class PropertyDialog
                 color:input.value,
                 onChange: function (hsb, hex, rgb, el, bySetColor) {
                     input.value = "#" + hex;
-                    el._control[input._name] = input.value;
+
+                    var undo = new UndoChangeProperty(editor, el._control, input._name, input.value);
+                    try {
+                        undo.redo();
+                        editor.undoMgr.addUndo(undo);
+                    }
+                    catch (e) {
+                        alert(e.message);
+                    }
+
                     editor.changed = true;
                 }
             });
         }
         else {
             input.changeFunc = () => {
-                this.control[input._name] = input.value;
+                var undo = new UndoChangeProperty(editor, this.control, input._name, input.value);
+                try {
+                    undo.redo();
+                    editor.undoMgr.addUndo(undo);
+                }
+                catch (e)
+                {
+                    alert(e.message);
+                }
+
                 editor.changed = true;
             };
+
             input.addEventListener("keyup", (e) => {
-                this.control[input._name] = input.value;
+                var undo = new UndoChangeProperty(editor, this.control, input._name, input.value);
+                try {
+                    undo.redo();
+                    editor.undoMgr.addUndo(undo);
+                }
+                catch (e) {
+                    input.value = undo.originalValue;
+                    alert(e.message);
+                }
                 editor.changed = true;
             }, false);
         }

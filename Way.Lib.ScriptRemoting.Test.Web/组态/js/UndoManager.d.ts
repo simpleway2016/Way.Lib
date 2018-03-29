@@ -11,6 +11,17 @@ declare class UndoItem {
     editor: Editor;
     enable: boolean;
     constructor(_editor: Editor);
+    isSame(obj: UndoItem): boolean;
+    undo(): void;
+    redo(): void;
+}
+declare class UndoChangeProperty extends UndoItem {
+    control: EditorControl;
+    proName: string;
+    originalValue: any;
+    newValue: any;
+    constructor(_editor: Editor, _control: EditorControl, proname: string, newValue: any);
+    isSame(undoObj: UndoItem): boolean;
     undo(): void;
     redo(): void;
 }
@@ -31,7 +42,34 @@ declare class UndoMoveControls extends UndoItem {
     rects: any[];
     endRects: any[];
     constructor(_editor: Editor, _controls: EditorControl[]);
+    isSame(undoObj: UndoItem): boolean;
     moveFinish(): void;
+    undo(): void;
+    redo(): void;
+}
+declare class UndoMoveControlsLayerUp extends UndoItem {
+    controls: EditorControl[];
+    constructor(_editor: Editor, _controls: EditorControl[]);
+    undo(): void;
+    redo(): void;
+}
+declare class UndoMoveControlsLayerDown extends UndoItem {
+    controls: EditorControl[];
+    constructor(_editor: Editor, _controls: EditorControl[]);
+    undo(): void;
+    redo(): void;
+}
+declare class UndoMoveControlsLayerFront extends UndoItem {
+    controls: EditorControl[];
+    nextEles: any[];
+    constructor(_editor: Editor, _controls: EditorControl[]);
+    undo(): void;
+    redo(): void;
+}
+declare class UndoMoveControlsLayerBottom extends UndoItem {
+    controls: EditorControl[];
+    nextEles: any[];
+    constructor(_editor: Editor, _controls: EditorControl[]);
     undo(): void;
     redo(): void;
 }

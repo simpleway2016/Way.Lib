@@ -12,7 +12,7 @@ var ServerUrl;
 var windowGuid = new Date().getTime();
 var CtrlKey = false;
 window.onerror = function (errorMessage, scriptURI, lineNumber) {
-    alert(errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
+    alert("发生错误:\r\n" + errorMessage + "\r\nuri:" + scriptURI + "\r\nline:" + lineNumber);
 };
 if (true) {
     var index = location.href.indexOf("://");
@@ -453,8 +453,19 @@ var Editor = (function () {
             catch (e) {
             }
         });
+        var movingUndo = null;
+        document.body.addEventListener("keyup", function (e) {
+            if (movingUndo) {
+                movingUndo.moveFinish();
+                _this.undoMgr.addUndo(movingUndo);
+                movingUndo = null;
+            }
+        }, false);
         document.body.addEventListener("keydown", function (e) {
             if (e.keyCode == 37) {
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(_this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -463,6 +474,9 @@ var Editor = (function () {
                 }
             }
             else if (e.keyCode == 38) {
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(_this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -471,6 +485,9 @@ var Editor = (function () {
                 }
             }
             else if (e.keyCode == 39) {
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(_this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -479,6 +496,9 @@ var Editor = (function () {
                 }
             }
             else if (e.keyCode == 40) {
+                if (!movingUndo) {
+                    movingUndo = new UndoMoveControls(_this, AllSelectedControls);
+                }
                 for (var i = 0; i < AllSelectedControls.length; i++) {
                     var control = AllSelectedControls[i];
                     var rect = control.rect;
@@ -647,6 +667,26 @@ var Editor = (function () {
     Editor.prototype.getProperties = function () {
         return ["name", "code", "colorBG", "imgBg", "bgWidth", "bgHeight", "windowWidth", "windowHeight", "customProperties"];
     };
+    Object.defineProperty(Editor.prototype, "scrollTop", {
+        get: function () {
+            return this.svgContainer.parentElement.scrollTop;
+        },
+        set: function (v) {
+            this.svgContainer.parentElement.scrollTop = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Editor.prototype, "scrollLeft", {
+        get: function () {
+            return this.svgContainer.parentElement.scrollLeft;
+        },
+        set: function (v) {
+            this.svgContainer.parentElement.scrollLeft = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Editor.prototype.initMoveToScrollEvent = function () {
         var svg1 = this.svgContainer;
         var scrolling = false;
@@ -790,6 +830,18 @@ var Editor = (function () {
             alert(e.message);
         }
     };
+    Editor.prototype.rebuildControls = function () {
+        var newControls = [];
+        for (var i = 0; i < this.svgContainer.children.length; i++) {
+            var ele = this.svgContainer.children[i];
+            if (ele._editorControl && this.controls.indexOf(ele._editorControl) >= 0) {
+                newControls.push(ele._editorControl);
+            }
+        }
+        if (newControls.length != this.controls.length)
+            alert("rebuildControls失败");
+        this.controls = newControls;
+    };
     Editor.prototype.getScript = function () {
         var properties = this.getProperties();
         var script = "";
@@ -915,7 +967,7 @@ var Editor = (function () {
         var scripts = "";
         var windowCodes = [];
         for (var i = 0; i < this.controls.length; i++) {
-            scripts += this.controls[i].getScript();
+            scripts += this.controls[i].getScript() + "\r\n";
             if (this.controls[i].constructor.name == "GroupControl") {
                 windowCodes.push(this.controls[i].windowCode);
             }
@@ -1284,46 +1336,24 @@ var Editor = (function () {
         }
     };
     Editor.prototype.layerUp = function () {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var nextEle = control.element.nextElementSibling;
-            while (nextEle && !nextEle._editorControl) {
-                nextEle = nextEle.nextElementSibling;
-            }
-            if (nextEle) {
-                this.svgContainer.removeChild(nextEle);
-                this.svgContainer.insertBefore(nextEle, control.element);
-            }
-        }
+        var undo = new UndoMoveControlsLayerUp(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     };
     Editor.prototype.layerDown = function () {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            var preEle = control.element.previousElementSibling;
-            while (preEle && !preEle._editorControl) {
-                preEle = preEle.previousElementSibling;
-            }
-            if (preEle) {
-                this.svgContainer.removeChild(control.element);
-                this.svgContainer.insertBefore(control.element, preEle);
-            }
-        }
+        var undo = new UndoMoveControlsLayerDown(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     };
     Editor.prototype.layerFront = function () {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            this.svgContainer.removeChild(control.element);
-            this.svgContainer.appendChild(control.element);
-        }
+        var undo = new UndoMoveControlsLayerFront(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     };
     Editor.prototype.layerBottom = function () {
-        for (var i = 0; i < AllSelectedControls.length; i++) {
-            var control = AllSelectedControls[i];
-            if (this.svgContainer.children[0] != control.element) {
-                this.svgContainer.removeChild(control.element);
-                this.svgContainer.insertBefore(control.element, this.svgContainer.children[0]);
-            }
-        }
+        var undo = new UndoMoveControlsLayerBottom(this, AllSelectedControls);
+        undo.redo();
+        this.undoMgr.addUndo(undo);
     };
     Editor.prototype.getIndex = function (element) {
         for (var i = 0; i < this.svgContainer.children.length; i++) {

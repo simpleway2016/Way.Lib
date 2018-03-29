@@ -20,8 +20,12 @@ var UndoManager = (function () {
         if (this.items.length - this.position > 0) {
             this.items.splice(this.position, this.items.length - this.position);
         }
-        this.items.push(undoObj);
-        this.position++;
+        if (this.items.length > 0 && this.items[this.items.length - 1].isSame(undoObj)) {
+        }
+        else {
+            this.items.push(undoObj);
+            this.position++;
+        }
         editor.changed = true;
     };
     UndoManager.prototype.undo = function () {
@@ -45,12 +49,44 @@ var UndoItem = (function () {
         this.enable = true;
         this.editor = _editor;
     }
+    UndoItem.prototype.isSame = function (obj) {
+        return false;
+    };
     UndoItem.prototype.undo = function () {
     };
     UndoItem.prototype.redo = function () {
     };
     return UndoItem;
 }());
+var UndoChangeProperty = (function (_super) {
+    __extends(UndoChangeProperty, _super);
+    function UndoChangeProperty(_editor, _control, proname, newValue) {
+        var _this = _super.call(this, _editor) || this;
+        _this.control = _control;
+        _this.proName = proname;
+        _this.originalValue = _control[proname];
+        _this.newValue = newValue;
+        return _this;
+    }
+    UndoChangeProperty.prototype.isSame = function (undoObj) {
+        if (undoObj.constructor.name != "UndoChangeProperty")
+            return false;
+        var compareItem = undoObj;
+        if (compareItem.control !== this.control)
+            return false;
+        if (compareItem.proName !== this.proName)
+            return false;
+        this.newValue = compareItem.newValue;
+        return true;
+    };
+    UndoChangeProperty.prototype.undo = function () {
+        this.control[this.proName] = this.originalValue;
+    };
+    UndoChangeProperty.prototype.redo = function () {
+        this.control[this.proName] = this.newValue;
+    };
+    return UndoChangeProperty;
+}(UndoItem));
 var UndoAddControl = (function (_super) {
     __extends(UndoAddControl, _super);
     function UndoAddControl(_editor, _control) {
@@ -98,13 +134,27 @@ var UndoMoveControls = (function (_super) {
         var _this = _super.call(this, _editor) || this;
         _this.rects = [];
         _this.endRects = [];
-        _this.controls = _controls;
-        for (var i = 0; i < _this.controls.length; i++) {
-            var control = _this.controls[i];
+        _this.controls = [];
+        for (var i = 0; i < _controls.length; i++) {
+            var control = _controls[i];
+            _this.controls.push(control);
             _this.rects.push(control.rect);
         }
         return _this;
     }
+    UndoMoveControls.prototype.isSame = function (undoObj) {
+        if (undoObj.constructor.name != "UndoMoveControls")
+            return false;
+        var compareItem = undoObj;
+        if (compareItem.controls.length != this.controls.length)
+            return false;
+        for (var i = 0; i < this.controls.length; i++) {
+            if (this.controls[i] != compareItem.controls[i])
+                return false;
+        }
+        this.endRects = compareItem.endRects;
+        return true;
+    };
     UndoMoveControls.prototype.moveFinish = function () {
         for (var i = 0; i < this.controls.length; i++) {
             var control = this.controls[i];
@@ -137,6 +187,160 @@ var UndoMoveControls = (function (_super) {
         }
     };
     return UndoMoveControls;
+}(UndoItem));
+var UndoMoveControlsLayerUp = (function (_super) {
+    __extends(UndoMoveControlsLayerUp, _super);
+    function UndoMoveControlsLayerUp(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.controls = [];
+        for (var i = 0; i < _controls.length; i++) {
+            _this.controls.push(_controls[i]);
+        }
+        return _this;
+    }
+    UndoMoveControlsLayerUp.prototype.undo = function () {
+        for (var i = this.controls.length - 1; i >= 0; i--) {
+            var control = this.controls[i];
+            var preEle = control.element.previousElementSibling;
+            while (preEle && !preEle._editorControl) {
+                preEle = preEle.previousElementSibling;
+            }
+            if (preEle) {
+                this.editor.svgContainer.removeChild(control.element);
+                this.editor.svgContainer.insertBefore(control.element, preEle);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    UndoMoveControlsLayerUp.prototype.redo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            var nextEle = control.element.nextElementSibling;
+            while (nextEle && !nextEle._editorControl) {
+                nextEle = nextEle.nextElementSibling;
+            }
+            if (nextEle) {
+                this.editor.svgContainer.removeChild(nextEle);
+                this.editor.svgContainer.insertBefore(nextEle, control.element);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    return UndoMoveControlsLayerUp;
+}(UndoItem));
+var UndoMoveControlsLayerDown = (function (_super) {
+    __extends(UndoMoveControlsLayerDown, _super);
+    function UndoMoveControlsLayerDown(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.controls = [];
+        for (var i = 0; i < _controls.length; i++) {
+            _this.controls.push(_controls[i]);
+        }
+        return _this;
+    }
+    UndoMoveControlsLayerDown.prototype.undo = function () {
+        for (var i = this.controls.length - 1; i >= 0; i--) {
+            var control = this.controls[i];
+            var nextEle = control.element.nextElementSibling;
+            while (nextEle && !nextEle._editorControl) {
+                nextEle = nextEle.nextElementSibling;
+            }
+            if (nextEle) {
+                this.editor.svgContainer.removeChild(nextEle);
+                this.editor.svgContainer.insertBefore(nextEle, control.element);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    UndoMoveControlsLayerDown.prototype.redo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            var preEle = control.element.previousElementSibling;
+            while (preEle && !preEle._editorControl) {
+                preEle = preEle.previousElementSibling;
+            }
+            if (preEle) {
+                this.editor.svgContainer.removeChild(control.element);
+                this.editor.svgContainer.insertBefore(control.element, preEle);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    return UndoMoveControlsLayerDown;
+}(UndoItem));
+var UndoMoveControlsLayerFront = (function (_super) {
+    __extends(UndoMoveControlsLayerFront, _super);
+    function UndoMoveControlsLayerFront(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.nextEles = [];
+        _this.controls = [];
+        for (var i = 0; i < _controls.length; i++) {
+            _this.controls.push(_controls[i]);
+            _this.nextEles.push(_controls[i].element.nextElementSibling);
+        }
+        return _this;
+    }
+    UndoMoveControlsLayerFront.prototype.undo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            var nextSibling = this.nextEles[i];
+            this.editor.svgContainer.removeChild(control.element);
+            if (nextSibling) {
+                this.editor.svgContainer.insertBefore(control.element, nextSibling);
+            }
+            else {
+                this.editor.svgContainer.appendChild(control.element);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    UndoMoveControlsLayerFront.prototype.redo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            this.editor.svgContainer.removeChild(control.element);
+            this.editor.svgContainer.appendChild(control.element);
+        }
+        this.editor.rebuildControls();
+    };
+    return UndoMoveControlsLayerFront;
+}(UndoItem));
+var UndoMoveControlsLayerBottom = (function (_super) {
+    __extends(UndoMoveControlsLayerBottom, _super);
+    function UndoMoveControlsLayerBottom(_editor, _controls) {
+        var _this = _super.call(this, _editor) || this;
+        _this.nextEles = [];
+        _this.controls = [];
+        for (var i = 0; i < _controls.length; i++) {
+            _this.controls.push(_controls[i]);
+            _this.nextEles.push(_controls[i].element.nextElementSibling);
+        }
+        return _this;
+    }
+    UndoMoveControlsLayerBottom.prototype.undo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            var nextSibling = this.nextEles[i];
+            this.editor.svgContainer.removeChild(control.element);
+            if (nextSibling) {
+                this.editor.svgContainer.insertBefore(control.element, nextSibling);
+            }
+            else {
+                this.editor.svgContainer.appendChild(control.element);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    UndoMoveControlsLayerBottom.prototype.redo = function () {
+        for (var i = 0; i < this.controls.length; i++) {
+            var control = this.controls[i];
+            if (this.editor.svgContainer.children[0] != control.element) {
+                this.editor.svgContainer.removeChild(control.element);
+                this.editor.svgContainer.insertBefore(control.element, this.editor.svgContainer.children[0]);
+            }
+        }
+        this.editor.rebuildControls();
+    };
+    return UndoMoveControlsLayerBottom;
 }(UndoItem));
 var UndoChangeLinePoint = (function (_super) {
     __extends(UndoChangeLinePoint, _super);
@@ -240,23 +444,30 @@ var UndoPaste = (function (_super) {
                     controlJson.rect.x += 10;
                     controlJson.rect.y += 10;
                 }
+                if (controlJson["id"]) {
+                    var idname = controlJson["id"];
+                    if (this.editor.isIdExist(idname)) {
+                        var index = 1;
+                        while (this.editor.isIdExist(controlJson.constructorName + index)) {
+                            index++;
+                        }
+                        controlJson["id"] = controlJson.constructorName + index;
+                    }
+                }
                 var editorctrl;
                 if (controlJson.constructorName == "GroupControl") {
                     editorctrl = this.editor.createGroupControl(controlJson.windowCode, controlJson.rect);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
-                    }
                 }
                 else {
                     eval("editorctrl = new " + controlJson.constructorName + "()");
                     this.editor.addControl(editorctrl);
-                    for (var pname in controlJson) {
-                        if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
-                            editorctrl[pname] = controlJson[pname];
-                        }
+                }
+                for (var pname in controlJson) {
+                    if (pname != "tagName" && pname != "constructorName" && pname != "rect") {
+                        editorctrl[pname] = controlJson[pname];
                     }
+                }
+                if (controlJson.constructorName != "GroupControl") {
                     editorctrl.rect = controlJson.rect;
                 }
                 editorctrl.ctrlKey = true;
