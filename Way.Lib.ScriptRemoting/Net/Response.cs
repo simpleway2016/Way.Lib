@@ -254,6 +254,7 @@ namespace Way.Lib.ScriptRemoting.Net
                     MakeResponseHeaders(-1, false, -1, 0, DateTime.Now.ToUniversalTime().ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo), null, true);
                 }
                 StringBuilder buffer = new StringBuilder();
+                buffer.Append($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\n");
                 foreach (var headeritem in this.Headers)
                 {
                     try
@@ -268,8 +269,7 @@ namespace Way.Lib.ScriptRemoting.Net
                     }
                 }
                 buffer.Append("\r\n");
-                mClient.Write(getBytes($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\n"));
-                mClient.Write(getBytes(buffer.ToString()));
+                mClient.Write(System.Text.Encoding.UTF8.GetBytes(buffer.ToString()));
             }
             if(_buffer != null && _buffer.Length > 0)
             {
@@ -293,7 +293,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(getBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         string getConnectString()
@@ -314,7 +314,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(getBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         internal void SendServerError()
@@ -327,7 +327,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(getBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
         internal void CloseSocket()
@@ -354,7 +354,7 @@ namespace Way.Lib.ScriptRemoting.Net
             if(!_sendedHeader)
             {
                 _sendedHeader = true;
-                mClient.Write(getBytes($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
+                mClient.Write(System.Text.Encoding.UTF8.GetBytes($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
             }
 
             if(Headers.ContainsKey("Connection") && string.Equals( Headers["Connection"] , "keep-alive" , StringComparison.CurrentCultureIgnoreCase))
