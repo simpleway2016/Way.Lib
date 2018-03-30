@@ -675,6 +675,7 @@ namespace SunRizServer.Controllers
             this.User = user;
             user.Password = null;
             user.ChangedProperties.Clear();
+           
             return user;
         }
 

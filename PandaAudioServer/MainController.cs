@@ -85,7 +85,7 @@ namespace PandaAudioServer
             }
             user.LoginCode = Guid.NewGuid().ToString("N");
             this.db.Update(user);
-            this.Session["UserId"] = user.id;
+            this.Session["UserId"] = user.id;          
             return user.LoginCode;
         }
 
