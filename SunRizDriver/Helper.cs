@@ -46,7 +46,7 @@ namespace SunRizDriver
                 var b = (min * (sensorMax - sensorMin) - sensorMin * (max - min)) / (sensorMax - sensorMin);
                // value = k * value + b;//y=k*x+b
 
-                value = value - b / k;
+                value = (value - b) / k;
             }
 
             if (isLinear)

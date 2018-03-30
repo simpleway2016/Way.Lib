@@ -116,7 +116,7 @@ namespace SunRizModbusTcpDriver
             for (int i = 0; i < points.Length; i++)
             {
                 points[i] = new PointDescription(command.Points[i], i);
-                points[i].Value = Convert.ToInt16(command.Values[i]);
+                points[i].Value = Convert.ToInt16( Convert.ToDouble( command.Values[i]));
                 if (points[i].Function == FunctionCode.ReadCoilStatus)
                     points[i].Function = FunctionCode.WriteCoilStatus;
                 if (points[i].Function == FunctionCode.ReadHoldingRegister)
@@ -127,15 +127,23 @@ namespace SunRizModbusTcpDriver
             bool[] result = new bool[points.Length];
             foreach (var point in points)
             {
-                WriteValuePackage package = new WriteValuePackage(point.Function);
-                package.Address = point.Address;
-                package.Value = point.Value;
-                var cmd = package.BuildCommand();
-                client.Write(cmd);
+                try
+                {
+                    WriteValuePackage package = new WriteValuePackage(point.Function);
+                    package.Address = point.Address;
+                    package.Value = point.Value;
+                    var cmd = package.BuildCommand();
+                    client.Write(cmd);
 
-                result[point.Index] = package.ParseAnswer((len) => {
-                    return client.ReceiveDatas(len);
-                });
+                    result[point.Index] = package.ParseAnswer((len) =>
+                    {
+                        return client.ReceiveDatas(len);
+                    });
+                }
+                catch
+                {
+                    client = new Way.Lib.NetStream(deviceIP, port);
+                }
             }
             client.Dispose();
             return result;

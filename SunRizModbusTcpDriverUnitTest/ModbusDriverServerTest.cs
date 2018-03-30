@@ -67,14 +67,14 @@ namespace SunRizModbusTcpDriverUnitTest
         [TestMethod]
         public void WriteValueTest()
         {
-            SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(588);
+            SunRizModbusTcpDriver.ModbusDriverServer server = new ModbusDriverServer(1588);
             server.Start();
 
-            SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1", 588);
+            SunRizDriver.SunRizDriverClient client = new SunRizDriver.SunRizDriverClient("127.0.0.1", 1588);
             var points = new string[] {
-                "1/3","3/1"
+                "3/5"
             };
-            var values = new object[] { 1 , 388  };
+            var values = new object[] {  4.896  };
             var result = client.WriteValue("127.0.0.1/502", points, values);
             server.Stop();
         }
