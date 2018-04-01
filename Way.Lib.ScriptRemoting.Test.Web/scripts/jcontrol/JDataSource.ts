@@ -205,7 +205,8 @@ class JServerControllerSource extends JDataSource {
             this.getDatasourceLength(tranid, length, callback);
             return;
         }
-        this._controller.server.LoadData(this._propertyName, this._skip, length, "", (ret : any[], err) => {
+
+        this._controller.server.LoadData(this._propertyName, this._skip, length, "",null, (ret : any[], err) => {
             if (err) {
                 if (callback) {
                     callback(0, err);

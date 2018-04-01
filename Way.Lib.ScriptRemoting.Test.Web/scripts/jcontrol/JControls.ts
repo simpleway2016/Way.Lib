@@ -26,7 +26,6 @@
 <JButton template="btntemplate">
 </JButton>
  */
-
 class JControl implements INotifyPropertyChanged {
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number {
         this.onPropertyChangeds.push(func);

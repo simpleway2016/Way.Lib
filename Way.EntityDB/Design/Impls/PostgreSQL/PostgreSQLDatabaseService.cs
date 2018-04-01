@@ -48,6 +48,7 @@ namespace Way.EntityDB.Design.Impls.PostgreSQL
                 database.conStr = database.conStr.Replace(dbnameMatch.Value, "database=" + dbnameMatch.Groups["dname"].Value.ToLower());
                 dbnameMatch = System.Text.RegularExpressions.Regex.Match(database.conStr, @"database=(?<dname>(\w)+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             }
+            database.Name = dbnameMatch.Groups["dname"].Value;
             var db = EntityDB.DBContext.CreateDatabaseService(database.conStr.Replace(dbnameMatch.Value, ""), EntityDB.DatabaseType.PostgreSql);
             object flag = db.ExecSqlString("select count(*) from pg_catalog.pg_database where datname=@p0", database.Name.ToLower());
             if (Convert.ToInt32(flag)== 0)
