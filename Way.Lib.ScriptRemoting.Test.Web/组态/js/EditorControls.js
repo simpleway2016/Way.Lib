@@ -215,6 +215,9 @@ var EditorControl = (function () {
         };
         var properites = this.getProperties();
         for (var i = 0; i < properites.length; i++) {
+            var value = this[properites[i]];
+            if (typeof value == "undefined" || (typeof value == "number" && isNaN(value)))
+                continue;
             obj[properites[i]] = this[properites[i]];
         }
         return obj;
@@ -1659,6 +1662,9 @@ var TrendControl = (function (_super) {
             _this.element.appendChild(pe);
             _this["pathElement" + i] = pe;
         }
+        _this.textGroupElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        _this.textGroupElement.setAttribute("transform", "translate(0 0)");
+        _this.element.appendChild(_this.textGroupElement);
         _this.devicePoint = ManyPointDefined;
         return _this;
     }
@@ -1866,26 +1872,242 @@ var TrendControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TrendControl.prototype, "max", {
+    Object.defineProperty(TrendControl.prototype, "max1", {
         get: function () {
-            return this._max;
+            return this._max1;
         },
         set: function (v) {
-            this._max = parseFloat(v);
-            if (this._max <= this._min)
-                this._max = this._min + 1;
+            this._max1 = parseFloat(v);
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TrendControl.prototype, "min", {
+    Object.defineProperty(TrendControl.prototype, "min1", {
         get: function () {
-            return this._min;
+            return this._min1;
         },
         set: function (v) {
-            this._min = parseFloat(v);
-            if (this._min >= this._max)
-                this._max = this._max - 1;
+            this._min1 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max2", {
+        get: function () {
+            return this._max2;
+        },
+        set: function (v) {
+            this._max2 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min2", {
+        get: function () {
+            return this._min2;
+        },
+        set: function (v) {
+            this._min2 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max3", {
+        get: function () {
+            return this._max3;
+        },
+        set: function (v) {
+            this._max3 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min3", {
+        get: function () {
+            return this._min3;
+        },
+        set: function (v) {
+            this._min3 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max4", {
+        get: function () {
+            return this._max4;
+        },
+        set: function (v) {
+            this._max4 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min4", {
+        get: function () {
+            return this._min4;
+        },
+        set: function (v) {
+            this._min4 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max5", {
+        get: function () {
+            return this._max5;
+        },
+        set: function (v) {
+            this._max5 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min5", {
+        get: function () {
+            return this._min5;
+        },
+        set: function (v) {
+            this._min5 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max6", {
+        get: function () {
+            return this._max6;
+        },
+        set: function (v) {
+            this._max6 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min6", {
+        get: function () {
+            return this._min6;
+        },
+        set: function (v) {
+            this._min6 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max7", {
+        get: function () {
+            return this._max7;
+        },
+        set: function (v) {
+            this._max7 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min7", {
+        get: function () {
+            return this._min7;
+        },
+        set: function (v) {
+            this._min7 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max8", {
+        get: function () {
+            return this._max8;
+        },
+        set: function (v) {
+            this._max8 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min8", {
+        get: function () {
+            return this._min8;
+        },
+        set: function (v) {
+            this._min8 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max9", {
+        get: function () {
+            return this._max9;
+        },
+        set: function (v) {
+            this._max9 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min9", {
+        get: function () {
+            return this._min9;
+        },
+        set: function (v) {
+            this._min9 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max10", {
+        get: function () {
+            return this._max10;
+        },
+        set: function (v) {
+            this._max10 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min10", {
+        get: function () {
+            return this._min10;
+        },
+        set: function (v) {
+            this._min10 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max11", {
+        get: function () {
+            return this._max11;
+        },
+        set: function (v) {
+            this._max11 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min11", {
+        get: function () {
+            return this._min11;
+        },
+        set: function (v) {
+            this._min11 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "max12", {
+        get: function () {
+            return this._max12;
+        },
+        set: function (v) {
+            this._max12 = parseFloat(v);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TrendControl.prototype, "min12", {
+        get: function () {
+            return this._min12;
+        },
+        set: function (v) {
+            this._min12 = parseFloat(v);
         },
         enumerable: true,
         configurable: true
@@ -2039,24 +2261,18 @@ var TrendControl = (function (_super) {
         for (var i = 1; i <= 12; i++) {
             if (devPoint.name == this["devicePoint" + i]) {
                 number = i;
-                break;
+                if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number]))) {
+                    this["max" + number] = devPoint.max;
+                }
+                if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
+                    this["min" + number] = devPoint.min;
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = devPoint["colorLine" + number];
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = "#ffffff";
+                this["value" + number] = devPoint.value;
             }
         }
-        if (number == 0)
-            return;
-        if (devPoint.max != null && (typeof this.max == "undefined" || isNaN(this.max)))
-            this.max = devPoint.max;
-        else if (devPoint.max != null && devPoint.max > this.max)
-            this.max = devPoint.max;
-        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
-            this.min = devPoint.min;
-        else if (devPoint.min != null && devPoint.min < this.min)
-            this.min = devPoint.min;
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = devPoint["colorLine" + number];
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = "#ffffff";
-        this["value" + number] = devPoint.value;
     };
     Object.defineProperty(TrendControl.prototype, "rect", {
         get: function () {
@@ -2074,14 +2290,7 @@ var TrendControl = (function (_super) {
             this.rectElement.setAttribute("height", v.height);
             for (var i = 1; i <= 12; i++)
                 this["pathElement" + i].setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
-            this.line_left_Ele.setAttribute("x1", (v.x + 10));
-            this.line_left_Ele.setAttribute("y1", (v.y + 10));
-            this.line_left_Ele.setAttribute("x2", (v.x + 10));
-            this.line_left_Ele.setAttribute("y2", (v.y + v.height - 10));
-            this.line_bottom_Ele.setAttribute("x1", (v.x + 10));
-            this.line_bottom_Ele.setAttribute("y1", (v.y + v.height - 10));
-            this.line_bottom_Ele.setAttribute("x2", (v.x + v.width - 10));
-            this.line_bottom_Ele.setAttribute("y2", (v.y + v.height - 10));
+            this.textGroupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
             this.resetPointLocation();
         },
         enumerable: true,
@@ -2228,19 +2437,35 @@ var TrendControl = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TrendControl.prototype, "Minutes", {
+        get: function () {
+            if (isNaN(this._Minutes))
+                this._Minutes = 10;
+            return this._Minutes;
+        },
+        set: function (v) {
+            this._Minutes = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     TrendControl.prototype.getPropertiesCaption = function () {
-        var arr = ["id", "背景颜色", "量程线颜色"];
+        var arr = ["id", "背景颜色", "量程线颜色", "显示时间(分钟)"];
         for (var i = 1; i <= 12; i++) {
             arr.push("趋势颜色" + i);
             arr.push("设备点" + i);
+            arr.push("最大量程" + i);
+            arr.push("最小量程" + i);
         }
         return arr;
     };
     TrendControl.prototype.getProperties = function () {
-        var arr = ["id", "colorFill", "colorLineLeftBottom"];
+        var arr = ["id", "colorFill", "colorLineLeftBottom", "Minutes"];
         for (var i = 1; i <= 12; i++) {
             arr.push("colorLine" + i);
             arr.push("devicePoint" + i);
+            arr.push("max" + i);
+            arr.push("min" + i);
         }
         return arr;
     };
@@ -2277,38 +2502,206 @@ var TrendControl = (function (_super) {
             this.element.scrollIntoView();
         }
     };
-    TrendControl.prototype.getDrawLocation = function (valueItem, canDel, rect, now) {
-        var x = rect.width - 10 - ((now - valueItem.time) / 1000) * 2;
-        if (x < 10) {
+    TrendControl.prototype.getMin = function (number) {
+        var min = this["min" + number];
+        if (min == null || isNaN(min)) {
+            for (var i = 1; i <= 12; i++) {
+                var minval = this["min" + i];
+                if (minval != null && !isNaN(minval)) {
+                    return minval;
+                }
+            }
+        }
+        else {
+            return min;
+        }
+        return 0;
+    };
+    TrendControl.prototype.getMax = function (number) {
+        var max = this["max" + number];
+        if (max == null || isNaN(max)) {
+            for (var i = 1; i <= 12; i++) {
+                var maxval = this["max" + i];
+                if (maxval != null && !isNaN(maxval)) {
+                    return maxval;
+                }
+            }
+        }
+        else {
+            return max;
+        }
+        return 0;
+    };
+    TrendControl.prototype.getDrawLocation = function (number, secondPixel, leftMargin, rightMargin, topMargin, bottomMargin, valueItem, canDel, rect, now) {
+        var x = rect.width - rightMargin - ((now - valueItem.time) / 1000) * secondPixel;
+        if (x < leftMargin) {
             if (canDel) {
                 return {
                     isDel: true
                 };
             }
             else {
-                x = 10;
+                x = leftMargin;
             }
         }
-        var min = this.min;
-        if (typeof min == "undefined" || isNaN(min))
-            min = 0;
-        var max = this.max;
-        if (typeof max == "undefined" || isNaN(max))
-            max = 100;
+        var min = this.getMin(number);
+        var max = this.getMax(number);
         var percent = 1 - (valueItem.value - min) / (max - min);
-        var y = 10 + (rect.height - 20) * percent;
-        if (y < 10)
-            y = 10;
-        else if (y > rect.height - 10)
-            y = rect.height - 10;
+        var y = topMargin + (rect.height - topMargin - bottomMargin) * percent;
+        if (y < topMargin)
+            y = topMargin;
+        else if (y > rect.height - bottomMargin)
+            y = rect.height - bottomMargin;
         return {
             result: x + " " + y + " "
         };
     };
+    TrendControl.prototype.resetXYLines = function (rect, leftMargin, rightMargin, topMargin, bottomMargin) {
+        this.line_left_Ele.setAttribute("x1", (rect.x + leftMargin));
+        this.line_left_Ele.setAttribute("y1", (rect.y + topMargin));
+        this.line_left_Ele.setAttribute("x2", (rect.x + leftMargin));
+        this.line_left_Ele.setAttribute("y2", (rect.y + rect.height - bottomMargin));
+        this.line_bottom_Ele.setAttribute("x1", (rect.x + leftMargin));
+        this.line_bottom_Ele.setAttribute("y1", (rect.y + rect.height - bottomMargin));
+        this.line_bottom_Ele.setAttribute("x2", (rect.x + rect.width - rightMargin));
+        this.line_bottom_Ele.setAttribute("y2", (rect.y + rect.height - bottomMargin));
+    };
+    TrendControl.prototype.addText = function (text, color, x, y, fontSize) {
+        var txtEle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txtEle.textContent = text;
+        txtEle.setAttribute("x", x);
+        txtEle.setAttribute("y", y);
+        txtEle.setAttribute('style', 'fill:' + color + ';cursor:default;-moz-user-select:none;visibility:hidden;');
+        txtEle.setAttribute('font-size', fontSize);
+        this.textGroupElement.appendChild(txtEle);
+        return txtEle;
+    };
+    TrendControl.prototype.formatTime = function (date, fmt) {
+        var o = {
+            "M+": date.getMonth() + 1,
+            "d+": date.getDate(),
+            "h+": date.getHours(),
+            "m+": date.getMinutes(),
+            "s+": date.getSeconds(),
+            "q+": Math.floor((date.getMonth() + 3) / 3),
+            "S": date.getMilliseconds()
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    };
     TrendControl.prototype.reDrawTrend = function () {
+        var leftMargin = 30;
+        var rightMargin = 10;
+        var bottomMargin = 30;
+        var topMargin = 10;
+        var secondPixel;
+        var txtHeight;
+        var fontSize = 12;
+        if (true) {
+            var maxValue = 0;
+            for (var i = 1; i <= 12; i++) {
+                var value = this.getMax(i);
+                if (value > maxValue) {
+                    maxValue = value;
+                }
+            }
+            var txtEle = this.addText(maxValue.toString(), "red", 0, 0, fontSize);
+            var txtRect = txtEle.getBoundingClientRect();
+            txtHeight = txtRect.height;
+            leftMargin = txtRect.width + 15;
+        }
         var rect = this.rect;
-        var width = rect.width - 20 - 2;
+        this.resetXYLines(rect, leftMargin, rightMargin, topMargin, bottomMargin);
+        this.textGroupElement.innerHTML = "";
+        var panelWidth = rect.width - leftMargin - rightMargin;
+        var seconds = this.Minutes * 60;
+        secondPixel = panelWidth / seconds;
+        if (secondPixel < 1)
+            secondPixel = 1;
         var now = new Date().getTime();
+        if (true) {
+            var x = leftMargin;
+            var y = rect.height - bottomMargin - 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", (leftMargin - 5));
+                lineEle.setAttribute("y1", y);
+                lineEle.setAttribute("x2", leftMargin);
+                lineEle.setAttribute("y2", y);
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+                y -= 30;
+                if (y <= topMargin) {
+                    break;
+                }
+            }
+            var cury = topMargin;
+            for (var i = 0; i < 12; i++) {
+                var max = this["max" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(max, this["colorLine" + (i + 1)], 0, cury + 10, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", (leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+                    cury += txtRect.height - 5;
+                    if (cury > rect.height - bottomMargin)
+                        break;
+                }
+            }
+            var cury = rect.height - bottomMargin;
+            for (var i = 11; i >= 0; i--) {
+                var max = this["max" + (i + 1)];
+                var min = this["min" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(min, this["colorLine" + (i + 1)], 0, cury, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", (leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+                    cury -= txtRect.height - 5;
+                    if (cury <= topMargin)
+                        break;
+                }
+            }
+        }
+        if (true) {
+            var curTime = new Date();
+            var timeText = "2018-01-01 01:01:01";
+            var x = rect.width - rightMargin;
+            var y = rect.height - bottomMargin + 3;
+            while (true) {
+                var txtEle = this.addText(timeText, this.colorLineLeftBottom, x, y + 17, fontSize);
+                var txtWidth = txtEle.getBoundingClientRect().width;
+                var left = x - txtWidth / 2;
+                var length = rect.width - rightMargin - left;
+                var mySeconds = length / secondPixel;
+                curTime = new Date(now - mySeconds * 1000);
+                txtEle.textContent = this.formatTime(curTime, "yyyy-MM-dd hh:mm:ss");
+                txtEle.setAttribute("x", (x - txtWidth));
+                txtEle.style.visibility = "";
+                x -= txtWidth + 8;
+                if (x <= leftMargin) {
+                    break;
+                }
+            }
+            x = leftMargin + 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", x);
+                lineEle.setAttribute("y1", (rect.height - bottomMargin));
+                lineEle.setAttribute("x2", x);
+                lineEle.setAttribute("y2", (rect.height - bottomMargin + 5));
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+                x += 30;
+                if (x > rect.width - rightMargin) {
+                    break;
+                }
+            }
+        }
         for (var k = 1; k <= 12; k++) {
             var valueArr = this["values" + k];
             if (valueArr.length == 0)
@@ -2329,7 +2722,7 @@ var TrendControl = (function (_super) {
             }
             for (var i = valueArr.length - 1; i >= 0; i--) {
                 var canDel = valueArr.length > 1;
-                var location = this.getDrawLocation(valueArr[i], canDel, rect, now);
+                var location = this.getDrawLocation(k, secondPixel, leftMargin, rightMargin, topMargin, bottomMargin, valueArr[i], canDel, rect, now);
                 if (location.isDel) {
                     deleteToIndex = i;
                     break;
@@ -2443,14 +2836,10 @@ var HistoryTrendControl = (function (_super) {
         }
         if (number == 0)
             return;
-        if (devPoint.max != null && (typeof this.max == "undefined" || isNaN(this.max)))
-            this.max = devPoint.max;
-        else if (devPoint.max != null && devPoint.max > this.max)
-            this.max = devPoint.max;
-        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
-            this.min = devPoint.min;
-        else if (devPoint.min != null && devPoint.min < this.min)
-            this.min = devPoint.min;
+        if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number])))
+            this["max" + number] = devPoint.max;
+        if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
+            this["min" + number] = devPoint.min;
         if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
             this["colorLine" + number] = devPoint["colorLine" + number];
         if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
@@ -2488,12 +2877,6 @@ var HistoryTrendControl = (function (_super) {
         return result;
     };
     HistoryTrendControl.prototype.setData = function (startTime, endTime, datas) {
-        var min = this.min;
-        if (typeof min == "undefined" || isNaN(min))
-            min = 0;
-        var max = this.max;
-        if (typeof max == "undefined" || isNaN(max))
-            max = 100;
         var rect = this.rect;
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
         var secsPerPixel = parseInt((totalSeconds / (rect.width - 20)));
@@ -2521,6 +2904,8 @@ var HistoryTrendControl = (function (_super) {
             }
         }
         for (var i = 0; i < 12; i++) {
+            var min = this.getMin(i + 1);
+            var max = this.getMax(i + 1);
             var lineObject = null;
             if (i < curPointLineResults.length) {
                 lineObject = curPointLineResults[i];

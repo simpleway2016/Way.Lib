@@ -16,8 +16,7 @@ function documentElementClick(e: MouseEvent) {
 document.documentElement.addEventListener("click", documentElementClick, false);
 
 
-class EditorControl
-{
+class EditorControl {
     container: IEditorControlContainer;
     propertyDialog: PropertyDialog;
     pointEles: SVGElement[] = [];
@@ -35,8 +34,7 @@ class EditorControl
     set selected(value: boolean) {
         if (this.container && this.container == editor && this._selected !== value && this.isDesignMode) {
             this._selected = value;
-            if (value)
-            {
+            if (value) {
                 if (!CtrlKey) {
                     while (AllSelectedControls.length > 0) {
                         AllSelectedControls[0].selected = false;
@@ -54,12 +52,10 @@ class EditorControl
         }
     }
 
-    get rect()
-    {
+    get rect() {
         return null;
     }
-    set rect(v)
-    {
+    set rect(v) {
 
     }
 
@@ -68,9 +64,8 @@ class EditorControl
         return this._id;
     }
     set id(v) {
-        if (v != this._id) {            
-            if (this.container && this.container.isIdExist(v))
-            {
+        if (v != this._id) {
+            if (this.container && this.container.isIdExist(v)) {
                 throw new Error("id“" + v + "”已存在");
             }
             this._id = v;
@@ -81,8 +76,7 @@ class EditorControl
     private mouseDownY;
     private undoMoveObj: UndoMoveControls;
 
-    constructor(element:any)
-    {
+    constructor(element: any) {
         this.element = element;
         element._editorControl = this;
 
@@ -95,7 +89,7 @@ class EditorControl
         (<HTMLElement>this.element).addEventListener("click", (e) => {
             if (this.isInGroup || !this.container || !this.isDesignMode)
                 return;
-            e.stopPropagation();           
+            e.stopPropagation();
         }, false);
 
         (<HTMLElement>this.element).addEventListener("dblclick", (e) => {
@@ -103,7 +97,7 @@ class EditorControl
                 return;
             e.stopPropagation();
             this.showProperty();
-        }, false);        
+        }, false);
 
         (<HTMLElement>this.element).addEventListener("mousedown", (e) => {
             if (this.isInGroup || !this.container || !this.isDesignMode || e.button != 0)
@@ -113,23 +107,19 @@ class EditorControl
 
             e.stopPropagation();
 
-            if (e.shiftKey)
-            {
+            if (e.shiftKey) {
                 //告诉client，显示一个周边控件的列表
                 var myrect = this.rect;
                 var ids = [];
-                for (var i = 0; i < this.container.controls.length; i++)
-                {
+                for (var i = 0; i < this.container.controls.length; i++) {
                     var ctrl = <EditorControl>this.container.controls[i];
-                    if (ctrl != this && ctrl.isIntersectWith(myrect))
-                    {
+                    if (ctrl != this && ctrl.isIntersectWith(myrect)) {
                         //这个控件与this相交
                         ids.push(ctrl.id);
                     }
                 }
-                if (ids.length > 0)
-                {
-                    
+                if (ids.length > 0) {
+
                     menuDiv1 = document.createElement("DIV");
                     menuDiv1.style.visibility = "hidden";
                     document.body.appendChild(menuDiv1);
@@ -138,8 +128,7 @@ class EditorControl
                     menuDiv1.style.fontSize = "12px";
                     menuDiv1.style.padding = "3px;"
                     menuDiv1.style.border = "1px solid black";
-                    for (var i = 0; i < ids.length; i++)
-                    {
+                    for (var i = 0; i < ids.length; i++) {
                         var itemEle = document.createElement("DIV");
                         itemEle.innerHTML = ids[i];
                         itemEle.style.marginBottom = "4px";
@@ -148,20 +137,19 @@ class EditorControl
                         itemEle.addEventListener("click", (e) => {
                             CtrlKey = false;
                             var t = this.container.getControl((<any>e.target).innerHTML);
-                            if (t)
-                            {
+                            if (t) {
                                 t.selected = true;
                             }
                         }, false);
                         menuDiv1.appendChild(itemEle);
                     }
                     menuDiv1.style.position = "absolute";
-                   
+
                     var x = e.clientX;
                     if (x + editor.scrollLeft + menuDiv1.offsetWidth > window.innerWidth)
                         x = window.innerWidth - editor.scrollLeft - menuDiv1.offsetWidth;
-                   
-                    var y = e.clientY; 
+
+                    var y = e.clientY;
                     if (y + editor.scrollTop + menuDiv1.offsetHeight > window.innerHeight)
                         y = window.innerHeight - editor.scrollTop - menuDiv1.offsetHeight;
                     menuDiv1.style.left = x + "px";
@@ -200,8 +188,7 @@ class EditorControl
             if (this.mouseDownX >= 0) {
                 e.stopPropagation();
                 if (this._moveAllSelectedControl) {
-                    for (var i = 0; i < AllSelectedControls.length; i++)
-                    {
+                    for (var i = 0; i < AllSelectedControls.length; i++) {
                         AllSelectedControls[i].onMoving(this.mouseDownX, this.mouseDownY, e.layerX, e.layerY);
                     }
                 }
@@ -224,8 +211,7 @@ class EditorControl
         }, false);
     }
 
-    getPropertiesCaption(): string[]
-    {
+    getPropertiesCaption(): string[] {
         return null;
     }
     getProperties(): string[] {
@@ -235,8 +221,7 @@ class EditorControl
     /**
      * 正式环境中运行模式
      */
-    run()
-    {
+    run() {
         this.isDesignMode = false;
     }
 
@@ -251,15 +236,16 @@ class EditorControl
     /**
      * 获取描述本控件属性的一个json对象
      */
-    getJson()
-    {
+    getJson() {
         var obj = {
             rect: this.rect,
             constructorName: (<any>this).constructor.name
         };
         var properites = this.getProperties();
-        for (var i = 0; i < properites.length; i++)
-        {
+        for (var i = 0; i < properites.length; i++) {
+            var value = this[properites[i]];
+            if (typeof value == "undefined" || (typeof value == "number" && isNaN(value)))
+                continue;
             obj[properites[i]] = this[properites[i]];
         }
         return obj;
@@ -268,8 +254,7 @@ class EditorControl
     /**
      * 获取运行时的执行脚本
      */
-    getScript()
-    {
+    getScript() {
         var json = this.getJson();
         var script = "";
         //var id = this.id;
@@ -280,8 +265,7 @@ class EditorControl
         var id = "eCtrl";
         script += id + " = new " + json.constructorName + "();\r\n";
         script += "editor.addControl(" + id + ");\r\n";
-        for (var proName in json)
-        {
+        for (var proName in json) {
             if (proName == "rect" || proName == "constructorName")
                 continue;
             var type = typeof json[proName];
@@ -289,12 +273,11 @@ class EditorControl
                 continue;
             script += id + "." + proName + " = " + JSON.stringify(json[proName]) + ";\r\n";
         }
-        script += id + ".rect = " + JSON.stringify(json.rect) + ";\r\n";       
+        script += id + ".rect = " + JSON.stringify(json.rect) + ";\r\n";
         return script;
     }
 
-    isIntersectWith(rect):boolean
-    {
+    isIntersectWith(rect): boolean {
         return this.isIntersect(this.rect, rect);
     }
 
@@ -306,13 +289,11 @@ class EditorControl
      * 如果点名和自己引用的点名一致，那么选中自己
      * @param pointName 点名
      */
-    selectByPointName(pointName: string)
-    {
+    selectByPointName(pointName: string) {
 
     }
 
-    showProperty()
-    {
+    showProperty() {
         if (this.propertyDialog)
             this.propertyDialog.dispose();
 
@@ -558,23 +539,19 @@ class EditorControl
         }
     }
 
-    onBeginMoving()
-    {
+    onBeginMoving() {
 
     }
-    onMoving(downX, downY, nowX, nowY)
-    {
+    onMoving(downX, downY, nowX, nowY) {
 
     }
-    onEndMoving()
-    {
+    onEndMoving() {
 
     }
 }
 
 
-class LineControl extends EditorControl
-{
+class LineControl extends EditorControl {
     lineElement: SVGLineElement;
     virtualLineElement: SVGLineElement;
 
@@ -604,8 +581,8 @@ class LineControl extends EditorControl
 
         var height = Math.abs(parseInt(this.lineElement.getAttribute("y1")) - parseInt(this.lineElement.getAttribute("y2")));
         if (parseInt(this.lineElement.getAttribute("y1")) < parseInt(this.lineElement.getAttribute("y2"))) {
-            var y2 :any = parseInt(this.lineElement.getAttribute("y2")) + v.height - height;
-            this.lineElement.setAttribute("y2" , y2);
+            var y2: any = parseInt(this.lineElement.getAttribute("y2")) + v.height - height;
+            this.lineElement.setAttribute("y2", y2);
         }
         else {
             var y1: any = parseInt(this.lineElement.getAttribute("y1")) + v.height - height;
@@ -630,8 +607,7 @@ class LineControl extends EditorControl
         this.resetPointLocation();
     }
 
-    get point()
-    {
+    get point() {
         return {
             x1: parseInt(this.lineElement.getAttribute("x1")),
             x2: parseInt(this.lineElement.getAttribute("x2")),
@@ -639,8 +615,7 @@ class LineControl extends EditorControl
             y2: parseInt(this.lineElement.getAttribute("y2")),
         };
     }
-    set point(v:any)
-    {
+    set point(v: any) {
         this.lineElement.setAttribute("x1", v.x1);
         this.lineElement.setAttribute("x2", v.x2);
         this.lineElement.setAttribute("y1", v.y1);
@@ -661,8 +636,7 @@ class LineControl extends EditorControl
     get lineWidth() {
         return this.lineElement.style.strokeWidth;
     }
-    set lineWidth(v)
-    {
+    set lineWidth(v) {
         this.lineElement.style.strokeWidth = v;
     }
     get color() {
@@ -686,15 +660,15 @@ class LineControl extends EditorControl
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","线宽","颜色"];
+        return ["id", "线宽", "颜色"];
     }
     getProperties(): string[] {
-        return ["id","lineWidth", "color"];
+        return ["id", "lineWidth", "color"];
     }
 
     isIntersectWith(rect): boolean {
         var myrect = this.rect;
-        return this.isIntersect(myrect , rect);
+        return this.isIntersect(myrect, rect);
     }
 
 
@@ -819,8 +793,7 @@ class LineControl extends EditorControl
         this.virtualLineElement.setAttribute("y1", y1);
         this.virtualLineElement.setAttribute("x2", x2);
         this.virtualLineElement.setAttribute("y2", y2);
-        if (this.selected)
-        {
+        if (this.selected) {
             this.pointEles[0].setAttribute("cx", x1);
             this.pointEles[0].setAttribute("cy", y1);
             this.pointEles[1].setAttribute("cx", x2);
@@ -847,7 +820,7 @@ class RectControl extends EditorControl {
             height: parseInt(this.rectElement.getAttribute("height")),
         };
     }
-    set rect(v:any) {
+    set rect(v: any) {
         this.rectElement.setAttribute("x", v.x);
         this.rectElement.setAttribute("y", v.y);
         this.rectElement.setAttribute("width", v.width);
@@ -904,27 +877,25 @@ class RectControl extends EditorControl {
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(devPoint: any) {
-        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0)
-        {
+        if (this._scriptOnValueChange && this._scriptOnValueChange.length > 0) {
             try {
                 var value = devPoint.value;
                 eval(this._scriptOnValueChange);
             }
-            catch (e)
-            {
+            catch (e) {
                 alert(e.message);
             }
         }
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","边框大小", "边框颜色", "填充颜色","设备点", "值变化脚本"];
+        return ["id", "边框大小", "边框颜色", "填充颜色", "设备点", "值变化脚本"];
     }
     getProperties(): string[] {
-        return ["id","strokeWidth", "colorStroke", "colorFill","devicePoint", "scriptOnValueChange"];
+        return ["id", "strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     }
 
-    constructor(element:any) {
+    constructor(element: any) {
         super(element ? element : document.createElementNS('http://www.w3.org/2000/svg', 'rect'));
         this.rectElement = this.element;
         this.rectElement.setAttribute('style', 'fill:#eeeeee;stroke:#aaaaaa;stroke-width:1;');
@@ -933,7 +904,7 @@ class RectControl extends EditorControl {
     isIntersectWith(rect): boolean {
         return this.isIntersect(this.rect, rect);
     }
-    
+
     onBeginMoving() {
         (<any>this.rectElement)._x = parseInt(this.rectElement.getAttribute("x"));
         (<any>this.rectElement)._y = parseInt(this.rectElement.getAttribute("y"));
@@ -968,8 +939,8 @@ class EllipseControl extends EditorControl {
         return myrect;
     }
     set rect(v: any) {
-        var rx : any = v.width / 2;
-        var ry : any = v.height / 2;
+        var rx: any = v.width / 2;
+        var ry: any = v.height / 2;
         this.rootElement.setAttribute("cx", v.x + rx);
         this.rootElement.setAttribute("cy", v.y + ry);
         this.rootElement.setAttribute("rx", rx);
@@ -1029,10 +1000,10 @@ class EllipseControl extends EditorControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","边框大小", "边框颜色", "填充颜色","设备点","值变化脚本"];
+        return ["id", "边框大小", "边框颜色", "填充颜色", "设备点", "值变化脚本"];
     }
     getProperties(): string[] {
-        return ["id","strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
+        return ["id", "strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     }
 
     constructor() {
@@ -1051,8 +1022,7 @@ class EllipseControl extends EditorControl {
     * @param pointName 点名
     */
     selectByPointName(pointName: string) {
-        if (pointName == this.devicePoint)
-        {
+        if (pointName == this.devicePoint) {
             this.selected = true;
             this.rootElement.scrollIntoView();
         }
@@ -1162,10 +1132,10 @@ class CircleControl extends EditorControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","边框大小", "边框颜色", "填充颜色","设备点","值变化脚本"];
+        return ["id", "边框大小", "边框颜色", "填充颜色", "设备点", "值变化脚本"];
     }
     getProperties(): string[] {
-        return ["id","strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
+        return ["id", "strokeWidth", "colorStroke", "colorFill", "devicePoint", "scriptOnValueChange"];
     }
 
     constructor() {
@@ -1181,7 +1151,7 @@ class CircleControl extends EditorControl {
 
     onSelectedChange() {
         if (this.selected) {
-           
+
             //右角
             var pointEle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             pointEle.setAttribute("width", "6");
@@ -1201,7 +1171,7 @@ class CircleControl extends EditorControl {
             }
             this.element.parentElement.appendChild(pointEle);
             this.pointEles.push(pointEle);
-            
+
 
             for (var i = 0; i < this.pointEles.length; i++) {
                 this.setEvent(this.pointEles[i]);
@@ -1237,20 +1207,18 @@ class CircleControl extends EditorControl {
 
 class ImageControl extends RectControl {
     imgElement: SVGImageElement;
-    get imgSrc()
-    {
+    get imgSrc() {
         return this.imgElement.href.baseVal;
     }
-    set imgSrc(v)
-    {
+    set imgSrc(v) {
         this.imgElement.href.baseVal = v;
     }
 
     getPropertiesCaption(): string[] {
-        return ["id","图片"];
+        return ["id", "图片"];
     }
     getProperties(): string[] {
-        return ["id","imgSrc"];
+        return ["id", "imgSrc"];
     }
 
     constructor() {
@@ -1309,12 +1277,11 @@ class TextControl extends EditorControl {
             WatchPointNames.push(v);
     }
     onDevicePointValueChanged(devPoint: any) {
-        
+
         this._lastDevPoint = devPoint;
         this.updateText(devPoint.value);
     }
-    updateText(value:any)
-    {
+    updateText(value: any) {
         this.text = value;
     }
 
@@ -1352,11 +1319,11 @@ class TextControl extends EditorControl {
     }
 
     getPropertiesCaption(): string[] {
-        return ["id", "文字", "大小", "颜色", "旋转角度", "字体","粗体","斜体","下划线","设备点","运行时允许输入值"];
+        return ["id", "文字", "大小", "颜色", "旋转角度", "字体", "粗体", "斜体", "下划线", "设备点", "运行时允许输入值"];
     }
 
     getProperties(): string[] {
-        return ["id", "text", "size", "colorFill", "rotate","fontFamily", "isBold", "isItalic", "isUnderline", "devicePoint","canSetValue"];
+        return ["id", "text", "size", "colorFill", "rotate", "fontFamily", "isBold", "isItalic", "isUnderline", "devicePoint", "canSetValue"];
     }
 
     get rect() {
@@ -1368,14 +1335,13 @@ class TextControl extends EditorControl {
             //var myrect: SVGRect = (<any>this.groupElement).getBBox();
 
             return {
-                x: parseInt(result[1]) ,
+                x: parseInt(result[1]),
                 y: parseInt(result[2]),
                 width: clientRect.width / editor.currentScale,
                 height: clientRect.height / editor.currentScale
             };
         }
-        catch (e)
-        {
+        catch (e) {
             return {
                 x: parseInt(result[1]),
                 y: parseInt(result[2]),
@@ -1386,30 +1352,28 @@ class TextControl extends EditorControl {
     }
     set rect(v: any) {
         var x = v.x;
-        var y = v.y ;
+        var y = v.y;
 
-        this.groupElement.setAttribute("transform", "translate(" + x + " " + y +") scale(1 1)");
+        this.groupElement.setAttribute("transform", "translate(" + x + " " + y + ") scale(1 1)");
 
         this.resetPointLocation();
     }
 
-    get rotate()
-    {
+    get rotate() {
         var transform = this.textElement.getAttribute("transform");
         var result = /rotate\(([0-9]+) /.exec(transform);
         return parseInt(result[1]);
     }
-    set rotate(v: any)
-    {
+    set rotate(v: any) {
         this.textElement.setAttribute("transform", "rotate(" + v + " 0,17)");
         this.resetPointLocation();
     }
 
     get isUnderline() {
-       return this.textElement.getAttribute("text-decoration") === "underline";
+        return this.textElement.getAttribute("text-decoration") === "underline";
     }
     set isUnderline(v: boolean) {
-        this.textElement.setAttribute("text-decoration", v ?"underline":"");
+        this.textElement.setAttribute("text-decoration", v ? "underline" : "");
     }
     get isBold() {
         return this.textElement.getAttribute("font-weight") === "900";
@@ -1428,7 +1392,7 @@ class TextControl extends EditorControl {
         return this.textElement.getAttribute("font-family");
     }
     set fontFamily(v: string) {
-        this.textElement.setAttribute("font-family", v );
+        this.textElement.setAttribute("font-family", v);
     }
     constructor() {
         super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
@@ -1511,7 +1475,7 @@ class TextControl extends EditorControl {
         this.selectingElement.setAttribute('y', <any>(myrect.y - 5));
         this.selectingElement.setAttribute('width', <any>(myrect.width + 10));
         this.selectingElement.setAttribute('height', <any>(myrect.height + 10));
-    }   
+    }
 
     onBeginMoving() {
         var rect = this.rect;
@@ -1535,12 +1499,10 @@ class CylinderControl extends EditorControl {
     private _value: number = 0;
     private _max: number = 100;
     private _min: number = 0;
-    get value()
-    {
+    get value() {
         return this._value;
     }
-    set value(v: any)
-    {
+    set value(v: any) {
         v = parseFloat(v);
         if (v != this._value) {
             this._value = v;
@@ -1559,8 +1521,7 @@ class CylinderControl extends EditorControl {
         try {
             this.resetCylinder(this.rect);
         }
-        catch (e)
-        {
+        catch (e) {
 
         }
     }
@@ -1615,7 +1576,7 @@ class CylinderControl extends EditorControl {
     startX = 0;
     startY = 0;
 
-    get rect() {        
+    get rect() {
 
         return {
             x: parseInt(this.rectElement.getAttribute("x")),
@@ -1623,7 +1584,7 @@ class CylinderControl extends EditorControl {
             width: parseInt(this.rectElement.getAttribute("width")),
             height: parseInt(this.rectElement.getAttribute("height")),
         };
-        
+
     }
     set rect(v: any) {
         this.rectElement.setAttribute("x", v.x);
@@ -1660,10 +1621,10 @@ class CylinderControl extends EditorControl {
         this.rectElement.style.fill = v;
     }
     getPropertiesCaption(): string[] {
-        return ["id","边框大小", "边框颜色", "底色", "填充颜色","值","最大值","最小值","设备点"];
+        return ["id", "边框大小", "边框颜色", "底色", "填充颜色", "值", "最大值", "最小值", "设备点"];
     }
     getProperties(): string[] {
-        return ["id","strokeWidth", "colorStroke", "colorBg", "colorFill", "value", "max", "min", "devicePoint"];
+        return ["id", "strokeWidth", "colorStroke", "colorBg", "colorFill", "value", "max", "min", "devicePoint"];
     }
 
     constructor() {
@@ -1686,16 +1647,15 @@ class CylinderControl extends EditorControl {
         this.element.appendChild(this.cylinderElement);
     }
 
-    resetCylinder(rect:any)
-    {
-        
+    resetCylinder(rect: any) {
+
         var ctrlHeight = rect.height - 40;
         var myheight: any = parseInt(<any>(((this.value - this.min) * ctrlHeight) / (this.max - this.min)));
-       
+
         myheight = Math.min(ctrlHeight, myheight);
         if (myheight < 0)
             myheight = 0;
-                
+
         this.cylinderElement.setAttribute("x", rect.x + 10);
         this.cylinderElement.setAttribute("y", <any>(rect.y + 20 + ctrlHeight - myheight));
         this.cylinderElement.setAttribute("width", <any>(rect.width - 20));
@@ -1715,7 +1675,7 @@ class CylinderControl extends EditorControl {
         this.rectElement.setAttribute("x", x);
         this.rectElement.setAttribute("y", y);
 
-        this.resetCylinder({ x: x, y: y, width: (<any>this.rectElement)._rect.width, height: (<any>this.rectElement)._rect.height});
+        this.resetCylinder({ x: x, y: y, width: (<any>this.rectElement)._rect.width, height: (<any>this.rectElement)._rect.height });
         if (this.selected) {
             this.resetPointLocation();
         }
@@ -1727,6 +1687,7 @@ class CylinderControl extends EditorControl {
 
 class TrendControl extends EditorControl {
     rectElement: SVGRectElement;
+    textGroupElement: SVGGElement;
 
     line_left_Ele: SVGLineElement;
     line_bottom_Ele: SVGLineElement;
@@ -1742,9 +1703,7 @@ class TrendControl extends EditorControl {
     pathElement10: SVGPathElement;
     pathElement11: SVGPathElement;
     pathElement12: SVGPathElement;
-    
-    private _max: number;
-    private _min: number;
+
 
     values1: any[] = [];
     values2: any[] = [];
@@ -1772,7 +1731,7 @@ class TrendControl extends EditorControl {
             });
         }
     }
-    
+
     private _value2: number = 0;
     get value2() {
         return this._value2;
@@ -1927,21 +1886,149 @@ class TrendControl extends EditorControl {
             });
         }
     }
-    get max() {
-        return this._max;
+    get max1() {
+        return (<any>this)._max1;
     }
-    set max(v: any) {
-        this._max = parseFloat(v);
-        if (this._max <= this._min)
-            this._max = this._min + 1;
+    set max1(v: any) {
+        (<any>this)._max1 = parseFloat(v);
     }
-    get min() {
-        return this._min;
+    get min1() {
+        return (<any>this)._min1;
     }
-    set min(v: any) {
-        this._min = parseFloat(v);
-        if (this._min >= this._max)
-            this._max = this._max - 1;
+    set min1(v: any) {
+        (<any>this)._min1 = parseFloat(v);
+    }
+    get max2() {
+        return (<any>this)._max2;
+    }
+    set max2(v: any) {
+        (<any>this)._max2 = parseFloat(v);
+    }
+    get min2() {
+        return (<any>this)._min2;
+    }
+    set min2(v: any) {
+        (<any>this)._min2 = parseFloat(v);
+    }
+    get max3() {
+        return (<any>this)._max3;
+    }
+    set max3(v: any) {
+        (<any>this)._max3 = parseFloat(v);
+    }
+    get min3() {
+        return (<any>this)._min3;
+    }
+    set min3(v: any) {
+        (<any>this)._min3 = parseFloat(v);
+    }
+    get max4() {
+        return (<any>this)._max4;
+    }
+    set max4(v: any) {
+        (<any>this)._max4 = parseFloat(v);
+    }
+    get min4() {
+        return (<any>this)._min4;
+    }
+    set min4(v: any) {
+        (<any>this)._min4 = parseFloat(v);
+    }
+    get max5() {
+        return (<any>this)._max5;
+    }
+    set max5(v: any) {
+        (<any>this)._max5 = parseFloat(v);
+    }
+    get min5() {
+        return (<any>this)._min5;
+    }
+    set min5(v: any) {
+        (<any>this)._min5 = parseFloat(v);
+    }
+    get max6() {
+        return (<any>this)._max6;
+    }
+    set max6(v: any) {
+        (<any>this)._max6 = parseFloat(v);
+    }
+    get min6() {
+        return (<any>this)._min6;
+    }
+    set min6(v: any) {
+        (<any>this)._min6 = parseFloat(v);
+    }
+    get max7() {
+        return (<any>this)._max7;
+    }
+    set max7(v: any) {
+        (<any>this)._max7 = parseFloat(v);
+    }
+    get min7() {
+        return (<any>this)._min7;
+    }
+    set min7(v: any) {
+        (<any>this)._min7 = parseFloat(v);
+    }
+    get max8() {
+        return (<any>this)._max8;
+    }
+    set max8(v: any) {
+        (<any>this)._max8 = parseFloat(v);
+    }
+    get min8() {
+        return (<any>this)._min8;
+    }
+    set min8(v: any) {
+        (<any>this)._min8 = parseFloat(v);
+    }
+    get max9() {
+        return (<any>this)._max9;
+    }
+    set max9(v: any) {
+        (<any>this)._max9 = parseFloat(v);
+    }
+    get min9() {
+        return (<any>this)._min9;
+    }
+    set min9(v: any) {
+        (<any>this)._min9 = parseFloat(v);
+    }
+    get max10() {
+        return (<any>this)._max10;
+    }
+    set max10(v: any) {
+        (<any>this)._max10 = parseFloat(v);
+    }
+    get min10() {
+        return (<any>this)._min10;
+    }
+    set min10(v: any) {
+        (<any>this)._min10 = parseFloat(v);
+    }
+    get max11() {
+        return (<any>this)._max11;
+    }
+    set max11(v: any) {
+        (<any>this)._max11 = parseFloat(v);
+    }
+    get min11() {
+        return (<any>this)._min11;
+    }
+    set min11(v: any) {
+        (<any>this)._min11 = parseFloat(v);
+    }
+    get max12() {
+        return (<any>this)._max12;
+    }
+    set max12(v: any) {
+        (<any>this)._max12 = parseFloat(v);
+    }
+    get min12() {
+        return (<any>this)._min12;
+    }
+    set min12(v: any) {
+        (<any>this)._min12 = parseFloat(v);
     }
 
     _devicePoint1: string = "";
@@ -2054,34 +2141,28 @@ class TrendControl extends EditorControl {
     }
     onDevicePointValueChanged(devPoint: any) {
         var number = 0;
-        for (var i = 1; i <= 12; i++)
-        {
-            if (devPoint.name == this["devicePoint" + i])
-            {
+        for (var i = 1; i <= 12; i++) {
+            if (devPoint.name == this["devicePoint" + i]) {
                 number = i;
-                break;
+
+                if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number]))) {
+                    this["max" + number] = devPoint.max;                   
+                }
+
+                if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
+                    this["min" + number] = devPoint.min;
+
+               
+
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = devPoint["colorLine" + number];
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = "#ffffff";
+
+                this["value" + number] = devPoint.value;
             }
         }
-        if (number == 0)
-            return;
-
-        if (devPoint.max != null &&  (typeof this.max == "undefined" || isNaN(this.max)))
-            this.max = devPoint.max;
-        else if (devPoint.max != null && devPoint.max > this.max)
-            this.max = devPoint.max;
-
-        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
-            this.min = devPoint.min;
-        else if (devPoint.min != null && devPoint.min < this.min)
-            this.min = devPoint.min;
-
-
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = devPoint["colorLine" + number];
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = "#ffffff";
-
-        this["value" + number] = devPoint.value;
+       
     }
 
     running: boolean = false;
@@ -2102,21 +2183,16 @@ class TrendControl extends EditorControl {
         this.rectElement.setAttribute("width", v.width);
         this.rectElement.setAttribute("height", v.height);
 
-        for (var i = 1; i <= 12; i ++)
-            this["pathElement" + i].setAttribute("transform", "translate("+v.x+" "+v.y+")");
+        for (var i = 1; i <= 12; i++)
+            this["pathElement" + i].setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
 
-        this.line_left_Ele.setAttribute("x1", <any>(v.x + 10));
-        this.line_left_Ele.setAttribute("y1", <any>(v.y + 10));
-        this.line_left_Ele.setAttribute("x2", <any>(v.x + 10));
-        this.line_left_Ele.setAttribute("y2", <any>(v.y + v.height - 10));
-
-        this.line_bottom_Ele.setAttribute("x1", <any>(v.x + 10));
-        this.line_bottom_Ele.setAttribute("y1", <any>(v.y + v.height - 10));
-        this.line_bottom_Ele.setAttribute("x2", <any>(v.x + v.width - 10));
-        this.line_bottom_Ele.setAttribute("y2", <any>(v.y + v.height - 10));
+        //text元素需要加上17个像素，这是固定值
+        this.textGroupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
 
         this.resetPointLocation();
     }
+
+   
 
     get colorFill() {
         return this.rectElement.style.fill;
@@ -2204,19 +2280,32 @@ class TrendControl extends EditorControl {
     set colorLine12(v) {
         this.pathElement12.style.stroke = v;
     }
+    get Minutes() {
+        if (isNaN((<any>this)._Minutes))
+            (<any>this)._Minutes = 10;
+        return (<any>this)._Minutes;
+    }
+    set Minutes(v: number)
+    {
+        (<any>this)._Minutes = v;
+    }
     getPropertiesCaption(): string[] {
-        var arr = ["id", "背景颜色", "量程线颜色"];
+        var arr = ["id", "背景颜色", "量程线颜色","显示时间(分钟)"];
         for (var i = 1; i <= 12; i++) {
             arr.push("趋势颜色" + i);
             arr.push("设备点" + i);
+            arr.push("最大量程" + i);
+            arr.push("最小量程" + i);
         }
         return arr;
     }
     getProperties(): string[] {
-        var arr = ["id", "colorFill", "colorLineLeftBottom"];
+        var arr = ["id", "colorFill", "colorLineLeftBottom","Minutes"];
         for (var i = 1; i <= 12; i++) {
             arr.push("colorLine" + i);
             arr.push("devicePoint" + i);
+            arr.push("max" + i);
+            arr.push("min" + i);
         }
         return arr;
     }
@@ -2243,6 +2332,10 @@ class TrendControl extends EditorControl {
             this["pathElement" + i] = pe;
         }
 
+        this.textGroupElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        this.textGroupElement.setAttribute("transform", "translate(0 0)");
+        this.element.appendChild(this.textGroupElement);
+
         (<any>this).devicePoint = ManyPointDefined;
     }
 
@@ -2250,10 +2343,9 @@ class TrendControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
-   
+
     //开始画趋势图,values表示已经有的变化值 value结构{ value:12 , time:1221212 }
-    run()
-    {
+    run() {
         super.run();
 
         for (var i = 1; i <= 12; i++) {
@@ -2274,7 +2366,7 @@ class TrendControl extends EditorControl {
     * @param pointName 点名
     */
     selectByPointName(pointName: string) {
-        if (pointName == this.devicePoint1 || 
+        if (pointName == this.devicePoint1 ||
             pointName == this.devicePoint2 ||
             pointName == this.devicePoint3 ||
             pointName == this.devicePoint4 ||
@@ -2291,49 +2383,281 @@ class TrendControl extends EditorControl {
         }
     }
 
-    getDrawLocation(valueItem: any, canDel: boolean, rect: any, now: any): any {
-        var x = rect.width - 10 - ((now - valueItem.time) / 1000) * 2;//1秒占2个像素
-        if (x < 10) {
+    getMin(number) {
+        var min = this["min" + number];
+        if (min == null || isNaN(min)) {
+            for (var i = 1; i <= 12; i++) {
+                var minval = this["min" + i];
+                if (minval != null && !isNaN(minval)) {
+                    return minval;
+                }
+            }
+        }
+        else {
+            return min;
+        }
+        return 0;
+    }
+    getMax(number) {
+        var max = this["max" + number];
+        if (max == null || isNaN(max)) {
+            for (var i = 1; i <= 12; i++) {
+                var maxval = this["max" + i];
+                if (maxval != null && !isNaN(maxval)) {
+                    return maxval;
+                }
+            }
+        }
+        else {
+            return max;
+        }
+        return 0;
+    }
+
+    getDrawLocation(number, secondPixel, leftMargin, rightMargin, topMargin, bottomMargin, valueItem: any, canDel: boolean, rect: any, now: any): any {
+        var x = rect.width - rightMargin - ((now - valueItem.time) / 1000) * secondPixel;//1秒占2个像素
+        if (x < leftMargin) {
             if (canDel) {
                 return {
                     isDel: true
                 };
             }
             else {
-                x = 10;
+                x = leftMargin;
             }
         }
 
-        var min = this.min;
-        if (typeof min == "undefined" || isNaN(min))
-            min = 0;
-        var max = this.max;
-        if (typeof max == "undefined" || isNaN(max))
-            max = 100;
+        var min = this.getMin(number);
+
+        var max = this.getMax(number);
 
         var percent = 1 - (valueItem.value - min) / (max - min);
-        var y = 10 + (rect.height - 20) * percent;
-        if (y < 10)
-            y = 10;
-        else if (y > rect.height - 10)
-            y = rect.height - 10;
+        var y = topMargin + (rect.height - topMargin - bottomMargin) * percent;
+        if (y < topMargin)
+            y = topMargin;
+        else if (y > rect.height - bottomMargin)
+            y = rect.height - bottomMargin;
 
         return {
             result: x + " " + y + " "
         };
     }
 
-    //重画趋势图
-    reDrawTrend()
+    resetXYLines(rect, leftMargin, rightMargin, topMargin, bottomMargin) {
+        this.line_left_Ele.setAttribute("x1", <any>(rect.x + leftMargin));
+        this.line_left_Ele.setAttribute("y1", <any>(rect.y + topMargin));
+        this.line_left_Ele.setAttribute("x2", <any>(rect.x + leftMargin));
+        this.line_left_Ele.setAttribute("y2", <any>(rect.y + rect.height - bottomMargin));
+
+        this.line_bottom_Ele.setAttribute("x1", <any>(rect.x + leftMargin));
+        this.line_bottom_Ele.setAttribute("y1", <any>(rect.y + rect.height - bottomMargin));
+        this.line_bottom_Ele.setAttribute("x2", <any>(rect.x + rect.width - rightMargin));
+        this.line_bottom_Ele.setAttribute("y2", <any>(rect.y + rect.height - bottomMargin));
+    }
+
+    /**
+     * 添加一个文本，并返回该文本所占的宽度
+     * @param text
+     * @param color
+     * @param x
+     * @param y
+     * @param fontSize
+     * @param isRightAlign 如果true，那就右对齐到x值上
+     */
+    private addText(text, color, x, y, fontSize): SVGTextElement
     {
+        var txtEle = document.createElementNS('http://www.w3.org/2000/svg', 'text');       
+        txtEle.textContent = text;
+        txtEle.setAttribute("x", x);
+        txtEle.setAttribute("y", y);
+        txtEle.setAttribute('style', 'fill:' + color +';cursor:default;-moz-user-select:none;visibility:hidden;');
+        txtEle.setAttribute('font-size', fontSize);
+        this.textGroupElement.appendChild(txtEle);
+        return txtEle;
+    }
+
+    // 对Date的扩展，将 Date 转化为指定格式的String   
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，   
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)   
+    // 例子：   
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423   
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18   
+    private formatTime(date: Date, fmt) { //author: meizz   
+        var o = {
+            "M+": date.getMonth() + 1,                 //月份   
+            "d+": date.getDate(),                    //日   
+            "h+": date.getHours(),                   //小时   
+            "m+": date.getMinutes(),                 //分   
+            "s+": date.getSeconds(),                 //秒   
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度   
+            "S": date.getMilliseconds()             //毫秒   
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }  
+
+    //重画趋势图
+    reDrawTrend() {
+        var leftMargin = 30;
+        var rightMargin = 10;
+        var bottomMargin = 30;
+        var topMargin = 10;
+        var secondPixel;
+        var txtHeight;
+        var fontSize = 12;
+
+        if (true)
+        {
+            //计算y轴刻度最大值
+            var maxValue = 0;
+            for (var i = 1; i <= 12; i++)
+            {
+                var value = this.getMax(i);
+                if (value > maxValue)
+                {
+                    maxValue = value;
+                }
+            }
+            //得到最大值量程的字符宽度
+            var txtEle = this.addText(maxValue.toString(), "red", 0, 0, fontSize);
+            var txtRect = txtEle.getBoundingClientRect();
+            txtHeight = txtRect.height;
+            leftMargin = txtRect.width + 15;
+        }
+
         var rect = this.rect;
-        //先计算目前可以显示多少秒，2个像素表示1秒钟的值
-        var width = rect.width - 20 - 2;
+
+        this.resetXYLines(rect, leftMargin, rightMargin, topMargin, bottomMargin);
+        //先清空textGroupElement
+        //while (this.textGroupElement.children.length > 0)
+        //    this.textGroupElement.removeChild(this.textGroupElement.children[0]);
+        this.textGroupElement.innerHTML = "";
+
+        //先计算1秒钟的数据，占用几个像素
+        var panelWidth = rect.width - leftMargin - rightMargin;
+        var seconds = this.Minutes * 60;
+        secondPixel = panelWidth / seconds;
+        if (secondPixel < 1)
+            secondPixel = 1;       
 
         var now = new Date().getTime();
+
+        if (true) {
+            //画出y轴刻度线
+            var x = leftMargin;
+            var y = rect.height - bottomMargin - 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", <any>(leftMargin - 5));
+                lineEle.setAttribute("y1", <any>y);
+                lineEle.setAttribute("x2", <any>leftMargin);
+                lineEle.setAttribute("y2", <any>y);
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+
+                y -= 30;
+                if (y <= topMargin) {
+                    break;
+                }
+            }
+
+            //画出y轴刻度值
+
+            //写出最大量程
+            var cury = topMargin;
+            for (var i = 0; i < 12; i++) {
+                var max = this["max" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(max, this["colorLine" + (i + 1)], 0, cury + 10, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", <any>(leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+
+                    cury += txtRect.height - 5;
+
+                    if (cury > rect.height - bottomMargin)
+                        break;
+                }
+            }
+
+            //写出最小量程
+            var cury = rect.height - bottomMargin;
+            for (var i = 11; i >= 0; i--) {
+                var max = this["max" + (i + 1)];
+                var min = this["min" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(min, this["colorLine" + (i + 1)], 0, cury, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", <any>(leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+
+                    cury -= txtRect.height - 5;
+
+                    if (cury <= topMargin)
+                        break;
+                }
+            }
+
+        }
+
+        //确定了每秒所占空间，就可以绘制刻度了
+        //绘制x轴时间刻度
+        if (true) {
+            var curTime = new Date();
+            var timeText = "2018-01-01 01:01:01";
+            var x = rect.width - rightMargin;
+            var y = rect.height - bottomMargin + 3;
+            while (true) {
+                //text元素固定要+17，y定位才准确
+                var txtEle = this.addText(timeText, this.colorLineLeftBottom, x, y + 17, fontSize);
+                var txtWidth = txtEle.getBoundingClientRect().width;
+
+                //计算这个text对应的时间，取文字中间距离
+                var left = x - txtWidth / 2;
+                var length = rect.width - rightMargin - left;
+                //算出多少秒
+                var mySeconds = length / secondPixel;
+                curTime = new Date(now - mySeconds * 1000);
+                txtEle.textContent = this.formatTime(curTime, "yyyy-MM-dd hh:mm:ss");
+                txtEle.setAttribute("x", <any>(x - txtWidth));
+                txtEle.style.visibility = "";
+
+                x -= txtWidth + 8;
+                if (x <= leftMargin)
+                {
+                    //这个已经超标，把它移除掉
+                    //this.textGroupElement.removeChild(this.textGroupElement.children[this.textGroupElement.children.length - 1]);
+                    break;
+                }                    
+            }
+
+            //画出x轴刻度
+            x = leftMargin + 30;
+            while (true)
+            {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", <any>x);
+                lineEle.setAttribute("y1", <any>(rect.height - bottomMargin));
+                lineEle.setAttribute("x2", <any>x);
+                lineEle.setAttribute("y2", <any>(rect.height - bottomMargin + 5));
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+
+                x += 30;
+                if (x > rect.width - rightMargin) {
+                    break;
+                }
+            }
+        }       
+
+     
         for (var k = 1; k <= 12; k++) {
-           
-            var valueArr : any[] = this["values" + k];
+
+            var valueArr: any[] = this["values" + k];
             if (valueArr.length == 0)
                 continue;
 
@@ -2354,9 +2678,9 @@ class TrendControl extends EditorControl {
                 }
             }
             for (var i = valueArr.length - 1; i >= 0; i--) {
-                
+
                 var canDel = valueArr.length > 1;
-                var location = this.getDrawLocation(valueArr[i], canDel , rect, now);
+                var location = this.getDrawLocation(k, secondPixel, leftMargin, rightMargin, topMargin, bottomMargin, valueArr[i], canDel, rect, now);
 
                 if (location.isDel) {
                     deleteToIndex = i;
@@ -2366,7 +2690,7 @@ class TrendControl extends EditorControl {
                 dataStr += dataStr.length == 0 ? "M" : "L";
                 dataStr += location.result;
             }
-             
+
             if (deleteToIndex >= 0) {
                 //点已经过时需要删除
                 valueArr.splice(0, deleteToIndex + 1);
@@ -2375,7 +2699,7 @@ class TrendControl extends EditorControl {
             this["pathElement" + k].setAttribute("d", dataStr);
         }
     }
-    
+
 
     onBeginMoving() {
         (<any>this.rectElement)._rect = this.rect;
@@ -2395,17 +2719,16 @@ class TrendControl extends EditorControl {
     }
 }
 
-class HistoryTrendControl extends TrendControl
-{
+class HistoryTrendControl extends TrendControl {
 
     constructor() {
         super();
     }
 
-    run()
-    {
+    run() {
         this.isDesignMode = false;
 
+        //创建日期选择控件
         var clientRect = this.rectElement.getBoundingClientRect();
         var div = document.createElement("DIV");
         div.style.padding = "3px";
@@ -2435,11 +2758,10 @@ class HistoryTrendControl extends TrendControl
                 yearRange: [2018, 2060]
             });
 
-        div.children[2].addEventListener("click", ()=> {
+        div.children[2].addEventListener("click", () => {
             var startDate = (<any>div.children[0]).value;
             var endDate = (<any>div.children[1]).value;
-            if (startDate.length == 0)
-            {
+            if (startDate.length == 0) {
                 alert("请选择起始日期");
                 return;
             }
@@ -2449,11 +2771,9 @@ class HistoryTrendControl extends TrendControl
             }
 
             var pointNames = [];
-            for (var i = 1; i <= 12; i++)
-            {
+            for (var i = 1; i <= 12; i++) {
                 var point = this["devicePoint" + i];
-                if (point && point.length > 0)
-                {
+                if (point && point.length > 0) {
                     pointNames.push(point);
                 }
             }
@@ -2463,9 +2783,8 @@ class HistoryTrendControl extends TrendControl
                 (<any>div.children[2]).value = "查询历史";
                 if (err)
                     alert(err);
-                else
-                {
-                    this.setData(new Date(startDate), new Date(endDate) , ret);
+                else {
+                    this.setData(new Date(startDate), new Date(endDate), ret);
                 }
             });
         }, false);
@@ -2495,15 +2814,11 @@ class HistoryTrendControl extends TrendControl
         if (number == 0)
             return;
 
-        if (devPoint.max != null && (typeof this.max == "undefined" || isNaN(this.max)))
-            this.max = devPoint.max;
-        else if (devPoint.max != null && devPoint.max > this.max)
-            this.max = devPoint.max;
+        if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number])))
+            this["max" + number] = devPoint.max;
 
-        if (devPoint.max != null && (typeof this.min == "undefined" || isNaN(this.min)))
-            this.min = devPoint.min;
-        else if (devPoint.min != null && devPoint.min < this.min)
-            this.min = devPoint.min;
+        if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
+            this["min" + number] = devPoint.min;
 
 
         if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
@@ -2518,16 +2833,14 @@ class HistoryTrendControl extends TrendControl
      * @param dataEndSecs
      * @param valueDatas
      */
-    private parseData(dataStartSecs: number, dataEndSecs: number,valueDatas: any[])
-    {
+    private parseData(dataStartSecs: number, dataEndSecs: number, valueDatas: any[]) {
         var result = {
             minValue: null,
             maxValue: null,
             //是否最小值发生得更早
-            minValueBefore:true,
+            minValueBefore: true,
         };
-        for (var i = 0; i < valueDatas.length; i++)
-        {
+        for (var i = 0; i < valueDatas.length; i++) {
             var item = valueDatas[i];
             var mySec = item.seconds;
 
@@ -2549,7 +2862,7 @@ class HistoryTrendControl extends TrendControl
 
         if (result.maxValue == null && result.minValue == null)
             return null;
-        
+
         if (result.maxValue == result.minValue) {
             result.minValueBefore = false;
             result.minValue = null;
@@ -2585,34 +2898,24 @@ class HistoryTrendControl extends TrendControl
             ]
         ]
      */
-    setData(startTime: Date, endTime: Date, datas:any[])
-    {
-        var min = this.min;
-        if (typeof min == "undefined" || isNaN(min))
-            min = 0;
-        var max = this.max;
-        if (typeof max == "undefined" || isNaN(max))
-            max = 100;
-
+    setData(startTime: Date, endTime: Date, datas: any[]) {
         var rect = this.rect;
         //计算一共有多少秒
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
 
         //计算一个像素显示多少秒的数据
-        var secsPerPixel = parseInt( <any>(totalSeconds / (rect.width - 20)));
+        var secsPerPixel = parseInt(<any>(totalSeconds / (rect.width - 20)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
 
         //把值按照像素分析出来
         var curPointLineResults = [];
-        for (var i = 0; i < 12; i++)
-        {
+        for (var i = 0; i < 12; i++) {
             var lineResult = {
-                datas : []
+                datas: []
             };
             var pointDatas: any[];
-            if (i < datas.length)
-            {
+            if (i < datas.length) {
                 pointDatas = <any[]>datas[i];
                 curPointLineResults.push(lineResult);
             }
@@ -2621,8 +2924,7 @@ class HistoryTrendControl extends TrendControl
 
             var dataStartSecs = startTime.getTime() / 1000;
             var dataEndSecs = dataStartSecs + secsPerPixel - 1;
-            for (var j = 0; j < rect.width - 20; j++)
-            {
+            for (var j = 0; j < rect.width - 20; j++) {
                 var valueResult = this.parseData(dataStartSecs, dataEndSecs, pointDatas);
                 lineResult.datas.push(valueResult);
 
@@ -2631,11 +2933,12 @@ class HistoryTrendControl extends TrendControl
             }
         }
 
-        for (var i = 0; i < 12; i++)
-        {
+        for (var i = 0; i < 12; i++) {
+            var min = this.getMin(i + 1);
+            var max = this.getMax(i + 1);
+
             var lineObject = null;
-            if (i < curPointLineResults.length)
-            {
+            if (i < curPointLineResults.length) {
                 lineObject = curPointLineResults[i];
             }
             else
@@ -2648,11 +2951,9 @@ class HistoryTrendControl extends TrendControl
 
             var lastY = rect.height - 10;
 
-            for (var j = 0; j < lineObject.datas.length; j ++)
-            {
+            for (var j = 0; j < lineObject.datas.length; j++) {
                 var valueItem = lineObject.datas[j];
-                if (valueItem == null)
-                {
+                if (valueItem == null) {
                     continue;
                 }
 
@@ -2683,8 +2984,7 @@ class HistoryTrendControl extends TrendControl
                     valueItem.minValueY = y;
                 }
 
-                if (valueItem.minValueBefore && valueItem.minValue != null)
-                {
+                if (valueItem.minValueBefore && valueItem.minValue != null) {
                     //小值在前面
                     dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
                     lastY = valueItem.minValueY;
@@ -2693,10 +2993,9 @@ class HistoryTrendControl extends TrendControl
                         dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
                         lastY = valueItem.maxValueY;
                     }
-                   
+
                 }
-                else if (valueItem.minValueBefore == false && valueItem.maxValue != null)
-                {
+                else if (valueItem.minValueBefore == false && valueItem.maxValue != null) {
                     //大值在前面
                     dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
                     lastY = valueItem.maxValueY;
@@ -2705,17 +3004,16 @@ class HistoryTrendControl extends TrendControl
                         dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
                         lastY = valueItem.minValueY;
                     }
-                    
+
                 }
 
             }
 
-            if (dataStr.length > 0)
-            {
-                 //延伸到最后              
+            if (dataStr.length > 0) {
+                //延伸到最后              
                 dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
             }
-            
+
             this["pathElement" + (i + 1)].setAttribute("d", dataStr);
         }
     }
@@ -2752,7 +3050,7 @@ class ButtonAreaControl extends EditorControl {
         this._devicePoint = v;
         if (WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
-    }    
+    }
 
     /**
     * 如果点名和自己引用的点名一致，那么选中自己
@@ -2771,7 +3069,7 @@ class ButtonAreaControl extends EditorControl {
     }
     set clickValues(v) {
         this._clickValues = v;
-    }  
+    }
 
     _scriptOnClick: string = null;
     get scriptOnClick() {
@@ -2779,44 +3077,41 @@ class ButtonAreaControl extends EditorControl {
     }
     set scriptOnClick(v) {
         this._scriptOnClick = v;
-    }    
+    }
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(devPoint: any) {
         this.pointValue = devPoint.value;
         this.pointAddr = devPoint.addr;
     }
-   
+
     getPropertiesCaption(): string[] {
-        return ["设备点","点击设值","点击脚本"];
+        return ["设备点", "点击设值", "点击脚本"];
     }
     getProperties(): string[] {
-        return ["devicePoint","clickValues","scriptOnClick"];
+        return ["devicePoint", "clickValues", "scriptOnClick"];
     }
 
     constructor() {
-        super( document.createElementNS('http://www.w3.org/2000/svg', 'rect'));
+        super(document.createElementNS('http://www.w3.org/2000/svg', 'rect'));
         this.rectElement = this.element;
         this.rectElement.setAttribute('style', 'fill:#000000;fill-opacity:0.3;stroke:none;');
     }
 
-    run()
-    {
+    run() {
         super.run();
         this.rectElement.style.fillOpacity = "0";
         this.rectElement.style.cursor = "pointer";
-        this.rectElement.addEventListener("click", (e)=> {
+        this.rectElement.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (this.scriptOnClick && this.scriptOnClick.length > 0)
-            {
+            if (this.scriptOnClick && this.scriptOnClick.length > 0) {
                 eval(this.scriptOnClick);
             }
             else {
-                if (this.clickValues && this.pointAddr && this.clickValues.length > 0)
-                {
+                if (this.clickValues && this.pointAddr && this.clickValues.length > 0) {
                     var values = this.clickValues.split(',');
                     var index = values.indexOf(this.pointValue.toString());
-                    index++;                   
+                    index++;
                     if (index >= values.length)
                         index = 0;
                     var nextvalue = values[index];
@@ -2924,10 +3219,8 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
     writeValue(pointName, addr, value) {
-        for (var p in this)
-        {
-            if (p == pointName)
-            {
+        for (var p in this) {
+            if (p == pointName) {
                 //如果指向的是自定义变量，那么直接设置属性值
                 this[p] = value;
                 return;
@@ -2973,7 +3266,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             if (_rect.y + _rect.height > this.contentHeight)
                 this.contentHeight = _rect.y + _rect.height;
         }
-        
+
         this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
@@ -2989,8 +3282,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             var r = this.rect;//目的是获取contentWidth
             return;
         }
-        if (this.contentWidth == 0)
-        {
+        if (this.contentWidth == 0) {
             var r = this.rect;//目的是获取contentWidth
         }
         var scalex = parseFloat(<any>v.width) / this.contentWidth;
@@ -3001,7 +3293,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
         this.groupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ") scale(" + scalex + " " + scaley + ")");
-        this.childGroupElement.style.transformOrigin = ((this.contentWidth * scalex) / 2) + "px " + ((this.contentHeight * scalex) / 2) +"px";
+        this.childGroupElement.style.transformOrigin = ((this.contentWidth * scalex) / 2) + "px " + ((this.contentHeight * scalex) / 2) + "px";
         this.lastRect = v;
         this.resetPointLocation();
     }
@@ -3012,15 +3304,14 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return parseInt(result[1]);
     }
     set rotate(v: any) {
-        this.childGroupElement.style.transform = "rotate("+ v +"deg)";
+        this.childGroupElement.style.transform = "rotate(" + v + "deg)";
     }
 
     customProperties: any[] = [];
     getPropertiesCaption(): string[] {
         var caps = ["id"];
         caps.push("旋转角度");
-        for (var i = 0; i < this.customProperties.length; i++)
-        {
+        for (var i = 0; i < this.customProperties.length; i++) {
             caps.push(this.customProperties[i] + "设备点");
         }
         return caps;
@@ -3053,12 +3344,10 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
     }
     run() {
         super.run();
-        if (this.virtualRectElement)
-        {
+        if (this.virtualRectElement) {
             this.groupElement.removeChild(this.virtualRectElement);
         }
-        for (var i = 0; i < this.controls.length; i++)
-        {
+        for (var i = 0; i < this.controls.length; i++) {
             this.controls[i].run();
         }
     }
@@ -3083,7 +3372,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
             y: (clientRect.top - editor.divContainer.offsetTop + editor.svgContainer.parentElement.scrollTop) / editor.currentScale,
             width: clientRect.width / editor.currentScale, height: clientRect.height / editor.currentScale
         };
-        
+
         for (var i = 0; i < this.pointEles.length; i++) {
             (<any>this.pointEles[i])._setLocation(this.pointEles[i], rect);
         }
@@ -3115,13 +3404,11 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
 
     //当关联的设备点值方式变化时触发
     onDevicePointValueChanged(point: any) {
-        for (var i = 0; i < this.customProperties.length; i++)
-        {
+        for (var i = 0; i < this.customProperties.length; i++) {
             var proName = this.customProperties[i];
             //如果和自定义变量对应的点一致，那么设置自定义变量值
-            if (this[proName + "_devPoint"] == point.name)
-            {
-               
+            if (this[proName + "_devPoint"] == point.name) {
+
                 this[proName + "_devPoint_addr"] = point.addr;
                 this[proName + "_devPoint_max"] = point.max;
                 this[proName + "_devPoint_min"] = point.min;
@@ -3131,7 +3418,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 var proPoint = JSON.parse(JSON.stringify(point));
                 proPoint.name = proName;
                 proPoint.isCustomProperty = true;
-                
+
                 for (var i = 0; i < this.controls.length; i++) {
                     var control = this.controls[i];
                     this.onChildrenPointValueChanged(control, proPoint);
@@ -3147,8 +3434,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
 
-    private onChildrenPointValueChanged(control, point)
-    {
+    private onChildrenPointValueChanged(control, point) {
         if (control.constructor.name == "GroupControl" ||
             control.devicePoint == ManyPointDefined || control.devicePoint == point.name) {
             if (new Date().getTime() - control.lastSetValueTime < 2000) {
@@ -3164,9 +3450,8 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
 
-    getJson()
-    {
-        var json : any = super.getJson();
+    getJson() {
+        var json: any = super.getJson();
         json.windowCode = this.windowCode;
         return json;
     }
@@ -3195,13 +3480,10 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
      * run状态下，加载自定义属性
      * @param properties
      */
-    loadCustomProperties(properties: string)
-    {
-        if (properties && properties.length > 0)
-        {
+    loadCustomProperties(properties: string) {
+        if (properties && properties.length > 0) {
             var ps = properties.split('\n');
-            for (var i = 0; i < ps.length; i++)
-            {
+            for (var i = 0; i < ps.length; i++) {
                 var name = ps[i].trim();
                 if (name.length == 0)
                     continue;
@@ -3213,8 +3495,8 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                 this[name + "_devPoint_min"] = null;
 
                 Object.defineProperty(this, name, {
-                    get: this.getFuncForCustomProperty(this,name),
-                    set: this.setFuncForCustomProperty(this,name),
+                    get: this.getFuncForCustomProperty(this, name),
+                    set: this.setFuncForCustomProperty(this, name),
                     enumerable: true,
                     configurable: true
                 });
@@ -3244,13 +3526,12 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         }
     }
 
-    private getFuncForCustomProperty(self: GroupControl, name): any
-    {
+    private getFuncForCustomProperty(self: GroupControl, name): any {
         return function () {
             return self["_" + name];
         }
     }
-    private setFuncForCustomProperty(self: GroupControl,name): any {
+    private setFuncForCustomProperty(self: GroupControl, name): any {
         return function (value) {
             if (self["_" + name] !== value) {
                 self["_" + name] = value;
@@ -3264,10 +3545,9 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
                     min: self[name + "_devPoint_min"],
                     name: name,
                     value: value,
-                    isCustomProperty:true
+                    isCustomProperty: true
                 };
-                for (var i = 0; i < self.controls.length; i++)
-                {
+                for (var i = 0; i < self.controls.length; i++) {
                     var control = self.controls[i];
                     self.onChildrenPointValueChanged(control, point);
                 }
@@ -3357,8 +3637,7 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
 
         var minLeft = 999999999;
         var minTop = 999999999;
-        for (var i = 0; i < ctrls.length; i++)
-        {
+        for (var i = 0; i < ctrls.length; i++) {
             var rect = ctrls[i].rect;
             if (rect.x < minLeft)
                 minLeft = rect.x;
@@ -3370,14 +3649,14 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         }
 
         for (var i = 0; i < this.controls.length; i++) {
-            var ctrl = this.controls[i];           
+            var ctrl = this.controls[i];
             var _rect = ctrl.rect;
 
             ctrl.rect = {
                 x: _rect.x - minLeft,
                 y: _rect.y - minTop,
                 width: _rect.width,
-                height:_rect.height
+                height: _rect.height
             };
         }
 
@@ -3390,8 +3669,7 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
             height: this.contentHeight
         };
     }
-    groupChildren()
-    {
+    groupChildren() {
         this.contentWidth = 0;
         this.contentHeight = 0;
         for (var i = 0; i < this.controls.length; i++) {
@@ -3405,20 +3683,19 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         }
         //把virtualRectElement移到最上面
         this.groupElement.removeChild(this.virtualRectElement);
-        this.groupElement.appendChild(this.virtualRectElement);        
+        this.groupElement.appendChild(this.virtualRectElement);
     }
     //解组
-    freeControls()
-    {
+    freeControls() {
         this.selected = false;
         var rect = this.rect;
         while (this.controls.length > 0) {
-            var ctrl = this.controls[0];            
+            var ctrl = this.controls[0];
             var ctrlRect = ctrl.rect;
             this.removeControl(ctrl);
 
             ctrlRect.x = rect.x + ctrlRect.x;
-            ctrlRect.y = rect.y + ctrlRect.y;            
+            ctrlRect.y = rect.y + ctrlRect.y;
             this.container.addControl(ctrl);
             ctrl.rect = ctrlRect;
         }
@@ -3440,9 +3717,9 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         var myrect: any = {};
         myrect.x = parseInt(result[1]);
         myrect.y = parseInt(result[2]);
-       
 
-       
+
+
 
         this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
@@ -3462,7 +3739,7 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         if (this.contentWidth == 0) {
             var r = this.rect;//目的是获取contentWidth
         }
-       
+
         this.virtualRectElement.setAttribute('width', <any>this.contentWidth);
         this.virtualRectElement.setAttribute('height', <any>this.contentHeight);
 
@@ -3480,11 +3757,9 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         return pros;
     }
 
-    set childScripts(scripts:string[])
-    {
+    set childScripts(scripts: string[]) {
         var my = this;
-        for (var i = 0; i < scripts.length; i++)
-        {
+        for (var i = 0; i < scripts.length; i++) {
             eval("(function(editor){" + scripts[i] + "})(my)");
         }
         this.groupChildren();
@@ -3492,7 +3767,7 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
 
     constructor() {
         super(document.createElementNS('http://www.w3.org/2000/svg', 'g'));
-       
+
         this.groupElement = this.element;
         this.groupElement.setAttribute("transform", "translate(0 0)");
 
@@ -3512,8 +3787,7 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
      * @param pointName 点名
      */
     selectByPointName(pointName: string) {
-        for (var i = 0; i < this.controls.length; i++)
-        {
+        for (var i = 0; i < this.controls.length; i++) {
             (<EditorControl>this.controls[i]).selectByPointName(pointName);
         }
     }
@@ -3574,12 +3848,11 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         if (!id || id.length == 0) {
             id = "eCtrl";
         }
-        script += id + " = new FreeGroupControl();\r\n"; 
+        script += id + " = new FreeGroupControl();\r\n";
         script += "editor.addControl(" + id + ");\r\n";
         script += id + ".id = " + JSON.stringify(this.id) + ";\r\n";
 
-        for (var i = 0; i < this.controls.length; i++)
-        {
+        for (var i = 0; i < this.controls.length; i++) {
             var childScript = this.controls[i].getScript();
             script += "(function(editor){\r\n" + childScript + "\r\n})(" + id + ");\r\n";
         }
@@ -3588,7 +3861,7 @@ class FreeGroupControl extends EditorControl implements IEditorControlContainer 
         script += id + ".groupChildren();\r\n";
         return script;
     }
-    
+
 
     onBeginMoving() {
         var rect = this.rect;

@@ -63,11 +63,7 @@
                             <TextBox Padding="2,4,0,0" Text="{Binding Desc,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="工程单位" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                            <ComboBox Padding="2,4,0,0" BorderThickness="0" Text="{Binding Unit,Mode=TwoWay}" Grid.Row="3" Grid.Column="1">
-                                <ComboBoxItem Content="mA"></ComboBoxItem>
-                                <ComboBoxItem Content="V"></ComboBoxItem>
-                                <ComboBoxItem Content="Pa"></ComboBoxItem>
-                            </ComboBox>
+                            <TextBox Padding="2,4,0,0" Text="{Binding Unit,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
 
                             <TextBlock Text="初始值" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"></TextBlock>
                             <TextBox Padding="2,4,0,0" Text="{Binding InitValue,Mode=TwoWay}" BorderThickness="0" Grid.Row="4" Grid.Column="1"></TextBox>

@@ -77,6 +77,10 @@ namespace SunRizStudio.Dialogs
                             startupWindow.Content = doc;
                             startupWindow.Owner = this.GetParentByName<Window>(null);
                             startupWindow.GoFullscreen();
+                            startupWindow.Closed += (s, e2) => {
+                                bool c = false;
+                                doc.OnClose(ref c);
+                            };
                             startupWindow.Show();
                             App.Current.MainWindow = startupWindow;
                             App.Current.MainWindow.Closed += MainWindow_Closed;

@@ -53,7 +53,7 @@ class PropertyDialog
         for (var i = 0; i < pNames.length; i++)
         {
             var value = control[pNames[i]];
-            if (typeof value == "undefined")
+            if (typeof value == "undefined" || (typeof value == "number" && isNaN(value)))
                 value = "";
 
             var row = document.createElement("DIV");

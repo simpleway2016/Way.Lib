@@ -24,6 +24,7 @@ namespace SunRizStudio.Documents
     /// </summary>
     public partial class ControlWindowDocument : BaseDocument
     {
+        Action _loadCompleteTask = null;
         static bool InitFireFoxed = false;
         GeckoWebBrowser _gecko;
         Window fullScreenWindow = null;
@@ -267,6 +268,10 @@ namespace SunRizStudio.Documents
                     {
                         window.ResizeMode = ResizeMode.NoResize;
                     }
+                    window.Closed += (s, e) => {
+                        bool c = false;
+                        doc.OnClose(ref c);
+                    };
                     window.Show();
                 }
             }, windowCode);
@@ -339,6 +344,10 @@ namespace SunRizStudio.Documents
             fullScreenWindow.Content = doc;
             fullScreenWindow.Owner = this.GetParentByName<Window>(null);            
             fullScreenWindow.GoFullscreen();
+            fullScreenWindow.Closed += (s, e) => {
+                bool cancel = false;
+                doc.OnClose(ref cancel);
+            };
             fullScreenWindow.ShowDialog();
 
         }
@@ -540,6 +549,7 @@ namespace SunRizStudio.Documents
                 client.NetClient.Close();
             }
             _gecko.Dispose();
+
             base.OnClose(ref canceled);
         }
 
@@ -643,8 +653,12 @@ namespace SunRizStudio.Documents
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
         {
-
-            // progressBar1.Value = 0;
+           if(_loadCompleteTask != null)
+            {
+                _loadCompleteTask();
+                _loadCompleteTask = null;
+                MessageBox.Show("done");
+            }
         }
 
         private void Gecko_CreateWindow(object sender, GeckoCreateWindowEventArgs e)
