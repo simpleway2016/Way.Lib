@@ -7,6 +7,8 @@ function rgb(r, g, b) {
 }
 var PropertyDialog = (function () {
     function PropertyDialog(control) {
+        var _this = this;
+        this.isShowed = false;
         this.control = control;
         var captions = control.getPropertiesCaption();
         var pNames = control.getProperties();
@@ -104,9 +106,25 @@ var PropertyDialog = (function () {
         this.rootElement.className = "propertyDialog";
         this.rootElement.style.cursor = "move";
         this.setRootEvent();
+        this.documentClickEvent = function (e) { return _this._documentElementClick(e); };
+        document.documentElement.addEventListener("click", this.documentClickEvent, false);
     }
+    PropertyDialog.prototype._documentElementClick = function (e) {
+        var ele = e.target;
+        while (ele.tagName != "BODY") {
+            if (ele == this.rootElement) {
+                return;
+            }
+            else {
+                ele = ele.parentElement;
+            }
+        }
+        this.hide();
+    };
     PropertyDialog.prototype.dispose = function () {
+        this.isShowed = false;
         this.rootElement.parentElement.removeChild(this.rootElement);
+        document.documentElement.removeEventListener("click", this.documentClickEvent, false);
     };
     PropertyDialog.prototype.setPointItemEvent = function (ele) {
         ele.addEventListener("focus", function (e) {
@@ -180,6 +198,7 @@ var PropertyDialog = (function () {
                 undo.redo();
                 editor.undoMgr.addUndo(undo);
                 editor.changed = true;
+                _this.control.onPropertyDialogTextChanged(input._name);
             }, false);
             return;
         }
@@ -205,6 +224,7 @@ var PropertyDialog = (function () {
                         alert(e.message);
                     }
                     editor.changed = true;
+                    el._control.onPropertyDialogTextChanged(input._name);
                 }
             });
         }
@@ -232,13 +252,18 @@ var PropertyDialog = (function () {
                 }
                 editor.changed = true;
             }, false);
+            input.addEventListener("change", function (e) {
+                _this.control.onPropertyDialogTextChanged(input._name);
+            }, false);
         }
     };
     PropertyDialog.prototype.hide = function () {
+        this.isShowed = false;
         editor.editingPointTextbox = null;
         this.rootElement.style.visibility = "hidden";
     };
     PropertyDialog.prototype.show = function () {
+        this.isShowed = true;
         var rect = this.control.rect;
         if (!rect) {
             rect = {

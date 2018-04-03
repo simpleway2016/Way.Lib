@@ -1,6 +1,8 @@
 ﻿var AllSelectedControls: EditorControl[] = [];
 declare var editor: Editor;
 declare var Pikaday;
+declare function addPointToWatch(pointName:string);
+
 var ManyPointDefined = 999999;//表示EditorControl是否绑定了多个point
 var WatchPointNames: any = [];
 var menuDiv1: HTMLElement = null;
@@ -93,8 +95,13 @@ class EditorControl {
         }, false);
 
         (<HTMLElement>this.element).addEventListener("dblclick", (e) => {
-            if (this.isInGroup || !this.container || !this.isDesignMode)
+            if (this.isDesignMode == false && this.supportPropertyDialogOnRunTime)
+            {
+                //运行时支持属性对话框，那么可以打开对话框
+            }
+            else if (this.isInGroup || !this.container || !this.isDesignMode)
                 return;
+
             e.stopPropagation();
             this.showProperty();
         }, false);
@@ -211,6 +218,12 @@ class EditorControl {
         }, false);
     }
 
+    //运行时是否支持属性对话框
+    protected get supportPropertyDialogOnRunTime()
+    {
+        return false;
+    }
+
     getPropertiesCaption(): string[] {
         return null;
     }
@@ -230,6 +243,14 @@ class EditorControl {
      * @param devPoint
      */
     onDevicePointValueChanged(devPoint: any) {
+
+    }
+
+    /**
+     * 当属性编辑器，input  select 发生变化后触发
+     * @param propertyName
+     */
+    onPropertyDialogTextChanged(propertyName: string) {
 
     }
 
@@ -853,7 +874,7 @@ class RectControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     /**
@@ -974,7 +995,7 @@ class EllipseControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
 
@@ -1095,7 +1116,7 @@ class CircleControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
 
@@ -1273,7 +1294,7 @@ class TextControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     onDevicePointValueChanged(devPoint: any) {
@@ -1546,7 +1567,7 @@ class CylinderControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
 
@@ -1704,6 +1725,9 @@ class TrendControl extends EditorControl {
     pathElement11: SVGPathElement;
     pathElement12: SVGPathElement;
 
+    protected get supportPropertyDialogOnRunTime() {
+        return true;
+    }
 
     values1: any[] = [];
     values2: any[] = [];
@@ -2037,7 +2061,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint1(v) {
         this._devicePoint1 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint2: string = "";
@@ -2046,7 +2070,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint2(v) {
         this._devicePoint2 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint3: string = "";
@@ -2055,7 +2079,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint3(v) {
         this._devicePoint3 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint4: string = "";
@@ -2064,7 +2088,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint4(v) {
         this._devicePoint4 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint5: string = "";
@@ -2073,7 +2097,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint5(v) {
         this._devicePoint5 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint6: string = "";
@@ -2082,7 +2106,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint6(v) {
         this._devicePoint6 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint7: string = "";
@@ -2091,7 +2115,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint7(v) {
         this._devicePoint7 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint8: string = "";
@@ -2100,7 +2124,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint8(v) {
         this._devicePoint8 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint9: string = "";
@@ -2109,7 +2133,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint9(v) {
         this._devicePoint9 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint10: string = "";
@@ -2118,7 +2142,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint10(v) {
         this._devicePoint10 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint11: string = "";
@@ -2127,7 +2151,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint11(v) {
         this._devicePoint11 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     _devicePoint12: string = "";
@@ -2136,7 +2160,7 @@ class TrendControl extends EditorControl {
     }
     set devicePoint12(v) {
         this._devicePoint12 = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
     onDevicePointValueChanged(devPoint: any) {
@@ -2146,13 +2170,13 @@ class TrendControl extends EditorControl {
                 number = i;
 
                 if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number]))) {
-                    this["max" + number] = devPoint.max;                   
+                    this["max" + number] = devPoint.max;
                 }
 
                 if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
                     this["min" + number] = devPoint.min;
 
-               
+
 
                 if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
                     this["colorLine" + number] = devPoint["colorLine" + number];
@@ -2162,7 +2186,7 @@ class TrendControl extends EditorControl {
                 this["value" + number] = devPoint.value;
             }
         }
-       
+
     }
 
     running: boolean = false;
@@ -2189,10 +2213,13 @@ class TrendControl extends EditorControl {
         //text元素需要加上17个像素，这是固定值
         this.textGroupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
 
+        if (this.isDesignMode) {
+            this.resetXYLines(v, 10, 10, 10, 10);
+        }
         this.resetPointLocation();
     }
 
-   
+
 
     get colorFill() {
         return this.rectElement.style.fill;
@@ -2285,12 +2312,11 @@ class TrendControl extends EditorControl {
             (<any>this)._Minutes = 10;
         return (<any>this)._Minutes;
     }
-    set Minutes(v: number)
-    {
+    set Minutes(v: number) {
         (<any>this)._Minutes = v;
     }
     getPropertiesCaption(): string[] {
-        var arr = ["id", "背景颜色", "量程线颜色","显示时间(分钟)"];
+        var arr = ["id", "背景颜色", "量程线颜色", "显示时间(分钟)"];
         for (var i = 1; i <= 12; i++) {
             arr.push("趋势颜色" + i);
             arr.push("设备点" + i);
@@ -2300,7 +2326,7 @@ class TrendControl extends EditorControl {
         return arr;
     }
     getProperties(): string[] {
-        var arr = ["id", "colorFill", "colorLineLeftBottom","Minutes"];
+        var arr = ["id", "colorFill", "colorLineLeftBottom", "Minutes"];
         for (var i = 1; i <= 12; i++) {
             arr.push("colorLine" + i);
             arr.push("devicePoint" + i);
@@ -2343,6 +2369,22 @@ class TrendControl extends EditorControl {
         return this.isIntersect(this.rect, rect);
     }
 
+    /**
+     * 当属性编辑器，input  select 发生变化后触发
+     * @param propertyName
+     */
+    onPropertyDialogTextChanged(propertyName: string) {
+        if (!this.isDesignMode)
+        {
+            if (propertyName.indexOf("devicePoint") == 0) {
+                //在运行时，修改点名，那么，调用editor.html里面的addPointToWatch，把这个点加入实时监测队列
+                var pointName = this[propertyName];
+                if (pointName && pointName.length > 0) {
+                    addPointToWatch(this[propertyName]);
+                }
+            }
+        }
+    }
 
     //开始画趋势图,values表示已经有的变化值 value结构{ value:12 , time:1221212 }
     run() {
@@ -2464,13 +2506,12 @@ class TrendControl extends EditorControl {
      * @param fontSize
      * @param isRightAlign 如果true，那就右对齐到x值上
      */
-    private addText(text, color, x, y, fontSize): SVGTextElement
-    {
-        var txtEle = document.createElementNS('http://www.w3.org/2000/svg', 'text');       
+    protected addText(text, color, x, y, fontSize): SVGTextElement {
+        var txtEle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         txtEle.textContent = text;
         txtEle.setAttribute("x", x);
         txtEle.setAttribute("y", y);
-        txtEle.setAttribute('style', 'fill:' + color +';cursor:default;-moz-user-select:none;visibility:hidden;');
+        txtEle.setAttribute('style', 'fill:' + color + ';cursor:default;-moz-user-select:none;visibility:hidden;');
         txtEle.setAttribute('font-size', fontSize);
         this.textGroupElement.appendChild(txtEle);
         return txtEle;
@@ -2482,7 +2523,7 @@ class TrendControl extends EditorControl {
     // 例子：   
     // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423   
     // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18   
-    private formatTime(date: Date, fmt) { //author: meizz   
+    protected formatTime(date: Date, fmt) { //author: meizz   
         var o = {
             "M+": date.getMonth() + 1,                 //月份   
             "d+": date.getDate(),                    //日   
@@ -2498,7 +2539,7 @@ class TrendControl extends EditorControl {
             if (new RegExp("(" + k + ")").test(fmt))
                 fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
         return fmt;
-    }  
+    }
 
     //重画趋势图
     reDrawTrend() {
@@ -2506,19 +2547,18 @@ class TrendControl extends EditorControl {
         var rightMargin = 10;
         var bottomMargin = 30;
         var topMargin = 10;
-        var secondPixel;
+        
         var txtHeight;
         var fontSize = 12;
 
-        if (true)
-        {
+        var secondPixel;
+
+        if (true) {
             //计算y轴刻度最大值
             var maxValue = 0;
-            for (var i = 1; i <= 12; i++)
-            {
+            for (var i = 1; i <= 12; i++) {
                 var value = this.getMax(i);
-                if (value > maxValue)
-                {
+                if (value > maxValue) {
                     maxValue = value;
                 }
             }
@@ -2542,7 +2582,7 @@ class TrendControl extends EditorControl {
         var seconds = this.Minutes * 60;
         secondPixel = panelWidth / seconds;
         if (secondPixel < 1)
-            secondPixel = 1;       
+            secondPixel = 1;
 
         var now = new Date().getTime();
 
@@ -2627,18 +2667,16 @@ class TrendControl extends EditorControl {
                 txtEle.style.visibility = "";
 
                 x -= txtWidth + 8;
-                if (x <= leftMargin)
-                {
+                if (x <= leftMargin) {
                     //这个已经超标，把它移除掉
                     //this.textGroupElement.removeChild(this.textGroupElement.children[this.textGroupElement.children.length - 1]);
                     break;
-                }                    
+                }
             }
 
             //画出x轴刻度
             x = leftMargin + 30;
-            while (true)
-            {
+            while (true) {
                 var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 lineEle.setAttribute("x1", <any>x);
                 lineEle.setAttribute("y1", <any>(rect.height - bottomMargin));
@@ -2652,9 +2690,9 @@ class TrendControl extends EditorControl {
                     break;
                 }
             }
-        }       
+        }
 
-     
+
         for (var k = 1; k <= 12; k++) {
 
             var valueArr: any[] = this["values" + k];
@@ -2808,23 +2846,22 @@ class HistoryTrendControl extends TrendControl {
         for (var i = 1; i <= 12; i++) {
             if (devPoint.name == this["devicePoint" + i]) {
                 number = i;
-                break;
+
+                if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number]))) {
+                    this["max" + number] = devPoint.max;
+                }
+
+                if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
+                    this["min" + number] = devPoint.min;
+
+
+
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = devPoint["colorLine" + number];
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = "#ffffff";
             }
         }
-        if (number == 0)
-            return;
-
-        if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number])))
-            this["max" + number] = devPoint.max;
-
-        if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
-            this["min" + number] = devPoint.min;
-
-
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = devPoint["colorLine" + number];
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = "#ffffff";
     }
 
     /**
@@ -2899,7 +2936,14 @@ class HistoryTrendControl extends TrendControl {
         ]
      */
     setData(startTime: Date, endTime: Date, datas: any[]) {
-        var rect = this.rect;
+        var leftMargin = 30;
+        var rightMargin = 10;
+        var bottomMargin = 30;
+        var topMargin = 10;
+
+        var txtHeight;
+        var fontSize = 12;
+
         //计算一共有多少秒
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
 
@@ -2907,6 +2951,138 @@ class HistoryTrendControl extends TrendControl {
         var secsPerPixel = parseInt(<any>(totalSeconds / (rect.width - 20)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
+
+        if (true) {
+            //计算y轴刻度最大值
+            var maxValue = 0;
+            for (var i = 1; i <= 12; i++) {
+                var value = this.getMax(i);
+                if (value > maxValue) {
+                    maxValue = value;
+                }
+            }
+            //得到最大值量程的字符宽度
+            var txtEle = this.addText(maxValue.toString(), "red", 0, 0, fontSize);
+            var txtRect = txtEle.getBoundingClientRect();
+            txtHeight = txtRect.height;
+            leftMargin = txtRect.width + 15;
+        }
+
+        var rect = this.rect;
+
+        this.resetXYLines(rect, leftMargin, rightMargin, topMargin, bottomMargin);
+        //先清空textGroupElement
+        this.textGroupElement.innerHTML = "";
+
+
+        if (true) {
+            //画出y轴刻度线
+            var x = leftMargin;
+            var y = rect.height - bottomMargin - 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", <any>(leftMargin - 5));
+                lineEle.setAttribute("y1", <any>y);
+                lineEle.setAttribute("x2", <any>leftMargin);
+                lineEle.setAttribute("y2", <any>y);
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+
+                y -= 30;
+                if (y <= topMargin) {
+                    break;
+                }
+            }
+
+            //画出y轴刻度值
+
+            //写出最大量程
+            var cury = topMargin;
+            for (var i = 0; i < 12; i++) {
+                var max = this["max" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(max, this["colorLine" + (i + 1)], 0, cury + 10, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", <any>(leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+
+                    cury += txtRect.height - 5;
+
+                    if (cury > rect.height - bottomMargin)
+                        break;
+                }
+            }
+
+            //写出最小量程
+            var cury = rect.height - bottomMargin;
+            for (var i = 11; i >= 0; i--) {
+                var max = this["max" + (i + 1)];
+                var min = this["min" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(min, this["colorLine" + (i + 1)], 0, cury, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", <any>(leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+
+                    cury -= txtRect.height - 5;
+
+                    if (cury <= topMargin)
+                        break;
+                }
+            }
+
+        }
+
+        //确定了每秒所占空间，就可以绘制刻度了
+        //绘制x轴时间刻度
+        if (true) {
+            var curTime = new Date();
+            var timeText = "2018-01-01 01:01:01";
+            var x = rect.width - rightMargin;
+            var y = rect.height - bottomMargin + 3;
+            while (true) {
+                //text元素固定要+17，y定位才准确
+                var txtEle = this.addText(timeText, this.colorLineLeftBottom, x, y + 17, fontSize);
+                var txtWidth = txtEle.getBoundingClientRect().width;
+
+                //计算这个text对应的时间，取文字中间距离
+                var left = x - txtWidth / 2;
+                 //算出多少秒
+                var mySeconds = (rect.width - rightMargin - left) * secsPerPixel;              
+
+                curTime = new Date(endTime.getTime() - mySeconds * 1000);
+                txtEle.textContent = this.formatTime(curTime, "yyyy-MM-dd hh:mm:ss");
+                txtEle.setAttribute("x", <any>(x - txtWidth));
+                txtEle.style.visibility = "";
+
+                x -= txtWidth + 8;
+                if (x <= leftMargin) {
+                    //这个已经超标，把它移除掉
+                    //this.textGroupElement.removeChild(this.textGroupElement.children[this.textGroupElement.children.length - 1]);
+                    break;
+                }
+            }
+
+            //画出x轴刻度
+            x = leftMargin + 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", <any>x);
+                lineEle.setAttribute("y1", <any>(rect.height - bottomMargin));
+                lineEle.setAttribute("x2", <any>x);
+                lineEle.setAttribute("y2", <any>(rect.height - bottomMargin + 5));
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+
+                x += 30;
+                if (x > rect.width - rightMargin) {
+                    break;
+                }
+            }
+        }
+
+
+        
 
         //把值按照像素分析出来
         var curPointLineResults = [];
@@ -2924,7 +3100,7 @@ class HistoryTrendControl extends TrendControl {
 
             var dataStartSecs = startTime.getTime() / 1000;
             var dataEndSecs = dataStartSecs + secsPerPixel - 1;
-            for (var j = 0; j < rect.width - 20; j++) {
+            for (var j = 0; j < rect.width - leftMargin - rightMargin; j++) {
                 var valueResult = this.parseData(dataStartSecs, dataEndSecs, pointDatas);
                 lineResult.datas.push(valueResult);
 
@@ -2949,7 +3125,7 @@ class HistoryTrendControl extends TrendControl {
             var dataStr = "";
             var position = 0;
 
-            var lastY = rect.height - 10;
+            var lastY = rect.height - bottomMargin;
 
             for (var j = 0; j < lineObject.datas.length; j++) {
                 var valueItem = lineObject.datas[j];
@@ -2958,16 +3134,16 @@ class HistoryTrendControl extends TrendControl {
                 }
 
                 dataStr += dataStr.length == 0 ? "M" : "L";
-                dataStr += (j + 10) + " " + lastY + " ";
+                dataStr += (j + leftMargin) + " " + lastY + " ";
 
                 if (valueItem.maxValue != null) {
                     //转换成y值
                     var percent = 1 - (valueItem.maxValue - min) / (max - min);
-                    var y = 10 + (rect.height - 20) * percent;
-                    if (y < 10)
-                        y = 10;
-                    else if (y > rect.height - 10)
-                        y = rect.height - 10;
+                    var y = topMargin + (rect.height - topMargin - bottomMargin) * percent;
+                    if (y < topMargin)
+                        y = topMargin;
+                    else if (y > rect.height - bottomMargin)
+                        y = rect.height - bottomMargin;
 
                     valueItem.maxValueY = y;
                 }
@@ -2975,33 +3151,33 @@ class HistoryTrendControl extends TrendControl {
                 if (valueItem.minValue != null) {
                     //转换成y值
                     var percent = 1 - (valueItem.minValue - min) / (max - min);
-                    var y = 10 + (rect.height - 20) * percent;
-                    if (y < 10)
-                        y = 10;
-                    else if (y > rect.height - 10)
-                        y = rect.height - 10;
+                    var y = topMargin + (rect.height - topMargin - bottomMargin) * percent;
+                    if (y < topMargin)
+                        y = topMargin;
+                    else if (y > rect.height - bottomMargin)
+                        y = rect.height - bottomMargin;
 
                     valueItem.minValueY = y;
                 }
 
                 if (valueItem.minValueBefore && valueItem.minValue != null) {
                     //小值在前面
-                    dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
+                    dataStr += "L" + (j + leftMargin) + " " + valueItem.minValueY + " ";
                     lastY = valueItem.minValueY;
 
                     if (valueItem.maxValue != null) {
-                        dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
+                        dataStr += "L" + (j + leftMargin) + " " + valueItem.maxValueY + " ";
                         lastY = valueItem.maxValueY;
                     }
 
                 }
                 else if (valueItem.minValueBefore == false && valueItem.maxValue != null) {
                     //大值在前面
-                    dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
+                    dataStr += "L" + (j + leftMargin) + " " + valueItem.maxValueY + " ";
                     lastY = valueItem.maxValueY;
 
                     if (valueItem.minValueY != null) {
-                        dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
+                        dataStr += "L" + (j + leftMargin) + " " + valueItem.minValueY + " ";
                         lastY = valueItem.minValueY;
                     }
 
@@ -3011,7 +3187,7 @@ class HistoryTrendControl extends TrendControl {
 
             if (dataStr.length > 0) {
                 //延伸到最后              
-                dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
+                dataStr += "L" + (rect.width - rightMargin) + " " + lastY + " ";
             }
 
             this["pathElement" + (i + 1)].setAttribute("d", dataStr);
@@ -3048,7 +3224,7 @@ class ButtonAreaControl extends EditorControl {
     }
     set devicePoint(v) {
         this._devicePoint = v;
-        if (WatchPointNames.indexOf(v) < 0)
+        if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
             WatchPointNames.push(v);
     }
 
@@ -3520,7 +3696,7 @@ class GroupControl extends EditorControl implements IEditorControlContainer {
         return function (v) {
             if (self["_" + name] !== v) {
                 self["_" + name] = v;
-                if (WatchPointNames.indexOf(v) < 0)
+                if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                     WatchPointNames.push(v);
             }
         }

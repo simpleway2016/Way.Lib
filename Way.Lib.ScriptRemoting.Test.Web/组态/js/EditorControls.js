@@ -43,7 +43,9 @@ var EditorControl = (function () {
             e.stopPropagation();
         }, false);
         this.element.addEventListener("dblclick", function (e) {
-            if (_this.isInGroup || !_this.container || !_this.isDesignMode)
+            if (_this.isDesignMode == false && _this.supportPropertyDialogOnRunTime) {
+            }
+            else if (_this.isInGroup || !_this.container || !_this.isDesignMode)
                 return;
             e.stopPropagation();
             _this.showProperty();
@@ -197,6 +199,13 @@ var EditorControl = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(EditorControl.prototype, "supportPropertyDialogOnRunTime", {
+        get: function () {
+            return false;
+        },
+        enumerable: true,
+        configurable: true
+    });
     EditorControl.prototype.getPropertiesCaption = function () {
         return null;
     };
@@ -207,6 +216,8 @@ var EditorControl = (function () {
         this.isDesignMode = false;
     };
     EditorControl.prototype.onDevicePointValueChanged = function (devPoint) {
+    };
+    EditorControl.prototype.onPropertyDialogTextChanged = function (propertyName) {
     };
     EditorControl.prototype.getJson = function () {
         var obj = {
@@ -763,7 +774,7 @@ var RectControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -891,7 +902,7 @@ var EllipseControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -1017,7 +1028,7 @@ var CircleControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -1203,7 +1214,7 @@ var TextControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -1487,7 +1498,7 @@ var CylinderControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -1668,6 +1679,13 @@ var TrendControl = (function (_super) {
         _this.devicePoint = ManyPointDefined;
         return _this;
     }
+    Object.defineProperty(TrendControl.prototype, "supportPropertyDialogOnRunTime", {
+        get: function () {
+            return true;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(TrendControl.prototype, "value1", {
         get: function () {
             return this._value1;
@@ -2118,7 +2136,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint1 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2130,7 +2148,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint2 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2142,7 +2160,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint3 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2154,7 +2172,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint4 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2166,7 +2184,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint5 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2178,7 +2196,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint6 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2190,7 +2208,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint7 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2202,7 +2220,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint8 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2214,7 +2232,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint9 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2226,7 +2244,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint10 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2238,7 +2256,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint11 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2250,7 +2268,7 @@ var TrendControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint12 = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -2291,6 +2309,9 @@ var TrendControl = (function (_super) {
             for (var i = 1; i <= 12; i++)
                 this["pathElement" + i].setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
             this.textGroupElement.setAttribute("transform", "translate(" + v.x + " " + v.y + ")");
+            if (this.isDesignMode) {
+                this.resetXYLines(v, 10, 10, 10, 10);
+            }
             this.resetPointLocation();
         },
         enumerable: true,
@@ -2472,6 +2493,16 @@ var TrendControl = (function (_super) {
     TrendControl.prototype.isIntersectWith = function (rect) {
         return this.isIntersect(this.rect, rect);
     };
+    TrendControl.prototype.onPropertyDialogTextChanged = function (propertyName) {
+        if (!this.isDesignMode) {
+            if (propertyName.indexOf("devicePoint") == 0) {
+                var pointName = this[propertyName];
+                if (pointName && pointName.length > 0) {
+                    addPointToWatch(this[propertyName]);
+                }
+            }
+        }
+    };
     TrendControl.prototype.run = function () {
         var _this = this;
         _super.prototype.run.call(this);
@@ -2598,9 +2629,9 @@ var TrendControl = (function (_super) {
         var rightMargin = 10;
         var bottomMargin = 30;
         var topMargin = 10;
-        var secondPixel;
         var txtHeight;
         var fontSize = 12;
+        var secondPixel;
         if (true) {
             var maxValue = 0;
             for (var i = 1; i <= 12; i++) {
@@ -2831,19 +2862,17 @@ var HistoryTrendControl = (function (_super) {
         for (var i = 1; i <= 12; i++) {
             if (devPoint.name == this["devicePoint" + i]) {
                 number = i;
-                break;
+                if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number]))) {
+                    this["max" + number] = devPoint.max;
+                }
+                if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
+                    this["min" + number] = devPoint.min;
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = devPoint["colorLine" + number];
+                if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
+                    this["colorLine" + number] = "#ffffff";
             }
         }
-        if (number == 0)
-            return;
-        if (devPoint.max != null && (typeof this["max" + number] == "undefined" || isNaN(this["max" + number])))
-            this["max" + number] = devPoint.max;
-        if (devPoint.max != null && (typeof this["min" + number] == "undefined" || isNaN(this["min" + number])))
-            this["min" + number] = devPoint.min;
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = devPoint["colorLine" + number];
-        if (!this["colorLine" + number] || this["colorLine" + number].length == 0)
-            this["colorLine" + number] = "#ffffff";
     };
     HistoryTrendControl.prototype.parseData = function (dataStartSecs, dataEndSecs, valueDatas) {
         var result = {
@@ -2877,11 +2906,110 @@ var HistoryTrendControl = (function (_super) {
         return result;
     };
     HistoryTrendControl.prototype.setData = function (startTime, endTime, datas) {
-        var rect = this.rect;
+        var leftMargin = 30;
+        var rightMargin = 10;
+        var bottomMargin = 30;
+        var topMargin = 10;
+        var txtHeight;
+        var fontSize = 12;
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
         var secsPerPixel = parseInt((totalSeconds / (rect.width - 20)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
+        if (true) {
+            var maxValue = 0;
+            for (var i = 1; i <= 12; i++) {
+                var value = this.getMax(i);
+                if (value > maxValue) {
+                    maxValue = value;
+                }
+            }
+            var txtEle = this.addText(maxValue.toString(), "red", 0, 0, fontSize);
+            var txtRect = txtEle.getBoundingClientRect();
+            txtHeight = txtRect.height;
+            leftMargin = txtRect.width + 15;
+        }
+        var rect = this.rect;
+        this.resetXYLines(rect, leftMargin, rightMargin, topMargin, bottomMargin);
+        this.textGroupElement.innerHTML = "";
+        if (true) {
+            var x = leftMargin;
+            var y = rect.height - bottomMargin - 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", (leftMargin - 5));
+                lineEle.setAttribute("y1", y);
+                lineEle.setAttribute("x2", leftMargin);
+                lineEle.setAttribute("y2", y);
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+                y -= 30;
+                if (y <= topMargin) {
+                    break;
+                }
+            }
+            var cury = topMargin;
+            for (var i = 0; i < 12; i++) {
+                var max = this["max" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(max, this["colorLine" + (i + 1)], 0, cury + 10, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", (leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+                    cury += txtRect.height - 5;
+                    if (cury > rect.height - bottomMargin)
+                        break;
+                }
+            }
+            var cury = rect.height - bottomMargin;
+            for (var i = 11; i >= 0; i--) {
+                var max = this["max" + (i + 1)];
+                var min = this["min" + (i + 1)];
+                if (max > 0) {
+                    var txtEle = this.addText(min, this["colorLine" + (i + 1)], 0, cury, fontSize);
+                    var txtRect = txtEle.getBoundingClientRect();
+                    txtEle.setAttribute("x", (leftMargin - 4 - txtRect.width));
+                    txtEle.style.visibility = "";
+                    cury -= txtRect.height - 5;
+                    if (cury <= topMargin)
+                        break;
+                }
+            }
+        }
+        if (true) {
+            var curTime = new Date();
+            var timeText = "2018-01-01 01:01:01";
+            var x = rect.width - rightMargin;
+            var y = rect.height - bottomMargin + 3;
+            while (true) {
+                var txtEle = this.addText(timeText, this.colorLineLeftBottom, x, y + 17, fontSize);
+                var txtWidth = txtEle.getBoundingClientRect().width;
+                var left = x - txtWidth / 2;
+                var mySeconds = (rect.width - rightMargin - left) * secsPerPixel;
+                curTime = new Date(endTime.getTime() - mySeconds * 1000);
+                txtEle.textContent = this.formatTime(curTime, "yyyy-MM-dd hh:mm:ss");
+                txtEle.setAttribute("x", (x - txtWidth));
+                txtEle.style.visibility = "";
+                x -= txtWidth + 8;
+                if (x <= leftMargin) {
+                    break;
+                }
+            }
+            x = leftMargin + 30;
+            while (true) {
+                var lineEle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineEle.setAttribute("x1", x);
+                lineEle.setAttribute("y1", (rect.height - bottomMargin));
+                lineEle.setAttribute("x2", x);
+                lineEle.setAttribute("y2", (rect.height - bottomMargin + 5));
+                lineEle.setAttribute('style', 'stroke:' + this.colorLineLeftBottom + ';stroke-width:2;');
+                this.textGroupElement.appendChild(lineEle);
+                x += 30;
+                if (x > rect.width - rightMargin) {
+                    break;
+                }
+            }
+        }
         var curPointLineResults = [];
         for (var i = 0; i < 12; i++) {
             var lineResult = {
@@ -2896,7 +3024,7 @@ var HistoryTrendControl = (function (_super) {
                 break;
             var dataStartSecs = startTime.getTime() / 1000;
             var dataEndSecs = dataStartSecs + secsPerPixel - 1;
-            for (var j = 0; j < rect.width - 20; j++) {
+            for (var j = 0; j < rect.width - leftMargin - rightMargin; j++) {
                 var valueResult = this.parseData(dataStartSecs, dataEndSecs, pointDatas);
                 lineResult.datas.push(valueResult);
                 dataStartSecs += secsPerPixel;
@@ -2916,51 +3044,51 @@ var HistoryTrendControl = (function (_super) {
                 };
             var dataStr = "";
             var position = 0;
-            var lastY = rect.height - 10;
+            var lastY = rect.height - bottomMargin;
             for (var j = 0; j < lineObject.datas.length; j++) {
                 var valueItem = lineObject.datas[j];
                 if (valueItem == null) {
                     continue;
                 }
                 dataStr += dataStr.length == 0 ? "M" : "L";
-                dataStr += (j + 10) + " " + lastY + " ";
+                dataStr += (j + leftMargin) + " " + lastY + " ";
                 if (valueItem.maxValue != null) {
                     var percent = 1 - (valueItem.maxValue - min) / (max - min);
-                    var y = 10 + (rect.height - 20) * percent;
-                    if (y < 10)
-                        y = 10;
-                    else if (y > rect.height - 10)
-                        y = rect.height - 10;
+                    var y = topMargin + (rect.height - topMargin - bottomMargin) * percent;
+                    if (y < topMargin)
+                        y = topMargin;
+                    else if (y > rect.height - bottomMargin)
+                        y = rect.height - bottomMargin;
                     valueItem.maxValueY = y;
                 }
                 if (valueItem.minValue != null) {
                     var percent = 1 - (valueItem.minValue - min) / (max - min);
-                    var y = 10 + (rect.height - 20) * percent;
-                    if (y < 10)
-                        y = 10;
-                    else if (y > rect.height - 10)
-                        y = rect.height - 10;
+                    var y = topMargin + (rect.height - topMargin - bottomMargin) * percent;
+                    if (y < topMargin)
+                        y = topMargin;
+                    else if (y > rect.height - bottomMargin)
+                        y = rect.height - bottomMargin;
                     valueItem.minValueY = y;
                 }
                 if (valueItem.minValueBefore && valueItem.minValue != null) {
-                    dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
+                    dataStr += "L" + (j + leftMargin) + " " + valueItem.minValueY + " ";
                     lastY = valueItem.minValueY;
                     if (valueItem.maxValue != null) {
-                        dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
+                        dataStr += "L" + (j + leftMargin) + " " + valueItem.maxValueY + " ";
                         lastY = valueItem.maxValueY;
                     }
                 }
                 else if (valueItem.minValueBefore == false && valueItem.maxValue != null) {
-                    dataStr += "L" + (j + 10) + " " + valueItem.maxValueY + " ";
+                    dataStr += "L" + (j + leftMargin) + " " + valueItem.maxValueY + " ";
                     lastY = valueItem.maxValueY;
                     if (valueItem.minValueY != null) {
-                        dataStr += "L" + (j + 10) + " " + valueItem.minValueY + " ";
+                        dataStr += "L" + (j + leftMargin) + " " + valueItem.minValueY + " ";
                         lastY = valueItem.minValueY;
                     }
                 }
             }
             if (dataStr.length > 0) {
-                dataStr += "L" + (rect.width - 10) + " " + lastY + " ";
+                dataStr += "L" + (rect.width - rightMargin) + " " + lastY + " ";
             }
             this["pathElement" + (i + 1)].setAttribute("d", dataStr);
         }
@@ -3006,7 +3134,7 @@ var ButtonAreaControl = (function (_super) {
         },
         set: function (v) {
             this._devicePoint = v;
-            if (WatchPointNames.indexOf(v) < 0)
+            if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                 WatchPointNames.push(v);
         },
         enumerable: true,
@@ -3421,7 +3549,7 @@ var GroupControl = (function (_super) {
         return function (v) {
             if (self["_" + name] !== v) {
                 self["_" + name] = v;
-                if (WatchPointNames.indexOf(v) < 0)
+                if ((!this.propertyDialog || this.propertyDialog.isShowed == false) && WatchPointNames.indexOf(v) < 0)
                     WatchPointNames.push(v);
             }
         };

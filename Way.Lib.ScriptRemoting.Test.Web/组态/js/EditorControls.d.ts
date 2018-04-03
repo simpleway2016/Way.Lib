@@ -1,6 +1,7 @@
 declare var AllSelectedControls: EditorControl[];
 declare var editor: Editor;
 declare var Pikaday: any;
+declare function addPointToWatch(pointName: string): any;
 declare var ManyPointDefined: number;
 declare var WatchPointNames: any;
 declare var menuDiv1: HTMLElement;
@@ -24,10 +25,12 @@ declare class EditorControl {
     private mouseDownY;
     private undoMoveObj;
     constructor(element: any);
+    protected readonly supportPropertyDialogOnRunTime: boolean;
     getPropertiesCaption(): string[];
     getProperties(): string[];
     run(): void;
     onDevicePointValueChanged(devPoint: any): void;
+    onPropertyDialogTextChanged(propertyName: string): void;
     getJson(): {
         rect: any;
         constructorName: any;
@@ -234,6 +237,7 @@ declare class TrendControl extends EditorControl {
     pathElement10: SVGPathElement;
     pathElement11: SVGPathElement;
     pathElement12: SVGPathElement;
+    protected readonly supportPropertyDialogOnRunTime: boolean;
     values1: any[];
     values2: any[];
     values3: any[];
@@ -342,14 +346,15 @@ declare class TrendControl extends EditorControl {
     getProperties(): string[];
     constructor();
     isIntersectWith(rect: any): boolean;
+    onPropertyDialogTextChanged(propertyName: string): void;
     run(): void;
     selectByPointName(pointName: string): void;
     getMin(number: any): any;
     getMax(number: any): any;
     getDrawLocation(number: any, secondPixel: any, leftMargin: any, rightMargin: any, topMargin: any, bottomMargin: any, valueItem: any, canDel: boolean, rect: any, now: any): any;
     resetXYLines(rect: any, leftMargin: any, rightMargin: any, topMargin: any, bottomMargin: any): void;
-    private addText(text, color, x, y, fontSize);
-    private formatTime(date, fmt);
+    protected addText(text: any, color: any, x: any, y: any, fontSize: any): SVGTextElement;
+    protected formatTime(date: Date, fmt: any): any;
     reDrawTrend(): void;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;

@@ -479,6 +479,43 @@
            
         }
 
+        /**
+         * 添加一个点到监测区
+         * @param pointName
+         */
+        function addPointToWatch(pointName)
+        {
+            if (WatchPointNames.indexOf(pointName) >= 0)
+            {
+                //已经存在
+                return;
+            }
+
+            WatchPointNames.push(pointName); 
+            remoting.server.GetPointDetails([pointName], function (ret, err) {
+                if (err)
+                {
+                    var index = WatchPointNames.indexOf(pointName);
+                    WatchPointNames.splice(index, 1);
+                    alert(err);
+                }
+                else {
+                    for (var i = 0; i < ret.length; i++) {
+                        var p = ret[i];
+                        if (p.deviceId == 0)
+                            continue;
+
+                        p.value = null;
+                        p.timeoutNumber = null;
+                        p.timeoutValue = null;
+                        devicePoints.push(p);
+                        watchPointValues(JSON.stringify(devicePoints));
+                        break;
+                    }                    
+                }
+            });
+        }
+
         function onReceiveValueFromServer(point)
         {
             for (var i = 0; i < devicePoints.length; i++) {

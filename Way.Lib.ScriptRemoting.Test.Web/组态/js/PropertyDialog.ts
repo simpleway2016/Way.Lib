@@ -6,10 +6,13 @@
         "b":b
     };
 }
+
 class PropertyDialog
 {
     rootElement: HTMLElement;
     control: EditorControl;
+    documentClickEvent: any;
+    isShowed: boolean = false;
     static CHKNumber = 0;
     constructor(control: EditorControl)
     {
@@ -132,11 +135,30 @@ class PropertyDialog
         this.rootElement.style.cursor = "move";       
 
         this.setRootEvent();
+
+        this.documentClickEvent = (e) => this._documentElementClick(e);
+        document.documentElement.addEventListener("click", this.documentClickEvent, false);
+    }
+
+    private _documentElementClick(e: Event)
+    {
+        var ele: any = e.target;
+        while (ele.tagName != "BODY") {
+            if (ele == this.rootElement) {
+                return;
+            }
+            else {
+                ele = ele.parentElement;
+            }
+        }
+        this.hide();
     }
 
     dispose()
     {
+        this.isShowed = false;
         this.rootElement.parentElement.removeChild(this.rootElement);
+        document.documentElement.removeEventListener("click", this.documentClickEvent, false);
     }
     private setPointItemEvent(ele: HTMLElement) {
         
@@ -224,9 +246,11 @@ class PropertyDialog
                 editor.undoMgr.addUndo(undo);
 
                 editor.changed = true;
+                this.control.onPropertyDialogTextChanged(input._name);
             }, false);
             return;
         }
+
         input.addEventListener("keydown", (e) => {
             e.stopPropagation();
         }, false);
@@ -252,6 +276,8 @@ class PropertyDialog
                     }
 
                     editor.changed = true;
+
+                    (<any>el._control).onPropertyDialogTextChanged(input._name);
                 }
             });
         }
@@ -282,16 +308,22 @@ class PropertyDialog
                 }
                 editor.changed = true;
             }, false);
+
+            input.addEventListener("change", (e) => {
+                this.control.onPropertyDialogTextChanged(input._name);
+            }, false);
         }
     }
 
     hide()
     {
+        this.isShowed = false;
         editor.editingPointTextbox = null;
         this.rootElement.style.visibility = "hidden";
     }
     show()
     {
+        this.isShowed = true;
         var rect = this.control.rect;
         if (!rect) {
             //有些control没有rect属性

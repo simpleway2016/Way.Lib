@@ -353,6 +353,13 @@ namespace SunRizStudio.Documents
         }
         void watchPointValues(string jsonStr)
         {
+            foreach (var client in _clients)
+            {
+                client.Released = true;
+                client.NetClient.Close();
+            }
+            _clients.Clear();
+
             Task.Run(() =>
             {
                 try
@@ -548,6 +555,7 @@ namespace SunRizStudio.Documents
                 client.Released = true;
                 client.NetClient.Close();
             }
+            jsContext.Dispose();
             _gecko.Dispose();
 
             base.OnClose(ref canceled);
