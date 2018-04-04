@@ -559,6 +559,16 @@ namespace SunRizServer.Controllers
             {
                 //历史保存路径修改了
                 needRestartHistory = true;
+
+                //这里确保能创建数据库
+                if (!string.IsNullOrEmpty(data.HistoryPath))
+                {
+                    var HistoryDataPath = $"data source=\"{data.HistoryPath.Replace("\\", "/")}/data.db\"";
+                    using (var hisDB = new DB.SunRizHistory(HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
+                    {
+
+                    }
+                }
             }
             this.db.Update(data);
             if (needRestartHistory)

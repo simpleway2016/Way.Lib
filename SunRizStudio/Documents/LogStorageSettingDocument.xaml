@@ -30,16 +30,15 @@
                     </Grid>
 
                     <TextBlock Text="最大存档天数" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"></TextBlock>
-                    <TextBox Padding="2,4,0,0" Background="{Binding AlarmStatusChangeColor,Mode=TwoWay}" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
+                    <TextBox Padding="2,4,0,0" Text="{Binding LogDays,Mode=TwoWay}" BorderThickness="0" Grid.Row="1" Grid.Column="1"></TextBox>
 
 
                     <TextBlock Text="最大存档空间(单位：G)" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"></TextBlock>
-                    <TextBox Padding="2,4,0,0" Background="{Binding AlarmStatusChangeColor,Mode=TwoWay}" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
+                    <TextBox Padding="2,4,0,0" Text="{Binding LogMaxStore,Mode=TwoWay}" BorderThickness="0" Grid.Row="2" Grid.Column="1"></TextBox>
 
                     <TextBlock Text="存档路径" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0"></TextBlock>
-                    <TextBox Padding="2,4,0,0" Background="{Binding AlarmStatusChangeColor,Mode=TwoWay}" Text="{Binding AlarmStatusChangeColor,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
-                    <local:FolderSelectButton Content="..." Width="26" Height="20" Tag="{Binding AlarmStatusChangeColor,Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" Grid.Column="1"></local:FolderSelectButton>
-                    
+                    <TextBox Padding="2,4,0,0" Text="{Binding LogPath,Mode=TwoWay}" BorderThickness="0" Grid.Row="3" Grid.Column="1"></TextBox>
+                   
                     <GridSplitter Grid.Row="0" Grid.RowSpan="100" Grid.Column="0" HorizontalAlignment="Right" Width="5" Background="Transparent"></GridSplitter>
                 </Grid>
 

@@ -1362,6 +1362,14 @@ class Editor implements IEditorControlContainer
         this.svgContainer.addEventListener("click", (<any>this)._svgContainerClickForDialog, false);
     }
 
+    /**
+     * 当属性编辑器，input  select 发生变化后触发
+     * @param propertyName
+     */
+    onPropertyDialogTextChanged(propertyName: string) {
+
+    }
+
     private svgContainerClickForDialog(e: MouseEvent)
     {
         var ele: any = e.target;

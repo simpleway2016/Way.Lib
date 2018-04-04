@@ -162,6 +162,7 @@ declare class Editor implements IEditorControlContainer {
     svgContainerClick(e: MouseEvent): void;
     svgContainerMouseMove(x: any, y: any): void;
     setting(e: MouseEvent): void;
+    onPropertyDialogTextChanged(propertyName: string): void;
     private svgContainerClickForDialog(e);
     alignLeft(): void;
     alignRight(): void;

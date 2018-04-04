@@ -2840,6 +2840,12 @@ var HistoryTrendControl = (function (_super) {
                 if (err)
                     alert(err);
                 else {
+                    startDate = startDate.replace(/-/g, "/");
+                    if (startDate.indexOf(":") < 0)
+                        startDate += " 00:00:00";
+                    endDate = endDate.replace(/-/g, "/");
+                    if (endDate.indexOf(":") < 0)
+                        endDate += " 00:00:00";
                     _this.setData(new Date(startDate), new Date(endDate), ret);
                 }
             });
@@ -2854,7 +2860,11 @@ var HistoryTrendControl = (function (_super) {
                     str += "=" + point;
                 }
             }
-            window.showHistoryWindow(str);
+            var obj = {};
+            obj.pointNames = str;
+            obj.startDate = div.children[0].value;
+            obj.endDate = div.children[1].value;
+            window.showHistoryWindow(JSON.stringify(obj));
         }, false);
     };
     HistoryTrendControl.prototype.onDevicePointValueChanged = function (devPoint) {
@@ -2913,7 +2923,8 @@ var HistoryTrendControl = (function (_super) {
         var txtHeight;
         var fontSize = 12;
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
-        var secsPerPixel = parseInt((totalSeconds / (rect.width - 20)));
+        var rect = this.rect;
+        var secsPerPixel = parseInt((totalSeconds / (rect.width - leftMargin - rightMargin)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
         if (true) {

@@ -26,16 +26,44 @@ namespace SunRizStudio.Documents
         {
             InitializeComponent();
             this.Title = "系统日志设置";
+            try
+            {
+                Helper.Remote.Invoke<SunRizServer.SystemSetting>("GetSystemSetting", (data, err) => {
+                    if (err != null)
+                    {
+                        MessageBox.Show(MainWindow.Instance, err);
+                    }
+                    else
+                    {
+                        this.DataContext = data;
+                    }
+                });
+            }
+            catch
+            {
+
+            }
         }
      
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
-            
+            btnApply_Click(null, null);
+            MainWindow.Instance.CloseDocument(this);
         }
 
         private void btnApply_Click(object sender, RoutedEventArgs e)
         {
-           
+            Helper.Remote.Invoke<int>("UpdateSystemSetting", (ret, err) => {
+                this.Cursor = null;
+                if (err != null)
+                {
+                    MessageBox.Show(MainWindow.Instance, err);
+                }
+                else
+                {
+
+                }
+            }, this.DataContext);
         }
 
 
@@ -48,7 +76,16 @@ namespace SunRizStudio.Documents
 
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            
+            Helper.Remote.Invoke<SunRizServer.SystemSetting>("GetSystemSetting", (data, err) => {
+                if (err != null)
+                {
+                    MessageBox.Show(MainWindow.Instance, err);
+                }
+                else
+                {
+                    this.DataContext = data;
+                }
+            });
         }
     }
 }

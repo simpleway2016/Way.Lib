@@ -185,7 +185,7 @@ var JServerControllerSource = (function (_super) {
             this.getDatasourceLength(tranid, length, callback);
             return;
         }
-        this._controller.server.LoadData(this._propertyName, this._skip, length, "", function (ret, err) {
+        this._controller.server.LoadData(this._propertyName, this._skip, length, "", null, function (ret, err) {
             if (err) {
                 if (callback) {
                     callback(0, err);

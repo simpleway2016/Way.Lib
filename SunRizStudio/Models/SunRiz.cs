@@ -5300,6 +5300,72 @@ namespace SunRizServer{
                 }
             }
         }
+
+        String _LogPath;
+        /// <summary>
+        /// 系统日志存储路径
+        /// </summary>
+        public virtual String LogPath
+        {
+            get
+            {
+                return this._LogPath;
+            }
+            set
+            {
+                if ((this._LogPath != value))
+                {
+                    var original = this._LogPath;
+                    this._LogPath = value;
+                    this.OnPropertyChanged("LogPath",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _LogDays=90;
+        /// <summary>
+        /// 系统日志存储天数
+        /// </summary>
+        public virtual System.Nullable<Int32> LogDays
+        {
+            get
+            {
+                return this._LogDays;
+            }
+            set
+            {
+                if ((this._LogDays != value))
+                {
+                    var original = this._LogDays;
+                    this._LogDays = value;
+                    this.OnPropertyChanged("LogDays",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _LogMaxStore;
+        /// <summary>
+        /// 日志最大存档空间(单位：G)
+        /// </summary>
+        public virtual System.Nullable<Int32> LogMaxStore
+        {
+            get
+            {
+                return this._LogMaxStore;
+            }
+            set
+            {
+                if ((this._LogMaxStore != value))
+                {
+                    var original = this._LogMaxStore;
+                    this._LogMaxStore = value;
+                    this.OnPropertyChanged("LogMaxStore",original,value);
+
+                }
+            }
+        }
 }}
 namespace SunRizServer{
 

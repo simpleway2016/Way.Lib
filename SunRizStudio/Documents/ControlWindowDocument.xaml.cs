@@ -3,6 +3,7 @@ using SunRizServer;
 using SunRizStudio.Models.Nodes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -24,7 +25,6 @@ namespace SunRizStudio.Documents
     /// </summary>
     public partial class ControlWindowDocument : BaseDocument
     {
-        Action _loadCompleteTask = null;
         static bool InitFireFoxed = false;
         GeckoWebBrowser _gecko;
         Window fullScreenWindow = null;
@@ -32,7 +32,7 @@ namespace SunRizStudio.Documents
         internal SunRizServer.ControlWindow _dataModel;
         List<Newtonsoft.Json.Linq.JToken> _AllPoints = new List<Newtonsoft.Json.Linq.JToken>();
         List<MyDriverClient> _clients = new List<MyDriverClient>();
-        AutoJSContext jsContext;
+
         bool closeAfterSave = false;
         /// <summary>
         /// 页面加载完毕，选中pointName
@@ -144,7 +144,10 @@ namespace SunRizStudio.Documents
                     {
                         this.TabItem.Content = this;
                         //设置网页editor为已经退出全屏状态
-                        jsContext.EvaluateScript("setExitedFullScreen()");
+                        using (var jsContext = new AutoJSContext(_gecko.Window))
+                        {
+                            jsContext.EvaluateScript("setExitedFullScreen()");
+                        }
                     }
                     else
                     {
@@ -220,7 +223,7 @@ namespace SunRizStudio.Documents
         }
             public void SelectWebControlByPointName(string pointName)
         {
-            if(jsContext == null)
+            if(_gecko.Enabled == false )
             {
                 _SelectWebControlByPointNameTask = pointName;
                 return;
@@ -228,7 +231,10 @@ namespace SunRizStudio.Documents
             try
             {
                 string info;
-                jsContext.EvaluateScript($"editor.selectWebControlByPointName({pointName.ToJson()})", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript($"editor.selectWebControlByPointName({pointName.ToJson()})", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -328,7 +334,10 @@ namespace SunRizStudio.Documents
                     }
                     else
                     {
-                        jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = addr, value = value }).ToJsonString()})");
+                        using (var jsContext = new AutoJSContext(_gecko.Window))
+                        {
+                            jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = addr, value = value }).ToJsonString()})");
+                        }
                     }
                 }
             }
@@ -401,7 +410,10 @@ namespace SunRizStudio.Documents
             string changed;
             try
             {
-                jsContext.EvaluateScript("editor.changed", out changed);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("editor.changed", out changed);
+                }
                 if (changed == "true" && IsRunMode == false)
                 {
                     return true;
@@ -418,7 +430,10 @@ namespace SunRizStudio.Documents
             try
             {
                 string info;
-                jsContext.EvaluateScript("editor.undo()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("editor.undo()", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -430,7 +445,10 @@ namespace SunRizStudio.Documents
             try
             {
                 string info;
-                jsContext.EvaluateScript("editor.redo()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("editor.redo()", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -443,7 +461,10 @@ namespace SunRizStudio.Documents
             {
                 string info;
                 //直接调用editor.cut()会出现the operation is insecure错误
-                jsContext.EvaluateScript("btnCut.click()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("btnCut.click()", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -456,7 +477,10 @@ namespace SunRizStudio.Documents
             {
                 string info;
                 //直接调用editor.copy()会出现the operation is insecure错误
-                jsContext.EvaluateScript("btnCopy.click()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("btnCopy.click()", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -469,7 +493,10 @@ namespace SunRizStudio.Documents
             {
                 string info;
                 //直接调用editor.paste()会出现the operation is insecure错误
-                jsContext.EvaluateScript("btnPaste.click()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("btnPaste.click()", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -481,7 +508,10 @@ namespace SunRizStudio.Documents
             try
             {
                 string info;
-                jsContext.EvaluateScript("editor.selectAll()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("editor.selectAll()", out info);
+                }
             }
             catch (Exception ex)
             {
@@ -493,7 +523,10 @@ namespace SunRizStudio.Documents
             try
             {
                 string info;
-                jsContext.EvaluateScript("editor.getSaveInfo()", out info);
+                using (var jsContext = new AutoJSContext(_gecko.Window))
+                {
+                    jsContext.EvaluateScript("editor.getSaveInfo()", out info);
+                }
                 var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
                 if (json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
                 {
@@ -517,30 +550,33 @@ namespace SunRizStudio.Documents
             string changed;
             try
             {
-                jsContext.EvaluateScript("editor.changed", out changed);
-                if (changed == "true" && IsRunMode == false)
+                using (var jsContext = new AutoJSContext(_gecko.Window))
                 {
-                    var dialogResult = MessageBox.Show(MainWindow.Instance, $"“{this.Title}”已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
-                    if (dialogResult == MessageBoxResult.Yes)
+                    jsContext.EvaluateScript("editor.changed", out changed);
+                    if (changed == "true" && IsRunMode == false)
                     {
-                        string info;
-                        jsContext.EvaluateScript("editor.getSaveInfo()", out info);
-                        var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
-                        if (json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
+                        var dialogResult = MessageBox.Show(MainWindow.Instance, $"“{this.Title}”已修改，是否保存？", "", MessageBoxButton.YesNoCancel);
+                        if (dialogResult == MessageBoxResult.Yes)
                         {
-                            MessageBox.Show(this.GetParentByName<Window>(null), "请点击左上角设置图标，设置监视画面的名称、编号！");
+                            string info;
+                            jsContext.EvaluateScript("editor.getSaveInfo()", out info);
+                            var json = info.ToJsonObject<Newtonsoft.Json.Linq.JToken>();
+                            if (json.Value<string>("name").IsBlank() || json.Value<string>("code").IsBlank())
+                            {
+                                MessageBox.Show(this.GetParentByName<Window>(null), "请点击左上角设置图标，设置监视画面的名称、编号！");
+                                canceled = true;
+                                return;
+                            }
+                            closeAfterSave = true;
+                            this.save(info);
                             canceled = true;
                             return;
                         }
-                        closeAfterSave = true;
-                        this.save(info);
-                        canceled = true;
-                        return;
-                    }
-                    else if (dialogResult == MessageBoxResult.Cancel)
-                    {
-                        canceled = true;
-                        return;
+                        else if (dialogResult == MessageBoxResult.Cancel)
+                        {
+                            canceled = true;
+                            return;
+                        }
                     }
                 }
             }
@@ -555,7 +591,7 @@ namespace SunRizStudio.Documents
                 client.Released = true;
                 client.NetClient.Close();
             }
-            jsContext.Dispose();
+            
             _gecko.Dispose();
 
             base.OnClose(ref canceled);
@@ -574,9 +610,13 @@ namespace SunRizStudio.Documents
                         //转换数值
                         value = SunRizDriver.Helper.Transform(pointObj, value);
                     }
+                    Debug.WriteLine($"addr:{point} value:{value}");
                     _gecko.Invoke(new ThreadStart(() =>
                     {
-                        jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = point, value = value }).ToJsonString()})");
+                        using (var jsContext = new AutoJSContext(_gecko.Window))
+                        {
+                            jsContext.EvaluateScript($"onReceiveValueFromServer({ (new { addr = point, value = value }).ToJsonString()})");
+                        }
                     }));
                 }
                 catch (Exception ex)
@@ -600,7 +640,6 @@ namespace SunRizStudio.Documents
         {
             this.Title = _dataModel.Name;
             _gecko.Enabled = true;
-            jsContext = new AutoJSContext(_gecko.Window);
 
             if(_SelectWebControlByPointNameTask != null)
             {
@@ -611,7 +650,10 @@ namespace SunRizStudio.Documents
             {
                 try
                 {
-                    jsContext.EvaluateScript("run()");
+                    using (var jsContext = new AutoJSContext(_gecko.Window))
+                    {
+                        jsContext.EvaluateScript("run()");
+                    }
                 }
                 catch(Exception ex)
                 {
@@ -636,7 +678,10 @@ namespace SunRizStudio.Documents
                 }
                 else
                 {
-                    jsContext.EvaluateScript("editor.changed=false");
+                    using (var jsContext = new AutoJSContext(_gecko.Window))
+                    {
+                        jsContext.EvaluateScript("editor.changed=false");
+                    }
 
                     if (_dataModel.id == null)
                     {
@@ -661,12 +706,7 @@ namespace SunRizStudio.Documents
 
         private void Gecko_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
         {
-           if(_loadCompleteTask != null)
-            {
-                _loadCompleteTask();
-                _loadCompleteTask = null;
-                MessageBox.Show("done");
-            }
+           
         }
 
         private void Gecko_CreateWindow(object sender, GeckoCreateWindowEventArgs e)

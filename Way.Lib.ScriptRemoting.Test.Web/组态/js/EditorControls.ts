@@ -2822,6 +2822,15 @@ class HistoryTrendControl extends TrendControl {
                 if (err)
                     alert(err);
                 else {
+                    //处理一下日期字符串，否则new Date(startDate)不正确
+                    //2018-02-01  转为  2018/02/01 00:00:00
+                    startDate = startDate.replace(/-/g, "/");
+                    if (startDate.indexOf(":") < 0)
+                        startDate += " 00:00:00";
+                    endDate = endDate.replace(/-/g, "/");
+                    if (endDate.indexOf(":") < 0)
+                        endDate += " 00:00:00";
+
                     this.setData(new Date(startDate), new Date(endDate), ret);
                 }
             });
@@ -2837,7 +2846,12 @@ class HistoryTrendControl extends TrendControl {
                     str += "=" + point;
                 }
             }
-            (<any>window).showHistoryWindow(str);
+            var obj : any = {};
+            obj.pointNames = str;
+            obj.startDate = (<any>div.children[0]).value;
+            obj.endDate = (<any>div.children[1]).value;
+
+            (<any>window).showHistoryWindow(JSON.stringify(obj));
         }, false);
     }
 
@@ -2913,27 +2927,6 @@ class HistoryTrendControl extends TrendControl {
      * @param startTime
      * @param endTime
      * @param datas
-    格式如下
-    [
-            [
-                {
-                    seconds: new Date("2010-1-18 10:03:00").getTime() / 1000,
-                    value:23
-                },
-                {
-                    seconds: new Date("2010-1-18 10:03:00").getTime() / 1000,
-                    value: 3
-                },
-                {
-                    seconds: new Date("2010-2-1 10:06:00").getTime() / 1000,
-                    value: 32
-                },
-                {
-                    seconds: new Date("2010-2-1 10:06:00").getTime() / 1000,
-                    value: 65
-                }
-            ]
-        ]
      */
     setData(startTime: Date, endTime: Date, datas: any[]) {
         var leftMargin = 30;
@@ -2946,9 +2939,10 @@ class HistoryTrendControl extends TrendControl {
 
         //计算一共有多少秒
         var totalSeconds = (endTime.getTime() - startTime.getTime()) / 1000 + 1;
+        var rect = this.rect;
 
         //计算一个像素显示多少秒的数据
-        var secsPerPixel = parseInt(<any>(totalSeconds / (rect.width - 20)));
+        var secsPerPixel = parseInt(<any>(totalSeconds / (rect.width - leftMargin - rightMargin)));
         if (secsPerPixel < 1)
             secsPerPixel = 1;
 

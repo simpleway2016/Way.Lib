@@ -73,10 +73,14 @@ namespace SunRizStudio.Dialogs
         {
             InitializeComponent();
         }
-        public HistoryWindow(string pointNames)
+        public HistoryWindow(string json)
         {
             InitializeComponent();
-            _searchModel.Address = pointNames;
+            var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(json);
+            _searchModel.Address = obj.Value<string>("pointNames");
+
+            _searchModel.Time[0] = obj.Value<string>("startDate");
+            _searchModel.Time[1] = obj.Value<string>("endDate");
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {

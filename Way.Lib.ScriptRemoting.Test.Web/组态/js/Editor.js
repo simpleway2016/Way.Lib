@@ -1138,6 +1138,8 @@ var Editor = (function () {
         };
         this.svgContainer.addEventListener("click", this._svgContainerClickForDialog, false);
     };
+    Editor.prototype.onPropertyDialogTextChanged = function (propertyName) {
+    };
     Editor.prototype.svgContainerClickForDialog = function (e) {
         var ele = e.target;
         while (ele.tagName != "BODY") {
