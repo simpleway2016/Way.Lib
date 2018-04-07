@@ -40,6 +40,7 @@ namespace SunRizStudio.Documents
         string _SelectWebControlByPointNameTask = null;
         Dictionary<string, PointAddrInfo> _PointAddress = new Dictionary<string, PointAddrInfo>();
 
+        List<ControlWindow> _visitHistories = new List<ControlWindow>();
         /// <summary>
         /// 是否允许模式
         /// </summary>
@@ -97,18 +98,19 @@ namespace SunRizStudio.Documents
 
             //WayScriptRemoting
             //_gecko.NoDefaultContextMenu = true; //禁用右键菜单
-            _gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
-            _gecko.AddMessageEventListener("save", save);
+            //_gecko.AddMessageEventListener("copyToClipboard", copyToClipboard);
+            //_gecko.AddMessageEventListener("save", save);
             _gecko.AddMessageEventListener("loadFinish", loadFinish);
-            _gecko.AddMessageEventListener("watchPointValues", watchPointValues);
-            _gecko.AddMessageEventListener("openRunMode", openRunMode);
-            _gecko.AddMessageEventListener("writePointValue", writePointValue);
-            _gecko.AddMessageEventListener("go", go);
-            _gecko.AddMessageEventListener("open", open);
-            _gecko.AddMessageEventListener("openCode", openCode);
-            _gecko.AddMessageEventListener("fullScreen", fullScreen);
-            _gecko.AddMessageEventListener("exitFullScreen", exitFullScreen);
-            _gecko.AddMessageEventListener("showHistoryWindow", showHistoryWindow);
+            //_gecko.AddMessageEventListener("watchPointValues", watchPointValues);
+            //_gecko.AddMessageEventListener("openRunMode", openRunMode);
+            //_gecko.AddMessageEventListener("writePointValue", writePointValue);
+            //_gecko.AddMessageEventListener("go", go);
+            //_gecko.AddMessageEventListener("goBack", goBack);
+            //_gecko.AddMessageEventListener("open", open);
+            //_gecko.AddMessageEventListener("openCode", openCode);
+            //_gecko.AddMessageEventListener("fullScreen", fullScreen);
+            //_gecko.AddMessageEventListener("exitFullScreen", exitFullScreen);
+            //_gecko.AddMessageEventListener("showHistoryWindow", showHistoryWindow);
 
             winHost.Child = _gecko;
             _gecko.ProgressChanged += Gecko_ProgressChanged;
@@ -184,6 +186,28 @@ namespace SunRizStudio.Documents
             }
         }
       
+        /// <summary>
+        /// 返回上一个页面
+        /// </summary>
+        void goBack(string p)
+        {
+            if(_visitHistories.Count > 0)
+            {
+                var win = _visitHistories.Last();
+                _visitHistories.RemoveAt(_visitHistories.Count - 1);
+
+                foreach (var client in _clients)
+                {
+                    client.Released = true;
+                    client.NetClient.Close();
+                }
+                _clients.Clear();
+
+                _dataModel = win;
+                _gecko.Enabled = false;
+                _gecko.Navigate($"{Helper.Config.ServerUrl}/Home/GetWindowContent?windowid={win.id}");
+            }
+        }
 
         /// <summary>
         /// 当前页面跳转
@@ -191,15 +215,29 @@ namespace SunRizStudio.Documents
         /// <param name="windowCode">窗口编号</param>
         void go(string windowCode)
         {
-            foreach (var client in _clients)
-            {
-                client.Released = true;
-                client.NetClient.Close();
-            }
-            _clients.Clear();
+            Helper.Remote.Invoke<ControlWindow>("GetWindowInfo", (win, err) => {
+                if (err != null)
+                {
+                    MessageBox.Show(this.GetParentByName<Window>(null), err);
+                }
+                else
+                {
+                    this._visitHistories.Add(_dataModel);
 
-            _gecko.Enabled = false;
-            _gecko.Navigate($"{Helper.Config.ServerUrl}/Home/GetWindowContent?windowCode={windowCode}");
+                    foreach (var client in _clients)
+                    {
+                        client.Released = true;
+                        client.NetClient.Close();
+                    }
+                    _clients.Clear();
+
+                    _dataModel = win;
+                    _gecko.Enabled = false;
+                    
+                    _gecko.Navigate($"{Helper.Config.ServerUrl}/Home/GetWindowContent?windowCode={windowCode}");
+                }
+            }, 0, windowCode);
+            
         }
         //脚本直接编辑
         void openCode(string p)
@@ -256,6 +294,7 @@ namespace SunRizStudio.Documents
                 else
                 {
                     ControlWindowDocument doc = new ControlWindowDocument(null, win, true);
+                    doc.Title = win.Name;
                     Window window = new Window();
                     window.Content = doc;
                     if (win.windowWidth != null)
@@ -280,7 +319,7 @@ namespace SunRizStudio.Documents
                     };
                     window.Show();
                 }
-            }, windowCode);
+            }, 0 , windowCode);
         }
         void writePointValue(string arg)
         {
@@ -638,7 +677,18 @@ namespace SunRizStudio.Documents
 
         void loadFinish(string msg)
         {
+            _gecko.DomClick -= _gecko_DomClick;
+            _gecko.DomClick += _gecko_DomClick;
             this.Title = _dataModel.Name;
+            try
+            {
+                if (IsRunMode)
+                {
+                    //运行状态，设置窗口的标题文字
+                    this.GetParentByName<Window>(null).Title = _dataModel.Name;
+                }
+            }
+            catch { }
             _gecko.Enabled = true;
 
             if(_SelectWebControlByPointNameTask != null)
@@ -661,6 +711,27 @@ namespace SunRizStudio.Documents
                 }
             }
         }
+
+        private void _gecko_DomClick(object sender, DomMouseEventArgs e)
+        {
+            var ele = e.Target.CastToGeckoElement();
+            if (ele.GetAttribute("id") == "btnMethod")
+            {
+                string methodName = ele.GetAttribute("value");
+                string param = _gecko.Document.GetElementById("hidMethodParam").GetAttribute("value");
+
+                try
+                {
+                    var method = this.GetType().GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    method.Invoke(this, new object[] { param });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+                }
+            }
+        }
+
         void copyToClipboard(string message)
         {
             Clipboard.SetText(message);
@@ -709,10 +780,25 @@ namespace SunRizStudio.Documents
            
         }
 
+
         private void Gecko_CreateWindow(object sender, GeckoCreateWindowEventArgs e)
         {
+            return;
+
             e.InitialHeight = 500;
             e.InitialWidth = 500;
+            e.Cancel = true;
+            try
+            {
+                var url = System.Web.HttpUtility.UrlDecode(e.Uri.Substring("http://invoker/".Length));
+                var json = url.ToJsonObject<Newtonsoft.Json.Linq.JObject>();
+                var method = this.GetType().GetMethod(json.Value<string>("name"), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                method.Invoke(this, new object[] { json.Value<string>("param") });
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this.GetParentByName<Window>(null), ex.Message);
+            }
         }
 
         private void Gecko_ProgressChanged(object sender, GeckoProgressEventArgs e)

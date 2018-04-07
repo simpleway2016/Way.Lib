@@ -60,6 +60,18 @@ namespace SunRizStudio.Models.Nodes
             };
             this.Nodes.Add(historyNode);
 
+
+            var logNode = new SolutionNode()
+            {
+                Text = "系统日志查询",
+                Icon = "/Images/solution/log.png",
+                DoublicClickHandler = (s, e) => {
+                    MainWindow.Instance.ShowSysLogWindow();
+                },
+
+            };
+            this.Nodes.Add(logNode);
+
             var setttingNode = new SystemSettingNode()
             {
                 Text = "系统配置",

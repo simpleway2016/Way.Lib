@@ -12,7 +12,8 @@ namespace SunRizServer.Controllers
     [RemotingUrl("Home")]
     public class StudioController : BaseController
     {
-        DB.SunRizHistory _hisDB;
+        DB.SunRiz _hisDB;
+        DB.SunRiz _sysLogDB;
         public IQueryable<Alarm> Alarms
         {
             get
@@ -33,7 +34,7 @@ namespace SunRizServer.Controllers
             get
             {
                 if (_hisDB == null)
-                    _hisDB = new DB.SunRizHistory(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite);
+                    _hisDB = new DB.SunRiz(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite);
                 return from m in _hisDB.History
                        orderby m.Time descending
                        select new MyHistory {
@@ -43,6 +44,18 @@ namespace SunRizServer.Controllers
                            Time = m.Time,
                            Value = m.Value
                        };
+            }
+        }
+
+        public IQueryable<SysLog> SysLogs
+        {
+            get
+            {
+                if (_sysLogDB == null)
+                    _sysLogDB = new DB.SunRiz(SystemLog.LogDataPath, Way.EntityDB.DatabaseType.Sqlite);
+                return from m in _sysLogDB.SysLog
+                       orderby m.Time descending
+                       select m;
             }
         }
         protected override void OnUnLoad()
@@ -73,7 +86,10 @@ namespace SunRizServer.Controllers
             else if (this.db.CommunicationDriver.Any(m => m.id != driver.id && m.Address == driver.Address && m.Port == driver.Port))
                 throw new Exception("此网关已存在");
 
-            this.db.Update(driver);
+            SystemHelper.AddSysLog(this.User.id.Value, "更新网关信息：" + Newtonsoft.Json.JsonConvert.SerializeObject(driver.ChangedProperties));
+
+            this.db.Update(driver);           
+
             return driver.id.Value;
         }
 
@@ -99,6 +115,8 @@ namespace SunRizServer.Controllers
             else if (this.db.ControlUnit.Any(m => m.id != unit.id && m.Name == unit.Name))
                 throw new Exception("此控制单元已存在");
 
+            SystemHelper.AddSysLog(this.User.id.Value, "更新控制单元信息：" + Newtonsoft.Json.JsonConvert.SerializeObject(unit.ChangedProperties));
+
             this.db.Update(unit);
             return unit.id.Value;
         }
@@ -116,6 +134,8 @@ namespace SunRizServer.Controllers
                 throw new Exception("此控制器已存在");
             else if (this.db.Device.Any(m => m.id != device.id && m.Name == device.Name && device.UnitId == m.UnitId))
                 throw new Exception("此控制器已存在");
+
+            SystemHelper.AddSysLog(this.User.id.Value, "更新控制器信息：" + Newtonsoft.Json.JsonConvert.SerializeObject(device.ChangedProperties));
 
             this.db.Update(device);
             return device.id.Value;
@@ -166,13 +186,25 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public int DeleteControlWindowFolder(int folderid)
         {
-            this.db.Delete(this.db.ControlWindowFolder.Where(m => m.id == folderid));
+            var folder = this.db.ControlWindowFolder.FirstOrDefault(m => m.id == folderid);
+            if (folder != null)
+            {
+                SystemHelper.AddSysLog(this.User.id.Value, "删除文件夹：" + Newtonsoft.Json.JsonConvert.SerializeObject( folder));
+
+                this.db.Delete(this.db.ControlWindowFolder.Where(m => m.id == folderid));
+            }
             return 0;
         }
         [RemotingMethod]
         public int DeleteControlWindow(int id)
         {
-            this.db.Delete(this.db.ControlWindow.Where(m => m.id == id));
+            var window = this.db.ControlWindow.FirstOrDefault(m => m.id == id);
+            if (window != null)
+            {
+                SystemHelper.AddSysLog(this.User.id.Value, "删除监控窗口：" + window.Name);
+
+                this.db.Delete(this.db.ControlWindow.Where(m => m.id == id));
+            }
             return 0;
         }
         [RemotingMethod]
@@ -194,6 +226,9 @@ namespace SunRizServer.Controllers
                 window = this.db.ControlWindow.FirstOrDefault(m => m.Code == windowCode);
             else
                 window = this.db.ControlWindow.FirstOrDefault(m => m.id == windowid);
+
+            SystemHelper.AddSysLog(this.User.id.Value, "修改监控窗口：" + window.Name);
+
             System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, filecontent, System.Text.Encoding.UTF8);
             return 0;
         }
@@ -268,6 +303,9 @@ namespace SunRizServer.Controllers
             var obj = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
             obj["controlsScript"] = script;
             System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, obj.ToString(), System.Text.Encoding.UTF8);
+
+            SystemHelper.AddSysLog(this.User.id.Value, "改写监控窗口的脚本：" + window.Name);
+
             return 0;
         }
         [RemotingMethod]
@@ -275,9 +313,9 @@ namespace SunRizServer.Controllers
         {
             ControlWindow window = null;
             if (windowCode != null)
-                window = this.db.ControlWindow.Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault(m => m.Code == windowCode);
+                window = this.db.ControlWindow.Where(m => m.Code == windowCode).Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault();
             else
-                window = this.db.ControlWindow.Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault(m => m.id == windowid);
+                window = this.db.ControlWindow.Where(m => m.id == windowid).Select(m => new ControlWindow { windowWidth = m.windowWidth, windowHeight = m.windowHeight, Name = m.Name, id = m.id }).FirstOrDefault();
             return window;
         }
         [RemotingMethod]
@@ -370,6 +408,9 @@ namespace SunRizServer.Controllers
             {
                 window.FilePath = Guid.NewGuid().ToString("N");
             }
+
+            SystemHelper.AddSysLog(this.User.id.Value, "修改监控窗口：" + window.Name);
+
             this.db.Update(window);
 
             System.IO.File.WriteAllText(Way.Lib.PlatformHelper.GetAppDirectory() + "windows/" + window.FilePath, content, System.Text.Encoding.UTF8);
@@ -433,6 +474,7 @@ namespace SunRizServer.Controllers
                     throw new Exception($"历史数据变化定义中，绝对值变化定义超出量程范围，量程范围目前为{point.TransMin } - {point.TransMax}");
                 }
             }
+            SystemHelper.AddSysLog(this.User.id.Value, "更新点“"+ point.Name +"”信息：" + Newtonsoft.Json.JsonConvert.SerializeObject(point.ChangedProperties));
 
             this.db.Update(point);
             if (needRestartHistory)
@@ -563,13 +605,20 @@ namespace SunRizServer.Controllers
                 //这里确保能创建数据库
                 if (!string.IsNullOrEmpty(data.HistoryPath))
                 {
-                    var HistoryDataPath = $"data source=\"{data.HistoryPath.Replace("\\", "/")}/data.db\"";
-                    using (var hisDB = new DB.SunRizHistory(HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
+                    var HistoryDataPath = $"data source=\"{data.HistoryPath.Replace("\\", "/")}/history_data.db\"";
+                    using (var hisDB = new DB.SunRiz(HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
                     {
 
                     }
                 }
             }
+
+            if (data.ChangedProperties.Any(m => m.Key == "LogPath"))
+            {
+                SystemLog.Init();
+            }
+            SystemHelper.AddSysLog(this.User.id.Value, "更新系统设置：" + Newtonsoft.Json.JsonConvert.SerializeObject(data.ChangedProperties));
+
             this.db.Update(data);
             if (needRestartHistory)
             {
@@ -581,7 +630,7 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public object SearchHistory(string[] pointNames, DateTime startTime, DateTime endTime)
         {
-            using (DB.SunRizHistory hisDB = new DB.SunRizHistory(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
+            using (var hisDB = new DB.SunRiz(HistoryRecord.HistoryAutoRec.HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite))
             {
                 List<object> result = new List<object>();
                 foreach (string pointName in pointNames)
@@ -650,7 +699,16 @@ namespace SunRizServer.Controllers
             }
             return result;
         }
-
+        [RemotingMethod]
+        public UserInfo[] GetUserList()
+        {
+            return (from m in db.UserInfo
+                    select new UserInfo
+                    {
+                        id = m.id,
+                        Name = m.Name
+                    }).ToArray();
+        }
         [RemotingMethod]
         public int SaveUserInfo(UserInfo user)
         {
@@ -659,6 +717,8 @@ namespace SunRizServer.Controllers
             if (this.User == null || this.User.Role != UserInfo_RoleEnum.Admin)
                 throw new Exception("权限不足");
 #endif
+            SystemHelper.AddSysLog(this.User.id.Value, "修改用户" + user.Name + "信息");
+            
             db.Update(user);
             return user.id.Value;
         }
@@ -671,6 +731,8 @@ namespace SunRizServer.Controllers
             if (this.User == null || this.User.Role != UserInfo_RoleEnum.Admin)
                 throw new Exception("权限不足");
 #endif
+            SystemHelper.AddSysLog(this.User.id.Value, "删除用户" + user.Name);
+
             db.Delete(user);
         }
 
@@ -685,7 +747,8 @@ namespace SunRizServer.Controllers
             this.User = user;
             user.Password = null;
             user.ChangedProperties.Clear();
-           
+
+            SystemHelper.AddSysLog(this.User.id.Value, "登录系统");
             return user;
         }
 
@@ -698,6 +761,8 @@ namespace SunRizServer.Controllers
             user.Password = pwd;
             db.Update(user);
             this.User = user;
+            SystemHelper.AddSysLog(this.User.id.Value, "修改密码");
+
             return user.id.Value;
         }
 
@@ -713,6 +778,9 @@ namespace SunRizServer.Controllers
 
             window = db.ControlWindow.FirstOrDefault(m => m.id == windowId);
             window.IsStartup = true;
+
+            SystemHelper.AddSysLog(this.User.id.Value, "设置启动窗口为：" + window.Name);
+
             db.Update(window);
 
             return 0;
@@ -733,6 +801,17 @@ namespace SunRizServer.Controllers
                 item.AddressDesc = db.DevicePoint.Where(m => m.id == item.PointId).Select(m => m.Desc).FirstOrDefault();
             }
             return histories;
+        }
+
+        [RemotingMethod]
+        public object GetSysLogs(int skip, int take, string searchModel, string orderBy)
+        {
+            var result = (IEnumerable<SysLog>) this.LoadData("SysLogs", skip, take, searchModel, orderBy);
+            foreach (var item in result)
+            {
+                item.UserName = db.UserInfo.Where(m => m.id == item.UserId).Select(m => m.Name).FirstOrDefault();
+            }
+            return result;
         }
     }
 

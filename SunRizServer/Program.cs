@@ -60,8 +60,11 @@ namespace SunRizServer
                 }
                 Console.WriteLine($"database ready");
 
+                SystemLog.Init();
+
                 //记录历史
                 HistoryRecord.HistoryAutoRec.ReStart();
+               
             }
             catch (Exception ex)
             {

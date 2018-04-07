@@ -2648,7 +2648,7 @@ class TrendControl extends EditorControl {
         //绘制x轴时间刻度
         if (true) {
             var curTime = new Date();
-            var timeText = "2018-01-01 01:01:01";
+            var timeText = "01:01:01";
             var x = rect.width - rightMargin;
             var y = rect.height - bottomMargin + 3;
             while (true) {
@@ -2662,7 +2662,7 @@ class TrendControl extends EditorControl {
                 //算出多少秒
                 var mySeconds = length / secondPixel;
                 curTime = new Date(now - mySeconds * 1000);
-                txtEle.textContent = this.formatTime(curTime, "yyyy-MM-dd hh:mm:ss");
+                txtEle.textContent = this.formatTime(curTime, "hh:mm:ss");
                 txtEle.setAttribute("x", <any>(x - txtWidth));
                 txtEle.style.visibility = "";
 

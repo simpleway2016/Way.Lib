@@ -11,7 +11,7 @@ namespace SunRizServer.HistoryRecord
     class HistoryAutoRec
     {
         static List<MyDriverClient> AllClients = new List<MyDriverClient>();
-        static SunRizServer.DB.SunRizHistory hisDB;
+        static SunRizServer.DB.SunRiz hisDB;
         static DateTime LastHisTime;
         public static string HistoryDataPath;
         static HistoryAutoRec()
@@ -38,7 +38,7 @@ namespace SunRizServer.HistoryRecord
                                     var gb = Math.Round(drive.TotalFreeSpace / (double)(1024 * 1024 * 1024), 2);
                                     if (gb <= info.g.GetValueOrDefault())
                                     {
-                                        AlarmHelper.AddAlarm(new Alarm()
+                                        SystemHelper.AddAlarm(new Alarm()
                                         {
                                             Content = $"历史路径{info.path}剩余空间只有{gb}GB了，请尽快扩展磁盘！",
                                         });
@@ -103,8 +103,8 @@ namespace SunRizServer.HistoryRecord
                         {
                             System.IO.Directory.CreateDirectory(sysSetting.HistoryPath);
                         }
-                        HistoryDataPath = $"data source=\"{sysSetting.HistoryPath.Replace("\\", "/")}/data.db\"";
-                        hisDB = new DB.SunRizHistory(HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite);
+                        HistoryDataPath = $"data source=\"{sysSetting.HistoryPath.Replace("\\", "/")}/history_data.db\"";
+                        hisDB = new DB.SunRiz(HistoryDataPath, Way.EntityDB.DatabaseType.Sqlite);
                         LastHisTime = DateTime.Now;
                         hisDB.BeginTransaction();
                     }
@@ -228,7 +228,7 @@ namespace SunRizServer.HistoryRecord
                 }
                 hisDB.Dispose();
                 hisDB = null;
-                AlarmHelper.AddAlarm(new Alarm()
+                SystemHelper.AddAlarm(new Alarm()
                 {
                     Content = $"记录历史时，发生错误，错误信息：{ex.Message}"
                 });
@@ -328,14 +328,14 @@ namespace SunRizServer.HistoryRecord
 
                     if (point.IsAlarm == true)
                     {
-                        AlarmHelper.AutoBackAlarm(point.id.Value, dblValue);
+                        SystemHelper.AutoBackAlarm(point.id.Value, dblValue);
                         if (point.Type == DevicePoint_TypeEnum.Analog)
                         {
                             foreach (var lowAlarm in myPoint.LowAlarmConfig)
                             {
                                 if (dblValue < lowAlarm.Value)
                                 {
-                                    AlarmHelper.AddAlarm(new Alarm()
+                                    SystemHelper.AddAlarm(new Alarm()
                                     {
                                         Content = $"触发低{lowAlarm.Number}报警",
                                         Address = point.Name,
@@ -352,7 +352,7 @@ namespace SunRizServer.HistoryRecord
                             {
                                 if (dblValue > hiAlarm.Value)
                                 {
-                                    AlarmHelper.AddAlarm(new Alarm()
+                                    SystemHelper.AddAlarm(new Alarm()
                                     {
                                         Content = $"触发高{hiAlarm.Number}报警",
                                         Address = point.Name,
@@ -370,7 +370,7 @@ namespace SunRizServer.HistoryRecord
                             {
                                 if (Math.Abs(dblValue - point.AlarmOffsetOriginalValue.GetValueOrDefault()) > point.AlarmOffsetValue)
                                 {
-                                    AlarmHelper.AddAlarm(new Alarm()
+                                    SystemHelper.AddAlarm(new Alarm()
                                     {
                                         Content = $"偏差报警",
                                         Address = point.Name,
@@ -393,7 +393,7 @@ namespace SunRizServer.HistoryRecord
                                 {
                                     if ((DateTime.Now - myPoint.LastValueTime).TotalSeconds < point.ChangeCycle)
                                     {
-                                        AlarmHelper.AddAlarm(new Alarm()
+                                        SystemHelper.AddAlarm(new Alarm()
                                         {
                                             Content = $"变化率报警",
                                             Address = point.Name,
@@ -412,7 +412,7 @@ namespace SunRizServer.HistoryRecord
                         {
                             if (point.AlarmValue == dblValue)
                             {
-                                AlarmHelper.AddAlarm(new Alarm()
+                                SystemHelper.AddAlarm(new Alarm()
                                 {
                                     Content = $"触发报警",
                                     Address = point.Name,

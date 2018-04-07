@@ -783,6 +783,13 @@ class Editor implements IEditorControlContainer
                     (<any>window).exitFullScreen();
                 }
             }
+            else if (e.keyCode == 13) {
+                //显示属性对话框
+                if (AllSelectedControls.length > 0)
+                {
+                    AllSelectedControls[0].showProperty();
+                }
+            }
             else {
                 
             }
@@ -1145,7 +1152,7 @@ class Editor implements IEditorControlContainer
                 windowCodes.push(this.controls[i].windowCode);
             }
         }
-        (<any>window).save(this.name, this.code, this.customProperties, this.getScript(), scripts, windowCodes);
+        (<any>window).save(this.name, this.code, this.windowWidth, this.windowHeight, this.customProperties, this.getScript(), scripts, windowCodes);
     }
 
     getSaveInfo()

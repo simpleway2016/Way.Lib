@@ -5918,3 +5918,257 @@ Admin = 1<<30 | Designer,
             }
         }
 }}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 
+	/// </summary>
+    public class History :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  History()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _PointId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> PointId
+        {
+            get
+            {
+                return this._PointId;
+            }
+            set
+            {
+                if ((this._PointId != value))
+                {
+                    var original = this._PointId;
+                    this._PointId = value;
+                    this.OnPropertyChanged("PointId",original,value);
+
+                }
+            }
+        }
+
+        String _Address;
+        /// <summary>
+        /// 点地址
+        /// </summary>
+        public virtual String Address
+        {
+            get
+            {
+                return this._Address;
+            }
+            set
+            {
+                if ((this._Address != value))
+                {
+                    var original = this._Address;
+                    this._Address = value;
+                    this.OnPropertyChanged("Address",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<DateTime> _Time;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<DateTime> Time
+        {
+            get
+            {
+                return this._Time;
+            }
+            set
+            {
+                if ((this._Time != value))
+                {
+                    var original = this._Time;
+                    this._Time = value;
+                    this.OnPropertyChanged("Time",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<double> _Value;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<double> Value
+        {
+            get
+            {
+                return this._Value;
+            }
+            set
+            {
+                if ((this._Value != value))
+                {
+                    var original = this._Value;
+                    this._Value = value;
+                    this.OnPropertyChanged("Value",original,value);
+
+                }
+            }
+        }
+}}
+namespace SunRizServer{
+
+
+    /// <summary>
+	/// 系统日志表
+	/// </summary>
+    public class SysLog :Way.Lib.DataModel
+    {
+
+        /// <summary>
+	    /// 
+	    /// </summary>
+        public  SysLog()
+        {
+        }
+
+
+        System.Nullable<Int32> _id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<Int32> id
+        {
+            get
+            {
+                return this._id;
+            }
+            set
+            {
+                if ((this._id != value))
+                {
+                    var original = this._id;
+                    this._id = value;
+                    this.OnPropertyChanged("id",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<DateTime> _Time;
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual System.Nullable<DateTime> Time
+        {
+            get
+            {
+                return this._Time;
+            }
+            set
+            {
+                if ((this._Time != value))
+                {
+                    var original = this._Time;
+                    this._Time = value;
+                    this.OnPropertyChanged("Time",original,value);
+
+                }
+            }
+        }
+
+        String _Content;
+        /// <summary>
+        /// 描述
+        /// </summary>
+        public virtual String Content
+        {
+            get
+            {
+                return this._Content;
+            }
+            set
+            {
+                if ((this._Content != value))
+                {
+                    var original = this._Content;
+                    this._Content = value;
+                    this.OnPropertyChanged("Content",original,value);
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _UserId;
+        /// <summary>
+        /// 操作人
+        /// </summary>
+        public virtual System.Nullable<Int32> UserId
+        {
+            get
+            {
+                return this._UserId;
+            }
+            set
+            {
+                if ((this._UserId != value))
+                {
+                    var original = this._UserId;
+                    this._UserId = value;
+                    this.OnPropertyChanged("UserId",original,value);
+
+                }
+            }
+        }
+
+        String _UserName;
+        /// <summary>
+        /// 用户名称，实际不会有值
+        /// </summary>
+        public virtual String UserName
+        {
+            get
+            {
+                return this._UserName;
+            }
+            set
+            {
+                if ((this._UserName != value))
+                {
+                    var original = this._UserName;
+                    this._UserName = value;
+                    this.OnPropertyChanged("UserName",original,value);
+
+                }
+            }
+        }
+}}

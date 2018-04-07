@@ -98,7 +98,7 @@ namespace Way.EntityDB
 
         IDatabaseService _databaseService;
         static object GlobalLockObj = new object();
-        static Dictionary<Type,bool> upgradedDatabase = new Dictionary<Type, bool>();
+        static Dictionary<string,bool> upgradedDatabase = new Dictionary<string, bool>();
         public new IDatabaseService Database
         {
             get
@@ -688,18 +688,29 @@ namespace Way.EntityDB
             Type type = DatabaseServiceTypes[this.DatabaseType];
             _databaseService = (IDatabaseService)Activator.CreateInstance(type, new object[] { this });
 
-            Type thisType = this.GetType();
+            var thisType = this.GetType() ;
+            var dictKey = thisType + "," + connectionString;
             if (thisType != typeof(EntityDB.DBContext))
             {
-                if (upgradedDatabase.ContainsKey(thisType) == false || !upgradedDatabase[thisType])
+                if (upgradedDatabase.ContainsKey(dictKey) == false || !upgradedDatabase[dictKey])
                 {
                     lock (GlobalLockObj)
                     {
-                        if (upgradedDatabase.ContainsKey(thisType) == false || !upgradedDatabase[thisType])
+                        if (upgradedDatabase.ContainsKey(dictKey) == false || !upgradedDatabase[dictKey])
                         {
-                            upgradedDatabase[thisType] = true;
-                            this.CreateIfNotExist();
-                            Way.EntityDB.Design.DBUpgrade.Upgrade(this, GetDesignString());
+                            try
+                            {
+                                this.CreateIfNotExist();
+                                Way.EntityDB.Design.DBUpgrade.Upgrade(this, GetDesignString());
+                            }
+                            catch
+                            {
+                                throw;
+                            }
+                            finally
+                            {
+                                upgradedDatabase[dictKey] = true;
+                            }
                         }
                     }
                 }

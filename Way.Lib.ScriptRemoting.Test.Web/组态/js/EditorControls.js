@@ -2700,7 +2700,7 @@ var TrendControl = (function (_super) {
         }
         if (true) {
             var curTime = new Date();
-            var timeText = "2018-01-01 01:01:01";
+            var timeText = "01:01:01";
             var x = rect.width - rightMargin;
             var y = rect.height - bottomMargin + 3;
             while (true) {
@@ -2710,7 +2710,7 @@ var TrendControl = (function (_super) {
                 var length = rect.width - rightMargin - left;
                 var mySeconds = length / secondPixel;
                 curTime = new Date(now - mySeconds * 1000);
-                txtEle.textContent = this.formatTime(curTime, "yyyy-MM-dd hh:mm:ss");
+                txtEle.textContent = this.formatTime(curTime, "hh:mm:ss");
                 txtEle.setAttribute("x", (x - txtWidth));
                 txtEle.style.visibility = "";
                 x -= txtWidth + 8;

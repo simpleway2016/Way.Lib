@@ -50,6 +50,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -75,6 +76,9 @@
     <Compile Include="Dialogs\AlarmWindow.xaml.cs">
       <DependentUpon>AlarmWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SysLogWindow.xaml.cs">
+      <DependentUpon>SysLogWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\HistoryWindow.xaml.cs">
       <DependentUpon>HistoryWindow.xaml</DependentUpon>
     </Compile>
@@ -99,7 +103,6 @@
     <Compile Include="Extention\SortInfo.cs" />
     <Compile Include="Extention\UIElementAdorner.cs" />
     <Compile Include="Listeners\AlarmListener.cs" />
-    <Compile Include="Models\SunRizHistory.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
@@ -114,6 +117,10 @@
     <Page Include="Dialogs\GatewayDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\SysLogWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\HistoryWindow.xaml">
       <SubType>Designer</SubType>
@@ -341,6 +348,7 @@
     <Content Include="Firefox\sandboxbroker.dll" />
     <Content Include="Firefox\softokn3.dll" />
     <Content Include="Firefox\xul.dll" />
+    <Resource Include="Images\solution\log.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Geckofx45.45.0.34\build\Geckofx45.targets" Condition="Exists('..\packages\Geckofx45.45.0.34\build\Geckofx45.targets')" />

@@ -7,7 +7,6 @@ function rgb(r, g, b) {
 }
 var PropertyDialog = (function () {
     function PropertyDialog(control) {
-        var _this = this;
         this.isShowed = false;
         this.control = control;
         var captions = control.getPropertiesCaption();
@@ -106,12 +105,10 @@ var PropertyDialog = (function () {
         this.rootElement.className = "propertyDialog";
         this.rootElement.style.cursor = "move";
         this.setRootEvent();
-        this.documentClickEvent = function (e) { return _this._documentElementClick(e); };
-        document.documentElement.addEventListener("click", this.documentClickEvent, false);
     }
     PropertyDialog.prototype._documentElementClick = function (e) {
         var ele = e.target;
-        while (ele.tagName != "BODY") {
+        while (ele && ele.tagName != "BODY") {
             if (ele == this.rootElement) {
                 return;
             }
@@ -258,11 +255,15 @@ var PropertyDialog = (function () {
         }
     };
     PropertyDialog.prototype.hide = function () {
+        document.documentElement.removeEventListener("click", this.documentClickEvent, false);
         this.isShowed = false;
         editor.editingPointTextbox = null;
         this.rootElement.style.visibility = "hidden";
     };
     PropertyDialog.prototype.show = function () {
+        var _this = this;
+        this.documentClickEvent = function (e) { return _this._documentElementClick(e); };
+        document.documentElement.addEventListener("click", this.documentClickEvent, false);
         this.isShowed = true;
         var rect = this.control.rect;
         if (!rect) {

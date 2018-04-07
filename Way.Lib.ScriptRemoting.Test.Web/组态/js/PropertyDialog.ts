@@ -136,14 +136,13 @@ class PropertyDialog
 
         this.setRootEvent();
 
-        this.documentClickEvent = (e) => this._documentElementClick(e);
-        document.documentElement.addEventListener("click", this.documentClickEvent, false);
+       
     }
 
     private _documentElementClick(e: Event)
     {
         var ele: any = e.target;
-        while (ele.tagName != "BODY") {
+        while (ele && ele.tagName != "BODY") {
             if (ele == this.rootElement) {
                 return;
             }
@@ -317,12 +316,17 @@ class PropertyDialog
 
     hide()
     {
+        document.documentElement.removeEventListener("click", this.documentClickEvent, false);
+
         this.isShowed = false;
         editor.editingPointTextbox = null;
         this.rootElement.style.visibility = "hidden";
     }
     show()
     {
+        this.documentClickEvent = (e) => this._documentElementClick(e);
+        document.documentElement.addEventListener("click", this.documentClickEvent, false);
+
         this.isShowed = true;
         var rect = this.control.rect;
         if (!rect) {

@@ -6,8 +6,25 @@ using System.Threading.Tasks;
 
 namespace SunRizServer
 {
-    class AlarmHelper
+    class SystemHelper
     {
+        /// <summary>
+        /// 添加系统日志
+        /// </summary>
+        /// <param name="userid"></param>
+        /// <param name="content"></param>
+        public static void AddSysLog(int userid,string content)
+        {
+            using (var db = new DB.SunRiz(SystemLog.LogDataPath, Way.EntityDB.DatabaseType.Sqlite))
+            {
+                db.Insert(new SysLog {
+                    UserId = userid,
+                    Content = content,
+                    Time = DateTime.Now
+                });
+            }
+        }
+
         /// <summary>
         /// 添加报警
         /// </summary>

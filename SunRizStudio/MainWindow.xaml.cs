@@ -312,7 +312,10 @@ namespace SunRizStudio
                 _alarmWindow = new Dialogs.AlarmWindow();
             showWindow(_alarmWindow);
         }
-
+        public void ShowSysLogWindow()
+        {
+            showWindow(new Dialogs.SysLogWindow());
+        }
         public void ShowHistoryWindow()
         {
             showWindow(new Dialogs.HistoryWindow());

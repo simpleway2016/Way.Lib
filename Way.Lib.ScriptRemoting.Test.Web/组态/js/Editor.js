@@ -532,6 +532,11 @@ var Editor = (function () {
                     window.exitFullScreen();
                 }
             }
+            else if (e.keyCode == 13) {
+                if (AllSelectedControls.length > 0) {
+                    AllSelectedControls[0].showProperty();
+                }
+            }
             else {
             }
         }, false);
@@ -972,7 +977,7 @@ var Editor = (function () {
                 windowCodes.push(this.controls[i].windowCode);
             }
         }
-        window.save(this.name, this.code, this.customProperties, this.getScript(), scripts, windowCodes);
+        window.save(this.name, this.code, this.windowWidth, this.windowHeight, this.customProperties, this.getScript(), scripts, windowCodes);
     };
     Editor.prototype.getSaveInfo = function () {
         var scripts = "";
