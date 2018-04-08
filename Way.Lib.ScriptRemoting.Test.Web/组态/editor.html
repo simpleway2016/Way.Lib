@@ -266,6 +266,13 @@
             btnMethod.click();
         }
 
+        window.alert = function (msg)
+        {
+            btnMethod.value = "alert";
+            hidMethodParam.value = msg;
+            btnMethod.click();
+        }
+
         /**
          * 打开新窗口
          * @param windowCode
@@ -329,6 +336,10 @@
             btnMethod.click();
         }
         function openRunMode() {
+            if (editor.name.length == 0) {
+                alert("请先保存窗口！");
+                return;
+            }
             btnMethod.value = "openRunMode";
             hidMethodParam.value = "";
             btnMethod.click();
@@ -507,7 +518,7 @@
 
         //进入运行模式
         function run()
-        {
+        {            
             editor.run();
             var divToolbar = document.body.querySelector("#divToolbar");
             divToolbar.parentElement.removeChild(divToolbar);
@@ -533,7 +544,13 @@
 
         if (editor.name.length == 0)
         {
-            btnSetting.click();
+            try {
+                document.body.querySelector("#btnSetting").click();
+            }
+            catch (e)
+            {
+
+            }
         }
     </script>
 </body>

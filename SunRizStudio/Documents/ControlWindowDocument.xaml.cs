@@ -185,7 +185,13 @@ namespace SunRizStudio.Documents
                 }
             }
         }
-      
+
+        void alert(string msg)
+        {
+            var window = this.GetParentByName<Window>(null);
+            MessageBox.Show(window, msg, "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+        }
+
         /// <summary>
         /// 返回上一个页面
         /// </summary>
