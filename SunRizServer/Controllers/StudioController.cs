@@ -806,7 +806,10 @@ namespace SunRizServer.Controllers
         [RemotingMethod]
         public object GetSysLogs(int skip, int take, string searchModel, string orderBy)
         {
-            var result = (IEnumerable<SysLog>) this.LoadData("SysLogs", skip, take, searchModel, orderBy);
+            if (string.IsNullOrEmpty(SystemLog.LogDataPath))
+                throw new Exception("系统日志存放路径未配置");
+
+                var result = (IEnumerable<SysLog>) this.LoadData("SysLogs", skip, take, searchModel, orderBy);
             foreach (var item in result)
             {
                 item.UserName = db.UserInfo.Where(m => m.id == item.UserId).Select(m => m.Name).FirstOrDefault();

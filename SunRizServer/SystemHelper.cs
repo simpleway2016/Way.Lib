@@ -15,6 +15,9 @@ namespace SunRizServer
         /// <param name="content"></param>
         public static void AddSysLog(int userid,string content)
         {
+            if (string.IsNullOrEmpty(SystemLog.LogDataPath))
+                return;
+
             using (var db = new DB.SunRiz(SystemLog.LogDataPath, Way.EntityDB.DatabaseType.Sqlite))
             {
                 db.Insert(new SysLog {
