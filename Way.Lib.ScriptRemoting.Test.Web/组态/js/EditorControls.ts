@@ -113,14 +113,13 @@ class EditorControl {
             this._moveAllSelectedControl = this.selected;
 
             e.stopPropagation();
-
             if (e.shiftKey) {
                 //告诉client，显示一个周边控件的列表
                 var myrect = this.rect;
                 var ids = [];
                 for (var i = 0; i < this.container.controls.length; i++) {
                     var ctrl = <EditorControl>this.container.controls[i];
-                    if (ctrl != this && ctrl.isIntersectWith(myrect)) {
+                    if (ctrl == this || ctrl.isIntersectWith(myrect)) {
                         //这个控件与this相交
                         ids.push(ctrl.id);
                     }

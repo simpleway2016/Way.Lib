@@ -60,7 +60,7 @@ var EditorControl = (function () {
                 var ids = [];
                 for (var i = 0; i < _this.container.controls.length; i++) {
                     var ctrl = _this.container.controls[i];
-                    if (ctrl != _this && ctrl.isIntersectWith(myrect)) {
+                    if (ctrl == _this || ctrl.isIntersectWith(myrect)) {
                         ids.push(ctrl.id);
                     }
                 }

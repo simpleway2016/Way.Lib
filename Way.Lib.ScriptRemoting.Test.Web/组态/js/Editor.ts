@@ -1267,13 +1267,24 @@ class Editor implements IEditorControlContainer
 
     selectControlsByRect(rect)
     {
+        var originalCtrlKey = CtrlKey;
+
+        if (originalCtrlKey == false) {
+            //如果没有按住ctrl，那么所有先unselect
+            for (var i = 0; i < this.controls.length; i++) {
+                this.controls[i].selected = false;
+            }
+        }
+
+        //假设按下了ctrl
+        CtrlKey = true;
         for (var i = 0; i < this.controls.length; i++)
         {
             var intersect = this.controls[i].isIntersectWith(rect);
            
             if (intersect)
             {
-                if (CtrlKey && this.controls[i].selected)
+                if (originalCtrlKey && this.controls[i].selected)
                 {
                     this.controls[i].selected = false;
                 }
@@ -1281,13 +1292,10 @@ class Editor implements IEditorControlContainer
                     this.controls[i].selected = true;
                 }
             }
-            else {
-                if (!CtrlKey)
-                {
-                    this.controls[i].selected = false;
-                }
-            }
         }
+
+        //还原ctrl状态
+        CtrlKey = originalCtrlKey;
     }
 
     setCurrentToolBoxItem(typename: string)

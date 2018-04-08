@@ -1059,22 +1059,25 @@ var Editor = (function () {
     Editor.prototype.fireBodyEvent = function (event) {
     };
     Editor.prototype.selectControlsByRect = function (rect) {
+        var originalCtrlKey = CtrlKey;
+        if (originalCtrlKey == false) {
+            for (var i = 0; i < this.controls.length; i++) {
+                this.controls[i].selected = false;
+            }
+        }
+        CtrlKey = true;
         for (var i = 0; i < this.controls.length; i++) {
             var intersect = this.controls[i].isIntersectWith(rect);
             if (intersect) {
-                if (CtrlKey && this.controls[i].selected) {
+                if (originalCtrlKey && this.controls[i].selected) {
                     this.controls[i].selected = false;
                 }
                 else {
                     this.controls[i].selected = true;
                 }
             }
-            else {
-                if (!CtrlKey) {
-                    this.controls[i].selected = false;
-                }
-            }
         }
+        CtrlKey = originalCtrlKey;
     };
     Editor.prototype.setCurrentToolBoxItem = function (typename) {
         if (!typename || typename.length == 0) {
