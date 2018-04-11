@@ -22,6 +22,7 @@ namespace EJClient.Forms
     /// </summary>
     public partial class BuildeCode : Window
     {
+        EJ.Databases m_database;
         int m_databaseID;
         string m_outputFileName;
         string m_pagename;
@@ -42,8 +43,8 @@ namespace EJClient.Forms
                 {
                     try
                     {
-                                            
-                       
+
+                        var database = Helper.Client.InvokeSync<EJ.Databases>("GetDatabase", m_databaseID);
 
                         BuildDatabase.Downloader.downloadFile(m_pagename, this.m_databaseID, m_outputFileName, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
                         this.Dispatcher.Invoke(new Action(() =>
@@ -52,13 +53,13 @@ namespace EJClient.Forms
                         }));
 
 
-                        
-                        //this.Dispatcher.Invoke(new Action(() =>
-                        //{
-                        //    lblStatus.Content = "Output " + m_database.Name + " Completed!";
-                        //    setOutputText("Target:" + m_outputFileName);
-                        //    btnOK.IsEnabled = true;
-                        //}));
+
+                        this.Dispatcher.Invoke(new Action(() =>
+                        {
+                            lblStatus.Content = "Output " + database.Name + " Completed!";
+                            setOutputText("Target:" + m_outputFileName);
+                            btnOK.IsEnabled = true;
+                        }));
                     }
                     catch (Exception ex)
                     {
