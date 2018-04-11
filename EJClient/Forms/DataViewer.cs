@@ -279,9 +279,11 @@ namespace EJClient.Forms
                         {
                             try
                             {
-                                dt.Columns[i].DataType = SqlType2CsharpType(SqlTypeString2SqlType(m_columns.FirstOrDefault(m => m.Name == dt.Columns[i].ColumnName).dbType));
+                                dt.Columns[i].DataType = SqlType2CsharpType(SqlTypeString2SqlType(m_columns.FirstOrDefault(m => string.Equals( m.Name , dt.Columns[i].ColumnName, StringComparison.CurrentCultureIgnoreCase)).dbType));
                             }
-                            catch { }
+                            catch {
+                                dt.Columns[i].DataType = typeof(string);
+                            }
                         }
                     }
 
@@ -443,7 +445,6 @@ namespace EJClient.Forms
 
         private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-           
             e.Cancel = true;
             MessageBox.Show(this, e.Exception.Message);
         }
