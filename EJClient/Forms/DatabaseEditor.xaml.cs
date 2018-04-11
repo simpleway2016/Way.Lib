@@ -54,7 +54,7 @@ namespace EJClient.Forms
                 _currentData.conStr = "server=;uid=;pwd=;Database=";
             }
 
-            var dbtypes = typeof(Way.EntityDB.DatabaseType).GetFields();
+            var dbtypes = typeof(EJ.Databases_dbTypeEnum).GetFields();
             List<DBType> source = new List<Forms.DatabaseEditor.DBType>();
             for(int i = 1; i < dbtypes.Length; i ++)
             {

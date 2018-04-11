@@ -46,7 +46,7 @@ namespace EJClient.Forms
             _currentData = new EJ.Databases();
             _currentData.conStr = "server=;uid=;pwd=;Database=";
 
-            var dbtypes = typeof(Way.EntityDB.DatabaseType).GetFields();
+            var dbtypes = typeof(EJ.Databases_dbTypeEnum).GetFields();
             List<DBType> source = new List<DBType>();
             for(int i = 1; i < dbtypes.Length; i ++)
             {
@@ -93,11 +93,17 @@ namespace EJClient.Forms
         }
 
     }
-
+    public class IndexInfo
+    {
+        public bool IsUnique;
+        public bool IsClustered;
+        public string[] ColumnNames;
+        public string Name;
+    }
     public class TableInfo
     {
         public string TableName;
         public EJ.DBColumn[] Columns;
-        public Way.EntityDB.Design.IndexInfo[] Indexes;
+        public IndexInfo[] Indexes;
     }
 }

@@ -83,7 +83,7 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return Way.EntityDB.Design.ColumnType.SupportTypes;
+                    return ColumnType.SupportTypes;
                 }
             }
         }

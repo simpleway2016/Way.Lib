@@ -23,7 +23,6 @@ namespace EJClient.Forms
     public partial class BuildeCode : Window
     {
         int m_databaseID;
-        EJ.Databases m_database;
         string m_outputFileName;
         string m_pagename;
         public BuildeCode(int databaseid,string filename,string pagename)
@@ -43,10 +42,7 @@ namespace EJClient.Forms
                 {
                     try
                     {
-                        m_database = Helper.Client.InvokeSync<EJ.Databases>("GetDatabase", m_databaseID);
-
-
-                       
+                                            
                        
 
                         BuildDatabase.Downloader.downloadFile(m_pagename, this.m_databaseID, m_outputFileName, new BuildDatabase.Downloader.DownloadingFileHandler(downloading));
@@ -57,12 +53,12 @@ namespace EJClient.Forms
 
 
                         
-                        this.Dispatcher.Invoke(new Action(() =>
-                        {
-                            lblStatus.Content = "Output " + m_database.Name + " Completed!";
-                            setOutputText("Target:" + m_outputFileName);
-                            btnOK.IsEnabled = true;
-                        }));
+                        //this.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    lblStatus.Content = "Output " + m_database.Name + " Completed!";
+                        //    setOutputText("Target:" + m_outputFileName);
+                        //    btnOK.IsEnabled = true;
+                        //}));
                     }
                     catch (Exception ex)
                     {
@@ -81,49 +77,49 @@ namespace EJClient.Forms
         private const string CscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
         public void Build()
         {
-            string folderPath = m_database.dllPath;
-            if (folderPath.EndsWith("\\") == false)
-                folderPath += "\\";
+            //string folderPath = m_database.dllPath;
+            //if (folderPath.EndsWith("\\") == false)
+            //    folderPath += "\\";
 
-            if (File.Exists(CscPath) == false)
-            {
-                System.Windows.Forms.MessageBox.Show("无法找到" + CscPath);
-                return;
-            }
-            string savedDllPath = folderPath + m_database.Name + "DataObjects.dll";
-            string oldResDllPath = "";
-            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "DataSpace.dll"))
-            {
-                oldResDllPath = "/reference:\"" + AppDomain.CurrentDomain.BaseDirectory + "DataSpace.dll\"";
-            }
-            ProcessStartInfo startinfo = new ProcessStartInfo(CscPath, @"/target:library /resource:"""+ AppDomain.CurrentDomain.BaseDirectory + @"codes\database.actions"" /platform:anycpu /doc:""" + folderPath + m_database.Name + @"DataObjects.xml"" /out:""" + folderPath + m_database.Name + @"DataObjects.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.Design.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.dll"" " + oldResDllPath + @" /reference:""System.ComponentModel.DataAnnotations.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"Microsoft.EntityFrameworkCore.dll"" """ + AppDomain.CurrentDomain.BaseDirectory + "Codes" + @"\*.cs""");
-            startinfo.RedirectStandardError = true;
-            startinfo.RedirectStandardOutput = true;
-            startinfo.UseShellExecute = false;
-            startinfo.CreateNoWindow = true;
-            startinfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //if (File.Exists(CscPath) == false)
+            //{
+            //    System.Windows.Forms.MessageBox.Show("无法找到" + CscPath);
+            //    return;
+            //}
+            //string savedDllPath = folderPath + m_database.Name + "DataObjects.dll";
+            //string oldResDllPath = "";
+            //if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "DataSpace.dll"))
+            //{
+            //    oldResDllPath = "/reference:\"" + AppDomain.CurrentDomain.BaseDirectory + "DataSpace.dll\"";
+            //}
+            //ProcessStartInfo startinfo = new ProcessStartInfo(CscPath, @"/target:library /resource:"""+ AppDomain.CurrentDomain.BaseDirectory + @"codes\database.actions"" /platform:anycpu /doc:""" + folderPath + m_database.Name + @"DataObjects.xml"" /out:""" + folderPath + m_database.Name + @"DataObjects.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.Design.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"EntityDB.dll"" " + oldResDllPath + @" /reference:""System.ComponentModel.DataAnnotations.dll"" /reference:""" + AppDomain.CurrentDomain.BaseDirectory + @"Microsoft.EntityFrameworkCore.dll"" """ + AppDomain.CurrentDomain.BaseDirectory + "Codes" + @"\*.cs""");
+            //startinfo.RedirectStandardError = true;
+            //startinfo.RedirectStandardOutput = true;
+            //startinfo.UseShellExecute = false;
+            //startinfo.CreateNoWindow = true;
+            //startinfo.WindowStyle = ProcessWindowStyle.Hidden;
 
-            setOutputText("Target:" + savedDllPath);
-            try
-            {
-                Process p = Process.Start(startinfo);
-                new Thread(() =>
-                    {
-                        while (true)
-                        {
-                            string line = p.StandardOutput.ReadLine();
-                            if (line == null)
-                                break;
-                            setOutputText(line);
-                        }
-                    }).Start();
-                p.WaitForExit();
+            //setOutputText("Target:" + savedDllPath);
+            //try
+            //{
+            //    Process p = Process.Start(startinfo);
+            //    new Thread(() =>
+            //        {
+            //            while (true)
+            //            {
+            //                string line = p.StandardOutput.ReadLine();
+            //                if (line == null)
+            //                    break;
+            //                setOutputText(line);
+            //            }
+            //        }).Start();
+            //    p.WaitForExit();
                 
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.GetBaseException().Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Windows.Forms.MessageBox.Show(ex.GetBaseException().Message);
+            //}
         }
 
         void setOutputText(string text)

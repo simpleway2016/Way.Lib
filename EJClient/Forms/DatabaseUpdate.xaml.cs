@@ -1,5 +1,5 @@
 ﻿
-using Way.EntityDB.Design.Services;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +43,7 @@ namespace EJClient.Forms
             {
             }
 
-            string[] typenames = Enum.GetNames(typeof(Way.EntityDB.DatabaseType));
+            string[] typenames = Enum.GetNames(typeof(EJ.Databases_dbTypeEnum));
             foreach (string tn in typenames)
             {
                 cmbDBType.Items.Add(tn);

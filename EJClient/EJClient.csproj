@@ -225,9 +225,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UIAutomationProvider" />
-    <Reference Include="Way.EntityDB">
-      <HintPath>..\Way.EntityDB\bin\Debug\net46\Way.EntityDB.dll</HintPath>
-    </Reference>
     <Reference Include="Way.Lib, Version=1.0.0.6, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Way.Lib\bin\Debug\net46\Way.Lib.dll</HintPath>
@@ -247,6 +244,10 @@
     <Compile Include="CookieWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ColumnType.cs" />
+    <Compile Include="DataTable\EasyJob.cs" />
+    <Compile Include="DataTable\WayDataSet.cs" />
+    <Compile Include="DataTable\WayDataTable.cs" />
     <Compile Include="Designer\BooleanTypeConvert.cs" />
     <Compile Include="Designer\DbTypeConvert.cs" />
     <Compile Include="Designer\EnumEditor.cs" />

@@ -21,9 +21,9 @@ namespace EJClient.Forms
     {
         class SettingProxy
         {
-            Way.EntityDB.DataItem _data;
+            Way.Lib.DataModel _data;
             string _textField;
-            public SettingProxy(Way.EntityDB.DataItem p,string textField)
+            public SettingProxy(Way.Lib.DataModel p,string textField)
             {
                 _data = p;
                 _textField = textField;
@@ -39,14 +39,14 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return _data.BackupChangedProperties["HasPower"] != null;
+                    return _data.ChangedProperties["HasPower"] != null;
                 }
                 set
                 {
                     if (value)
-                        _data.BackupChangedProperties["HasPower"] = new Way.EntityDB.DataValueChangedItem();
+                        _data.ChangedProperties["HasPower"] = new Way.Lib.DataModelChangedItem();
                     else
-                        _data.BackupChangedProperties.Clear();
+                        _data.ChangedProperties.Clear();
                 }
             }
             public SettingProxy[] Children
@@ -59,7 +59,7 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return Convert.ToInt32( _data.GetValue("id"));
+                    return Convert.ToInt32(_data.GetType().GetProperty("id").GetValue(this));
                 }
             }
             Visibility _CheckBoxVisibility = Visibility.Visible;
@@ -78,7 +78,7 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return _data.GetValue(_textField).ToString();
+                    return _data.GetType().GetProperty(_textField).GetValue(this).ToString();
                 }
             }
         }

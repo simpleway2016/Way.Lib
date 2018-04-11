@@ -262,7 +262,7 @@ namespace EJClient.Forms
         private void bindData()
         {
             this.Cursor = Cursors.WaitCursor;
-            Helper.Client.Invoke<Way.EntityDB.WayDataTable>("GetDataTable",(r,err)=> {
+            Helper.Client.Invoke<WayDataTable>("GetDataTable",(r,err)=> {
                 this.Cursor = Cursors.Default;
                 if (err != null)
                 {
@@ -405,7 +405,7 @@ namespace EJClient.Forms
                 }
                 foreach (DataRow drow in oldsource.Rows)
                 {
-                    if (drow.RowState == DataRowState.Added || drow.RowState == DataRowState.Modified)
+                    if (drow.RowState == System.Data.DataRowState.Added || drow.RowState == System.Data.DataRowState.Modified)
                     {
                         DataRow newRow = dt.NewRow();
                         foreach (DataColumn column in oldsource.Columns)
@@ -415,18 +415,18 @@ namespace EJClient.Forms
                         dt.Rows.Add(newRow);
                         newRow.AcceptChanges();
 
-                        if (drow.RowState == DataRowState.Added)
+                        if (drow.RowState == System.Data.DataRowState.Added)
                             newRow.SetAdded();
-                        else if (drow.RowState == DataRowState.Deleted)
+                        else if (drow.RowState == System.Data.DataRowState.Deleted)
                             newRow.Delete();
-                        else if (drow.RowState == DataRowState.Modified)
+                        else if (drow.RowState == System.Data.DataRowState.Modified)
                             newRow.SetModified();
                     }
                 }
 
                 if (dt != null)
                 {
-                    Helper.Client.InvokeSync<string>("SaveDataTable", new Way.EntityDB.WayDataTable(dt), m_Table.id.Value, deletedIds.ToArray());
+                    Helper.Client.InvokeSync<string>("SaveDataTable", new WayDataTable(dt), m_Table.id.Value, deletedIds.ToArray());
                     deletedIds.Clear();
                     dt.Dispose();
                     oldsource.AcceptChanges();
@@ -446,6 +446,7 @@ namespace EJClient.Forms
         private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             e.Cancel = true;
+            if(e.Exception.HResult != -2147024809)
             MessageBox.Show(this, e.Exception.Message);
         }
 
@@ -455,7 +456,7 @@ namespace EJClient.Forms
             var oldsource = (DataTable)dataGridView1.DataSource;
             var row = oldsource.Rows[e.RowIndex];
             var value = row[e.ColumnIndex];
-            if (row.RowState == DataRowState.Unchanged)
+            if (row.RowState == System.Data.DataRowState.Unchanged)
             {
                 row.SetModified();
                 row[e.ColumnIndex] = value;

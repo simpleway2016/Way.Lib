@@ -32,7 +32,7 @@ namespace EJClient.UI
         {
             try
             {
-                listView.ItemsSource = Helper.Client.InvokeSync<Way.EntityDB.Design.BugItem[]>("GetMyBugs");
+                //listView.ItemsSource = Helper.Client.InvokeSync<Way.EntityDB.Design.BugItem[]>("GetMyBugs");
             }
             catch (Exception ex)
             {
@@ -61,8 +61,9 @@ namespace EJClient.UI
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            var bug = (Way.EntityDB.Design.BugItem)item;
-            return (DataTemplate)this.GetType().GetProperty(bug.Status.ToString()).GetValue(this);
+            //var bug = (Way.EntityDB.Design.BugItem)item;
+            //return (DataTemplate)this.GetType().GetProperty(bug.Status.ToString()).GetValue(this);
+            return null;
         }
     }
 
@@ -86,11 +87,11 @@ namespace EJClient.UI
             //{
             //    return Brushes.Beige;
             //}
-            var bug = (Way.EntityDB.Design.BugItem)item.DataContext;
-            if (bug.Status == EJ.Bug_StatusEnum.提交给开发人员)
-                return new SolidColorBrush(Color.FromArgb(255,251,171,177));
-            else if (bug.Status == EJ.Bug_StatusEnum.反馈给提交者)
-                return new SolidColorBrush(Color.FromArgb(255, 171, 209, 251));
+            //var bug = (Way.EntityDB.Design.BugItem)item.DataContext;
+            //if (bug.Status == EJ.Bug_StatusEnum.提交给开发人员)
+            //    return new SolidColorBrush(Color.FromArgb(255,251,171,177));
+            //else if (bug.Status == EJ.Bug_StatusEnum.反馈给提交者)
+            //    return new SolidColorBrush(Color.FromArgb(255, 171, 209, 251));
 
             return new SolidColorBrush(Color.FromArgb(255, 158, 200, 170));
         }

@@ -20,22 +20,22 @@ namespace EJClient.Forms.BugCenter
     /// </summary>
     public partial class HistoryItem : StackPanel
     {
-        public Way.EntityDB.Design.BugHistoryItem Data
+        public object Data
         {
             get;
             private set;
         }
-        public HistoryItem(Way.EntityDB.Design.BugHistoryItem data , double width)
+        public HistoryItem(object data , double width)
         {
-            this.Data = data;
-            InitializeComponent();
-            this.Margin = new Thickness(5);
-            lblName.Content = this.Data.SubmitTime.Value.ToString("yyyy/MM/dd HH:mm:ss") + " " + this.Data.UserName + ":";
-            string xaml =  System.Text.Encoding.UTF8.GetString(data.Content);
-           var doc = System.Windows.Markup.XamlReader.Parse(xaml) as FlowDocument;
-           txtContent.Document = doc;
-           txtContent.IsReadOnly = true;
-           txtContent.Width = width - 10;
+           // this.Data = data;
+           // InitializeComponent();
+           // this.Margin = new Thickness(5);
+           // lblName.Content = this.Data.SubmitTime.Value.ToString("yyyy/MM/dd HH:mm:ss") + " " + this.Data.UserName + ":";
+           // string xaml =  System.Text.Encoding.UTF8.GetString(data.Content);
+           //var doc = System.Windows.Markup.XamlReader.Parse(xaml) as FlowDocument;
+           //txtContent.Document = doc;
+           //txtContent.IsReadOnly = true;
+           //txtContent.Width = width - 10;
         }
     }
 

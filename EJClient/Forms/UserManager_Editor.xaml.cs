@@ -45,7 +45,7 @@ namespace EJClient.Forms
             }
             else
             {
-                _old = (EJ.User)_data.Clone();
+                _old = _data.Clone<EJ.User>();
             }
             var fields = new List<FieldInfo>(typeof(EJ.User_RoleEnum).GetFields());
             fields.RemoveAt(0);

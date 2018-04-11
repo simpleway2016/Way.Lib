@@ -76,7 +76,7 @@ namespace EJClient.TreeNode
 
         public void OutputAction(string filename)
         {
-            var dt = Helper.Client.InvokeSync<Way.EntityDB.WayDataTable>("GetActions", Database.id).ToDataTable();
+            var dt = Helper.Client.InvokeSync<WayDataTable>("GetActions", Database.id).ToDataTable();
             var dset = new System.Data.DataSet();
             dset.Tables.Add(dt);
             dset.DataSetName = this.Database.Guid;

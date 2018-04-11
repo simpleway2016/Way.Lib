@@ -15,7 +15,7 @@ namespace EJClient.Designer
 
 		public override System.ComponentModel.TypeConverter.StandardValuesCollection GetStandardValues(System.ComponentModel.ITypeDescriptorContext context)
 		{
-			var val = Way.EntityDB.Design.ColumnType.SupportTypes;
+			var val = ColumnType.SupportTypes;
 
 			StandardValuesCollection svc = new StandardValuesCollection((from m in val orderby m select m).ToArray());
 			return svc;

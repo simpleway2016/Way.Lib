@@ -63,7 +63,7 @@ namespace EJClient.Forms
                         {
                             var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetDatabaseCurrentColumns", _source, table);
                            
-                            var indexes = Helper.Client.InvokeSync<Way.EntityDB.Design.IndexInfo[]>("GetDatabaseCurrentIndexes", _source, table);
+                            var indexes = Helper.Client.InvokeSync<IndexInfo[]>("GetDatabaseCurrentIndexes", _source, table);
 
                             tables.Add(new TableInfo()
                             {

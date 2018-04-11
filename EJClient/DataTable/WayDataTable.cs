@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Way.EntityDB
+namespace EJClient
 {
 
     public class WayDataTable:IDisposable

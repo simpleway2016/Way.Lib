@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Way.EntityDB.Design;
 
 namespace EJClient.Forms.BugCenter
 {
@@ -54,31 +53,31 @@ namespace EJClient.Forms.BugCenter
         {
             try
             {
-                Helper.Client.Invoke<BugHistoryItem[]>("GetBugHistories", (result,error) => {
-                    historiesPanel.Children.Clear();
-                    if (error != null)
-                        Helper.ShowError(error);
-                    else
-                    {
-                        foreach (var data in result)
-                        {
-                            HistoryItem control = new HistoryItem(data, historiesPanel.ActualWidth);
+                //Helper.Client.Invoke<BugHistoryItem[]>("GetBugHistories", (result,error) => {
+                //    historiesPanel.Children.Clear();
+                //    if (error != null)
+                //        Helper.ShowError(error);
+                //    else
+                //    {
+                //        foreach (var data in result)
+                //        {
+                //            HistoryItem control = new HistoryItem(data, historiesPanel.ActualWidth);
 
-                            historiesPanel.Children.Add(control);
-                        }
+                //            historiesPanel.Children.Add(control);
+                //        }
 
-                    }
-                }, BugID);
+                //    }
+                //}, BugID);
 
-                Helper.Client.Invoke<string>("GetBugPicture", (result, error) => {
-                    if (error != null)
-                        Helper.ShowError(error);
-                    else
-                    {
-                        if(result != null)
-                        bugEditor.Load(Convert.FromBase64String(result));
-                    }
-                }, BugID);
+                //Helper.Client.Invoke<string>("GetBugPicture", (result, error) => {
+                //    if (error != null)
+                //        Helper.ShowError(error);
+                //    else
+                //    {
+                //        if(result != null)
+                //        bugEditor.Load(Convert.FromBase64String(result));
+                //    }
+                //}, BugID);
                 
             }
             catch (Exception ex)
