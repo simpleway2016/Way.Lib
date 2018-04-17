@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.IO;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
+using System.Reflection;
 
 namespace Way.Lib.ScriptRemotingUnitTest
 {
@@ -29,7 +32,7 @@ namespace Way.Lib.ScriptRemotingUnitTest
         [TestMethod]
         public void ExportToPfxFile_Test()
         {
-            if (CertificateMaker.ExportToPfxFile("EJServerCert", "e:\\EJServerCert.pfx" ,"123456" , true ) == false)
+            if (CertificateMaker.ExportToPfxFile("EJServerCert", "e:\\EJServerCert.pfx", "123456", true) == false)
                 throw new Exception("Fail");
         }
         [TestMethod]
@@ -71,7 +74,7 @@ namespace Way.Lib.ScriptRemotingUnitTest
             using (var stream = new FileStream(System.IO.Directory.GetFiles(Way.Lib.CLog.SaveFolder)[0], FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (System.IO.StreamReader sr = new System.IO.StreamReader(stream))
             {
-                while(true)
+                while (true)
                 {
                     string line = sr.ReadLine();
                     if (line == null)
@@ -85,5 +88,58 @@ namespace Way.Lib.ScriptRemotingUnitTest
                 throw new Exception("结果错误");
 
         }
+
+        [TestMethod]
+        public void CustomJson()
+        {
+            var data = new TestClass
+            {
+                Name = "t1",
+                Indexes = new int[] { 6, 8 },
+                List = new List<TestClass>()
+            };
+            data.Value = new TestClass { Name = "other" };
+            data.Arr1 = new TestClass[2] {
+                new TestClass{
+                    Name = "a1",
+                }, new TestClass{
+                    Name = "a2",
+                }
+            };
+            data.Arr2 = new object[2] {
+                new TestClass{
+                    Name = "a3",
+                }, new TestClass{
+                    Name = "a4",
+                }
+            };
+            data.List.AddRange(data.Arr1);
+            data.Dict["dict1"] = 6;
+            data.Dict["dict2"] = new TestClass { Name = "dictItem" };
+
+
+            var result = Way.Lib.Serialization.Serializer.SerializeObject(data);
+
+            var restoreData = Way.Lib.Serialization.Serializer.DeserializeObject<TestClass>(result);
+
+            if (Newtonsoft.Json.JsonConvert.SerializeObject(data) != Newtonsoft.Json.JsonConvert.SerializeObject(restoreData))
+                throw new Exception("结果错误");
+
+            if( ((TestClass)restoreData.Dict["dict2"]).Name != ((TestClass)data.Dict["dict2"]).Name )
+                throw new Exception("结果错误");
+            
+        }
     }
+
+    class TestClass
+    {
+        public string Name;
+        public int[] Indexes;
+        public Dictionary<object, object> Dict = new Dictionary<object, object>();
+        public object Value { get; set; }
+        public TestClass[] Arr1 { get; set; }
+        public object[] Arr2 { get; set; }
+        public List<TestClass> List { get; set; }
+    }
+    
 }

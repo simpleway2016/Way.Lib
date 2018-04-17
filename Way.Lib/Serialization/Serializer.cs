@@ -1,0 +1,264 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+using System.Linq;
+
+namespace Way.Lib.Serialization
+{
+    /// <summary>
+    /// 序列化对象，保持类型和原对象一直
+    /// </summary>
+    public class Serializer
+    {
+        public static string SerializeObject(object obj)
+        {
+            var converter = new MyJsonConvert();
+            var result = Newtonsoft.Json.JsonConvert.SerializeObject(obj, converter);
+            return $"/*{Newtonsoft.Json.JsonConvert.SerializeObject(converter.TypeDescs)}*/{result}";
+        }
+        public static T DeserializeObject<T>(string content)
+        {
+            var converter = new MyJsonConvert();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(content, converter);
+        }
+    }
+
+    class MyJsonConvert : Newtonsoft.Json.JsonConverter
+    {
+        public class TypeDesc
+        {
+            public string Assembly;
+            public string Type;
+        }
+        public List<TypeDesc> TypeDescs = new List<TypeDesc>();
+
+        public override bool CanRead => true;
+        public override bool CanWrite => true;
+
+        int getTypedescIndex(Type type)
+        {
+            var assembly = type.Assembly.GetName().Name;
+            var typename = type.FullName;
+            var item = TypeDescs.FirstOrDefault(m => m.Assembly == assembly && m.Type == typename);
+            if (item != null)
+                return TypeDescs.IndexOf(item);
+
+            TypeDescs.Add(new TypeDesc
+            {
+                Assembly = assembly,
+                Type = typename
+            });
+            return TypeDescs.Count - 1;
+        }
+        Type getTypeByDescIndex(int index)
+        {
+            if (index < 0)
+                return typeof(object);
+
+            var assembly = Assembly.Load(new AssemblyName(this.TypeDescs[index].Assembly));
+            return assembly.GetType(this.TypeDescs[index].Type);
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+
+        object ReadJsonForDictionary(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var dict = (System.Collections.IDictionary)Activator.CreateInstance(objectType);
+            while (true)
+            {
+                reader.Read();
+                if (reader.TokenType == JsonToken.StartObject)
+                {
+                    var key = ReadJson(reader, null, null, serializer);
+
+                    reader.Read();
+                    dict[key] = ReadJson(reader, null, null, serializer);
+
+                }
+                else if (reader.TokenType == JsonToken.EndArray)
+                {
+                    break;
+                }
+            }
+
+            return dict;
+        }
+
+        object ReadJsonForArray(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            Type itemType = null;
+            System.Collections.IList list = null;
+            if (objectType.IsArray)
+            {
+                itemType = objectType.GetElementType();
+                list = (System.Collections.IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+            }
+            else if (objectType.IsGenericType)
+            {
+                itemType = objectType.GetGenericArguments()[0];
+                list = (System.Collections.IList)Activator.CreateInstance(objectType);
+            }
+
+            while (true)
+            {
+                reader.Read();
+                if (reader.TokenType == JsonToken.StartObject || reader.TokenType == JsonToken.StartArray)
+                {
+                    var item = ReadJson(reader, null, null, serializer);
+                    list.Add(item);
+                }
+                else if (reader.TokenType == JsonToken.EndArray)
+                {
+                    break;
+                }
+            }
+
+            if (objectType.IsArray)
+            {
+                var method = typeof(System.Linq.Enumerable).GetMethods().Where(m => m.Name == "ToArray" && m.IsGenericMethod).FirstOrDefault();
+                var arr = method.MakeGenericMethod(itemType).Invoke(null, new object[] { list });
+                return arr;
+            }
+            else
+            {
+                return list;
+            }
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+
+            if (string.IsNullOrEmpty(reader.Path))
+            {
+                this.TypeDescs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TypeDesc>>((string)reader.Value);
+
+                reader.Read();
+            }
+
+            reader.Read();
+            reader.Read();
+            objectType = getTypeByDescIndex(Convert.ToInt32(reader.Value));
+
+            reader.Read();
+            reader.Read();
+
+            if (objectType != null && objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(System.Collections.IDictionary)))
+            {
+                var value = ReadJsonForDictionary(reader, objectType, existingValue, serializer);
+                reader.Read();
+                return value;
+            }
+
+
+            if (reader.TokenType == JsonToken.StartArray)
+            {
+                var value = ReadJsonForArray(reader, objectType, existingValue, serializer);
+                reader.Read();
+                return value;
+            }
+
+            if (objectType.IsValueType || objectType == typeof(string))
+            {
+                var value = Convert.ChangeType(reader.Value, objectType);
+                reader.Read();
+                return value;
+            }
+
+
+
+            var result = Activator.CreateInstance(objectType);
+
+            string fieldName;
+            object fieldValue;
+            while (true)
+            {
+
+                reader.Read();
+                if (reader.TokenType == JsonToken.PropertyName)
+                {
+                    fieldName = (string)reader.Value;
+                    fieldValue = null;
+
+
+                    reader.Read();
+                    fieldValue = ReadJson(reader, null, null, serializer);
+
+                    var fieldInfo = objectType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fieldInfo != null)
+                    {
+                        fieldInfo.SetValue(result, fieldValue);
+                    }
+                }
+                else if (reader.TokenType == JsonToken.EndObject)
+                {
+                    reader.Read();
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public override void WriteJson(JsonWriter writer, object obj, JsonSerializer serializer)
+        {
+            Type type = obj.GetType();
+
+            writer.WriteStartObject();
+            writer.WritePropertyName("t");
+            writer.WriteValue(getTypedescIndex(type));
+
+            writer.WritePropertyName("v");
+
+            if (obj.GetType().IsValueType || obj is string)
+            {
+                writer.WriteValue(obj);
+            }
+            else if (obj is System.Collections.IDictionary)
+            {
+                writer.WriteStartArray();
+                var dict = (System.Collections.IDictionary)obj;
+                foreach (var key in dict.Keys)
+                {
+                    var value = dict[key];
+                    if (value == null)
+                        continue;
+
+                    serializer.Serialize(writer, key);
+                    serializer.Serialize(writer, value);
+                }
+                writer.WriteEndArray();
+            }
+            else if (obj is System.Collections.IEnumerable)
+            {
+                writer.WriteStartArray();
+                var enumerator = ((System.Collections.IEnumerable)obj).GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    serializer.Serialize(writer, enumerator.Current);
+                }
+                writer.WriteEndArray();
+            }
+            else
+            {
+                writer.WriteStartObject();
+                var fields = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                foreach (var field in fields)
+                {
+                    var value = field.GetValue(obj);
+
+                    writer.WritePropertyName(field.Name);
+                    serializer.Serialize(writer, value);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndObject();
+        }
+    }
+}
