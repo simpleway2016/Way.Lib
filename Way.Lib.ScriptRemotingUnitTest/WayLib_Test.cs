@@ -90,7 +90,7 @@ namespace Way.Lib.ScriptRemotingUnitTest
         }
 
         [TestMethod]
-        public void CustomJson()
+        public void SerializerTest()
         {
             var data = new TestClass
             {
@@ -125,9 +125,33 @@ namespace Way.Lib.ScriptRemotingUnitTest
             if (Newtonsoft.Json.JsonConvert.SerializeObject(data) != Newtonsoft.Json.JsonConvert.SerializeObject(restoreData))
                 throw new Exception("结果错误");
 
-            if( ((TestClass)restoreData.Dict["dict2"]).Name != ((TestClass)data.Dict["dict2"]).Name )
+            if (((TestClass)restoreData.Dict["dict2"]).Name != ((TestClass)data.Dict["dict2"]).Name)
                 throw new Exception("结果错误");
-            
+
+        }
+
+        [TestMethod]
+        public void DataTableSerializerTest()
+        {
+            System.Data.DataTable dt = new System.Data.DataTable();
+            dt.TableName = "table1";
+            dt.Columns.Add(new System.Data.DataColumn("c1" , typeof(int)));
+
+            var row = dt.NewRow();
+            row[0] = 6;
+            dt.Rows.Add(row);
+
+            var obj = new TestClass
+            {
+                Value = dt,
+                Name = "tabletest"
+            };
+
+            var result = Way.Lib.Serialization.Serializer.SerializeObject(obj);
+            var restoreTable = Way.Lib.Serialization.Serializer.DeserializeObject<TestClass>(result).Value as System.Data.DataTable;
+
+            if (restoreTable.Rows[0].RowState != System.Data.DataRowState.Added)
+                throw new Exception("结果错误");
         }
     }
 

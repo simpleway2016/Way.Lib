@@ -147,6 +147,22 @@ namespace Way.Lib.Serialization
             objectType = getTypeByDescIndex(Convert.ToInt32(reader.Value));
 
             reader.Read();
+            var pname = (string)reader.Value;
+           
+
+            if(pname == "b")
+            {
+                byte[] bs = reader.ReadAsBytes();
+                reader.Read();//记得移到下一个元素
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter deserializer = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                using (var ms = new System.IO.MemoryStream(bs))
+                {
+                    object newobj = deserializer.Deserialize(ms);
+                    return newobj;
+                }
+            }
+
+            //读取到v值处
             reader.Read();
 
             if (objectType != null && objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(System.Collections.IDictionary)))
@@ -214,6 +230,25 @@ namespace Way.Lib.Serialization
             writer.WritePropertyName("t");
             writer.WriteValue(getTypedescIndex(type));
 
+            if(type == typeof(System.Data.DataTable) || type == typeof(System.Data.DataSet))
+            {
+                //可以序列化，那就直接序列化
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter se = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                {
+                    se.Serialize(ms, obj);
+                    ms.Position = 0;
+                    byte[] bs = new byte[ms.Length];
+                    ms.Read(bs, 0, bs.Length);
+
+                    writer.WritePropertyName("b");
+                    writer.WriteValue(bs);
+                }                    
+
+                writer.WriteEndObject();
+                return;
+            }
+            
             writer.WritePropertyName("v");
 
             if (obj.GetType().IsValueType || obj is string)

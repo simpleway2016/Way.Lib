@@ -70,38 +70,16 @@ namespace Way.Lib.ScriptRemoting
             if (AllSessions == null)
                 return;
 
-            List<SessionSaveInfoRoot> objs = new List<SessionSaveInfoRoot>();
+            string data = null;
             lock (AllSessionsLock)
             {
-                foreach( var keyPair in AllSessions )
-                {
-                    var session = keyPair.Value;
-                    List<SessionSaveInfo> keyValues = new List<SessionSaveInfo>();
-                    foreach( var mykey in session)
-                    {
-                        if (mykey.Value == null)
-                            continue;
-
-                        keyValues.Add(new SessionSaveInfo() {
-                            Type = mykey.Value.GetType().FullName,
-                            Assembly = mykey.Value.GetType().Assembly.GetName().FullName,
-                            Name = mykey.Key,
-                            Value = mykey.Value.ToJsonString()
-                        });
-                    }
-                    var item = new SessionSaveInfoRoot{
-                        ClientIP = session.ClientIP,
-                        SessionID = session.SessionID,
-                        keyValues = keyValues.ToArray()
-                    };
-                    objs.Add(item);
-                }
+                data = Way.Lib.Serialization.Serializer.SerializeObject(AllSessions);
             }
             var filepath = Way.Lib.PlatformHelper.GetAppDirectory() + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
             if (System.IO.File.Exists(filepath))
                 System.IO.File.Delete(filepath);
 
-            System.IO.File.WriteAllText(filepath, objs.ToJsonString(), System.Text.Encoding.UTF8);
+            System.IO.File.WriteAllText(filepath, data, System.Text.Encoding.UTF8);
             System.IO.File.SetAttributes(filepath, System.IO.FileAttributes.Hidden);
         }
         /// <summary>
@@ -114,25 +92,10 @@ namespace Way.Lib.ScriptRemoting
             if (System.IO.File.Exists(filepath) == false)
                 return;
 
-            SessionSaveInfoRoot[] objs = System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8).FromJson<SessionSaveInfoRoot[]>();
+            string data = System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8);
             lock (AllSessionsLock)
             {
-                foreach (var sessionData in objs)
-                {
-                    try
-                    {
-                        var session = new ScriptRemoting.SessionState(sessionData.SessionID, sessionData.ClientIP);
-                        foreach (var info in sessionData.keyValues)
-                        {
-                            var assembly = System.Reflection.Assembly.Load(new System.Reflection.AssemblyName(info.Assembly));
-                            session[info.Name] = Newtonsoft.Json.JsonConvert.DeserializeObject(info.Value, assembly.GetType(info.Type));
-                        }
-                        AllSessions[session.SessionID] = session;
-                    }
-                    catch(Exception ex)
-                    {
-                    }
-                }
+                AllSessions = Way.Lib.Serialization.Serializer.DeserializeObject<Dictionary<string, SessionState>>(data);
             }
 
             if (deleteAfterLoad)
