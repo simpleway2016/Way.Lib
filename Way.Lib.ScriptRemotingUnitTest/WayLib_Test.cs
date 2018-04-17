@@ -9,6 +9,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Way.Lib.ScriptRemotingUnitTest
 {
