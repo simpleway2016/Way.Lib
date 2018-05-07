@@ -9,7 +9,6 @@ namespace Way.Lib
 
     public class CodeLog : IDisposable
     {
-        static bool ENABLED = true;
         FileStream m_file;
         StreamWriter m_writer;
         static string _SavePath;
@@ -27,6 +26,15 @@ namespace Way.Lib
         {
             get;
             set;
+        }
+
+
+        protected virtual bool Enable
+        {
+            get
+            {
+                return true;
+            }
         }
 
         /// <summary>
@@ -50,13 +58,13 @@ namespace Way.Lib
         /// <param name="autoClose">是否自动关闭文件，多个不同方法间调用时，要禁止这个</param>
         public CodeLog(string name, bool autoClose)
         {
-            if (!string.IsNullOrEmpty(name) && ENABLED)
+            if (!string.IsNullOrEmpty(name) && this.Enable)
             {
                 name = name.Replace("/", "_").Replace("\\", "_");
                 _autoclose = autoClose;
                 if (System.IO.Directory.Exists(SavePath) == false)
                     Directory.CreateDirectory(SavePath);
-                if (!ENABLED)
+                if (!this.Enable)
                     return;
                 this.Name = name;
                 if (autoClose == false)
@@ -112,14 +120,6 @@ namespace Way.Lib
             return filepath;
         }
 
-        /// <summary>
-        /// 使CodeLog生效或者永久失效
-        /// </summary>
-        /// <param name="enabled"></param>
-        public static void SetEnable(bool enabled)
-        {
-            ENABLED = enabled;
-        }
         object lockObj;
         /// <summary>
         /// 写入日志
@@ -127,7 +127,7 @@ namespace Way.Lib
         /// <param name="content"></param>
         public void Log(string content)
         {
-            if (ENABLED == false || m_writer == null || content == null)
+            if (this.Enable == false || m_writer == null || content == null)
                 return;
             lock (lockObj)
             {
@@ -149,7 +149,7 @@ namespace Way.Lib
 
         public void LogJson(object obj)
         {
-            if (ENABLED == false || m_writer == null || obj == null)
+            if (this.Enable == false || m_writer == null || obj == null)
                 return;
             this.Log(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
         }
@@ -190,23 +190,12 @@ namespace Way.Lib
     public class CLog : CodeLog
     {
         public static string SaveFolder = null;
-        static bool setedEnabled = false;
+
         static string _SavePath;
         public override string SavePath
         {
             get
             {
-                if (!setedEnabled)
-                {
-                    try
-                    {
-                        SetEnable(true);
-                        setedEnabled = true;
-                    }
-                    catch
-                    {
-                    }
-                }
                 if (_SavePath == null)
                 {
                     if (SaveFolder != null)

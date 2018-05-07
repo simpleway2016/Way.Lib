@@ -315,7 +315,7 @@ namespace "+nameSpace+@".DB{
                 if (!string.IsNullOrEmpty(column.EnumDefine) && column.dbType == "int")
                 {
                    
-                    string[] enumitems = column.EnumDefine.Split(',');
+                    string[] enumitems = column.EnumDefine.Replace("\r","").Split('\n');
 
                     enumDefines.Append(@"
 /// <summary>
@@ -325,17 +325,29 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 {
     
 ");
-                    foreach (string enumitem in enumitems)
+                    StringBuilder enumComments = new StringBuilder();
+                    for(int i = 0; i < enumitems.Length; i ++)
                     {
-                        if (enumitem.Trim().Length == 0)
+                        var code = enumitems[i].Trim();
+                        if (code.Length == 0)
                             continue;
-                        enumDefines.Append(@"
+                        if (code.StartsWith("//"))
+                        {
+                            if (code.Length > 2)
+                            {
+                                enumComments.AppendLine("/// " + code.Substring(2));
+                            }
+                           
+                        }
+                        else
+                        {
+                            enumDefines.Append(@"
 /// <summary>
-/// 
-/// </summary>
+"+ enumComments + @"/// </summary>
 ");
-                        enumDefines.Append(enumitem);
-                        enumDefines.Append(",\r\n");
+                            enumComments.Clear();
+                            enumDefines.AppendLine(code);
+                        }                       
 
                     }
                     enumDefines.Append("}\r\n");
@@ -590,7 +602,7 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                 if (!string.IsNullOrEmpty(column.EnumDefine) && column.dbType == "int")
                 {
 
-                    string[] enumitems = column.EnumDefine.Split(',');
+                    string[] enumitems = column.EnumDefine.Replace("\r", "").Split('\n');
 
                     enumDefines.Append(@"
 /// <summary>
@@ -600,17 +612,29 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 {
     
 ");
-                    foreach (string enumitem in enumitems)
+                    StringBuilder enumComments = new StringBuilder();
+                    for (int i = 0; i < enumitems.Length; i++)
                     {
-                        if (enumitem.Trim().Length == 0)
+                        var code = enumitems[i].Trim();
+                        if (code.Length == 0)
                             continue;
-                        enumDefines.Append(@"
+                        if (code.StartsWith("//"))
+                        {
+                            if (code.Length > 2)
+                            {
+                                enumComments.AppendLine("/// " + code.Substring(2));
+                            }
+
+                        }
+                        else
+                        {
+                            enumDefines.Append(@"
 /// <summary>
-/// 
-/// </summary>
+" + enumComments + @"/// </summary>
 ");
-                        enumDefines.Append(enumitem);
-                        enumDefines.Append(",\r\n");
+                            enumComments.Clear();
+                            enumDefines.AppendLine(code);
+                        }
 
                     }
                     enumDefines.Append("}\r\n");

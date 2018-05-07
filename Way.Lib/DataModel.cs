@@ -102,11 +102,7 @@ namespace Way.Lib
                 serializer.Serialize(writer, pvalue);
 
             }
-            if (dataitem.ChangedProperties.Count > 0)
-            {
-                writer.WritePropertyName("ChangedProperties");
-                serializer.Serialize(writer, dataitem.ChangedProperties);
-            }
+
             writer.WriteEndObject();
         }
     }
