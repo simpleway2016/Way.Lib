@@ -186,7 +186,7 @@ namespace RemoteWindow
                         data[0] = data2[0];//b
                         data[1] = data2[1];//g
                         data[2] = data2[2];//r
-                        data[3] = 255;
+                        data[3] = 255;     //a
                     }
                     data += 4;
                     data1 += 3;
