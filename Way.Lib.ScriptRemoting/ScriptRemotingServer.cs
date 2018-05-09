@@ -13,12 +13,6 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
 
-#if NET46
-#else
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-#endif
 namespace Way.Lib.ScriptRemoting
 {
     /// <summary>
@@ -209,37 +203,37 @@ namespace Way.Lib.ScriptRemoting
         /// 在Asp.Net中启用ScriptRemoting
         /// </summary>
         /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
-        public static void StartForAsp(int gcCollectInterval)
-        {
-            if (gcCollectInterval > 0)
-            {
-                new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
-            }
-            //using (ServerManager manager = new ServerManager())
-            //{
+        //public static void StartForAsp(int gcCollectInterval)
+        //{
+        //    if (gcCollectInterval > 0)
+        //    {
+        //        new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
+        //    }
+        //    //using (ServerManager manager = new ServerManager())
+        //    //{
 
-            //    Configuration webConfig = manager.GetApplicationHostConfiguration();
+        //    //    Configuration webConfig = manager.GetApplicationHostConfiguration();
 
-            //    ConfigurationSection handlersSection =
-            //        webConfig.GetSection("system.webServer/handlers", "Default Web Site/MyApp");
+        //    //    ConfigurationSection handlersSection =
+        //    //        webConfig.GetSection("system.webServer/handlers", "Default Web Site/MyApp");
 
-            //    ConfigurationElementCollection handlersCollection = handlersSection.GetCollection();
+        //    //    ConfigurationElementCollection handlersCollection = handlersSection.GetCollection();
 
-            //    ConfigurationElement handlerElement = handlersCollection.CreateElement();
+        //    //    ConfigurationElement handlerElement = handlersCollection.CreateElement();
 
-            //    handlerElement.SetAttributeValue("name", "MyHandler");
-            //    handlerElement.SetAttributeValue("path", "*.ext");
-            //    handlerElement.SetAttributeValue("verb", "*");
-            //    handlerElement.SetAttributeValue("type", "A.B");
+        //    //    handlerElement.SetAttributeValue("name", "MyHandler");
+        //    //    handlerElement.SetAttributeValue("path", "*.ext");
+        //    //    handlerElement.SetAttributeValue("verb", "*");
+        //    //    handlerElement.SetAttributeValue("type", "A.B");
 
-            //    handlersCollection.Add(handlerElement);
+        //    //    handlersCollection.Add(handlerElement);
 
-            //    manager.CommitChanges();
-            //}
-            Root = System.Web.HttpRuntime.AppDomainAppPath;
-            makeTscFiles(Root);
-            System.Web.HttpApplication.RegisterModule(typeof(IISWebSocket.IISWebSocketModule));
-        }
+        //    //    manager.CommitChanges();
+        //    //}
+        //    Root = System.Web.HttpRuntime.AppDomainAppPath;
+        //    makeTscFiles(Root);
+        //    System.Web.HttpApplication.RegisterModule(typeof(IISWebSocket.IISWebSocketModule));
+        //}
 #else
         ///// <summary>
         /////  在MVC Core中启用ScriptRemoting

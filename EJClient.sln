@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunRizOpcDriver", "SunRizOp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.WindowsService", "Way.WindowsService\Way.WindowsService\Way.WindowsService.csproj", "{D6A7C131-4A0F-4D02-922F-EC814CAA66CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteWindow", "RemoteWindow\RemoteWindow.csproj", "{C19D9123-01F7-4057-9AC3-1CFD4572F884}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +151,10 @@ Global
 		{D6A7C131-4A0F-4D02-922F-EC814CAA66CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6A7C131-4A0F-4D02-922F-EC814CAA66CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6A7C131-4A0F-4D02-922F-EC814CAA66CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19D9123-01F7-4057-9AC3-1CFD4572F884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19D9123-01F7-4057-9AC3-1CFD4572F884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19D9123-01F7-4057-9AC3-1CFD4572F884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C19D9123-01F7-4057-9AC3-1CFD4572F884}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

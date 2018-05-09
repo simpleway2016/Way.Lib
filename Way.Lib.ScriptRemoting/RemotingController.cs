@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net.Http;
+
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -154,11 +154,9 @@ namespace Way.Lib.ScriptRemoting
 
                                     try
                                     {
-                                        HttpClient client = new HttpClient();
-                                        var task = client.GetStreamAsync(url);
-                                        task.Wait();
+                                        var htmlcontent = Helper.GetWebContent(url, 8);
                                         Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
-                                        var stream = new System.IO.StreamReader(task.Result);
+                                        var stream = new System.IO.StreamReader(htmlcontent);
                                         parser.Parse(stream);
                                         stream.Dispose();
                                         CheckHtmlFile(info, parser.Nodes, webroot, weburl);
@@ -724,20 +722,21 @@ namespace Way.Lib.ScriptRemoting
             }
             else if (query is IQueryable && !(query is IOrderedQueryable))
             {
+                throw new Exception("数据源必须是IOrderedQueryable");
                 //获取主键名
-                if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
-                {
-                    EntityDB.Attributes.Table tableatt = dataItemType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
-                    if (tableatt != null)
-                    {
-                        pkid = tableatt.KeyName;
+                //if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
+                //{
+                //    EntityDB.Attributes.Table tableatt = dataItemType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+                //    if (tableatt != null)
+                //    {
+                //        pkid = tableatt.KeyName;
 
-                        if (query is IQueryable && !(query is IOrderedQueryable))
-                        {
-                            query = ResultHelper.GetQueryForOrderBy(query, pkid);
-                        }
-                    }
-                }
+                //        if (query is IQueryable && !(query is IOrderedQueryable))
+                //        {
+                //            query = ResultHelper.GetQueryForOrderBy(query, pkid);
+                //        }
+                //    }
+                //}
             }
 
             if (searchJsonStr.IsNullOrEmpty() == false)
@@ -805,25 +804,25 @@ namespace Way.Lib.ScriptRemoting
                 if (pagerInfo.PageIndex == 0 || (result is IQueryable && !(result is IOrderedQueryable) ))
                 {
                     //获取主键名
-                    if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
-                    {
-                        EntityDB.Attributes.Table tableatt = dataItemType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
-                        if (tableatt != null)
-                        {
-                            pkid = tableatt.KeyName;
-                            if (fields.Contains(pkid) == false)
-                            {
-                                var list = new List<string>(fields);
-                                list.Add(pkid);
-                                fields = list.ToArray();
-                            }
+                    //if (dataItemType.GetTypeInfo().IsSubclassOf(typeof(EntityDB.DataItem)))
+                    //{
+                    //    EntityDB.Attributes.Table tableatt = dataItemType.GetTypeInfo().GetCustomAttribute(typeof(EntityDB.Attributes.Table)) as EntityDB.Attributes.Table;
+                    //    if (tableatt != null)
+                    //    {
+                    //        pkid = tableatt.KeyName;
+                    //        if (fields.Contains(pkid) == false)
+                    //        {
+                    //            var list = new List<string>(fields);
+                    //            list.Add(pkid);
+                    //            fields = list.ToArray();
+                    //        }
 
-                            if (result is IQueryable && !(result is IOrderedQueryable))
-                            {
-                                result = ResultHelper.GetQueryForOrderBy(result, pkid);
-                            }
-                        }
-                    }
+                    //        if (result is IQueryable && !(result is IOrderedQueryable))
+                    //        {
+                    //            result = ResultHelper.GetQueryForOrderBy(result, pkid);
+                    //        }
+                    //    }
+                    //}
                 }
                 if (searchJsonStr.IsNullOrEmpty() == false)
                 {
