@@ -110,7 +110,7 @@ namespace RemoteWindow
         static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
         public static extern int BitBlt(HandleRef hDC, int x, int y, int nWidth, int nHeight, HandleRef hSrcDC, int xSrc, int ySrc, int dwRop);
-        public static Bitmap GetWindowBitmap(IntPtr hwnd,out RECT rect)
+        public static Bitmap GetWindowBitmap(IntPtr hwnd, out RECT rect)
         {
             Graphics gSrc = Graphics.FromHwnd(hwnd);
             HandleRef hDcSrc = new HandleRef(null, gSrc.GetHdc());
@@ -132,6 +132,82 @@ namespace RemoteWindow
             gSave.Dispose();
 
             return bmSave;
+        }
+
+        public static byte[] GZip(byte[] byteArray)
+        {
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                System.IO.Compression.GZipStream sw = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Compress);
+                //Compress
+                sw.Write(byteArray, 0, byteArray.Length);
+                //Close, DO NOT FLUSH cause bytes will go missing...
+                sw.Close();
+                //Transform byte[] zip data to string
+                return ms.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// 找出b2图片和b1图片的不同，返回差异部分图片
+        /// </summary>
+        /// <param name="b1"></param>
+        /// <param name="b2"></param>
+        /// <returns></returns>
+        public unsafe static Bitmap CompareBitmap(Bitmap b1, Bitmap b2)
+        {
+            if (b1 == null)
+                return b2;
+
+            int height = b1.Size.Height;
+            int width = b1.Size.Width;
+
+            bool hasChanged = false;
+            Bitmap result = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            var resultData = result.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var b1Data = b1.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            var b2Data = b2.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            var data = (byte*)resultData.Scan0.ToPointer();
+            var data1 = (byte*)b1Data.Scan0.ToPointer();
+            var data2 = (byte*)b2Data.Scan0.ToPointer();
+
+            var offset = resultData.Stride - 4 * width;
+            var offset2 = b1Data.Stride - 3 * width;
+
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    if (data1[0] != data2[0] || data1[1] != data2[1] || data1[2] != data2[2])
+                    {
+                        hasChanged = true;
+                        data[0] = data2[0];//b
+                        data[1] = data2[1];//g
+                        data[2] = data2[2];//r
+                        data[3] = 255;
+                    }
+                    data += 4;
+                    data1 += 3;
+                    data2 += 3;
+                }
+
+                data += offset;
+                data1 += offset2;
+                data2 += offset2;
+            }
+
+            result.UnlockBits(resultData);
+            b1.UnlockBits(b1Data);
+            b2.UnlockBits(b2Data);
+
+            if(!hasChanged)
+            {
+                result.Dispose();
+                return null;
+            }
+            return result;
         }
     }
 }
