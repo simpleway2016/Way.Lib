@@ -47,7 +47,7 @@ namespace RemoteWindow
             DateTime enterTime = DateTime.Now;
             while (BitmapQueue.Count > 0)
             {
-                if ((DateTime.Now - enterTime).TotalSeconds > 1)
+                if ((DateTime.Now - enterTime).TotalSeconds > 2)
                 {
                     //客户端下载图片超时，输出整张图片
                     marker.Id = BitmapQueueIndex++;
@@ -57,6 +57,10 @@ namespace RemoteWindow
 
                     lock (BitmapQueue)
                     {
+                        for (int i = 0; i < BitmapQueue.Count; i++)
+                        {
+                            BitmapQueue[i].Bitmap.Dispose();
+                        }
                         BitmapQueue.Clear();                      
                         BitmapQueue.Add(marker);
                         
@@ -138,7 +142,18 @@ namespace RemoteWindow
                     var targetHeight = (int)(rect.Height * scalex);
                     _targetRect = new Rectangle( (_clientWidth - targetWidth) / 2  , (_clientHeight - targetHeight) / 2 , targetWidth, targetHeight);
                 }
-                var bitmap = Helper.GetWindowBitmap(_hwnd, out rect,_clientWidth,_clientHeight, _targetRect);
+                Bitmap bitmap = null;
+                try
+                {
+                    bitmap = Helper.GetWindowBitmap(_hwnd, out rect, _clientWidth, _clientHeight, _targetRect);
+                }
+                catch
+                {
+                    //窗口关闭
+                    _hwnd = IntPtr.Zero;
+                    _started = false;
+                    return;
+                }
                 var diffent = Helper.CompareBitmap(CurrentBitmap, bitmap, out rect);
                 if (CurrentBitmap != null)
                     CurrentBitmap.Dispose();
