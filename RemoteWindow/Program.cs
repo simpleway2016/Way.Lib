@@ -20,6 +20,8 @@ namespace RemoteWindow
 
             Way.Lib.ScriptRemoting.ScriptRemotingServer.RegisterHandler(new PngHandler());
 
+            RemotingController.OnMessageReceiverConnect += MainController.RemotingController_OnMessageReceiverConnect;
+
             Way.Lib.ScriptRemoting.ScriptRemotingServer.Start(6888, @"D:\projects\c#\EasyJob\Way.Lib.ScriptRemoting.Test.Web\RemoteWindow", 0);
             Application.Run(new Form1());
         }
@@ -29,8 +31,9 @@ namespace RemoteWindow
     {
         public void Handle(string originalUrl, HttpConnectInformation connectInfo, ref bool handled)
         {
-            if(originalUrl.EndsWith(".png"))
+            if(originalUrl.Contains(".aspx") && connectInfo.Request.Query["id"] != null)
             {
+                int id = Convert.ToInt32(connectInfo.Request.Query["id"]);
                 string accept_encoding = connectInfo.Request.Headers["Accept-Encoding"];
                 if (!string.IsNullOrEmpty(accept_encoding) && accept_encoding.Contains("gzip"))
                 {
@@ -38,7 +41,19 @@ namespace RemoteWindow
 
                     connectInfo.Response.Headers["Content-Encoding"] = "gzip";
                     connectInfo.Response.Headers["Content-Type"] = "image/png";
-                    var bs = System.IO.File.ReadAllBytes("f:\\a.png");
+                    byte[] bs = null;
+                    using (var bitmap = MainController.GetBitmapById(id))
+                    {
+                        if (bitmap != null)
+                        {
+                            using (var ms = new System.IO.MemoryStream())
+                            {
+                                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                bs = ms.ToArray();
+                            }
+                        }
+                    }
+
                     bs = Helper.GZip(bs);
                     connectInfo.Response.Headers["Content-Length"] = bs.Length.ToString();
                     connectInfo.Response.Write(bs);

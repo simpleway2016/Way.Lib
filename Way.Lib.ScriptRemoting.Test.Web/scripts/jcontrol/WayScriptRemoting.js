@@ -609,7 +609,11 @@ var WayScriptRemoting = (function () {
         }
     };
     WayScriptRemoting.prototype.sendHeart = function () {
-        this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+        try {
+            this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+        }
+        catch (e) {
+        }
     };
     WayScriptRemoting.prototype.connect = function () {
         var _this = this;
@@ -635,6 +639,7 @@ var WayScriptRemoting = (function () {
             }
         };
         this.socket.onclose = function (evt) {
+            clearTimeout(_this.socket_heart_timer);
             _this.socket.onerror = null;
             try {
                 if (_this.onerror) {
@@ -646,6 +651,7 @@ var WayScriptRemoting = (function () {
             setTimeout(function () { _this.connect(); }, 1000);
         };
         this.socket.onerror = function (evt) {
+            clearTimeout(_this.socket_heart_timer);
             _this.socket.onclose = null;
             try {
                 if (_this.onerror) {

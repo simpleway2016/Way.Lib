@@ -14,6 +14,7 @@ namespace RemoteWindow
 {
     public partial class Form1 : Form
     {
+        public static IntPtr HWND;
         Bitmap b1;
 
         public Form1()
@@ -23,40 +24,25 @@ namespace RemoteWindow
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (b1 != null)
-                b1.Dispose();
-            textBox1.Text = DateTime.Now.ToString();
-
-            var hwnd = this.Handle;
-            Task.Run(() =>
-            {
-                Thread.Sleep(1000);
-                RECT rect;
-                b1 = Helper.GetWindowBitmap(hwnd, out rect);
-            });
+           
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            button1.ForeColor = Color.GreenYellow;
+            
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
             textBox1.Text = DateTime.Now.ToString();
+            var random = new Random();
+            textBox1.BackColor = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+            textBox1.ForeColor = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+        }
 
-            var hwnd = this.Handle;
-            Task.Run(() =>
-            {
-                Thread.Sleep(1000);
-                RECT rect;
-                Bitmap b2 = Helper.GetWindowBitmap(hwnd, out rect);
-
-                var b3 = Helper.CompareBitmap(b1, b2);
-                b2.Dispose();
-                if (b3 != null)
-                {
-                    b3.Save("f:\\a.png", System.Drawing.Imaging.ImageFormat.Png);
-                    b3.Dispose();
-                }
-            });
-
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            HWND = this.Handle;
         }
     }
 }

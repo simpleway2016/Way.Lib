@@ -650,7 +650,13 @@ class WayScriptRemoting {
     }
 
     private sendHeart() {
-        this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+        try {
+            this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+        }
+        catch (e)
+        {
+
+        }
     }
 
     private connect(): void {
@@ -678,8 +684,8 @@ class WayScriptRemoting {
             }
         }
         this.socket.onclose = (evt: CloseEvent) => {
-            this.socket.onerror = null;
-
+            clearTimeout(this.socket_heart_timer);
+            this.socket.onerror = null;           
             try {
                 if (this.onerror) {
                     this.onerror("无法连接服务器");
@@ -690,6 +696,7 @@ class WayScriptRemoting {
             setTimeout(() => { this.connect(); }, 1000);
         }
         this.socket.onerror = (evt: Event) => {
+            clearTimeout(this.socket_heart_timer);
             this.socket.onclose = null;
             try {
                 if (this.onerror) {

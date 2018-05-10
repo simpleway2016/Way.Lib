@@ -13,6 +13,7 @@ namespace RemoteWindow
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {
+            [Newtonsoft.Json.JsonIgnore]
             public int Left, Top, Right, Bottom;
 
             public RECT(int left, int top, int right, int bottom)
@@ -48,13 +49,13 @@ namespace RemoteWindow
                 get { return Right - Left; }
                 set { Right = value + Left; }
             }
-
+            [Newtonsoft.Json.JsonIgnore]
             public System.Drawing.Point Location
             {
                 get { return new System.Drawing.Point(Left, Top); }
                 set { X = value.X; Y = value.Y; }
             }
-
+            [Newtonsoft.Json.JsonIgnore]
             public System.Drawing.Size Size
             {
                 get { return new System.Drawing.Size(Width, Height); }
@@ -107,23 +108,79 @@ namespace RemoteWindow
         }
 
         [DllImport("user32.dll")]
-        static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
+        public static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
         public static extern int BitBlt(HandleRef hDC, int x, int y, int nWidth, int nHeight, HandleRef hSrcDC, int xSrc, int ySrc, int dwRop);
-        public static Bitmap GetWindowBitmap(IntPtr hwnd, out RECT rect)
+
+        enum TernaryRasterOperations : uint
+        {
+            /// <summary>dest = source</summary>
+            SRCCOPY = 0x00CC0020,
+            /// <summary>dest = source OR dest</summary>
+            SRCPAINT = 0x00EE0086,
+            /// <summary>dest = source AND dest</summary>
+            SRCAND = 0x008800C6,
+            /// <summary>dest = source XOR dest</summary>
+            SRCINVERT = 0x00660046,
+            /// <summary>dest = source AND (NOT dest)</summary>
+            SRCERASE = 0x00440328,
+            /// <summary>dest = (NOT source)</summary>
+            NOTSRCCOPY = 0x00330008,
+            /// <summary>dest = (NOT src) AND (NOT dest)</summary>
+            NOTSRCERASE = 0x001100A6,
+            /// <summary>dest = (source AND pattern)</summary>
+            MERGECOPY = 0x00C000CA,
+            /// <summary>dest = (NOT source) OR dest</summary>
+            MERGEPAINT = 0x00BB0226,
+            /// <summary>dest = pattern</summary>
+            PATCOPY = 0x00F00021,
+            /// <summary>dest = DPSnoo</summary>
+            PATPAINT = 0x00FB0A09,
+            /// <summary>dest = pattern XOR dest</summary>
+            PATINVERT = 0x005A0049,
+            /// <summary>dest = (NOT dest)</summary>
+            DSTINVERT = 0x00550009,
+            /// <summary>dest = BLACK</summary>
+            BLACKNESS = 0x00000042,
+            /// <summary>dest = WHITE</summary>
+            WHITENESS = 0x00FF0062,
+            /// <summary>
+            /// Capture window as seen on screen.  This includes layered windows 
+            /// such as WPF windows with AllowsTransparency="true"
+            /// </summary>
+            CAPTUREBLT = 0x40000000
+        }
+
+        [DllImport("gdi32.dll")]
+        static extern bool StretchBlt(HandleRef hdcDest, int nXOriginDest, int nYOriginDest,
+    int nWidthDest, int nHeightDest,
+    HandleRef hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc,
+    TernaryRasterOperations dwRop);
+        [DllImport("gdi32.dll")]
+        static extern int SetStretchBltMode(HandleRef hdc, StretchBltMode iStretchMode);
+        private enum StretchBltMode : int
+        {
+            STRETCH_ANDSCANS = 1,
+            STRETCH_ORSCANS = 2,
+            STRETCH_DELETESCANS = 3,
+            STRETCH_HALFTONE = 4,
+        }
+        public static Bitmap GetWindowBitmap(IntPtr hwnd, out RECT rect,int bitW,int bitH,System.Drawing.Rectangle targetRect)
         {
             Graphics gSrc = Graphics.FromHwnd(hwnd);
             HandleRef hDcSrc = new HandleRef(null, gSrc.GetHdc());
 
             GetClientRect(hwnd, out rect);
 
-            const int SRCCOPY = 0xcc0020;     //复制图块的光栅操作码  
+           // const int SRCCOPY = 0xcc0020;     //复制图块的光栅操作码  
 
-            Bitmap bmSave = new Bitmap(rect.Width, rect.Height);     //用于保存图片的位图对象  
+            Bitmap bmSave = new Bitmap(bitW, bitH);     //用于保存图片的位图对象  
             Graphics gSave = Graphics.FromImage(bmSave);     //创建该位图的Graphics对象  
             HandleRef hDcSave = new HandleRef(null, gSave.GetHdc());     //得到句柄  
 
-            BitBlt(hDcSave, 0, 0, rect.Width, rect.Height, hDcSrc, 0, 0, SRCCOPY);
+            //BitBlt(hDcSave, 0, 0, rect.Width, rect.Height, hDcSrc, 0, 0, SRCCOPY);
+            SetStretchBltMode(hDcSave, StretchBltMode.STRETCH_HALFTONE);
+            StretchBlt(hDcSave, targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height, hDcSrc, 0, 0, rect.Width, rect.Height, TernaryRasterOperations.SRCCOPY);
 
             gSrc.ReleaseHdc();
             gSave.ReleaseHdc();
@@ -154,10 +211,13 @@ namespace RemoteWindow
         /// <param name="b1"></param>
         /// <param name="b2"></param>
         /// <returns></returns>
-        public unsafe static Bitmap CompareBitmap(Bitmap b1, Bitmap b2)
+        public unsafe static Bitmap CompareBitmap(Bitmap b1, Bitmap b2, out RECT rect)
         {
             if (b1 == null)
-                return b2;
+            {
+                rect = new RECT(new Rectangle(Point.Empty , b2.Size));
+                return (Bitmap)b2.Clone();
+            }
 
             int height = b1.Size.Height;
             int width = b1.Size.Width;
@@ -176,6 +236,8 @@ namespace RemoteWindow
             var offset = resultData.Stride - 4 * width;
             var offset2 = b1Data.Stride - 3 * width;
 
+            int minX = int.MaxValue, maxX = 0, minY = int.MaxValue, maxY = 0;
+
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
@@ -187,6 +249,16 @@ namespace RemoteWindow
                         data[1] = data2[1];//g
                         data[2] = data2[2];//r
                         data[3] = 255;     //a
+
+                        if (j < minX)
+                            minX = j;
+                        if (j > maxX)
+                            maxX = j;
+
+                        if (i < minY)
+                            minY = i;
+                        if (i > maxY)
+                            maxY = i;
                     }
                     data += 4;
                     data1 += 3;
@@ -198,16 +270,47 @@ namespace RemoteWindow
                 data2 += offset2;
             }
 
-            result.UnlockBits(resultData);
+
             b1.UnlockBits(b1Data);
             b2.UnlockBits(b2Data);
 
-            if(!hasChanged)
+            if (!hasChanged)
             {
+                result.UnlockBits(resultData);
                 result.Dispose();
+                rect = new RECT();
                 return null;
             }
-            return result;
+
+            int r_width = maxX - minX + 1;
+            int r_height = maxY - minY + 1;
+            Bitmap minBitmap = new Bitmap(r_width, r_height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var minData = minBitmap.LockBits(new Rectangle(0, 0, r_width, r_height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            data = (byte*)resultData.Scan0.ToPointer();
+            var target = (byte*)minData.Scan0.ToPointer();
+            for (int i = 0; i < r_height; i++)
+            {
+                var source = data + (minY + i) * resultData.Stride + minX * 4;
+                var t = target + i * minData.Stride;
+                for (int j = 0; j < r_width; j++)
+                {
+                    t[0] = source[0];
+                    t[1] = source[1];
+                    t[2] = source[2];
+                    t[3] = source[3];
+
+                    t += 4;
+                    source += 4;
+                }
+            }
+
+            result.UnlockBits(resultData);
+            result.Dispose();
+            minBitmap.UnlockBits(minData);
+            rect = new RECT(minX, minY, maxX + 1, maxY + 1);
+
+            return minBitmap;
         }
     }
 }

@@ -6,17 +6,54 @@
     <script src="/WayScriptRemoting" type="text/javascript"></script>
 </head>
 <body>
-    <button onclick="test()">click</button>
+    <button onclick="Start()">Start</button>
+    <div style="width:800px;height:600px;background:#ccc;">
+        <div style="">
+            <canvas id="canvas1" style="width:0px;background:#b59b9b;"></canvas>
+        </div>
+    </div>
     <script lang="ja">
+        var ctx = canvas1.getContext("2d");
         var controller = "RemoteWindow.MainController".controller();
         controller.groupName = "group1";
         controller.onmessage = function(msg)
         {
+            var item = null;
+            eval("item=" + msg);
+            
+            if (canvas1.style.width == "0px") {
+                alert("set size");
+                var containerWidth = canvas1.parentElement.parentElement.offsetWidth;
+                var containerHeight = canvas1.parentElement.parentElement.offsetHeight;
+
+                canvas1.style.width = item.Rect.Width + "px";
+                canvas1.style.height = item.Rect.Height + "px";
+                canvas1.width = item.Rect.Width;
+                canvas1.height = item.Rect.Height;
+
+            }
+            var img = new Image();
+            img.src = "/a.aspx?id=" + item.Id + "&t=" + new Date().getTime();
+            img.onload = function () {
+                ctx.drawImage(img, item.Rect.X, item.Rect.Y);
+            };
+            img.onerror = function ()
+            {
+                alert("load img error");
+                img.src = "/a.aspx?id=" + item.Id + "&t=" + new Date().getTime();
+            }
+        }
+        controller.onconnect = function ()
+        {
+            alert("onconnect");
+        }
+        controller.onerror = function (msg) {
             alert(msg);
         }
-        function test()
+
+        function Start()
         {
-            controller.server.Test(function (ret, err) {
+            controller.server.Start(canvas1.parentElement.parentElement.offsetWidth, canvas1.parentElement.parentElement.offsetHeight, function (ret, err) {
             });
         }
     </script>
