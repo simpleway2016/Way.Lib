@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Way.Lib.ScriptRemoting;
 using static RemoteWindow.Helper;
@@ -78,6 +79,18 @@ namespace RemoteWindow
             SendGroupMessage("group1", Newtonsoft.Json.JsonConvert.SerializeObject(marker));
         }
 
+        private void Checker_OnStop(object sender, EventArgs e)
+        {
+            lock (BitmapQueue)
+            {
+                for (int i = 0; i < BitmapQueue.Count; i++)
+                {
+                    BitmapQueue[i].Bitmap.Dispose();
+                }
+                BitmapQueue.Clear();
+            }
+        }
+
         [RemotingMethod]
         public string Start(int width, int height)
         {
@@ -85,6 +98,7 @@ namespace RemoteWindow
             {
                 Checker = new WindowBitmap(Form1.HWND, width, height);
                 Checker.OnDiffentMaked += Checker_OnDiffentMaked;
+                Checker.OnStop += Checker_OnStop;
                 Checker.Start();
             }
             return "Hello World!";
@@ -100,35 +114,50 @@ namespace RemoteWindow
     }
     class WindowBitmap
     {
+        enum Status
+        {
+            Stopped = 0,
+            Running = 1,
+            ReadyToStop = 2
+        }
         public Bitmap CurrentBitmap;
         IntPtr _hwnd;
         public delegate void OnDiffentMakedHandler(object sender, BitmapMarker bitmap);
         public event OnDiffentMakedHandler OnDiffentMaked;
-
-        bool _started = false;
+        public event EventHandler OnStop;
+        Status _status = Status.Stopped;
         int _clientWidth, _clientHeight;
         System.Drawing.Rectangle _targetRect = System.Drawing.Rectangle.Empty;
+
         public WindowBitmap(IntPtr hwnd, int clientWidth, int clientHeight)
         {
-            _clientWidth = clientWidth;
+               _clientWidth = clientWidth;
             _clientHeight = clientHeight;
             _hwnd = hwnd;
         }
 
         public void Start()
         {
-            _started = true;
+            _status = Status.Running;
             Task.Run(() => check());
         }
 
         public void Stop()
         {
-            _started = false;
+            _status = Status.ReadyToStop;
+            while(_status != Status.Stopped)
+            {
+                Thread.Sleep(0);
+            }
+            if(OnStop != null)
+            {
+                OnStop(this, null);
+            }
         }
 
         void check()
         {
-            while (_started)
+            while (_status == Status.Running)
             {
                 System.Threading.Thread.Sleep(50);
                 RECT rect;
@@ -151,8 +180,7 @@ namespace RemoteWindow
                 {
                     //窗口关闭
                     _hwnd = IntPtr.Zero;
-                    _started = false;
-                    return;
+                    break;
                 }
                 var diffent = Helper.CompareBitmap(CurrentBitmap, bitmap, out rect);
                 if (CurrentBitmap != null)
@@ -168,6 +196,7 @@ namespace RemoteWindow
                     });
                 }
             }
+            _status = Status.Stopped;
         }
     }
 }
