@@ -656,7 +656,6 @@ class WayScriptRemoting {
         try {
             var obj = {
                 Action: "w_msg",
-                SessionID: WayCookie.getCookie("WayScriptRemoting"),
                 State:msg,
             };
             this.socket.send(JSON.stringify(obj));
@@ -666,9 +665,12 @@ class WayScriptRemoting {
         }
     }
 
+    /**
+     * 发送心跳包
+     */
     private sendHeart() {
         try {
-            this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
+            this.socket.send("{'Action':'w_heart'}");
         }
         catch (e)
         {
