@@ -649,6 +649,23 @@ class WayScriptRemoting {
 
     }
 
+    sendMessage(msg: string)
+    {
+        clearTimeout(this.socket_heart_timer);
+        this.socket_heart_timer = setTimeout(() => this.sendHeart(), 10000);
+        try {
+            var obj = {
+                Action: "w_msg",
+                SessionID: WayCookie.getCookie("WayScriptRemoting"),
+                State:msg,
+            };
+            this.socket.send(JSON.stringify(obj));
+        }
+        catch (e) {
+
+        }
+    }
+
     private sendHeart() {
         try {
             this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");

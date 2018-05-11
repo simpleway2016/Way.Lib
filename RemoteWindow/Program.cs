@@ -21,9 +21,15 @@ namespace RemoteWindow
             Way.Lib.ScriptRemoting.ScriptRemotingServer.RegisterHandler(new PngHandler());
 
             RemotingController.OnMessageReceiverConnect += MainController.RemotingController_OnMessageReceiverConnect;
+            RemotingController.OnMessageReceive += RemotingController_OnMessageReceive;
 
             Way.Lib.ScriptRemoting.ScriptRemotingServer.Start(6888, @"D:\projects\c#\EasyJob\Way.Lib.ScriptRemoting.Test.Web\RemoteWindow", 0);
             Application.Run(new Form1());
+        }
+
+        private static void RemotingController_OnMessageReceive(SessionState session, string message)
+        {
+             
         }
     }
 

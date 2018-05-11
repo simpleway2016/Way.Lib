@@ -80,6 +80,18 @@ namespace Way.Lib.ScriptRemoting
         }
         public delegate bool OnMessageReceiverConnectHandler(SessionState session, string groupName);
         public delegate void OnMessageReceiverDisconnectHandler(SessionState session, string groupName);
+        public delegate void OnMessageReceiveHandler(SessionState session, string message);
+
+        public static event OnMessageReceiveHandler OnMessageReceive;
+        internal static void MessageReceive(SessionState session, string message)
+        {
+            if (OnMessageReceive != null)
+            {
+                OnMessageReceive(session, message);
+            }
+        }
+
+
         /// <summary>
         /// 当有客户端试图连接，接收group信息时触发，您可以return false，或者throw Exception，拒绝对方连接
         /// </summary>

@@ -7,6 +7,7 @@
 </head>
 <body>
     <button onclick="Start()">Start</button>
+    <button onclick="sendMessage()">sendMessage</button>
     <div style="width:800px;height:600px;background:#ccc;">
         <div style="">
             <canvas id="canvas1" style="width:0px;background:#b59b9b;"></canvas>
@@ -51,7 +52,9 @@
         controller.onerror = function (msg) {
             alert(msg);
         }
-
+        function sendMessage() {
+            controller.sendMessage("hello");
+        }
         function Start()
         {
             controller.server.Start(canvas1.parentElement.parentElement.offsetWidth, canvas1.parentElement.parentElement.offsetHeight, function (ret, err) {

@@ -57,6 +57,7 @@ declare class WayScriptRemoting {
     str2UTF8(str: any): any[];
     private encrypt(value);
     pageInvoke(name: string, parameters: any[], callback: any, async?: boolean, useRsa?: boolean, returnUseRsa?: boolean): void;
+    sendMessage(msg: string): void;
     private sendHeart();
     private connect();
 }

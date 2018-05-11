@@ -93,6 +93,11 @@ namespace Way.Lib.ScriptRemoting
                     SendClientMessage("1", 2);
                     return;
                 }
+                else if(msgBag.Action == "w_msg")//websocket消息
+                {
+                    RemotingController.MessageReceive(this.Session, msgBag.State);
+                    return;
+                }
                 else if (msgBag.MethodName.IsNullOrEmpty() == false)
                 {
                     handleMethodInvoke(msgBag);

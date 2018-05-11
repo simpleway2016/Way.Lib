@@ -608,6 +608,21 @@ var WayScriptRemoting = (function () {
             callback(null, e.message);
         }
     };
+    WayScriptRemoting.prototype.sendMessage = function (msg) {
+        var _this = this;
+        clearTimeout(this.socket_heart_timer);
+        this.socket_heart_timer = setTimeout(function () { return _this.sendHeart(); }, 10000);
+        try {
+            var obj = {
+                Action: "w_msg",
+                SessionID: WayCookie.getCookie("WayScriptRemoting"),
+                State: msg,
+            };
+            this.socket.send(JSON.stringify(obj));
+        }
+        catch (e) {
+        }
+    };
     WayScriptRemoting.prototype.sendHeart = function () {
         try {
             this.socket.send("{'Action':'w_heart','SessionID':'" + WayCookie.getCookie("WayScriptRemoting") + "'}");
