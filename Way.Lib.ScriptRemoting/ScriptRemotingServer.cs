@@ -20,6 +20,7 @@ namespace Way.Lib.ScriptRemoting
     /// </summary>
     public static class ScriptRemotingServer
     {
+        internal static bool SupportHTTP;
         internal static X509Certificate SSLKey;
         internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal static List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
@@ -27,30 +28,30 @@ namespace Way.Lib.ScriptRemoting
         internal static string HtmlTempPath;
         static SocketServer socketServer;
         internal static string Root;
-    
+
         static void makeTscFiles(string root)
         {
 
-          
+
 
             try
             {
-               
+
 
                 ScriptFilePath = Way.Lib.PlatformHelper.GetAppDirectory() + "WayScriptRemoting.js";
                 FileStream fs = File.Create(ScriptFilePath);
                 var assembly = typeof(ScriptRemotingServer).GetTypeInfo().Assembly;
                 var allNames = assembly.GetManifestResourceNames();
-                foreach( var filename in allNames )
+                foreach (var filename in allNames)
                 {
-                    if(filename.EndsWith(".js") && filename.Contains(".Scripts."))
+                    if (filename.EndsWith(".js") && filename.Contains(".Scripts."))
                     {
                         var stream = assembly.GetManifestResourceStream(filename);
                         byte[] bs = new byte[stream.Length];
                         stream.Read(bs, 0, bs.Length);
                         stream.Dispose();
                         fs.Write(bs, 0, bs.Length);
-                        fs.Write(new byte[] {(byte)10 , (byte)13 } ,0 , 2);
+                        fs.Write(new byte[] { (byte)10, (byte)13 }, 0, 2);
                     }
                 }
                 fs.Dispose();
@@ -67,7 +68,7 @@ namespace Way.Lib.ScriptRemoting
                 //    stream.Dispose();
                 //    fs.Write(fileData, 0, fileData.Length);
                 //}
-               
+
                 //fileData = File.ReadAllBytes(ScriptFilePath);
                 //fs.Write(fileData, 0, fileData.Length);
                 //fs.Dispose();
@@ -126,18 +127,23 @@ namespace Way.Lib.ScriptRemoting
         //    }
         //}
 
-         public static void Stop()
+        public static void Stop()
         {
-            if(socketServer != null)
+            if (socketServer != null)
             {
                 socketServer.Stop();
                 socketServer = null;
             }
         }
 
-
-        public static void UseHttps(X509Certificate ssl)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ssl"></param>
+        /// <param name="supportHttp">是否同时支持http协议，默认false</param>
+        public static void UseHttps(X509Certificate ssl, bool supportHttp = false)
         {
+            SupportHTTP = supportHttp;
             SSLKey = ssl;
         }
 
@@ -147,7 +153,7 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="port">端口号</param>
         /// <param name="webRootPath">网站文件所在文件夹</param>
         /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
-        public static void Start(int port,string webRootPath,int gcCollectInterval)
+        public static void Start(int port, string webRootPath, int gcCollectInterval)
         {
             webRootPath = webRootPath.Replace("\\", "/");
             if (socketServer == null)
@@ -174,17 +180,17 @@ namespace Way.Lib.ScriptRemoting
                 socketServer = new ScriptRemoting.SocketServer(port);
                 socketServer.Start();
 
-                if(gcCollectInterval > 0)
+                if (gcCollectInterval > 0)
                 {
-                    new Thread(gcCollect) {IsBackground = true }.Start(gcCollectInterval);
+                    new Thread(gcCollect) { IsBackground = true }.Start(gcCollectInterval);
                 }
             }
         }
 
         static void gcCollect(object interval)
         {
-            int millsec = 60*60*1000*(int)interval;
-            while(true)
+            int millsec = 60 * 60 * 1000 * (int)interval;
+            while (true)
             {
                 Thread.Sleep(millsec);
                 try
@@ -291,7 +297,7 @@ namespace Way.Lib.ScriptRemoting
         public SocketServer(int port)
         {
             m_Port = port;
-            
+
         }
 
         public void Start()
@@ -301,9 +307,9 @@ namespace Way.Lib.ScriptRemoting
             m_listener = new TcpListener(ipe);
             m_listener.Start();
 
-            new Thread(_start) { IsBackground=true}.Start();
+            new Thread(_start) { IsBackground = true }.Start();
         }
-    
+
         public void Stop()
         {
             m_stopped = true;
@@ -344,19 +350,57 @@ namespace Way.Lib.ScriptRemoting
                 {
                     var socket = m_listener.AcceptSocket();
 
-                    new Thread(()=> {
+                    new Thread(() =>
+                    {
                         try
                         {
                             if (ScriptRemotingServer.SSLKey == null)
                                 HandleSocket(new NetStream(socket));
                             else
                             {
-                                HandleSocket(new NetStream(socket, ScriptRemotingServer.SSLKey));
+                                if (ScriptRemotingServer.SupportHTTP)
+                                {
+                                    //同时支持http
+                                    if(socket.Available < 4)
+                                    {
+                                        var startTime = DateTime.Now;
+                                        Thread.Sleep(100);
+                                        while (socket.Available < 4)
+                                        {
+                                            if( (DateTime.Now - startTime).TotalSeconds > 5 )
+                                            {
+                                                //超时
+                                                socket.Dispose();
+                                                return;
+                                            }
+                                            Thread.Sleep(1000);
+
+                                        }
+                                    }
+                                    byte[] bs = new byte[4];
+                                    int readed = socket.Receive(bs, SocketFlags.Peek);
+                                    var text = System.Text.Encoding.UTF8.GetString(bs).ToLower();
+                                    if (text.StartsWith("get") || text.StartsWith("post"))
+                                    {
+                                        //http
+                                        HandleSocket(new NetStream(socket));
+                                    }
+                                    else
+                                    {
+                                        HandleSocket(new NetStream(socket, ScriptRemotingServer.SSLKey));
+                                    }
+
+                                }
+                                else
+                                {
+                                    HandleSocket(new NetStream(socket, ScriptRemotingServer.SSLKey));
+
+                                }
                             }
                         }
                         catch { }
                     }).Start();
-                    
+
                 }
                 catch
                 {
