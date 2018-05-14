@@ -16,7 +16,7 @@ namespace PandaAudioServer
             XDocument doc = XDocument.Load(stream);
             stream.Dispose();
             var ele = doc.XPathSelectElement("//db");
-            ConSTR = ele.Attribute("connectionString").Value;
+            ConSTR = ele.Attribute("connectionString").Value.Replace("./" , AppDomain.CurrentDomain.BaseDirectory);
             DBType = (Way.EntityDB.DatabaseType)Enum.Parse(typeof(Way.EntityDB.DatabaseType), ele.Attribute("type").Value);
         }
         public PandaDB():base(ConSTR, DBType)

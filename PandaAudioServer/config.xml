@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <r>
-  <db type="PostgreSql" connectionString="Server=192.168.50.133;Port=5432;UserId=postgres;Password=123456;database=pandaaudio;"></db>
+  <db type="Sqlite" connectionString='data source="./data.db"'></db>
+  <db2 type="PostgreSql" connectionString="Server=192.168.50.133;Port=5432;UserId=postgres;Password=123456;database=pandaaudio;"></db2>
 </r>

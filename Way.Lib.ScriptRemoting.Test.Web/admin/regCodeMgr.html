@@ -57,8 +57,6 @@
         
         function btnMakeClick()
         {
-            alert(window.controller.server.LoadData);
-            return;
             window.controller.server.MakeRegCode(txtMakeCount.text, function (ret, err) {
                 if (err) alert(err);
                 else {
