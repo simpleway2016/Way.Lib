@@ -55,6 +55,30 @@ namespace PandaAudioServer
                 return null;
             }
         }
+
+        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        public string CheckUser_V3(string loginCode, string state)
+        {
+            try
+            {
+                var user = this.db.UserInfo.FirstOrDefault(m => m.id == this.UserId);
+                user.LastCheckTime = DateTime.Now;
+                this.db.Update(user);
+
+                if (user.LoginCode != loginCode || user.Disable == true)
+                    return null;
+                return Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    state = state,
+                    role = (int)user.Role,
+                });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         [RemotingMethod( UseRSA = RSAApplyScene.EncryptParameters)]
         public string Login(string username, string password)
         {
