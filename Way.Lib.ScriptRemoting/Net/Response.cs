@@ -304,6 +304,25 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             return "Connection: Close";
         }
+
+        /// <summary>
+        /// 重定向
+        /// </summary>
+        /// <param name="url"></param>
+        public void Redirect(string url)
+        {
+            if (mClient == null)
+                return;
+
+            if (_buffer != null)
+            {
+                _buffer = null;
+            }
+            _sendedHeader = true;
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 303 " + GetStatusDescription(303) + $"\r\nLocation: " + url +"\r\n{getConnectString()}\r\n\r\n"));
+            this.End();
+        }
+
         internal void SendFileNotFound()
         {
             if (mClient == null)
