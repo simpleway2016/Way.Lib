@@ -314,10 +314,16 @@ namespace "+nameSpace+@".DB{
                 string eqString = "";
                 if (!string.IsNullOrEmpty(column.EnumDefine) && column.dbType == "int")
                 {
-                   
-                    string[] enumitems = column.EnumDefine.Replace("\r","").Split('\n');
+                    if (column.EnumDefine.Trim().StartsWith("$"))
+                    {
+                        var target = column.EnumDefine.Trim().Substring(1).Split('.');
+                        dataType = "System.Nullable<" + target[0] + "_" + target[1] + "Enum>";
+                    }
+                    else
+                    {
+                        string[] enumitems = column.EnumDefine.Replace("\r", "").Split('\n');
 
-                    enumDefines.Append(@"
+                        enumDefines.Append(@"
 /// <summary>
 /// 
 /// </summary>
@@ -325,34 +331,35 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 {
     
 ");
-                    StringBuilder enumComments = new StringBuilder();
-                    for(int i = 0; i < enumitems.Length; i ++)
-                    {
-                        var code = enumitems[i].Trim();
-                        if (code.Length == 0)
-                            continue;
-                        if (code.StartsWith("//"))
+                        StringBuilder enumComments = new StringBuilder();
+                        for (int i = 0; i < enumitems.Length; i++)
                         {
-                            if (code.Length > 2)
+                            var code = enumitems[i].Trim();
+                            if (code.Length == 0)
+                                continue;
+                            if (code.StartsWith("//"))
                             {
-                                enumComments.AppendLine("/// " + code.Substring(2));
-                            }
-                           
-                        }
-                        else
-                        {
-                            enumDefines.Append(@"
-/// <summary>
-"+ enumComments + @"/// </summary>
-");
-                            enumComments.Clear();
-                            enumDefines.AppendLine(code);
-                        }                       
+                                if (code.Length > 2)
+                                {
+                                    enumComments.AppendLine("/// " + code.Substring(2));
+                                }
 
+                            }
+                            else
+                            {
+                                enumDefines.Append(@"
+/// <summary>
+" + enumComments + @"/// </summary>
+");
+                                enumComments.Clear();
+                                enumDefines.AppendLine(code);
+                            }
+
+                        }
+                        enumDefines.Append("}\r\n");
+
+                        dataType = "System.Nullable<" + table.Name + "_" + column.Name + "Enum>";
                     }
-                    enumDefines.Append("}\r\n");
-                    
-                    dataType = "System.Nullable<" + table.Name + "_" + column.Name + "Enum>";
                 }
 
             
@@ -601,10 +608,16 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                 string eqString = "";
                 if (!string.IsNullOrEmpty(column.EnumDefine) && column.dbType == "int")
                 {
+                    if (column.EnumDefine.Trim().StartsWith("$"))
+                    {
+                        var target = column.EnumDefine.Trim().Substring(1).Split('.');
+                        dataType = "System.Nullable<" + target[0] + "_" + target[1] + "Enum>";
+                    }
+                    else
+                    {
+                        string[] enumitems = column.EnumDefine.Replace("\r", "").Split('\n');
 
-                    string[] enumitems = column.EnumDefine.Replace("\r", "").Split('\n');
-
-                    enumDefines.Append(@"
+                        enumDefines.Append(@"
 /// <summary>
 /// 
 /// </summary>
@@ -612,34 +625,35 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
 {
     
 ");
-                    StringBuilder enumComments = new StringBuilder();
-                    for (int i = 0; i < enumitems.Length; i++)
-                    {
-                        var code = enumitems[i].Trim();
-                        if (code.Length == 0)
-                            continue;
-                        if (code.StartsWith("//"))
+                        StringBuilder enumComments = new StringBuilder();
+                        for (int i = 0; i < enumitems.Length; i++)
                         {
-                            if (code.Length > 2)
+                            var code = enumitems[i].Trim();
+                            if (code.Length == 0)
+                                continue;
+                            if (code.StartsWith("//"))
                             {
-                                enumComments.AppendLine("/// " + code.Substring(2));
-                            }
+                                if (code.Length > 2)
+                                {
+                                    enumComments.AppendLine("/// " + code.Substring(2));
+                                }
 
-                        }
-                        else
-                        {
-                            enumDefines.Append(@"
+                            }
+                            else
+                            {
+                                enumDefines.Append(@"
 /// <summary>
 " + enumComments + @"/// </summary>
 ");
-                            enumComments.Clear();
-                            enumDefines.AppendLine(code);
+                                enumComments.Clear();
+                                enumDefines.AppendLine(code);
+                            }
+
                         }
+                        enumDefines.Append("}\r\n");
 
+                        dataType = "System.Nullable<" + table.Name + "_" + column.Name + "Enum>";
                     }
-                    enumDefines.Append("}\r\n");
-
-                    dataType = "System.Nullable<" + table.Name + "_" + column.Name + "Enum>";
                 }
 
 

@@ -364,29 +364,6 @@ CY22=1<<1 | AllowRemote,
 }}
 namespace SysDB{
 
-/// <summary>
-/// 
-/// </summary>
-public enum SystemRegCode_RoleEnum:int
-{
-    
-
-/// <summary>
-/// 普通用户
-/// </summary>
-Normal=0,
-
-/// <summary>
-/// 允许远程控制
-/// </summary>
-AllowRemote=1<<0,
-
-/// <summary>
-/// CY22用户
-/// </summary>
-CY22=1<<1 | AllowRemote,
-}
-
 
     /// <summary>
 	/// 系统注册码
@@ -525,13 +502,13 @@ CY22=1<<1 | AllowRemote,
             }
         }
 
-        System.Nullable<SystemRegCode_RoleEnum> _Role=(System.Nullable<SystemRegCode_RoleEnum>)(0);
+        System.Nullable<UserInfo_RoleEnum> _Role=(System.Nullable<UserInfo_RoleEnum>)(0);
         /// <summary>
         /// 用户角色
         /// </summary>
         [System.ComponentModel.DataAnnotations.Schema.Column("role")]
         [Way.EntityDB.WayDBColumnAttribute(Name="role",Comment="",Caption="用户角色",Storage = "_Role",DbType="int")]
-        public virtual System.Nullable<SystemRegCode_RoleEnum> Role
+        public virtual System.Nullable<UserInfo_RoleEnum> Role
         {
             get
             {
@@ -1231,8 +1208,18 @@ result.Append("Im9yZGVyaWRcIjozfSx7XCJpZFwiOjI2LFwiY2FwdGlvblwiOlwi55Sf5oiQ5pe26
 result.Append("aFwiOlwiXCIsXCJUYWJsZUlEXCI6MixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjR9XSxcIm5ld0NvbHVtbnNcIjpbe1wiaWRcIjozMzYsXCJjYXB0aW9uXCI6XCLnlKjmiLfop5LoibJcIixcIk5hbWVcIjpcIlJvbGVcIixcIklzQXV0b0luY3JlbWVudFwi");
 result.Append("OmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwiRW51bURlZmluZVwiOlwiLy/mma7pgJrnlKjmiLdcXG5Ob3JtYWw9MCxcXG4vL+WFgeiuuOi/nOeoi+aOp+WItlxcbkFsbG93UmVtb3RlPTE8PDAsXFxuLy9DWTIy55So5oi3XFxuQ1ky");
 result.Append("Mj0xPDwxIHwgQWxsb3dSZW1vdGUsXFxuXCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVlXCI6XCIwXCIsXCJUYWJsZUlEXCI6MixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjV9XSxcImNoYW5nZWRDb2x1bW5zXCI6W10sXCJkZWxldGVkQ29sdW1u");
-result.Append("c1wiOltdLFwiSURYQ29uZmlnc1wiOltdLFwiSURcIjowfSJ9LHsiTmFtZSI6ImRhdGFiYXNlaWQiLCJWYWx1ZSI6MX1dLCJSb3dTdGF0ZSI6MH1dLCJDb2x1bW5zIjpbeyJDb2x1bW5OYW1lIjoiaWQiLCJEYXRhVHlwZSI6IlN5c3RlbS5JbnQ2NCJ9LHsiQ29sdW1u");
-result.Append("TmFtZSI6InR5cGUiLCJEYXRhVHlwZSI6IlN5c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5hbWUiOiJjb250ZW50IiwiRGF0YVR5cGUiOiJTeXN0ZW0uU3RyaW5nIn0seyJDb2x1bW5OYW1lIjoiZGF0YWJhc2VpZCIsIkRhdGFUeXBlIjoiU3lzdGVtLkludDY0In1dfV0s");
-result.Append("IkRhdGFTZXROYW1lIjoiYzVkYmUwNmEtNDgwNC00NmIyLTk5YWUtMmI1ZmYzYWYxZGZiIn0=");
+result.Append("c1wiOltdLFwiSURYQ29uZmlnc1wiOltdLFwiSURcIjowfSJ9LHsiTmFtZSI6ImRhdGFiYXNlaWQiLCJWYWx1ZSI6MX1dLCJSb3dTdGF0ZSI6MH0seyJJdGVtcyI6W3siTmFtZSI6ImlkIiwiVmFsdWUiOjExOX0seyJOYW1lIjoidHlwZSIsIlZhbHVlIjoiQ2hhbmdl");
+result.Append("VGFibGVBY3Rpb24ifSx7Ik5hbWUiOiJjb250ZW50IiwiVmFsdWUiOiJ7XCJPbGRUYWJsZU5hbWVcIjpcIlN5c3RlbVJlZ0NvZGVcIixcIk5ld1RhYmxlTmFtZVwiOlwiU3lzdGVtUmVnQ29kZVwiLFwib3RoZXJDb2x1bW5zXCI6W3tcImlkXCI6OSxcIk5hbWVcIjpc");
+result.Append("ImlkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjp0cnVlLFwiQ2FuTnVsbFwiOmZhbHNlLFwiZGJUeXBlXCI6XCJpbnRcIixcIlRhYmxlSURcIjoyLFwiSXNQS0lEXCI6dHJ1ZSxcIm9yZGVyaWRcIjowfSx7XCJpZFwiOjEwLFwiY2FwdGlvblwiOlwi5ZSv5LiA6K6k6K+B");
+result.Append("56CBXCIsXCJOYW1lXCI6XCJSZWdHdWlkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJ2YXJjaGFyXCIsXCJsZW5ndGhcIjpcIjUwXCIsXCJUYWJsZUlEXCI6MixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJp");
+result.Append("ZFwiOjF9LHtcImlkXCI6MTEsXCJjYXB0aW9uXCI6XCLkvb/nlKjnmoTnlKjmiLdpZFwiLFwiTmFtZVwiOlwiVXNlcklkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcImxlbmd0aFwiOlwiXCIs");
+result.Append("XCJUYWJsZUlEXCI6MixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjJ9LHtcImlkXCI6MjQsXCJjYXB0aW9uXCI6XCLosIHnlJ/miJDnmoRcIixcIk5hbWVcIjpcIk1ha2VyVXNlcklkXCIsXCJJc0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0");
+result.Append("cnVlLFwiZGJUeXBlXCI6XCJpbnRcIixcImxlbmd0aFwiOlwiXCIsXCJUYWJsZUlEXCI6MixcIklzUEtJRFwiOmZhbHNlLFwib3JkZXJpZFwiOjN9LHtcImlkXCI6MjYsXCJjYXB0aW9uXCI6XCLnlJ/miJDml7bpl7RcIixcIk5hbWVcIjpcIk1ha2VUaW1lXCIsXCJJ");
+result.Append("c0F1dG9JbmNyZW1lbnRcIjpmYWxzZSxcIkNhbk51bGxcIjp0cnVlLFwiZGJUeXBlXCI6XCJkYXRldGltZVwiLFwibGVuZ3RoXCI6XCJcIixcIlRhYmxlSURcIjoyLFwiSXNQS0lEXCI6ZmFsc2UsXCJvcmRlcmlkXCI6NH0se1wiaWRcIjozMzYsXCJjYXB0aW9uXCI6");
+result.Append("XCLnlKjmiLfop5LoibJcIixcIk5hbWVcIjpcIlJvbGVcIixcIklzQXV0b0luY3JlbWVudFwiOmZhbHNlLFwiQ2FuTnVsbFwiOnRydWUsXCJkYlR5cGVcIjpcImludFwiLFwiRW51bURlZmluZVwiOlwiLy/mma7pgJrnlKjmiLdcXG5Ob3JtYWw9MCxcXG4vL+WFgeiu");
+result.Append("uOi/nOeoi+aOp+WItlxcbkFsbG93UmVtb3RlPTE8PDAsXFxuLy9DWTIy55So5oi3XFxuQ1kyMj0xPDwxIHwgQWxsb3dSZW1vdGUsXFxuXCIsXCJsZW5ndGhcIjpcIlwiLFwiZGVmYXVsdFZhbHVlXCI6XCIwXCIsXCJUYWJsZUlEXCI6MixcIklzUEtJRFwiOmZhbHNl");
+result.Append("LFwib3JkZXJpZFwiOjV9XSxcIm5ld0NvbHVtbnNcIjpbXSxcImNoYW5nZWRDb2x1bW5zXCI6W10sXCJkZWxldGVkQ29sdW1uc1wiOltdLFwiSURYQ29uZmlnc1wiOltdLFwiSURcIjowfSJ9LHsiTmFtZSI6ImRhdGFiYXNlaWQiLCJWYWx1ZSI6MX1dLCJSb3dTdGF0");
+result.Append("ZSI6MH1dLCJDb2x1bW5zIjpbeyJDb2x1bW5OYW1lIjoiaWQiLCJEYXRhVHlwZSI6IlN5c3RlbS5JbnQ2NCJ9LHsiQ29sdW1uTmFtZSI6InR5cGUiLCJEYXRhVHlwZSI6IlN5c3RlbS5TdHJpbmcifSx7IkNvbHVtbk5hbWUiOiJjb250ZW50IiwiRGF0YVR5cGUiOiJT");
+result.Append("eXN0ZW0uU3RyaW5nIn0seyJDb2x1bW5OYW1lIjoiZGF0YWJhc2VpZCIsIkRhdGFUeXBlIjoiU3lzdGVtLkludDY0In1dfV0sIkRhdGFTZXROYW1lIjoiYzVkYmUwNmEtNDgwNC00NmIyLTk5YWUtMmI1ZmYzYWYxZGZiIn0=");
 return result.ToString();}
 }}
