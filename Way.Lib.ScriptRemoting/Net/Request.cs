@@ -7,8 +7,52 @@ using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting.Net
 {
-    public class Request : System.IO.Stream
+  
+    public class Request :IDisposable
     {
+        class RequestBodyStream : System.IO.Stream
+        {
+            Request _request;
+            public RequestBodyStream(Request request)
+            {
+                _request = request;
+            }
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => _request.ContentLength;
+
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+            public override void Flush()
+            {
+                
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+               return _request.mClient.Read(buffer, 0, count);
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         internal NetStream mClient;
 
         private ValueCollection _Headers = new ValueCollection();
@@ -42,49 +86,38 @@ namespace Way.Lib.ScriptRemoting.Net
                 return mClient.RemoteEndPoint;
             }
         }
-
-        public override bool CanRead
+        public string ContentType
         {
-            get
-            {
-                return true;
-            }
+            get;
+            set;
+        }
+        public int ContentLength
+        {
+            get;
+            private set;
         }
 
-        public override bool CanSeek
+        byte[] _contentData;
+        System.IO.Stream _Body;
+        public System.IO.Stream Body
         {
             get
             {
-                return false;
-            }
-        }
-
-        public override bool CanWrite
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        public override long Length
-        {
-            get
-            {
-                return Convert.ToInt64(_Headers["Content-Length"]);
-            }
-        }
-
-        public override long Position
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
+                if (_Body == null)
+                {
+                    if (_contentData != null)
+                    {
+                        _Body = new System.IO.MemoryStream();
+                        _Body.Write(_contentData, 0, _contentData.Length);
+                        _Body.Position = 0;
+                        _contentData = null;
+                    }
+                    else
+                    {
+                        _Body = new RequestBodyStream(this);
+                    }
+                }
+                return _Body;
             }
         }
 
@@ -144,19 +177,25 @@ namespace Way.Lib.ScriptRemoting.Net
                     }
                 }
             }
+            try
+            {
+                this.ContentLength = Convert.ToInt32( _Headers["Content-Length"]);
+            }
+            catch { }
+            this.ContentType = this.Headers["Content-Type"];
         }
 
         internal void urlRequestHandler()
         {
-            if (string.Compare(_Headers["Content-Type"], "application/json", true) == 0)
+            if (string.Compare(this.ContentType, "application/json", true) == 0)
             {
                 //post 的是json数据
                 System.Text.Encoding codec = null;
-                if( _Headers["Content-Type"].Contains(";") )
+                if(this.ContentType.Contains(";") )
                 {
                     try
                     {
-                        var charset = _Headers["Content-Type"].Split(';').SingleOrDefault(m => m.StartsWith("charset="));
+                        var charset = this.ContentType.Split(';').SingleOrDefault(m => m.StartsWith("charset="));
                         if (charset != null)
                         {
                             charset = charset.Trim().Substring(8);
@@ -180,9 +219,10 @@ namespace Way.Lib.ScriptRemoting.Net
                 }
                 if (codec == null)
                     codec = System.Text.Encoding.UTF8;
-                int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
-                byte[] jsonBS = mClient.ReceiveDatas(contentLength);
-                string jsonStr = codec.GetString(jsonBS);
+
+                _contentData = mClient.ReceiveDatas(this.ContentLength);
+
+                string jsonStr = codec.GetString(_contentData);
                 var jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonStr);
                 if (jsonObj is Newtonsoft.Json.Linq.JArray)
                 {
@@ -197,15 +237,16 @@ namespace Way.Lib.ScriptRemoting.Net
                     }
                 }
             }
-            else if (this.Headers["Content-Type"].ToSafeString().Contains("x-www-form-urlencoded"))
+            else if (this.ContentType.ToSafeString().Contains("x-www-form-urlencoded"))
             {
-                int contentLength = Convert.ToInt32(_Headers["Content-Length"]);
+                _contentData = mClient.ReceiveDatas(this.ContentLength);
+
                 List<byte> buffer = new List<byte>();
 
                 string keyName = null;
-                for (int i = 0; i < contentLength; i++)
+                for (int i = 0; i < this.ContentLength; i++)
                 {
-                    int b = this.mClient.ReadByte();
+                    int b = _contentData[i];
                     if (b == (int)'=')
                     {
                         keyName = System.Text.Encoding.UTF8.GetString(buffer.ToArray());
@@ -234,29 +275,14 @@ namespace Way.Lib.ScriptRemoting.Net
             }
         }
 
-        public override void Flush()
+        public void Dispose()
         {
-            throw new NotImplementedException();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            return mClient.Read(buffer, offset, count);
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLength(long value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            throw new NotImplementedException();
+            _contentData = null;
+            if (_Body != null && _Body is System.IO.MemoryStream)
+            {
+                _Body.Dispose();
+                _Body = null;
+            }
         }
     }
 }

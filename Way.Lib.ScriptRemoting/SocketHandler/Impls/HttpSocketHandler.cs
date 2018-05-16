@@ -220,7 +220,7 @@ namespace Way.Lib.ScriptRemoting
             {
             }
 
-
+            RemotingContext.Current.Request.Dispose();
             RemotingContext.Current.Response.End();
         }
         void checkHandlers(string visitingUrl)
