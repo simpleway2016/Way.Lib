@@ -628,21 +628,9 @@ namespace Way.Lib.ScriptRemoting
         {
             try
             {
+                RemotingContext.Current.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
                 lock (this)
                 {
-                    //string objstr;
-                    //if (resultObj is Dictionary<string, object>[])
-                    //{
-
-                    //    objstr = ResultHelper.ToJson((Dictionary<string, object>[])resultObj);
-                    //}
-                    //else
-                    //{
-                    //    objstr = Newtonsoft.Json.JsonConvert.SerializeObject(resultObj);
-                    //}
-                   
-                    //var dataStr = "{\"result\":" + objstr + ",\"type\":" + ((int)msgType) + ",sessionid:'"+ sessionid + "'}";
-
                     var dataStr = Newtonsoft.Json.JsonConvert.SerializeObject(new {
                         result = resultObj,
                         type = ((int)msgType),
