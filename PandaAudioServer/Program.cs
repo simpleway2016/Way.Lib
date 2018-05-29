@@ -19,6 +19,7 @@ namespace PandaAudioServer
 
         static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             try
             {
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -81,6 +82,14 @@ namespace PandaAudioServer
             }
             ScriptRemotingServer.Stop();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            using (Way.Lib.CLog log = new Way.Lib.CLog("domain error"))
+            {
+                log.Log(e.ExceptionObject.ToString());
+            }
         }
     }
 }
