@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Way.EntityDB
@@ -653,10 +654,30 @@ namespace Way.EntityDB
             }
             return linqQuery;
         }
-#endregion
+        #endregion
 
-
-       
+        #region SaveChanges
+        [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
+        public override int SaveChanges()
+        {
+            return -1;
+        }
+        [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            return -1;
+        }
+        [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return null;
+        }
+        [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return null;
+        }
+        #endregion
 
         //public static void Init(System.Reflection.Assembly mainAssembly)
         //{
