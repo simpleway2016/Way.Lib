@@ -21,7 +21,7 @@ namespace Way.EJServer
             try
             {
                 int databaseid = Convert.ToInt32(connectInfo.Request.Query["dbid"]);
-                System.IO.BinaryReader reader = new System.IO.BinaryReader(connectInfo.Request);
+                System.IO.BinaryReader reader = new System.IO.BinaryReader(connectInfo.Request.Body);
                 var tableNames = reader.ReadString().ToJsonObject<string[]>();
 
                 using (EJDB ejdb = new EJDB())
