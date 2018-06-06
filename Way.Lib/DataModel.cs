@@ -125,6 +125,15 @@ namespace Way.Lib
             get { return _ChangedProperties; }
         }
 
+        DataModelChangedItemCollection _BackupChangedProperties = new DataModelChangedItemCollection();
+        /// <summary>
+        /// 
+        /// </summary>
+        public DataModelChangedItemCollection BackupChangedProperties
+        {
+            get { return _BackupChangedProperties; }
+        }
+
         protected virtual void OnPropertyChanged(string propertyName, object originalValue, object nowvalue)
         {
             if (m_notSendPropertyChanged)

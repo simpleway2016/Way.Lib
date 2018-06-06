@@ -225,10 +225,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UIAutomationProvider" />
-    <Reference Include="Way.Lib, Version=1.0.0.6, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Way.Lib\bin\Debug\net46\Way.Lib.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -631,6 +627,10 @@
     <ProjectReference Include="..\Copy\Copy.csproj">
       <Project>{90f86d77-0178-46b5-bf34-9f80d14cc343}</Project>
       <Name>Copy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Way.Lib\Way.Lib.csproj">
+      <Project>{5698aef7-fe1c-4ecd-a615-04ac7342f552}</Project>
+      <Name>Way.Lib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

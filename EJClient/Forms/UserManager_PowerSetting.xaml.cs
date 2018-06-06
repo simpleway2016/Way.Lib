@@ -39,14 +39,14 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return _data.ChangedProperties["HasPower"] != null;
+                    return _data.BackupChangedProperties["HasPower"] != null;
                 }
                 set
                 {
                     if (value)
-                        _data.ChangedProperties["HasPower"] = new Way.Lib.DataModelChangedItem();
+                        _data.BackupChangedProperties["HasPower"] = new Way.Lib.DataModelChangedItem();
                     else
-                        _data.ChangedProperties.Clear();
+                        _data.BackupChangedProperties.Clear();
                 }
             }
             public SettingProxy[] Children
@@ -59,7 +59,7 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return Convert.ToInt32(_data.GetType().GetProperty("id").GetValue(this));
+                    return Convert.ToInt32(_data.GetType().GetProperty("id").GetValue(_data));
                 }
             }
             Visibility _CheckBoxVisibility = Visibility.Visible;
@@ -78,7 +78,7 @@ namespace EJClient.Forms
             {
                 get
                 {
-                    return _data.GetType().GetProperty(_textField).GetValue(this).ToString();
+                    return _data.GetType().GetProperty(_textField).GetValue(_data).ToString();
                 }
             }
         }
