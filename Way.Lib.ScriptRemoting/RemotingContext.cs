@@ -36,20 +36,6 @@ namespace Way.Lib.ScriptRemoting
             internal set;
         }
 
-        ThreadLocal<Dictionary<string,object>> _Items = new ThreadLocal<Dictionary<string, object>>();
-        /// <summary>
-        /// 获取当前上下文对应的Items
-        /// </summary>
-        public Dictionary<string, object> Items
-        {
-            get
-            {
-                if (_Items.Value == null)
-                    _Items.Value = new Dictionary<string, object>();
-
-                return _Items.Value;
-            }
-        }
 
         public string GetIPInformation()
         {
