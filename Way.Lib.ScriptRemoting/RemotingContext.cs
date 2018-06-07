@@ -21,6 +21,13 @@ namespace Way.Lib.ScriptRemoting
                     _Current.Value = new RemotingContext();
                 return _Current.Value;
             }
+            internal set
+            {
+                if(_Current.Value != null)
+                {
+                    _Current.Value = null;
+                }
+            }
         }
 
         public RemotingController Controller

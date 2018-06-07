@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{D7D0E99D-0068-4DFD-AAF2-0FDC2B4448DE}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>2.2</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="aa.html" />
+    <Content Include="admin\regCodeMgr.html" />
+    <Content Include="admin\login.html" />
+    <Content Include="controlTest0.html" />
+    <Content Include="css\flex.css" />
+    <Content Include="RemoteWindow\index.html" />
+    <Content Include="组态\abc.html" />
+    <Content Include="组态\css\flex.css" />
+    <Content Include="组态\css\pikaday.css" />
+    <Content Include="组态\editor.html" />
+    <Content Include="Global.asax" />
+    <Content Include="master.html" />
+    <Content Include="master2.html" />
+    <Content Include="master3.html" />
+    <Content Include="scripts\Barrett.js" />
+    <Content Include="scripts\BigInt.js" />
+    <Content Include="scripts\jcontrol\Barrett.js" />
+    <Content Include="scripts\jcontrol\BigInt.js" />
+    <Content Include="scripts\jcontrol\RSA.js" />
+    <Content Include="scripts\jcontrol\说明.html" />
+    <Content Include="scripts\jquery.js" />
+    <Content Include="scripts\remConfig.js" />
+    <Content Include="scripts\RSA.js" />
+    <Content Include="scripts\sonic.js" />
+    <Content Include="scripts\touchHandler.js" />
+    <Content Include="socketTest.html" />
+    <Content Include="swipe_2.jpg" />
+    <Content Include="templates\system.html" />
+    <Content Include="templates\main.html" />
+    <Content Include="test.html" />
+    <Content Include="组态\images\browser\clear.png" />
+    <Content Include="组态\images\browser\close.png" />
+    <Content Include="组态\images\browser\file.png" />
+    <Content Include="组态\images\browser\folder.png" />
+    <Content Include="组态\images\browser\loading.gif" />
+    <Content Include="组态\images\toolbox\buttonarea.png" />
+    <Content Include="组态\images\toolbox\code.png" />
+    <Content Include="组态\images\toolbox\cut.png" />
+    <Content Include="组态\images\toolbox\delete.png" />
+    <Content Include="组态\images\toolbox\fullscreen.png" />
+    <Content Include="组态\images\toolbox\fullscreen_exit.png" />
+    <Content Include="组态\images\toolbox\group.png" />
+    <Content Include="组态\images\toolbox\play.png" />
+    <Content Include="组态\images\toolbox\redo.png" />
+    <Content Include="组态\images\toolbox\ruler.png" />
+    <Content Include="组态\images\toolbox\save.png" />
+    <Content Include="组态\images\toolbox\trend.png" />
+    <Content Include="组态\images\toolbox\circle.png" />
+    <Content Include="组态\images\toolbox\copy.png" />
+    <Content Include="组态\images\toolbox\cylinder.png" />
+    <Content Include="组态\images\toolbox\ellipse.png" />
+    <Content Include="组态\images\toolbox\img.png" />
+    <Content Include="组态\images\toolbox\paste.png" />
+    <Content Include="组态\images\toolbox\rect.png" />
+    <Content Include="组态\images\toolbox\line.png" />
+    <Content Include="组态\images\toolbox\setting.png" />
+    <Content Include="组态\images\toolbox\text.png" />
+    <Content Include="组态\images\toolbox\undo.png" />
+    <Content Include="组态\images\toolbox\ungroup.png" />
+    <Content Include="组态\js\colpick\colpick.css" />
+    <Content Include="组态\js\colpick\colpick.js" />
+    <Content Include="组态\js\colpick\jquery.min.js" />
+    <Content Include="组态\js\jscolor.js" />
+    <Content Include="组态\js\jscolor.min.js" />
+    <Content Include="组态\js\pikaday.min.js" />
+    <Content Include="组态\templates\main.html" />
+    <Content Include="组态\templates\system.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="scripts\jcontrol\JBinder.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JDataSource.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JExtension.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JInit.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JObserveObject.ts" />
+    <TypeScriptCompile Include="scripts\jquery.d.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\JHttpHelper.ts" />
+    <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.ts" />
+    <TypeScriptCompile Include="组态\js\Editor.ts" />
+    <TypeScriptCompile Include="组态\js\EditorControls.ts" />
+    <TypeScriptCompile Include="组态\js\FileBrowser.ts" />
+    <TypeScriptCompile Include="组态\js\PropertyDialog.ts" />
+    <TypeScriptCompile Include="组态\js\UndoManager.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="MyDB.cs" />
+    <Compile Include="TestPage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Way.EntityDB\bin\Debug\net46\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Way.EntityDB, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Way.EntityDB\bin\Debug\net46\Way.EntityDB.dll</HintPath>
+    </Reference>
+    <Reference Include="Way.Lib.ScriptRemoting, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Way.Lib.ScriptRemoting\bin\Debug\net46\Way.Lib.ScriptRemoting.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="hosts" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Way.Lib.ScriptRemoting.Test.Web</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>12546</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:12546/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>True</TypeScriptRemoveComments>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile>
+    </TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>

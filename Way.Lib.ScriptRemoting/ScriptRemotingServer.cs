@@ -340,6 +340,10 @@ namespace Way.Lib.ScriptRemoting
             {
                 client.Close();
             }
+            finally
+            {
+                RemotingContext.Current = null;
+            }
         }
 
         void _start()
@@ -399,6 +403,10 @@ namespace Way.Lib.ScriptRemoting
                             }
                         }
                         catch { }
+                        finally
+                        {
+                            RemotingContext.Current = null;
+                        }
                     }).Start();
 
                 }
