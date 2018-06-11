@@ -56,7 +56,7 @@ namespace PandaAudioServer
                 }
                 Console.WriteLine($"path:{webroot}");
                 RegisterServices();
-                ScriptRemotingServer.Start(ports, webroot, 1);
+                ScriptRemotingServer.Start(ports, webroot, 0);
                 Console.WriteLine($"web server started");
                 using (var db = new PandaDB())
                 {
