@@ -24,13 +24,18 @@ namespace PandaAudioServer
             {
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-                int port = 8988;
+                int[] ports = new int[] { 8988,80 };
                 if (args != null && args.Length > 0)
                 {
-                    port = Convert.ToInt32(args[0]);
+                    var arr = args[0].Split(',');
+                    ports = new int[arr.Length];
+                    for (int i = 0; i < ports.Length; i++)
+                    {
+                        ports[i] = Convert.ToInt32(arr[0]);
+                    }
                 }
 
-                Console.WriteLine($"server starting at port:{port}...");
+                Console.WriteLine($"server starting at port:{Newtonsoft.Json.JsonConvert.SerializeObject(ports)}...");
                 var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}web";
 
 #if DEBUG
@@ -51,7 +56,7 @@ namespace PandaAudioServer
                 }
                 Console.WriteLine($"path:{webroot}");
                 RegisterServices();
-                ScriptRemotingServer.Start(port, webroot, 1);
+                ScriptRemotingServer.Start(ports, webroot, 1);
                 Console.WriteLine($"web server started");
                 using (var db = new PandaDB())
                 {

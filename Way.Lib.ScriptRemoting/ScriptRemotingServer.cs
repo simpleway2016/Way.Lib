@@ -155,6 +155,17 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
         public static void Start(int port, string webRootPath, int gcCollectInterval)
         {
+            Start(new int[] { port }, webRootPath, gcCollectInterval);
+        }
+
+        /// <summary>
+        /// 启动ScriptRemotingServer，建议在Application_Start执行
+        /// </summary>
+        /// <param name="ports">需要监听的端口号</param>
+        /// <param name="webRootPath">网站文件所在文件夹</param>
+        /// <param name="gcCollectInterval">内存回收间隔（单位：小时），0表示不回收</param>
+        public static void Start(IEnumerable<int> ports, string webRootPath, int gcCollectInterval)
+        {
             webRootPath = webRootPath.Replace("\\", "/");
             if (socketServer == null)
             {
@@ -177,7 +188,7 @@ namespace Way.Lib.ScriptRemoting
                 catch { }
 
 
-                socketServer = new ScriptRemoting.SocketServer(port);
+                socketServer = new ScriptRemoting.SocketServer(ports);
                 socketServer.Start();
 
                 if (gcCollectInterval > 0)
@@ -290,31 +301,50 @@ namespace Way.Lib.ScriptRemoting
     }
     class SocketServer
     {
-        TcpListener m_listener;
-        int m_Port;
+        List<TcpListener> m_listeners = new List<TcpListener>();
+        IEnumerable<int> m_Ports;
         bool m_stopped = false;
 
-        public SocketServer(int port)
+        public SocketServer(IEnumerable<int> ports)
         {
-            m_Port = port;
+            m_Ports = ports;
 
         }
-
         public void Start()
         {
             m_stopped = false;
-            IPEndPoint ipe = new IPEndPoint(IPAddress.Any, m_Port);
-            m_listener = new TcpListener(ipe);
-            m_listener.Start();
-
-            new Thread(_start) { IsBackground = true }.Start();
+            try
+            {
+                foreach (var port in m_Ports)
+                {
+                    IPEndPoint ipe = new IPEndPoint(IPAddress.Any, port);
+                    var listener = new TcpListener(ipe);                    
+                    listener.Start();
+                    m_listeners.Add(listener);
+                }
+                foreach (var listener in m_listeners)
+                {
+                    new Thread(_start) { IsBackground = true }.Start(listener);
+                }
+            }
+            catch
+            {
+                foreach (var listener in m_listeners)
+                {
+                    listener.Stop();
+                }
+                throw;
+            }
         }
 
         public void Stop()
         {
             m_stopped = true;
-            m_listener.Stop();
-            m_listener = null;
+            foreach (var listener in m_listeners)
+            {
+                listener.Stop();
+            }
+            m_listeners.Clear();
         }
 
         internal static void HandleSocket(NetStream client)
@@ -346,13 +376,14 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        void _start()
+        void _start(object obj)
         {
+            TcpListener listener = (TcpListener)obj;
             while (!m_stopped)
             {
                 try
                 {
-                    var socket = m_listener.AcceptSocket();
+                    var socket = listener.AcceptSocket();
 
                     new Thread(() =>
                     {
@@ -365,13 +396,13 @@ namespace Way.Lib.ScriptRemoting
                                 if (ScriptRemotingServer.SupportHTTP)
                                 {
                                     //同时支持http
-                                    if(socket.Available < 4)
+                                    if (socket.Available < 4)
                                     {
                                         var startTime = DateTime.Now;
                                         Thread.Sleep(100);
                                         while (socket.Available < 4)
                                         {
-                                            if( (DateTime.Now - startTime).TotalSeconds > 5 )
+                                            if ((DateTime.Now - startTime).TotalSeconds > 5)
                                             {
                                                 //超时
                                                 socket.Dispose();
