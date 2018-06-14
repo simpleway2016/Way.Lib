@@ -623,6 +623,9 @@ namespace Way.Lib
                 _rsa.Dispose();
                 _rsa = null;
             }
+            _parameter = new RSAParameters();
+            _KeyExponent = null;
+            _KeyModulus = null;
         }
     }
 }
