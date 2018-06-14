@@ -17,7 +17,7 @@ namespace Way.Lib
         PKCS1 = 0,
         PKCS8 = 1
     }
-    public class RSA
+    public class RSA : IDisposable
     {
         System.Security.Cryptography.RSA _rsa;
         System.Security.Cryptography.RSAParameters _parameter;
@@ -614,6 +614,15 @@ namespace Way.Lib
                 index += read;
             }
             return result.ToArray();
+        }
+
+        public void Dispose()
+        {
+            if(_rsa != null)
+            {
+                _rsa.Dispose();
+                _rsa = null;
+            }
         }
     }
 }

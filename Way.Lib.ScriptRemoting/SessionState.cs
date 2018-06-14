@@ -168,8 +168,29 @@ namespace Way.Lib.ScriptRemoting
                                     if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
                                     {
                                         AllSessions.Remove(kv.Key);
+
+                                        try
+                                        {
+                                            foreach (var keypair in kv.Value)
+                                            {
+                                                try
+                                                {
+                                                    if (keypair.Value is IDisposable)
+                                                    {
+                                                        ((IDisposable)keypair.Value).Dispose();
+                                                    }
+                                                }
+                                                catch { }
+                                            }
+                                        }
+                                        catch
+                                        {
+
+                                        }
+
                                         if (OnSessionRemoved != null)
                                         {
+                                            
                                             try
                                             {
                                                 OnSessionRemoved(kv.Value);
