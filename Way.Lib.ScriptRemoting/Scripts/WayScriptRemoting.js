@@ -677,10 +677,10 @@ var WayScriptRemoting = (function () {
             setTimeout(function () { _this.connect(); }, 1000);
         };
     };
+    WayScriptRemoting.ServerAddress = null;
+    WayScriptRemoting.ExistControllers = [];
     return WayScriptRemoting;
 }());
-WayScriptRemoting.ServerAddress = null;
-WayScriptRemoting.ExistControllers = [];
 var WayScriptRemotingChild = (function (_super) {
     __extends(WayScriptRemotingChild, _super);
     function WayScriptRemotingChild() {
@@ -1109,4 +1109,3 @@ var WayHelper = (function () {
     };
     return WayHelper;
 }());
-//# sourceMappingURL=WayScriptRemoting.js.map

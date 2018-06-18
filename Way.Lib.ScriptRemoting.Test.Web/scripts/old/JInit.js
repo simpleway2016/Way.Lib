@@ -183,4 +183,3 @@ if (document.addEventListener) {
         JElementHelper.initElements(document.body, false);
     }, false);
 }
-//# sourceMappingURL=JInit.js.map

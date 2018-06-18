@@ -92,14 +92,15 @@
     <Content Include="组态\templates\system.html" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="scripts\jcontrol\JBinder.ts" />
-    <TypeScriptCompile Include="scripts\jcontrol\JDataSource.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\JExtension.ts" />
-    <TypeScriptCompile Include="scripts\jcontrol\JInit.ts" />
-    <TypeScriptCompile Include="scripts\jcontrol\JObserveObject.ts" />
+    <TypeScriptCompile Include="scripts\old\JBinder.ts" />
+    <TypeScriptCompile Include="scripts\old\JDataSource.ts" />
+    <TypeScriptCompile Include="scripts\old\JExtension.ts" />
+    <TypeScriptCompile Include="scripts\old\JInit.ts" />
+    <TypeScriptCompile Include="scripts\old\JObserveObject.ts" />
     <TypeScriptCompile Include="scripts\jquery.d.ts" />
-    <TypeScriptCompile Include="scripts\jcontrol\JControls.ts" />
-    <TypeScriptCompile Include="scripts\jcontrol\JHttpHelper.ts" />
+    <TypeScriptCompile Include="scripts\old\JControls.ts" />
+    <TypeScriptCompile Include="scripts\old\JHttpHelper.ts" />
     <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.ts" />
     <TypeScriptCompile Include="组态\js\Editor.ts" />
     <TypeScriptCompile Include="组态\js\EditorControls.ts" />

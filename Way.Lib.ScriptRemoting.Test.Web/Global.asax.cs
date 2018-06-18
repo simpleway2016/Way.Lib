@@ -11,7 +11,7 @@ namespace Way.Lib.ScriptRemoting.Test.Web
     {
         static Global()
         {
-            ScriptRemotingServer.StartForAsp(2);
+           
         }
         protected void Application_Start(object sender, EventArgs e)
         {

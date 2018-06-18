@@ -290,7 +290,6 @@ var PropertyDialog = (function () {
         this.rootElement.style.top = y + "px";
         this.rootElement.style.visibility = "visible";
     };
+    PropertyDialog.CHKNumber = 0;
     return PropertyDialog;
 }());
-PropertyDialog.CHKNumber = 0;
-//# sourceMappingURL=PropertyDialog.js.map

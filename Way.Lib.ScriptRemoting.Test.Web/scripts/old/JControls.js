@@ -442,10 +442,10 @@ var JControl = (function () {
         }
         return result;
     };
+    JControl.StaticID = 1;
+    JControl.StaticString = "JC_";
     return JControl;
 }());
-JControl.StaticID = 1;
-JControl.StaticString = "JC_";
 var JButton = (function (_super) {
     __extends(JButton, _super);
     function JButton(element, templates, datacontext) {
@@ -1020,9 +1020,9 @@ var JRadioList = (function (_super) {
             this._onItemDataChangedHanding = false;
         }
     };
+    JRadioList.StaticID = 1;
     return JRadioList;
 }(JList));
-JRadioList.StaticID = 1;
 var JDropdownList = (function (_super) {
     __extends(JDropdownList, _super);
     function JDropdownList(element, templates, datacontext) {
@@ -1119,4 +1119,3 @@ var ScrollSourceManager = (function () {
     };
     return ScrollSourceManager;
 }());
-//# sourceMappingURL=JControls.js.map

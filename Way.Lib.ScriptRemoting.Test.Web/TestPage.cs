@@ -13,13 +13,7 @@ namespace Way.Lib.ScriptRemoting.Test
     public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
 
-        protected override void OnBeforeSavingData(object dataitem)
-        {
-            EJ.DBColumn column = dataitem as EJ.DBColumn;
-            column.TableID = 3;
-            SendGroupMessage("g1", "Newtonsoft.Json.JsonConvert.SerializeObject(dataitem)");
-        }
-
+      
 
         public object[] TestData
         {
