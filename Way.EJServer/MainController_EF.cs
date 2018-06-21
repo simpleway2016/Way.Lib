@@ -11,10 +11,14 @@ using Way.EntityDB.Design.Services;
 using Way.Lib;
 using Way.Lib.ScriptRemoting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Way.EJServer
 {
-    public class MainController : RemotingController
+    /// <summary>
+    /// 目前sqlite有太多不支持的operation，所以，暂时不用migration
+    /// </summary>
+    public class MainController_EF : RemotingController
     {
         public EJ.User User
         {
@@ -29,7 +33,7 @@ namespace Way.EJServer
         }
         protected override void OnBeforeInvokeMethod(MethodInfo method)
         {
-            if(method.Name != "Login")
+            if (method.Name != "Login")
             {
                 if (this.User == null)
                     throw new Exception("请先登录");
@@ -42,7 +46,7 @@ namespace Way.EJServer
         {
             using (EJDB db = new EJDB())
             {
-                
+
                 if (db.User.Any() == false)
                 {
                     //如果没有任何用户，需要添加一个sa用户
@@ -68,12 +72,13 @@ namespace Way.EJServer
             using (EJDB db = new EJDB())
             {
                 return (from m in db.User
-                        select new EJ.User {
+                        select new EJ.User
+                        {
                             Name = m.Name,
                             id = m.id,
                             Role = m.Role
                         }).ToArray();
-            
+
             }
         }
         [RemotingMethod]
@@ -83,7 +88,7 @@ namespace Way.EJServer
                 throw new Exception("无权进行此项操作");
             using (EJDB db = new EJDB())
             {
-                if(user.id == null)
+                if (user.id == null)
                 {
                     if (db.User.Any(m => m.Name == user.Name))
                         throw new Exception("用户名已存在");
@@ -240,7 +245,7 @@ namespace Way.EJServer
             using (EJDB_Check db = new EJDB_Check())
             {
                 var result = db.Project.ToArray();
-               foreach( var project in result )
+                foreach (var project in result)
                 {
                     if (db.ProjectPower.Any(m => m.UserID == settingUserId && m.ProjectID == project.id))
                     {
@@ -251,11 +256,11 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public EJ.Databases[] GetCurrentUserDatabaseToSetPowerList(int settingUserId , int projectid)
+        public EJ.Databases[] GetCurrentUserDatabaseToSetPowerList(int settingUserId, int projectid)
         {
             using (EJDB_Check db = new EJDB_Check())
             {
-                var result = db.Databases.Where(m=>m.ProjectID == projectid).ToArray();
+                var result = db.Databases.Where(m => m.ProjectID == projectid).ToArray();
                 foreach (var dbitem in result)
                 {
                     if (db.DBPower.Any(m => m.UserID == settingUserId && m.DatabaseID == dbitem.id))
@@ -276,7 +281,7 @@ namespace Way.EJServer
                     Name = m.Name,
                     id = m.id
                 }).ToArray();
-            
+
                 foreach (var dbtable in result)
                 {
                     if (db.TablePower.Any(m => m.UserID == settingUserId && m.TableID == dbtable.id))
@@ -288,7 +293,7 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public EJ.InterfaceModule[] GetCurrentUseInterfaceToSetPowerList(int settingUserId, int projectid,int parentid)
+        public EJ.InterfaceModule[] GetCurrentUseInterfaceToSetPowerList(int settingUserId, int projectid, int parentid)
         {
             using (EJDB_Check db = new EJDB_Check())
             {
@@ -308,16 +313,17 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public int SetProjectPower(int projectid,int userid,bool hasPower)
+        public int SetProjectPower(int projectid, int userid, bool hasPower)
         {
             using (EJDB_Check db = new EJDB_Check())
             {
                 var project = db.Project.Single(m => m.id == projectid);
                 if (!hasPower)
-                    db.Delete( db.ProjectPower.Where(m=>m.UserID == userid && m.ProjectID == projectid) );
+                    db.Delete(db.ProjectPower.Where(m => m.UserID == userid && m.ProjectID == projectid));
                 else
                 {
-                    db.Insert(new EJ.ProjectPower() {
+                    db.Insert(new EJ.ProjectPower()
+                    {
                         ProjectID = projectid,
                         UserID = userid
                     });
@@ -507,18 +513,8 @@ namespace Way.EJServer
                     {
                         var columns = db.DBColumn.Where(m => m.TableID == dbtable.id).ToArray();
                         var idxInfos = db.IDXIndex.Where(m => m.TableID == dbtable.id).ToArray();
-                        IndexInfo[] indexInfos = new IndexInfo[idxInfos.Length];
-                        for (int i = 0; i < indexInfos.Length; i++)
-                        {
-                            indexInfos[i] = new IndexInfo()
-                            {
-                                ColumnNames = idxInfos[i].Keys.Split(','),
-                                IsClustered = idxInfos[i].IsClustered.GetValueOrDefault(),
-                                IsUnique = idxInfos[i].IsUnique.GetValueOrDefault(),
-                            };
 
-                        }
-                        var action = new CreateTableAction(dbtable, columns, indexInfos);
+                        var action = new EF_CreateTable_Action(dbtable, columns, idxInfos);
                         lastid = action.Save(db, database.id.GetValueOrDefault());
                     }
 
@@ -563,7 +559,7 @@ namespace Way.EJServer
             }
         }
 
-        
+
         static System.Reflection.MethodInfo SqlQueryMethod;
         [RemotingMethod]
         public WayDataTable GetDataTable(string sql, int tableid, int pageindex, int pagesize)
@@ -590,7 +586,7 @@ namespace Way.EJServer
                 }
             }
         }
-      
+
         [RemotingMethod]
         public EJ.Databases GetDatabase(int databaseid)
         {
@@ -715,7 +711,8 @@ namespace Way.EJServer
                 var result = from m in db.DBColumn
                              where m.TableID == tableid
                              orderby m.orderid
-                             select new EJ.DBColumn {
+                             select new EJ.DBColumn
+                             {
                                  Name = m.Name,
                                  id = m.id
                              };
@@ -822,8 +819,15 @@ namespace Way.EJServer
             return null;
         }
 
+        bool IsSame(EJ.IDXIndex index1,EJ.IDXIndex index2)
+        {
+            return string.Equals(index1.Keys, index2.Keys, StringComparison.CurrentCultureIgnoreCase) && 
+                index1.IsUnique == index2.IsUnique && 
+                index1.IsClustered == index2.IsClustered;
+        }
+
         [RemotingMethod]
-        public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs,EJ.classproperty[] classProperties)
+        public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs, EJ.classproperty[] classProperties)
         {
             using (EJDB db = new EJDB())
             {
@@ -846,24 +850,13 @@ namespace Way.EJServer
                     if (db.DBTable.Where(m => m.DatabaseID == oldtable.DatabaseID && m.id != newtable.id && m.Name == newtable.Name).Count() > 0)
                         throw new Exception("数据表名称重复");
 
-                    db.Database.ExecSqlString("delete from IDXIndex where TableID=" + oldtable.id);
-                    foreach (var config in idxConfigs)
-                    {
-                        EJ.IDXIndex idxIndex = new EJ.IDXIndex();
-                        idxIndex.TableID = oldtable.id;
-                        idxIndex.IsUnique = config.IsUnique;
-                        idxIndex.IsClustered = config.IsClustered;
-                        idxIndex.Keys = config.ColumnNames.ToSplitString();
-                        db.Update(idxIndex);
-                    }
+
 
                     var oldcolumns = db.DBColumn.Where(m => m.TableID == oldtable.id).ToArray().ToJsonString().ToJsonObject<EJ.DBColumn[]>();
                     //找出下面这些对象
                     EJ.DBColumn[] addcolumns = nowcolumns.Where(m => m.id == null).ToArray();
                     EJ.DBColumn[] delColumns = oldcolumns.Where(m => nowids.Contains(m.id) == false).ToArray();
 
-                    List<EJ.DBColumn> otherColumns = new List<EJ.DBColumn>();
-                    otherColumns.AddRange(oldcolumns.Where(m => nowids.Contains(m.id)).ToArray());
 
                     var maybeChanges = oldcolumns.Where(m => nowids.Contains(m.id)).ToArray();
                     List<EJ.DBColumn> changedColumns = new List<EJ.DBColumn>();
@@ -882,8 +875,6 @@ namespace Way.EJServer
                         if (c.ChangedProperties.Count > 0)
                         {
                             changedColumns.Add(c);
-
-                            otherColumns.Remove(c);
                         }
                     }
 
@@ -898,11 +889,53 @@ namespace Way.EJServer
                         invokingDB.DBContext.BeginTransaction();
                     }
 
+                    List<EJ.IDXIndex> submitedIndexes = new List<EJ.IDXIndex>();
+                    foreach (var config in idxConfigs)
+                    {
+                        EJ.IDXIndex idxIndex = new EJ.IDXIndex();
+                        idxIndex.TableID = oldtable.id;
+                        idxIndex.IsUnique = config.IsUnique;
+                        idxIndex.IsClustered = config.IsClustered;
+                        idxIndex.Keys = config.ColumnNames.ToSplitString();
+                        submitedIndexes.Add(idxIndex);
+                    }
 
+                    var nowIndexes = db.IDXIndex.Where(m => m.TableID == oldtable.id).ToList();
+                    List<EJ.IDXIndex> deletedIndexes = new List<EJ.IDXIndex>();
+                    EJ.IDXIndex[] newIndexes = new EJ.IDXIndex[0];
 
-                    ChangeTableAction action = new ChangeTableAction(oldtable.Name, newtable.Name,
-                        addcolumns, changedColumns.ToArray(), delColumns, otherColumns.ToArray(),
-                        idxConfigs);
+                    foreach (var changedColumn in changedColumns)
+                    {
+                        var changeObj = changedColumn.ChangedProperties["Name"];
+                        if (changeObj != null)
+                        {
+                            //名字改变
+                            var indexes = nowIndexes.Where(m => $",{m.Keys.ToLower()},".Contains($",{changeObj.OriginalValue.ToString().ToLower()},")).ToArray();
+                            deletedIndexes.AddRange(indexes);
+
+                            foreach (var d in deletedIndexes)
+                            {
+                                if (nowIndexes.Contains(d))
+                                    nowIndexes.Remove(d);
+                            }
+                        }
+                    }
+
+                    if (nowIndexes.Count > 0)
+                    {
+                        var indexes = nowIndexes.Where(m => submitedIndexes.Any(o => IsSame(o,m)) == false).ToArray();
+                        deletedIndexes.AddRange(indexes);
+                        foreach (var d in deletedIndexes)
+                        {
+                            if (nowIndexes.Contains(d))
+                                nowIndexes.Remove(d);
+                        }
+
+                        newIndexes = submitedIndexes.Where(m => nowIndexes.Any(o => IsSame(o, m) ) == false).ToArray();
+                    }
+
+                    var action = new EF_AlterTable_Action(oldtable.id.Value, oldtable.Name, newtable.Name,
+                        addcolumns, changedColumns.ToArray(), delColumns, deletedIndexes.ToArray(), newIndexes);
                     action.Invoke(invokingDB);
 
 
@@ -927,6 +960,12 @@ namespace Way.EJServer
                     {
                         nowcolumns[i].orderid = i;
                         db.Update(nowcolumns[i]);
+                    }
+
+                    db.Database.ExecSqlString("delete from IDXIndex where TableID=" + oldtable.id);
+                    foreach (var index in submitedIndexes)
+                    {
+                        db.Insert(index);
                     }
 
                     //添加级联删除
@@ -1112,10 +1151,13 @@ namespace Way.EJServer
                     }
 
 
-                    var action = new DeleteTableAction(tableName);
-                    action.Invoke(invokingDB);
+
 
                     EJ.DBTable table = db.DBTable.FirstOrDefault(m => m.DatabaseID == databaseID && m.Name == tableName);
+                    EJ.IDXIndex[] indexes = db.IDXIndex.Where(m => m.TableID == table.id).ToArray();
+                    var action = new EF_DeleteTable_Action(table, indexes);
+                    action.Invoke(invokingDB);
+
                     db.Delete(table);
 
 
@@ -1145,11 +1187,11 @@ namespace Way.EJServer
             }
         }
         [RemotingMethod]
-        public EJ.DBColumn[] GetDatabaseCurrentColumns(EJ.Databases config , string table)
+        public EJ.DBColumn[] GetDatabaseCurrentColumns(EJ.Databases config, string table)
         {
             var dbservice = Way.EntityDB.Design.DBHelper.CreateDatabaseDesignService((Way.EntityDB.DatabaseType)(int)config.dbType);
             var db = Way.EntityDB.DBContext.CreateDatabaseService(config.conStr, (Way.EntityDB.DatabaseType)(int)config.dbType);
-            return dbservice.GetCurrentColumns(db , table).ToArray();
+            return dbservice.GetCurrentColumns(db, table).ToArray();
         }
         [RemotingMethod]
         public IndexInfo[] GetDatabaseCurrentIndexes(EJ.Databases config, string table)
@@ -1168,7 +1210,7 @@ namespace Way.EJServer
         }
 
         [RemotingMethod]
-        public int CreateTables(int databaseid,TableInfo[] tableinfos)
+        public int CreateTables(int databaseid, TableInfo[] tableinfos)
         {
             using (EJDB db = new EJDB())
             {
@@ -1193,23 +1235,25 @@ namespace Way.EJServer
                     object lastActionID = null;
                     foreach (var tableinfo in tableinfos)
                     {
-                        var table = new EJ.DBTable() {
+                        var table = new EJ.DBTable()
+                        {
                             Name = tableinfo.TableName,
                             DatabaseID = databaseid,
                         };
                         if (db.DBTable.Where(m => m.DatabaseID == databaseid && m.Name == table.Name).Any())
                             throw new Exception("数据表名称重复");
 
-                        var action = new CreateTableAction(table, tableinfo.Columns, tableinfo.Indexes);
-                        action.Invoke(invokingDB);
-
                         db.Update(table);
+
+
+
                         foreach (EJ.DBColumn column in tableinfo.Columns)
                         {
                             column.TableID = table.id;
                             db.Update(column);
                         }
 
+                        var indexes = new List<EJ.IDXIndex>();
                         foreach (var config in tableinfo.Indexes)
                         {
                             EJ.IDXIndex idxIndex = new EJ.IDXIndex();
@@ -1218,11 +1262,15 @@ namespace Way.EJServer
                             idxIndex.IsClustered = config.IsClustered;
                             idxIndex.Keys = config.ColumnNames.ToSplitString();
                             db.Update(idxIndex);
+                            indexes.Add(idxIndex);
                         }
+
+                        var action = new EF_CreateTable_Action(table, tableinfo.Columns, indexes.ToArray());
+                        action.Invoke(invokingDB);
 
 
                         lastActionID = action.Save(db, database.id.GetValueOrDefault());
-                        
+
                     }
                     if (lastActionID != null)
                     {
@@ -1236,7 +1284,7 @@ namespace Way.EJServer
 
                     db.CommitTransaction();
 
-                   
+
                 }
                 catch (Exception ex)
                 {
@@ -1260,7 +1308,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBTable CreateTable(EJ.DBTable table, EJ.DBColumn[] columns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs, EJ.classproperty[] classProperties)
         {
-           
+
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
@@ -1288,16 +1336,15 @@ namespace Way.EJServer
                     if (db.DBTable.Where(m => m.DatabaseID == table.DatabaseID && m.Name == table.Name).Any())
                         throw new Exception("数据表名称重复");
 
-                    var action = new CreateTableAction(table, columns, idxConfigs);
-                    action.Invoke(invokingDB);
-
                     db.Update(table);
+
+
                     foreach (EJ.DBColumn column in columns)
                     {
                         column.TableID = table.id;
                         db.Update(column);
                     }
-
+                    var indexes = new List<EJ.IDXIndex>();
                     foreach (var config in idxConfigs)
                     {
                         EJ.IDXIndex idxIndex = new EJ.IDXIndex();
@@ -1306,7 +1353,10 @@ namespace Way.EJServer
                         idxIndex.IsClustered = config.IsClustered;
                         idxIndex.Keys = config.ColumnNames.ToSplitString();
                         db.Update(idxIndex);
+                        indexes.Add(idxIndex);
                     }
+                    var action = new EF_CreateTable_Action(table, columns, indexes.ToArray());
+                    action.Invoke(invokingDB);
 
                     //添加级联删除
                     foreach (var delconfig in delConfigs)
@@ -1327,8 +1377,8 @@ namespace Way.EJServer
                         db.Update(delconfig);
                     }
 
-                    db.Delete(db.classproperty.Where(m=>m.tableid == table.id));
-                    foreach( var p in classProperties )
+                    db.Delete(db.classproperty.Where(m => m.tableid == table.id));
+                    foreach (var p in classProperties)
                     {
                         p.tableid = table.id;
                         db.Insert(p);
@@ -1373,26 +1423,17 @@ namespace Way.EJServer
             {
                 db.Database.ExecSqlString($"delete from __action where databaseid={dbobj.id}");
                 var tables = db.DBTable.Where(m => m.DatabaseID == dbobj.id).ToArray();
-                foreach( var table in tables )
+                foreach (var table in tables)
                 {
                     var columns = db.DBColumn.Where(m => m.TableID == table.id).ToArray();
                     var indexes = db.IDXIndex.Where(m => m.TableID == table.id).ToArray();
-                    IndexInfo[] idxConfigs = new IndexInfo[indexes.Length];
-                    for(int i = 0; i < idxConfigs.Length; i ++)
-                    {
-                        idxConfigs[i] = new IndexInfo() {
-                            ColumnNames = indexes[i].Keys.Split(','),
-                            IsClustered = indexes[i].IsClustered.GetValueOrDefault(),
-                            IsUnique = indexes[i].IsUnique.GetValueOrDefault(),
-                            Name = $"{table.Name}_{indexes[i].Keys.Replace(",","_")}",
-                        };
-                    }
-                    var action = new CreateTableAction(table, columns, idxConfigs);
-                    action.Save(db , dbobj.id.Value);
+
+                    var action = new EF_CreateTable_Action(table, columns, indexes);
+                    action.Save(db, dbobj.id.Value);
                 }
                 db.CommitTransaction();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 db.RollbackTransaction();
                 throw ex;
@@ -1409,7 +1450,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateDatabase(EJ.Databases dataitem)
         {
-           
+
             if (string.IsNullOrEmpty(dataitem.Name))
                 throw new Exception("database name is empty");
             if (string.IsNullOrEmpty(dataitem.conStr))
@@ -1507,7 +1548,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string[] GetProjectDllFiles(int projectid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 var datas = db.DLLImport.Where(m => m.ProjectID == projectid).ToList();
@@ -1522,7 +1563,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.InterfaceModule[] GetInterfaceModuleList(int projectid, int parentid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.InterfaceModule.Where(m => m.ProjectID == projectid && m.ParentID == parentid).OrderBy(m => m.Name).ToArray();
@@ -1531,7 +1572,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteInterfaceModule(EJ.InterfaceModule module)
         {
-          
+
             using (EJDB db = new EJDB())
             {
                 db.Delete(module);
@@ -1540,7 +1581,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void UnLockInterfaceModule(int moduleid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 var module = db.InterfaceModule.FirstOrDefault(m => m.id == moduleid);
@@ -1581,7 +1622,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateInterfaceModule(EJ.InterfaceModule module)
         {
-          
+
             using (EJDB db = new EJDB())
             {
                 try
@@ -1618,7 +1659,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetInterfaceModulePath(int moduleid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 StringBuilder result = new StringBuilder();
@@ -1638,7 +1679,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int UpdateInterfaceInModule(EJ.InterfaceInModule module)
         {
-           
+
             using (EJDB db = new EJDB())
             {
                 var docModule = db.InterfaceModule.FirstOrDefault(m => m.id == module.ModuleID);
@@ -1653,7 +1694,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void DeleteInterfaceInModule(EJ.InterfaceInModule module)
         {
-            
+
             using (EJDB db = new EJDB())
             {
                 var docModule = db.InterfaceModule.FirstOrDefault(m => m.id == module.ModuleID);
@@ -1668,7 +1709,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.InterfaceInModule[] GetInterfaceInModule(int moduleid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.InterfaceInModule.Where(m => m.ModuleID == moduleid).ToArray();
@@ -1677,7 +1718,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public int GetInterfaceModuleID(int interfaceInModuleId)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 var item = db.InterfaceInModule.FirstOrDefault(m => m.id == interfaceInModuleId);
@@ -1689,7 +1730,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetInterfaceInModulePath(int itemid)
         {
-          
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 StringBuilder result = new StringBuilder();
@@ -1732,7 +1773,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public SearchContent[] Search(string key, int pagesize, int pageindex)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 return db.SearchContents.Where(m => m.Content.Contains(key)).OrderBy(m => m.Type).Skip(pagesize * pageindex).Take(pagesize).ToArray();
@@ -1742,7 +1783,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void SubmitBug(string title, byte[] textContent, byte[] picContent)
         {
-          
+
             using (EJDB db = new EJDB())
             {
                 db.BeginTransaction();
@@ -1798,7 +1839,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public BugItem[] GetMyBugs()
         {
-          
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 var query = from m in db.MyBugList
@@ -1825,7 +1866,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public BugHistoryItem[] GetBugHistories(int bugid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
 
@@ -1846,19 +1887,19 @@ namespace Way.EJServer
         [RemotingMethod]
         public string GetBugPicture(int bugid)
         {
-           
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 var pic = db.BugImages.FirstOrDefault(m => m.BugID == bugid);
                 if (pic != null)
-                    return Convert.ToBase64String( pic.content);
+                    return Convert.ToBase64String(pic.content);
             }
             return null;
         }
         [RemotingMethod]
         public void BugFinish(int bugid)
         {
-            
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 var bug = db.Bug.FirstOrDefault(m => m.id == bugid);
@@ -1869,7 +1910,7 @@ namespace Way.EJServer
         [RemotingMethod]
         public void SubmitHistory(int bugid, byte[] txtContent)
         {
-         
+
             using (EJDB_Check db = new EJDB_Check())
             {
                 if (txtContent != null)
@@ -1936,8 +1977,27 @@ namespace Way.EJServer
             savepath = savepath.Replace("\\", "/");
             while (savepath.StartsWith("/"))
                 savepath = savepath.Substring(1);
-            return Convert.ToBase64String( System.IO.File.ReadAllBytes($"{WebRoot}/updates/{savepath}"));
+            return Convert.ToBase64String(System.IO.File.ReadAllBytes($"{WebRoot}/updates/{savepath}"));
         }
     }
-   
+    public class TableInfo
+    {
+        public string TableName;
+        public EJ.DBColumn[] Columns;
+        public IndexInfo[] Indexes;
+    }
+    public class FileInfo
+    {
+        public string SavePath;
+        public string FileName;
+        public long LastWriteTime;
+    }
+    class JsonObject_ClassView
+    {
+        public string FullName;
+    }
+    class JsonObject_DescriptionView
+    {
+        public string Content;
+    }
 }

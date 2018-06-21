@@ -6,11 +6,85 @@ using System.Text;
 namespace Way.EJServer
 {
    
+    static class Helper
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        public static Type GetCSharpType(string type)
+        {
+            switch (type)
+            {
 
+                case "bigint":
+                    return typeof(Int64);
+                case "binary":
+                    return typeof(byte[]);
+                case "bit":
+                    return typeof(bool);
+                case "char":
+                    return typeof(string);
+                case "datetime":
+                    return typeof(DateTime);
+                case "decimal":
+                    return typeof(decimal);
+                case "float":
+                    return typeof(float);
+                case "double":
+                    return typeof(double);
+                case "image":
+                    return typeof(byte[]);
+                case "int":
+                    return typeof(Int32);
+                case "money":
+                    return typeof(decimal);
+                case "nchar":
+                    return typeof(string);
+                case "ntext":
+                    return typeof(string);
+                case "numeric":
+                    return typeof(decimal);
+                case "nvarchar":
+                    return typeof(string);
+                case "real":
+                    return typeof(double);
+                case "smalldatetime":
+                    return typeof(DateTime);
+                case "smallint":
+                    return typeof(int);
+                case "smallmoney":
+                    return typeof(decimal);
+                case "text":
+                    return typeof(string);
+                case "timestamp":
+                    return typeof(int);
+                case "varbinary":
+                    return typeof(byte[]);
+                case "varchar":
+                    return typeof(string);
+                default:
+                    return null;
+
+            }
+        }
+    }
     public static class MyExtensions
     {
 
-
+        public static string GetIndexName(this string[] columns,string tablename)
+        {
+            StringBuilder str = new StringBuilder();
+            str.Append(tablename);
+            str.Append("_ej_");
+            for(int i = 0; i < columns.Length; i ++)
+            {
+                str.Append(columns[i].ToLower());
+                if (i < columns.Length - 1)
+                    str.Append('_');
+            }
+            return str.ToString();
+        }
         /// <summary>
         /// 每个对象逗号隔开
         /// </summary>

@@ -609,6 +609,7 @@ namespace EJClient.Forms
             e.Handled = true;
             if (string.IsNullOrEmpty(m_table.Name))
             {
+                this.Cursor = null;
                 MessageBox.Show(this, "表名不能为空");
                 return;
             }
@@ -617,6 +618,7 @@ namespace EJClient.Forms
                 
                 if (m_columns[i].EnumDefine.IsNullOrEmpty() == false && m_columns[i].dbType != "int")
                 {
+                    this.Cursor = null;
                     MessageBox.Show(this, string.Format("{0}({1})定义为枚举类型，所以必须是int类型", m_columns[i].Name, m_columns[i].caption));
                     return;
                 }
@@ -625,6 +627,14 @@ namespace EJClient.Forms
             List<object> idsConfigs = new List<object>();
             foreach (索引 c in m_IDXConfigs)
             {
+                //如果索引包含已经删除的字段，则忽略
+                if (c.ColumnNames.Any(m => m_columns.Any(o=>o.Name == m) == false))
+                {
+                    this.Cursor = null;
+                    MessageBox.Show(this, $"索引包含不存在的字段{c.ColumnNames.FirstOrDefault(m => m_columns.Any(o => o.Name == m) == false)}");
+                    return;
+                }
+
                 if (c.ColumnNames.Length > 0)
                 {
                     idsConfigs.Add(new
@@ -724,6 +734,11 @@ namespace EJClient.Forms
                 return;
             int index = m_columns.IndexOf(column);
             m_columns.Remove(column);
+            var idx = m_IDXConfigs.FirstOrDefault(m => m.ColumnNames.Contains(column.Name));
+            if(idx != null)
+            {
+                m_IDXConfigs.Remove(idx);
+            }
             try
             {
                 m_columns[index].IsSelected = true;
