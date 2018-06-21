@@ -148,9 +148,9 @@ namespace Way.Lib.Serialization
 
             reader.Read();
             var pname = (string)reader.Value;
-           
 
-            if(pname == "b")
+
+            if (pname == "b")
             {
                 byte[] bs = reader.ReadAsBytes();
                 reader.Read();//记得移到下一个元素
@@ -205,8 +205,8 @@ namespace Way.Lib.Serialization
 
                     reader.Read();
                     fieldValue = ReadJson(reader, null, null, serializer);
-
-                    var fieldInfo = objectType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    
+                    var fieldInfo = getFieldInfo(objectType, fieldName);
                     if (fieldInfo != null)
                     {
                         fieldInfo.SetValue(result, fieldValue);
@@ -222,6 +222,28 @@ namespace Way.Lib.Serialization
             return result;
         }
 
+        FieldInfo getFieldInfo(Type type,string fieldName)
+        {
+            if(fieldName.Contains("-"))
+            {
+                string[] info = fieldName.Split('-');
+                fieldName = info[1];
+                Type thisType = type.BaseType;
+                while(thisType != typeof(object))
+                {
+                    if(thisType.FullName == info[0])
+                    {
+                        return thisType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    }
+                }
+                return null;
+            }
+            else
+            {
+                return type.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+        }
+
         public override void WriteJson(JsonWriter writer, object obj, JsonSerializer serializer)
         {
             Type type = obj.GetType();
@@ -230,7 +252,7 @@ namespace Way.Lib.Serialization
             writer.WritePropertyName("t");
             writer.WriteValue(getTypedescIndex(type));
 
-            if(type == typeof(System.Data.DataTable) || type == typeof(System.Data.DataSet))
+            if (type == typeof(System.Data.DataTable) || type == typeof(System.Data.DataSet))
             {
                 //可以序列化，那就直接序列化
                 System.Runtime.Serialization.Formatters.Binary.BinaryFormatter se = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
@@ -243,12 +265,12 @@ namespace Way.Lib.Serialization
 
                     writer.WritePropertyName("b");
                     writer.WriteValue(bs);
-                }                    
+                }
 
                 writer.WriteEndObject();
                 return;
             }
-            
+
             writer.WritePropertyName("v");
 
             if (obj.GetType().IsValueType || obj is string)
@@ -283,13 +305,22 @@ namespace Way.Lib.Serialization
             else
             {
                 writer.WriteStartObject();
-                var fields = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                foreach (var field in fields)
+                Type thisType = type;
+                while (thisType != typeof(object))
                 {
-                    var value = field.GetValue(obj);
-
-                    writer.WritePropertyName(field.Name);
-                    serializer.Serialize(writer, value);
+                    var fields = thisType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    foreach (var field in fields)
+                    {
+                        var value = field.GetValue(obj);
+                        if(thisType == type)
+                         writer.WritePropertyName(field.Name);
+                        else
+                        {
+                            writer.WritePropertyName($"{thisType.FullName}-{field.Name}");
+                        }
+                        serializer.Serialize(writer, value);
+                    }
+                    thisType = thisType.BaseType;
                 }
                 writer.WriteEndObject();
             }
