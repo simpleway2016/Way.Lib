@@ -233,14 +233,14 @@ namespace Way.Lib.Serialization
                 {
                     if(thisType.FullName == info[0])
                     {
-                        return thisType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        return thisType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                     }
                 }
                 return null;
             }
             else
             {
-                return type.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                return type.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             }
         }
 
@@ -273,7 +273,8 @@ namespace Way.Lib.Serialization
 
             writer.WritePropertyName("v");
 
-            if (obj.GetType().IsValueType || obj is string)
+
+            if (type.IsValueType || obj is string)
             {
                 writer.WriteValue(obj);
             }
@@ -292,7 +293,7 @@ namespace Way.Lib.Serialization
                 }
                 writer.WriteEndArray();
             }
-            else if (obj is System.Collections.IEnumerable)
+            else if (obj is Array)
             {
                 writer.WriteStartArray();
                 var enumerator = ((System.Collections.IEnumerable)obj).GetEnumerator();
@@ -308,7 +309,7 @@ namespace Way.Lib.Serialization
                 Type thisType = type;
                 while (thisType != typeof(object))
                 {
-                    var fields = thisType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    var fields = thisType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | BindingFlags.DeclaredOnly);
                     foreach (var field in fields)
                     {
                         var value = field.GetValue(obj);
