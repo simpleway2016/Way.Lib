@@ -182,7 +182,7 @@ namespace Way.Lib.Serialization
 
             if (objectType.IsValueType || objectType == typeof(string))
             {
-                var value = Convert.ChangeType(reader.Value, objectType);
+                var value = Newtonsoft.Json.JsonConvert.DeserializeObject(reader.Value.ToString(), objectType);
                 reader.Read();
                 return value;
             }
@@ -276,7 +276,7 @@ namespace Way.Lib.Serialization
 
             if (type.IsValueType || obj is string)
             {
-                writer.WriteValue(obj);
+                writer.WriteValue(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
             }
             else if (obj is System.Collections.IDictionary)
             {
