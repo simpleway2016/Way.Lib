@@ -8,16 +8,27 @@ using System.Linq;
 namespace Way.Lib.Serialization
 {
     /// <summary>
-    /// 序列化对象，保持类型和原对象一直
+    /// 序列化对象，保持类型和原对象一直，支持在字段定义NonSerializedAttribute，避免被序列化
     /// </summary>
     public class Serializer
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static string SerializeObject(object obj)
         {
             var converter = new MyJsonConvert();
             var result = Newtonsoft.Json.JsonConvert.SerializeObject(obj, converter);
             return $"/*{Newtonsoft.Json.JsonConvert.SerializeObject(converter.TypeDescs)}*/{result}";
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public static T DeserializeObject<T>(string content)
         {
             var converter = new MyJsonConvert();
@@ -312,6 +323,9 @@ namespace Way.Lib.Serialization
                     var fields = thisType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | BindingFlags.DeclaredOnly);
                     foreach (var field in fields)
                     {
+                        if (field.GetCustomAttribute(typeof(NonSerializedAttribute)) != null)
+                            continue;
+
                         var value = field.GetValue(obj);
                         if(thisType == type)
                          writer.WritePropertyName(field.Name);
