@@ -1,4 +1,6 @@
 ﻿function SetObserveProperty(obj, pro, initValue, arg, path) {
+    delete obj[pro];
+
     Object.defineProperty(obj, "_$" + pro, {
         configurable: false,
         writable: true,
@@ -8,11 +10,9 @@
     if (arg && arg.deep === true && typeof initValue === "object") {
         if (path.length > 0)
             path += ".";
-        obj["_$" + pro] = Observe(initValue, arg, path + pro);
+        Observe(initValue, arg, path + pro);
     }
-    else {
-        obj["_$" + pro] = initValue;
-    }
+    obj["_$" + pro] = initValue;
 
     Object.defineProperty(obj, pro, {
         configurable: true,
@@ -54,20 +54,22 @@ function Observe(data, arg, path) {
     if (path === undefined)
         path = "";
     if (Array.isArray(data)) {
-        var arr = [];
         for (var i = 0; i < data.length; i++) {
-            arr[i] = Observe(data[i], arg, path + "[" + i + "]");
+            Observe(data[i], arg, path + "[" + i + "]");
         }
-        return arr;
     }
     else {
-        var obj = {};
+        var proNames = [];
         for (var pro in data) {
-            SetObserveProperty(obj, pro, data[pro], arg, path);
+            proNames.push(pro);
         }
+
+        for (var i = 0; i < proNames.length; i++) {
+            SetObserveProperty(data, proNames[i], data[proNames[i]], arg, path);
+        }
+
         if (arg && arg.onchange && typeof arg.onchange === "function") {
-            obj.onchange = arg.onchange;
+            data.onchange = arg.onchange;
         }
-        return obj;
     }
 }
