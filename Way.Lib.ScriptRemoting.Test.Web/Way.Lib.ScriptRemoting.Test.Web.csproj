@@ -29,6 +29,7 @@
     <Content Include="controlTest0.html" />
     <Content Include="css\flex.css" />
     <Content Include="RemoteWindow\index.html" />
+    <Content Include="scripts\Observe.js" />
     <Content Include="组态\abc.html" />
     <Content Include="组态\css\flex.css" />
     <Content Include="组态\css\pikaday.css" />
