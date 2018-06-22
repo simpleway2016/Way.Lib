@@ -2,7 +2,7 @@
     delete obj[pro];
 
     Object.defineProperty(obj, "_$" + pro, {
-        configurable: false,
+        configurable: true,
         writable: true,
         enumerable: false
     });
