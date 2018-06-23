@@ -181,6 +181,25 @@ namespace Way.Lib.ScriptRemoting.Net
     };
         }
 
+        /// <summary>
+        /// 把数据进行gzip压缩
+        /// </summary>
+        /// <param name="byteArray"></param>
+        /// <returns></returns>
+        public byte[] GZip(byte[] byteArray)
+        {
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                System.IO.Compression.GZipStream sw = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Compress);
+                //Compress
+                sw.Write(byteArray, 0, byteArray.Length);
+                //Close, DO NOT FLUSH cause bytes will go missing...
+                sw.Close();
+                //Transform byte[] zip data to string
+                return ms.ToArray();
+            }
+        }
+
         byte[] getBytes(string content)
         {
             string contentType = null;
