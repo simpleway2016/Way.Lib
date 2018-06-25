@@ -194,14 +194,7 @@ namespace Way.Lib.ScriptRemoting
                         {
                             url = WebPathManger.getFileUrl("/index.html");
                         }
-                        if (Path.GetExtension(url).IsNullOrEmpty())//访问的路径如果没有扩展名，默认指向.html文件
-                        {
-                            url = WebPathManger.getFileUrl($"{url}.html");
-                        }
-                        else
-                        {
-                            url = WebPathManger.getFileUrl(url);
-                        }
+                        url = WebPathManger.getFileUrl(url);
 
                         checkHandlers(url);
 
