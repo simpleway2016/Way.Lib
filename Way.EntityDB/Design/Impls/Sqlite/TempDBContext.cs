@@ -75,7 +75,8 @@ namespace Way.EntityDB.Design.Impls.Sqlite
         StringBuilder _oldfields;
         public MigrationOperation[] CheckOperations(List<MigrationOperation> operations, IDatabaseService invokingDB)
         {
-            //sqlite 不支持column的修改                   
+            //sqlite 不支持column的修改      
+            bool isCreateTable = operations.Any(m=>m is CreateTableOperation);
             string tableName = null;
             
             foreach (var o in operations)
