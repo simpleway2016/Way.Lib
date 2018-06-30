@@ -435,10 +435,13 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
             {
                 try {
                     var foreign_table = db.DBTable.FirstOrDefault(m => m.id == pro.foreignkey_tableid);
+                    var column = db.DBColumn.FirstOrDefault(m => m.id == pro.foreignkey_columnid);
+                    if (column == null)
+                        continue;
+
                     if (pro.iscollection == false)
-                    {
-                       
-                        var column = db.DBColumn.FirstOrDefault(m => m.id == pro.foreignkey_columnid);
+                    {                      
+                      
                         if (column.TableID == table.id)
                         {
                             result.Append(@"
@@ -456,11 +459,11 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                         }
                     }
                     else
-                    {
+                    {                        
                         //与其他表多对一
                         result.Append(@"
         [System.ComponentModel.DataAnnotations.Schema.ForeignKey(""" + column.Name + @""")]
-        public virtual List<" + foreign_table.Name + @"> " + pro.name + @" { get; set; }
+        public virtual ICollection<" + foreign_table.Name + @"> " + pro.name + @" { get; set; }
 ");
                     }
                 }
@@ -741,12 +744,23 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                     {
 
                         var column = db.DBColumn.FirstOrDefault(m => m.id == pro.foreignkey_columnid);
-                        result.Append(@"
+                        if (column.TableID == table.id)
+                        {
+                            result.Append(@"
         public virtual " + foreign_table.Name + @" " + pro.name + @" { get; set; }
 ");
+                        }
+                        else
+                        {
+                            //与其他表一对一
+                            result.Append(@"
+        public virtual " + foreign_table.Name + @" " + pro.name + @" { get; set; }
+");
+                        }
                     }
                     else
                     {
+                        //与其他表多对一
                         result.Append(@"
         public virtual ICollection<" + foreign_table.Name + @"> " + pro.name + @" { get; set; }
 ");
