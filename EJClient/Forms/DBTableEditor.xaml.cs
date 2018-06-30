@@ -27,7 +27,33 @@ namespace EJClient.Forms
         static string[] Tables;
         #region design class
 
-      
+      class MyClassProperty:EJ.classproperty
+        {
+            DBTableEditor _editor;
+            public MyClassProperty(DBTableEditor editor)
+            {
+                _editor = editor;
+                this.ForeignKeys = new List<数据列基本信息>();
+            }
+            public override int? foreignkey_tableid {
+                get => base.foreignkey_tableid;
+                set {
+                    if(base.foreignkey_tableid != value)
+                    {
+                        base.foreignkey_tableid = value;
+
+                        this.ForeignKeys.Clear();
+                        var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", value.GetValueOrDefault());
+                        foreach (var c in columns)
+                        {
+                            this.ForeignKeys.Add(new 数据列基本信息(c, _editor));
+                        }
+                    }
+                }
+            }
+
+            public List<数据列基本信息> ForeignKeys { get; set; }
+        }
 
         internal class 索引 : INotifyPropertyChanged
         {
@@ -469,7 +495,7 @@ namespace EJClient.Forms
 
         System.Collections.ObjectModel.ObservableCollection<索引> m_IDXConfigs = new System.Collections.ObjectModel.ObservableCollection<索引>();
         System.Collections.ObjectModel.ObservableCollection<数据列基本信息> m_columns = new System.Collections.ObjectModel.ObservableCollection<数据列基本信息>();
-        System.Collections.ObjectModel.ObservableCollection<EJ.classproperty> m_properties = new System.Collections.ObjectModel.ObservableCollection<EJ.classproperty>();
+        System.Collections.ObjectModel.ObservableCollection<MyClassProperty> m_properties = new System.Collections.ObjectModel.ObservableCollection<MyClassProperty>();
         internal DBTableEditor(DatabaseItemNode dbnode , EJ.DBTable currentTable)
         {
             m_DBNode = dbnode;
@@ -526,7 +552,17 @@ namespace EJClient.Forms
                 var existProperties = Helper.Client.InvokeSync<EJ.classproperty[]>("GetClassPropertyList", currentTable.id.Value);
                 foreach (var c in existProperties)
                 {
-                    m_properties.Add(c);
+                    var p = new MyClassProperty(this)
+                    {
+                        foreignkey_columnid = c.foreignkey_columnid,
+                        foreignkey_tableid = c.foreignkey_tableid,
+                        id = c.id,
+                        iscollection = c.iscollection,
+                        name = c.name,
+                        tableid = c.tableid,
+                    };
+                    p.ChangedProperties.Clear();
+                    m_properties.Add(p);
                 }
 
                 var delconfigs = Helper.Client.InvokeSync<EJ.DBDeleteConfig[]>("GetTableDeleteConfigList", currentTable.id.Value);
@@ -671,8 +707,8 @@ namespace EJClient.Forms
 
                 if (m_IsModify)
                 {
-
-                    Helper.Client.InvokeSync<string>("ModifyTable", m_table, columns, delconfigs, idsConfigs , m_properties.Where(m=>m.name.IsNullOrEmpty() == false).ToArray());
+                    var propertyItems = m_properties.Where(m => m.name.IsNullOrEmpty() == false).ToArray().ToJsonString().ToJsonObject<EJ.classproperty[]>();
+                    Helper.Client.InvokeSync<string>("ModifyTable", m_table, columns, delconfigs, idsConfigs , propertyItems);
                     m_modifyingTable.Name = m_table.Name;
                     m_modifyingTable.caption = m_table.caption;
 
@@ -772,14 +808,14 @@ namespace EJClient.Forms
         }
         private void addProperty_Click(object sender, RoutedEventArgs e)
         {
-            m_properties.Add(new EJ.classproperty());
+            m_properties.Add(new MyClassProperty(this));
         }
 
         private void delProperty_Click(object sender, RoutedEventArgs e)
         {
             if (listProperties.SelectedItem != null)
             {
-                m_properties.Remove((EJ.classproperty)listProperties.SelectedItem);
+                m_properties.Remove((MyClassProperty)listProperties.SelectedItem);
             }
         }
 

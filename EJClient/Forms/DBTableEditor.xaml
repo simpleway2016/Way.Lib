@@ -104,7 +104,7 @@
                                 <GridViewColumn Header="ForeignKey" Width="200">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ComboBox ItemsSource="{DynamicResource DBColumns}" DisplayMemberPath="Name" SelectedValuePath="id"  SelectedValue="{Binding foreignkey_columnid, Mode=TwoWay}"/>
+                                            <ComboBox ItemsSource="{Binding ForeignKeys}" DisplayMemberPath="Name" SelectedValuePath="id"  SelectedValue="{Binding foreignkey_columnid, Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
