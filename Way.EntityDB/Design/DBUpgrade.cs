@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.IO.Compression;
 
 namespace Way.EntityDB.Design
 {
@@ -40,13 +41,39 @@ namespace Way.EntityDB.Design
     }
     public class DBUpgrade
     {
+        static byte[] UnGzip(byte[] zippedData)
+        {
+            MemoryStream ms = new MemoryStream(zippedData);
+            GZipStream compressedzipStream = new GZipStream(ms, CompressionMode.Decompress);
+            MemoryStream outBuffer = new MemoryStream();
+            byte[] block = new byte[1024];
+            while (true)
+            {
+                int bytesRead = compressedzipStream.Read(block, 0, block.Length);
+                if (bytesRead <= 0)
+                    break;
+                else
+                    outBuffer.Write(block, 0, bytesRead);
+            }
+            compressedzipStream.Close();
+            return outBuffer.ToArray();
+        }
+
         public static void Upgrade(EntityDB.DBContext dbContext,string designData)
         {
             if (designData.IsNullOrEmpty())
                 return;
-         
-            byte[] bs = System.Convert.FromBase64String(designData);
 
+            byte[] bs;
+            if (designData.StartsWith("\r\n"))
+            {
+                bs = System.Convert.FromBase64String(designData.Substring(2));
+                bs = UnGzip(bs);
+            }
+            else
+            {
+                bs = System.Convert.FromBase64String(designData);
+            }
             using (var dset = Newtonsoft.Json.JsonConvert.DeserializeObject<WayDataSet>(System.Text.Encoding.UTF8.GetString(bs)))
             {
                 bs = null;

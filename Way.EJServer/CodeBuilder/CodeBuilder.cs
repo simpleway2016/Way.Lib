@@ -154,9 +154,10 @@ namespace "+nameSpace+@".DB{
             dt.Tables[0].TableName = databaseObj.dbType.ToString();
             dt.DataSetName = databaseObj.Guid;
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(dt);
-            string content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
+            string content = Convert.ToBase64String(GZip(System.Text.Encoding.UTF8.GetBytes(json)));
            
             result.AppendLine("protected override string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); ");
+            result.AppendLine("result.Append(\"\\r\\n\");");
             for (int i = 0; i < content.Length; i += 200)
             {
                 int len = Math.Min(content.Length - i, 200);
@@ -166,7 +167,19 @@ namespace "+nameSpace+@".DB{
             result.Append("}}\r\n");
             return result.ToString();
         }
-        
+        static byte[] GZip(byte[] byteArray)
+        {
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                System.IO.Compression.GZipStream sw = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Compress);
+                //Compress
+                sw.Write(byteArray, 0, byteArray.Length);
+                //Close, DO NOT FLUSH cause bytes will go missing...
+                sw.Close();
+                //Transform byte[] zip data to string
+                return ms.ToArray();
+            }
+        }
 
         public string[] BuildTable(EJDB db,string nameSpace, EJ.DBTable table)
         {
