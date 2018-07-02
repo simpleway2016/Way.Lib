@@ -33,7 +33,7 @@ namespace EJClient.Forms
             public MyClassProperty(DBTableEditor editor)
             {
                 _editor = editor;
-                this.ForeignKeys = new List<数据列基本信息>();
+                this.ForeignKeys = new System.Collections.ObjectModel.ObservableCollection<数据列基本信息>();
             }
             public override int? foreignkey_tableid {
                 get => base.foreignkey_tableid;
@@ -52,7 +52,7 @@ namespace EJClient.Forms
                 }
             }
 
-            public List<数据列基本信息> ForeignKeys { get; set; }
+            public System.Collections.ObjectModel.ObservableCollection<数据列基本信息> ForeignKeys { get; set; }
         }
 
         internal class 索引 : INotifyPropertyChanged

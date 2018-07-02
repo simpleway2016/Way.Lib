@@ -76,6 +76,9 @@ namespace Way.EntityDB.Design
             }
             using (var dset = Newtonsoft.Json.JsonConvert.DeserializeObject<WayDataSet>(System.Text.Encoding.UTF8.GetString(bs)))
             {
+                if (dbContext == null)
+                    return;
+
                 bs = null;
                 EntityDB.IDatabaseService db = dbContext.Database;
                 EntityDB.DatabaseType dbType = dbContext.DatabaseType;
