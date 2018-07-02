@@ -83,7 +83,7 @@ namespace Way.EJServer
             {
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-                int port = 6060;
+                int port = 6061;
                 if (args != null && args.Length > 0)
                 {
                     port = Convert.ToInt32(args[0]);

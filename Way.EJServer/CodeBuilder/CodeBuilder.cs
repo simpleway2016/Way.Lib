@@ -449,13 +449,12 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                 try {
                     var foreign_table = db.DBTable.FirstOrDefault(m => m.id == pro.foreignkey_tableid);
                     var column = db.DBColumn.FirstOrDefault(m => m.id == pro.foreignkey_columnid);
-                    if (column == null)
-                        continue;
+
 
                     if (pro.iscollection == false)
                     {                      
                       
-                        if (column.TableID == table.id)
+                        if ( column != null && column.TableID == table.id)
                         {
                             result.Append(@"
         [System.ComponentModel.DataAnnotations.Schema.ForeignKey(""" + column.Name + @""")]
@@ -466,18 +465,21 @@ public enum " + table.Name + "_" + column.Name + @"Enum:int
                         {
                             //与其他表一对一
                             result.Append(@"
-        [System.ComponentModel.DataAnnotations.Schema.ForeignKey(""" + column.Name + @""")]
         public virtual " + foreign_table.Name + @" " + pro.name + @" { get; set; }
 ");
                         }
                     }
                     else
-                    {                        
-                        //与其他表多对一
-                        result.Append(@"
+                    {
+                        if (column != null)
+                        {
+
+                            //与其他表多对一
+                            result.Append(@"
         [System.ComponentModel.DataAnnotations.Schema.ForeignKey(""" + column.Name + @""")]
         public virtual ICollection<" + foreign_table.Name + @"> " + pro.name + @" { get; set; }
 ");
+                        }
                     }
                 }
                 catch

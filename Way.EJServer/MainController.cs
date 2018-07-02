@@ -825,6 +825,12 @@ namespace Way.EJServer
         [RemotingMethod]
         public void ModifyTable(EJ.DBTable newtable, EJ.DBColumn[] nowcolumns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs,EJ.classproperty[] classProperties)
         {
+            foreach (var p in classProperties)
+            {
+                if (p.foreignkey_columnid == null && p.iscollection == true)
+                    throw new Exception($"导航属性{p.name}必须设置外键");
+            }
+
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
@@ -1260,7 +1266,12 @@ namespace Way.EJServer
         [RemotingMethod]
         public EJ.DBTable CreateTable(EJ.DBTable table, EJ.DBColumn[] columns, EJ.DBDeleteConfig[] delConfigs, IndexInfo[] idxConfigs, EJ.classproperty[] classProperties)
         {
-           
+            foreach (var p in classProperties)
+            {
+                if (p.foreignkey_columnid == null && p.iscollection == true)
+                    throw new Exception($"导航属性{p.name}必须设置外键");
+            }
+
             using (EJDB db = new EJDB())
             {
                 Way.EntityDB.IDatabaseService invokingDB = null;
