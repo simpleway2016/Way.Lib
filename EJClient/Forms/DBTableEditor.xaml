@@ -93,7 +93,7 @@
                                             <ComboBox ItemsSource="{DynamicResource AllDBTables}" DisplayMemberPath="Name" SelectedValuePath="id" SelectedValue="{Binding foreignkey_tableid , Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                                </GridViewColumn> 
                                 <GridViewColumn Header="IsCollection" Width="100">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>

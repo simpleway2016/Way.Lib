@@ -43,7 +43,8 @@ namespace EJClient.Forms
                         base.foreignkey_tableid = value;
 
                         this.ForeignKeys.Clear();
-                        var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", value.GetValueOrDefault());
+ 
+                        var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", (this.iscollection == false) ? _editor.m_modifyingTable.id.GetValueOrDefault() : value.GetValueOrDefault());
                         foreach (var c in columns)
                         {
                             this.ForeignKeys.Add(new 数据列基本信息(c, _editor));
@@ -51,6 +52,27 @@ namespace EJClient.Forms
                     }
                 }
             }
+
+            public override bool? iscollection
+            {
+                get => base.iscollection;
+                set
+                {
+                    if (base.iscollection != value)
+                    {
+                        base.iscollection = value;
+
+                        this.ForeignKeys.Clear();
+
+                        var columns = Helper.Client.InvokeSync<EJ.DBColumn[]>("GetColumnList", (this.iscollection == false) ? _editor.m_modifyingTable.id.GetValueOrDefault() : foreignkey_tableid.GetValueOrDefault());
+                        foreach (var c in columns)
+                        {
+                            this.ForeignKeys.Add(new 数据列基本信息(c, _editor));
+                        }
+                    }
+                }
+            }
+           
 
             public System.Collections.ObjectModel.ObservableCollection<数据列基本信息> ForeignKeys { get; set; }
         }
