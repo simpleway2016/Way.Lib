@@ -366,7 +366,7 @@ namespace Way.Lib.ScriptRemoting
 
                 handler.Handle();
             }
-            catch
+            catch(Exception)
             {
                 client.Close();
             }
