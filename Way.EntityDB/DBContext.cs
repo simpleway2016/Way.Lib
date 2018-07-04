@@ -660,22 +660,22 @@ namespace Way.EntityDB
         [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
         public override int SaveChanges()
         {
-            return -1;
+            throw new Exception($"此方法已禁用，请使用 Update Delete 等方法");
         }
         [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            return -1;
+            throw new Exception($"此方法已禁用，请使用 Update Delete 等方法");
         }
         [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return null;
+            throw new Exception($"此方法已禁用，请使用 Update Delete 等方法");
         }
         [Obsolete("DBContext不采用缓存机制，不支持SaveChanges方法")]
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return null;
+            throw new Exception($"此方法已禁用，请使用 Update Delete 等方法");
         }
         #endregion
 
