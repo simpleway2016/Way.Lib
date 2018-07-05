@@ -191,7 +191,7 @@ namespace Way.Lib.ScriptRemoting
                     else
                     {
                         checkHandlers(url);
-                        if (_currentHttpConnectInformation.Response.mClient == null)
+                        if (RemotingContext.Current.Response.mClient == null)
                             throw new Exception("ended");
 
                         if (url.Length == 0 || url == "/")
