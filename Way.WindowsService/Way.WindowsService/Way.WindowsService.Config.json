@@ -1,0 +1,5 @@
+﻿{
+  "ServiceName": "SunRiz.Server",
+  "Application": "dotnet.exe",
+  "Args": "{0}SunRizServer.dll"
+}

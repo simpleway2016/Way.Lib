@@ -27,9 +27,9 @@ namespace Way.WindowsService
                 sw.WriteLine("OnStart");
                 try
                 {
-                    sw.WriteLine("Application:" + Config.Application);
-                    sw.WriteLine("Args:" + Config.Args);
-                    process = Process.Start(Config.Application, Config.Args);
+                    sw.WriteLine("Application:" + Config.Instance.Application);
+                    sw.WriteLine("Args:" + Config.Instance.Args);
+                    process = Process.Start(Config.Instance.Application, Config.Instance.Args);
                    
                     if (process == null)
                     {

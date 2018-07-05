@@ -26,7 +26,7 @@ namespace Way.WindowsService
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.ServiceName = Config.ServiceName;
+            this.serviceInstaller1.ServiceName = Config.Instance.ServiceName;
 
             // 
             // ProjectInstaller

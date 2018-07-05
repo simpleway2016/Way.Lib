@@ -9,21 +9,21 @@ namespace Way.WindowsService
 {
     class Config
     {
-        public static string ServiceName;
-        public static string Application;
-        public static string Args;
+        public string ServiceName;
+        public string Application;
+        public string Args;
+        public static Config Instance;
         static Config()
         {
             string appPath = System.IO.Path.GetDirectoryName( typeof(Config).Assembly.CodeBase.Replace("file:///", "")) + "\\";
             try
             {
-               // System.IO.File.WriteAllText(@"J:\testservice\noerr.txt", appPath );
-                XmlDocument xmldoc = new XmlDocument();
-                xmldoc.Load(appPath + "config.xml");
-                ServiceName = xmldoc.DocumentElement.Attributes["ServiceName"].InnerText.Replace(" " , "");
-                Application = xmldoc.DocumentElement.Attributes["Application"].InnerText.Replace("{0}", AppDomain.CurrentDomain.BaseDirectory);
-                Args = xmldoc.DocumentElement.Attributes["Args"].InnerText.Replace("{0}" , AppDomain.CurrentDomain.BaseDirectory);
-                
+                var jsonStr = System.IO.File.ReadAllText(appPath + "Way.WindowsService.Config.json");
+                Instance = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<Config>(jsonStr);
+
+                Instance.ServiceName = Instance.ServiceName.Replace(" ", "");
+                Instance.Application = Instance.Application.Replace("{0}", AppDomain.CurrentDomain.BaseDirectory);
+                Instance.Args = Instance.Args.Replace("{0}", AppDomain.CurrentDomain.BaseDirectory);
             }
             catch(Exception ex)
             {
