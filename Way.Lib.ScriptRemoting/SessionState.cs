@@ -15,8 +15,7 @@ namespace Way.Lib.ScriptRemoting
     public class SessionState : Dictionary<string,object>
     {
         internal string ClientIP;
-        static object AllSessionsLock = new object();
-        static Dictionary<string, SessionState> AllSessions = null;
+        static ConcurrentDictionary<string, SessionState> AllSessions = null;
         /// <summary>
         /// 最后一次使用session的时间
         /// </summary>
@@ -58,7 +57,7 @@ namespace Way.Lib.ScriptRemoting
         }
         static SessionState()
         {
-            AllSessions = new Dictionary<string, SessionState>();
+            AllSessions = new ConcurrentDictionary<string, SessionState>();
             new Task(CheckSessionTimeout).Start();
         }
         internal SessionState(string sessionid,string ip)
@@ -75,11 +74,7 @@ namespace Way.Lib.ScriptRemoting
             if (AllSessions == null)
                 return;
 
-            string data = null;
-            lock (AllSessionsLock)
-            {
-                data = Way.Lib.Serialization.Serializer.SerializeObject(AllSessions);
-            }
+            string data = Way.Lib.Serialization.Serializer.SerializeObject(AllSessions);
             var filepath = Way.Lib.PlatformHelper.GetAppDirectory() + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
             if (System.IO.File.Exists(filepath))
                 System.IO.File.Delete(filepath);
@@ -98,10 +93,7 @@ namespace Way.Lib.ScriptRemoting
                 return;
 
             string data = System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8);
-            lock (AllSessionsLock)
-            {
-                AllSessions = Way.Lib.Serialization.Serializer.DeserializeObject<Dictionary<string, SessionState>>(data);
-            }
+            AllSessions = Way.Lib.Serialization.Serializer.DeserializeObject<ConcurrentDictionary<string, SessionState>>(data);
 
             if (deleteAfterLoad)
             {
@@ -147,10 +139,7 @@ namespace Way.Lib.ScriptRemoting
             else
             {
                 obj = new ScriptRemoting.SessionState(sessionid, clientIP);
-                lock (AllSessionsLock)
-                {
-                    AllSessions[sessionid] = obj;
-                }               
+                AllSessions.TryAdd(sessionid, obj);      
             }
             obj.LastUseTime = DateTime.Now;
 
@@ -175,10 +164,8 @@ namespace Way.Lib.ScriptRemoting
                                 //在lock中重新判断
                                 if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
                                 {
-                                    lock (AllSessionsLock)
-                                    {
-                                        AllSessions.Remove(kv.Key);
-                                    }
+                                    SessionState obj;
+                                    AllSessions.TryRemove(kv.Key , out obj);
                                     try
                                     {
                                         foreach (var keypair in kv.Value)
