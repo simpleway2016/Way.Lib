@@ -1,6 +1,7 @@
 ﻿using PandaAudioServer.Services;
 using System;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Way.Lib.ScriptRemoting;
 
 namespace PandaAudioServer
@@ -35,6 +36,8 @@ namespace PandaAudioServer
                     }
                 }
 
+                ScriptRemotingServer.UseHttps(new X509Certificate(Way.Lib.PlatformHelper.GetAppDirectory() + "EJServerCert.pfx", "123456") , true);
+                Console.WriteLine($"use ssl EJServerCert.pfx");
                 Console.WriteLine($"server starting at port:{Newtonsoft.Json.JsonConvert.SerializeObject(ports)}...");
                 var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}web";
 
