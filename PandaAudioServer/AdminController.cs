@@ -50,7 +50,7 @@ namespace PandaAudioServer
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool MakeRegCode(int count)
         {
             for(int i = 0; i < count; i ++)
@@ -71,7 +71,7 @@ namespace PandaAudioServer
         /// 发送手机验证码
         /// </summary>
         /// <param name="phoneNumber"></param>
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool SendPhoneVerifyCode(string phoneNumber)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
@@ -100,7 +100,7 @@ namespace PandaAudioServer
             return true;
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool Login(string phoneNumber, string password,string verifyCode)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];

@@ -19,7 +19,7 @@ namespace PandaAudioServer
             }
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool CheckUser(string loginCode)
         {
             try
@@ -37,7 +37,7 @@ namespace PandaAudioServer
                 return false;
             }
         }
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public string CheckUser_V2(string loginCode,string state)
         {
             try
@@ -56,7 +56,7 @@ namespace PandaAudioServer
             }
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public string CheckUser_V3(string loginCode, string state)
         {
             try
@@ -79,7 +79,7 @@ namespace PandaAudioServer
             }
         }
 
-        [RemotingMethod( UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public string Login(string username, string password)
         {
             username = username.ToLower();
@@ -113,7 +113,7 @@ namespace PandaAudioServer
             return user.LoginCode;
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool ChangePassword(string oldpassword, string password)
         {
             var user = this.db.UserInfo.FirstOrDefault(m=>m.id == this.UserId);
@@ -124,7 +124,7 @@ namespace PandaAudioServer
             return true;
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool Register(UserInfo user,string phonecode)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
@@ -177,7 +177,7 @@ namespace PandaAudioServer
         /// 发送手机验证码
         /// </summary>
         /// <param name="phoneNumber"></param>
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool SendPhoneVerifyCode(string regcode, string phoneNumber)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
@@ -258,7 +258,7 @@ namespace PandaAudioServer
         /// 发送手机验证码
         /// </summary>
         /// <param name="phoneNumber"></param>
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool SendForgetPwdVerifyCode(string phoneNumber)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
@@ -291,7 +291,7 @@ namespace PandaAudioServer
             return true;
         }
 
-        [RemotingMethod(UseRSA = RSAApplyScene.EncryptParameters)]
+        [RemotingMethod]
         public bool ResetPasswordByPhone(string verifyCode,string pwd)
         {
             string ip = this.Request.RemoteEndPoint.ToString().Split(':')[0];
