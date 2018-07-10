@@ -24,8 +24,11 @@ namespace PandaAudioServer
             try
             {
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
-
+#if DEBUG
                 int[] ports = new int[] { 8988 };
+#else
+                 int[] ports = new int[] { 8988,80 };
+#endif
                 if (args != null && args.Length > 0)
                 {
                     var arr = args[0].Split(',');
