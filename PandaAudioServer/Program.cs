@@ -39,7 +39,7 @@ namespace PandaAudioServer
                         ports[i] = Convert.ToInt32(arr[0]);
                     }
                 }
-                if (File.Exists(Way.Lib.PlatformHelper.GetAppDirectory() + "EJServerCert.pfx"))
+                if (File.Exists(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx"))
                 {
                     ScriptRemotingServer.UseHttps(new X509Certificate(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx", "123456"), true);
                     Console.WriteLine($"use ssl ServerCert.pfx");
