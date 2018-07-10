@@ -212,6 +212,13 @@ namespace Way.Lib
             }
             try
             {
+                _stream.Dispose();
+            }
+            catch
+            {
+            }
+            try
+            {
                 
                 Socket.Dispose();
             }
