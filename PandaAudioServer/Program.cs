@@ -28,7 +28,7 @@ namespace PandaAudioServer
 #if DEBUG
                 int[] ports = new int[] { 8988 };
 #else
-                 int[] ports = new int[] { 8988,80 };
+                 int[] ports = new int[] { 8988,80,443 };
 #endif
                 if (args != null && args.Length > 0)
                 {
