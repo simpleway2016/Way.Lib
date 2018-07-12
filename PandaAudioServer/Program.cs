@@ -39,10 +39,13 @@ namespace PandaAudioServer
                         ports[i] = Convert.ToInt32(arr[0]);
                     }
                 }
+
                 if (File.Exists(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx"))
                 {
-                    ScriptRemotingServer.UseHttps(new X509Certificate(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx", "123456"), true);
-                    Console.WriteLine($"use ssl ServerCert.pfx");
+                    var cer = new X509Certificate2(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx", "123456");
+
+                    ScriptRemotingServer.UseHttps(cer, true);
+                    Console.WriteLine($"use X509Certificate2 ssl ServerCert.pfx");
                 }
                 Console.WriteLine($"server starting at port:{Newtonsoft.Json.JsonConvert.SerializeObject(ports)}...");
                 var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}web";

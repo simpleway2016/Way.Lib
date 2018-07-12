@@ -21,7 +21,7 @@ namespace Way.Lib.ScriptRemoting
     public static class ScriptRemotingServer
     {
         internal static bool SupportHTTP;
-        internal static X509Certificate SSLKey;
+        internal static X509Certificate2 SSLKey;
         internal static List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal static List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
         internal static string ScriptFilePath;
@@ -141,7 +141,7 @@ namespace Way.Lib.ScriptRemoting
         /// </summary>
         /// <param name="ssl"></param>
         /// <param name="supportHttp">是否同时支持http协议，默认false</param>
-        public static void UseHttps(X509Certificate ssl, bool supportHttp = false)
+        public static void UseHttps(X509Certificate2 ssl, bool supportHttp = false)
         {
             SupportHTTP = supportHttp;
             SSLKey = ssl;

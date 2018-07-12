@@ -80,6 +80,10 @@ namespace Way.Lib.ScriptRemoting
                 using (CLog log = new CLog("WebPathManger GetFiles error"))
                 {
                     log.Log("folder:{0}" , folder);
+                    if(ex is System.ArgumentException)
+                    {
+                        log.Log("请查看是否有中文名字的文件");
+                    }
                     log.Log(ex.ToString());
                 }
             }
@@ -97,6 +101,10 @@ namespace Way.Lib.ScriptRemoting
                 using (CLog log = new CLog("WebPathManger GetDirectories error"))
                 {
                     log.Log("folder:{0}", folder);
+                    if (ex is System.ArgumentException)
+                    {
+                        log.Log("请查看是否有中文名字的文件夹");
+                    }
                     log.Log(ex.ToString());
                 }
             }
