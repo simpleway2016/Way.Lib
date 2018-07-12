@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteWindow", "RemoteWindo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Way.Lib.ScriptRemoting.Test.Web", "Way.Lib.ScriptRemoting.Test.Web\Way.Lib.ScriptRemoting.Test.Web.csproj", "{D7D0E99D-0068-4DFD-AAF2-0FDC2B4448DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{EE9D4E0C-2D64-40BF-A7B0-69A06F60770C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{D7D0E99D-0068-4DFD-AAF2-0FDC2B4448DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7D0E99D-0068-4DFD-AAF2-0FDC2B4448DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7D0E99D-0068-4DFD-AAF2-0FDC2B4448DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE9D4E0C-2D64-40BF-A7B0-69A06F60770C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE9D4E0C-2D64-40BF-A7B0-69A06F60770C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE9D4E0C-2D64-40BF-A7B0-69A06F60770C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE9D4E0C-2D64-40BF-A7B0-69A06F60770C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
