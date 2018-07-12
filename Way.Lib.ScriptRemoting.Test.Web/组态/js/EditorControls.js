@@ -3873,3 +3873,4 @@ var FreeGroupControl = (function (_super) {
     };
     return FreeGroupControl;
 }(EditorControl));
+//# sourceMappingURL=EditorControls.js.map

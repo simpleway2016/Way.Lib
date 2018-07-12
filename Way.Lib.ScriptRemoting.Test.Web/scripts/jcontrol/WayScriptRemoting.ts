@@ -14,9 +14,8 @@ enum WayScriptRemotingMessageType {
 }
 
 
-var HTTP_Protocol = location.href.substr(0, location.href.indexOf(":"));
 var WEBSOCKET_Protocol = "ws";
-if (HTTP_Protocol == "https")
+if (location.protocol === "https:")
 {
     WEBSOCKET_Protocol = "wss";
 }
@@ -109,24 +108,7 @@ class WayScriptRemoting {
 
     static getServerAddress(): void {
         if (WayScriptRemoting.ServerAddress == null) {
-            var host, port;
-            var href: any = location.href;
-            var index = href.indexOf("://");
-            href = href.substr(index + 3);
-            var index = href.indexOf("/");
-            if (index > 0) {
-                href = href.substr(0, index);
-            }
-            href = href.split(':');
-            host = href[0];
-            if (href.length > 1) {
-                port = href[1];
-                WayScriptRemoting.ServerAddress = host + ":" + port;
-            }
-            else {
-                WayScriptRemoting.ServerAddress = host;
-            }
-
+            WayScriptRemoting.ServerAddress = location.host;
         }
     }
 
@@ -140,7 +122,7 @@ class WayScriptRemoting {
         }
 
         WayScriptRemoting.getServerAddress();
-        var invoker = new WayScriptInvoker(HTTP_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
+        var invoker = new WayScriptInvoker(location.protocol + "//" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=1");
         invoker.async = false;
         var result;
         var hasErr = null;
@@ -250,7 +232,7 @@ class WayScriptRemoting {
 
     private reCreateRSA(callback:(ret,err)=>any)
     {
-        var invoker = new WayScriptInvoker(HTTP_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_recreatersa?a=" + (new Date().getTime()));
+        var invoker = new WayScriptInvoker(location.protocol + "//" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_recreatersa?a=" + (new Date().getTime()));
         invoker.onCompleted = (ret, err) => {
             if (err) {
                 callback(null, err);
@@ -570,7 +552,7 @@ class WayScriptRemoting {
             }
 
             
-            var invoker = new WayScriptInvoker(HTTP_Protocol + "://" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
+            var invoker = new WayScriptInvoker(location.protocol + "//" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
             invoker.async = async;
             invoker.onCompleted = (ret, err) => {
                 if (WayScriptRemoting.onInvokeFinish) {
@@ -1061,6 +1043,16 @@ class WayScriptInvoker {
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
                     this.onCompleted(this.xmlHttp.responseText, null);
+                }
+            }
+            else if (this.xmlHttp.status == 404) {
+                if (this.onCompleted) {
+                    this.onCompleted(null, new Event("not found.status code:404"));
+                }
+            }
+            else {
+                if (this.onCompleted) {
+                    this.onCompleted(null, new Event("error.status code:" + this.xmlHttp.status));
                 }
             }
         }

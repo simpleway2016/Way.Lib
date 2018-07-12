@@ -43,7 +43,6 @@
     <Content Include="scripts\jcontrol\Barrett.js" />
     <Content Include="scripts\jcontrol\BigInt.js" />
     <Content Include="scripts\jcontrol\RSA.js" />
-    <Content Include="scripts\jcontrol\说明.html" />
     <Content Include="scripts\jquery.js" />
     <Content Include="scripts\remConfig.js" />
     <Content Include="scripts\RSA.js" />

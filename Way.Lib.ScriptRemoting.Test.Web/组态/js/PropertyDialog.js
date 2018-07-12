@@ -293,3 +293,4 @@ var PropertyDialog = (function () {
     PropertyDialog.CHKNumber = 0;
     return PropertyDialog;
 }());
+//# sourceMappingURL=PropertyDialog.js.map
