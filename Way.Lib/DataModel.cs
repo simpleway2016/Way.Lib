@@ -111,7 +111,7 @@ namespace Way.Lib
     /// 实现INotifyPropertyChanged的model类
     /// </summary>
     [Newtonsoft.Json.JsonConverter(typeof(DataModelConverter))]
-    public class DataModel : INotifyPropertyChanged 
+    public class DataModel : INotifyPropertyChanged
     {
         internal bool m_notSendPropertyChanged = false;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -173,19 +173,41 @@ namespace Way.Lib
             if (this == source)
                 return;
             var properties = source.GetType().GetProperties();
-            foreach( var p in properties )
+            foreach (var p in properties)
             {
-                if(p.CanWrite)
+                if (p.CanWrite)
                 {
-                   var value =  p.GetValue(source);
+                    var value = p.GetValue(source);
                     p.SetValue(this, value);
                 }
             }
         }
 
+        /// <summary>
+        /// 回滚所有更改
+        /// </summary>
+        public void Rollback()
+        {
+            m_notSendPropertyChanged = true;
+            try
+            {
+                Type thisType = this.GetType();
+                foreach (var changeItem in this.ChangedProperties)
+                {
+                    thisType.GetProperty(changeItem.Key).SetValue(this, changeItem.Value.OriginalValue);
+                }
+                this.ChangedProperties.Clear();
+            }
+            catch
+            {
+
+            }
+            m_notSendPropertyChanged = false;
+        }
+
         public T Clone<T>()
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>( Newtonsoft.Json.JsonConvert.SerializeObject(this));
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(Newtonsoft.Json.JsonConvert.SerializeObject(this));
         }
     }
 }
