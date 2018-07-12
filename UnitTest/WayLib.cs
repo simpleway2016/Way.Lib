@@ -7,7 +7,7 @@ namespace UnitTest
     public class WayLib
     {
         [TestMethod]
-        public void Rollback()
+        public void DataModel_Rollback()
         {
             Model m = new Model();
            var originalJson =  Newtonsoft.Json.JsonConvert.SerializeObject(m);
