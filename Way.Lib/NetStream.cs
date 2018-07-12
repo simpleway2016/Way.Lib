@@ -159,7 +159,7 @@ namespace Way.Lib
         /// </summary>
         /// <param name="SocketClient"></param>
         /// <param name="ssl">ssl证书</param>
-        public NetStream(Socket SocketClient, X509Certificate ssl)
+        public NetStream(Socket SocketClient, X509Certificate2 ssl)
         {
             this.Socket = SocketClient;
             SslStream sslStream = new SslStream(new SocketStream(this.Socket), false);

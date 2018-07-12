@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -134,6 +135,16 @@ namespace Way.Lib
                 _writeContentFunc(content);
             }
         }
+
+        /// <summary>
+        /// 写入日志,只有DEBUG模式下才会执行
+        /// </summary>
+        /// <param name="content"></param>
+        [Conditional("DEBUG")]
+        public void DebugLog(string content)
+        {
+            Log(content);
+        }
       
         void writelogAction(string content)
         {
@@ -146,7 +157,19 @@ namespace Way.Lib
                 createFileStream();
             }
         }
-
+        /// <summary>
+        /// 写入日志,只有DEBUG模式下才会执行
+        /// </summary>
+        /// <param name="content"></param>
+        [Conditional("DEBUG")]
+        public void DebugLogJson(string content)
+        {
+            LogJson(content);
+        }
+        /// <summary>
+        /// 写入日志
+        /// </summary>
+        /// <param name="obj"></param>
         public void LogJson(object obj)
         {
             if (this.Enable == false || m_writer == null || obj == null)
@@ -302,4 +325,5 @@ namespace Way.Lib
         {
         }
     }
+
 }
