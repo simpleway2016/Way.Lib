@@ -482,3 +482,4 @@ window.bindElement = function (element, datacontext) {
         }
     }
 };
+//# sourceMappingURL=JBinder.js.map

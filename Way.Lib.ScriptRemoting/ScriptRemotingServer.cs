@@ -385,7 +385,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     var socket = listener.AcceptSocket();
 
-                    new Thread(() =>
+                    Task.Run(() =>
                     {
                         try
                         {
@@ -438,7 +438,7 @@ namespace Way.Lib.ScriptRemoting
                         {
                             RemotingContext.Current = null;
                         }
-                    }).Start();
+                    });
 
                 }
                 catch
