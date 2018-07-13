@@ -195,6 +195,10 @@ namespace Way.Lib
                 foreach (var changeItem in this.ChangedProperties)
                 {
                     thisType.GetProperty(changeItem.Key).SetValue(this, changeItem.Value.OriginalValue);
+                    if ((this.PropertyChanged != null))
+                    {
+                        this.PropertyChanged(this, new PropertyChangedEventArgs(changeItem.Key));
+                    }
                 }
                 this.ChangedProperties.Clear();
             }
