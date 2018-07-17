@@ -205,21 +205,7 @@ namespace Way.Lib
         {
             try
             {
-                _stream.Close();
-            }
-            catch
-            {
-            }
-            try
-            {
                 _stream.Dispose();
-            }
-            catch
-            {
-            }
-            try
-            {
-                Socket.Close();
             }
             catch
             {

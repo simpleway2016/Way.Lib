@@ -405,7 +405,6 @@ namespace Way.Lib.ScriptRemoting
                                             if ((DateTime.Now - startTime).TotalSeconds > 5)
                                             {
                                                 //超时
-                                                socket.Close();
                                                 socket.Dispose();
                                                 return;
                                             }
@@ -437,7 +436,6 @@ namespace Way.Lib.ScriptRemoting
                         catch {
                             try
                             {
-                                socket.Close();
                                 socket.Dispose();
                             }
                             catch { }
