@@ -219,7 +219,13 @@ namespace Way.Lib
             }
             try
             {
-                
+                Socket.Close();
+            }
+            catch
+            {
+            }
+            try
+            {
                 Socket.Dispose();
             }
             catch
