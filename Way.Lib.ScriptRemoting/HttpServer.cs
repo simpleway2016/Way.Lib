@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Sockets;
 using System.Net;
+using System.Collections.Concurrent;
 
 namespace Way.Lib.ScriptRemoting
 {
@@ -24,6 +25,7 @@ namespace Way.Lib.ScriptRemoting
         internal X509Certificate2 SSLKey;
         internal List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
+        internal ConcurrentDictionary<string, SessionState> AllSessions = new ConcurrentDictionary<string, SessionState>();
         /// <summary>
         /// web文件夹路径
         /// </summary>
@@ -31,6 +33,26 @@ namespace Way.Lib.ScriptRemoting
         {
             get;
             private set;
+        }
+
+
+        int _SessionTimeout = 20;
+        /// <summary>
+        /// session过期时间，单位(分)
+        /// </summary>
+        public int SessionTimeout
+        {
+            get
+            {
+                return _SessionTimeout;
+            }
+            set
+            {
+                if (_SessionTimeout != value)
+                {
+                    _SessionTimeout = value;
+                }
+            }
         }
         internal WebPathManger WebPathManger;
         static HttpServer()
@@ -138,6 +160,7 @@ namespace Way.Lib.ScriptRemoting
                     {
                         new Thread(_start) { IsBackground = true }.Start(listener);
                     }
+                    new Thread(checkSessionTimeout).Start();
                 }
                 catch
                 {
@@ -159,6 +182,70 @@ namespace Way.Lib.ScriptRemoting
                 listener.Stop();
             }
             m_listeners.Clear();
+        }
+
+        void checkSessionTimeout()
+        {
+
+            while (!m_stopped)
+            {
+                if (SessionTimeout <= 0)
+                    SessionTimeout = 1;
+                try
+                {
+                    if (SessionTimeout != int.MaxValue)
+                    {
+                        foreach (var kv in AllSessions)
+                        {
+                            if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > SessionTimeout)
+                            {
+                                //在lock中重新判断
+                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > SessionTimeout)
+                                {
+                                    SessionState obj;
+                                    AllSessions.TryRemove(kv.Key, out obj);
+                                    try
+                                    {
+                                        foreach (var keypair in kv.Value)
+                                        {
+                                            try
+                                            {
+                                                if (keypair.Value is IDisposable)
+                                                {
+                                                    ((IDisposable)keypair.Value).Dispose();
+                                                }
+                                            }
+                                            catch { }
+                                        }
+                                    }
+                                    catch
+                                    {
+
+                                    }
+
+                                    try
+                                    {
+                                        SessionState.OnSessionRemoved(kv.Value);
+                                    }
+                                    catch
+                                    {
+
+                                    }
+
+                                    kv.Value.Clear();
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+                Thread.Sleep(60000);
+            }
         }
 
         internal void HandleSocket(NetStream client)

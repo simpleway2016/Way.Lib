@@ -15,7 +15,6 @@ namespace Way.Lib.ScriptRemoting
     public class SessionState : Dictionary<string,object>
     {
         internal string ClientIP;
-        static ConcurrentDictionary<string, SessionState> AllSessions = null;
         /// <summary>
         /// 最后一次使用session的时间
         /// </summary>
@@ -26,15 +25,8 @@ namespace Way.Lib.ScriptRemoting
         /// <summary>
         /// session超时，被移除时触发的事件
         /// </summary>
-        public static event OnSessionRemovedHandler OnSessionRemoved;
-        /// <summary>
-        /// session超时时间，单位（分），默认30
-        /// </summary>
-        public static int Timeout
-        {
-            get;
-            set;
-        }
+        public static event OnSessionRemovedHandler SessionRemoved;
+
 
         public string SessionID
         {
@@ -55,15 +47,19 @@ namespace Way.Lib.ScriptRemoting
                 base[key] = value;
             }
         }
-        static SessionState()
-        {
-            AllSessions = new ConcurrentDictionary<string, SessionState>();
-            new Task(CheckSessionTimeout).Start();
-        }
+
         internal SessionState(string sessionid,string ip)
         {
             this.ClientIP = ip;
             this.SessionID = sessionid;
+        }
+
+        internal static void OnSessionRemoved(SessionState session)
+        {
+            if(SessionRemoved != null)
+            {
+                SessionRemoved(session);
+            }
         }
 
         /// <summary>
@@ -71,10 +67,11 @@ namespace Way.Lib.ScriptRemoting
         /// </summary>
         public static void SaveSessionsToLocal()
         {
-            if (AllSessions == null)
+            var context = RemotingContext.Current;
+            if (context.Server.AllSessions == null)
                 return;
 
-            string data = Way.Lib.Serialization.Serializer.SerializeObject(AllSessions);
+            string data = Way.Lib.Serialization.Serializer.SerializeObject(context.Server.AllSessions);
             var filepath = Way.Lib.PlatformHelper.GetAppDirectory() + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
             if (System.IO.File.Exists(filepath))
                 System.IO.File.Delete(filepath);
@@ -88,12 +85,13 @@ namespace Way.Lib.ScriptRemoting
         /// <param name="deleteAfterLoad">是否删除本地session</param>
         public static void LoadSessionFromLocal(bool deleteAfterLoad)
         {
+            var context = RemotingContext.Current;
             var filepath = Way.Lib.PlatformHelper.GetAppDirectory() + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
             if (System.IO.File.Exists(filepath) == false)
                 return;
 
             string data = System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8);
-            AllSessions = Way.Lib.Serialization.Serializer.DeserializeObject<ConcurrentDictionary<string, SessionState>>(data);
+            context.Server.AllSessions = Way.Lib.Serialization.Serializer.DeserializeObject<ConcurrentDictionary<string, SessionState>>(data);
 
             if (deleteAfterLoad)
             {
@@ -107,7 +105,10 @@ namespace Way.Lib.ScriptRemoting
         /// <returns></returns>
         public static SessionState GetSessionById(string sessionid)
         {
-            return AllSessions[sessionid];
+            var context = RemotingContext.Current;
+            if (context == null)
+                throw new Exception("RemotingContext.Current is Null");
+            return context.Server.AllSessions[sessionid];
         }
 
         /// <summary>
@@ -119,15 +120,16 @@ namespace Way.Lib.ScriptRemoting
         {
             if (string.IsNullOrEmpty(sessionid))
                 return null;
+            var context = RemotingContext.Current;
 
-            string clientIP = RemotingContext.Current.GetIPInformation();
+            string clientIP = context.GetIPInformation();
 
             SessionState obj = null;
-            if (AllSessions.ContainsKey(sessionid))
+            if (context.Server.AllSessions.ContainsKey(sessionid))
             {
                 try
                 {
-                    obj = AllSessions[sessionid];
+                    obj = context.Server.AllSessions[sessionid];
                     if (clientIP != obj.ClientIP)
                         return null;
                 }
@@ -139,79 +141,14 @@ namespace Way.Lib.ScriptRemoting
             else
             {
                 obj = new ScriptRemoting.SessionState(sessionid, clientIP);
-                AllSessions.TryAdd(sessionid, obj);      
+                context.Server.AllSessions.TryAdd(sessionid, obj);      
             }
             obj.LastUseTime = DateTime.Now;
 
             return obj;
         }
 
-        internal static void CheckSessionTimeout()
-        {
-          
-            while(true)
-            {
-                if (Timeout <= 0)
-                    Timeout = 1;
-                try
-                {
-                    if (Timeout != int.MaxValue)
-                    {
-                        foreach (var kv in AllSessions)
-                        {
-                            if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
-                            {
-                                //在lock中重新判断
-                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > Timeout)
-                                {
-                                    SessionState obj;
-                                    AllSessions.TryRemove(kv.Key , out obj);
-                                    try
-                                    {
-                                        foreach (var keypair in kv.Value)
-                                        {
-                                            try
-                                            {
-                                                if (keypair.Value is IDisposable)
-                                                {
-                                                    ((IDisposable)keypair.Value).Dispose();
-                                                }
-                                            }
-                                            catch { }
-                                        }
-                                    }
-                                    catch
-                                    {
-
-                                    }
-
-                                    if (OnSessionRemoved != null)
-                                    {
-
-                                        try
-                                        {
-                                            OnSessionRemoved(kv.Value);
-                                        }
-                                        catch
-                                        {
-
-                                        }
-                                    }
-                                    kv.Value.Clear();
-                                }
-                               
-                                break;
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-
-                }
-                Thread.Sleep(60000);
-            }
-        }
+       
 
        
     }
