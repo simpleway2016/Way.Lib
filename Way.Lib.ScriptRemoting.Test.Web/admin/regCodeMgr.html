@@ -26,6 +26,9 @@
 </head>
 <body controller="PandaAudioServer.AdminController">
     <div>
+        用户总数：<span id="spanTotal"></span>&nbsp;&nbsp;当前在线用户数：<span id="spanOnline"></span>
+    </div>
+    <div>
         创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>
     </div>
     <JList id="list" buffersize="15" loadonscroll="true" itemsource="RegCodes">
@@ -67,6 +70,18 @@
             });
         }
         window.onload = function () {
+            window.controller.server.GetUserCount(function (ret, err) {
+                if (err) alert(err);
+                else {
+                    document.body.querySelector("#spanTotal").innerHTML = ret;
+                }
+            });
+            window.controller.server.GetOnlineUserCount(function (ret, err) {
+                if (err) alert(err);
+                else {
+                    document.body.querySelector("#spanOnline").innerHTML = ret;
+                }
+            });
         }
     </script>
 </body>

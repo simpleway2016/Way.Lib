@@ -141,5 +141,18 @@ namespace PandaAudioServer
             this.Session["AdminUserId"] = user.id;
             return true;
         }
+
+        [RemotingMethod]
+        public int GetUserCount()
+        {
+            return this.db.UserInfo.Count();
+        }
+
+        [RemotingMethod]
+        public int GetOnlineUserCount()
+        {
+            DateTime time = DateTime.Now.AddSeconds(-20);
+            return this.db.UserInfo.Where(m=>m.LastCheckTime > time).Count();
+        }
     }
 }

@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 <PropertyGroup> 
-    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
 </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
