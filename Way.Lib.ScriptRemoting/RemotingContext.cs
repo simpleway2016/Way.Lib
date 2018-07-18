@@ -7,6 +7,7 @@ namespace Way.Lib.ScriptRemoting
 {
     public class RemotingContext
     {
+        internal HttpServer Server;
         //如果使用AsyncLocal，可以让异步上下文也能访问，但是不是同一个上下文的其他线程是不可以访问的
         //private static AsyncLocal<RemotingController> _CurrentController = new AsyncLocal<RemotingController>();
         //不要使用ThreadLocal，因为ThreadLocal在Task.Run ThreadPool的情况下，会不准确
@@ -38,7 +39,16 @@ namespace Way.Lib.ScriptRemoting
             get;
             internal set;
         }
-
+        /// <summary>
+        /// 获取web所在文件夹
+        /// </summary>
+        public string WebRoot
+        {
+            get
+            {
+                return Server.Root;
+            }
+        }
 
         public string GetIPInformation()
         {

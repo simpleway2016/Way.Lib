@@ -54,6 +54,7 @@ namespace Way.Lib.ScriptRemoting.Net
         }
 
         internal NetStream mClient;
+        RemotingContext _context;
 
         private ValueCollection _Headers = new ValueCollection();
         public ValueCollection Headers
@@ -121,8 +122,9 @@ namespace Way.Lib.ScriptRemoting.Net
             }
         }
 
-        internal Request(NetStream client)
+        internal Request(NetStream client,RemotingContext context)
         {
+            _context = context;
             mClient = client;
             init();
         }

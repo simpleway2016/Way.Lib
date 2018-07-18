@@ -114,16 +114,7 @@ namespace Way.Lib.ScriptRemoting
             OnMessageReceiverDisconnect(session, groupName);
         }
 
-        /// <summary>
-        /// 获取web所在文件夹
-        /// </summary>
-        public static string WebRoot
-        {
-            get
-            {
-                return ScriptRemotingServer.Root;
-            }
-        }
+      
         public Net.Request Request
         {
             get {

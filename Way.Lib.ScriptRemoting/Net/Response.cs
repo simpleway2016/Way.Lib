@@ -13,6 +13,7 @@ namespace Way.Lib.ScriptRemoting.Net
         bool _sendedHeader = false;
         bool _makeHeaders = false;
         internal NetStream mClient;
+        RemotingContext _context;
         private ValueCollection _Headers = new ValueCollection();
         public ValueCollection Headers
         {
@@ -101,9 +102,10 @@ namespace Way.Lib.ScriptRemoting.Net
             }
         }
 
-        internal Response(NetStream client)
+        internal Response(NetStream client,RemotingContext context)
         {
-            mClient = client;
+            _context = context;
+               mClient = client;
         }
         static string[][] s_HTTPStatusDescriptions;
         static Response()
@@ -399,8 +401,9 @@ namespace Way.Lib.ScriptRemoting.Net
             {
                 mClient.ReadTimeout = 6 * 1000;//5秒超时
                 var oc = mClient;
+
                 new Thread(()=> {
-                    SocketServer.HandleSocket(oc);
+                    _context.Server.HandleSocket(oc);
                 }).Start();
                 
                 mClient = null;

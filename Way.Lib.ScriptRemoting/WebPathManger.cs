@@ -13,9 +13,11 @@ namespace Way.Lib.ScriptRemoting
         static System.IO.FileSystemWatcher watcher;
         static List<String> Paths = new List<string>();
         static string root;
-        static WebPathManger()
+        HttpServer _server;
+        internal WebPathManger(HttpServer server)
         {
-            watcher = new System.IO.FileSystemWatcher(ScriptRemotingServer.Root);
+            _server = server;
+               watcher = new System.IO.FileSystemWatcher(_server.Root);
             watcher.IncludeSubdirectories = true;
             watcher.Changed += Watcher_event;
             watcher.Created += Watcher_event;
@@ -23,7 +25,7 @@ namespace Way.Lib.ScriptRemoting
             watcher.Deleted += Watcher_event;
             watcher.EnableRaisingEvents = true;
 
-            root = ScriptRemotingServer.Root;
+            root = _server.Root;
             findPath(root);
         }
         private static void Watcher_event(object sender, System.IO.FileSystemEventArgs e)
@@ -109,7 +111,7 @@ namespace Way.Lib.ScriptRemoting
                 }
             }
         }
-        internal static string getFileUrl(string url)
+        internal string GetFileUrl(string url)
         {
             string result = null;
             try

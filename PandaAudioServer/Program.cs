@@ -21,6 +21,7 @@ namespace PandaAudioServer
 
         static void Main(string[] args)
         {
+            HttpServer httpServer = null;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             try
             {
@@ -40,14 +41,7 @@ namespace PandaAudioServer
                     }
                 }
 
-                if (File.Exists(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx"))
-                {
-                    var cer = new X509Certificate2(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx", "123456");
-
-                    ScriptRemotingServer.UseHttps(cer, true);
-                    Console.WriteLine($"use X509Certificate2 ssl ServerCert.pfx");
-                }
-                Console.WriteLine($"server starting at port:{Newtonsoft.Json.JsonConvert.SerializeObject(ports)}...");
+             
                 var webroot = $"{Way.Lib.PlatformHelper.GetAppDirectory()}web";
 
 #if DEBUG
@@ -66,9 +60,21 @@ namespace PandaAudioServer
                 {
                     System.IO.File.WriteAllText($"{webroot}/main.html", "<html><body></body></html>");
                 }
-                Console.WriteLine($"path:{webroot}");
+              
+
+                httpServer = new HttpServer(ports, webroot);
+                if (File.Exists(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx"))
+                {
+                    var cer = new X509Certificate2(Way.Lib.PlatformHelper.GetAppDirectory() + "ServerCert.pfx", "123456");
+
+                    httpServer.UseHttps(cer, true);
+                    Console.WriteLine($"use X509Certificate2 ssl ServerCert.pfx");
+                }
+                Console.WriteLine($"server starting at port:{Newtonsoft.Json.JsonConvert.SerializeObject(ports)}...");
+
                 RegisterServices();
-                ScriptRemotingServer.Start(ports, webroot, 0);
+                httpServer.Start();
+                Console.WriteLine($"path:{httpServer.Root}");
                 Console.WriteLine($"web server started");
                 using (var db = new PandaDB())
                 {
@@ -97,7 +103,10 @@ namespace PandaAudioServer
                 else if (line == "exit")
                     break;
             }
-            ScriptRemotingServer.Stop();
+            if(httpServer != null)
+            {
+                httpServer.Stop();
+            }            
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
 

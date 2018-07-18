@@ -16,7 +16,7 @@ namespace PandaAudioServer.ActionCaptures
             var data = (SysDB.UserEffect)e.DataItem;
             var db = (SysDB.DB.PandaAudio)database;
             data = db.UserEffect.FirstOrDefault(m => m.id == data.id);
-            string filepath = $"{Way.Lib.ScriptRemoting.RemotingController.WebRoot}effects/{data.FileName}";
+            string filepath = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects/{data.FileName}";
             if (System.IO.File.Exists(filepath))
             {
                 File.Delete(filepath);

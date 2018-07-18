@@ -12,7 +12,7 @@ namespace PandaAudioServer
     {
         public MainController()
         {
-            string path = $"{WebRoot}effects";
+            string path = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects";
             if (System.IO.Directory.Exists(path) == false)
             {
                 Directory.CreateDirectory(path);
@@ -235,7 +235,7 @@ namespace PandaAudioServer
             effect.UserId = this.UserId;
             effect.Name = "AdminSetting";
             effect.FileName = Guid.NewGuid().ToString();
-            var filepath = $"{WebRoot}effects/{effect.FileName}";
+            var filepath = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects/{effect.FileName}";
             File.WriteAllBytes(filepath , System.Text.Encoding.UTF8.GetBytes(content));
             this.db.Insert(effect);
             return 0;
@@ -247,7 +247,7 @@ namespace PandaAudioServer
             var effect = db.UserEffect.FirstOrDefault(m => m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId);
             if(effect != null)
             {
-                var filepath = $"{WebRoot}effects/{effect.FileName}";
+                var filepath = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects/{effect.FileName}";
                 return System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8);
             }
             throw new Exception("Panda Audio管理员尚未保存您的专属效果！");
@@ -336,7 +336,7 @@ namespace PandaAudioServer
             if (effect == null)
                 return null;
 
-            string filepath = $"{WebRoot}effects/{effect.FileName}";
+            string filepath = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects/{effect.FileName}";
             return System.IO.File.ReadAllText(filepath, System.Text.Encoding.UTF8);
         }
 
@@ -349,7 +349,7 @@ namespace PandaAudioServer
                            m.Name == name);
             if (effect != null)
             {
-                filepath = $"{WebRoot}effects/{effect.FileName}";
+                filepath = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects/{effect.FileName}";
                 File.Delete(filepath);
             }
             else
@@ -363,7 +363,7 @@ namespace PandaAudioServer
             effect.Version = version;
             effect.FileName = Guid.NewGuid().ToString();
 
-            filepath = $"{WebRoot}effects/{effect.FileName}";
+            filepath = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects/{effect.FileName}";
             File.WriteAllText(filepath,content, System.Text.Encoding.UTF8);
 
             this.db.Update(effect);
