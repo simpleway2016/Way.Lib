@@ -75,6 +75,13 @@ namespace PandaAudioServer
                 RegisterServices();
                 httpServer.Start();
                 Console.WriteLine($"path:{httpServer.Root}");
+
+                string effectPath = $"{httpServer.Root}effects";
+                if (System.IO.Directory.Exists(effectPath) == false)
+                {
+                    Directory.CreateDirectory(effectPath);
+                }
+
                 Console.WriteLine($"web server started");
                 using (var db = new PandaDB())
                 {

@@ -10,14 +10,6 @@ namespace PandaAudioServer
 {
     public class MainController : BaseController
     {
-        public MainController()
-        {
-            string path = $"{Way.Lib.ScriptRemoting.RemotingContext.Current.WebRoot}effects";
-            if (System.IO.Directory.Exists(path) == false)
-            {
-                Directory.CreateDirectory(path);
-            }
-        }
 
         [RemotingMethod]
         public bool CheckUser(string loginCode)
