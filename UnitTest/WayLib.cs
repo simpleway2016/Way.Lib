@@ -46,8 +46,6 @@ namespace UnitTest
                 throw new Exception("结果错误");
         }
 
-
-       
         [TestMethod]
         public void TaskTest()
         {
