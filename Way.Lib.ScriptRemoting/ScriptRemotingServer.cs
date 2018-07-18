@@ -349,6 +349,7 @@ namespace Way.Lib.ScriptRemoting
 
         internal static void HandleSocket(NetStream client)
         {
+            RemotingContext.Current = null;
             try
             {
                 var Request = new Net.Request(client);
@@ -385,7 +386,7 @@ namespace Way.Lib.ScriptRemoting
                 {
                     var socket = listener.AcceptSocket();
 
-                    Task.Run(() =>
+                    new Thread(() =>
                     {
                         try
                         {
@@ -444,7 +445,7 @@ namespace Way.Lib.ScriptRemoting
                         {
                             RemotingContext.Current = null;
                         }
-                    });
+                    }).Start();
 
                 }
                 catch
