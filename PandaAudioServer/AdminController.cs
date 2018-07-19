@@ -154,5 +154,19 @@ namespace PandaAudioServer
             DateTime time = DateTime.Now.AddSeconds(-20);
             return this.db.UserInfo.Where(m=>m.LastCheckTime > time).Count();
         }
+
+        /// <summary>
+        /// 注销注册码
+        /// </summary>
+        [RemotingMethod]
+        public void DestoryGuid(string guid)
+        {
+            var item = this.db.SystemRegCode.FirstOrDefault(m => m.RegGuid == guid);
+            if (item != null)
+            {
+                this.db.Delete(item);
+                this.db.Delete(this.db.UserInfo.Where(m => m.id == item.UserId));
+            }
+        }
     }
 }

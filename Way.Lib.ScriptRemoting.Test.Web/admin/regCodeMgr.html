@@ -29,8 +29,8 @@
         用户总数：<span id="spanTotal"></span>&nbsp;&nbsp;当前在线用户数：<span id="spanOnline"></span>
     </div>
     <div>
-        创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>
-    </div>
+        创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>&nbsp;&nbsp;<JButton text="销毁注册码并删除用户" onclick="btnDestoryCode()">
+</div>
     <JList id="list" buffersize="15" loadonscroll="true" itemsource="RegCodes">
         <script type="text/html">
             <div class="clist">
@@ -58,7 +58,18 @@
     </JList>
 
     <script lang="ja">
-        
+        function btnDestoryCode() {
+            var code = window.prompt("请输入需要销毁的注册码", "");
+            if (code && code.length > 0) {
+                window.controller.server.DestoryGuid(code, function (ret, err) {
+                    if (err) alert(err);
+                    else {
+                        alert("成功销毁！");
+                    }
+                });
+            }
+            
+        }
         function btnMakeClick()
         {
             window.controller.server.MakeRegCode(txtMakeCount.text, function (ret, err) {
@@ -69,6 +80,18 @@
                 }
             });
         }
+
+        function getOnline() {
+            window.controller.server.GetOnlineUserCount(function (ret, err) {
+                if (err) alert(err);
+                else {
+                    document.body.querySelector("#spanOnline").innerHTML = ret;
+
+                }
+                setTimeout(getOnline, 5000);
+            });
+        }
+
         window.onload = function () {
             window.controller.server.GetUserCount(function (ret, err) {
                 if (err) alert(err);
@@ -76,13 +99,10 @@
                     document.body.querySelector("#spanTotal").innerHTML = ret;
                 }
             });
-            window.controller.server.GetOnlineUserCount(function (ret, err) {
-                if (err) alert(err);
-                else {
-                    document.body.querySelector("#spanOnline").innerHTML = ret;
-                }
-            });
+            getOnline();
         }
+
+
     </script>
 </body>
 </html>
