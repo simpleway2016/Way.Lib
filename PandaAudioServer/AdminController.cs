@@ -167,6 +167,10 @@ namespace PandaAudioServer
                 this.db.Delete(item);
                 this.db.Delete(this.db.UserInfo.Where(m => m.id == item.UserId));
             }
+            else
+            {
+                throw new Exception("该注册码不存在");
+            }
         }
     }
 }
