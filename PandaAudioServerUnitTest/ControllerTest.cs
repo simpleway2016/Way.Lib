@@ -4,6 +4,8 @@ using PandaAudioServer.Services;
 using SysDB;
 using PandaAudioServer.ActionCaptures;
 using System.Security.Cryptography;
+using PandaAudioServer;
+using System.Linq;
 
 namespace PandaAudioServerUnitTest
 {
@@ -22,6 +24,52 @@ namespace PandaAudioServerUnitTest
                 effect.FileName = Guid.NewGuid().ToString();
                 effect.Type = UserEffect_TypeEnum.Project;
                 db.Insert(effect);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                db.RollbackTransaction();
+            }
+        }
+
+        [TestMethod]
+        public void LoginCount()
+        {
+            var db = new SysDB.DB.PandaAudio("data source='d:\\pandaaudio.db'" , Way.EntityDB.DatabaseType.Sqlite);
+            try
+            {
+                db.BeginTransaction();
+
+                var login1 = new SysDB.UserLoginRecord() {
+                    UserId = 1,
+                    LoginTime = DateTime.Now,
+                };
+                db.Insert(login1);
+
+                login1 = new SysDB.UserLoginRecord()
+                {
+                    UserId = 2,
+                    LoginTime = DateTime.Now,
+                };
+                db.Insert(login1);
+
+                login1 = new SysDB.UserLoginRecord()
+                {
+                    UserId = 1,
+                    LoginTime = DateTime.Now,
+                };
+                db.Insert(login1);
+
+                DateTime startTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd"));
+                DateTime endTime = DateTime.Now;
+
+                var count = (from m in db.UserLoginRecord
+                             where m.LoginTime >= startTime && m.LoginTime <= endTime
+                             group m by m.UserId into g
+                             select g.Key).Count();
             }
             catch
             {

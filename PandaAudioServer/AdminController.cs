@@ -186,7 +186,20 @@ namespace PandaAudioServer
             var count = (from m in this.db.UserLoginRecord
                          where m.LoginTime >= startTime && m.LoginTime < endTime
                          group m by m.UserId into g
-                         select g).Count();
+                         select g.Key).Count();
+            return count;
+        }
+
+        [RemotingMethod]
+        public int GetTodayLoginCount()
+        {
+            DateTime startTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd"));
+            DateTime endTime = DateTime.Now;
+
+            var count = (from m in this.db.UserLoginRecord
+                         where m.LoginTime >= startTime && m.LoginTime < endTime
+                         group m by m.UserId into g
+                         select g.Key).Count();
             return count;
         }
     }

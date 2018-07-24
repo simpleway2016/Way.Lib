@@ -26,7 +26,7 @@
 </head>
 <body controller="PandaAudioServer.AdminController">
     <div>
-        用户总数：<span id="spanTotal"></span>&nbsp;&nbsp;当前在线用户数：<span id="spanOnline"></span>&nbsp;&nbsp; 昨天登陆用户：<span id="spanLoginYesterday"></span>
+        用户总数：<span id="spanTotal"></span>&nbsp;&nbsp;当前在线用户数：<span id="spanOnline"></span>&nbsp;&nbsp; 昨天登陆用户：<span id="spanLoginYesterday"></span>&nbsp;&nbsp; 今天登陆用户：<span id="spanLoginToday"></span>
     </div>
     <div>
         创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>&nbsp;&nbsp;<JButton text="销毁注册码并删除用户" onclick="btnDestoryCode()">
@@ -105,6 +105,13 @@
                     document.body.querySelector("#spanLoginYesterday").innerHTML = ret;
                 }
             });
+            window.controller.server.GetTodayLoginCount(function (ret, err) {
+                if (err) alert(err);
+                else {
+                    document.body.querySelector("#spanLoginToday").innerHTML = ret;
+                }
+            });
+
             getOnline();
         }
 
