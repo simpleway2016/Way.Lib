@@ -172,5 +172,35 @@ namespace PandaAudioServer
                 throw new Exception("该注册码不存在");
             }
         }
+
+        /// <summary>
+        /// 获取昨天登陆总数
+        /// </summary>
+        /// <returns></returns>
+        [RemotingMethod]
+        public int GetYesterdayLoginCount()
+        {
+            DateTime startTime = Convert.ToDateTime(DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"));
+            DateTime endTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd"));
+
+            var count = (from m in this.db.UserLoginRecord
+                         where m.LoginTime >= startTime && m.LoginTime < endTime
+                         group m by m.UserId into g
+                         select g.Key).Count();
+            return count;
+        }
+
+        [RemotingMethod]
+        public int GetTodayLoginCount()
+        {
+            DateTime startTime = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd"));
+            DateTime endTime = DateTime.Now;
+
+            var count = (from m in this.db.UserLoginRecord
+                         where m.LoginTime >= startTime && m.LoginTime < endTime
+                         group m by m.UserId into g
+                         select g.Key).Count();
+            return count;
+        }
     }
 }
