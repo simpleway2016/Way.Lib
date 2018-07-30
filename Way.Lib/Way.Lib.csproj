@@ -8,9 +8,9 @@
     <PackageId>Way.Lib</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description></Description>
-    <Version>2.0.2.5</Version>
-    <AssemblyVersion>2.0.2.5</AssemblyVersion>
-    <FileVersion>2.0.2.5</FileVersion>
+    <Version>2.0.2.6</Version>
+    <AssemblyVersion>2.0.2.6</AssemblyVersion>
+    <FileVersion>2.0.2.6</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +19,7 @@
     <PackageReference Include="System.Collections.NonGeneric" Version="4.0.1" />
     <PackageReference Include="System.IO" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
