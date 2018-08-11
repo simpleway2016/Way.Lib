@@ -60,8 +60,8 @@ namespace PandaAudioServer
                 user.LastCheckTime = DateTime.Now;
                 this.db.Update(user);
 
-                //if (user.LoginCode != loginCode)
-                //    throw new Exception($"username:{user.PhoneNumber}-{user.UserName} user.LoginCode != loginCode [{user.LoginCode}] [{loginCode}]");
+                if (user.LoginCode != loginCode)
+                    throw new Exception($"username:{user.PhoneNumber}-{user.UserName} user.LoginCode != loginCode [{user.LoginCode}] [{loginCode}]");
 
                 if (user.Disable == true)
                     throw new Exception("user.Disable == true");

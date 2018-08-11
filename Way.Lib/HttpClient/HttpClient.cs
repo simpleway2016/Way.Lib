@@ -8,6 +8,13 @@ namespace Way.Lib
 {
     public class HttpClient
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="query"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
         public static string PostQueryString(string url, IDictionary<string, object> query, int timeout)
         {
             if (query == null)
@@ -25,6 +32,13 @@ namespace Way.Lib
             }
             return PostQueryString(url, str.ToString(), timeout);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="query"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
         public static string PostQueryString(string url, IDictionary<string, string> query, int timeout)
         {
             StringBuilder str = new StringBuilder();
@@ -38,21 +52,46 @@ namespace Way.Lib
             }
             return PostQueryString(url, str.ToString(), timeout);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="query"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
         public static string PostQueryString(string url, string query, int timeout)
         {
             return PostQueryString(url, null, query, timeout);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="jsonObj"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
         public static string PostJson(string url, object jsonObj, int timeout)
+        {
+            return PostJson(url, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="json"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
+        public static string PostJson(string url, string json, int timeout)
         {
             try
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "POST";
-                request.ContinueTimeout = timeout;
+                request.Timeout = timeout;
                 request.ContentType = "application/json; charset=utf-8";
 
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj));
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
                 request.ContentLength = data.Length;
 
                 var task = request.GetRequestStreamAsync();
@@ -95,14 +134,21 @@ namespace Way.Lib
                 return null;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="headers"></param>
+        /// <param name="query"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
         public static string PostQueryString(string url, IDictionary<string, string> headers, string query, int timeout)
         {
             try
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "POST";
-                request.ContinueTimeout = timeout;
+                request.Timeout = timeout;
                 request.ContentType = "application/x-www-form-urlencoded;charset=utf-8";
                 if (headers != null)
                 {
@@ -188,14 +234,19 @@ namespace Way.Lib
                 throw err;
             throw new Exception($"http错误信息:{err.Message}\r\n服务器输出内容:{strResult}");
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
         public static string GetContent(string url, int timeout)
         {
             try
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "GET";
-                request.ContinueTimeout = timeout;
+                request.Timeout = timeout;
 
                 var taskResponse = request.GetResponseAsync();
                 taskResponse.Wait();
