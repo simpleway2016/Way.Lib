@@ -3,12 +3,31 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Way.Lib;
 
 namespace UnitTest
 {
     [TestClass]
     public class WayLib
     {
+        class DYModel : DynamicModel
+        {
+            int getValue()
+            {
+                dynamic self = this;
+                return self.age;
+            }
+        }
+        [TestMethod]
+        public void DynamicModel_test()
+        {
+            dynamic model = new DYModel();
+            model.age = 2;
+           var testv =  model.getValue;
+            model.age = 3;
+         
+        }
+
         [TestMethod]
         public void DataModel_Rollback()
         {
