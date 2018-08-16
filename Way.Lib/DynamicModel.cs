@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Text;
 using System.Linq;
 using System.Reflection;
+using System.Collections;
 
 namespace Way.Lib
 {
@@ -36,6 +37,25 @@ namespace Way.Lib
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;
+        /// <summary>
+        /// 把集合转换为ObservableCollection类型
+        /// </summary>
+        /// <typeparam name="T">DynamicModel以及其派生类</typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static System.Collections.ObjectModel.ObservableCollection<T> GetObserve<T>(IList source)  where T : DynamicModel
+        {
+            Type t = typeof(T);
+            var result = new System.Collections.ObjectModel.ObservableCollection<T>();
+            foreach( var item in source )
+            {
+                if (item is T)
+                    result.Add((T)item);
+                else
+                    result.Add((T)Activator.CreateInstance(t , item));
+            }
+            return result;
+        }
 
         protected virtual void OnPropertyChanged(string name,object oldValue ,object newValue)
         {
@@ -68,7 +88,14 @@ namespace Way.Lib
             if(computedMethod != null)
             {
                 _recordingDepends.Add(_depends[binder.Name]);
-                result = computedMethod.Invoke(this, null);
+                try
+                {
+                    result = computedMethod.Invoke(this, null);
+                }
+                catch
+                {
+                    result = null;
+                }
                 _recordingDepends.RemoveAt(_recordingDepends.Count - 1);
                 return true;
             }
