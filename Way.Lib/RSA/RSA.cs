@@ -67,23 +67,21 @@ namespace Way.Lib
             _KeyExponent = BytesToHexString(_parameter.Exponent);
             _KeyModulus = BytesToHexString(_parameter.Modulus);
         }
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="content">内容建议使用System.Net.WebUtility.UrlEncode编码一次，避免中文乱码</param>
-        /// <param name="exponent"></param>
-        /// <param name="modulus"></param>
+        /// <param name="key"></param>
         /// <returns></returns>
-        public static string EncryptByKey(string content , byte[] exponent,byte[] modulus)
+        public static string EncryptByPublicKey(string content , RSAParameters key)
         {
-            RSAParameters rp = new RSAParameters();
-            rp.Exponent = exponent;
-            rp.Modulus = modulus;
-
             var rsa = System.Security.Cryptography.RSA.Create();
-            rsa.ImportParameters(rp);
-
-            if (content.Length <= MAXLENGTH)
+            rsa.ImportParameters(key);
+            int keySize = key.Modulus.Length;
+            int maxLen = keySize * 8 / 10;
+            if (content.Length <= maxLen)
             {
                 var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                 return BytesToHexString(data);
@@ -92,9 +90,9 @@ namespace Way.Lib
             {
                 var result = new StringBuilder();
                 var total = content.Length;
-                for (var i = 0; i < content.Length; i += MAXLENGTH)
+                for (var i = 0; i < content.Length; i += maxLen)
                 {
-                    var text = content.Substring(i, Math.Min(MAXLENGTH, total));
+                    var text = content.Substring(i, Math.Min(maxLen, total));
                     total -= text.Length;
                     var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(text), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
                     result.Append( BytesToHexString(data));
@@ -468,7 +466,30 @@ namespace Way.Lib
 
             return result.ToString();
         }
+        public static string DecryptByPrivateKey(string content , RSAParameters key)
+        {
+            var rsa = System.Security.Cryptography.RSA.Create();
+            rsa.ImportParameters(key);
+            int blockSize = key.D.Length * 2;
 
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < content.Length; i += blockSize)
+            {
+                byte[] bs = null;
+                try
+                {
+                    bs = rsa.Decrypt(HexStringToBytes(content, i, blockSize), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
+                }
+                catch
+                {
+                    throw new RSADecrptException();
+                }
+                string str = System.Text.Encoding.ASCII.GetString(bs);
+                result.Append(str);
+            }
+
+            return result.ToString();
+        }
         /// <summary>
         /// 利用D进行加密
         /// </summary>
@@ -487,13 +508,15 @@ namespace Way.Lib
         /// <returns></returns>
         public static string EncryptByD(string data,byte[] D,byte[] modulus)
         {
+            if (modulus.Length > 128)
+                throw new Exception("just support 1024 key size");
             BigInteger d = new BigInteger(D);
             BigInteger n = new BigInteger(modulus);
-
+            int maxlen = MAXLENGTH * (modulus.Length / 128);
             StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += MAXLENGTH)
+            for (int j = 0; j < data.Length; j += maxlen)
             {
-                string content = data.Substring(j, Math.Min(MAXLENGTH, data.Length - j));
+                string content = data.Substring(j, Math.Min(maxlen, data.Length - j));
                 byte[] source = System.Text.Encoding.ASCII.GetBytes(content);
 
                 BigInteger biText = new BigInteger(source);
@@ -526,11 +549,11 @@ namespace Way.Lib
         {
             BigInteger e = new BigInteger(exponent);
             BigInteger n = new BigInteger(modulus);
-
+            int blockSize = 256 * (modulus.Length / 128);
             StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += 256)
+            for (int j = 0; j < data.Length; j += blockSize)
             {
-                byte[] source = HexStringToBytes(data, j, 256);
+                byte[] source = HexStringToBytes(data, j, blockSize);
                 BigInteger biText = new BigInteger(source);
                 BigInteger biEnText = biText.modPow(e, n);
 

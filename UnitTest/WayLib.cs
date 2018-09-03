@@ -29,6 +29,14 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void rsatest()
+        {
+            RSA rsa = new RSA();
+          var content =   RSA.EncryptByD("abc", rsa.D, rsa.Modulus);
+            var dd = RSA.DecryptContentFromDEncrypt(content, rsa.Exponent, rsa.Modulus);
+        }
+
+        [TestMethod]
         public void DataModel_Rollback()
         {
             Model m = new Model();
