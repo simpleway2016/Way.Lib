@@ -32,6 +32,24 @@ namespace Way.Lib
             }
             return PostQueryString(url, str.ToString(), timeout);
         }
+
+        public static string PostQueryString(string url, IDictionary<string, string> headers, IDictionary<string, object> query, int timeout)
+        {
+            if (query == null)
+            {
+                return PostQueryString(url, "", timeout);
+            }
+            StringBuilder str = new StringBuilder();
+            foreach (var item in query)
+            {
+                if (str.Length > 0)
+                    str.Append('&');
+                str.Append(item.Key);
+                str.Append("=");
+                str.Append(item.Value);
+            }
+            return PostQueryString(url, headers,str.ToString(), timeout);
+        }
         /// <summary>
         /// 
         /// </summary>

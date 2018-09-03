@@ -476,8 +476,19 @@ namespace Way.Lib
         /// <returns></returns>
         public string EncryptByD(string data)
         {
-            BigInteger d = new BigInteger(_parameter.D);
-            BigInteger n = new BigInteger(_parameter.Modulus);
+            return EncryptByD(data, _parameter.D, _parameter.Modulus);
+        }
+        /// <summary>
+        /// 利用D进行加密
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="d"></param>
+        /// <param name="modulus"></param>
+        /// <returns></returns>
+        public static string EncryptByD(string data,byte[] D,byte[] modulus)
+        {
+            BigInteger d = new BigInteger(D);
+            BigInteger n = new BigInteger(modulus);
 
             StringBuilder result = new StringBuilder();
             for (int j = 0; j < data.Length; j += MAXLENGTH)
@@ -490,7 +501,7 @@ namespace Way.Lib
 
                 byte[] b = biEnText.getBytes();
                 result.Append(BytesToHexString(b));
-             }
+            }
             return result.ToString();
         }
         /// <summary>
