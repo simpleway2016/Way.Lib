@@ -13,9 +13,7 @@ namespace Way.Lib.ScriptRemoting.Net
         /// <summary>
         /// 全局默认输出的Header
         /// </summary>
-        public static Dictionary<string, string> GlobalHeaders = new Dictionary<string, string>(){
-            {"Access-Control-Allow-Origin","*"}
-            };
+        public static Dictionary<string, string> DefaultHeaders = new Dictionary<string, string>();
         bool _sendedHeader = false;
         bool _makeHeaders = false;
         internal NetStream mClient;
@@ -494,7 +492,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 setHeaderIfNot("Accept-Ranges", "bytes");
             }
 
-            foreach( var h in GlobalHeaders)
+            foreach( var h in DefaultHeaders)
             {
                 setHeaderIfNot(h.Key, h.Value);
             }
