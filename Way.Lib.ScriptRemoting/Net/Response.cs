@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting.Net
 {
-    public class Response:System.IO.Stream
+    public class Response : System.IO.Stream
     {
+        /// <summary>
+        /// 全局默认输出的Header
+        /// </summary>
+        public static Dictionary<string, string> GlobalHeaders = new Dictionary<string, string>(){
+            {"Access-Control-Allow-Origin","*"}
+            };
         bool _sendedHeader = false;
         bool _makeHeaders = false;
         internal NetStream mClient;
@@ -486,6 +492,11 @@ namespace Way.Lib.ScriptRemoting.Net
             else 
             {
                 setHeaderIfNot("Accept-Ranges", "bytes");
+            }
+
+            foreach( var h in GlobalHeaders)
+            {
+                setHeaderIfNot(h.Key, h.Value);
             }
 
             //sb.Append("Content-Encoding: gzip\r\n");//压缩

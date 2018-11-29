@@ -23,19 +23,20 @@ namespace Way.Lib.ScriptRemoting.Test
 
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.WriteLine("server starting...");
+            HttpServer server = null;
             if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}Web"))
             {
                 
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
-                ScriptRemotingServer.Start(9090, $"{Way.Lib.PlatformHelper.GetAppDirectory()}Web", 1);
+                server = new HttpServer(new int[] { 9090 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
             }
             else
             {
               
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
-                ScriptRemotingServer.Start(9090, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web", 1);
+                server = new HttpServer(new int[] { 9090 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
             }
-            ScriptRemotingServer.UseHttps(new X509Certificate(Way.Lib.PlatformHelper.GetAppDirectory() + "server.pfx", "linezero") );
+            //server.UseHttps(new X509Certificate2(Way.Lib.PlatformHelper.GetAppDirectory() + "server.pfx", "linezero") );
             Console.WriteLine("server started");
             try
             {
@@ -47,20 +48,14 @@ namespace Way.Lib.ScriptRemoting.Test
                 //到这里可以确定数据库结构已经更新了
                 Console.WriteLine("database ready");
             }
-            catch(Way.EntityDB.Exceptons.SqlExecException ex)
-            {
-                Console.WriteLine("数据库更新发生错误");
-                Console.WriteLine("错误信息：" + ex.Message);
-                Console.WriteLine("执行的语句：" + ex.SqlString);
 
-            }
             catch(Exception ex)
             {
                 Console.WriteLine("发生错误");
                 Console.WriteLine("错误信息：" + ex.Message);
             }
-           
 
+            server.Start();
             while (true)
             {
                 Console.Write("Web>");
@@ -76,7 +71,7 @@ namespace Way.Lib.ScriptRemoting.Test
                 else if (line == "exit")
                     break;
             }
-            ScriptRemotingServer.Stop();
+            server.Stop();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
 

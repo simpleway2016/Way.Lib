@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Way.EntityDB" Version="1.0.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Way.Lib.ScriptRemoting\Way.Lib.ScriptRemoting.csproj" />
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
   </ItemGroup>
