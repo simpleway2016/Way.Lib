@@ -363,7 +363,7 @@ namespace Way.Lib.ScriptRemoting
         {
             byte[] bs;
             var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, FileShare.ReadWrite);
-            if (filePath.EndsWith(".html" , StringComparison.CurrentCultureIgnoreCase))
+            if (false && filePath.EndsWith(".html" , StringComparison.CurrentCultureIgnoreCase))
             {
                 bs = new byte[20];
                 fs.Read(bs , 0 , bs.Length);
