@@ -213,8 +213,16 @@ namespace Way.Lib.ScriptRemoting
                             string filepath = url;
                             if (filepath.StartsWith("/"))
                                 filepath = filepath.Substring(1);
-                            filepath = _context.Server.Root + filepath;
-                            outputFile(url, filepath);
+                            filepath = Path.GetFullPath(_context.Server.Root + filepath);
+                            if (filepath.ToLower().Contains(_context.Server.Root.ToLower()) == false)
+                            {
+                                //访问了Root范围外文件
+                                _context.Response.SendFileNotFound();
+                            }
+                            else
+                            {
+                                outputFile(url, filepath);
+                            }
                         }
                     }
                 }
@@ -309,95 +317,12 @@ namespace Way.Lib.ScriptRemoting
             }
         }
 
-        string outputWithMaster(string url, string filePath)
-        {
-            using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
-            {
-                byte[] bs = new byte[20];
-                fs.Read(bs, 0, bs.Length);
-                fs.Position = 0;
 
-                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<master " , StringComparison.CurrentCultureIgnoreCase))
-                {
-                    Way.Lib.HtmlUtil.HtmlParser parser = new HtmlUtil.HtmlParser();
-                    parser.Parse(new StreamReader(fs));
-
-                    var masterUrl = parser.Nodes[0].Attributes.Where(m => m.Name == "src").Select(m => m.Value).FirstOrDefault();
-                    if (masterUrl.StartsWith("/") == false)
-                    {
-                        if (url.EndsWith("/") == false)
-                        {
-                            if (url.Contains("/"))
-                                url = url.Substring(0, url.LastIndexOf("/"));
-                            url += "/";
-                        }
-                        masterUrl = url + masterUrl;
-                    }
-                    masterUrl = getUrl(masterUrl);
-                    string masterFilePath = masterUrl;
-                    if (masterFilePath.StartsWith("/"))
-                        masterFilePath = masterFilePath.Substring(1);
-                    masterFilePath = _context.Server.Root + masterFilePath;
-                    string masterContent = outputWithMaster(masterUrl, masterFilePath);
-                    foreach( HtmlUtil.HtmlNode node in parser.Nodes )
-                    {
-                        if(string.Equals(node.Name , "set" , StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            var name = node.Attributes.Where(m => m.Name == "name").Select(m => m.Value).FirstOrDefault();
-                            masterContent = masterContent.Replace($"{{%{name}%}}" , node.getInnerHtml());
-                        }
-                    }
-                    
-                    return masterContent;
-                }
-                else
-                {
-                    bs = new byte[fs.Length];
-                    fs.Read(bs, 0, bs.Length);
-                    return System.Text.Encoding.UTF8.GetString(bs);
-                }
-            }
-        }
-        static Dictionary<string, string> MasterFileTemps = new Dictionary<string, string>();
          void outputFile(string url , string filePath , string lastModifyTime)
         {
             byte[] bs;
             var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, FileShare.ReadWrite);
-            if (false && filePath.EndsWith(".html" , StringComparison.CurrentCultureIgnoreCase))
-            {
-                bs = new byte[20];
-                fs.Read(bs , 0 , bs.Length);
-                fs.Position = 0;
-                if (System.Text.Encoding.UTF8.GetString(bs).StartsWith("<master " , StringComparison.CurrentCultureIgnoreCase))
-                {
-                    //母版模式
-                    fs.Dispose();
-                    if (MasterFileTemps.ContainsKey(filePath) && new FileInfo(MasterFileTemps[filePath]).LastWriteTime == new FileInfo(filePath).LastWriteTime)
-                    {
-                        fs = new System.IO.FileStream(MasterFileTemps[filePath], System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read);
-                    }
-                    else
-                    {
-
-                        var content = outputWithMaster(url, filePath);
-                        content = Regex.Replace(content, @"\{\%(\w)+\%\}", "");
-                        bs = System.Text.Encoding.UTF8.GetBytes(content);
-                        string temppath = HttpServer.HtmlTempPath + "/" + Guid.NewGuid();
-                        File.WriteAllBytes(temppath, bs);
-                        new FileInfo(temppath).LastWriteTime = new FileInfo(filePath).LastWriteTime;
-                        try
-                        {
-                            MasterFileTemps[filePath] = temppath;
-                        }
-                        catch
-                        { }
-                        _context.Response.MakeResponseHeaders(bs.Length, false, -1, 0, lastModifyTime, null, true);
-                        _context.Response.Write(bs);
-                        return;
-                    }
-                }
-            }
-
+            
             string ext = System.IO.Path.GetExtension(filePath).ToLower();
             if(ContentTypeDefines.ContainsKey(ext))
             {

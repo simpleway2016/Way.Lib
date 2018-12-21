@@ -26,13 +26,21 @@ namespace Way.Lib.ScriptRemoting
         internal List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
         internal ConcurrentDictionary<string, SessionState> AllSessions = new ConcurrentDictionary<string, SessionState>();
+
+        private string _Root;
         /// <summary>
         /// web文件夹路径
         /// </summary>
         public string Root
         {
-            get;
-            private set;
+            get => _Root;
+            set
+            {
+                if (_Root != value)
+                {
+                    _Root = System.IO.Path.GetFullPath(value);
+                }
+            }
         }
 
 
@@ -77,8 +85,8 @@ namespace Way.Lib.ScriptRemoting
         public HttpServer(IEnumerable<int> ports, string webRootPath)
         {
             m_Ports = ports;
-            Root = webRootPath.Replace("\\", "/");
-            Root = Root.EndsWith("/") ? Root : Root + "/";
+            var root = webRootPath.Replace("\\", "/");
+            Root = root.EndsWith("/") ? root : root + "/";
             WebPathManger = new WebPathManger(this);
         }
 

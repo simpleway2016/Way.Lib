@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Way.Lib;
+using System.IO;
 
 namespace UnitTest
 {
@@ -18,6 +19,7 @@ namespace UnitTest
                 return self.age;
             }
         }
+
         [TestMethod]
         public void DynamicModel_test()
         {
