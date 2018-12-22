@@ -310,7 +310,7 @@ class WayScriptRemoting {
 
         var blob = file.slice(start, start + len);
         reader.onload = () => {
-            var filedata: ArrayBuffer = reader.result;
+            var filedata: ArrayBuffer = <ArrayBuffer>reader.result;
             
             if (filedata.byteLength > 0) {
                 start += filedata.byteLength;
@@ -368,7 +368,7 @@ class WayScriptRemoting {
 
         var blob = file.slice(start, start + len);
         reader.onload = () => {
-            var filedata: ArrayBuffer = reader.result;
+            var filedata: ArrayBuffer = <ArrayBuffer>reader.result;
             if (filedata.byteLength > 0) {
                 start += filedata.byteLength;
                 if (ws.binaryType != "arraybuffer")

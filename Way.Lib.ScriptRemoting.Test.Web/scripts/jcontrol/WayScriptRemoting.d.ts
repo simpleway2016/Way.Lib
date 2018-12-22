@@ -11,7 +11,7 @@ declare enum WayScriptRemotingMessageType {
     SendSessionID = 3,
     InvokeError = 4,
     UploadFileBegined = 5,
-    RSADecrptError = 6,
+    RSADecrptError = 6
 }
 declare var WEBSOCKET_Protocol: string;
 declare class WayCookie {
@@ -46,19 +46,19 @@ declare class WayScriptRemoting {
     static getServerAddress(): void;
     static createRemotingController(remoteName: string): WayScriptRemoting;
     static getClassDefineScript(methods: any[]): string;
-    private static createRemotingControllerAsync(remoteName, callback);
-    private reCreateRSA(callback);
-    private _uploadFileWithHTTP(fileElement, state, callback, handler);
-    private arrayBufferToString(data);
-    private sendFileWithHttp(tranid, state, file, reader, size, start, len, callback, handler);
-    private sendFile(ws, file, reader, size, start, len, callback, handler);
-    uploadFile(fileElement: any, state: any, callback: (ret, totalSize, uploaded, err) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler;
+    private static createRemotingControllerAsync;
+    private reCreateRSA;
+    private _uploadFileWithHTTP;
+    private arrayBufferToString;
+    private sendFileWithHttp;
+    private sendFile;
+    uploadFile(fileElement: any, state: any, callback: (ret: any, totalSize: any, uploaded: any, err: any) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler;
     str2UTF8(str: any): any[];
-    private encrypt(value);
+    private encrypt;
     pageInvoke(name: string, parameters: any[], callback: any, async?: boolean, useRsa?: boolean, returnUseRsa?: boolean): void;
     sendMessage(msg: string): void;
-    private sendHeart();
-    private connect();
+    private sendHeart;
+    private connect;
 }
 declare class WayScriptRemotingChild extends WayScriptRemoting {
 }
@@ -66,7 +66,7 @@ declare enum WayVirtualWebSocketStatus {
     none = 0,
     connected = 1,
     error = 2,
-    closed = 3,
+    closed = 3
 }
 declare class WayVirtualWebSocket {
     private guid;
@@ -87,11 +87,11 @@ declare class WayVirtualWebSocket {
     onerror: (event: any) => void;
     constructor(_url: string);
     close(): void;
-    private init();
+    private init;
     send(data: any): void;
-    private arrayBufferToString(data);
-    private receiveChannelConnect();
-    private sendHeart();
+    private arrayBufferToString;
+    private receiveChannelConnect;
+    private sendHeart;
 }
 declare class WayScriptInvoker {
     url: string;
@@ -105,8 +105,8 @@ declare class WayScriptInvoker {
     setTimeout(millseconds: number): void;
     Post(obj: any): void;
     Get(nameAndValues?: string[]): void;
-    private xmlHttpStatusChanged();
-    private createXMLHttp();
+    private xmlHttpStatusChanged;
+    private createXMLHttp;
 }
 declare class WayHelper {
     static createWebSocket(url: string): WebSocket;
