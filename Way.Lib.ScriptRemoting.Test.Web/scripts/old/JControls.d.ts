@@ -26,15 +26,15 @@ declare class JControl implements INotifyPropertyChanged {
     private _onclick;
     onclick: any;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
-    private getFunc(name);
-    private setFunc(attName);
+    private getFunc;
+    private setFunc;
     removeFromParent(): void;
     dispose(): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture?: boolean): void;
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
     protected loadTemplates(): void;
-    private checkDataContextPropertyExist();
-    private reApplyTemplate(rootElement);
+    private checkDataContextPropertyExist;
+    private reApplyTemplate;
     resetParentJControl(): void;
     protected onTemplateApply(): void;
     protected getTemplate(): HTMLElement;
@@ -90,12 +90,12 @@ declare class JList extends JControl {
     textmember: string;
     constructor(element: HTMLElement, templates?: any[], datacontext?: any);
     rebind(): void;
-    private clearItems();
+    private clearItems;
     protected loadTemplates(): void;
     protected onTemplateApply(): void;
     loadMoreData(): void;
     protected bindItems(): void;
-    private resetItemIndex();
+    private resetItemIndex;
     protected addItem(data: any): JListItem;
 }
 declare class JCheckboxList extends JList {
@@ -134,5 +134,5 @@ declare class ScrollSourceManager {
     constructor(list: JList);
     dispose(): void;
     onListLoadData(): void;
-    private onScroll();
+    private onScroll;
 }

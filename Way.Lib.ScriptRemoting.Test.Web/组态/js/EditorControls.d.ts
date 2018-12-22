@@ -364,7 +364,7 @@ declare class HistoryTrendControl extends TrendControl {
     constructor();
     run(): void;
     onDevicePointValueChanged(devPoint: any): void;
-    private parseData(dataStartSecs, dataEndSecs, valueDatas);
+    private parseData;
     setData(startTime: Date, endTime: Date, datas: any[]): void;
 }
 declare class ButtonAreaControl extends EditorControl {
@@ -420,14 +420,14 @@ declare class GroupControl extends EditorControl implements IEditorControlContai
     resetPointLocation(): void;
     selectByPointName(pointName: string): void;
     onDevicePointValueChanged(point: any): void;
-    private onChildrenPointValueChanged(control, point);
+    private onChildrenPointValueChanged;
     getJson(): any;
     getScript(): string;
     loadCustomProperties(properties: string): void;
-    private getFuncForCustomProperty_DevPoint(self, name);
-    private setFuncForCustomProperty_DevPoint(self, name);
-    private getFuncForCustomProperty(self, name);
-    private setFuncForCustomProperty(self, name);
+    private getFuncForCustomProperty_DevPoint;
+    private setFuncForCustomProperty_DevPoint;
+    private getFuncForCustomProperty;
+    private setFuncForCustomProperty;
     createGroupControl(windowCode: any, rect: any): GroupControl;
     onBeginMoving(): void;
     onMoving(downX: any, downY: any, nowX: any, nowY: any): void;

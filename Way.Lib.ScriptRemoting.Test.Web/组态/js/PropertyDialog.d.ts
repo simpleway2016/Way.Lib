@@ -10,13 +10,13 @@ declare class PropertyDialog {
     isShowed: boolean;
     static CHKNumber: number;
     constructor(control: EditorControl);
-    private _documentElementClick(e);
+    private _documentElementClick;
     dispose(): void;
-    private setPointItemEvent(ele);
-    private setChkItemEvent(ele);
-    private setImgItemEvent(ele);
-    private setRootEvent();
-    private setInputEvent(input);
+    private setPointItemEvent;
+    private setChkItemEvent;
+    private setImgItemEvent;
+    private setRootEvent;
+    private setInputEvent;
     hide(): void;
     show(): void;
 }

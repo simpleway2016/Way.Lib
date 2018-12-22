@@ -32,9 +32,9 @@ declare class JDatacontextBinder extends JBinder {
     updateValue(): void;
     protected getConfigByDataProName(proname: string): JBindConfig;
     protected getConfigByElementProName(proname: string): JBindConfig;
-    private listenElementEvent(self, config);
+    private listenElementEvent;
     onPropertyChanged(sender: any, name: string, originalValue: any): void;
-    private onControlPropertyChanged(sender, name, originalValue);
+    private onControlPropertyChanged;
     dispose(): void;
     protected getRegexp(): RegExp;
 }
@@ -48,7 +48,7 @@ declare class JDatacontextExpressionBinder extends JBinder {
     constructor(control: any);
     bindChildren(element: HTMLElement): void;
     updateValue(): void;
-    private handleExpression(expressionStr);
+    private handleExpression;
     protected getConfigByDataProName(proname: string): JBindExpression;
     onPropertyChanged(sender: any, name: string, originalValue: any): void;
     dispose(): void;

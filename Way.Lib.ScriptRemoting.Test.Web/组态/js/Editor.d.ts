@@ -131,9 +131,9 @@ declare class Editor implements IEditorControlContainer {
     scrollTop: number;
     scrollLeft: number;
     constructor(id: string);
-    private initMoveToScrollEvent();
-    private initScaleEvent();
-    private initDivContainer();
+    private initMoveToScrollEvent;
+    private initScaleEvent;
+    private initDivContainer;
     isWatchingRect: boolean;
     isRunMode: boolean;
     run(): void;
@@ -163,7 +163,7 @@ declare class Editor implements IEditorControlContainer {
     svgContainerMouseMove(x: any, y: any): void;
     setting(e: MouseEvent): void;
     onPropertyDialogTextChanged(propertyName: string): void;
-    private svgContainerClickForDialog(e);
+    private svgContainerClickForDialog;
     alignLeft(): void;
     alignRight(): void;
     alignTop(): void;

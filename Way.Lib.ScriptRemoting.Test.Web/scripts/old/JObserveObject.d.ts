@@ -1,5 +1,5 @@
 interface INotifyPropertyChanged {
-    addPropertyChangedListener(onPropertyChanged: (sender, proName: string, originalValue) => any): number;
+    addPropertyChangedListener(onPropertyChanged: (sender: any, proName: string, originalValue: any) => any): number;
     removeListener(index: number): any;
 }
 declare class JObserveObject implements INotifyPropertyChanged {
@@ -11,11 +11,11 @@ declare class JObserveObject implements INotifyPropertyChanged {
     constructor(data: any, parent?: JObserveObject, parentname?: string);
     hasProperty(proname: string): boolean;
     addProperty(proName: string): void;
-    private getFunc(name);
-    private setFunc(checkname);
+    private getFunc;
+    private setFunc;
     getChange(): any;
-    private setHistory(name, original, value);
-    private __addProperty(proName);
+    private setHistory;
+    private __addProperty;
     addPropertyChangedListener(func: (sender: any, proName: string, originalValue: any) => any): number;
     removeListener(index: number): void;
     onPropertyChanged(proName: string, originalValue: any): void;

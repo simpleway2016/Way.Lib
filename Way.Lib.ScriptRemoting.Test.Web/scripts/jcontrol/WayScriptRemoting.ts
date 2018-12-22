@@ -4,6 +4,11 @@ declare var encryptedString: (key: RSAKeyPair, value: string) => string;
 declare var decryptedString: (key: RSAKeyPair, value: string) => string;
 
 var RSAMAXLENGTH = 110;
+
+(<any>String).prototype.controller = function () {
+    return WayScriptRemoting.createRemotingController(this);
+}
+
 enum WayScriptRemotingMessageType {
     Result = 1,
     Notify = 2,
@@ -545,7 +550,7 @@ class WayScriptRemoting {
         }
     }
 
-    pageInvoke(name: string, parameters: any[], callback: any, async: boolean = true, useRsa: boolean=false , returnUseRsa:boolean = false) {
+    pageInvoke(name: string, parameters: any[], callback: (result: any, err: any, statusCode) =>void, async: boolean = true, useRsa: boolean=false , returnUseRsa:boolean = false) {
         try {
             if (WayScriptRemoting.onBeforeInvoke) {
                 WayScriptRemoting.onBeforeInvoke(name, parameters);
@@ -554,7 +559,7 @@ class WayScriptRemoting {
             
             var invoker = new WayScriptInvoker(location.protocol + "//" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
             invoker.async = async;
-            invoker.onCompleted = (ret, err) => {
+            invoker.onCompleted = (ret, err,statusCode) => {
                 if (WayScriptRemoting.onInvokeFinish) {
                     WayScriptRemoting.onInvokeFinish(name, parameters);
                 }
@@ -562,7 +567,7 @@ class WayScriptRemoting {
                     return;
 
                 if (err) {
-                    callback(null, err);
+                    callback(null, err, statusCode);
                 }
                 else {
                     var originalRet = ret;
@@ -581,11 +586,11 @@ class WayScriptRemoting {
                             //解码结果有问题，重新申请密钥
                             this.reCreateRSA((ret2, err) => {
                                 if (err)
-                                    callback(null, err);
+                                    callback(null, err,0);
                                 else {
                                     this.rsa = ret2.rsa;
                                     //this.pageInvoke(name, parameters, callback, async, useRsa, returnUseRsa);
-                                    callback(null, "服务器已处理完毕，因网络原因，无法正确显示结果");
+                                    callback(null, "服务器已处理完毕，因网络原因，无法正确显示结果",0);
                                 }
                             });
                             return;
@@ -597,10 +602,10 @@ class WayScriptRemoting {
                         WayCookie.setCookie("WayScriptRemoting", resultObj.sessionid);
                     }
                     if (resultObj.type == WayScriptRemotingMessageType.Result) {
-                        callback(resultObj.result, null);
+                        callback(resultObj.result, null, statusCode);
                     }
                     else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
-                        callback(null, resultObj.result);
+                        callback(null, resultObj.result, statusCode);
                     }
                     else if (resultObj.type == WayScriptRemotingMessageType.RSADecrptError) {
                         this.rsa = resultObj.result;
@@ -626,7 +631,7 @@ class WayScriptRemoting {
             
         }
         catch (e) {
-            callback(null, e.message);
+            callback(null, e.message,0);
         }
 
     }
@@ -927,7 +932,7 @@ class WayScriptInvoker {
     async: boolean = true;
     onBeforeInvoke: () => any;
     onInvokeFinish: () => any;
-    onCompleted: (result: any, err: any) => any;
+    onCompleted: (result: any, err: any,statusCode) => any;
     private xmlHttp: XMLHttpRequest;
 
     constructor(_url: string) {
@@ -965,14 +970,14 @@ class WayScriptInvoker {
             if (this.onInvokeFinish)
                 this.onInvokeFinish();
             if (this.onCompleted) {
-                this.onCompleted(null, "无法连接服务器");
+                this.onCompleted(null, "无法连接服务器",0);
             }
         }
         this.xmlHttp.ontimeout = () => {
             if (this.onInvokeFinish)
                 this.onInvokeFinish();
             if (this.onCompleted) {
-                this.onCompleted(null, "连接服务器超时");
+                this.onCompleted(null, "连接服务器超时",0);
             }
         }
         this.xmlHttp.open("POST", this.url, this.async);
@@ -1001,14 +1006,14 @@ class WayScriptInvoker {
             if (this.onInvokeFinish)
                 this.onInvokeFinish();
             if (this.onCompleted) {
-                this.onCompleted(null, "无法连接服务器");
+                this.onCompleted(null, "无法连接服务器",0);
             }
         }
         this.xmlHttp.ontimeout = () => {
             if (this.onInvokeFinish)
                 this.onInvokeFinish();
             if (this.onCompleted) {
-                this.onCompleted(null, "连接服务器超时");
+                this.onCompleted(null, "连接服务器超时",0);
             }
         }
 
@@ -1042,17 +1047,17 @@ class WayScriptInvoker {
 
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
-                    this.onCompleted(this.xmlHttp.responseText, null);
+                    this.onCompleted(this.xmlHttp.responseText, null, this.xmlHttp.status);
                 }
             }
             else if (this.xmlHttp.status == 404) {
                 if (this.onCompleted) {
-                    this.onCompleted(null, new Event("not found.status code:404"));
+                    this.onCompleted(null, new Event("not found.status code:404"), this.xmlHttp.status);
                 }
             }
             else {
                 if (this.onCompleted) {
-                    this.onCompleted(null, new Event("error.status code:" + this.xmlHttp.status));
+                    this.onCompleted(null, new Event("error.status code:" + this.xmlHttp.status), this.xmlHttp.status);
                 }
             }
         }

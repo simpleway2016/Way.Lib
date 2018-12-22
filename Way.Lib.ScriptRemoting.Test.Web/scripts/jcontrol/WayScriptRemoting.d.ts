@@ -55,7 +55,7 @@ declare class WayScriptRemoting {
     uploadFile(fileElement: any, state: any, callback: (ret: any, totalSize: any, uploaded: any, err: any) => any, handler: WayScriptRemotingUploadHandler): WayScriptRemotingUploadHandler;
     str2UTF8(str: any): any[];
     private encrypt;
-    pageInvoke(name: string, parameters: any[], callback: any, async?: boolean, useRsa?: boolean, returnUseRsa?: boolean): void;
+    pageInvoke(name: string, parameters: any[], callback: (result: any, err: any, statusCode: any) => void, async?: boolean, useRsa?: boolean, returnUseRsa?: boolean): void;
     sendMessage(msg: string): void;
     private sendHeart;
     private connect;
@@ -98,7 +98,7 @@ declare class WayScriptInvoker {
     async: boolean;
     onBeforeInvoke: () => any;
     onInvokeFinish: () => any;
-    onCompleted: (result: any, err: any) => any;
+    onCompleted: (result: any, err: any, statusCode: any) => any;
     private xmlHttp;
     constructor(_url: string);
     abort(): void;

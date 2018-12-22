@@ -13,6 +13,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 ;
 var RSAMAXLENGTH = 110;
+String.prototype.controller = function () {
+    return WayScriptRemoting.createRemotingController(this);
+};
 var WayScriptRemotingMessageType;
 (function (WayScriptRemotingMessageType) {
     WayScriptRemotingMessageType[WayScriptRemotingMessageType["Result"] = 1] = "Result";
@@ -529,14 +532,14 @@ var WayScriptRemoting = (function () {
             }
             var invoker = new WayScriptInvoker(location.protocol + "//" + WayScriptRemoting.ServerAddress + "/wayscriptremoting_invoke?a=" + (new Date().getTime()));
             invoker.async = async;
-            invoker.onCompleted = function (ret, err) {
+            invoker.onCompleted = function (ret, err, statusCode) {
                 if (WayScriptRemoting.onInvokeFinish) {
                     WayScriptRemoting.onInvokeFinish(name, parameters);
                 }
                 if (!callback)
                     return;
                 if (err) {
-                    callback(null, err);
+                    callback(null, err, statusCode);
                 }
                 else {
                     var originalRet = ret;
@@ -551,10 +554,10 @@ var WayScriptRemoting = (function () {
                         catch (e) {
                             _this.reCreateRSA(function (ret2, err) {
                                 if (err)
-                                    callback(null, err);
+                                    callback(null, err, 0);
                                 else {
                                     _this.rsa = ret2.rsa;
-                                    callback(null, "服务器已处理完毕，因网络原因，无法正确显示结果");
+                                    callback(null, "服务器已处理完毕，因网络原因，无法正确显示结果", 0);
                                 }
                             });
                             return;
@@ -565,10 +568,10 @@ var WayScriptRemoting = (function () {
                         WayCookie.setCookie("WayScriptRemoting", resultObj.sessionid);
                     }
                     if (resultObj.type == WayScriptRemotingMessageType.Result) {
-                        callback(resultObj.result, null);
+                        callback(resultObj.result, null, statusCode);
                     }
                     else if (resultObj.type == WayScriptRemotingMessageType.InvokeError) {
-                        callback(null, resultObj.result);
+                        callback(null, resultObj.result, statusCode);
                     }
                     else if (resultObj.type == WayScriptRemotingMessageType.RSADecrptError) {
                         _this.rsa = resultObj.result;
@@ -591,7 +594,7 @@ var WayScriptRemoting = (function () {
             });
         }
         catch (e) {
-            callback(null, e.message);
+            callback(null, e.message, 0);
         }
     };
     WayScriptRemoting.prototype.sendMessage = function (msg) {
@@ -902,14 +905,14 @@ var WayScriptInvoker = (function () {
             if (_this.onInvokeFinish)
                 _this.onInvokeFinish();
             if (_this.onCompleted) {
-                _this.onCompleted(null, "无法连接服务器");
+                _this.onCompleted(null, "无法连接服务器", 0);
             }
         };
         this.xmlHttp.ontimeout = function () {
             if (_this.onInvokeFinish)
                 _this.onInvokeFinish();
             if (_this.onCompleted) {
-                _this.onCompleted(null, "连接服务器超时");
+                _this.onCompleted(null, "连接服务器超时", 0);
             }
         };
         this.xmlHttp.open("POST", this.url, this.async);
@@ -929,14 +932,14 @@ var WayScriptInvoker = (function () {
             if (_this.onInvokeFinish)
                 _this.onInvokeFinish();
             if (_this.onCompleted) {
-                _this.onCompleted(null, "无法连接服务器");
+                _this.onCompleted(null, "无法连接服务器", 0);
             }
         };
         this.xmlHttp.ontimeout = function () {
             if (_this.onInvokeFinish)
                 _this.onInvokeFinish();
             if (_this.onCompleted) {
-                _this.onCompleted(null, "连接服务器超时");
+                _this.onCompleted(null, "连接服务器超时", 0);
             }
         };
         var p = "";
@@ -964,17 +967,17 @@ var WayScriptInvoker = (function () {
                 this.onInvokeFinish();
             if (this.xmlHttp.status == 200) {
                 if (this.onCompleted) {
-                    this.onCompleted(this.xmlHttp.responseText, null);
+                    this.onCompleted(this.xmlHttp.responseText, null, this.xmlHttp.status);
                 }
             }
             else if (this.xmlHttp.status == 404) {
                 if (this.onCompleted) {
-                    this.onCompleted(null, new Event("not found.status code:404"));
+                    this.onCompleted(null, new Event("not found.status code:404"), this.xmlHttp.status);
                 }
             }
             else {
                 if (this.onCompleted) {
-                    this.onCompleted(null, new Event("error.status code:" + this.xmlHttp.status));
+                    this.onCompleted(null, new Event("error.status code:" + this.xmlHttp.status), this.xmlHttp.status);
                 }
             }
         }

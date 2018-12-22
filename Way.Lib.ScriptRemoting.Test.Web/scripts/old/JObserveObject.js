@@ -148,4 +148,3 @@ var JObserveObject = (function () {
     };
     return JObserveObject;
 }());
-//# sourceMappingURL=JObserveObject.js.map
