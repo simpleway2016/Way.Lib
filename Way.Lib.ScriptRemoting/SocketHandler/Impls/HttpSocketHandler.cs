@@ -17,13 +17,28 @@ namespace Way.Lib.ScriptRemoting
         static HttpSocketHandler()
         {
             ContentTypeDefines = new Dictionary<string, string>();
-            StreamReader sr = new StreamReader( typeof(RemotingController).GetTypeInfo().Assembly.GetManifestResourceStream("Way.Lib.ScriptRemoting.ContentTypes.txt"));
+            StreamReader sr = null;
+            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt"))
+            {
+                sr = new StreamReader(File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt") , System.Text.Encoding.UTF8);
+            }
+            else
+            {
+                var stream = typeof(RemotingController).GetTypeInfo().Assembly.GetManifestResourceStream("Way.Lib.ScriptRemoting.ContentTypes.txt");
+                byte[] bs = new byte[stream.Length];
+                stream.Read(bs, 0, bs.Length);
+                stream.Dispose();
+                File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt", bs);
+                sr = new StreamReader(File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt"), System.Text.Encoding.UTF8);
+            }
+            
             while(true)
             {
                 string line = sr.ReadLine();
                 if (line == null)
                     break;
-                string[] infos = Regex.Split(line, @"\t| ");
+                line = Regex.Replace(line, @"(\t| )+", " ");
+                string[] infos = line.Split(' ');
                 string key = infos[0].Trim();
                 var value = infos[1].Trim();
                 if (key.Length == 0 || value.Length == 0)

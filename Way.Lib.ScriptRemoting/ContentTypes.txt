@@ -17,3 +17,5 @@
 .wma	audio/x-ms-wma	
 .wmv	video/x-ms-wmv
 .xml	text/xml
+.svg	image/svg+xml
+.mobileconfig	application/x-apple-aspen-config
