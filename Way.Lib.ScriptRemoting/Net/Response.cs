@@ -336,6 +336,16 @@ namespace Way.Lib.ScriptRemoting.Net
         /// <param name="url"></param>
         public void Redirect(string url)
         {
+            Redirect(303, url);
+        }
+
+        /// <summary>
+        /// 重定向
+        /// </summary>
+        /// <param name="statusCode">应为301 302 303</param>
+        /// <param name="url"></param>
+        public void Redirect(int statusCode, string url)
+        {
             if (mClient == null)
                 return;
 
@@ -344,7 +354,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 303 " + GetStatusDescription(303) + $"\r\nLocation: " + url +"\r\n{getConnectString()}\r\n\r\n"));
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes($"HTTP/1.1 {statusCode} " + GetStatusDescription(statusCode) + $"\r\nLocation: " + url + $"\r\n{getConnectString()}\r\n\r\n"));
             this.End();
         }
 
