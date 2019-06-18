@@ -417,7 +417,6 @@ namespace Way.Lib.ScriptRemoting
 
             try
             {
-                currentPage._OnBeforeInvokeMethod(methodinfo);
                 RemotingMethodAttribute methodAttr = (RemotingMethodAttribute)methodinfo.GetCustomAttribute(typeof(RemotingMethodAttribute));
                 var pInfos = methodinfo.GetParameters();
 
@@ -462,7 +461,8 @@ namespace Way.Lib.ScriptRemoting
                 }
                 object result = null;
 
-                result = methodinfo.Invoke(currentPage, parameters);
+                result = currentPage._OnInvokeMethod(methodinfo, parameters);
+
                 RemotingContext.Current.Response.Headers["Set-Cookie"] = $"WayScriptRemoting={this.Session.SessionID};path=/";
 
                 if (result is FileContent)
@@ -536,9 +536,7 @@ namespace Way.Lib.ScriptRemoting
                             continue;
                         }
 
-                        object[] parameters = new object[pInfos.Length];
-
-                        currentPage._OnBeforeInvokeMethod(methodinfo);                      
+                        object[] parameters = new object[pInfos.Length];             
 
                         for (int i = 0; i < parameters.Length; i++)
                         {

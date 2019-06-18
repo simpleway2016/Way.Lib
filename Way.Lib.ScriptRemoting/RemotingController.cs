@@ -230,12 +230,14 @@ namespace Way.Lib.ScriptRemoting
         protected virtual void OnUnLoad()
         {
         }
-        internal void _OnBeforeInvokeMethod(MethodInfo method)
+        internal object _OnInvokeMethod(System.Reflection.MethodInfo methodInfo, object[] parameters)
         {
-            OnBeforeInvokeMethod(method);
+            return OnInvokeMethod(methodInfo, parameters);
         }
-        protected virtual void OnBeforeInvokeMethod(MethodInfo method)
-        { }
+        protected virtual object OnInvokeMethod(System.Reflection.MethodInfo methodInfo, object[] parameters)
+        {
+            return methodInfo.Invoke(this, parameters);
+        }
 
         Type getType(string fullname)
         {
