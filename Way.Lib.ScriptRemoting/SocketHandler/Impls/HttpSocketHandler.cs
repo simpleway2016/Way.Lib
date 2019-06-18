@@ -198,6 +198,11 @@ namespace Way.Lib.ScriptRemoting
                     }
 
                     url = getUrl(url);
+
+                    checkHandlers(url);
+                    if (_context.Response.mClient == null)
+                        throw new Exception("ended");
+
                     var controllerConfig = ControllerUrlConfig.FirstOrDefault(m => url.StartsWith(m.Key, StringComparison.CurrentCultureIgnoreCase) && url.Substring(m.Key.Length).Contains("/") == false);
                     if (controllerConfig.Value != null)
                     {
@@ -206,10 +211,6 @@ namespace Way.Lib.ScriptRemoting
                     }
                     else
                     {
-                        checkHandlers(url);
-                        if (_context.Response.mClient == null)
-                            throw new Exception("ended");
-
                         if (url.Length == 0 || url == "/")
                         {
                             url = _context.Server.WebPathManger.GetFileUrl("/index.html");

@@ -9,7 +9,7 @@ using Way.Lib.ScriptRemoting.WinTest;
 
 namespace Way.Lib.ScriptRemoting.Test
 {
-    [RemotingUrl("Test")]
+    [RemotingUrl("test")]
     public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
     {
         public IQueryable<EJ.DBColumn> Columns

@@ -41,7 +41,7 @@ namespace Way.Lib.ScriptRemoting
 
 
     /// <summary>
-    /// 
+    /// 对外开放的Controller，必须是public才能对外服务
     /// </summary>
     public class RemotingController
     {
@@ -114,6 +114,10 @@ namespace Way.Lib.ScriptRemoting
             OnMessageReceiverDisconnect(session, groupName);
         }
 
+        public Net.Response Response
+        {
+            get => RemotingContext.Current.Response;
+        }
       
         public Net.Request Request
         {

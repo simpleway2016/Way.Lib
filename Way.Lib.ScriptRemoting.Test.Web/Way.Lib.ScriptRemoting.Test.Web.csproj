@@ -92,6 +92,7 @@
     <Content Include="组态\templates\system.html" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="scripts\jcontrol\WayScriptRemoting.node.ts" />
     <TypeScriptCompile Include="scripts\old\JBinder.ts" />
     <TypeScriptCompile Include="scripts\old\JDataSource.ts" />
     <TypeScriptCompile Include="scripts\old\JExtension.ts" />
