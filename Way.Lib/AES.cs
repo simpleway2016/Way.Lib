@@ -13,7 +13,7 @@ namespace Way.Lib
         /// <param name="str">明文（待加密）</param>
         /// <param name="key">密钥</param>
         /// <returns></returns>
-        public string Encrypt(string str, string key)
+        public static string Encrypt(string str, string key)
         {
             if (string.IsNullOrEmpty(str)) return null;
             Byte[] toEncryptArray = Encoding.UTF8.GetBytes(str);
@@ -36,7 +36,7 @@ namespace Way.Lib
         /// <param name="str">明文（待解密）</param>
         /// <param name="key">密钥</param>
         /// <returns></returns>
-        public string Decrypt(string str, string key)
+        public static string Decrypt(string str, string key)
         {
             if (string.IsNullOrEmpty(str)) return null;
             Byte[] toEncryptArray = Convert.FromBase64String(str);
