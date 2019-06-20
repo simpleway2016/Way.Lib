@@ -28,3 +28,4 @@ var JHttpHelper = (function () {
     };
     return JHttpHelper;
 }());
+//# sourceMappingURL=JHttpHelper.js.map

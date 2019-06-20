@@ -54,6 +54,12 @@ namespace Way.Lib.ScriptRemoting.Test
         }
 
         [RemotingMethod]
+        public void redir()
+        {
+            Response.Redirect("http://www.baidu.com");
+        }
+
+        [RemotingMethod]
         public object getTestData()
         {
             List<object> arrs = new List<object>();
@@ -129,14 +135,14 @@ namespace Way.Lib.ScriptRemoting.Test
         FileStream fs;
         public override IUploadFileHandler OnBeginUploadFile(string fileName,string state, int fileSize,int offset)
         {
-            if (File.Exists("d:\\aa\\" + fileName))
+            if (File.Exists("d:\\" + fileName))
             {
-                fs = File.OpenWrite("d:\\aa\\" + fileName);
+                fs = File.OpenWrite("d:\\" + fileName);
                 fs.Position = offset;
             }
             else
             {
-                fs = File.Create("d:\\aa\\" + fileName);
+                fs = File.Create("d:\\" + fileName);
             }
             return this;
         }

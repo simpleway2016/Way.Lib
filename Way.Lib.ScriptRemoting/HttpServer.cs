@@ -268,7 +268,7 @@ namespace Way.Lib.ScriptRemoting
                 client.ReadTimeout = 0;                
 
                 ISocketHandler handler = null;
-                if (Request.Headers.ContainsKey("Connection") == false || Request.Headers["Connection"].Contains("Upgrade") == false)
+                if (Request.Headers.ContainsKey("Connection") == false || Request.Headers["Connection"].ToLower().Contains("upgrade") == false)
                 {
                     handler = new HttpSocketHandler(Request);
                 }

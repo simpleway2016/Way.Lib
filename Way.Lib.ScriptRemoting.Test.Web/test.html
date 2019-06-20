@@ -1,21 +1,33 @@
 ﻿<!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<html>
+<head>
+    <meta charset="utf-8" />
     <title></title>
-    <style>
-        .p {
-            
-        }
-    </style>
-    
+    <script src="scripts/jcontrol/WayScriptRemoting.node.js"></script>
 </head>
 <body>
-    <input id="txt" />
-    <script lang="ja">
-      
-    </script>
+    <div>ipa</div>
+    <div><input type="file" id="file" /></div>
+    <div>username</div>
+    <div><input id="txtUserName" /></div>
+    <div>pwd</div>
+    <div><input type="password" id="txtPwd" /></div>
+    <br /><br />
+    <button onclick="upload()">Upload</button>
+    <div id="divInfo"></div>
 </body>
+<script>
+    var divInfo = document.body.querySelector("#divInfo");
+    var controller = "Way.Lib.ScriptRemoting.Test.TestPage".controller();
+
+    function upload() {
+        controller.uploadFile(document.body.querySelector("#file"), null, function (ret, totalSize, uploaded, err) {
+            if (err)
+                alert(err);
+            else {
+                divInfo.innerHTML = JSON.stringify([ret, totalSize, uploaded]);
+            }
+        });
+    }
+</script>
 </html>

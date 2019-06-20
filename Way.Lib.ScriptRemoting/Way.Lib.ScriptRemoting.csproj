@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-    <Version>1.0.3.0</Version>
+    <Version>1.0.3.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>1.0.3.0</FileVersion>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.3</FileVersion>
+    <AssemblyVersion>1.0.3.3</AssemblyVersion>
   </PropertyGroup>
 
 
@@ -28,20 +28,11 @@
 
   <ItemGroup>
     <EmbeddedResource Include="ContentTypes.txt" />
-    <EmbeddedResource Include="Scripts\Barrett.js" />
-    <EmbeddedResource Include="Scripts\BigInt.js" />
-    <EmbeddedResource Include="Scripts\JExtension.js" />
-    <EmbeddedResource Include="Scripts\RSA.js" />
-    <EmbeddedResource Include="Scripts\WayScriptRemoting.js" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Way.Lib\Way.Lib.csproj" />
   </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="echo f | xcopy $(ProjectDir)..\Way.Lib.ScriptRemoting.Test.Web\scripts\jcontrol\*.js /D /Y $(ProjectDir)Scripts\" />
-  </Target>
 
 
 

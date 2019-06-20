@@ -319,7 +319,8 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             _sendedHeader = true;
             mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
-            this.End();
+            mClient.Close();
+            mClient = null;
         }
         string getConnectString()
         {
@@ -336,7 +337,7 @@ namespace Way.Lib.ScriptRemoting.Net
         /// <param name="url"></param>
         public void Redirect(string url)
         {
-            Redirect(303, url);
+            Redirect(302, url);
         }
 
         /// <summary>
@@ -354,8 +355,10 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
+
             mClient.Write(System.Text.Encoding.UTF8.GetBytes($"HTTP/1.1 {statusCode} " + GetStatusDescription(statusCode) + $"\r\nLocation: " + url + $"\r\n{getConnectString()}\r\n\r\n"));
-            this.End();
+            mClient.Close();
+            mClient = null;
         }
 
         internal void SendFileNotFound()
@@ -369,7 +372,8 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             _sendedHeader = true;
             mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
-            this.End();
+            mClient.Close();
+            mClient = null;
         }
         internal void SendServerError()
         {
@@ -382,7 +386,8 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             _sendedHeader = true;
             mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
-            this.End();
+            mClient.Close();
+            mClient = null;
         }
         internal void CloseSocket()
         {
@@ -425,17 +430,18 @@ namespace Way.Lib.ScriptRemoting.Net
             }
 
             //wait for close
-            while (true)
-            {
-                try
-                {
-                    mClient.ReceiveDatas(1);
-                }
-                catch
-                {
-                    break;
-                }
-            }
+            //while (true)
+            //{
+            //    try
+            //    {
+            //        mClient.ReceiveDatas(1);
+            //    }
+            //    catch
+            //    {
+            //        break;
+            //    }
+            //}
+
             mClient.Close();
             mClient = null;
         }

@@ -487,3 +487,4 @@ var UndoPaste = (function (_super) {
     };
     return UndoPaste;
 }(UndoItem));
+//# sourceMappingURL=UndoManager.js.map

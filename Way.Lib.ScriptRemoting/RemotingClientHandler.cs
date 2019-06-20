@@ -626,7 +626,8 @@ namespace Way.Lib.ScriptRemoting
         {
             try
             {
-                RemotingContext.Current.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
+                if(RemotingContext.Current.Response != null)
+                    RemotingContext.Current.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
                 lock (this)
                 {
                     var dataStr = Newtonsoft.Json.JsonConvert.SerializeObject(new {

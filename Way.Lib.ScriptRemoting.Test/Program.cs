@@ -28,13 +28,13 @@ namespace Way.Lib.ScriptRemoting.Test
             {
                 
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
-                server = new HttpServer(new int[] { 9090 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
+                server = new HttpServer(new int[] { 10001 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
             }
             else
             {
               
                 Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
-                server = new HttpServer(new int[] { 9090 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
+                server = new HttpServer(new int[] { 10001 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
             }
             //server.UseHttps(new X509Certificate2(Way.Lib.PlatformHelper.GetAppDirectory() + "server.pfx", "linezero") );
             Console.WriteLine("server started");

@@ -7,6 +7,7 @@ namespace Way.Lib.ScriptRemoting
 {
     public class ValueCollection:Dictionary<string,string>
     {
+
         public string this[string key]
         {
             get
@@ -19,6 +20,10 @@ namespace Way.Lib.ScriptRemoting
             {
                 base[key] = value;
             }
+        }
+
+        public ValueCollection():base(StringComparer.OrdinalIgnoreCase)
+        { 
         }
     }
 }
