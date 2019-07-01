@@ -10,7 +10,7 @@ namespace PandaAudioServerUnitTest
         [TestMethod]
         public void Sms_MeiShengTest()
         {
-            Sms_MeiSheng obj = new Sms_MeiSheng();
+            var obj = new Sms_MeiSheng_ZGP();
             var msg = obj.Format("{0}", "1234");
             obj.Send("13261952754", msg);
         }

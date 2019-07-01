@@ -11,7 +11,7 @@ namespace PandaAudioServer
     {
         static void RegisterServices()
         {
-            var meisheng = new Sms_MeiSheng();
+            var meisheng = new Sms_MeiSheng_ZGP();
             Factory.RegisterService<ISms>(meisheng);
 
             //register captures;
