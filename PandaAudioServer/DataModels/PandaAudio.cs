@@ -892,6 +892,54 @@ public enum AdminUser_RoleEnum:int
                 }
             }
         }
+
+        System.Nullable<Int32> _MaxCount=0;
+        /// <summary>
+        /// 最大注册码数量
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("maxcount")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="maxcount",Comment="",Caption="最大注册码数量",Storage = "_MaxCount",DbType="int")]
+        public virtual System.Nullable<Int32> MaxCount
+        {
+            get
+            {
+                return this._MaxCount;
+            }
+            set
+            {
+                if ((this._MaxCount != value))
+                {
+                    this.SendPropertyChanging("MaxCount",this._MaxCount,value);
+                    this._MaxCount = value;
+                    this.SendPropertyChanged("MaxCount");
+
+                }
+            }
+        }
+
+        System.Nullable<Int32> _CreatedCount=0;
+        /// <summary>
+        /// 已创建数量
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column("createdcount")]
+        [Way.EntityDB.WayDBColumnAttribute(Name="createdcount",Comment="",Caption="已创建数量",Storage = "_CreatedCount",DbType="int")]
+        public virtual System.Nullable<Int32> CreatedCount
+        {
+            get
+            {
+                return this._CreatedCount;
+            }
+            set
+            {
+                if ((this._CreatedCount != value))
+                {
+                    this.SendPropertyChanging("CreatedCount",this._CreatedCount,value);
+                    this._CreatedCount = value;
+                    this.SendPropertyChanged("CreatedCount");
+
+                }
+            }
+        }
 }}
 namespace SysDB{
 
@@ -1160,18 +1208,19 @@ modelBuilder.Entity<SysDB.UserLoginRecord>().HasKey(m => m.id);
 
 protected override string GetDesignString(){System.Text.StringBuilder result = new System.Text.StringBuilder(); 
 result.Append("\r\n");
-result.Append("H4sIAAAAAAAAC+1d60/bVhT/V5A/hxE/EqAqHxh0U7aOIWDVpqYfnPgGvDo2s52hikUq2lpRdWrZ1KpQoXZoj/bDBqydStdo6j9Tx+l/sXvtPPyIwYE6sdPzBXwfvvcc+/o8fvecm3VqiS9ISKPOXV63L+f4MqLOUYvfSKKOqBS1oKzZrTkdle2rZhdRwM2XeKmCC3Q1");
-result.Append("1a7Xr62iTgs1oyJeR9bY00VdVGTK0beoyDqSdUf39bxNR546hy9FAf+nU3mqyK+Se3EpT5n3ntY3j9683qtvHOQp3EgGs1q+0JCak0uKVTvL63yB11ButjmGeFEpXsXX6SouzChSpSxruHjZOU97KFKDyzltuqIrObmoojImFDfpagWR+3l5riJJuKLESxqpEQpLmHP7");
-result.Append("ZtIz1eSkPX9Om//UKjSHUFQBqdbMmKIWEYyH2frzp8bNH417B29eXm/s/9Y42DB/2XBzvYCWP64E0tsir0Nwc3oHvd/yanGFV60RJCQv6ytWdSZ9HBetgTts0B02WO9rsQuDppDpUMg5KZznNW0Nd3v3FNLpHklkOyRmvGvh1u367ivj7pH7/c+vKDKaq5QLSB38E+Y6");
-result.Append("5GedRF4o86I0ePIyHfLGPU/X+Pe5cffQ82glXi8pannwhGerV0iH2S9nFLkkLluCy66x5IdTqApNwecW0FcsWb6oY2FsC5zjJTpzjERf4eXlniT655LQVi5+QT2H1o5pVfQVpIK0BmkN0hqkdbKktYzWugiuCa9W3z4wtv4wjp6Ztbt1bOfVts3azic8MVWdzOHZ+Gtn");
-result.Append("4Kwg6l6urLKASnxF0i1pbdX2yOq4xWrR0gmCg11SKyAJ6b7a/ikxNkq3xGupm89rZu2xba/7bPTFaxomFFvqM4qATueeTEbonjBh3RM67aSi2GIm2o+NCe120F5f8c1/r7G7aD78wXYam4/NbWmcxepvPUrvVxWaeKbPdh0XqV3nX+Y+487fJcjCi8eCT+iKcuue7iK6");
-result.Append("+0fdPzjhpO8alz7EerCyaq9MYV5VVpGqi4hQv94mmSxEVVwWZV7qaDFbNFWr1TjoIeJ1gjMF0BdAXwB9AfTVuzOVGmrfqbubSPv8i53a252bxtYd897j+uYWtkDsXQGfr3FRwbqwbV0N1A+eiLFzSJYVKGVQyqCUQSmDUgal3FHKqSHUwQFGBts13KD+4MXbB//4ogyW");
-result.Append("xDPt4WOtjfTWEMHwxolb+PE1KcajxJu9r8rGn/ASrN/frD/aNf7aru/96gejLpRKqKifMiKGixCCY0NDcJk+A2xseLzZFePwkdjCOSP/5tnQcS60N87B/LtmPLrtXij2/Gd+pBfkSnkWlUS5uR+nKl/jtTeFl1peXlKxWzbFhPOj6N7YZfsMok+A6wChbANW62z8Q9m4");
-result.Append("ZIeyZeIdypZNaijb+NDieRND5jpMOvhJqqcQZiM0Dr7DZORwpMMT6Bpy6WgPDLoEhwAcgsQ4BAGYB1E67YUfF38tvoKJtrqAZAKoIpKlz75fUIXDJ4qvIAoQnK6AvEtI1az3dOZX0bMVfgIPmTgL00gzJV3W2bRQFmVi150O+2XSEWK/XOh0SHpAiYRcaAyYYfoDv/RK");
-result.Append("ogMDZlzpmAuKFIEEbby4Yb56Yu7vmVs3jZ+2R6ZG6PPn8RrKy/Wd/bfXH+I64+h3u5rGtSf4dly8EF862ny4IYybTnsxqXikMA9/LkF35c1wHm4ahxttJMrNyGf8VaQOnhs2zmr8uMwiSI+FwwxgBwh2gGAHCHaAYAcobjtAbd3k25LevY5357CNWv9zr3H4PTbyZlZQ");
-result.Append("8SoxhLrtcl3kNd3qEIu9LgzSxthagqRTcJ7i7zylku4rBQi6rC9wlLDSTaYRbvojzk7gh4uzNIs2m9cN2/pgIHdzEAQE4C2At3EHbwOk1XgcIwW5BIsryHOEczcj/0AgWBmClSFYGYKVIVj51FBVaqiRqQBrzxUCNStqdkBL7AL7cdhOfC085ri0Uwgdh1zSYQ3QJJeX");
-result.Append("NH2KfT8jNVPJDMxMSkIOTUcvV+EMdPjFitDSF9J8I8EmIM0X0nwhzTfJab7D6zmnEuood/f2Wdb7fuxggMaTnxu3nnlWVyRJCmNj9n6WPS92H+YUtcxLU9ZW19iYcWOjsf+y8XrXfHq7fueJsfkCV09LkrK2gMqKjqZau2JjYzNfMUx7FFIgbfTIdyOO7qRnNE851vmi");
-result.Append("dLTH40CuBORKvPfhPqnkR/cE6Qg/Q6AjuukIJslZsJOR/jJP9yVk7tSM/+439g/xX3/0oXXszgIqtnI3e06YZdnxKBPvsmEz71jWZSv2IzgxG/53QVkXVmk99D7JpGy8foiHZqI/VwPgRYAXAV6EUwThFEE4RRBOEQR4cRjgRYcpCWjiu0QT47Ivj4vNsSliOtvXTgOa");
-result.Append("eGZkpeGyjQV+kJP1LGdN5OrdNKr9/Rd1VZSX/Td0LOvw97h4CiTtCmGLtC4ivTVZRiigdJYf5SbS3CiXLTCjk5M8GmUKmVKJ5Uu0UCpQ1f8B6AjBe6KDAAA=");
+result.Append("H4sIAAAAAAAAC+1d60/bVhT/V5A/hxE/EqAqH1jopmwdQ8CqTU0/OPENeHVsZjtjFYtUtLWj6lTY1KrQoXZo3eiHDVg7la5R1X+mjsN/0Ws7D78CDtSJnZ4v4PuIfY59fR6/c871CjHP5gWkEOcur1iH02wJEeeIuW8EXkVEgpiVlq3RrIpK1lFjCs/h4UusUMYNspJo");
+result.Append("9avXllB7hMjIiFWRee7JgspLImGbW5BEFYmqbfpKzqIjR5zDhzyH/5OJHFFgl4zf4laO0O8+qa0dvnm9U1vdzxF40DiZOfKFguSsWJTM3ilWZfOsgrJTjXPwF6XCVXycrOBGRhLKJVHBzcv267ROZfTgdlaZLKtSVizIqIQJxUOqXEbG71lxuiwIuKPICorRw+XnMefW");
+result.Append("j42ZiQYnretnlZlPzUbjFJLMIdm8MqaoSQTlYrb27Il282ft7v6bF9fre4/r+6v676tOrmfRwsfljvQ2yWsT3Li8jd5vWbmwyMrmGQQkLqiLZncqeRwXzRO32SDbbNDux2I1+k0h1aaQsVM4wyrKMp727ikkk12SSLdJTLnXwq3bte2X2vqh8/nPLEoimi6X8kju/x1m");
+result.Append("2uSn7UReKLG80H/yUm3yRl13V/v/mbZ+4Lq1AqsWJbnUf8LTlSvGhKkvM5JY5BdMwWX1mPLDLlS5huBzCugrpiyfU7EwtgTO8RKdOkaiL7LiQlcS/XOBaykXr6CeRsvHjErqIpJBWoO0BmkN0jpe0lpEyz6Ca8yt1Tf3tY2/tMOnenW9hu286qZe3fqENUxVO3P4auy1");
+result.Append("M3CW51U3V2abQ0W2LKimtDZ7u2R11GS1YOoEzsau0cshAame3t4pMTpMt8RtqevPqnr1kWWve2z0uWsKJhRb6hmJQ6dzT8ZDdE+ooO4JmbRTUWgyE+7LRgV2O0i3r/jm1WvsLuoPfrScxsZtc1oaZ7H6m7fS/VYFJp7qsV3HhGrXeZe5x7jzTulk4UVjwcd0RTl1j7+I");
+result.Append("9n+pewcnnPRe49aHWA+Wl6yVyc3I0hKSVR4Z1K+0SDYWoswv8CIrtLWYJZoqlUoU9JDhdYIzBdAXQF8AfQH01b0zlRho38nfTSQ9/sVW9WjrprZxR7/7qLa2gS0QKyrg8TUuSlgXtqyrvvrBYxF2Do1lBUoZlDIoZVDKoJRBKbeVcmIAdXAHI4P2TTeo3X9+dP8/T5bB");
+result.Append("PH+mGD7W2khtnqIzvHFiCD+6JsVomHiz+1FZ+BNegrV7a7WH29o/m7WdP7xg1IViERXUU2bEMCFCcHRgCC7VY4CNDo43O3IcPuKbOGfo7zwdOM+FdOc56P9WtYe3nQvFuv6Zb+kFsVyaQkVebMTjZOlrvPYm8FLLifMydssmqGB+FNkdu3SPQfQxcB0gla3Pap2Ofiob");
+result.Append("E+9UtlS0U9nScU1lGx1YPG9swFyHcRs/cfUUggRCo+A7jIcOR9o8Ad+US9t4x6RLcAjAIYiNQ9AB8zCUTmvhR8Vfi65gIs0pIJkAqghl6dPvF1Rh84miK4g6CE5HQt4lJCvmczrzo+jaCj+Bh1SUhWmolZIO62ySK/GiYdedDvulkiFiv0zgckiyT4WETGAMmKJ6A790");
+result.Append("S6INA6Yc5ZizkhCCBK0/v6G/3NX3dvSNm9ovm0MTQ+T583gN5cTa1t7R9Qe4Tzv80+omce8Jvh0TLcSXDLcebgDzppNuTCoaJcyDX0vgr7wpxsVN/WC1hUQ5GfmMvYrk/nNDR1mNH1dZBOWxsJkBRIAgAgQRIIgAQQQoahGglm7yhKS3r+PoHLZRa3/v1A9+wEZeZhEV");
+result.Append("rhqGkF+U6yKrqOaESMS6MEgbYWsJik7BeYq+85SIu6/UQdClPYmjBit+Ms3gpjfi7AR+mChLs3CreZ2wrQcGcg53goAAvAXwNurgbQdpNRrFTEEmxuIK6hxh383QXxBIVoZkZUhWhmRlSFY+NVSVGGhkqoO150iBmuIVK6Elcon9OG0nuhYedVzZKaSOQy3poCZoGoeX");
+result.Append("FHWCfj8zNRPxTMyMS0EOSYYvV2EPdPhiRWDpC2W+oWATUOYLZb5Q5hvnMt/B9ZwTMXWU/b19mnY/HysZoL77a/3WU9fqCqVIYWTEimdZ18Xuw7Qkl1hhwgx1jYxoN1brey/qr7f1J7drd3a1tee4e1IQpOVZVJJUNNGMio2MZL6iqNZZjIYxRg59P2SbbswM5y5Hul6U");
+result.Append("DHd7HKiVgFqJ9z7dJxH/7J5OOsLLEOgIPx1BxbkKdjzUL/P4LyF9q6q9ulffO8B/vdmH5rY7s6jQrN3sumCWpkfDLLxLB628o2mHrdiL5MR08O+C0g6s0rzpPZJJ6Wh9iIekwt9XA+BFgBcBXoRdBGEXQdhFEHYRBHhxEOBFmykJaOK7RBNjE5enyOgU4HQAMZikTyDi");
+result.Append("8W7r47C1ewdHP6274ZnvMlK54Wz1OHGDCRwipRn3tija4VNt7Tet+tKPKcuZ56LKmPWd5v6sc9xsnJswVrp1bF/vBgJh3AHctjDvD7KimmbMCzlmN94B7/w5VebFBe8P2i9C8N84eOpI2hWDLWN0DqnNi6W4PEqm2WFmLMkMM+k8NTw+zqJhKp8qFmm2SHLFPFF5C8pg");
+result.Append("YTKKhgAA");
 return result.ToString();}
 }}

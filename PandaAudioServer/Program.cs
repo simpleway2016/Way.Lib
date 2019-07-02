@@ -26,6 +26,13 @@ namespace PandaAudioServer
             try
             {
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+                using (var db = new PandaDB())
+                {
+                    db.UserInfo.FirstOrDefault();
+                }
+                Console.WriteLine($"database ready");
+
 #if DEBUG
                 int[] ports = new int[] { 8988 };
 #else
@@ -83,21 +90,7 @@ namespace PandaAudioServer
                 }
 
                 Console.WriteLine($"web server started");
-                using (var db = new PandaDB())
-                {
-#if DEBUG
-                     if(db.UserInfo.Count() == 0)
-                    {
-                        db.Insert(new SysDB.UserInfo {
-                            UserName = "tanyong",
-                            Password = "1"
-                        });
-                    }
-#endif
-
-                    db.UserInfo.FirstOrDefault();
-                }
-                Console.WriteLine($"database ready");
+               
             }
             catch(Exception ex)
             {

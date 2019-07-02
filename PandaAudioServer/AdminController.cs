@@ -15,6 +15,14 @@ namespace PandaAudioServer
             public string UserDesc { get; set; }
         }
 
+        public SysDB.AdminUser_RoleEnum UserRole
+        {
+            get
+            {
+                return (SysDB.AdminUser_RoleEnum)this.Session["AdminUserRole"];
+            }
+        }
+
         public override int UserId
         {
             get
@@ -31,17 +39,35 @@ namespace PandaAudioServer
             {
                 if (this.UserId == 0)
                     return null;
-                return from m in this.db.SystemRegCode
-                       orderby m.id descending
-                       select new RegInfo
-                       {
-                           id = m.id,
-                           RegGuid = m.RegGuid,
-                           MakerName = (from u in db.AdminUser where u.id == m.MakerUserId select u.UserName).FirstOrDefault(),
-                           MakeTime = m.MakeTime,
-                           Used = m.UserId > 0,
-                           UserDesc = (from u in db.UserInfo where u.id == m.UserId select u.PhoneNumber).FirstOrDefault()
-                       };
+                if (this.UserRole == SysDB.AdminUser_RoleEnum.普通员工)
+                {
+                    return from m in this.db.SystemRegCode
+                           where m.MakerUserId == this.UserId
+                           orderby m.id descending
+                           select new RegInfo
+                           {
+                               id = m.id,
+                               RegGuid = m.RegGuid,
+                               MakerName = (from u in db.AdminUser where u.id == m.MakerUserId select u.UserName).FirstOrDefault(),
+                               MakeTime = m.MakeTime,
+                               Used = m.UserId > 0,
+                               UserDesc = (from u in db.UserInfo where u.id == m.UserId select u.PhoneNumber).FirstOrDefault()
+                           };
+                }
+                else
+                {
+                    return from m in this.db.SystemRegCode
+                           orderby m.id descending
+                           select new RegInfo
+                           {
+                               id = m.id,
+                               RegGuid = m.RegGuid,
+                               MakerName = (from u in db.AdminUser where u.id == m.MakerUserId select u.UserName).FirstOrDefault(),
+                               MakeTime = m.MakeTime,
+                               Used = m.UserId > 0,
+                               UserDesc = (from u in db.UserInfo where u.id == m.UserId select u.PhoneNumber).FirstOrDefault()
+                           };
+                }
             }
         }
 
@@ -53,6 +79,13 @@ namespace PandaAudioServer
         [RemotingMethod]
         public bool MakeRegCode(int count)
         {
+            SysDB.AdminUser user = null;
+            if(this.UserRole == SysDB.AdminUser_RoleEnum.普通员工)
+            {
+                user = this.db.AdminUser.FirstOrDefault(m => m.id == this.UserId);
+                if (user.CreatedCount + count > user.MaxCount)
+                    throw new Exception("你最多只能创建" + user.MaxCount + "个注册码，你已经创建了"+user.CreatedCount+"个");
+            }
             for(int i = 0; i < count; i ++)
             {
                 var regitem = new SysDB.SystemRegCode()
@@ -62,6 +95,12 @@ namespace PandaAudioServer
                     RegGuid = Guid.NewGuid().ToString("N"),
                 };
                 this.db.Insert(regitem);
+
+                if(user != null)
+                {
+                    user.CreatedCount += count;
+                    this.db.Update(user);
+                }
             }
             return true;
         }
@@ -139,6 +178,7 @@ namespace PandaAudioServer
             }
 
             this.Session["AdminUserId"] = user.id;
+            this.Session["AdminUserRole"] = user.Role;
             return true;
         }
 
@@ -164,6 +204,10 @@ namespace PandaAudioServer
             var item = this.db.SystemRegCode.FirstOrDefault(m => m.RegGuid == guid);
             if (item != null)
             {
+                if(item.MakerUserId != this.UserId && this.UserRole != SysDB.AdminUser_RoleEnum.超级管理员)
+                {
+                    throw new Exception("你无权注销这个注册码");
+                }
                 this.db.Delete(item);
                 this.db.Delete(this.db.UserInfo.Where(m => m.id == item.UserId));
             }
