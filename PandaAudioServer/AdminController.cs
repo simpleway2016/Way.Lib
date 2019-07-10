@@ -39,10 +39,9 @@ namespace PandaAudioServer
             {
                 if (this.UserId == 0)
                     return null;
-                if (this.UserRole == SysDB.AdminUser_RoleEnum.普通员工)
+                if (this.UserRole ==  SysDB.AdminUser_RoleEnum.超级管理员 || this.UserRole == SysDB.AdminUser_RoleEnum.大客户)
                 {
                     return from m in this.db.SystemRegCode
-                           where m.MakerUserId == this.UserId
                            orderby m.UserId
                            select new RegInfo
                            {
@@ -53,10 +52,12 @@ namespace PandaAudioServer
                                Used = m.UserId > 0,
                                UserDesc = (from u in db.UserInfo where u.id == m.UserId select u.PhoneNumber).FirstOrDefault()
                            };
+                    
                 }
                 else
                 {
                     return from m in this.db.SystemRegCode
+                           where m.MakerUserId == this.UserId
                            orderby m.UserId
                            select new RegInfo
                            {
@@ -80,7 +81,7 @@ namespace PandaAudioServer
         public bool MakeRegCode(int count)
         {
             SysDB.AdminUser user = null;
-            if(this.UserRole == SysDB.AdminUser_RoleEnum.普通员工)
+            if(this.UserRole.HasFlag(SysDB.AdminUser_RoleEnum.超级管理员) == false)
             {
                 user = this.db.AdminUser.FirstOrDefault(m => m.id == this.UserId);
                 if (user.CreatedCount + count > user.MaxCount)
@@ -204,7 +205,7 @@ namespace PandaAudioServer
             var item = this.db.SystemRegCode.FirstOrDefault(m => m.RegGuid == guid);
             if (item != null)
             {
-                if(item.MakerUserId != this.UserId && this.UserRole != SysDB.AdminUser_RoleEnum.超级管理员)
+                if(item.MakerUserId != this.UserId &&  this.UserRole.HasFlag(SysDB.AdminUser_RoleEnum.超级管理员) == false)
                 {
                     throw new Exception("你无权注销这个注册码");
                 }
