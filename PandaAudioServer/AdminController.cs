@@ -43,7 +43,7 @@ namespace PandaAudioServer
                 {
                     return from m in this.db.SystemRegCode
                            where m.MakerUserId == this.UserId
-                           orderby m.id descending
+                           orderby m.UserId
                            select new RegInfo
                            {
                                id = m.id,
@@ -57,7 +57,7 @@ namespace PandaAudioServer
                 else
                 {
                     return from m in this.db.SystemRegCode
-                           orderby m.id descending
+                           orderby m.UserId
                            select new RegInfo
                            {
                                id = m.id,
