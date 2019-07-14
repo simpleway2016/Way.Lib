@@ -163,16 +163,16 @@ namespace PandaAudioServer
             if(this.db.UserInfo.Any(m=>m.UserName == user.UserName))
                 throw new Exception("用户名已存在，请重新填写用户名");
 
-            user.RegGuid = this.Session["regCode"].ToString();
+            //user.RegGuid = this.Session["regCode"].ToString();
             this.db.BeginTransaction();
             try
             {
                 user.UserName = user.UserName.ToLower();
                 this.db.Insert(user);
-                var sysRegCode = this.db.SystemRegCode.FirstOrDefault(m => m.RegGuid == user.RegGuid && m.UserId == null);
-                sysRegCode.UserId = user.id;
+                //var sysRegCode = this.db.SystemRegCode.FirstOrDefault(m => m.RegGuid == user.RegGuid && m.UserId == null);
+                //sysRegCode.UserId = user.id;
 
-                this.db.Update(sysRegCode);
+                //this.db.Update(sysRegCode);
 
                 this.db.CommitTransaction();
                 return true;
@@ -195,29 +195,34 @@ namespace PandaAudioServer
             if (IPError.IsIPLocked(ip))
                 throw new Exception("禁止访问");
 
-            if (this.db.SystemRegCode.Any(m => m.RegGuid == regcode && m.UserId == null) == false)
-            {
-                var iperror = IPError.GetInstance(ip);
-                this.Session["iperror"] = iperror;
-                iperror.MarkError();
-                if (iperror.ErrorCount < 7)
-                    throw new Exception("认证码错误");
-                else
-                    throw new Exception($"认证码错误，剩余{iperror.GetChance()}次机会！");
-            }
-            else
-            {
-                if (this.Session["iperror"] != null)
-                {
-                    ((IPError)this.Session["iperror"]).Clear();
-                    this.Session.Remove("iperror");
-                }
-                var sms = Factory.GetService<ISms>();
-                this.Session["phoneCode"] = new Random().Next(1000, 9999).ToString();
-                this.Session["regCode"] = regcode;
-                var msg = sms.Format("{0}", this.Session["phoneCode"].ToString());
-                sms.Send(phoneNumber, msg);
-            }
+            //if (this.db.SystemRegCode.Any(m => m.RegGuid == regcode && m.UserId == null) == false)
+            //{
+            //    var iperror = IPError.GetInstance(ip);
+            //    this.Session["iperror"] = iperror;
+            //    iperror.MarkError();
+            //    if (iperror.ErrorCount < 7)
+            //        throw new Exception("认证码错误");
+            //    else
+            //        throw new Exception($"认证码错误，剩余{iperror.GetChance()}次机会！");
+            //}
+            //else
+            //{
+            //    if (this.Session["iperror"] != null)
+            //    {
+            //        ((IPError)this.Session["iperror"]).Clear();
+            //        this.Session.Remove("iperror");
+            //    }
+            //    var sms = Factory.GetService<ISms>();
+            //    this.Session["phoneCode"] = new Random().Next(1000, 9999).ToString();
+            //    this.Session["regCode"] = regcode;
+            //    var msg = sms.Format("{0}", this.Session["phoneCode"].ToString());
+            //    sms.Send(phoneNumber, msg);
+            //}
+            var sms = Factory.GetService<ISms>();
+            this.Session["phoneCode"] = new Random().Next(1000, 9999).ToString();
+            //this.Session["regCode"] = regcode;
+            var msg = sms.Format("{0}", this.Session["phoneCode"].ToString());
+            sms.Send(phoneNumber, msg);
             return true;
         }
 
@@ -229,7 +234,7 @@ namespace PandaAudioServer
                 throw new Exception("禁止访问");
 
             int count = db.UserEffect.Count(m => m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId);
-            if (count > 0 && pwd != "xingyue")
+            if (count > 0 && pwd != "feiwang")//"xingyue"
             {
                 var iperror = IPError.GetInstance(ip);
                 iperror.MarkError();

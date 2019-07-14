@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using Way.Lib.ScriptRemoting;
 
 namespace PandaAudioServer
@@ -11,7 +12,7 @@ namespace PandaAudioServer
     {
         static void RegisterServices()
         {
-            var meisheng = new Sms_MeiSheng_ZGP();
+            var meisheng = new Sms_MeiSheng();
             Factory.RegisterService<ISms>(meisheng);
 
             //register captures;
@@ -31,7 +32,7 @@ namespace PandaAudioServer
                 {
                     db.UserInfo.FirstOrDefault();
                 }
-                Console.WriteLine($"database ready");
+                Console.WriteLine($"Panda database ready");
 
 #if DEBUG
                 int[] ports = new int[] { 8988 };
@@ -100,18 +101,19 @@ namespace PandaAudioServer
             
             while (true)
             {
-                Console.Write("Web>");
-                var line = Console.ReadLine();
-                if (line == null)
-                {
-                    //是在后台运行的
-                    while (true)
-                    {
-                        System.Threading.Thread.Sleep(10000000);
-                    }
-                }
-                else if (line == "exit")
-                    break;
+                Thread.Sleep(10000000);
+                //Console.Write("Web>");
+                //var line = Console.ReadLine();
+                //if (line == null)
+                //{
+                //    //是在后台运行的
+                //    while (true)
+                //    {
+                //        System.Threading.Thread.Sleep(10000000);
+                //    }
+                //}
+                //else if (line == "exit")
+                //    break;
             }
             if(httpServer != null)
             {
