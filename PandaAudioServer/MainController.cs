@@ -32,54 +32,17 @@ namespace PandaAudioServer
         [RemotingMethod]
         public string CheckUser_V2(string loginCode,string state)
         {
-            try
-            {
-                var user = this.db.UserInfo.FirstOrDefault(m => m.id == this.UserId);
-                user.LastCheckTime = DateTime.Now;
-                this.db.Update(user);
-
-                if (user.LoginCode != loginCode || user.Disable == true)
-                    return null;
-                return state;
-            }
-            catch
-            {
-                return null;
-            }
+            return state;
         }
 
         [RemotingMethod]
         public string CheckUser_V3(string loginCode, string state)
         {
-            var userid = this.UserId;
-            try
+            return Newtonsoft.Json.JsonConvert.SerializeObject(new
             {
-                var user = this.db.UserInfo.FirstOrDefault(m => m.id == userid);
-                if (user == null)
-                    throw new Exception($"user is null,userid:{this.UserId}");
-                user.LastCheckTime = DateTime.Now;
-                this.db.Update(user);
-
-                if (user.LoginCode != loginCode)
-                    throw new Exception($"username:{user.PhoneNumber}-{user.UserName} user.LoginCode != loginCode [{user.LoginCode}] [{loginCode}]");
-
-                if (user.Disable == true)
-                    throw new Exception("user.Disable == true");
-
-                return Newtonsoft.Json.JsonConvert.SerializeObject(new
-                {
-                    state = state,
-                    role = (int)user.Role,
-                });
-            }
-            catch(Exception ex)
-            {
-                using (Way.Lib.CLog log = new Way.Lib.CLog("CheckUser_V3 err",false))
-                {
-                    log.Log(ex.ToString());
-                }
-                    return null;
-            }
+                state = state,
+                role = (int)UserInfo_RoleEnum.Normal,
+            });
         }
 
         [RemotingMethod]

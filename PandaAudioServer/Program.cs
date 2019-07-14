@@ -32,7 +32,7 @@ namespace PandaAudioServer
                 {
                     db.UserInfo.FirstOrDefault();
                 }
-                Console.WriteLine($"Panda database ready");
+                Console.WriteLine($"Panda2 database ready");
 
 #if DEBUG
                 int[] ports = new int[] { 8988 };
