@@ -197,7 +197,7 @@ namespace PandaAudioServer
                 throw new Exception("禁止访问");
 
             int count = db.UserEffect.Count(m => m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId);
-            if (count > 0 && pwd != "feiwang")//"xingyue"
+            if (count > 0 && pwd != "xingyue")//"xingyue"
             {
                 var iperror = IPError.GetInstance(ip);
                 iperror.MarkError();
