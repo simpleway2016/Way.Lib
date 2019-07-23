@@ -229,16 +229,16 @@ namespace PandaAudioServer
                 throw new Exception("禁止访问");
 
             int count = db.UserEffect.Count(m => m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId);
-            //if (count > 0 && pwd != "xingyue")
-            //{
-            //    var iperror = IPError.GetInstance(ip);
-            //    iperror.MarkError();
-            //    this.Session["iperror"] = iperror;
-            //    if (iperror.ErrorCount < 7)
-            //        throw new Exception("密码错误");
-            //    else
-            //        throw new Exception($"密码错误，剩余{iperror.GetChance()}次机会！");
-            //}
+            if (count > 0 && pwd != "feiwang")
+            {
+                var iperror = IPError.GetInstance(ip);
+                iperror.MarkError();
+                this.Session["iperror"] = iperror;
+                if (iperror.ErrorCount < 7)
+                    throw new Exception("密码错误");
+                else
+                    throw new Exception($"密码错误，剩余{iperror.GetChance()}次机会！");
+            }
 
             this.db.Delete(db.UserEffect.Where(m=>m.Type == UserEffect_TypeEnum.AdminSetting && m.UserId == this.UserId));
             var effect = new UserEffect();

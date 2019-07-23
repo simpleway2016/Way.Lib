@@ -31,7 +31,7 @@ namespace PandaAudioServer
                 {
                     db.UserInfo.FirstOrDefault();
                 }
-                Console.WriteLine($"database ready");
+                Console.WriteLine($"ZGP database ready");
 
 #if DEBUG
                 int[] ports = new int[] { 8988 };
