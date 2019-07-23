@@ -100,18 +100,7 @@ namespace PandaAudioServer
             
             while (true)
             {
-                Console.Write("Web>");
-                var line = Console.ReadLine();
-                if (line == null)
-                {
-                    //是在后台运行的
-                    while (true)
-                    {
-                        System.Threading.Thread.Sleep(10000000);
-                    }
-                }
-                else if (line == "exit")
-                    break;
+                System.Threading.Thread.Sleep(10000000);
             }
             if(httpServer != null)
             {

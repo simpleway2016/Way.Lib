@@ -19,3 +19,4 @@
 .xml	text/xml
 .svg	image/svg+xml
 .mobileconfig	application/x-apple-aspen-config
+.webp	image/webp

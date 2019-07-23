@@ -340,13 +340,16 @@ namespace Way.Lib.ScriptRemoting
             var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, FileShare.ReadWrite);
             
             string ext = System.IO.Path.GetExtension(filePath).ToLower();
-            if(ContentTypeDefines.ContainsKey(ext))
+            if (string.IsNullOrEmpty(_context.Response.Headers["Content-Type"]))
             {
-                _context.Response.Headers["Content-Type"] = ContentTypeDefines[ext];
-            }
-            else
-            {
-                _context.Response.Headers["Content-Type"] = "application/octet-stream";
+                if (ContentTypeDefines.ContainsKey(ext))
+                {
+                    _context.Response.Headers["Content-Type"] = ContentTypeDefines[ext];
+                }
+                else
+                {
+                    _context.Response.Headers["Content-Type"] = "application/octet-stream";
+                }
             }
             int range = -1, rangeEnd = 0;
             string RangeStr = _context.Request.Headers["Range"];
