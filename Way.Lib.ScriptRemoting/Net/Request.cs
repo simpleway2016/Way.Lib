@@ -87,6 +87,18 @@ namespace Way.Lib.ScriptRemoting.Net
                 return mClient.RemoteEndPoint;
             }
         }
+
+        RemotingContext _Context;
+        public RemotingContext Context
+        {
+            get
+            {
+                if (_Context == null)
+                    _Context = RemotingContext.Current;
+                return _context;
+            }
+        }
+
         public string ContentType
         {
             get;
@@ -127,6 +139,18 @@ namespace Way.Lib.ScriptRemoting.Net
             _context = context;
             mClient = client;
             init();
+        }
+
+        /// <summary>
+        /// 把相对url转换为实际文件路径
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public string MapPath(string url)
+        {
+            var root = RemotingContext.Current.WebRoot;
+            root = root.Substring(0, root.Length - 1);
+            return $"{root}{url}";
         }
 
         void init()

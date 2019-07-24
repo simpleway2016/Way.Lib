@@ -36,6 +36,16 @@ namespace Way.Lib.ScriptRemoting.Net
                 return _buffer;
             }
         }
+        RemotingContext _Context;
+        public RemotingContext Context
+        {
+            get
+            {
+                if (_Context == null)
+                    _Context = RemotingContext.Current;
+                return _context;
+            }
+        }
 
         public override bool CanRead
         {
