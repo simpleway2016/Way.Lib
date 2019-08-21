@@ -241,7 +241,101 @@ namespace Way.Lib
             return rsa;
         }
 
-      
+
+
+        public static RSAParameters GetPublicKey(string publicKeyString)
+        {
+
+           
+
+            byte[] SeqOID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
+            byte[] x509key;
+            byte[] seq = new byte[15];
+            int x509size;
+
+            x509key = Convert.FromBase64String(publicKeyString);
+            x509size = x509key.Length;
+
+            using (var mem = new MemoryStream(x509key))
+            {
+                using (var binr = new BinaryReader(mem))
+                {
+                    byte bt = 0;
+                    ushort twobytes = 0;
+
+                    twobytes = binr.ReadUInt16();
+                    if (twobytes == 0x8130)
+                        binr.ReadByte();
+                    else if (twobytes == 0x8230)
+                        binr.ReadInt16();
+                    else
+                        throw new Exception("key error");
+
+                    seq = binr.ReadBytes(15);
+                    if (!CompareBytearrays(seq, SeqOID))
+                        throw new Exception("key error");
+
+                    twobytes = binr.ReadUInt16();
+                    if (twobytes == 0x8103)
+                        binr.ReadByte();
+                    else if (twobytes == 0x8203)
+                        binr.ReadInt16();
+                    else
+                        throw new Exception("key error");
+
+                    bt = binr.ReadByte();
+                    if (bt != 0x00)
+                        throw new Exception("key error");
+
+                    twobytes = binr.ReadUInt16();
+                    if (twobytes == 0x8130)
+                        binr.ReadByte();
+                    else if (twobytes == 0x8230)
+                        binr.ReadInt16();
+                    else
+                        throw new Exception("key error");
+
+                    twobytes = binr.ReadUInt16();
+                    byte lowbyte = 0x00;
+                    byte highbyte = 0x00;
+
+                    if (twobytes == 0x8102)
+                        lowbyte = binr.ReadByte();
+                    else if (twobytes == 0x8202)
+                    {
+                        highbyte = binr.ReadByte();
+                        lowbyte = binr.ReadByte();
+                    }
+                    else
+                        throw new Exception("key error");
+                    byte[] modint = { lowbyte, highbyte, 0x00, 0x00 };
+                    int modsize = BitConverter.ToInt32(modint, 0);
+
+                    int firstbyte = binr.PeekChar();
+                    if (firstbyte == 0x00)
+                    {
+                        binr.ReadByte();
+                        modsize -= 1;
+                    }
+
+                    byte[] modulus = binr.ReadBytes(modsize);
+
+                    if (binr.ReadByte() != 0x02)
+                        throw new Exception("key error");
+                    int expbytes = (int)binr.ReadByte();
+                    byte[] exponent = binr.ReadBytes(expbytes);
+
+                    var rsa = System.Security.Cryptography.RSA.Create();
+                    var rsaKeyInfo = new RSAParameters
+                    {
+                        Modulus = modulus,
+                        Exponent = exponent
+                    };
+                    return rsaKeyInfo;
+                }
+
+            }
+        }
 
         public static System.Security.Cryptography.RSA CreateRsaFromPublicKey(string publicKeyString)
         {
@@ -534,18 +628,18 @@ namespace Way.Lib
         /// <returns></returns>
         public string DecryptContentFromDEncrypt(string data)
         {
-            return DecryptContentFromDEncrypt(data , _parameter.Exponent, _parameter.Modulus);
+            return DecryptContentFromDEncrypt(data , _parameter.Exponent, _parameter.Modulus,Encoding.UTF8);
 
 
         }
         /// <summary>
         ///  解开D加密的内容
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">hex字符串</param>
         /// <param name="exponent"></param>
         /// <param name="modulus"></param>
         /// <returns></returns>
-        public static string DecryptContentFromDEncrypt(string data,byte[] exponent, byte[] modulus)
+        public static string DecryptContentFromDEncrypt(string data,byte[] exponent, byte[] modulus , System.Text.Encoding encode)
         {
             BigInteger e = new BigInteger(exponent);
             BigInteger n = new BigInteger(modulus);
@@ -558,13 +652,28 @@ namespace Way.Lib
                 BigInteger biEnText = biText.modPow(e, n);
 
                 byte[] b = biEnText.getBytes();
-                result.Append(System.Text.Encoding.ASCII.GetString(b));
+                //忽略一些无用的信息
+                int startindex = 0;
+                if (b[0] == 0x1 && b[1] == 0xff)
+                {
+                    for (int i = 0; i < b.Length; i++)
+                    {
+                        if (b[i] == 0)
+                        {
+                            startindex = i + 1;
+                        }
+                    }
+                }
+                result.Append(encode.GetString(b, startindex, b.Length - startindex));
             }
 
             return result.ToString();
 
 
         }
+
+
+
         public static byte[] HexStringToBytes(string hex)
         {
             return HexStringToBytes(hex ,0 , hex.Length);

@@ -21,6 +21,17 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void RSATest()
+        {
+            string str = "ZuMyLXuxTCySVyTyuO5ELe/2IHnZ1aDpaEVP4ZubPNg+lSQkRSc0NHV1rwvniTTX8flZCn+osC0MsnEOtiysPNPJ+tR+l845SY7K5GNf9LEFSwMpLTed4me7uJiDvIKHr1FSmnCGMoxFdEC5PO9N39C2we6b6CFmstxN0BDamoU=";
+            var hexstr = Way.Lib.RSA.BytesToHexString(Convert.FromBase64String(str));
+
+            var pubkey = Way.Lib.RSA.GetPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB");
+
+            var result = Way.Lib.RSA.DecryptContentFromDEncrypt(hexstr, pubkey.Exponent, pubkey.Modulus, System.Text.Encoding.UTF8);
+        }
+
+        [TestMethod]
         public void DynamicModel_test()
         {
             dynamic model = new DYModel();
@@ -30,13 +41,7 @@ namespace UnitTest
          
         }
 
-        [TestMethod]
-        public void rsatest()
-        {
-            RSA rsa = new RSA();
-          var content =   RSA.EncryptByD("abc", rsa.D, rsa.Modulus);
-            var dd = RSA.DecryptContentFromDEncrypt(content, rsa.Exponent, rsa.Modulus);
-        }
+
 
         [TestMethod]
         public void DataModel_Rollback()
