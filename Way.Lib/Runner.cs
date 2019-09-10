@@ -11,7 +11,7 @@ namespace Way.Lib
 {
     class Runner 
     {
-        public string Exec(string filename, string args)
+        public static string Exec(string filename, string args)
         {
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo(filename);
             startInfo.Arguments = args;
@@ -23,7 +23,7 @@ namespace Way.Lib
             return process.StandardOutput.ReadToEnd();
         }
 
-        public void Exec(string filename, string args, Func<string,string> outputAction)
+        public static void Exec(string filename, string args, Func<string,string> outputAction)
         {
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -57,7 +57,7 @@ namespace Way.Lib
 
         }
 
-        public Process OpenProcess(string filename, string args)
+        public static Process OpenProcess(string filename, string args)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
