@@ -5,6 +5,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Way.Lib;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Math;
+using System.Text;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Utilities.IO.Pem;
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1;
+using System.Net;
 
 namespace UnitTest
 {
@@ -19,21 +31,66 @@ namespace UnitTest
                 return self.age;
             }
         }
+      
+
+        const string PUBLICKEY =
+                @"-----BEGIN PUBLIC KEY-----
+                MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB
+                -----END PUBLIC KEY-----";
+        const string PRIVATEKEY =
+                @"-----BEGIN RSA PRIVATE KEY-----
+                MIICXQIBAAKBgQDpsDr+W45aFHIkvotZaGK/THlFFpuZfUtghhWkHAm3H7yvL42J
+                4xHrTr6IeUDCl4eKe6qiIgvYSNoL3u4SERGOeYmV1F+cocu9IMGnNoicbh1zVW6e
+                8/iGT3xaYQizJoVuWA/TC/zdds2ihCJfHDBDsouOCXecPapyWCGQNsH5sQIDAQAB
+                AoGBAM/JbFs4y5WbMncrmjpQj+UrOXVOCeLrvrc/4kQ+zgCvTpWywbaGWiuRo+cz
+                cXrVQ6bGGU362e9hr8f4XFViKemDL4SmJbgSDa1K71i+/LnnzF6sjiDBFQ/jA9SK
+                4PYrY7a3IkeBQnJmknanykugyQ1xmCjbuh556fOeRPaHnhx1AkEA/flrxJSy1Z+n
+                Y1RPgDOeDqyG6MhwU1Jl0yJ1sw3Or4qGRXhjTeGsCrKqV0/ajqdkDEM7FNkqnmsB
+                +vPd116J6wJBAOuNY3oOWvy2fQ32mj6XV+S2vcG1osEUaEuWvEgkGqJ9co6100Qp
+                j15036AQEEDqbjdqS0ShfeRSwevTJZIap9MCQCeMGDDjKrnDA5CfB0YiQ4FrchJ7
+                a6o90WdAHW3FP6LsAh59MZFmC6Ea0xWHdLPz8stKCMAlVNKYPRWztZ6ctQMCQQC8
+                iWbeAy+ApvBhhMjg4HJRdpNbwO6MbLEuD3CUrZFEDfTrlU2MeVdv20xC6ZiY3Qtq
+                /4FPZZNGdZcSEuc3km5RAkApGkZmWetNwDJMcUJbSBrQMFfrQObqMPBPe+gEniQq
+                Ttwu1OULHlmUg9eW31wRI2uiXcFCJMHuro6iOQ1VJ4Qs
+                -----END RSA PRIVATE KEY-----";
 
         [TestMethod]
-        public void RSATest()
+        public void 私钥加密()
         {
-            string str = "ZuMyLXuxTCySVyTyuO5ELe/2IHnZ1aDpaEVP4ZubPNg+lSQkRSc0NHV1rwvniTTX8flZCn+osC0MsnEOtiysPNPJ+tR+l845SY7K5GNf9LEFSwMpLTed4me7uJiDvIKHr1FSmnCGMoxFdEC5PO9N39C2we6b6CFmstxN0BDamoU=";
-            var hexstr = Way.Lib.RSA.BytesToHexString(Convert.FromBase64String(str));
 
-            var pubkey = Way.Lib.RSA.GetPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB");
+            var priKey = Way.Lib.RSA.GetPrivateKey("MIICXAIBAAKBgQCv19cfVLpis7dRFQUP4i26W7k7siN4Rk+YY34UZ7OwZ2wHG7GkxZosLXdDdHl4Tww0sdPEXf0PeIsIFN/wEEUzxdaNydo9H/FvwjYEwyTYt6Ob0PXiDqk/FnkyNx9CJRtnDYHFbavTjILAzavKAVimASjabTKBwclUNNf5nhsyBQIDAQABAoGAcY1PZPMg/XYSjjCluTEU2IA86NjLYPL+mWi+VUz2U5clwp1WpRHZ0md12cCQZGmfdzPSjb8oGOJ93bUlO3A2TvuPfXrrJuqSLzCeEyfyrsPEZ13dZCL7LGZ9kU23odAD65AoE6uWR8PFS/MhaM66rUY2N8SIkv6XKfdf0V93ueECQQDUvnCMTBZnow0HA7bYPoO9HCpQ7WVR+bsgCH3ZUIBlbtKf5cfYOK7RXQAQWeUn6u1HHuucJ1bKcsWGq78ff6RdAkEA05isav9lTHCQYmCZSb46kOHVNdfzNGAbnP/1V9f9jrDe//YPslDhOUyTvQcB80RbxClvrIxDNadt35OI8s1pyQJBAMUamA30JMHqOBSqpUoeSVH5eV83Qys7E9ru4yJnSj4v+ia47nnuslE5N+juULi2GRZOmH45mFjDEyzdjJqzWOUCQEkm0gzXqKypibEJFlWBN3wZJv3LX6Auzb0UXDx3RoiLKz0wUzLhdUu65qSGBK2WZ2dEr//mKeIltP2DYugWDckCQFYnYBNnqX6K31fsnbcbGIRaNr5DXUhu2wE3q8uIY1acXul+QJoYsdhSjjTATa0cYzOWf3Blv5P7LVQYFfyCF+U=", RSAKeyType.PKCS1);
 
-            var result = Way.Lib.RSA.DecryptContentFromDEncrypt(hexstr, pubkey.Exponent, pubkey.Modulus, System.Text.Encoding.UTF8);
+            var 需要加密的内容 = "b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557";
+            byte[] outBytes = Way.Lib.RSA.EncryptByPrivateKey(Encoding.UTF8.GetBytes(需要加密的内容), priKey);
+            var base64fff = Convert.ToBase64String(outBytes);
+
+            //公钥解密
+            var 需要解密的内容 = "VmgQKL9DDu26HS594F6uLxOh8zr2LM0HxcFSVoWHdbeDYK/ixnCa1XFCM+/gtgOPJh+wMAdIMeSVg2cYJJ3u9ubr0yFrddwkrELkEQoPlX70ncwI4Fj7oaEOFMEO5AIq3o++IcI5vz238W54AHiZ3ONpW/N88fma4nNYesA2hrg=";
+            var pubkey = RSA.GetPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB");
+            outBytes = RSA.DecryptByPublicKey(Convert.FromBase64String(需要解密的内容), pubkey);
+            var result = Encoding.UTF8.GetString(outBytes);
         }
 
         [TestMethod]
         public void DynamicModel_test()
         {
+            HttpClient client = new HttpClient();
+           var str =  HttpClient.PostQueryString("http://incapp.incmarkets.com/app_INC_Trader/download/ipa.en_US.html?t=66666", "", 8000);
+            DateTime dateStart = new DateTime(1970, 1, 1);
+            var timeStamp = (new DateTime(2019,8,14) - dateStart).TotalMilliseconds ;
+            /*
+             :1566604800000
+对比数据：    1566691200000
+             */
+
+            var dd22 = 1566604800000.0 / (1000 * 60 * 60 * 24.0);
+
+            DateTime dateTimeStart =  new DateTime(1970, 1, 1);
+            var t = 1566664853019 + 8 * 60 * 60 * 1000;
+            long lTime = long.Parse(t + "0000");
+            TimeSpan toNow = new TimeSpan(lTime);
+            var dd = dateTimeStart.Add(toNow);
+
             dynamic model = new DYModel();
             model.age = 2;
            var testv =  model.getValue;

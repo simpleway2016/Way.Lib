@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -68,42 +72,136 @@ namespace Way.Lib
             _KeyModulus = BytesToHexString(_parameter.Modulus);
         }
 
-
         /// <summary>
-        /// 
+        /// 公钥加密
         /// </summary>
-        /// <param name="content">内容建议使用System.Net.WebUtility.UrlEncode编码一次，避免中文乱码</param>
-        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="pubKey"></param>
+        /// <param name="cipher"></param>
         /// <returns></returns>
-        public static string EncryptByPublicKey(string content , RSAParameters key)
+        public static byte[] EncryptByPublicKey(byte[] content, RSAParameters pubKey, string cipher = "RSA/ECB/PKCS1Padding")
         {
-            var rsa = System.Security.Cryptography.RSA.Create();
-            rsa.ImportParameters(key);
-            int keySize = key.Modulus.Length;
-            int maxLen = keySize * 8 / 10;
-            if (content.Length <= maxLen)
-            {
-                var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
-                return BytesToHexString(data);
-            }
-            else
-            {
-                var result = new StringBuilder();
-                var total = content.Length;
-                for (var i = 0; i < content.Length; i += maxLen)
-                {
-                    var text = content.Substring(i, Math.Min(maxLen, total));
-                    total -= text.Length;
-                    var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(text), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
-                    result.Append( BytesToHexString(data));
-                }
-                return result.ToString();
-            }
+            //兼容java
+            var key = new RsaKeyParameters(false, new BigInteger(1, pubKey.Modulus), new BigInteger(1, pubKey.Exponent));
 
-          
+
+            //参数与Java中加密解密的参数一致
+            IBufferedCipher c = CipherUtilities.GetCipher(cipher);
+
+            //第一个参数 true-加密，false-解密；第二个参数表示密钥
+            c.Init(true, key);
+            //解密
+            byte[] outBytes = c.DoFinal(content);
+
+            return outBytes;
+
         }
 
-      
+        /// <summary>
+        /// 公钥解密
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="pubKey"></param>
+        /// <param name="cipher"></param>
+        /// <returns></returns>
+        public static byte[] DecryptByPublicKey(byte[] content, RSAParameters pubKey, string cipher = "RSA/ECB/PKCS1Padding")
+        {
+            //兼容java
+            var key = new RsaKeyParameters(false, new BigInteger(1, pubKey.Modulus), new BigInteger(1, pubKey.Exponent));
+
+
+            //参数与Java中加密解密的参数一致
+            IBufferedCipher c = CipherUtilities.GetCipher(cipher);
+
+            //第一个参数 true-加密，false-解密；第二个参数表示密钥
+            c.Init(false, key);
+            //解密
+            byte[] outBytes = c.DoFinal(content);
+
+            return outBytes;
+
+        }
+
+        /// <summary>
+        /// 私钥加密
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="priKey"></param>
+        /// <param name="cipher">默认为：RSA/ECB/PKCS1Padding</param>
+        /// <returns></returns>
+        public static byte[] EncryptByPrivateKey(byte[] content , RSAParameters priKey,string cipher = "RSA/ECB/PKCS1Padding")
+        {
+            //兼容java
+            var key = new RsaPrivateCrtKeyParameters(
+        new BigInteger(1, priKey.Modulus), new BigInteger(1, priKey.Exponent), new BigInteger(1, priKey.D),
+        new BigInteger(1, priKey.P), new BigInteger(1, priKey.Q), new BigInteger(1, priKey.DP), new BigInteger(1, priKey.DQ),
+        new BigInteger(1, priKey.InverseQ));
+
+
+            //参数与Java中加密解密的参数一致
+            IBufferedCipher c = CipherUtilities.GetCipher(cipher);
+
+            //第一个参数 true-加密，false-解密；第二个参数表示密钥
+            c.Init(true, key);
+            //解密
+            byte[] outBytes = c.DoFinal(content);
+
+            return outBytes;
+
+            //var rsa = System.Security.Cryptography.RSA.Create();
+            //rsa.ImportParameters(key);
+            //int keySize = key.Modulus.Length;
+            //int maxLen = keySize * 8 / 10;
+            //if (content.Length <= maxLen)
+            //{
+            //    var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
+            //    return BytesToHexString(data);
+            //}
+            //else
+            //{
+            //    var result = new StringBuilder();
+            //    var total = content.Length;
+            //    for (var i = 0; i < content.Length; i += maxLen)
+            //    {
+            //        var text = content.Substring(i, Math.Min(maxLen, total));
+            //        total -= text.Length;
+            //        var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(text), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
+            //        result.Append( BytesToHexString(data));
+            //    }
+            //    return result.ToString();
+            //}
+
+
+        }
+
+        /// <summary>
+        /// 私钥解密
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="priKey"></param>
+        /// <param name="cipher"></param>
+        /// <returns></returns>
+        public static byte[] DecryptByPrivateKey(byte[] content, RSAParameters priKey, string cipher = "RSA/ECB/PKCS1Padding")
+        {
+            //兼容java
+            var key = new RsaPrivateCrtKeyParameters(
+        new BigInteger(1, priKey.Modulus), new BigInteger(1, priKey.Exponent), new BigInteger(1, priKey.D),
+        new BigInteger(1, priKey.P), new BigInteger(1, priKey.Q), new BigInteger(1, priKey.DP), new BigInteger(1, priKey.DQ),
+        new BigInteger(1, priKey.InverseQ));
+
+
+            //参数与Java中加密解密的参数一致
+            IBufferedCipher c = CipherUtilities.GetCipher(cipher);
+
+            //第一个参数 true-加密，false-解密；第二个参数表示密钥
+            c.Init(false, key);
+            //解密
+            byte[] outBytes = c.DoFinal(content);
+
+            return outBytes;
+
+        }
+
         private static int GetIntegerSize(BinaryReader binr)
         {
             byte bt = 0;
@@ -447,12 +545,16 @@ namespace Way.Lib
         /// </summary>
         /// <param name="privateKey"></param>
         /// <returns></returns>
-        public static RSAParameters GetRSAParameters(string  privateKey)
+        public static RSAParameters GetPrivateKey(string  privateKey , RSAKeyType keyType)
         {
-            return getRSAPrivateKey( Convert.FromBase64String(privateKey) );
+            return getRSAPrivateKey( Convert.FromBase64String(privateKey) , keyType);
         }
-        static RSAParameters getRSAPrivateKey(byte[] privkey)
+        static RSAParameters getRSAPrivateKey(byte[] privkey, RSAKeyType keyType)
         {
+            if (keyType == RSAKeyType.PKCS8)
+            {
+                privkey = pkcs8ToPkcs1(privkey);
+            }
             byte[] MODULUS, E, D, P, Q, DP, DQ, IQ;
 
             // --------- Set up stream to decode the asn.1 encoded RSA private key ------
@@ -584,96 +686,8 @@ namespace Way.Lib
 
             return result.ToString();
         }
-        /// <summary>
-        /// 利用D进行加密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public string EncryptByD(string data)
-        {
-            return EncryptByD(data, _parameter.D, _parameter.Modulus);
-        }
-        /// <summary>
-        /// 利用D进行加密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="d"></param>
-        /// <param name="modulus"></param>
-        /// <returns></returns>
-        public static string EncryptByD(string data,byte[] D,byte[] modulus)
-        {
-            if (modulus.Length > 128)
-                throw new Exception("just support 1024 key size");
-            BigInteger d = new BigInteger(D);
-            BigInteger n = new BigInteger(modulus);
-            int maxlen = MAXLENGTH * (modulus.Length / 128);
-            StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += maxlen)
-            {
-                string content = data.Substring(j, Math.Min(maxlen, data.Length - j));
-                byte[] source = System.Text.Encoding.ASCII.GetBytes(content);
 
-                BigInteger biText = new BigInteger(source);
-                BigInteger biEnText = biText.modPow(d, n);
-
-                byte[] b = biEnText.getBytes();
-                result.Append(BytesToHexString(b));
-            }
-            return result.ToString();
-        }
-        /// <summary>
-        /// 解开D加密的内容
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public string DecryptContentFromDEncrypt(string data)
-        {
-            return DecryptContentFromDEncrypt(data , _parameter.Exponent, _parameter.Modulus,Encoding.UTF8);
-
-
-        }
-        /// <summary>
-        ///  解开D加密的内容
-        /// </summary>
-        /// <param name="data">hex字符串</param>
-        /// <param name="exponent"></param>
-        /// <param name="modulus"></param>
-        /// <returns></returns>
-        public static string DecryptContentFromDEncrypt(string data,byte[] exponent, byte[] modulus , System.Text.Encoding encode)
-        {
-            BigInteger e = new BigInteger(exponent);
-            BigInteger n = new BigInteger(modulus);
-            int blockSize = 256 * (modulus.Length / 128);
-            StringBuilder result = new StringBuilder();
-            for (int j = 0; j < data.Length; j += blockSize)
-            {
-                byte[] source = HexStringToBytes(data, j, blockSize);
-                BigInteger biText = new BigInteger(source);
-                BigInteger biEnText = biText.modPow(e, n);
-
-                byte[] b = biEnText.getBytes();
-                //忽略一些无用的信息
-                int startindex = 0;
-                if (b[0] == 0x1 && b[1] == 0xff)
-                {
-                    for (int i = 0; i < b.Length; i++)
-                    {
-                        if (b[i] == 0)
-                        {
-                            startindex = i + 1;
-                        }
-                    }
-                }
-                result.Append(encode.GetString(b, startindex, b.Length - startindex));
-            }
-
-            return result.ToString();
-
-
-        }
-
-
-
+       
         public static byte[] HexStringToBytes(string hex)
         {
             return HexStringToBytes(hex ,0 , hex.Length);
