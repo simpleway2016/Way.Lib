@@ -17,6 +17,9 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1;
 using System.Net;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace UnitTest
 {
@@ -69,6 +72,76 @@ namespace UnitTest
             var pubkey = RSA.GetPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB");
             outBytes = RSA.DecryptByPublicKey(Convert.FromBase64String(需要解密的内容), pubkey);
             var result = Encoding.UTF8.GetString(outBytes);
+        }
+
+        [TestMethod]
+        public void Huawei()
+        {
+           var content = HttpClient.PostQueryString("https://login.cloud.huawei.com/oauth2/v2/token", new Dictionary<string, string> {
+                { "grant_type", "client_credentials" },
+                { "client_secret", "775705190657e09fc12bfb1a3d1759b7bff78a2b6b734b903125aecfdb27362c" },
+                 { "client_id", "100946793" }
+            }, 8000);
+
+            var ret = JsonConvert.DeserializeObject<JObject>(content);
+           var accessToken = ret["access_token"].ToString();
+            var expires_in = DateTime.Now.AddSeconds(Convert.ToInt32(ret["expires_in"].ToString()));
+
+            string apiUrl = "https://api.push.hicloud.com/pushsend.do";
+            String postUrl = apiUrl + "?nsp_ctx=" + System.Web.HttpUtility.UrlEncode("{\"ver\":\"1\", \"appId\":\"100946793\"}",System.Text.Encoding.UTF8 );
+
+
+            JArray deviceTokens = new JArray();
+            deviceTokens.Add("0867926032613273300004132500CN01");
+
+            JObject body = new JObject();//仅通知栏消息需要设置标题和内容，透传消息key和value为用户自定义
+            body.Add("title", "Push message title" + DateTime.Now.Millisecond);//消息标题
+            body.Add("content", "Push message content" + DateTime.Now.Millisecond);//消息内容体
+
+            JObject param = new JObject();
+            param.Add("appPkgName", "com.lr.bitcoinwin");//定义需要打开的appPkgName
+
+            JObject action = new JObject();
+            action.Add("type", 3);//类型3为打开APP，其他行为请参考接口文档设置
+            action.Add("param", param);//消息点击动作参数
+
+            JObject msg = new JObject();
+            msg.Add("type", 3);//3: 通知栏消息，异步透传消息请根据接口文档设置
+            msg.Add("action", action);//消息点击动作
+            msg.Add("body", body);//通知栏消息body内容
+
+            JObject customObj = new JObject();
+            customObj.Add("custom", "abc");
+            customObj.Add("title", "title");
+            customObj.Add("body", "body");
+            JArray customArr = new JArray();
+            customArr.Add(customObj);
+
+            JObject ext = new JObject();//扩展信息，含BI消息统计，特定展示风格，消息折叠。
+            //ext.Add("biTag", "Trump");//设置消息标签，如果带了这个标签，会在回执中推送给CP用于检测某种类型消息的到达率和状态
+            //ext.Add("icon", "http://pic.qiantucdn.com/58pic/12/38/18/13758PIC4GV.jpg");//自定义推送消息在通知栏的图标,value为一个公网可以访问的URL
+            ext.Add("customize", customArr);
+            ext.Add("badgeAddNum", "1");
+            ext.Add("badgeClass", "com.lr.abc.activity");
+
+
+            JObject hps = new JObject();//华为PUSH消息总结构体
+            hps.Add("msg", msg);
+            hps.Add("ext", ext);
+
+            JObject payload = new JObject();
+            payload.Add("hps", hps);
+
+            String postBody = String.Format(
+                "access_token={0}&nsp_svc={1}&nsp_ts={2}&device_token_list={3}&payload={4}",
+                System.Web.HttpUtility.UrlEncode(accessToken, System.Text.Encoding.UTF8),
+                System.Web.HttpUtility.UrlEncode("openpush.message.api.send", System.Text.Encoding.UTF8),
+
+                (int)(DateTime.Now - Convert.ToDateTime("1970-01-01")).TotalSeconds,
+                System.Web.HttpUtility.UrlEncode(JsonConvert.SerializeObject(deviceTokens), System.Text.Encoding.UTF8),
+                System.Web.HttpUtility.UrlEncode(JsonConvert.SerializeObject(payload), System.Text.Encoding.UTF8));
+
+            content = HttpClient.PostQueryString(postUrl, postBody, 8000);
         }
 
         [TestMethod]

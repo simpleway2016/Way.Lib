@@ -8,9 +8,9 @@
     <PackageId>Way.Lib</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description></Description>
-    <Version>2.0.4.1</Version>
-    <AssemblyVersion>2.0.4.1</AssemblyVersion>
-    <FileVersion>2.0.4.1</FileVersion>
+    <Version>2.0.4.6</Version>
+    <AssemblyVersion>2.0.4.6</AssemblyVersion>
+    <FileVersion>2.0.4.6</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -90,17 +90,25 @@ namespace Way.Lib
         /// <returns></returns>
         public static string PostJson(string url, object jsonObj, int timeout)
         {
-            return PostJson(url, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
+            //IDictionary<string, string> headers, 
+            return PostJson(url,null, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
+        }
+
+        public static string PostJson(string url, IDictionary<string, string> headers, object jsonObj, int timeout)
+        {
+            //IDictionary<string, string> headers, 
+            return PostJson(url, headers, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="url"></param>
+        /// <param name="headers"></param>
         /// <param name="json"></param>
         /// <param name="timeout">超时时间，单位:毫秒</param>
         /// <returns></returns>
-        public static string PostJson(string url, string json, int timeout)
+        public static string PostJson(string url, IDictionary<string, string> headers, string json, int timeout)
         {
             try
             {
@@ -108,7 +116,13 @@ namespace Way.Lib
                 request.Method = "POST";
                 request.Timeout = timeout;
                 request.ContentType = "application/json; charset=utf-8";
-
+                if(headers != null)
+                {
+                    foreach( var item in headers )
+                    {
+                        request.Headers[item.Key] = item.Value;
+                    }
+                }
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
                 request.ContentLength = data.Length;
 
@@ -250,7 +264,7 @@ namespace Way.Lib
             var strResult = sr.ReadToEnd().Trim();
             if (strResult.Length == 0)
                 throw err;
-            throw new Exception($"http错误信息:{err.Message}\r\n服务器输出内容:{strResult}");
+            throw new HttpException(err.Message , res.StatusCode , strResult);
         }
         /// <summary>
         /// 
@@ -260,12 +274,30 @@ namespace Way.Lib
         /// <returns></returns>
         public static string GetContent(string url, int timeout)
         {
+            return GetContent(url, null, timeout);
+        }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="url"></param>
+            /// <param name="headers"></param>
+            /// <param name="timeout">超时时间，单位:毫秒</param>
+            /// <returns></returns>
+            public static string GetContent(string url, IDictionary<string, string> headers, int timeout)
+        {
             try
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "GET";
                 request.Timeout = timeout;
-
+                if (headers != null)
+                {
+                    foreach (var item in headers)
+                    {
+                        request.Headers[item.Key] = item.Value;
+                    }
+                }
                 var taskResponse = request.GetResponseAsync();
                 taskResponse.Wait();
                 var responseStream = taskResponse.Result.GetResponseStream();
