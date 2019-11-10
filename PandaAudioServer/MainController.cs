@@ -8,8 +8,37 @@ using System.IO;
 
 namespace PandaAudioServer
 {
+    [Way.Lib.ScriptRemoting.RemotingUrl("main")]
     public class MainController : BaseController
     {
+        [RemotingMethod]
+        public void app()
+        {
+            var apppath = $"{RemotingContext.Current.WebRoot}/app.zip";
+            var fs = File.OpenRead(apppath);
+            Response.ContentLength = (int)fs.Length;
+            byte[] bs = new byte[4096];
+            var total = fs.Length;
+            while(total > 0)
+            {
+                var readed = fs.Read(bs, 0, bs.Length);
+                total -= readed;
+                Response.Write(bs, 0, readed);
+            }
+            fs.Dispose();
+            Response.End();
+        }
+
+        [RemotingMethod]
+        public void version()
+        {
+          
+            var content = File.ReadAllBytes($"{RemotingContext.Current.WebRoot}/app.txt");
+            Response.ContentLength = content.Length;
+            Response.Write(content , 0 , content.Length);
+            Response.End();
+        }
+
 
         [RemotingMethod]
         public bool CheckUser(string loginCode)
