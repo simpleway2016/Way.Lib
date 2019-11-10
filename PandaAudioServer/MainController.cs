@@ -15,30 +15,45 @@ namespace PandaAudioServer
         public void app()
         {
             var apppath = $"{RemotingContext.Current.WebRoot}/app.zip";
-            var fs = File.OpenRead(apppath);
-            Response.ContentLength = (int)fs.Length;
-            byte[] bs = new byte[4096];
-            var total = fs.Length;
-            while(total > 0)
+            using (var fs = File.OpenRead(apppath))
             {
-                var readed = fs.Read(bs, 0, bs.Length);
-                total -= readed;
-                Response.Write(bs, 0, readed);
+                Response.WriteFile(fs);
             }
-            fs.Dispose();
-            Response.End();
+                
         }
 
         [RemotingMethod]
         public void version()
         {
-          
-            var content = File.ReadAllBytes($"{RemotingContext.Current.WebRoot}/app.txt");
-            Response.ContentLength = content.Length;
-            Response.Write(content , 0 , content.Length);
-            Response.End();
+
+            var apppath = $"{RemotingContext.Current.WebRoot}/app.txt";
+            using (var fs = File.OpenRead(apppath))
+            {
+                Response.WriteFile(fs);
+            }
         }
 
+        [RemotingMethod]
+        public void copyversion()
+        {
+
+            var apppath = $"{RemotingContext.Current.WebRoot}/copy.txt";
+            using (var fs = File.OpenRead(apppath))
+            {
+                Response.WriteFile(fs);
+            }
+        }
+
+        [RemotingMethod]
+        public void copy()
+        {
+
+            var apppath = $"{RemotingContext.Current.WebRoot}/copy.zip";
+            using (var fs = File.OpenRead(apppath))
+            {
+                Response.WriteFile(fs);
+            }
+        }
 
         [RemotingMethod]
         public bool CheckUser(string loginCode)
