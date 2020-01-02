@@ -604,18 +604,19 @@ namespace Way.Lib.ScriptRemoting
 
         string encryptToReturn(string ret)
         {
-            if (ret == null)
-                return null;
-            RSA rsa = this.Session["$$_RSACryptoServiceProvider"] as RSA;
-            var bs = System.Text.Encoding.Unicode.GetBytes(ret);
-            StringBuilder buffer = new StringBuilder();
-            for (int i = 0; i < bs.Length; i += 2)
-            {
-                buffer.Append("\\u");
-                buffer.Append(Convert.ToString((int)bs[i + 1] , 16).PadLeft(2 , '0'));
-                buffer.Append(Convert.ToString((int)bs[i], 16).PadLeft(2, '0'));
-            }
-            return rsa.EncryptByD(buffer.ToString());
+            //if (ret == null)
+            //    return null;
+            //RSA rsa = this.Session["$$_RSACryptoServiceProvider"] as RSA;
+            //var bs = System.Text.Encoding.Unicode.GetBytes(ret);
+            //StringBuilder buffer = new StringBuilder();
+            //for (int i = 0; i < bs.Length; i += 2)
+            //{
+            //    buffer.Append("\\u");
+            //    buffer.Append(Convert.ToString((int)bs[i + 1] , 16).PadLeft(2 , '0'));
+            //    buffer.Append(Convert.ToString((int)bs[i], 16).PadLeft(2, '0'));
+            //}
+            //return rsa.EncryptByD(buffer.ToString());
+            return "";
         }
 
         public void SendData(MessageType msgType, object resultObj,string sessionid)

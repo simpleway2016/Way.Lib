@@ -256,6 +256,36 @@ namespace Way.Lib.ScriptRemoting.Net
         {
             Write(content, 0, content.Length);
         }
+        public void WriteFile(Stream filestream)
+        {
+            MakeResponseHeaders((int)filestream.Length, false, -1, 0, DateTime.Now.ToUniversalTime().ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo), null, true);
+            StringBuilder buffer = new StringBuilder();
+            buffer.Append($"HTTP/1.1 {this.StatusCode} {GetStatusDescription(this.StatusCode)}\r\n");
+            foreach (var headeritem in this.Headers)
+            {
+                try
+                {
+                    buffer.Append($"{headeritem.Key}: {headeritem.Value}\r\n");
+                }
+                catch
+                {
+
+                }
+            }
+            buffer.Append("\r\n");
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes(buffer.ToString()));
+
+
+            byte[] bs = new byte[4096];
+            var total = filestream.Length;
+            while (total > 0)
+            {
+                var readed = filestream.Read(bs, 0, bs.Length);
+                total -= readed;
+                mClient.Write(bs, 0, readed);
+            }
+            this.End();
+        }
         public override void Write(byte[] content , int offset ,int count)
         {
             if (mClient == null)
