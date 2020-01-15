@@ -159,6 +159,7 @@ namespace Way.Lib
         /// </summary>
         /// <param name="SocketClient"></param>
         /// <param name="ssl">ssl证书</param>
+        [Obsolete("use AsSSLServer")]
         public NetStream(Socket SocketClient, X509Certificate2 ssl)
         {
             this.Socket = SocketClient;
@@ -188,6 +189,41 @@ namespace Way.Lib
                 this.Socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
             }
             catch { return; }
+        }
+
+        bool RemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// 使用ssl协议作为客户端
+        /// </summary>
+        /// <param name="protocol"></param>
+        /// <param name="certificateValidationCallback"></param>
+        public void AsSSLClient(SslProtocols protocol = SslProtocols.Tls, RemoteCertificateValidationCallback certificateValidationCallback = null)
+        {
+            if(certificateValidationCallback == null)
+            {
+                certificateValidationCallback = new RemoteCertificateValidationCallback(RemoteCertificateValidationCallback);
+            }
+            SslStream client = new SslStream(_stream, false, certificateValidationCallback);
+            client.AuthenticateAsClient("");
+
+            _stream = client;
+        }
+
+        /// <summary>
+        /// 使用ssl协议作为服务器端
+        /// </summary>
+        /// <param name="ssl"></param>
+        /// <param name="protocol"></param>
+        public void AsSSLServer(X509Certificate2 ssl , SslProtocols protocol = SslProtocols.Tls)
+        {
+            SslStream sslStream = new SslStream(_stream, false);
+            sslStream.AuthenticateAsServer(ssl, false, protocol, true);
+
+            _stream = sslStream;
         }
 
         /// <summary>
@@ -462,14 +498,19 @@ namespace Way.Lib
             if (count <= 0)
                 return 0;
 
-
-            var readed =  _stream.Read(buffer, offset, count);
-
-            if (readed == 0)
+            var total = count;
+            while (total > 0)
             {
-                throw new Exception("Socket 已经断开");
+                var readed = _stream.Read(buffer, offset, total);
+                offset += readed;
+                total -= readed;
+
+                if (readed == 0)
+                {
+                    throw new Exception("Socket 已经断开");
+                }
             }
-            return readed;
+            return count;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
