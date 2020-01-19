@@ -514,7 +514,7 @@ namespace Way.Lib
 
                 if (readed == 0)
                 {
-                    throw new Exception("Socket 已经断开");
+                    return count - total;
                 }
             }
             return count;
