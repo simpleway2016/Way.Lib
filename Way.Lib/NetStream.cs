@@ -203,11 +203,18 @@ namespace Way.Lib
         /// <param name="certificateValidationCallback"></param>
         public void AsSSLClient(SslProtocols protocol = SslProtocols.Tls, RemoteCertificateValidationCallback certificateValidationCallback = null)
         {
-            if(certificateValidationCallback == null)
+            SslStream client;
+            if (certificateValidationCallback != null || ServicePointManager.ServerCertificateValidationCallback != null)
             {
-                certificateValidationCallback = new RemoteCertificateValidationCallback(RemoteCertificateValidationCallback);
+                if (certificateValidationCallback == null)
+                    certificateValidationCallback = ServicePointManager.ServerCertificateValidationCallback;
+
+                client = new SslStream(_stream, false, certificateValidationCallback);
             }
-            SslStream client = new SslStream(_stream, false, certificateValidationCallback);
+            else
+            {
+                client = new SslStream(_stream);
+            }
             client.AuthenticateAsClient("");
 
             _stream = client;
