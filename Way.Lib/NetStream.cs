@@ -311,18 +311,17 @@ namespace Way.Lib
         }
         public void ReceiveDatas(byte[] buffer , int offset , int length)
         {
-            int readed;
-            while (true)
+            int readed = 0;
+            while (readed < length)
             {
-                readed = _stream.Read(buffer, offset, buffer.Length - offset);
-                if (readed == 0)
+                int read = _stream.Read(buffer, offset, length - readed);
+                if (read == 0)
                 {
                     throw new Exception("Socket已经断开");
                 }
 
-                offset += readed;
-                if (offset >= buffer.Length)
-                    break;
+                offset += read;
+                readed += read;
             }
         }
 
