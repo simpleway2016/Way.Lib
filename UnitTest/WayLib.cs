@@ -20,6 +20,7 @@ using System.Net;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace UnitTest
 {
@@ -243,6 +244,25 @@ namespace UnitTest
             }
             if(total != 100*1000)
                 throw new Exception("error");
+        }
+
+        [TestMethod]
+        public void testClient()
+        {
+            for(int i = 0; i < 40000; i ++)
+            {
+                try
+                {
+                    HttpClient.GetContent("https://www.baidu.com", 5000);
+                    Thread.Sleep(100);
+                    Debug.WriteLine(i.ToString());
+                }
+                catch (Exception ex) 
+                {
+
+                }
+               
+            }
         }
 
     }

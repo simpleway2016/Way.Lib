@@ -110,13 +110,15 @@ namespace Way.Lib
         /// <returns></returns>
         public static string PostJson(string url, IDictionary<string, string> headers, string json, int timeout)
         {
+            HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
-                HttpWebRequest request = WebRequest.CreateHttp(url);
+               
                 request.Method = "POST";
                 request.Timeout = timeout;
                 request.ContentType = "application/json; charset=utf-8";
-                if(headers != null)
+                
+                if (headers != null)
                 {
                     foreach( var item in headers )
                     {
@@ -128,42 +130,48 @@ namespace Way.Lib
 
                 var task = request.GetRequestStreamAsync();
                 task.Wait();
-                var requestStream = task.Result;
-                requestStream.Write(data, 0, data.Length);
-                requestStream.Flush();
-
-                var taskResponse = request.GetResponseAsync();
-                taskResponse.Wait();
-                var responseStream = taskResponse.Result.GetResponseStream();
-
-                var contentType = taskResponse.Result.ContentType;//Content-Type: text/html; charset=GBK
-                var match = System.Text.RegularExpressions.Regex.Match(contentType, @"charset\=([\w|\-]+)");
-                var charsetCode = Encoding.UTF8;
-                if (match != null && !string.IsNullOrEmpty(match.Value))
+                using (var requestStream = task.Result)
                 {
-                    string charset = match.Groups[1].Value;
-                    try
-                    {
-                        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                        charsetCode = Encoding.GetEncoding(charset);
-                    }
-                    catch
-                    {
+                    requestStream.Write(data, 0, data.Length);
+                    requestStream.Flush();
 
+                    var taskResponse = request.GetResponseAsync();
+                    taskResponse.Wait();
+                    using (var responseStream = taskResponse.Result.GetResponseStream())
+                    {
+                        var contentType = taskResponse.Result.ContentType;//Content-Type: text/html; charset=GBK
+                        var match = System.Text.RegularExpressions.Regex.Match(contentType, @"charset\=([\w|\-]+)");
+                        var charsetCode = Encoding.UTF8;
+                        if (match != null && !string.IsNullOrEmpty(match.Value))
+                        {
+                            string charset = match.Groups[1].Value;
+                            try
+                            {
+                                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                                charsetCode = Encoding.GetEncoding(charset);
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+
+                        StreamReader sr = new StreamReader(responseStream, charsetCode);
+                        var result = sr.ReadToEnd().Trim();
+                        sr.Dispose();
+
+                        return result;
                     }
                 }
-
-                StreamReader sr = new StreamReader(responseStream, charsetCode);
-                var result = sr.ReadToEnd().Trim();
-                responseStream.Dispose();
-                requestStream.Dispose();
-
-                return result;
             }
             catch (Exception ex)
             {
                 handleWebException(ex);
                 return null;
+            }
+            finally
+            {
+                request.Abort();
             }
         }
         /// <summary>
@@ -176,9 +184,10 @@ namespace Way.Lib
         /// <returns></returns>
         public static string PostQueryString(string url, IDictionary<string, string> headers, string query, int timeout)
         {
+            HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
-                HttpWebRequest request = WebRequest.CreateHttp(url);
+                
                 request.Method = "POST";
                 request.Timeout = timeout;
                 request.ContentType = "application/x-www-form-urlencoded;charset=utf-8";
@@ -194,42 +203,49 @@ namespace Way.Lib
 
                 var task = request.GetRequestStreamAsync();
                 task.Wait();
-                var requestStream = task.Result;
-                requestStream.Write(data, 0, data.Length);
-                requestStream.Flush();
-
-                var taskResponse = request.GetResponseAsync();
-                taskResponse.Wait();
-                var responseStream = taskResponse.Result.GetResponseStream();
-
-                var contentType = taskResponse.Result.ContentType;//Content-Type: text/html; charset=GBK
-                var match = System.Text.RegularExpressions.Regex.Match(contentType, @"charset\=([\w|\-]+)");
-                var charsetCode = Encoding.UTF8;
-                if (match != null && !string.IsNullOrEmpty(match.Value))
+                using (var requestStream = task.Result)
                 {
-                    string charset = match.Groups[1].Value;
-                    try
-                    {
-                        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                        charsetCode = Encoding.GetEncoding(charset);
-                    }
-                    catch
+                    requestStream.Write(data, 0, data.Length);
+                    requestStream.Flush();
+
+                    var taskResponse = request.GetResponseAsync();
+                    taskResponse.Wait();
+                    using (var responseStream = taskResponse.Result.GetResponseStream())
                     {
 
+                        var contentType = taskResponse.Result.ContentType;//Content-Type: text/html; charset=GBK
+                        var match = System.Text.RegularExpressions.Regex.Match(contentType, @"charset\=([\w|\-]+)");
+                        var charsetCode = Encoding.UTF8;
+                        if (match != null && !string.IsNullOrEmpty(match.Value))
+                        {
+                            string charset = match.Groups[1].Value;
+                            try
+                            {
+                                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                                charsetCode = Encoding.GetEncoding(charset);
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+
+                        StreamReader sr = new StreamReader(responseStream, charsetCode);
+                        var result = sr.ReadToEnd().Trim();
+                        sr.Dispose();
+
+                        return result;
                     }
                 }
-
-                StreamReader sr = new StreamReader(responseStream, charsetCode);
-                var result = sr.ReadToEnd().Trim();
-                responseStream.Dispose();
-                requestStream.Dispose();
-
-                return result;
             }
             catch (Exception ex)
             {
                 handleWebException(ex);
                 return null;
+            }
+            finally
+            {
+                request.Abort();
             }
         }
 
@@ -260,11 +276,13 @@ namespace Way.Lib
 
                 }
             }
-            StreamReader sr = new StreamReader(res.GetResponseStream(), charsetCode);
-            var strResult = sr.ReadToEnd().Trim();
-            if (strResult.Length == 0)
-                throw err;
-            throw new HttpException(err.Message , res.StatusCode , strResult);
+            using (StreamReader sr = new StreamReader(res.GetResponseStream(), charsetCode))
+            {
+                var strResult = sr.ReadToEnd().Trim();
+                if (strResult.Length == 0)
+                    throw err;
+                throw new HttpException(err.Message, res.StatusCode, strResult);
+            }
         }
         /// <summary>
         /// 
@@ -286,9 +304,10 @@ namespace Way.Lib
             /// <returns></returns>
             public static string GetContent(string url, IDictionary<string, string> headers, int timeout)
         {
+            HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
-                HttpWebRequest request = WebRequest.CreateHttp(url);
+               
                 request.Method = "GET";
                 request.Timeout = timeout;
                 if (headers != null)
@@ -298,37 +317,44 @@ namespace Way.Lib
                         request.Headers[item.Key] = item.Value;
                     }
                 }
+                
                 var taskResponse = request.GetResponseAsync();
                 taskResponse.Wait();
-                var responseStream = taskResponse.Result.GetResponseStream();
-
-                var contentType = taskResponse.Result.ContentType;//Content-Type: text/html; charset=GBK
-                var match = System.Text.RegularExpressions.Regex.Match(contentType, @"charset\=([\w|\-]+)");
-                var charsetCode = Encoding.UTF8;
-                if (match != null && !string.IsNullOrEmpty(match.Value))
+                using (var responseStream = taskResponse.Result.GetResponseStream())
                 {
-                    string charset = match.Groups[1].Value;
-                    try
-                    {
-                        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                        charsetCode = Encoding.GetEncoding(charset);
-                    }
-                    catch
-                    {
 
+                    var contentType = taskResponse.Result.ContentType;//Content-Type: text/html; charset=GBK
+                    var match = System.Text.RegularExpressions.Regex.Match(contentType, @"charset\=([\w|\-]+)");
+                    var charsetCode = Encoding.UTF8;
+                    if (match != null && !string.IsNullOrEmpty(match.Value))
+                    {
+                        string charset = match.Groups[1].Value;
+                        try
+                        {
+                            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                            charsetCode = Encoding.GetEncoding(charset);
+                        }
+                        catch
+                        {
+
+                        }
                     }
+
+                    StreamReader sr = new StreamReader(responseStream, charsetCode);
+                    var result = sr.ReadToEnd().Trim();
+                    sr.Dispose();
+
+                    return result;
                 }
-
-                StreamReader sr = new StreamReader(responseStream, charsetCode);
-                var result = sr.ReadToEnd().Trim();
-                responseStream.Dispose();
-
-                return result;
             }
             catch (Exception ex)
             {
                 handleWebException(ex);
                 return null;
+            }
+            finally
+            {
+                request.Abort();
             }
         }
         /// <summary>
@@ -343,13 +369,14 @@ namespace Way.Lib
         /// <returns></returns>
         public static string UploadFile(string url, byte[] fileContent, string name, string fileName, string contentType, Dictionary<string, string> others)
         {
+            HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
             try
             {
                 string result = string.Empty;
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
                 byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
-                HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
+               
                 wr.ContentType = "multipart/form-data; boundary=" + boundary;
                 wr.Method = "POST";
                 wr.KeepAlive = true;
@@ -382,10 +409,15 @@ namespace Way.Lib
                 try
                 {
                     wresp = wr.GetResponse();
-                    Stream stream2 = wresp.GetResponseStream();
-                    StreamReader reader2 = new StreamReader(stream2);
+                    using (Stream stream2 = wresp.GetResponseStream())
+                    {
+                        StreamReader reader2 = new StreamReader(stream2);
 
-                    result = reader2.ReadToEnd();
+                        result = reader2.ReadToEnd();
+                        reader2.Dispose();
+
+                    }
+                        
                 }
                 catch (Exception ex)
                 {
@@ -395,10 +427,6 @@ namespace Way.Lib
                         wresp = null;
                     }
                 }
-                finally
-                {
-                    wr = null;
-                }
 
                 return result;
             }
@@ -406,6 +434,10 @@ namespace Way.Lib
             {
                 handleWebException(ex);
                 return null;
+            }
+            finally
+            {
+                wr.Abort();
             }
         }
     }
