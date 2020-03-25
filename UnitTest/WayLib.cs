@@ -249,12 +249,20 @@ namespace UnitTest
         [TestMethod]
         public void testClient()
         {
-            for(int i = 0; i < 40000; i ++)
+            var dict = new Dictionary<string, object>() {
+
+                        { "jsonrpc" , "2.0"},
+                        { "method" , "abc"}
+                    };
+            var headers = new Dictionary<string, string>();
+
+
+            for (int i = 0; i < 40000; i ++)
             {
                 try
                 {
-                    HttpClient.GetContent("https://www.baidu.com", 5000);
-                    Thread.Sleep(100);
+                    var content = HttpClient.PostJson("http://localhost:8988/main.html", headers , dict , 5000);
+                    //Thread.Sleep(10);
                     Debug.WriteLine(i.ToString());
                 }
                 catch (Exception ex) 

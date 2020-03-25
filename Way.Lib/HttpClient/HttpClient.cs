@@ -110,6 +110,16 @@ namespace Way.Lib
         /// <returns></returns>
         public static string PostJson(string url, IDictionary<string, string> headers, string json, int timeout)
         {
+            if (headers != null && headers.ContainsKey("Connection") == false)
+            {
+                try
+                {
+                    headers["Connection"] = "close";
+                }
+                catch
+                {
+                }
+            }
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
@@ -184,6 +194,16 @@ namespace Way.Lib
         /// <returns></returns>
         public static string PostQueryString(string url, IDictionary<string, string> headers, string query, int timeout)
         {
+            if(headers != null && headers.ContainsKey("Connection") == false)
+            {
+                try
+                {
+                    headers["Connection"] = "close";
+                }
+                catch 
+                {
+                }
+            }
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
@@ -304,6 +324,16 @@ namespace Way.Lib
             /// <returns></returns>
             public static string GetContent(string url, IDictionary<string, string> headers, int timeout)
         {
+            if (headers != null && headers.ContainsKey("Connection") == false)
+            {
+                try
+                {
+                    headers["Connection"] = "close";
+                }
+                catch
+                {
+                }
+            }
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
@@ -376,7 +406,15 @@ namespace Way.Lib
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
                 byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
-               
+                try
+                {
+                    wr.Headers["Connection"] = "close";
+
+                }
+                catch 
+                {
+                }
+                
                 wr.ContentType = "multipart/form-data; boundary=" + boundary;
                 wr.Method = "POST";
                 wr.KeepAlive = true;
