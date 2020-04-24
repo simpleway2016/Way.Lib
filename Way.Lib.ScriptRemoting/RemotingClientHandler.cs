@@ -564,8 +564,8 @@ namespace Way.Lib.ScriptRemoting
                             }
                         }
                         object result = null;
-
-                        result = methodinfo.Invoke(currentPage, parameters);
+                      
+                        result = currentPage._OnInvokeMethod(methodinfo, parameters);
 
                         if (methodAttr.UseRSA.HasFlag(RSAApplyScene.EncryptResult) && result != null)
                         {
