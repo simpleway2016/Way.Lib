@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace UnitTest
 {
@@ -62,17 +63,21 @@ namespace UnitTest
         public void 私钥加密()
         {
 
-            var priKey = Way.Lib.RSA.GetPrivateKey("MIICXAIBAAKBgQCv19cfVLpis7dRFQUP4i26W7k7siN4Rk+YY34UZ7OwZ2wHG7GkxZosLXdDdHl4Tww0sdPEXf0PeIsIFN/wEEUzxdaNydo9H/FvwjYEwyTYt6Ob0PXiDqk/FnkyNx9CJRtnDYHFbavTjILAzavKAVimASjabTKBwclUNNf5nhsyBQIDAQABAoGAcY1PZPMg/XYSjjCluTEU2IA86NjLYPL+mWi+VUz2U5clwp1WpRHZ0md12cCQZGmfdzPSjb8oGOJ93bUlO3A2TvuPfXrrJuqSLzCeEyfyrsPEZ13dZCL7LGZ9kU23odAD65AoE6uWR8PFS/MhaM66rUY2N8SIkv6XKfdf0V93ueECQQDUvnCMTBZnow0HA7bYPoO9HCpQ7WVR+bsgCH3ZUIBlbtKf5cfYOK7RXQAQWeUn6u1HHuucJ1bKcsWGq78ff6RdAkEA05isav9lTHCQYmCZSb46kOHVNdfzNGAbnP/1V9f9jrDe//YPslDhOUyTvQcB80RbxClvrIxDNadt35OI8s1pyQJBAMUamA30JMHqOBSqpUoeSVH5eV83Qys7E9ru4yJnSj4v+ia47nnuslE5N+juULi2GRZOmH45mFjDEyzdjJqzWOUCQEkm0gzXqKypibEJFlWBN3wZJv3LX6Auzb0UXDx3RoiLKz0wUzLhdUu65qSGBK2WZ2dEr//mKeIltP2DYugWDckCQFYnYBNnqX6K31fsnbcbGIRaNr5DXUhu2wE3q8uIY1acXul+QJoYsdhSjjTATa0cYzOWf3Blv5P7LVQYFfyCF+U=", RSAKeyType.PKCS1);
+            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(2048);
+            var privatekey = rsa.ExportParameters(true);
+            var publickey = rsa.ExportParameters(false);
 
-            var 需要加密的内容 = "b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557";
-            byte[] outBytes = Way.Lib.RSA.EncryptByPrivateKey(Encoding.UTF8.GetBytes(需要加密的内容), priKey);
-            var base64fff = Convert.ToBase64String(outBytes);
+           
+            var 需要加密的内容 = "b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557b=8XL3BEL8EWYX6XVP2222&a=49.88&u=周巍lang&p=+8618610032557";
+            byte[] outBytes = Way.Lib.RSA.EncryptByPrivateKey(Encoding.UTF8.GetBytes(需要加密的内容), privatekey);
+           
 
-            //公钥解密
-            var 需要解密的内容 = "VmgQKL9DDu26HS594F6uLxOh8zr2LM0HxcFSVoWHdbeDYK/ixnCa1XFCM+/gtgOPJh+wMAdIMeSVg2cYJJ3u9ubr0yFrddwkrELkEQoPlX70ncwI4Fj7oaEOFMEO5AIq3o++IcI5vz238W54AHiZ3ONpW/N88fma4nNYesA2hrg=";
-            var pubkey = RSA.GetPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB");
-            outBytes = RSA.DecryptByPublicKey(Convert.FromBase64String(需要解密的内容), pubkey);
+          outBytes = Way.Lib.RSA.DecryptByPublicKey(outBytes, publickey);
             var result = Encoding.UTF8.GetString(outBytes);
+
+            outBytes = Way.Lib.RSA.EncryptByPublicKey(Encoding.UTF8.GetBytes(需要加密的内容), publickey);
+            outBytes = Way.Lib.RSA.DecryptByPrivateKey(outBytes, privatekey);
+            result = Encoding.UTF8.GetString(outBytes);
         }
 
         [TestMethod]

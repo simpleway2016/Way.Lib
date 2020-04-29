@@ -90,10 +90,27 @@ namespace Way.Lib
 
             //第一个参数 true-加密，false-解密；第二个参数表示密钥
             c.Init(true, key);
-            //解密
-            byte[] outBytes = c.DoFinal(content);
 
-            return outBytes;
+            int keySize = pubKey.Modulus.Length;
+            int maxLen = keySize * 8 / 10;
+            if (content.Length <= maxLen)
+            {
+                return c.DoFinal(content);
+            }
+            else
+            {
+                List<byte> result = new List<byte>();
+                var total = content.Length;
+                for (var i = 0; i < content.Length; i += maxLen)
+                {
+                    byte[] data = new byte[Math.Min(maxLen, total)];
+                    total -= data.Length;
+                    Array.Copy(content, i, data, 0, data.Length);
+                    data = c.DoFinal(data);
+                    result.AddRange(data);
+                }
+                return result.ToArray();
+            }
 
         }
 
@@ -115,10 +132,18 @@ namespace Way.Lib
 
             //第一个参数 true-加密，false-解密；第二个参数表示密钥
             c.Init(false, key);
-            //解密
-            byte[] outBytes = c.DoFinal(content);
 
-            return outBytes;
+            int keySize = pubKey.Modulus.Length;
+            List<byte> result = new List<byte>();
+            var total = content.Length;
+            for (var i = 0; i < content.Length; i += keySize)
+            {
+                byte[] data = new byte[keySize];
+                Array.Copy(content, i, data, 0, data.Length);
+                data = c.DoFinal(data);
+                result.AddRange(data);
+            }
+            return result.ToArray();
 
         }
 
@@ -143,34 +168,27 @@ namespace Way.Lib
 
             //第一个参数 true-加密，false-解密；第二个参数表示密钥
             c.Init(true, key);
-            //解密
-            byte[] outBytes = c.DoFinal(content);
 
-            return outBytes;
-
-            //var rsa = System.Security.Cryptography.RSA.Create();
-            //rsa.ImportParameters(key);
-            //int keySize = key.Modulus.Length;
-            //int maxLen = keySize * 8 / 10;
-            //if (content.Length <= maxLen)
-            //{
-            //    var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(content), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
-            //    return BytesToHexString(data);
-            //}
-            //else
-            //{
-            //    var result = new StringBuilder();
-            //    var total = content.Length;
-            //    for (var i = 0; i < content.Length; i += maxLen)
-            //    {
-            //        var text = content.Substring(i, Math.Min(maxLen, total));
-            //        total -= text.Length;
-            //        var data = rsa.Encrypt(System.Text.Encoding.ASCII.GetBytes(text), System.Security.Cryptography.RSAEncryptionPadding.Pkcs1);
-            //        result.Append( BytesToHexString(data));
-            //    }
-            //    return result.ToString();
-            //}
-
+            int keySize = priKey.Modulus.Length;
+            int maxLen = keySize * 8 / 10;
+            if (content.Length <= maxLen)
+            {
+                return c.DoFinal(content);
+            }
+            else
+            {
+                List<byte> result = new List<byte>();
+                var total = content.Length;
+                for (var i = 0; i < content.Length; i += maxLen)
+                {
+                    byte[] data = new byte[Math.Min(maxLen, total)];
+                    total -= data.Length;
+                    Array.Copy(content, i, data, 0, data.Length);
+                    data = c.DoFinal(data);
+                    result.AddRange(data);
+                }
+                return result.ToArray();
+            }
 
         }
 
@@ -195,10 +213,18 @@ namespace Way.Lib
 
             //第一个参数 true-加密，false-解密；第二个参数表示密钥
             c.Init(false, key);
-            //解密
-            byte[] outBytes = c.DoFinal(content);
 
-            return outBytes;
+            int keySize = priKey.Modulus.Length;
+            List<byte> result = new List<byte>();
+            var total = content.Length;
+            for (var i = 0; i < content.Length; i += keySize)
+            {
+                byte[] data = new byte[keySize];
+                Array.Copy(content, i, data, 0, data.Length);
+                data = c.DoFinal(data);
+                result.AddRange(data);
+            }
+            return result.ToArray();
 
         }
 
