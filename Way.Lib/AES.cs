@@ -37,7 +37,7 @@ namespace Way.Lib
         /// 
         /// </summary>
         /// <param name="content"></param>
-        /// <param name="key"></param>
+        /// <param name="key">密钥 16个字母</param>
         /// <returns></returns>
         public static byte[] Encrypt(byte[] content, string key)
         {
@@ -90,7 +90,7 @@ namespace Way.Lib
         /// 
         /// </summary>
         /// <param name="content"></param>
-        /// <param name="key"></param>
+        /// <param name="key">密钥 16个字母</param>
         /// <returns></returns>
         public static byte[] Decrypt(byte[] content, string key)
         {
