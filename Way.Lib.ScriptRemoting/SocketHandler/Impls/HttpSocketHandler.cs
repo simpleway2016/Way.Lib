@@ -28,8 +28,16 @@ namespace Way.Lib.ScriptRemoting
                 byte[] bs = new byte[stream.Length];
                 stream.Read(bs, 0, bs.Length);
                 stream.Dispose();
-                File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt", bs);
-                sr = new StreamReader(File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt"), System.Text.Encoding.UTF8);
+                try
+                {
+                    File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt", bs);
+                    sr = new StreamReader(File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "ContentTypes.txt"), System.Text.Encoding.UTF8);
+                }
+                catch
+                {
+                    sr = new StreamReader(typeof(RemotingController).GetTypeInfo().Assembly.GetManifestResourceStream("Way.Lib.ScriptRemoting.ContentTypes.txt") , System.Text.Encoding.UTF8);
+                }
+                
             }
             
             while(true)

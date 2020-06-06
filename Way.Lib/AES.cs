@@ -58,6 +58,7 @@ namespace Way.Lib
             }             
         }
 
+
         /// <summary>
         ///  解密
         /// </summary>
@@ -110,5 +111,50 @@ namespace Way.Lib
             }
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="toDecryptArray"></param>
+        /// <param name="key">24个字符的密钥</param>
+        /// <returns></returns>
+        public static byte[] TripleDESDecrypt(byte[] toDecryptArray, string key)
+        {
+            using (var tripleDES = TripleDES.Create())
+            {
+                var byteKey = Encoding.UTF8.GetBytes(key);
+                tripleDES.Key = byteKey;
+                tripleDES.Mode = CipherMode.ECB;
+                tripleDES.Padding = PaddingMode.PKCS7;
+
+                using (ICryptoTransform cTransform = tripleDES.CreateDecryptor())
+                {
+                    return cTransform.TransformFinalBlock(toDecryptArray, 0, toDecryptArray.Length);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="toEncryptArray"></param>
+        /// <param name="key">24个字符的密钥</param>
+        /// <returns></returns>
+        public static byte[] TripleDESEncrypt(byte[] toEncryptArray, string key)
+        {
+            using (var tripleDES = TripleDES.Create())
+            {
+                var byteKey = Encoding.UTF8.GetBytes(key);
+                tripleDES.Key = byteKey;
+                tripleDES.Mode = CipherMode.ECB;
+                tripleDES.Padding = PaddingMode.PKCS7;
+
+                using (ICryptoTransform cTransform = tripleDES.CreateEncryptor())
+                {
+                    return cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+                }
+            }
+        }
+
     }
 }

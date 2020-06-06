@@ -38,26 +38,73 @@ namespace UnitTest
         }
       
 
-        const string PUBLICKEY =
-                @"-----BEGIN PUBLIC KEY-----
-                MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLlEKOroTGplfSSmP9emm5da62NSR/QRoqPn0e/t+GVdevyRs3/J7oOpkGdgkW6s/65LIB+y+HwzeNnVvrt2y831Kdbi4nxlpvmxf1BFHJSdXHNtJ+2nfKvRRBj8+DtEu9jelQbSYp23qC+NwnpXdOyQqtKUdSsEdmL6iKc0ofsQIDAQAB
-                -----END PUBLIC KEY-----";
-        const string PRIVATEKEY =
-                @"-----BEGIN RSA PRIVATE KEY-----
-                MIICXQIBAAKBgQDpsDr+W45aFHIkvotZaGK/THlFFpuZfUtghhWkHAm3H7yvL42J
-                4xHrTr6IeUDCl4eKe6qiIgvYSNoL3u4SERGOeYmV1F+cocu9IMGnNoicbh1zVW6e
-                8/iGT3xaYQizJoVuWA/TC/zdds2ihCJfHDBDsouOCXecPapyWCGQNsH5sQIDAQAB
-                AoGBAM/JbFs4y5WbMncrmjpQj+UrOXVOCeLrvrc/4kQ+zgCvTpWywbaGWiuRo+cz
-                cXrVQ6bGGU362e9hr8f4XFViKemDL4SmJbgSDa1K71i+/LnnzF6sjiDBFQ/jA9SK
-                4PYrY7a3IkeBQnJmknanykugyQ1xmCjbuh556fOeRPaHnhx1AkEA/flrxJSy1Z+n
-                Y1RPgDOeDqyG6MhwU1Jl0yJ1sw3Or4qGRXhjTeGsCrKqV0/ajqdkDEM7FNkqnmsB
-                +vPd116J6wJBAOuNY3oOWvy2fQ32mj6XV+S2vcG1osEUaEuWvEgkGqJ9co6100Qp
-                j15036AQEEDqbjdqS0ShfeRSwevTJZIap9MCQCeMGDDjKrnDA5CfB0YiQ4FrchJ7
-                a6o90WdAHW3FP6LsAh59MZFmC6Ea0xWHdLPz8stKCMAlVNKYPRWztZ6ctQMCQQC8
-                iWbeAy+ApvBhhMjg4HJRdpNbwO6MbLEuD3CUrZFEDfTrlU2MeVdv20xC6ZiY3Qtq
-                /4FPZZNGdZcSEuc3km5RAkApGkZmWetNwDJMcUJbSBrQMFfrQObqMPBPe+gEniQq
-                Ttwu1OULHlmUg9eW31wRI2uiXcFCJMHuro6iOQ1VJ4Qs
-                -----END RSA PRIVATE KEY-----";
+         string PUBLICKEY = @"-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt54sj/DZNdxpRetHIGxp
+jwVeBLzTXiiPpPxGSo7IxAXQItPLjO0drJUksw6Y9WaVzz8S1NYTrZvuALbD+bBG
+3sWwejJUHen12C/VDcSrLjl99x5iNGp6dxtnolILEcTE1ejvTCCdvwQFNDaODuE+
+W5GZMMMA6wogkAlqONhlbF91fwhbVcoqi6AiEV/znVbT+nKkH6f9I9bs0vhsGyhf
+G2sWLOTdEmU8Yu7YegslL01yi0Jfz8QxsMvQHtg5aQ/UOFFdILnwuZQvaMx+a0us
+mYIC+5Wwv47VPrzm6u2XHg2VOmYfp/bThdRUouCIe4SYLwrNgpSCAvdwqDeWiJai
+jQIDAQAB
+-----END PUBLIC KEY-----
+";
+         string PRIVATEKEY = @"-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAt54sj/DZNdxpRetHIGxpjwVeBLzTXiiPpPxGSo7IxAXQItPL
+jO0drJUksw6Y9WaVzz8S1NYTrZvuALbD+bBG3sWwejJUHen12C/VDcSrLjl99x5i
+NGp6dxtnolILEcTE1ejvTCCdvwQFNDaODuE+W5GZMMMA6wogkAlqONhlbF91fwhb
+Vcoqi6AiEV/znVbT+nKkH6f9I9bs0vhsGyhfG2sWLOTdEmU8Yu7YegslL01yi0Jf
+z8QxsMvQHtg5aQ/UOFFdILnwuZQvaMx+a0usmYIC+5Wwv47VPrzm6u2XHg2VOmYf
+p/bThdRUouCIe4SYLwrNgpSCAvdwqDeWiJaijQIDAQABAoIBABL6oHSIWos8qwz1
+ErcBPa/wyBUJR3e2DZLqGIHgXFQWnbrb1XBNmgGasN5pJdpHrjhrtpCVSBdrxKAC
+RCNs2wZvvJwE07j709NyrjzsFR2EB8chNtlgICRriry2ajp98jKCDyn5PRTfX4JU
+GT7kfUONux3VKiUhONhqgLY7d9BJqMtAWiu8ATKnjbFZJ/g72qdtsROGEngWzyjl
+ZoWb+NisXaJpfx49EgJubRW7tEWG8BlQiiVopY5W48Hnm5ojP2Be9TaRV7sDJ5cx
+zqZ9DaT2Gaw6Irx9HvX7JJFDd9dltszhRwFpifST4RHeXKWh6YvbbUPGbnSOirgb
+7omUFwECgYEA4Spwjfc9pE1uHyXUKquPTgKZdj+D/oHk53jFMpmI5Nvja8oPcp1H
+9+oxoTyfK3Y6sA1RyBIVWmbPVd82YDeYNPfSXjRQtAA3TNXkqmnAqXlXCCPL2DLa
+t5zXsP40gXktuFA8cJ3l459R1dhuzC0CBLFH6FdfPMNyg9Wkk6yRJC0CgYEA0MM0
+Den+PeKPa0QsRg68AEnrJh7Bbz7OwIHcLMUs86+S6nN+qghrLy0QYB/WxjRNuovS
+rqUDTnJBVICoXgCbxOggdQCSHcwS8SXv/zp34nkjjHqtY+a6fEvguwLeFBmEGPsX
+K5MAjzmoTNcDNq0LHDrVXuNDsrsPWFpMA6JAk+ECgYA24qhzAoxlC3bHYuo3yH/z
+DREpUMw08qbAgaDX97L1zl++O4/OaWZMmSql2egWqQgfN+/ya+4Gjj8F+JYBmCui
+5bHCws/VQKQ6N304yPRsmyZK1qbuuV61GSc+foh/8vDhF7XT4blS5dgF328KmAIA
+8NHNYdbWMfItDpvCX3M1tQKBgGg+IP8VqbuTJxRj/UuaTexC/OWTE/oNvcXI0n2U
+k8a3FEB4HXagL41mDjhBjch5E5sj+Lb2dPk1+kNM30XZPe8MDjD+cPfqEEdUL0we
+EQEIhmS+WVh6PQKWDQi0/NnCiADFWKOMiwn5u31rHBKwQ8z739G63/IekCIJLM3f
+tilhAoGBAJwC3uXrvr6ALyU+WzMtKrK1KxL6pwcn5ze8cb0kdJc5W0LLtpho2+Nd
+LdzX05BZHDh5GUxxaipRHpGbZEDRnYvbrL0VcYLzRy4QiY7aAHhJo7u5BnobXyGD
+AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
+-----END RSA PRIVATE KEY-----
+";
+
+        [TestMethod]
+        public void 私钥解密()
+        {
+            var rsa =  System.Security.Cryptography.RSA.Create();
+            var pubkey = rsa.ExportParameters(false);
+            var prikey = rsa.ExportParameters(true);
+
+            pubkey = Way.Lib.RSA.GetPublicKey(PUBLICKEY);
+            var bs = Way.Lib.RSA.EncryptByPublicKey(Encoding.UTF8.GetBytes("abc我的"), pubkey);
+            var fefe = Convert.ToBase64String(bs);
+           prikey = Way.Lib.RSA.GetPrivateKey(PRIVATEKEY, RSAKeyType.PKCS1);
+            bs = Convert.FromBase64String("sEz2iMKQbIdczNmDcxwd6bCotgj2auVaWfHZVMt10z1xF4+RIVUQ1eVHwKcUaxt1Vv+SAbdSXGCaIEtZg0k7E78X39AWavbDJVeGJSEhm4IGkD/tqnzEuotzcwiFQLhxj9FKejVM7dOWyS/VvXz7Src1h9R5HSTk6b9fyakTeeiGIu3iVZ/hNeatqSp204oUxlcmotQL4sUwfTAzZ+ITZZlD9NhUptCv+iWqmuDq1GnmP1NlrvbKljDT37zmX6vAiuppyZ1VeqZecq63qyAvO6/Idg+f+Tesa6MFCXSDHk8O7tzRts27j+VoTVAPTXdtF6gHdid8trnDanU/uycL7Q==");
+           bs= Way.Lib.RSA.DecryptByPrivateKey(bs, prikey);
+           var content = Encoding.UTF8.GetString(bs);
+        }
+
+        [TestMethod]
+        public void aes()
+        {
+           
+           var bs = Convert.FromBase64String("8BFzLPk4qDE=");
+
+           bs = Way.Lib.AES.TripleDESDecrypt(bs, "STTuU02NmZi9Ce1E76iWXdgE");
+           var content = Encoding.UTF8.GetString(bs);
+
+            bs = Way.Lib.AES.TripleDESEncrypt(Encoding.UTF8.GetBytes("abc我的"), "STTuU02NmZi9Ce1E76iWXdgE");
+            content = Convert.ToBase64String(bs);
+        }
 
         [TestMethod]
         public void 私钥加密()
@@ -276,6 +323,16 @@ namespace UnitTest
                 }
                
             }
+        }
+
+        [TestMethod]
+        public void httpClient()
+        {
+            NetStream stream = new NetStream("localhost", 5000);
+            var bs = System.Text.Encoding.UTF8.GetBytes("GET /api/values/GetName HTTP/1.1\r\nHost: localhost\r\nContent-Length: 9990\r\n\r\n");
+            stream.Write(bs);
+            int readed = stream.Read(bs, 0, bs.Length);
+            var content = System.Text.Encoding.UTF8.GetString(bs);
         }
 
     }

@@ -1,6 +1,8 @@
 ﻿using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using System;
 using System.Collections;
@@ -205,8 +207,7 @@ namespace Way.Lib
             var key = new RsaPrivateCrtKeyParameters(
         new BigInteger(1, priKey.Modulus), new BigInteger(1, priKey.Exponent), new BigInteger(1, priKey.D),
         new BigInteger(1, priKey.P), new BigInteger(1, priKey.Q), new BigInteger(1, priKey.DP), new BigInteger(1, priKey.DQ),
-        new BigInteger(1, priKey.InverseQ));
-
+        new BigInteger(1, priKey.InverseQ));            
 
             //参数与Java中加密解密的参数一致
             IBufferedCipher c = CipherUtilities.GetCipher(cipher);
@@ -365,12 +366,54 @@ namespace Way.Lib
             return rsa;
         }
 
+        /// <summary>
+        /// 创建密钥对（pem格式）
+        /// </summary>
+        /// <param name="keysize"></param>
+        /// <returns>[公钥 ， 私钥]</returns>
+        public static string[] CreateKeyPair(int keysize = 2048)
+        {
+            RsaKeyPairGenerator r = new RsaKeyPairGenerator();
+            r.Init(new KeyGenerationParameters(new SecureRandom(), keysize));
+            AsymmetricCipherKeyPair keys = r.GenerateKeyPair();
+
+            AsymmetricKeyParameter private_key = keys.Private;
+            AsymmetricKeyParameter public_key = keys.Public;
+
+            TextWriter textWriter = new StringWriter();
+            PemWriter pemWriter = new PemWriter(textWriter);
+            pemWriter.WriteObject(keys.Private);
+            pemWriter.Writer.Flush();
+
+            string privateKey = textWriter.ToString();
+            
+
+
+            TextWriter textpubWriter = new StringWriter();
+            PemWriter pempubWriter = new PemWriter(textpubWriter);
+            pempubWriter.WriteObject(keys.Public);
+            pempubWriter.Writer.Flush();
+            string pubKey = textpubWriter.ToString();
+
+            return new string[] { pubKey, privateKey };
+        }
 
 
         public static RSAParameters GetPublicKey(string publicKeyString)
         {
+            if (publicKeyString.Contains("\n"))
+            {
+                StringBuilder buffer = new StringBuilder();
+                string[] arr = publicKeyString.Split('\n').Select(m => m.Trim()).Where(m => m.Length > 0).ToArray();
+                foreach (var line in arr)
+                {
+                    if (line.StartsWith("-----"))
+                        continue;
+                    buffer.Append(line);
+                }
+                publicKeyString = buffer.ToString();
+            }
 
-           
 
             byte[] SeqOID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
             byte[] x509key;
@@ -573,6 +616,18 @@ namespace Way.Lib
         /// <returns></returns>
         public static RSAParameters GetPrivateKey(string  privateKey , RSAKeyType keyType)
         {
+            if(privateKey.Contains("\n"))
+            {
+                StringBuilder buffer = new StringBuilder();
+                string[] arr = privateKey.Split('\n').Select(m=>m.Trim()).Where(m=>m.Length>0).ToArray();
+                foreach( var line in arr )
+                {
+                    if (line.StartsWith("-----"))
+                        continue;
+                    buffer.Append(line);
+                }
+                privateKey = buffer.ToString();
+            }
             return getRSAPrivateKey( Convert.FromBase64String(privateKey) , keyType);
         }
         static RSAParameters getRSAPrivateKey(byte[] privkey, RSAKeyType keyType)
