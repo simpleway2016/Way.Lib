@@ -29,8 +29,10 @@
         用户总数：<span id="spanTotal"></span>&nbsp;&nbsp;当前在线用户数：<span id="spanOnline"></span>&nbsp;&nbsp; 昨天登陆用户：<span id="spanLoginYesterday"></span>&nbsp;&nbsp; 今天登陆用户：<span id="spanLoginToday"></span>
     </div>
     <div>
-        创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>&nbsp;&nbsp;<JButton text="销毁注册码并删除用户" onclick="btnDestoryCode()">
-</div>
+        创建<JTextBox id="txtMakeCount"></JTextBox>个 <JButton text="马上创建" onclick="btnMakeClick()"></JButton>&nbsp;&nbsp;
+        <JButton text="销毁注册码并删除用户" onclick="btnDestoryCode()"></JButton>
+        <JButton text="升级用户权限" onclick="UpdateUserRole()"></JButton>
+    </div>
     <JList id="list" buffersize="15" loadonscroll="true" itemsource="RegCodes">
         <script type="text/html">
             <div class="clist">
@@ -72,11 +74,28 @@
         }
         function btnMakeClick()
         {
-            window.controller.server.MakeRegCode(txtMakeCount.text, function (ret, err) {
+            var username = '';
+            if (txtMakeCount.text == "1") {
+                username = prompt("请输入授权的手机号");
+                if (username == undefined)
+                    username = "";
+            }
+            window.controller.server.MakeRegCode(txtMakeCount.text, username, function (ret, err) {
                 if (err) alert(err);
                 else {
                     alert("成功创建！");
                     list.rebind();
+                }
+            });
+        }
+
+        function UpdateUserRole() {
+            var username = prompt("请输入授权的手机号");
+            var year = prompt("请输入授权几年", "1");
+            window.controller.server.UpdateUserRole(username, year, function (ret, err) {
+                if (err) alert(err);
+                else {
+                    alert("ok！");
                 }
             });
         }
