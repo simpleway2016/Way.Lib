@@ -83,6 +83,21 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         }
 
         [TestMethod]
+        public void Sign()
+        {
+            var pair = Way.Lib.RSA.CreateKeyPair();
+            var publicKey = Way.Lib.RSA.GetPublicKey(pair[0]);
+            var privateKey = Way.Lib.RSA.GetPrivateKey(pair[1] , RSAKeyType.PKCS1);
+
+            var content = "abc";
+
+            var signed = Way.Lib.RSA.SignRSA2(content, privateKey);
+            var ret = Way.Lib.RSA.VerifyRSA2Signed(content, publicKey, signed);
+            if (!ret)
+                throw new Exception("sign error");
+        }
+
+        [TestMethod]
         public void 私钥解密()
         {
             var rsa =  System.Security.Cryptography.RSA.Create();
