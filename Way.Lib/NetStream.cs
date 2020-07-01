@@ -139,7 +139,6 @@ namespace Way.Lib
         public NetStream(Socket SocketClient)
         {
             this.Socket = SocketClient;
-            this.Socket.NoDelay = true;
             this.Socket.SendTimeout = 10000;
             this.Socket.ReceiveTimeout = 0;
             this.Socket.ReceiveBufferSize = 1024 * 100;
@@ -176,7 +175,6 @@ namespace Way.Lib
                 this._stream = sslStream;
 
                 this.Socket.SendTimeout = 10000;
-                this.Socket.NoDelay = true;
                 this.Socket.ReceiveTimeout = 0;
                 this.Socket.ReceiveBufferSize = 1024 * 100;
             }
