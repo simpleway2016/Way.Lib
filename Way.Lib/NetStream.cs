@@ -139,6 +139,7 @@ namespace Way.Lib
         public NetStream(Socket SocketClient)
         {
             this.Socket = SocketClient;
+            this.Socket.NoDelay = true;
             this.Socket.SendTimeout = 10000;
             this.Socket.ReceiveTimeout = 0;
             this.Socket.ReceiveBufferSize = 1024 * 100;
@@ -175,6 +176,7 @@ namespace Way.Lib
                 this._stream = sslStream;
 
                 this.Socket.SendTimeout = 10000;
+                this.Socket.NoDelay = true;
                 this.Socket.ReceiveTimeout = 0;
                 this.Socket.ReceiveBufferSize = 1024 * 100;
             }
@@ -303,7 +305,7 @@ namespace Way.Lib
                 readed = _stream.Read(buffer, offset, buffer.Length - offset);
                 if (readed == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 offset += readed;
@@ -321,7 +323,7 @@ namespace Way.Lib
                 int read = _stream.Read(buffer, offset, length - readed);
                 if (read == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 offset += read;
@@ -346,7 +348,7 @@ namespace Way.Lib
                 readed = _stream.Read(bs , 0 , bs.Length);
                 if (readed == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 finallyReaded += readed;
@@ -384,7 +386,7 @@ namespace Way.Lib
                 int readed = _stream.Read(bs,0,bs.Length);
                 if (readed == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 if (bs[0] == 0xa)
