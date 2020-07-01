@@ -32,7 +32,11 @@ namespace Way.Lib
     {
        
         private Stream _stream;
-        Socket Socket;
+        public Socket Socket
+        {
+            get;
+            private set;
+        }
         public System.Net.EndPoint RemoteEndPoint
         {
             get
