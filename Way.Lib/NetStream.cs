@@ -33,6 +33,7 @@ namespace Way.Lib
        
         private Stream _stream;
         Socket Socket;
+        bool _closed = false;
         public System.Net.EndPoint RemoteEndPoint
         {
             get
@@ -92,9 +93,16 @@ namespace Way.Lib
                 this.Socket.SendTimeout = value;
             }
         }
+
+
+
         protected override void Dispose(bool disposing)
         {
-            this.Close();
+            if(!_closed)
+            {
+                this.Close();
+            }
+            
             base.Dispose(disposing);
         }
 
@@ -244,26 +252,31 @@ namespace Way.Lib
         /// <summary>
         /// 
         /// </summary>
-        public void Close()
+        public override void Close()
         {
-            try
+            if(!_closed)
             {
-                _stream.Dispose();
+                _closed = true;
+                try
+                {
+                    _stream.Dispose();
+                }
+                catch
+                {
+                }
+                try
+                {
+                    Socket.Dispose();
+                }
+                catch
+                {
+                }
+                Socket = null;
             }
-            catch
-            {
-            }
-            try
-            {
-                Socket.Dispose();
-            }
-            catch
-            {
-            }
-            Socket = null;
+           
         }
 
-
+        
 
         public bool Connected
         {
