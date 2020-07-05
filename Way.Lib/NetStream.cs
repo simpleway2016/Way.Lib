@@ -32,8 +32,11 @@ namespace Way.Lib
     {
        
         private Stream _stream;
-        Socket Socket;
-        bool _closed = false;
+        public Socket Socket
+        {
+            get;
+            private set;
+        }
         public System.Net.EndPoint RemoteEndPoint
         {
             get
@@ -312,7 +315,7 @@ namespace Way.Lib
                 readed = _stream.Read(buffer, offset, buffer.Length - offset);
                 if (readed == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 offset += readed;
@@ -330,7 +333,7 @@ namespace Way.Lib
                 int read = _stream.Read(buffer, offset, length - readed);
                 if (read == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 offset += read;
@@ -355,7 +358,7 @@ namespace Way.Lib
                 readed = _stream.Read(bs , 0 , bs.Length);
                 if (readed == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 finallyReaded += readed;
@@ -393,7 +396,7 @@ namespace Way.Lib
                 int readed = _stream.Read(bs,0,bs.Length);
                 if (readed == 0)
                 {
-                    throw new Exception("Socket已经断开");
+                    throw new SocketException();
                 }
 
                 if (bs[0] == 0xa)

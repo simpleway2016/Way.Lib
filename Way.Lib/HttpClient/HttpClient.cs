@@ -46,7 +46,7 @@ namespace Way.Lib
                     str.Append('&');
                 str.Append(item.Key);
                 str.Append("=");
-                str.Append(item.Value);
+                str.Append(System.Web.HttpUtility.UrlEncode(item.Value.ToString(), System.Text.Encoding.UTF8));
             }
             return PostQueryString(url, headers,str.ToString(), timeout);
         }
