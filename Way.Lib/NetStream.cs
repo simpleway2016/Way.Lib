@@ -46,7 +46,7 @@ namespace Way.Lib
         }
         private bool m_Active;
         private System.Text.Encoding code = System.Text.Encoding.UTF8;
-       
+        bool _closed;
 
         private const int dataBuffer = 1024;
 

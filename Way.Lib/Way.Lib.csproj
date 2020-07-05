@@ -8,7 +8,7 @@
     <PackageId>Way.Lib</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description></Description>
-    <Version>2.0.6.9</Version>
+    <Version>2.0.7.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
