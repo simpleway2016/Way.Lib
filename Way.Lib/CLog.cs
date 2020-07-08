@@ -12,7 +12,7 @@ namespace Way.Lib
     {
         FileStream m_file;
         StreamWriter m_writer;
-        static string _SavePath;
+        internal static string _SavePath;
         /// <summary>
         /// 保存路径
         /// </summary>
@@ -41,7 +41,7 @@ namespace Way.Lib
         /// <summary>
         /// 文件最大大小
         /// </summary>
-        const int MAXFILESIZE = 1024 * 1024 * 2;
+        const int MAXFILESIZE = 1024 * 1024 * 20;
         bool _autoclose;
         DateTime _createFileTime;
         Action<string> _writeContentFunc;
@@ -219,7 +219,6 @@ namespace Way.Lib
     {
         public static string SaveFolder = null;
 
-        static string _SavePath;
         public override string SavePath
         {
             get
