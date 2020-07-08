@@ -37,6 +37,11 @@ namespace Way.Lib
             get;
             private set;
         }
+        public bool HasSocketException
+        {
+            get;
+            private set;
+        }
         public System.Net.EndPoint RemoteEndPoint
         {
             get
@@ -303,6 +308,7 @@ namespace Way.Lib
                 readed = _stream.Read(buffer, offset, buffer.Length - offset);
                 if (readed == 0)
                 {
+                    this.HasSocketException = true;
                     throw new SocketException();
                 }
 
@@ -321,6 +327,7 @@ namespace Way.Lib
                 int read = _stream.Read(buffer, offset, length - readed);
                 if (read == 0)
                 {
+                    this.HasSocketException = true;
                     throw new SocketException();
                 }
 
@@ -346,6 +353,7 @@ namespace Way.Lib
                 readed = _stream.Read(bs , 0 , bs.Length);
                 if (readed == 0)
                 {
+                    this.HasSocketException = true;
                     throw new SocketException();
                 }
 
@@ -384,6 +392,7 @@ namespace Way.Lib
                 int readed = _stream.Read(bs,0,bs.Length);
                 if (readed == 0)
                 {
+                    this.HasSocketException = true;
                     throw new SocketException();
                 }
 
