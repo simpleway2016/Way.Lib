@@ -51,7 +51,7 @@ namespace Way.Lib
         }
         private bool m_Active;
         private System.Text.Encoding code = System.Text.Encoding.UTF8;
-       
+        bool _closed;
 
         private const int dataBuffer = 1024;
 
@@ -101,9 +101,16 @@ namespace Way.Lib
                 this.Socket.SendTimeout = value;
             }
         }
+
+
+
         protected override void Dispose(bool disposing)
         {
-            this.Close();
+            if(!_closed)
+            {
+                this.Close();
+            }
+            
             base.Dispose(disposing);
         }
 
@@ -253,26 +260,31 @@ namespace Way.Lib
         /// <summary>
         /// 
         /// </summary>
-        public void Close()
+        public override void Close()
         {
-            try
+            if(!_closed)
             {
-                _stream.Dispose();
+                _closed = true;
+                try
+                {
+                    _stream.Dispose();
+                }
+                catch
+                {
+                }
+                try
+                {
+                    Socket.Dispose();
+                }
+                catch
+                {
+                }
+                Socket = null;
             }
-            catch
-            {
-            }
-            try
-            {
-                Socket.Dispose();
-            }
-            catch
-            {
-            }
-            Socket = null;
+           
         }
 
-
+        
 
         public bool Connected
         {
