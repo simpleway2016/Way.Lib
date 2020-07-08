@@ -16,6 +16,7 @@ namespace Way.Lib
             internal DateTime CreateFileTime;
         }
         static System.Collections.Concurrent.ConcurrentDictionary<string, FileItem> Dict = new System.Collections.Concurrent.ConcurrentDictionary<string, FileItem>();
+      
         FileItem _fileItem;
         string _SavePath;
         public string Name
@@ -25,19 +26,12 @@ namespace Way.Lib
         }
 
         /// <summary>
-        /// 单个文件最大的大小，默认 20M
-        /// </summary>
-        public int MaxFileSize { get; }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="folder">保存目录</param>
         /// <param name="name">文件名</param>
         public FileLogger(string folder , string name)
         {
-            this.MaxFileSize = 1024 * 1024 * 20;
-
             _SavePath = folder;
             if (!string.IsNullOrEmpty(name))
             {
@@ -137,7 +131,7 @@ namespace Way.Lib
             {
                 _fileItem.File.Write(data,0, data.Length);
                 _fileItem.File.Flush();
-                if (_fileItem.File.Length >= MaxFileSize || (DateTime.Now - _fileItem.CreateFileTime).Days > 0 || DateTime.Now.Day != _fileItem.CreateFileTime.Day)
+                if ((DateTime.Now - _fileItem.CreateFileTime).Days > 0 || DateTime.Now.Day != _fileItem.CreateFileTime.Day)
                 {
                     createFileStream();
                 }
