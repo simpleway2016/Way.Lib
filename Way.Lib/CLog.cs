@@ -59,6 +59,11 @@ namespace Way.Lib
         /// <param name="autoClose">是否自动关闭文件，多个不同方法间调用时，要禁止这个</param>
         public CodeLog(string name, bool autoClose)
         {
+            if(name.Contains("/") || name.Contains("\\"))
+            {
+                _SavePath = Path.GetDirectoryName(name);
+                name = Path.GetFileName(name);
+            }
             if (!string.IsNullOrEmpty(name) && this.Enable)
             {
                 name = name.Replace("/", "_").Replace("\\", "_");
@@ -281,11 +286,7 @@ namespace Way.Lib
                     string[] files = System.IO.Directory.GetFiles(_SavePath);
                     foreach (string file in files)
                     {
-                        int minutes = 60 * 24;
-                        if (file.Contains("error"))
-                        {
-                            minutes = 60 * 24 * 2;
-                        }
+                        int minutes = 60 * 24*30;
                         DateTime writetime = new System.IO.FileInfo(file).LastWriteTime;
                         if ((DateTime.Now - writetime).TotalMinutes > minutes)
                         {
