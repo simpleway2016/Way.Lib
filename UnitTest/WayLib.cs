@@ -100,10 +100,8 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         [TestMethod]
         public void logtest()
         {
-            using (var clog = new CLog("./TransactionLogs/Log", false))
-            {
-                clog.Log("TranId:{0} Submit Content:{1}", 0, 1);
-            }
+            var logger = new FileLogger("./logs", "log");
+            logger.Log("TranId:{0} Submit Content:{1}", 0, 1);
         }
 
         [TestMethod]
