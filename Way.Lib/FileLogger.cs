@@ -7,11 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 namespace Way.Lib
 {
-
+    
     public class FileLogger
     {
-        FileStream m_file;
-        StreamWriter m_writer;
+        class FileItem
+        {
+            internal FileStream File;
+            internal DateTime CreateFileTime;
+        }
+        static System.Collections.Concurrent.ConcurrentDictionary<string, FileItem> Dict = new System.Collections.Concurrent.ConcurrentDictionary<string, FileItem>();
+        FileItem _fileItem;
         string _SavePath;
         public string Name
         {
@@ -24,10 +29,6 @@ namespace Way.Lib
         /// </summary>
         public int MaxFileSize { get; }
 
-
-        bool _autoclose;
-        DateTime _createFileTime;
-        Action<string> _writeContentFunc;
         /// <summary>
         /// 
         /// </summary>
@@ -45,9 +46,21 @@ namespace Way.Lib
                     Directory.CreateDirectory(_SavePath);
 
                 this.Name = name;
-                lockObj = new object();
-                createFileStream();
-                _writeContentFunc = (content) => writelogAction(content);
+
+                if( Dict.TryGetValue(this.Name , out _fileItem) == false)
+                {
+                    Dict.TryAdd(this.Name, new FileItem());
+                    _fileItem = Dict[this.Name];
+
+                    lock (_fileItem)
+                    {
+                        if (_fileItem.File == null)
+                        {
+                            createFileStream();
+                        }
+                    }
+                }
+               
 
             }
         }
@@ -87,52 +100,50 @@ namespace Way.Lib
 
         void createFileStream()
         {
-            _createFileTime = DateTime.Now;
             string filepath = getNewFileName();
-            m_file = new FileStream(filepath, FileMode.Create,
-                FileAccess.Write, FileShare.Read);
-            m_writer = new StreamWriter(m_file);
+           
+            _fileItem.File?.Dispose();
+
+            if (File.Exists(filepath))
+            {
+                _fileItem.File = new FileStream(filepath, FileMode.Open,
+                   FileAccess.Write, FileShare.Read);
+                _fileItem.File.Seek(_fileItem.File.Length, SeekOrigin.Begin);
+            }
+            else
+            {
+                _fileItem.File = new FileStream(filepath, FileMode.Create,
+                    FileAccess.Write, FileShare.Read);
+            }
+            _fileItem.CreateFileTime = DateTime.Now;
         }
 
         string getNewFileName()
         {
-            int index = 0;
-            string filepath = string.Format("{0}/{1}_{2} {3}.txt", _SavePath, this.Name, index, DateTime.Now.ToString("yyyyMMdd"));
-            while (File.Exists(filepath))
-            {
-                index++;
-                filepath = string.Format("{0}/{1}_{2} {3}.txt", _SavePath, this.Name, index, DateTime.Now.ToString("yyyyMMdd"));
-            }
+            string filepath = string.Format("{0}/{1} {2}.txt", _SavePath, this.Name, DateTime.Now.ToString("yyyyMMdd"));
             return filepath;
         }
 
-        object lockObj;
         /// <summary>
-        /// 写入日志
+        /// 同步写入文件
         /// </summary>
         /// <param name="content"></param>
         public void Log(string content)
         {
-            if (m_writer == null || content == null)
+            if (_fileItem == null || content == null)
                 return;
-            lock (lockObj)
+            var data = Encoding.UTF8.GetBytes(string.Format("{0} {1}\r\n", DateTime.Now, content));
+            lock (_fileItem)
             {
-                _writeContentFunc(content);
+                _fileItem.File.Write(data,0, data.Length);
+                _fileItem.File.Flush();
+                if (_fileItem.File.Length >= MaxFileSize || (DateTime.Now - _fileItem.CreateFileTime).Days > 0 || DateTime.Now.Day != _fileItem.CreateFileTime.Day)
+                {
+                    createFileStream();
+                }
             }
         }
 
-      
-        void writelogAction(string content)
-        {
-            m_writer.WriteLine(string.Format("{0} {1}", DateTime.Now, content));
-            m_writer.Flush();
-            if (m_file.Length >= MaxFileSize || (DateTime.Now - _createFileTime).Days > 0 || DateTime.Now.Day != _createFileTime.Day)
-            {
-                m_writer.Dispose();
-                m_file.Dispose();
-                createFileStream();
-            }
-        }
         /// <summary>
         /// 同步写入文件
         /// </summary>
@@ -140,7 +151,7 @@ namespace Way.Lib
         /// <param name="objs"></param>
         public void Log(string content, params object[] objs)
         {
-            if (m_writer == null || content == null)
+            if (_fileItem == null || content == null)
                 return;
             if (objs != null && objs.Length > 0)
                 content = string.Format(content, objs);

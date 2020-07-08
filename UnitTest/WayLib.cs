@@ -102,6 +102,9 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         {
             var logger = new FileLogger("./logs", "log");
             logger.Log("TranId:{0} Submit Content:{1}", 0, 1);
+
+            logger = new FileLogger("./logs", "log");
+            logger.Log("TranId:{0} Submit Content:{1}", 0, 2);
         }
 
         [TestMethod]
