@@ -32,6 +32,17 @@ namespace Way.Lib
     {
        
         private Stream _stream;
+        public Stream InnerStream
+        {
+            get
+            {
+                return _stream;
+            }
+            set
+            {
+                _stream = value;
+            }
+        }
         public Socket Socket
         {
             get;
