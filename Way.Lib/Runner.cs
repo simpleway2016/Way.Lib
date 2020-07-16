@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace Way.Lib
 {
-    class Runner 
+    public class Runner 
     {
         public static string Exec(string filename, string args)
         {
