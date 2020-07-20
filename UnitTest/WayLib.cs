@@ -22,6 +22,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Security.Cryptography;
+using Way.Lib.Collections;
+using System.Linq;
 
 namespace UnitTest
 {
@@ -82,6 +84,9 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             var pair = Way.Lib.RSA.CreateKeyPair();
         }
 
+        
+
+
         [TestMethod]
         public void Sign()
         {
@@ -97,17 +102,6 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                 throw new Exception("sign error");
         }
 
-        [TestMethod]
-        public void logtest()
-        {
-            var logger = new FileLogger("./logs", "log");
-            logger.MaxFileSize = 1024;
-            for(int i = 0; i < 1024; i ++)
-                logger.Log("TranId:{0} Submit Content:{1}", 0, 1);
-
-            logger = new FileLogger("./logs", "log");
-            logger.Log("TranId:{0} Submit Content:{1}", 0, 2);
-        }
 
         [TestMethod]
         public void 私钥解密()
@@ -365,6 +359,66 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             stream.Write(bs);
             int readed = stream.Read(bs, 0, bs.Length);
             var content = System.Text.Encoding.UTF8.GetString(bs);
+        }
+
+        [TestMethod]
+        public void ConcurrentListTest()
+        {
+            var list = new ConcurrentList<object>();
+            List<object> buffer = new List<object>();
+            var t1 = Task.Run(() => {             
+                for(int i = 0; i < 10000; i ++)
+                {
+                    var c = new object();
+                    list.Add(c);
+                    buffer.Add(c);
+                }
+            });
+            var t2 = Task.Run(() => {
+                for (int i = 0; i < 10000; i++)
+                {
+                    list.Add(new object());
+                }
+            });
+
+            var t3 = Task.Run(() => {
+                Random random = new Random();
+                for (int i = 0; i < 10000; i++)
+                {
+                    while (buffer.Count < 10)
+                        Thread.Sleep(0);
+                    var number = random.Next(buffer.Count - 1);
+                    if (number >= 0)
+                        list.FirstOrDefault(m => m == buffer[number]);
+                }
+            });
+            Task.WaitAll(t1, t2,t3);
+            if (list.Count != 20000)
+                throw new Exception("数量不对");
+
+            t1 = Task.Run(() => {
+                for (int i = 0; i < 5000; i++)
+                {
+                    var c = buffer[i];
+                    list.Remove(c);
+                }
+            });
+
+            t2 = Task.Run(() => {
+                for (int i = 8000 - 1; i >=0; i--)
+                {
+                    var c = buffer[i];
+                    list.Remove(c);
+                }
+            });
+
+            Task.WaitAll(t1, t2);
+            if (list.Count != 12000)
+                throw new Exception("数量不对");
+
+            var item = list.FirstOrDefault(m => m == buffer[9999]);
+            if (item == null)
+                throw new Exception("item is null");
         }
 
     }
