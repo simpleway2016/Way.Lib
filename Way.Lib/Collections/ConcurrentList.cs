@@ -163,11 +163,13 @@ namespace Way.Lib.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
+            this.Reset();
             return this;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
+            this.Reset();
             return this;
         }
     }
