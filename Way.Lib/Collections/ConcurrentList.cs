@@ -42,7 +42,7 @@ namespace Way.Lib.Collections
     public class ConcurrentList<T> : IEnumerator<T>,IEnumerable<T>
     {
         List<ConcurrentListItem<T>> _source;
-        int _position = 0;
+        int _position = -1;
         public ConcurrentList()
         {
             _source = new List<ConcurrentListItem<T>>();
@@ -52,6 +52,9 @@ namespace Way.Lib.Collections
         {
             get
             {
+                if(_position == -1)
+                    return default(T);
+
                 if (_position < _source.Count)
                 {
                     return _source[_position].Data;
@@ -153,12 +156,7 @@ namespace Way.Lib.Collections
 
         public void Reset()
         {
-            _position = 0;
-            while (_position < _source.Count && _source[_position] != null && _source[_position].Used == 0)
-            {
-                _position++;
-            }
-
+            _position = -1;
         }
 
         public IEnumerator<T> GetEnumerator()

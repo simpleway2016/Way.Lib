@@ -365,6 +365,18 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         public void ConcurrentListTest()
         {
             var list = new ConcurrentList<object>();
+            list.Add(new object());
+
+            foreach( var c in list )
+            {
+
+            }
+            foreach (var c in list)
+            {
+
+            }
+
+            list.Clear();
             List<object> buffer = new List<object>();
             var t1 = Task.Run(() => {             
                 for(int i = 0; i < 10000; i ++)
