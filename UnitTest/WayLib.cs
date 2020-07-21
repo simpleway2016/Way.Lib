@@ -364,6 +364,9 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         [TestMethod]
         public void ConcurrentListTest()
         {
+
+            System.Diagnostics.Stopwatch sw = new Stopwatch();
+
             var list = new ConcurrentList<object>();
             list.Add(new object());
 
@@ -408,6 +411,8 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             if (list.Count != 20000)
                 throw new Exception("数量不对");
 
+            sw.Start();
+
             t1 = Task.Run(() => {
                 for (int i = 0; i < 5000; i++)
                 {
@@ -425,6 +430,9 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             });
 
             Task.WaitAll(t1, t2);
+
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
             if (list.Count != 12000)
                 throw new Exception("数量不对");
 
@@ -432,6 +440,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             if (item == null)
                 throw new Exception("item is null");
         }
+
 
     }
 

@@ -100,7 +100,7 @@ namespace Way.Lib.Collections
             for (int i = 0; i < _source.Count; i++)
             {
                 var s = _source[i];
-                if (s != null && s.Used == 1 && s.Data?.Equals(item) == true)
+                if (s != null && s.Used == 1 && (object)s.Data == (object)item)
                 {
                     if (_source[i].TryDelete())
                     {
