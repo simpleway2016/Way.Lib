@@ -186,15 +186,16 @@ namespace Way.Lib
         /// </summary>
         /// <param name="SocketClient"></param>
         /// <param name="ssl">ssl证书</param>
+        /// <param name="sslProtocols"></param>
         [Obsolete("use AsSSLServer")]
-        public NetStream(Socket SocketClient, X509Certificate2 ssl)
+        public NetStream(Socket SocketClient, X509Certificate2 ssl, SslProtocols sslProtocols)
         {
             this.Socket = SocketClient;
             SslStream sslStream = new SslStream(new SocketStream(this.Socket), false);
             try
             {
                
-                sslStream.AuthenticateAsServer(ssl, false, SslProtocols.Tls, true);
+                sslStream.AuthenticateAsServer(ssl, false, sslProtocols, true);
                 this._stream = sslStream;
 
                 this.Socket.SendTimeout = 10000;

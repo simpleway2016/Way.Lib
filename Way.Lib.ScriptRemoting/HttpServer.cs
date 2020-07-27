@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Sockets;
 using System.Net;
 using System.Collections.Concurrent;
+using System.Security.Authentication;
 
 namespace Way.Lib.ScriptRemoting
 {
@@ -23,6 +24,7 @@ namespace Way.Lib.ScriptRemoting
         internal static string HtmlTempPath;
         internal bool SupportHTTP;
         internal X509Certificate2 SSLKey;
+        SslProtocols SslProtocols;
         internal List<IUrlRouter> Routers = new List<IUrlRouter>();
         internal List<ICustomHttpHandler> Handlers = new List<ICustomHttpHandler>();
         internal ConcurrentDictionary<string, SessionState> AllSessions = new ConcurrentDictionary<string, SessionState>();
@@ -94,10 +96,12 @@ namespace Way.Lib.ScriptRemoting
         /// 
         /// </summary>
         /// <param name="ssl"></param>
+        /// <param name="sslProtocols"></param>
         /// <param name="supportHttp">是否同时支持http协议，默认false</param>
-        public void UseHttps(X509Certificate2 ssl, bool supportHttp = false)
+        public void UseHttps(X509Certificate2 ssl, SslProtocols sslProtocols, bool supportHttp = false)
         {
-            SupportHTTP = supportHttp;
+            SslProtocols = sslProtocols;
+               SupportHTTP = supportHttp;
             SSLKey = ssl;
         }
 
@@ -335,13 +339,13 @@ namespace Way.Lib.ScriptRemoting
                                     }
                                     else
                                     {
-                                        HandleSocket(new NetStream(socket, this.SSLKey));
+                                        HandleSocket(new NetStream(socket, this.SSLKey,this.SslProtocols));
                                     }
 
                                 }
                                 else
                                 {
-                                    HandleSocket(new NetStream(socket, this.SSLKey));
+                                    HandleSocket(new NetStream(socket,  this.SSLKey,SslProtocols));
 
                                 }
                             }
