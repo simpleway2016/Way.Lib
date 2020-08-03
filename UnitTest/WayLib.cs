@@ -84,7 +84,47 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             var pair = Way.Lib.RSA.CreateKeyPair();
         }
 
-        
+        class ValueObject
+        {
+            public int Value;
+            public int? ThreadId;
+        }
+        [TestMethod]
+        public void ConcurrentDictionaryActionQueueTest()
+        {
+            int total = 10000000;
+            int[] userids = new[] {1,2,3 };
+            int[] values = new int[3];
+            ConcurrentDictionary<int, ValueObject> userValues = new ConcurrentDictionary<int, ValueObject>();
+
+            Random random = new Random();
+            ConcurrentDictionaryActionQueue<int> userActions = new ConcurrentDictionaryActionQueue<int>();
+            Parallel.For(0, total, (index)=> {
+                var userid = random.Next(1, 4);
+
+                var userValue = userValues.GetOrAdd(userid, (u)=>new ValueObject());
+                Interlocked.Increment(ref userValue.Value);
+
+                userActions.Add(userid, () => {
+                    values[userid - 1]++;
+                });
+            }) ;
+
+            userActions.WaitAll();
+            var sum1 = values.Sum();
+            var sum2 = userValues[1].Value + userValues[2].Value + userValues[3].Value;
+            if (sum1 != total)
+                throw new Exception("total error");
+            for (int i = 0; i < values.Length; i ++)
+            {
+                var value1 = values[i];
+                var value2 = userValues[userids[i]].Value;
+                if(value1 != value2)
+                {
+                    throw new Exception("value error");
+                }
+            }
+        }
 
 
         [TestMethod]
