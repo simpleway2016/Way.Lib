@@ -69,7 +69,7 @@ namespace Way.Lib.Collections
             {
                 try
                 {
-                    o._waitObj.WaitOne(millisecondsTimeout);
+                    o._task?.Wait(millisecondsTimeout);
                 }
                 catch
                 {
@@ -112,10 +112,9 @@ namespace Way.Lib.Collections
     class ActionQueue<TKey> : IDisposable
     {
         ConcurrentQueue<Action> Actions { get; }
-        internal Thread _thread;
-        internal ManualResetEvent _waitObj = new ManualResetEvent(true);
+        internal Task _task;
 
-        public bool HasMission => this.Actions.Count > 0 || _thread != null;
+        public bool HasMission => this.Actions.Count > 0 || _task != null;
         bool _disposed;
         internal bool Using;
         public TKey Key { get; }
@@ -141,11 +140,9 @@ namespace Way.Lib.Collections
             this.Actions.Enqueue(action);
             lock (this)
             {
-                if (_thread == null)
+                if (_task == null)
                 {
-                    _thread = new Thread(run);
-                    _waitObj.Reset();
-                    _thread.Start();
+                    _task = Task.Run(run);
                 }
             }
         }
@@ -162,15 +159,12 @@ namespace Way.Lib.Collections
             {
                 if (!_disposed && this.Actions.Count > 0)
                 {
-                    _thread = new Thread(run);
-                    _waitObj.Reset();
-                    _thread.Start();
+                    _task = Task.Run(run);
                 }
                 else
                 {
                     Using = false;
-                    _thread = null;
-                    _waitObj.Set();
+                    _task = null;
                     _container.Remove(this.Key);
                 }
             }
@@ -181,7 +175,7 @@ namespace Way.Lib.Collections
             try
             {
                 _disposed = true;
-                while (_thread != null) //只有_exited = true时，才表示任务执行完毕，不会有任务执行了一半
+                while (_task != null) //只有_exited = true时，才表示任务执行完毕，不会有任务执行了一半
                 {
                     Thread.Sleep(100);
                 }
