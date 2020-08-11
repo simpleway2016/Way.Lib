@@ -93,14 +93,14 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         public void ConcurrentDictionaryActionQueueTest()
         {
             int total = 10000000;
-            int[] userids = new[] {1,2,3 };
-            int[] values = new int[3];
+            int[] userids = new[] {1,2,3,4,5,6,7 };
+            int[] values = new int[userids.Length];
             ConcurrentDictionary<int, ValueObject> userValues = new ConcurrentDictionary<int, ValueObject>();
 
             Random random = new Random();
             ConcurrentDictionaryActionQueue<int> userActions = new ConcurrentDictionaryActionQueue<int>();
             Parallel.For(0, total, (index)=> {
-                var userid = random.Next(1, 4);
+                var userid = random.Next(1, 8);
 
                 var userValue = userValues.GetOrAdd(userid, (u)=>new ValueObject());
                 Interlocked.Increment(ref userValue.Value);
@@ -112,7 +112,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
 
             userActions.WaitAll();
             var sum1 = values.Sum();
-            var sum2 = userValues[1].Value + userValues[2].Value + userValues[3].Value;
+            var sum2 = userValues.Sum(m=>m.Value.Value);
             if (sum1 != total)
                 throw new Exception("total error");
             for (int i = 0; i < values.Length; i ++)
