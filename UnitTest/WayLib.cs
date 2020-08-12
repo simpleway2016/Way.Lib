@@ -92,37 +92,46 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         [TestMethod]
         public void ConcurrentDictionaryActionQueueTest()
         {
-            int total = 10000000;
-            int[] userids = new[] {1,2,3,4,5,6,7 };
-            int[] values = new int[userids.Length];
-            ConcurrentDictionary<int, ValueObject> userValues = new ConcurrentDictionary<int, ValueObject>();
-
-            Random random = new Random();
             ConcurrentDictionaryActionQueue<int> userActions = new ConcurrentDictionaryActionQueue<int>();
-            Parallel.For(0, total, (index)=> {
-                var userid = random.Next(1, 8);
-
-                var userValue = userValues.GetOrAdd(userid, (u)=>new ValueObject());
-                Interlocked.Increment(ref userValue.Value);
-
-                userActions.Add(userid, () => {
-                    values[userid - 1]++;
-                });
-            }) ;
-
-            userActions.WaitAll();
-            var sum1 = values.Sum();
-            var sum2 = userValues.Sum(m=>m.Value.Value);
-            if (sum1 != total)
-                throw new Exception("total error");
-            for (int i = 0; i < values.Length; i ++)
+            for (int k = 0; k < 1000; k++)
             {
-                var value1 = values[i];
-                var value2 = userValues[userids[i]].Value;
-                if(value1 != value2)
+                ConcurrentDictionary<int, ValueObject> userValues = new ConcurrentDictionary<int, ValueObject>();
+                int total = 10000000;
+                int[] userids = new[] { 1, 2, 3, 4, 5, 6, 7 };
+                int[] values = new int[userids.Length];
+              
+                int done = 0;
+                Random random = new Random();
+                
+                Parallel.For(0, total, (index) =>
                 {
-                    throw new Exception("value error");
+                    var userid = random.Next(1, 8);
+
+                    var userValue = userValues.GetOrAdd(userid, (u) => new ValueObject());
+                    Interlocked.Increment(ref userValue.Value);
+
+                    userActions.Add(userid, () =>
+                    {                       
+                        values[userid - 1]++;
+                        Interlocked.Increment(ref done);
+                    });
+                });
+
+                userActions.WaitAll();
+                var sum1 = values.Sum();
+                var sum2 = userValues.Sum(m => m.Value.Value);
+                if (sum1 != total)
+                    throw new Exception("total error");
+                for (int i = 0; i < values.Length; i++)
+                {
+                    var value1 = values[i];
+                    var value2 = userValues[userids[i]].Value;
+                    if (value1 != value2)
+                    {
+                        throw new Exception("value error");
+                    }
                 }
+                System.Diagnostics.Debug.WriteLine("第{0}次" , k + 1);
             }
         }
 

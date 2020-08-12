@@ -13,7 +13,8 @@ namespace Way.Lib.Collections
     /// </summary>
     public class ConcurrentDictionaryActionQueue<TKey>:IDisposable
     {
-        Dictionary<TKey, ActionQueue<TKey>> _dict = new Dictionary<TKey, ActionQueue<TKey>>();
+        internal ConcurrentDictionary<TKey, ActionQueue<TKey>> _dict = new ConcurrentDictionary<TKey, ActionQueue<TKey>>();
+        internal int ActionCount = 0;
 
         /// <summary>
         /// 移除指定key队列
@@ -24,11 +25,8 @@ namespace Way.Lib.Collections
             lock (_dict)
             {
                 var item = _dict[key];
-                if (item.Using)
-                    return;
-
-                _dict.Remove(key);
-                item.Dispose();
+                item._task?.Wait();
+                _dict.TryRemove(key,out ActionQueue<TKey> o);
             }
         }
 
@@ -42,20 +40,21 @@ namespace Way.Lib.Collections
             if (_disposed)
                 return;
 
+            Interlocked.Increment(ref ActionCount);
+            ActionQueue<TKey> queue = null;
 
-            ActionQueue<TKey> queue;
-            lock (_dict)
+            while (true)
             {
                 if (_disposed)
                     return;
 
-                if ( _dict.TryGetValue(key, out queue) == false)
+                queue = _dict.GetOrAdd(key, (k) => new ActionQueue<TKey>(k, this));
+
+                if (queue.TryAddAction(action))
                 {
-                    _dict[key] = queue = new ActionQueue<TKey>( key , this);
+                    break;
                 }
-                queue.Using = true;
             }
-            queue.AddAction(action);
         }
 
         /// <summary>
@@ -83,7 +82,7 @@ namespace Way.Lib.Collections
         public void WaitAll(int millisecondsTimeout = System.Threading.Timeout.Infinite)
         {
             DateTime start = DateTime.Now;
-            while (_dict.Count > 0)
+            while (/*_dict.Count > 0 || */this.ActionCount > 0)
             {
                 Thread.Sleep(10);
                 if (millisecondsTimeout > 0 && (DateTime.Now - start).TotalMilliseconds >= millisecondsTimeout)
@@ -102,21 +101,20 @@ namespace Way.Lib.Collections
             {
                 foreach (var item in _dict)
                 {
-                    item.Value.Dispose();
+                    item.Value._task?.Wait();
                 }
                 _dict.Clear();
             }
         }
     }
 
-    class ActionQueue<TKey> : IDisposable
+    class ActionQueue<TKey> 
     {
         ConcurrentQueue<Action> Actions { get; }
         internal Task _task;
-
-        public bool HasMission => this.Actions.Count > 0 || _task != null;
+        ManualResetEvent _waitObj = new ManualResetEvent(false);
         bool _disposed;
-        internal bool Using;
+
         public TKey Key { get; }
         ConcurrentDictionaryActionQueue<TKey> _container;
         public ActionQueue(TKey key, ConcurrentDictionaryActionQueue<TKey> container)
@@ -132,58 +130,64 @@ namespace Way.Lib.Collections
         /// 添加一个任务到队列当中
         /// </summary>
         /// <param name="action"></param>
-        public void AddAction(Action action)
+        public bool TryAddAction(Action action)
         {
-            if (_disposed)
-                return;
-
-            this.Actions.Enqueue(action);
             lock (this)
             {
+                if (_disposed)
+                {
+                    return false;
+                }
+
+                this.Actions.Enqueue(action);
                 if (_task == null)
                 {
                     _task = Task.Run(run);
                 }
             }
+            return true;
         }
 
         void run()
         {
             //执行队列里面的任务
-            while (!_disposed && this.Actions.TryDequeue(out Action o))
+            while (true)
             {
-                o();
-            }
-           
-            lock (this)
-            {
-                if (!_disposed && this.Actions.Count > 0)
+                if (this.Actions.TryDequeue(out Action o))
                 {
-                    _task = Task.Run(run);
+                    if (_disposed == true)
+                    {
+
+                    }
+                    try
+                    {
+                        o();
+                    }
+                    catch
+                    {
+                    }
+                    Interlocked.Decrement(ref _container.ActionCount);
                 }
                 else
                 {
-                    Using = false;
-                    _task = null;
-                    _container.Remove(this.Key);
+                    lock(this)
+                    {
+                        if( this.Actions.Count == 0 )
+                        {
+                            _disposed = true;
+
+                            if (_container._dict.ContainsKey(Key))
+                                _container._dict.TryRemove(Key, out ActionQueue<TKey> o2);
+                            return;
+                        }                       
+                    }
+                    
                 }
             }
+           
+            
         }
 
-        public void Dispose()
-        {
-            try
-            {
-                _disposed = true;
-                while (_task != null) //只有_exited = true时，才表示任务执行完毕，不会有任务执行了一半
-                {
-                    Thread.Sleep(100);
-                }
-            }
-            catch
-            {
-
-            }
-        }
+       
     }
 }
