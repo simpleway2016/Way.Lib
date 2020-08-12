@@ -9,7 +9,7 @@ using System.Linq;
 namespace Way.Lib.Collections
 {
     /// <summary>
-    /// 按照key，将action分类成不同队列，每个队列用各自的线程执行action
+    /// 按照key，将action分类成不同队列，每个队列用各自的Task执行action
     /// </summary>
     public class ConcurrentDictionaryActionQueue<TKey>:IDisposable
     {
