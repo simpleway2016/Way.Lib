@@ -37,7 +37,7 @@ namespace Way.Lib.Collections
     }
 
     /// <summary>
-    /// 线程安全的集合
+    /// 线程安全的集合，并且集合更改，不会引起其他线程foreach等枚举操作异常
     /// </summary>
     public class ConcurrentList<T> : IEnumerator<T>,IEnumerable<T>
     {
