@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,6 +43,7 @@ namespace Way.Lib.Collections
     public class ConcurrentList<T> : IEnumerator<T>,IEnumerable<T>
     {
         List<ConcurrentListItem<T>> _source;
+        ConcurrentQueue<int> _freeQueue = new ConcurrentQueue<int>();
         int _position = -1;
         public ConcurrentList()
         {
@@ -85,25 +87,23 @@ namespace Way.Lib.Collections
 
         public void Clear()
         {
-            for (int i = 0; i < _source.Count; i++)
+            lock (_source)
             {
-                if(_source[i].TryDelete())
-                    Interlocked.Decrement(ref _Count);
+                _source.Clear();
+                _freeQueue = new ConcurrentQueue<int>();
             }
         }
 
         public void Remove(T item)
         {
-            if (item == null)
-                return;
-
             for (int i = 0; i < _source.Count; i++)
             {
                 var s = _source[i];
-                if (s != null && s.Used == 1 && (object)s.Data == (object)item)
+                if (s != null && (object)s.Data == (object)item)
                 {
                     if (_source[i].TryDelete())
                     {
+                        _freeQueue.Enqueue(i);
                         Interlocked.Decrement(ref _Count);                       
                     }
                     return;
@@ -113,16 +113,16 @@ namespace Way.Lib.Collections
 
         public void Add(T item)
         {
-            for (int i = 0; i < _source.Count; i++)
+            while(_freeQueue.Count > 0)
             {
-                var s = _source[i];
-                if (s != null && s.Used == 0)
+                if(_freeQueue.TryDequeue(out int index))
                 {
-                    if( s.TrySetData(item))
+                    var s = _source[index];
+                    if (s.TrySetData(item))
                     {
                         Interlocked.Increment(ref _Count);
                         return;
-                    }                   
+                    }
                 }
             }
 

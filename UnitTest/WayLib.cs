@@ -411,37 +411,26 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         }
 
         [TestMethod]
-        public void ConcurrentListTest()
+        public void ConcurrentDictionaryTest()
         {
 
             System.Diagnostics.Stopwatch sw = new Stopwatch();
 
-            var list = new ConcurrentList<object>();
-            list.Add(new object());
-
-            foreach( var c in list )
-            {
-
-            }
-            foreach (var c in list)
-            {
-
-            }
-
-            list.Clear();
+            var list = new ConcurrentDictionary<object,bool>();
+            sw.Start();
             List<object> buffer = new List<object>();
-            var t1 = Task.Run(() => {             
-                for(int i = 0; i < 10000; i ++)
+            var t1 = Task.Run(() => {
+                for (int i = 0; i < 10000; i++)
                 {
                     var c = new object();
-                    list.Add(c);
+                    list.TryAdd(c,true);
                     buffer.Add(c);
                 }
             });
             var t2 = Task.Run(() => {
                 for (int i = 0; i < 10000; i++)
                 {
-                    list.Add(new object());
+                    list.TryAdd(new object() , true);
                 }
             });
 
@@ -451,15 +440,84 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                 {
                     while (buffer.Count < 10)
                         Thread.Sleep(0);
-                    var number = random.Next(buffer.Count - 1);
-                    if (number >= 0)
-                        list.FirstOrDefault(m => m == buffer[number]);
+                     list.FirstOrDefault(m => m.Key == buffer[8]);
+                }
+            });
+            Task.WaitAll(t1, t2, t3);
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
+            if (list.Count != 20000)
+                throw new Exception("数量不对");
+            sw.Reset();
+            sw.Start();
+
+            t1 = Task.Run(() => {
+                for (int i = 0; i < 5000; i++)
+                {
+                    var c = buffer[i];
+                    list.TryRemove(c,out bool b);
+                }
+            });
+
+            t2 = Task.Run(() => {
+                for (int i = 8000 - 1; i >= 0; i--)
+                {
+                    var c = buffer[i];
+                    list.TryRemove(c, out bool b);
+                }
+            });
+
+            Task.WaitAll(t1, t2);
+
+            sw.Stop();
+            ms = sw.ElapsedMilliseconds;
+            if (list.Count != 12000)
+                throw new Exception("数量不对");
+
+            var item = list.FirstOrDefault(m => m.Key == buffer[9999]).Key;
+            if (item == null)
+                throw new Exception("item is null");
+        }
+
+        [TestMethod]
+        public void ConcurrentListTest()
+        {
+
+            System.Diagnostics.Stopwatch sw = new Stopwatch();
+
+            var list = new ConcurrentList<object>();
+            sw.Start();
+            List<object> buffer = new List<object>();
+            var t1 = Task.Run(() => {             
+                for(int i = 0; i < 100000; i ++)
+                {
+                    var c = new object();
+                    list.Add(c);
+                    buffer.Add(c);
+                }
+            });
+            var t2 = Task.Run(() => {
+                for (int i = 0; i < 100000; i++)
+                {
+                    list.Add(new object());
+                }
+            });
+
+            var t3 = Task.Run(() => {
+                Random random = new Random();
+                for (int i = 0; i < 100000; i++)
+                {
+                    while (buffer.Count < 10)
+                        Thread.Sleep(0);
+                    list.FirstOrDefault(m => m == buffer[8]);
                 }
             });
             Task.WaitAll(t1, t2,t3);
-            if (list.Count != 20000)
+            var ms = sw.ElapsedMilliseconds;
+            if (list.Count != 200000)
                 throw new Exception("数量不对");
 
+            sw.Reset();
             sw.Start();
 
             t1 = Task.Run(() => {
@@ -481,7 +539,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             Task.WaitAll(t1, t2);
 
             sw.Stop();
-            var ms = sw.ElapsedMilliseconds;
+            ms = sw.ElapsedMilliseconds;
             if (list.Count != 12000)
                 throw new Exception("数量不对");
 
