@@ -22,11 +22,10 @@ namespace Way.Lib.Collections
         /// <param name="key"></param>
         internal void Remove(TKey key)
         {
-            lock (_dict)
+            if (_dict.TryGetValue(key, out ActionQueue<TKey> item))
             {
-                var item = _dict[key];
                 item._task?.Wait();
-                _dict.TryRemove(key,out ActionQueue<TKey> o);
+                _dict.TryRemove(key, out ActionQueue<TKey> o);
             }
         }
 
@@ -97,14 +96,11 @@ namespace Way.Lib.Collections
                 return;
             _disposed = true;
 
-            lock (_dict)
+            foreach (var item in _dict)
             {
-                foreach (var item in _dict)
-                {
-                    item.Value._task?.Wait();
-                }
-                _dict.Clear();
+                item.Value._task?.Wait();
             }
+            _dict.Clear();
         }
     }
 
