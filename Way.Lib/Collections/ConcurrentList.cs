@@ -40,33 +40,15 @@ namespace Way.Lib.Collections
     /// <summary>
     /// 线程安全的集合，并且集合更改，不会引起其他线程foreach等枚举操作异常
     /// </summary>
-    public class ConcurrentList<T> : IEnumerator<T>,IEnumerable<T>
+    public class ConcurrentList<T> : IEnumerable<T>
     {
         List<ConcurrentListItem<T>> _source;
         ConcurrentQueue<int> _freeQueue = new ConcurrentQueue<int>();
-        int _position = -1;
+        
         public ConcurrentList()
         {
             _source = new List<ConcurrentListItem<T>>();
         }
-
-        public T Current
-        {
-            get
-            {
-                if(_position == -1)
-                    return default(T);
-
-                if (_position < _source.Count)
-                {
-                    return _source[_position].Data;
-                }
-
-                return default(T);
-            }
-        }
-
-        object IEnumerator.Current => this.Current;
 
         private int _Count;
         public int Count
@@ -81,9 +63,6 @@ namespace Way.Lib.Collections
             }
         }
 
-        public void Dispose()
-        {
-        }
 
         public void Clear()
         {
@@ -142,33 +121,69 @@ namespace Way.Lib.Collections
                 this.Add(item);
             }
         }
-        public bool MoveNext()
-        {
-            _position++;
-            while (_position < _source.Count && _source[_position] != null && _source[_position].Used == 0)
-            {
-                _position++;
-            }
-
-
-            return _position < _source.Count;
-        }
-
-        public void Reset()
-        {
-            _position = -1;
-        }
+              
 
         public IEnumerator<T> GetEnumerator()
         {
-            this.Reset();
-            return this;
+            return new ConcurrentListEnumerator<T>(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            this.Reset();
-            return this;
+            return new ConcurrentListEnumerator<T>(this);
+        }
+
+
+        class ConcurrentListEnumerator<T> : IEnumerator<T>
+        {
+            int _position = -1;
+            ConcurrentList<T> _list;
+            public ConcurrentListEnumerator(ConcurrentList<T> source)
+            {
+                _list = source;
+            }
+
+            public T Current
+            {
+                get
+                {
+                    if (_position == -1)
+                        return default(T);
+
+                    if (_position < _list._source.Count)
+                    {
+                        return _list._source[_position].Data;
+                    }
+
+                    return default(T);
+                }
+            }
+
+            object IEnumerator.Current => this.Current;
+
+            public void Dispose()
+            {
+                
+            }
+
+            public bool MoveNext()
+            {
+                _position++;
+                while (_position < _list._source.Count && _list._source[_position] != null && _list._source[_position].Used == 0)
+                {
+                    _position++;
+                }
+
+
+                return _position < _list._source.Count;
+            }
+
+            public void Reset()
+            {
+                _position = -1;
+            }
         }
     }
+
+   
 }

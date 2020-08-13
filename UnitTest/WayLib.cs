@@ -489,7 +489,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             sw.Start();
             List<object> buffer = new List<object>();
             var t1 = Task.Run(() => {             
-                for(int i = 0; i < 100000; i ++)
+                for(int i = 0; i < 10000; i ++)
                 {
                     var c = new object();
                     list.Add(c);
@@ -497,7 +497,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                 }
             });
             var t2 = Task.Run(() => {
-                for (int i = 0; i < 100000; i++)
+                for (int i = 0; i < 10000; i++)
                 {
                     list.Add(new object());
                 }
@@ -505,7 +505,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
 
             var t3 = Task.Run(() => {
                 Random random = new Random();
-                for (int i = 0; i < 100000; i++)
+                for (int i = 0; i < 10000; i++)
                 {
                     while (buffer.Count < 10)
                         Thread.Sleep(0);
@@ -514,7 +514,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             });
             Task.WaitAll(t1, t2,t3);
             var ms = sw.ElapsedMilliseconds;
-            if (list.Count != 200000)
+            if (list.Count != 20000)
                 throw new Exception("数量不对");
 
             sw.Reset();
@@ -541,6 +541,9 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             sw.Stop();
             ms = sw.ElapsedMilliseconds;
             if (list.Count != 12000)
+                throw new Exception("数量不对");
+
+            if( list.ToArray().Length != 12000)
                 throw new Exception("数量不对");
 
             var item = list.FirstOrDefault(m => m == buffer[9999]);
