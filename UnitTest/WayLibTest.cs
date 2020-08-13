@@ -28,7 +28,7 @@ using System.Linq;
 namespace UnitTest
 {
     [TestClass]
-    public class WayLib
+    public class WayLibTest
     {
         class DYModel : DynamicModel
         {
@@ -562,9 +562,9 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         public void test(string guid)
         {
             new Thread(() => {
-                if (WayLib.ThreadLocalResources.Value != guid)
+                if (WayLibTest.ThreadLocalResources.Value != guid)
                 {
-                    Interlocked.Increment(ref WayLib.ThreadLocal_Test_count);
+                    Interlocked.Increment(ref WayLibTest.ThreadLocal_Test_count);
                 }
             }).Start();
             
