@@ -551,7 +551,42 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                 throw new Exception("item is null");
         }
 
+        [TestMethod]
+        public void ConcurrentListTest2()
+        {
+            DateTime startTime = DateTime.Now;
+            int addCount = 0;
+            int deleteCount = 0;
+            ConcurrentQueue<object> fifo = new ConcurrentQueue<object>();
+            var list = new ConcurrentList<object>();
 
+            var t1 = Task.Run(() => {
+                while((DateTime.Now - startTime).TotalMinutes < 10)
+                {
+                    var c = new object();
+                    list.Add(c);
+                    Interlocked.Increment(ref addCount);
+                    fifo.Enqueue(c);
+
+                    if (list.Count > 10000)
+                        Thread.Sleep(100);                    
+                }
+            });
+            var t2 = Task.Run(() => {
+                while ((DateTime.Now - startTime).TotalMinutes < 10)
+                {
+                    if(fifo.TryDequeue(out object c))
+                    {
+                        list.Remove(c);
+                        Interlocked.Increment(ref deleteCount);
+                    }
+                }
+            });
+
+            Task.WaitAll(t1, t2);
+            if (addCount - deleteCount != list.Count)
+                throw new Exception("数量不对");
+        }
     }
 
  
