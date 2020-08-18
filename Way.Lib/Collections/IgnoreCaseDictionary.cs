@@ -82,9 +82,13 @@ namespace Way.Lib.Collections
                 }
                 return (T)Convert.ChangeType(dictval, types[0]);
             }
-            else
+            else if (targetType.IsValueType)
             {
                 return (T)Convert.ChangeType(dictval, typeof(T));
+            }
+            else
+            {
+                return (T)dictval;
             }
         }
 
