@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,12 +13,13 @@ namespace Way.Lib
     /// </summary>
     public static class Extensions
     {
-        /// <summary>
-        /// 安全的ToString方法，对象如果是null，返回""
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static string ToSafeString(this object obj)
+        static JsonSerializerSettings JsonSettings =  new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+    /// <summary>
+    /// 安全的ToString方法，对象如果是null，返回""
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static string ToSafeString(this object obj)
         {
             if (obj == null)
                 return "";
@@ -42,7 +45,7 @@ namespace Way.Lib
         {
             if (obj == null)
                 return null;
-            return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(obj, JsonSettings);
         }
 
 #if NET46
