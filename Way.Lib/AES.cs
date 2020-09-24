@@ -8,6 +8,86 @@ namespace Way.Lib
     public class AES
     {
         /// <summary>
+        /// 用任意密钥长度加密内容
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string EncryptWithAnyKey(string data, string key)
+        {
+            string originalKey = key;
+
+            if (key.Length < 16)
+                key = key.PadRight(16, '0');
+            else if (key.Length > 16 && key.Length < 24)
+                key = key.PadRight(24, '0');
+            else if (key.Length > 24 && key.Length < 32)
+                key = key.PadRight(32, '0');
+            else if (key.Length > 32)
+                key = key.Substring(0, 32);
+
+            int index = originalKey.Length - 16;
+            if (index < 0)
+                index = 0;
+            string iv = originalKey.Substring(index);
+
+            if (iv.Length < 16) iv = iv.PadRight(16, '0');
+            else if (iv.Length > 16) iv = iv.Substring(0, 16);
+
+            var _valueByte = Encoding.UTF8.GetBytes(data);
+            using (var aes = new RijndaelManaged())
+            {
+                aes.IV = Encoding.UTF8.GetBytes(iv);
+                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                var cryptoTransform = aes.CreateEncryptor();
+                var resultArray = cryptoTransform.TransformFinalBlock(_valueByte, 0, _valueByte.Length);
+                return Convert.ToBase64String(resultArray, 0, resultArray.Length);
+            }
+        }
+
+        /// <summary>
+        /// 用任意密钥长度解密内容
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string DecryptWithAnyKey(string data, string key)
+        {
+            string originalKey = key;
+
+            if (key.Length < 16)
+                key = key.PadRight(16, '0');
+            else if (key.Length > 16 && key.Length < 24)
+                key = key.PadRight(24, '0');
+            else if (key.Length > 24 && key.Length < 32)
+                key = key.PadRight(32, '0');
+            else if (key.Length > 32)
+                key = key.Substring(0, 32);
+
+            int index = originalKey.Length - 16;
+            if (index < 0)
+                index = 0;
+            string iv = originalKey.Substring(index);
+
+            if (iv.Length < 16) iv = iv.PadRight(16, '0');
+            else if (iv.Length > 16) iv = iv.Substring(0, 16);
+
+            var _valueByte = Convert.FromBase64String(data);
+            using (var aes = new RijndaelManaged())
+            {
+                aes.IV = Encoding.UTF8.GetBytes(iv);
+                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                var cryptoTransform = aes.CreateDecryptor();
+                var resultArray = cryptoTransform.TransformFinalBlock(_valueByte, 0, _valueByte.Length);
+                return Encoding.UTF8.GetString(resultArray);
+            }
+        }
+
+        /// <summary>
         ///  加密
         /// </summary>
         /// <param name="str">明文（待加密）</param>
