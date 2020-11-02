@@ -283,7 +283,7 @@ namespace Way.Lib.ECC
             if (getVFunc != null)
                 retByte[64] = getVFunc(retByte[64]);
             else
-                retByte[64] = (byte)(retByte[64] - 27);
+                retByte[64] = (byte)(signRet.V[0] - 27);
 
             return retByte.ToHex();
         }
