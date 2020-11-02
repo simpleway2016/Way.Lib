@@ -241,17 +241,19 @@ namespace Way.Lib.ECC
         static byte[] SHA256Hash(byte[] input)
         {
             byte[] hashBytes;
-            var hash = new SHA256Managed();
-            using (var stream = new MemoryStream(input))
+            using (var hash = new SHA256Managed())
             {
+                using (var stream = new MemoryStream(input))
+                {
 
-                try
-                {
-                    hashBytes = hash.ComputeHash(stream);
-                }
-                finally
-                {
-                    hash.Clear();
+                    try
+                    {
+                        hashBytes = hash.ComputeHash(stream);
+                    }
+                    finally
+                    {
+                        hash.Clear();
+                    }
                 }
             }
 
