@@ -179,7 +179,9 @@ namespace Way.Lib
                             string charset = match.Groups[1].Value;
                             try
                             {
+#if NETSTANDARD2_0
                                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                                 charsetCode = Encoding.GetEncoding(charset);
                             }
                             catch
@@ -254,7 +256,9 @@ namespace Way.Lib
                             string charset = match.Groups[1].Value;
                             try
                             {
+#if NETSTANDARD2_0
                                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                                 charsetCode = Encoding.GetEncoding(charset);
                             }
                             catch
@@ -301,7 +305,9 @@ namespace Way.Lib
                 string charset = match.Groups[1].Value;
                 try
                 {
+#if NETSTANDARD2_0
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                     charsetCode = Encoding.GetEncoding(charset);
                 }
                 catch
@@ -366,7 +372,9 @@ namespace Way.Lib
                         string charset = match.Groups[1].Value;
                         try
                         {
+#if NETSTANDARD2_0
                             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                             charsetCode = Encoding.GetEncoding(charset);
                         }
                         catch

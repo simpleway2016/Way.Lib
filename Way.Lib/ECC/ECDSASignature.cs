@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using System.IO;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Math;
@@ -96,3 +97,4 @@ namespace Way.Lib.ECC
         }
     }
 }
+#endif

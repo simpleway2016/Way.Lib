@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿#if NETSTANDARD2_0
+using Org.BouncyCastle.Crypto;
 
 namespace Way.Lib.ECC
 {
@@ -34,3 +35,4 @@ namespace Way.Lib.ECC
         }
     }
 }
+#endif

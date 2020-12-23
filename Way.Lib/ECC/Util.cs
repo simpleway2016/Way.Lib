@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿#if NETSTANDARD2_0
+using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,3 +93,4 @@ namespace Way.Lib.ECC
         }
     }
 }
+#endif
