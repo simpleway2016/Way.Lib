@@ -24,7 +24,8 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using Way.Lib.Collections;
 using System.Linq;
-
+using Way.Lib.ECC;
+using Way.Lib.Hex;
 namespace UnitTest
 {
     [TestClass]
@@ -80,6 +81,18 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
 ";
 
 
+        [TestMethod]
+        public void SigTest()
+        {
+            var key = EthECKey.GenerateKey();
+            var privatekey1 = key.GetPrivateKey();
+            var publicKeyAddress = key.GetPublicAddress();
+            var str = "0a0277372208420acec80decf6fc40b8b9d59dd72e5a68080112640a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412330a1541b221f7d502a2120fe5eafd6c87507741955f168812154194c5e2d9527ddb212e4b69fb52e62b551ee39eee1880ade20470aaf7d19dd72e";
+
+            var signHex = EthECKey.Sign(str.HexToByteArray(), privatekey1);
+            var verify = EthECKey.Verify(str.HexToByteArray(), signHex, publicKeyAddress);
+
+        }
 
         [TestMethod]
         public void KeyPair()

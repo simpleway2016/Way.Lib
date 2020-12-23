@@ -8,16 +8,20 @@
     <PackageId>Way.Lib</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description></Description>
-    <Version>2.0.9.7</Version>
+    <Version>2.0.9.12</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle" Version="1.8.5" />
+    
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.0.1" />
     <PackageReference Include="System.IO" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+	<PackageReference Include="BouncyCastle" Version="1.8.5" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
 

@@ -100,16 +100,13 @@ namespace Way.Lib
             return PostJson(url, headers, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="headers"></param>
-        /// <param name="json"></param>
-        /// <param name="timeout">超时时间，单位:毫秒</param>
-        /// <returns></returns>
-        public static string PostJson(string url, IDictionary<string, string> headers, string json, int timeout)
+        static void checkHeaders(ref IDictionary<string, string> headers)
         {
+            if (headers == null)
+            {
+                headers = new Dictionary<string, string>();
+            }
+
             if (headers != null && headers.ContainsKey("Connection") == false)
             {
                 try
@@ -120,6 +117,31 @@ namespace Way.Lib
                 {
                 }
             }
+
+            if (headers != null && headers.ContainsKey("User-Agent") == false)
+            {
+                try
+                {
+                    headers["User-Agent"] = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="headers"></param>
+        /// <param name="json"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
+        public static string PostJson(string url, IDictionary<string, string> headers, string json, int timeout)
+        {
+            checkHeaders(ref headers);
+
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
@@ -157,7 +179,9 @@ namespace Way.Lib
                             string charset = match.Groups[1].Value;
                             try
                             {
+#if NETSTANDARD2_0
                                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                                 charsetCode = Encoding.GetEncoding(charset);
                             }
                             catch
@@ -194,16 +218,7 @@ namespace Way.Lib
         /// <returns></returns>
         public static string PostQueryString(string url, IDictionary<string, string> headers, string query, int timeout)
         {
-            if(headers != null && headers.ContainsKey("Connection") == false)
-            {
-                try
-                {
-                    headers["Connection"] = "close";
-                }
-                catch 
-                {
-                }
-            }
+            checkHeaders(ref headers);
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
@@ -241,7 +256,9 @@ namespace Way.Lib
                             string charset = match.Groups[1].Value;
                             try
                             {
+#if NETSTANDARD2_0
                                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                                 charsetCode = Encoding.GetEncoding(charset);
                             }
                             catch
@@ -288,7 +305,9 @@ namespace Way.Lib
                 string charset = match.Groups[1].Value;
                 try
                 {
+#if NETSTANDARD2_0
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                     charsetCode = Encoding.GetEncoding(charset);
                 }
                 catch
@@ -324,16 +343,7 @@ namespace Way.Lib
             /// <returns></returns>
             public static string GetContent(string url, IDictionary<string, string> headers, int timeout)
         {
-            if (headers != null && headers.ContainsKey("Connection") == false)
-            {
-                try
-                {
-                    headers["Connection"] = "close";
-                }
-                catch
-                {
-                }
-            }
+            checkHeaders(ref headers);
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
@@ -346,8 +356,9 @@ namespace Way.Lib
                     {
                         request.Headers[item.Key] = item.Value;
                     }
+                    
                 }
-                
+
                 var taskResponse = request.GetResponseAsync();
                 taskResponse.Wait();
                 using (var responseStream = taskResponse.Result.GetResponseStream())
@@ -361,7 +372,9 @@ namespace Way.Lib
                         string charset = match.Groups[1].Value;
                         try
                         {
+#if NETSTANDARD2_0
                             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
                             charsetCode = Encoding.GetEncoding(charset);
                         }
                         catch
