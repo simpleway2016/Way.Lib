@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿
 using System;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
@@ -180,4 +180,3 @@ namespace Way.Lib.ECC
         }
     }
 }
-#endif

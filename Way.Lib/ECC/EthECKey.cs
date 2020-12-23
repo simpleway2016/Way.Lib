@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿
 using System;
 using System.IO;
 using System.Linq;
@@ -322,4 +322,3 @@ namespace Way.Lib.ECC
         }
     }
 }
-#endif

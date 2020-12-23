@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -905,4 +905,3 @@ namespace Way.Lib
         }
     }
 }
-#endif
