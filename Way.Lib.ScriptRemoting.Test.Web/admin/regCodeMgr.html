@@ -80,7 +80,8 @@
                 if (username == undefined)
                     username = "";
             }
-            window.controller.server.MakeRegCode(txtMakeCount.text, username, function (ret, err) {
+            var years = prompt("请输入授权期限（年）");
+            window.controller.server.MakeRegCode(txtMakeCount.text, username, years,function (ret, err) {
                 if (err) alert(err);
                 else {
                     alert("成功创建！");
