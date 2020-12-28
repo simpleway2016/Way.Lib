@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Way.Lib
+namespace Way.Lib.Threads
 {
     public class LimitedConcurrencyLevelTaskScheduler : TaskScheduler
     {
@@ -43,7 +43,6 @@ namespace Way.Lib
             // delegates currently queued or running to process tasks, schedule another. 
             lock (_tasks)
             {
-                Console.WriteLine("Task Count : {0} ", _tasks.Count);
                 _tasks.AddLast(task);
                 if (_delegatesQueuedOrRunning < _maxDegreeOfParallelism)
                 {
@@ -52,8 +51,7 @@ namespace Way.Lib
                 }
             }
         }
-        int executingCount = 0;
-        private static object executeLock = new object();
+
         /// <summary> 
         /// Informs the ThreadPool that there's work to be executed for this scheduler. 
         /// </summary> 
