@@ -105,12 +105,15 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             public int Value;
             public int? ThreadId;
         }
+
         [TestMethod]
         public void ConcurrentDictionaryActionQueueTest()
         {
-            ConcurrentDictionaryActionQueue<int> userActions = new ConcurrentDictionaryActionQueue<int>();
+
+            ConcurrentDictionaryActionQueue<int> userActions = new ConcurrentDictionaryActionQueue<int>(3);
             for (int k = 0; k < 1000; k++)
             {
+                System.Diagnostics.Stopwatch sw = new Stopwatch();
                 ConcurrentDictionary<int, ValueObject> userValues = new ConcurrentDictionary<int, ValueObject>();
                 int total = 10000000;
                 int[] userids = new[] { 1, 2, 3, 4, 5, 6, 7 };
@@ -118,7 +121,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
               
                 int done = 0;
                 Random random = new Random();
-                
+                sw.Start();
                 Parallel.For(0, total, (index) =>
                 {
                     var userid = random.Next(1, 8);
@@ -147,8 +150,11 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                         throw new Exception("value error");
                     }
                 }
-                System.Diagnostics.Debug.WriteLine("第{0}次" , k + 1);
+                sw.Stop();
+                System.Diagnostics.Debug.WriteLine("第{0}次:{1}ms" , k + 1 , sw.ElapsedMilliseconds);
             }
+
+           
         }
 
 

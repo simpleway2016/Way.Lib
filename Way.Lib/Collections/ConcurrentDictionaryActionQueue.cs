@@ -11,10 +11,24 @@ namespace Way.Lib.Collections
     /// <summary>
     /// 按照key，将action分类成不同队列，每个队列用各自的Task执行action
     /// </summary>
-    public class ConcurrentDictionaryActionQueue<TKey>:IDisposable
+    public class ConcurrentDictionaryActionQueue<TKey> : IDisposable
     {
         internal ConcurrentDictionary<TKey, ActionQueue<TKey>> _dict = new ConcurrentDictionary<TKey, ActionQueue<TKey>>();
         internal int ActionCount = 0;
+        internal TaskFactory _taskFactory;
+        public ConcurrentDictionaryActionQueue():this(Environment.ProcessorCount)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="maxDegreeOfParallelism">最大并发数</param>
+        public ConcurrentDictionaryActionQueue(int maxDegreeOfParallelism)
+        {
+            _taskFactory = new TaskFactory(new LimitedConcurrencyLevelTaskScheduler(maxDegreeOfParallelism));
+        }
 
         /// <summary>
         /// 移除指定key队列
@@ -34,7 +48,7 @@ namespace Way.Lib.Collections
         /// </summary>
         /// <param name="key"></param>
         /// <param name="action"></param>
-        public void Add(TKey key , Action action)
+        public void Add(TKey key, Action action)
         {
             if (_disposed)
                 return;
@@ -61,9 +75,9 @@ namespace Way.Lib.Collections
         /// </summary>
         /// <param name="key"></param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or System.Threading.Timeout.Infinite (-1) to wait indefinitely.</param>
-        public void Wait(TKey key,int millisecondsTimeout = System.Threading.Timeout.Infinite)
+        public void Wait(TKey key, int millisecondsTimeout = System.Threading.Timeout.Infinite)
         {
-            if( _dict.TryGetValue(key , out ActionQueue<TKey> o))
+            if (_dict.TryGetValue(key, out ActionQueue<TKey> o))
             {
                 try
                 {
@@ -104,7 +118,7 @@ namespace Way.Lib.Collections
         }
     }
 
-    class ActionQueue<TKey> 
+    class ActionQueue<TKey>
     {
         ConcurrentQueue<Action> Actions { get; }
         internal Task _task;
@@ -120,7 +134,7 @@ namespace Way.Lib.Collections
             _container = container;
         }
 
-        
+
 
         /// <summary>
         /// 添加一个任务到队列当中
@@ -138,7 +152,7 @@ namespace Way.Lib.Collections
                 this.Actions.Enqueue(action);
                 if (_task == null)
                 {
-                    _task = Task.Run(run);
+                    _task = _container._taskFactory.StartNew(run , TaskCreationOptions.LongRunning);
                 }
             }
             return true;
@@ -166,24 +180,24 @@ namespace Way.Lib.Collections
                 }
                 else
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        if( this.Actions.Count == 0 )
+                        if (this.Actions.Count == 0)
                         {
                             _disposed = true;
 
                             if (_container._dict.ContainsKey(Key))
                                 _container._dict.TryRemove(Key, out ActionQueue<TKey> o2);
                             return;
-                        }                       
+                        }
                     }
-                    
+
                 }
             }
-           
-            
+
+
         }
 
-       
+
     }
 }
