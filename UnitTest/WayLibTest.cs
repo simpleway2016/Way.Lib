@@ -80,6 +80,11 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
 -----END RSA PRIVATE KEY-----
 ";
 
+        [TestMethod]
+        public void GetFileEncodingTest()
+        {
+            var code = FileEncodingHelper.GetFileEncoding("d:\\aaa.cs");
+        }
 
         [TestMethod]
         public void SigTest()
