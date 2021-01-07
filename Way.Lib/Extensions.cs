@@ -40,11 +40,16 @@ namespace Way.Lib
         /// 把对象转换为json字符串
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="indented">字符串是否换行</param>
         /// <returns></returns>
-        public static string ToJsonString(this object obj)
+        public static string ToJsonString(this object obj,bool indented = false)
         {
             if (obj == null)
                 return null;
+            if(indented)
+            {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj, Formatting.Indented, JsonSettings);
+            }
             return Newtonsoft.Json.JsonConvert.SerializeObject(obj, JsonSettings);
         }
 
