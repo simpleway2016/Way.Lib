@@ -85,7 +85,11 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         {
             var code = FileEncodingHelper.GetFileEncoding("d:\\aaa.cs");
         }
-
+        [TestMethod]
+        public void GetCpuId()
+        {
+            var code = HardwareHelper.GetCpuId();
+        }
         [TestMethod]
         public void SigTest()
         {
