@@ -90,6 +90,8 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         {
             var code = HardwareHelper.GetCpuId();
         }
+
+        
         [TestMethod]
         public void SigTest()
         {
@@ -176,8 +178,8 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
 
             var content = "abc";
 
-            var signed = Way.Lib.RSA.SignRSA2(content, privateKey);
-            var ret = Way.Lib.RSA.VerifyRSA2Signed(content, publicKey, signed);
+            var signed = Way.Lib.RSA.SignRSA2(content, privateKey, "MD5");
+            var ret = Way.Lib.RSA.VerifyRSA2Signed(content, publicKey, signed, "MD5");
             if (!ret)
                 throw new Exception("sign error");
         }

@@ -863,12 +863,23 @@ namespace Way.Lib
         /// <returns></returns>
         public static string SignRSA2(string content, RSAParameters privateKey)
         {
+            return SignRSA2(content, privateKey, "SHA256");
+        }
+        /// <summary>
+        /// 用rsa2算法进行签名，返回base64字符串
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="privateKey"></param>
+        /// <param name="halg">如：SHA256 MD5</param>
+        /// <returns></returns>
+        public static string SignRSA2(string content, RSAParameters privateKey,string halg)
+        {
             using (RSACryptoServiceProvider rsaService = new RSACryptoServiceProvider())
             {
                 rsaService.ImportParameters(privateKey);
                 byte[] data = Encoding.UTF8.GetBytes(content);
 
-                byte[] sign = rsaService.SignData(data, "SHA256");
+                byte[] sign = rsaService.SignData(data, halg);
                 return Convert.ToBase64String(sign);
             }
         }
@@ -882,15 +893,27 @@ namespace Way.Lib
         /// <returns></returns>
         public static bool VerifyRSA2Signed(string content, RSAParameters publicKey, string sign)
         {
+            return VerifyRSA2Signed(content, publicKey, sign, "SHA256");
+        }
+
+        /// <summary>
+        /// 校验base64字符串签名，是否正确，这个方法和SignRSA2配对
+        /// </summary>
+        /// <param name="content">被签名的内容</param>
+        /// <param name="publicKey"></param>
+        /// <param name="sign">签名字符串</param>
+        /// <param name="halg"></param>
+        /// <returns></returns>
+        public static bool VerifyRSA2Signed(string content, RSAParameters publicKey, string sign,string halg)
+        {
             using (RSACryptoServiceProvider rsaService = new RSACryptoServiceProvider())
             {
                 rsaService.PersistKeyInCsp = false;
                 rsaService.ImportParameters(publicKey);
 
-                return rsaService.VerifyData(Encoding.UTF8.GetBytes(content), "SHA256", Convert.FromBase64String(sign));
+                return rsaService.VerifyData(Encoding.UTF8.GetBytes(content), halg, Convert.FromBase64String(sign));
             }
         }
-
 
         public void Dispose()
         {
