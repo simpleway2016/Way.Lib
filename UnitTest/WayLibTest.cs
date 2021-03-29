@@ -172,16 +172,61 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
         [TestMethod]
         public void Sign()
         {
-            var pair = Way.Lib.RSA.CreateKeyPair();
-            var publicKey = Way.Lib.RSA.GetPublicKey(pair[0]);
-            var privateKey = Way.Lib.RSA.GetPrivateKey(pair[1] , RSAKeyType.PKCS1);
+            var serverCertificate = new X509Certificate2(@"C:\Users\89687\Documents\WeChat Files\wxid_diwpyghfdln722\FileStorage\File\2021-03\API-Demo-V1.2\conf\test.pfx",
+                "1");
+            var dn = serverCertificate.Subject.Replace("=","%3D");
+           var privateKeyStr = @"MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBALbNfNNSkHGTrP1M
+AwNLcS8Z0pQPngzM6JvRQ+P4oBsynJY2zS1aqxqpdvVt6DrV3w6Zr9NIouNGPPZn
+vEZCIH7lsmqI+sybXynYxuzqXaFuI85IhKw8f3wBqnZFd09JtgaCfLjE9ROJZpUS
+dd4H3ATAwTKPykJJpxrZsZGSuthdAgMBAAECgYEAoh4AysTZNvC5pPWpYl2gph3n
+g8mJ6F49GBrxc5cGHri25/z333YeconB5w0uvCb6J8+if+VWF+stm3UKIuD4QTGv
+trn/hVmarnnN9bTNoYxc3lnvWttrUmtYHy81n+WFFp5N2rqPdYx+fUhLyBf3d0Yu
+WLiCxscuC6pzOst+cKECQQDjl4aU/fo1VsgbihnAKlBW2Xndv+IRzTDV83dCkRQw
+H98YwQj8079Fe45mB34rJNBnNRplVow+jdPhJXJSPpo1AkEAzZ7EUgrbmWdL1371
+LsH698BlfFuK6KqPUx20bBvKVkg0f1Or+W87oEuwxGDykCJ9o7oTEgEWvOHvHm6L
+SOtKiQJAZ2hEhNO06KFKgIDJ3G8dW6iqX1+8xtvVMZDSghNK+eaxRh0HCWDoShiu
+hZsn71BlxE7zdFHTnORx/Z03CTladQJBALnisRp2RGZfUtoDJUZbCTZW0ahl3aNP
+Jfj+3q/pQ7dS2VrOWqdJ3r6gDrLJ7h9NfwW33yuknlitbA234+VNCPkCQQCdLrSN
+61M1wo9xCaPRsRI2VWh/mu6fwjC6H2ghBtbNZCq3YVZ0/0oAbn/gG8OMG/VnB11e
+MQIkKCFCKSp92rt1";
+            var privateKey = Way.Lib.RSA.GetPrivateKey(privateKeyStr, RSAKeyType.PKCS8);
 
-            var content = "abc";
+            var pk = @"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC2zXzTUpBxk6z9TAMDS3EvGdKUD54MzOib0UPj+KAbMpyWNs0tWqsaqXb1beg61d8Oma/TSKLjRjz2Z7xGQiB+5bJqiPrMm18p2Mbs6l2hbiPOSISsPH98Aap2RXdPSbYGgny4xPUTiWaVEnXeB9wEwMEyj8pCSaca2bGRkrrYXQIDAQAB".Replace("+","%2B");
+            var dict = new SortedDictionary<string, string>();
+            dict["ApplicationID"] = "2f2faaaf-2506-4558-ae9c-0358a50dbc55";
+            dict["DN"] = dn;
+            dict["PK"] = pk;
+            dict["SDKType"] = "api";
+            dict["RandomNumber"] = new Random().Next(100000,999999).ToString();
 
-            var signed = Way.Lib.RSA.SignRSA2(content, privateKey, "MD5");
-            var ret = Way.Lib.RSA.VerifyRSA2Signed(content, publicKey, signed, "MD5");
-            if (!ret)
-                throw new Exception("sign error");
+            string str = "";
+            foreach( var pair2 in dict)
+            {
+                str += pair2.Key + "=" + pair2.Value + "&";
+            }
+            dict["RsaSign"] = Way.Lib.RSA.SignRSA2(str , privateKey , "MD5");
+
+            try
+            {
+                var ret = Way.Lib.HttpClient.PostJson("https://my-st1.orangebank.com.cn:567/api/approveDev", dict, 8000);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+           
+            //var pair = Way.Lib.RSA.CreateKeyPair();
+            //var publicKey = Way.Lib.RSA.GetPublicKey(pair[0]);
+            //var privateKey = Way.Lib.RSA.GetPrivateKey(pair[1] , RSAKeyType.PKCS1);
+
+            //var content = "abc";
+
+            //var signed = Way.Lib.RSA.SignRSA2(content, privateKey, "MD5");
+            //var ret = Way.Lib.RSA.VerifyRSA2Signed(content, publicKey, signed, "MD5");
+            //if (!ret)
+            //    throw new Exception("sign error");
         }
 
 

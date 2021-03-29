@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -73,6 +74,48 @@ namespace Way.Lib
             _parameter = _rsa.ExportParameters(true);
             _KeyExponent = BytesToHexString(_parameter.Exponent);
             _KeyModulus = BytesToHexString(_parameter.Modulus);
+        }
+
+        /// <summary>
+        /// 获取pem字符串
+        /// </summary>
+        /// <param name="cert"></param>
+        /// <returns></returns>
+        public static string GetPublicKeyPem(X509Certificate2 cert)
+        {
+            var p = cert.GetRSAPublicKey().ExportParameters(false);
+            var key = new RsaKeyParameters(false, new BigInteger(1, p.Modulus), new BigInteger(1, p.Exponent));
+
+
+
+            using (var stringWriter = new StringWriter())
+            {
+                var pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(stringWriter);
+                pemWriter.WriteObject(key);
+                return stringWriter.GetStringBuilder().ToString();
+            }
+        }
+
+        /// <summary>
+        /// 获取私钥
+        /// </summary>
+        /// <param name="cert"></param>
+        /// <returns></returns>
+        public static string GetPrivateKeyPem(X509Certificate2 cert)
+        {
+            var p = cert.GetRSAPrivateKey().ExportParameters(true);
+            var key = new RsaPrivateCrtKeyParameters(
+                         new Org.BouncyCastle.Math.BigInteger(1, p.Modulus), new Org.BouncyCastle.Math.BigInteger(1, p.Exponent), new Org.BouncyCastle.Math.BigInteger(1, p.D),
+                         new Org.BouncyCastle.Math.BigInteger(1, p.P), new Org.BouncyCastle.Math.BigInteger(1, p.Q), new Org.BouncyCastle.Math.BigInteger(1, p.DP), new Org.BouncyCastle.Math.BigInteger(1, p.DQ),
+                         new Org.BouncyCastle.Math.BigInteger(1, p.InverseQ));
+
+
+            using (var stringWriter = new StringWriter())
+            {
+                var pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(stringWriter);
+                pemWriter.WriteObject(key);
+                return stringWriter.GetStringBuilder().ToString();
+            }
         }
 
         /// <summary>
