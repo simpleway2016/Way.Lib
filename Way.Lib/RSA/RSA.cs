@@ -103,19 +103,27 @@ namespace Way.Lib
         /// <returns></returns>
         public static string GetPrivateKeyPem(X509Certificate2 cert)
         {
-            var p = cert.GetRSAPrivateKey().ExportParameters(true);
-            var key = new RsaPrivateCrtKeyParameters(
-                         new Org.BouncyCastle.Math.BigInteger(1, p.Modulus), new Org.BouncyCastle.Math.BigInteger(1, p.Exponent), new Org.BouncyCastle.Math.BigInteger(1, p.D),
-                         new Org.BouncyCastle.Math.BigInteger(1, p.P), new Org.BouncyCastle.Math.BigInteger(1, p.Q), new Org.BouncyCastle.Math.BigInteger(1, p.DP), new Org.BouncyCastle.Math.BigInteger(1, p.DQ),
-                         new Org.BouncyCastle.Math.BigInteger(1, p.InverseQ));
-
-
-            using (var stringWriter = new StringWriter())
+            try
             {
-                var pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(stringWriter);
-                pemWriter.WriteObject(key);
-                return stringWriter.GetStringBuilder().ToString();
+                var p = cert.GetRSAPrivateKey().ExportParameters(true);
+                var key = new RsaPrivateCrtKeyParameters(
+                             new Org.BouncyCastle.Math.BigInteger(1, p.Modulus), new Org.BouncyCastle.Math.BigInteger(1, p.Exponent), new Org.BouncyCastle.Math.BigInteger(1, p.D),
+                             new Org.BouncyCastle.Math.BigInteger(1, p.P), new Org.BouncyCastle.Math.BigInteger(1, p.Q), new Org.BouncyCastle.Math.BigInteger(1, p.DP), new Org.BouncyCastle.Math.BigInteger(1, p.DQ),
+                             new Org.BouncyCastle.Math.BigInteger(1, p.InverseQ));
+
+
+                using (var stringWriter = new StringWriter())
+                {
+                    var pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(stringWriter);
+                    pemWriter.WriteObject(key);
+                    return stringWriter.GetStringBuilder().ToString();
+                }
             }
+            catch
+            {
+                throw new Exception("cert必须具有 X509KeyStorageFlags.Exportable 标识，才能导出私钥。");
+            }
+          
         }
 
         /// <summary>

@@ -91,6 +91,14 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             var code = HardwareHelper.GetCpuId();
         }
 
+        [TestMethod]
+        public void read()
+        {
+            var cert = new X509Certificate2(@"C:\Users\Jack\source\repos\EntityDB\EntityDB\Way.EJServer\EJServerCert.pfx", "123456",
+                X509KeyStorageFlags.Exportable);
+
+           var epm = Way.Lib.RSA.GetPrivateKeyPem(cert);
+        }
         
         [TestMethod]
         public void SigTest()
