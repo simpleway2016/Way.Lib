@@ -99,7 +99,13 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
 
            var epm = Way.Lib.RSA.GetPrivateKeyPem(cert);
         }
-        
+
+        [TestMethod]
+        public void HMACSHA1()
+        {
+            var str = Way.Lib.SHA.HMACSHA1(Encoding.UTF8.GetBytes("abc"), "94bc3b8f99b11ed394bc3b8f99b11ed3").ToHex().ToUpper();
+        }
+
         [TestMethod]
         public void SigTest()
         {
