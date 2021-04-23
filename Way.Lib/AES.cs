@@ -91,7 +91,7 @@ namespace Way.Lib
         ///  加密
         /// </summary>
         /// <param name="str">明文（待加密）</param>
-        /// <param name="key">密钥 16个字母</param>
+        /// <param name="key">密钥 16或32个字母</param>
         /// <returns></returns>
         public static string Encrypt(string str, string key)
         {
@@ -117,7 +117,7 @@ namespace Way.Lib
         /// 
         /// </summary>
         /// <param name="content"></param>
-        /// <param name="key">密钥 16个字母</param>
+        /// <param name="key">密钥 16或32个字母</param>
         /// <returns></returns>
         public static byte[] Encrypt(byte[] content, string key)
         {
@@ -143,7 +143,7 @@ namespace Way.Lib
         ///  解密
         /// </summary>
         /// <param name="str">明文（待解密）</param>
-        /// <param name="key">密钥 16个字母</param>
+        /// <param name="key">密钥 16或32个字母</param>
         /// <returns></returns>
         public static string Decrypt(string str, string key)
         {
@@ -171,7 +171,7 @@ namespace Way.Lib
         /// 
         /// </summary>
         /// <param name="content"></param>
-        /// <param name="key">密钥 16个字母</param>
+        /// <param name="key">密钥 16或32个字母</param>
         /// <returns></returns>
         public static byte[] Decrypt(byte[] content, string key)
         {
