@@ -67,7 +67,7 @@ namespace Way.Lib.ScriptRemoting
         internal WebPathManger WebPathManger;
         static HttpServer()
         {
-            HtmlTempPath = PlatformHelper.GetAppDirectory() + "$_HtmlTemps";
+            HtmlTempPath = AppDomain.CurrentDomain.BaseDirectory + "$_HtmlTemps";
             try
             {
                 if (Directory.Exists(HtmlTempPath))
@@ -129,7 +129,7 @@ namespace Way.Lib.ScriptRemoting
 
             try
             {
-                ScriptFilePath = Way.Lib.PlatformHelper.GetAppDirectory() + "WayScriptRemoting.js";
+                ScriptFilePath = AppDomain.CurrentDomain.BaseDirectory + "WayScriptRemoting.js";
                 FileStream fs = File.Create(ScriptFilePath);
                 var assembly = typeof(HttpServer).GetTypeInfo().Assembly;
                 var allNames = assembly.GetManifestResourceNames();

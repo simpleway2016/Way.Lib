@@ -252,7 +252,7 @@ namespace Way.Lib.ScriptRemoting
                 type = currentAssembly.GetType(fullname);
                 if (type == null)
                 {
-                    Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (var assembly in assemblies)
                     {
                         if (assembly != currentAssembly)
@@ -602,7 +602,7 @@ namespace Way.Lib.ScriptRemoting
                 }
                 else
                 {
-                    Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
                     for (int i = 0; i < assemblies.Length; i++)
                     {

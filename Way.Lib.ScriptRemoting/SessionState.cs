@@ -72,7 +72,7 @@ namespace Way.Lib.ScriptRemoting
                 return;
 
             string data = Way.Lib.Serialization.Serializer.SerializeObject(context.Server.AllSessions);
-            var filepath = Way.Lib.PlatformHelper.GetAppDirectory() + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
+            var filepath = AppDomain.CurrentDomain.BaseDirectory + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
             if (System.IO.File.Exists(filepath))
                 System.IO.File.Delete(filepath);
 
@@ -86,7 +86,7 @@ namespace Way.Lib.ScriptRemoting
         public static void LoadSessionFromLocal(bool deleteAfterLoad)
         {
             var context = RemotingContext.Current;
-            var filepath = Way.Lib.PlatformHelper.GetAppDirectory() + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
+            var filepath = AppDomain.CurrentDomain.BaseDirectory + "_$Way.Lib.ScriptRemoting.SessionBackup.dat";
             if (System.IO.File.Exists(filepath) == false)
                 return;
 

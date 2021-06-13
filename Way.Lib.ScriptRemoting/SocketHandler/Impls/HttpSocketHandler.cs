@@ -57,7 +57,7 @@ namespace Way.Lib.ScriptRemoting
 
             ControllerUrlConfig = new Dictionary<string, string>();
                Type basetype = typeof(RemotingController);
-            Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach( Assembly assembly in assemblies )
             {
                 var types = assembly.GetTypes();

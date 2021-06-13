@@ -190,7 +190,7 @@ namespace Way.Lib.ScriptRemoting
             }
             else
             {
-                Assembly[] assemblies = PlatformHelper.GetAppAssemblies();
+                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
                 for (int i = 0; i < assemblies.Length; i++)
                 {

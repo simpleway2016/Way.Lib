@@ -24,17 +24,17 @@ namespace Way.Lib.ScriptRemoting.Test
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.WriteLine("server starting...");
             HttpServer server = null;
-            if (System.IO.Directory.Exists($"{Way.Lib.PlatformHelper.GetAppDirectory()}Web"))
+            if (System.IO.Directory.Exists($"{AppDomain.CurrentDomain.BaseDirectory}Web"))
             {
                 
-                Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
-                server = new HttpServer(new int[] { 10001 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}Web");
+                Console.WriteLine($"path:{AppDomain.CurrentDomain.BaseDirectory}Web");
+                server = new HttpServer(new int[] { 10001 }, $"{AppDomain.CurrentDomain.BaseDirectory}Web");
             }
             else
             {
               
-                Console.WriteLine($"path:{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
-                server = new HttpServer(new int[] { 10001 }, $"{Way.Lib.PlatformHelper.GetAppDirectory()}../../../../Way.Lib.ScriptRemoting.Test.Web");
+                Console.WriteLine($"path:{AppDomain.CurrentDomain.BaseDirectory}../../../../Way.Lib.ScriptRemoting.Test.Web");
+                server = new HttpServer(new int[] { 10001 }, $"{AppDomain.CurrentDomain.BaseDirectory}../../../../Way.Lib.ScriptRemoting.Test.Web");
             }
             //server.UseHttps(new X509Certificate2(Way.Lib.PlatformHelper.GetAppDirectory() + "server.pfx", "linezero") );
             Console.WriteLine("server started");

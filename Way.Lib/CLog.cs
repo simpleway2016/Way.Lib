@@ -20,7 +20,7 @@ namespace Way.Lib
         {
             get
             {
-                return _SavePath ?? (_SavePath = PlatformHelper.GetAppDirectory() + "CodeLog");
+                return _SavePath ?? (_SavePath = AppDomain.CurrentDomain.BaseDirectory + "CodeLog");
             }
         }
         public string Name
@@ -252,18 +252,18 @@ namespace Way.Lib
                             }
                             else
                             {
-                                _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
+                                _SavePath = AppDomain.CurrentDomain.BaseDirectory + "CLog";
                             }
                         }
                         catch
                         {
-                            _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
+                            _SavePath = AppDomain.CurrentDomain.BaseDirectory + "CLog";
                         }
 #else
-                        _SavePath = PlatformHelper.GetAppDirectory() + "CLog";
+                        _SavePath = AppDomain.CurrentDomain.BaseDirectory + "CLog";
 #endif
                     }
-                    
+
                     if (_mSavePath == null)
                     {
                         _mSavePath = _SavePath;
