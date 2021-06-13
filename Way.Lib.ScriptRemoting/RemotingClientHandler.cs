@@ -115,7 +115,7 @@ namespace Way.Lib.ScriptRemoting
             }
             catch(Exception ex)
             {
-                throw ex;
+                    throw ex;
             }
             
         }
