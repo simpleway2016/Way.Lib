@@ -209,19 +209,17 @@ namespace Way.Lib.ScriptRemoting
                     {
                         foreach (var kv in AllSessions)
                         {
-                            if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > SessionTimeout)
+                            if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes >= SessionTimeout)
                             {
-                                //在lock中重新判断
-                                if ((DateTime.Now - kv.Value.LastUseTime).TotalMinutes > SessionTimeout)
+                                if (AllSessions.TryRemove(kv.Key, out SessionState obj))
                                 {
-                                    SessionState obj;
-                                    AllSessions.TryRemove(kv.Key, out obj);
                                     try
                                     {
-                                        foreach (var keypair in kv.Value)
+                                        foreach (var keypair in obj)
                                         {
                                             try
                                             {
+                                                obj[keypair.Key] = null;
                                                 if (keypair.Value is IDisposable)
                                                 {
                                                     ((IDisposable)keypair.Value).Dispose();
@@ -237,17 +235,15 @@ namespace Way.Lib.ScriptRemoting
 
                                     try
                                     {
-                                        SessionState.OnSessionRemoved(kv.Value);
+                                        SessionState.OnSessionRemoved(obj);
                                     }
                                     catch
                                     {
 
                                     }
 
-                                    kv.Value.Clear();
+                                    obj.Clear();
                                 }
-
-                                break;
                             }
                         }
                     }

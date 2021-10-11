@@ -44,6 +44,20 @@ namespace Way.Lib.HtmlUtil
                 }
             }
         }
+
+        public void ForeachNode(List<HtmlNode> nodes,Func<HtmlNode,bool> action)
+        {
+            if (nodes == null)
+                return;
+            foreach( var node in nodes)
+            {
+                if (action(node) == false)
+                {
+                    return;
+                }
+                ForeachNode(node.Nodes, action);
+            }
+        }
     }
 
     /// <summary>
