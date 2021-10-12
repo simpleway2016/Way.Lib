@@ -48,7 +48,7 @@ namespace Way.Lib
                 str.Append("=");
                 str.Append(System.Web.HttpUtility.UrlEncode(item.Value.ToString(), System.Text.Encoding.UTF8));
             }
-            return PostQueryString(url, headers,str.ToString(), timeout);
+            return PostQueryString(url, headers, str.ToString(), timeout);
         }
         /// <summary>
         /// 
@@ -91,7 +91,7 @@ namespace Way.Lib
         public static string PostJson(string url, object jsonObj, int timeout)
         {
             //IDictionary<string, string> headers, 
-            return PostJson(url,null, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
+            return PostJson(url, null, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj), timeout);
         }
 
         public static string PostJson(string url, IDictionary<string, string> headers, object jsonObj, int timeout)
@@ -145,14 +145,14 @@ namespace Way.Lib
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
-               
+
                 request.Method = "POST";
                 request.Timeout = timeout;
                 request.ContentType = "application/json; charset=utf-8";
-                
+
                 if (headers != null)
                 {
-                    foreach( var item in headers )
+                    foreach (var item in headers)
                     {
                         request.Headers[item.Key] = item.Value;
                     }
@@ -222,7 +222,7 @@ namespace Way.Lib
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
-                
+
                 request.Method = "POST";
                 request.Timeout = timeout;
                 request.ContentType = "application/x-www-form-urlencoded;charset=utf-8";
@@ -334,20 +334,74 @@ namespace Way.Lib
             return GetContent(url, null, timeout);
         }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="url"></param>
-            /// <param name="headers"></param>
-            /// <param name="timeout">超时时间，单位:毫秒</param>
-            /// <returns></returns>
-            public static string GetContent(string url, IDictionary<string, string> headers, int timeout)
+        /// <summary>
+        /// 下载文件，如果文件已下载一部分，则断点续传
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="filename"></param>
+        /// <param name="headers"></param>
+        /// <param name="timeout"></param>
+        /// <param name="onProgress"></param>
+        public static void DownloadFile(string url,string filename, IDictionary<string, string> headers, int timeout, Action<int,long,long> onProgress)
+        {
+            if (headers == null)
+                headers = new Dictionary<string, string>();
+
+            FileStream fs = File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write);
+            headers["Range"] = "bytes=" + fs.Length + "-";
+            var data = new byte[409600];
+            fs.Position = fs.Length;
+
+            int lastpercent = -1;
+            HttpClient.GetStream(url, headers, 8000, (sr, length) => {
+                if (length == 0)
+                    return;
+
+                long received = fs.Length;
+                length += fs.Length;
+
+                while (true)
+                {
+                    var readed = sr.Read(data, 0, data.Length);
+                    received += readed;
+                    if(onProgress != null)
+                    {
+                        var p = (int)(received * 100 / length);
+                        if (lastpercent != p)
+                        {
+                            lastpercent = p;
+                            onProgress(lastpercent, received, length);
+                        }
+                    }
+                    if (readed <= 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        fs.Write(data, 0, readed);
+                        if (received >= length)
+                            break;
+                    }
+                }
+                fs.Close();
+            });
+        }
+
+        /// <summary>
+        /// 接收二进制流
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="headers"></param>
+        /// <param name="timeout"></param>
+        /// <param name="doAction"> 二进制流 , 总长度</param>
+        public static void GetStream(string url, IDictionary<string, string> headers, int timeout,Action<Stream,long> doAction)
         {
             checkHeaders(ref headers);
             HttpWebRequest request = WebRequest.CreateHttp(url);
             try
             {
-               
+
                 request.Method = "GET";
                 request.Timeout = timeout;
                 if (headers != null)
@@ -356,7 +410,49 @@ namespace Way.Lib
                     {
                         request.Headers[item.Key] = item.Value;
                     }
-                    
+
+                }
+
+                var taskResponse = request.GetResponseAsync();
+                taskResponse.Wait();
+                using (var sr = taskResponse.Result.GetResponseStream())
+                {
+                    doAction(sr , taskResponse.Result.ContentLength);
+                }
+            }
+            catch (Exception ex)
+            {
+                handleWebException(ex);
+            }
+            finally
+            {
+                request.Abort();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="headers"></param>
+        /// <param name="timeout">超时时间，单位:毫秒</param>
+        /// <returns></returns>
+        public static string GetContent(string url, IDictionary<string, string> headers, int timeout)
+        {
+            checkHeaders(ref headers);
+            HttpWebRequest request = WebRequest.CreateHttp(url);
+            try
+            {
+
+                request.Method = "GET";
+                request.Timeout = timeout;
+                if (headers != null)
+                {
+                    foreach (var item in headers)
+                    {
+                        request.Headers[item.Key] = item.Value;
+                    }
+
                 }
 
                 var taskResponse = request.GetResponseAsync();
@@ -424,10 +520,10 @@ namespace Way.Lib
                     wr.Headers["Connection"] = "close";
 
                 }
-                catch 
+                catch
                 {
                 }
-                
+
                 wr.ContentType = "multipart/form-data; boundary=" + boundary;
                 wr.Method = "POST";
                 wr.KeepAlive = true;
@@ -468,7 +564,7 @@ namespace Way.Lib
                         reader2.Dispose();
 
                     }
-                        
+
                 }
                 catch (Exception ex)
                 {

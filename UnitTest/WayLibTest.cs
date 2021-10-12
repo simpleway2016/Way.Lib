@@ -468,28 +468,11 @@ MQIkKCFCKSp92rt1";
         [TestMethod]
         public void testClient()
         {
-            var dict = new Dictionary<string, object>() {
-
-                        { "jsonrpc" , "2.0"},
-                        { "method" , "abc"}
-                    };
-            var headers = new Dictionary<string, string>();
-
-
-            for (int i = 0; i < 40000; i ++)
-            {
-                try
-                {
-                    var content = HttpClient.PostJson("http://localhost:8988/main.html", headers , dict , 5000);
-                    //Thread.Sleep(10);
-                    Debug.WriteLine(i.ToString());
-                }
-                catch (Exception ex) 
-                {
-
-                }
-               
-            }
+            var url = "https://www.nuget.org/api/v2/package/Jack.CefSharp.Wpf.x64.bin/1.0.0.1";
+            HttpClient.DownloadFile(url, "./data.zip", null, 8000, (percent, r, l) => {
+                Debug.WriteLine(percent + "%");
+            });
+             
         }
 
         [TestMethod]
