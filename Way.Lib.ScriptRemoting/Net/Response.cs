@@ -358,9 +358,9 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
-            mClient.Close();
-            mClient = null;
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 304 " + GetStatusDescription(304) + $"\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+
+            CloseSocket();
         }
         string getConnectString()
         {
@@ -396,9 +396,9 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             _sendedHeader = true;
 
-            mClient.Write(System.Text.Encoding.UTF8.GetBytes($"HTTP/1.1 {statusCode} " + GetStatusDescription(statusCode) + $"\r\nLocation: " + url + $"\r\n{getConnectString()}\r\n\r\n"));
-            mClient.Close();
-            mClient = null;
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes($"HTTP/1.1 {statusCode} " + GetStatusDescription(statusCode) + $"\r\nLocation: " + url + $"\r\nConnection: Close\r\n\r\n"));
+
+            CloseSocket();
         }
 
         internal void SendFileNotFound()
@@ -411,9 +411,9 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
-            mClient.Close();
-            mClient = null;
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 404 " + GetStatusDescription(404) + $"\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+
+            CloseSocket();
         }
         internal void SendServerError()
         {
@@ -425,12 +425,18 @@ namespace Way.Lib.ScriptRemoting.Net
                 _buffer = null;
             }
             _sendedHeader = true;
-            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\n{getConnectString()}\r\n\r\n"));
-            mClient.Close();
-            mClient = null;
+            mClient.Write(System.Text.Encoding.UTF8.GetBytes("HTTP/1.1 504 " + GetStatusDescription(504) + $"\r\nContent-Length: 0\r\nConnection: Close\r\n\r\n"));
+
+            CloseSocket();
         }
         internal void CloseSocket()
         {
+            mClient.Socket.Shutdown(System.Net.Sockets.SocketShutdown.Send);//表示发送数据完全结束
+            Task.Run(() =>
+            {
+                mClient.Socket.Receive(new byte[1], 1, System.Net.Sockets.SocketFlags.None);
+            }).Wait(3000);
+
             mClient.Close();
             mClient = null;
         }
@@ -469,21 +475,7 @@ namespace Way.Lib.ScriptRemoting.Net
                 return;
             }
 
-            //wait for close
-            //while (true)
-            //{
-            //    try
-            //    {
-            //        mClient.ReceiveDatas(1);
-            //    }
-            //    catch
-            //    {
-            //        break;
-            //    }
-            //}
-
-            mClient.Close();
-            mClient = null;
+            CloseSocket();
         }
 
         internal static string GetStatusDescription(int code)
