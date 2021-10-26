@@ -140,7 +140,7 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
             {
                 System.Diagnostics.Stopwatch sw = new Stopwatch();
                 ConcurrentDictionary<int, ValueObject> userValues = new ConcurrentDictionary<int, ValueObject>();
-                int total = 10000000;
+                int total = 1000;
                 int[] userids = new[] { 1, 2, 3, 4, 5, 6, 7 };
                 int[] values = new int[userids.Length];
               
@@ -154,11 +154,11 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                     var userValue = userValues.GetOrAdd(userid, (u) => new ValueObject());
                     Interlocked.Increment(ref userValue.Value);
 
-                    userActions.Add(userid, new Task( () =>
+                    userActions.Add(userid, () =>
                     {                       
                         values[userid - 1]++;
                         Interlocked.Increment(ref done);
-                    }));
+                    });
                 });
 
                 userActions.WaitAll();

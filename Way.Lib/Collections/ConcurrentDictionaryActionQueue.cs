@@ -64,7 +64,7 @@ namespace Way.Lib.Collections
 
                 queue = _dict.GetOrAdd(key, (k) => new ActionQueue<TKey>(k, this));
 
-                if (queue.TryAddAction(new Task(action)))
+                if (queue.TryAddAction(new TaskOrAction { Action = action }))
                 {
                     break;
                 }
@@ -86,7 +86,7 @@ namespace Way.Lib.Collections
 
                 queue = _dict.GetOrAdd(key, (k) => new ActionQueue<TKey>(k, this));
 
-                if (queue.TryAddAction(task))
+                if (queue.TryAddAction(new TaskOrAction { Task = task}))
                 {
                     break;
                 }
@@ -143,7 +143,7 @@ namespace Way.Lib.Collections
 
     class ActionQueue<TKey>
     {
-        ConcurrentQueue<Task> Actions { get; }
+        ConcurrentQueue<TaskOrAction> Actions { get; }
         internal Task _task;
         ManualResetEvent _waitObj = new ManualResetEvent(false);
         bool _disposed;
@@ -153,7 +153,7 @@ namespace Way.Lib.Collections
         public ActionQueue(TKey key, ConcurrentDictionaryActionQueue<TKey> container)
         {
             this.Key = key;
-            this.Actions = new ConcurrentQueue<Task>();
+            this.Actions = new ConcurrentQueue<TaskOrAction>();
             _container = container;
         }
 
@@ -163,7 +163,7 @@ namespace Way.Lib.Collections
         /// 添加一个任务到队列当中
         /// </summary>
         /// <param name="action"></param>
-        public bool TryAddAction(Task action)
+        public bool TryAddAction(TaskOrAction action)
         {
             lock (this)
             {
@@ -186,7 +186,7 @@ namespace Way.Lib.Collections
             //执行队列里面的任务
             while (true)
             {
-                if (this.Actions.TryDequeue(out Task o))
+                if (this.Actions.TryDequeue(out TaskOrAction o))
                 {
                     if (_disposed == true)
                     {
@@ -194,7 +194,12 @@ namespace Way.Lib.Collections
                     }
                     try
                     {
-                        o.RunSynchronously();
+                        if(o.Task != null)
+                            o.Task.RunSynchronously();
+                        else
+                        {
+                            o.Action();
+                        }
                     }
                     catch
                     {
@@ -222,5 +227,11 @@ namespace Way.Lib.Collections
         }
 
 
+    }
+
+    struct TaskOrAction
+    {
+        public Task Task;
+        public Action Action;
     }
 }
