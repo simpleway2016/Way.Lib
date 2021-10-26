@@ -154,11 +154,11 @@ AkwHI7pU+rJUgRv4oU708GtL8nlQ09g4j+dQGvqsapSYgQWSR3sS
                     var userValue = userValues.GetOrAdd(userid, (u) => new ValueObject());
                     Interlocked.Increment(ref userValue.Value);
 
-                    userActions.Add(userid, () =>
+                    userActions.Add(userid, new Task( () =>
                     {                       
                         values[userid - 1]++;
                         Interlocked.Increment(ref done);
-                    });
+                    }));
                 });
 
                 userActions.WaitAll();

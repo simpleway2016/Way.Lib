@@ -10,7 +10,7 @@ using Way.Lib.ScriptRemoting.WinTest;
 namespace Way.Lib.ScriptRemoting.Test
 {
     [RemotingUrl("test")]
-    public class TestPage : Way.Lib.ScriptRemoting.RemotingController,IUploadFileHandler
+    public class TestPage : Way.Lib.ScriptRemoting.RemotingController, IUploadFileHandler
     {
         public IQueryable<EJ.DBColumn> Columns
         {
@@ -57,6 +57,13 @@ namespace Way.Lib.ScriptRemoting.Test
         public void redir()
         {
             Response.Redirect("http://www.baidu.com");
+        }
+
+
+        [RemotingMethod]
+        public void SaveUserEffect(string username, string name, int type, string content, DateTime lastwritetime)
+        { 
+        
         }
 
         [RemotingMethod]

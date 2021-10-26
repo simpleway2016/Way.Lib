@@ -64,7 +64,29 @@ namespace Way.Lib.Collections
 
                 queue = _dict.GetOrAdd(key, (k) => new ActionQueue<TKey>(k, this));
 
-                if (queue.TryAddAction(action))
+                if (queue.TryAddAction(new Task(action)))
+                {
+                    break;
+                }
+            }
+        }
+
+        public void Add(TKey key, Task task)
+        {
+            if (_disposed)
+                return;
+
+            Interlocked.Increment(ref ActionCount);
+            ActionQueue<TKey> queue = null;
+
+            while (true)
+            {
+                if (_disposed)
+                    return;
+
+                queue = _dict.GetOrAdd(key, (k) => new ActionQueue<TKey>(k, this));
+
+                if (queue.TryAddAction(task))
                 {
                     break;
                 }
@@ -121,7 +143,7 @@ namespace Way.Lib.Collections
 
     class ActionQueue<TKey>
     {
-        ConcurrentQueue<Action> Actions { get; }
+        ConcurrentQueue<Task> Actions { get; }
         internal Task _task;
         ManualResetEvent _waitObj = new ManualResetEvent(false);
         bool _disposed;
@@ -131,7 +153,7 @@ namespace Way.Lib.Collections
         public ActionQueue(TKey key, ConcurrentDictionaryActionQueue<TKey> container)
         {
             this.Key = key;
-            this.Actions = new ConcurrentQueue<Action>();
+            this.Actions = new ConcurrentQueue<Task>();
             _container = container;
         }
 
@@ -141,7 +163,7 @@ namespace Way.Lib.Collections
         /// 添加一个任务到队列当中
         /// </summary>
         /// <param name="action"></param>
-        public bool TryAddAction(Action action)
+        public bool TryAddAction(Task action)
         {
             lock (this)
             {
@@ -164,7 +186,7 @@ namespace Way.Lib.Collections
             //执行队列里面的任务
             while (true)
             {
-                if (this.Actions.TryDequeue(out Action o))
+                if (this.Actions.TryDequeue(out Task o))
                 {
                     if (_disposed == true)
                     {
@@ -172,7 +194,7 @@ namespace Way.Lib.Collections
                     }
                     try
                     {
-                        o();
+                        o.RunSynchronously();
                     }
                     catch
                     {

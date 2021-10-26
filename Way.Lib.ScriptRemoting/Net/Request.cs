@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Way.Lib.ScriptRemoting.Net
@@ -265,6 +266,7 @@ namespace Way.Lib.ScriptRemoting.Net
             }
             else if (this.ContentType.ToSafeString().Contains("x-www-form-urlencoded"))
             {
+               
                 _contentData = mClient.ReceiveDatas(this.ContentLength);
 
                 List<byte> buffer = new List<byte>();
@@ -298,6 +300,117 @@ namespace Way.Lib.ScriptRemoting.Net
                     string value = WebUtility.UrlDecode(str);
                     _Form.Add(keyName, value);
                 }
+            }
+            else if (this.ContentType.StartsWith("multipart/form-data;"))
+            {
+                //multipart/form-data; boundary="9b58a389-566b-4e7f-91ea-6ea881703bbf"
+
+                var m = Regex.Match(this.ContentType, @"boundary=\""(?<b>.+)\""");
+                string boundary = m.Groups["b"].Value;
+                System.Text.Encoding codec = null;
+                if (codec == null && !string.IsNullOrEmpty(_Headers["Charset"]))
+                {
+                    try
+                    {
+                        codec = System.Text.Encoding.GetEncoding(_Headers["Charset"]);
+                    }
+                    catch
+                    {
+                    }
+                }
+                if (codec == null)
+                    codec = System.Text.Encoding.UTF8;
+
+                _contentData = mClient.ReceiveDatas(this.ContentLength);
+
+                bool itemstart = false;
+                bool contentstart = false;
+                string itemvalue = null;
+                string itemname = null;
+                using (var ms = new MemoryStream(_contentData))
+                using (var sr = new StreamReader(ms , codec))
+                {
+                    while (true)
+                    {
+                        var line = sr.ReadLine();
+                        if (line == null)
+                            break;
+                        if(line == $"--{boundary}")
+                        {
+                            if(itemstart && contentstart)
+                            {
+                                itemstart = false;
+                                contentstart = false;
+                                if (itemvalue.Length > 0)
+                                {
+                                    itemvalue = itemvalue.Substring(0, itemvalue.Length - 2);
+                                }
+                                if (!string.IsNullOrEmpty(itemname))
+                                {
+                                    _Form.Add(itemname, itemvalue);
+                                }
+                            }
+                            itemstart = true;
+                            itemvalue = "";
+                            itemname = null;
+                        }
+                        else if(itemstart)
+                        {
+                            if(contentstart)
+                            {
+                                if(line == $"--{boundary}--")
+                                {
+                                    itemstart = false;
+                                    contentstart = false;
+                                    if (itemvalue.Length > 0)
+                                    {
+                                        itemvalue = itemvalue.Substring(0, itemvalue.Length - 2);
+                                    }
+                                    if(!string.IsNullOrEmpty(itemname))
+                                    {
+                                        _Form.Add(itemname, itemvalue);
+                                    }
+                                    continue;
+                                }
+                                itemvalue += line + "\r\n";
+
+                            }
+                            else if(line.Length == 0)
+                            {
+                                contentstart = true;
+                            }
+                            else
+                            {
+                                if(line.StartsWith("Content-Disposition:"))
+                                {
+                                    try
+                                    {
+                                        line = line.Substring("Content-Disposition:".Length);
+                                        var index = line.IndexOf("name=");
+                                        if (index >= 0)
+                                        {
+                                            itemname = line.Substring(index + 5);
+                                        }
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+                   
+                /*
+                 --9b58a389-566b-4e7f-91ea-6ea881703bbf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: form-data; name=m
+
+{"ClassFullName":"PandaAudioServer.MainController","MethodName":"test","ParameterJson":"[\"1\",\"2\"]","SessionID":null}
+--9b58a389-566b-4e7f-91ea-6ea881703bbf--
+                 */
             }
         }
 
