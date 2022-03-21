@@ -345,65 +345,67 @@ namespace Way.Lib.ScriptRemoting
          void outputFile(string url , string filePath , string lastModifyTime)
         {
             byte[] bs;
-            var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, FileShare.ReadWrite);
-            
-            string ext = System.IO.Path.GetExtension(filePath).ToLower();
-            if (string.IsNullOrEmpty(_context.Response.Headers["Content-Type"]))
+            using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, FileShare.ReadWrite))
             {
-                if (ContentTypeDefines.ContainsKey(ext))
-                {
-                    _context.Response.Headers["Content-Type"] = ContentTypeDefines[ext];
-                }
-                else
-                {
-                    _context.Response.Headers["Content-Type"] = "application/octet-stream";
-                }
-            }
-            int range = -1, rangeEnd = 0;
-            string RangeStr = _context.Request.Headers["Range"];
-            if (RangeStr != null)
-            {
-                _context.Response.StatusCode = 206;
-                var rangeInfo = RangeStr.Replace("bytes=", "").Split('-');
-                range = Convert.ToInt32(rangeInfo[0]);
-                if (rangeInfo[1].IsNullOrEmpty())
-                {
-                    rangeEnd = (int)fs.Length - 1;
-                }
-                else
-                {
-                    rangeEnd = Convert.ToInt32(rangeInfo[1]);
-                }
-            }
 
-            _context.Response.MakeResponseHeaders(fs.Length, false, range, rangeEnd, lastModifyTime, null, true);
-            
-            bs = new byte[4096];
-            if (range >= 0)
-            {
-                fs.Position = range;
-                int totalRead = rangeEnd - range + 1;
-                while (totalRead > 0)
+                string ext = System.IO.Path.GetExtension(filePath).ToLower();
+                if (string.IsNullOrEmpty(_context.Response.Headers["Content-Type"]))
                 {
-                    int toread = Math.Min(bs.Length, totalRead);
-                    int count = fs.Read(bs, 0, toread);
-                    if (count == 0)
-                        break;
-                    totalRead -= count;
-                    _context.Response.Write(bs, 0, count);
+                    if (ContentTypeDefines.ContainsKey(ext))
+                    {
+                        _context.Response.Headers["Content-Type"] = ContentTypeDefines[ext];
+                    }
+                    else
+                    {
+                        _context.Response.Headers["Content-Type"] = "application/octet-stream";
+                    }
                 }
-            }
-            else
-            {
-                while (true)
+                int range = -1, rangeEnd = 0;
+                string RangeStr = _context.Request.Headers["Range"];
+                if (RangeStr != null)
                 {
-                    int count = fs.Read(bs, 0, bs.Length);
-                    if (count == 0)
-                        break;
-                    _context.Response.Write(bs, 0, count);
+                    _context.Response.StatusCode = 206;
+                    var rangeInfo = RangeStr.Replace("bytes=", "").Split('-');
+                    range = Convert.ToInt32(rangeInfo[0]);
+                    if (rangeInfo[1].IsNullOrEmpty())
+                    {
+                        rangeEnd = (int)fs.Length - 1;
+                    }
+                    else
+                    {
+                        rangeEnd = Convert.ToInt32(rangeInfo[1]);
+                    }
                 }
+
+                _context.Response.MakeResponseHeaders(fs.Length, false, range, rangeEnd, lastModifyTime, null, true);
+
+                bs = new byte[4096];
+                if (range >= 0)
+                {
+                    fs.Position = range;
+                    int totalRead = rangeEnd - range + 1;
+                    while (totalRead > 0)
+                    {
+                        int toread = Math.Min(bs.Length, totalRead);
+                        int count = fs.Read(bs, 0, toread);
+                        if (count == 0)
+                            break;
+                        totalRead -= count;
+                        _context.Response.Write(bs, 0, count);
+                    }
+                }
+                else
+                {
+                    while (true)
+                    {
+                        int count = fs.Read(bs, 0, bs.Length);
+                        if (count == 0)
+                            break;
+                        _context.Response.Write(bs, 0, count);
+                    }
+                }
+                fs.Close();
             }
-            fs.Dispose();
                 
 
         }
