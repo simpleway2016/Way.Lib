@@ -566,7 +566,7 @@ namespace Way.Lib
                     }
 
                 }
-                catch (Exception ex)
+                finally
                 {
                     if (wresp != null)
                     {

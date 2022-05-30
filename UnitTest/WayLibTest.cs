@@ -295,6 +295,15 @@ MQIkKCFCKSp92rt1";
         }
 
         [TestMethod]
+        public void uploadFile()
+        {
+            var ret = Way.Lib.HttpClient.UploadFile("http://localhost:5157/upload/Upload", new byte[] { 0x1, 0x2 }, "test/daa.zip", "text.txt", "", new Dictionary<string, string>() {
+    { "name" , "App"},
+    { "writeTimeUtc",DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}
+});
+        }
+
+        [TestMethod]
         public void Huawei()
         {
            var content = HttpClient.PostQueryString("https://login.cloud.huawei.com/oauth2/v2/token", new Dictionary<string, string> {

@@ -16,6 +16,10 @@ namespace Way.Lib.ScriptRemoting.Test
     {
         public static void Main(string[] args)
         {
+            var ret = Way.Lib.HttpClient.UploadFile("http://localhost:5157/upload/Upload", new byte[] { 0x1, 0x2 }, "test/daa.zip", "text.txt", "", new Dictionary<string, string>() {
+    { "name" , "App"},
+    { "writeTimeUtc",DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}
+});
             // Console.OutputEncoding = System.Text.Encoding.Unicode;
             // Console.WriteLine("你好福娃额放假哦");
             // Console.SetCursorPosition(2, 0);
